@@ -1,1 +1,0 @@
-/stuff/install/vmware/vmware $*
