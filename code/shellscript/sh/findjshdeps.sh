@@ -3,6 +3,7 @@
 ## Hence, this script will eventually export the dependency info, so it can be useful on machines without those programs.
 ## (Eg. installj and updatejsh will remove scripts from $JPATH/tools if their dependencies are not met.)
 ## (Or: a . checkdependencies call will be added at the to of each script.)
+## But it is often worth knowing the reverse dependencies too (what depends on me?) eg. to check if functionality change is ok.
 
 ## Note: We only examine .sh scripts for good reason.  TODO: I need to rename those .sh's which do not yet have an extension!
 
