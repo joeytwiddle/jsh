@@ -6,11 +6,11 @@ then
 
 	mplayer "$@"
 
-	del "$LOCKFILE"
+	jdeltmp "$LOCKFILE"
 
 else
 
-	LOCKFILE="/tmp/madplay-$$.lock"
+	LOCKFILE=`jgettmp madplay.lock`
 	touch "$LOCKFILE"
 
 	inscreendo -xterm madplay madplay -playnlock "$LOCKFILE" "$@"
