@@ -18,7 +18,7 @@ STRING="$1"
 while read LINE && [ ! "$LINE" = "$STRING" ]
 do echo "$LINE"
 done |
-if [ $ECHOBEFORE]
+if [ $ECHOBEFORE ]
 then cat
 else cat > /dev/null
 fi
