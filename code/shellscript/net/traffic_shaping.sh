@@ -1,10 +1,15 @@
 DEV=eth1
 
+## Stats can be accessed with: /sbin/tc -s qdisc ls dev eth1
+## In jsh I use: jwatchchanges /sbin/tc -s qdisc ls dev eth1 "|" trimempty
+## I also use: monitoriflow
+
 ## TODO:
 ##   - I don't know if we are affecting ingress at all.  man tc suggests that we can.
 ##   - It'd be good to attempt to limit ingress of irrelevant services, to leave room for important ones.
 ##   - Should we adapt the specified rate of the less important packages so that it makes more space when important streams are wanting more.  ATM they only get what the tbf leaves free, but I want the tbf to shrink to make space.
 ##   - debug stats pfifo handle 12: is showing up bytes (esp. at rule creation) but I don't know where they come from.  I do not believed it is being pointed to anywhere (at least not intentionally!).
+##   - I have separated into a number of different discs/bands? for debugging of what's going where.  But probably we only need four bands total...
 
 function filter_port () {
 	TYPE="$1"
@@ -52,16 +57,19 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 60kbit buffer 1600 peakrate 75kbit mtu 1518 mpu 64 latency 50ms
-			/sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
+			/sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 90kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
 
 			## For small packets:
-			/sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
+			/sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
 
 			## add fifos to the other bands so we can have some stats
 			for SUBDISC in `seq 7 -1 1`
 			do /sbin/tc qdisc add dev "$DEV" parent 1:$SUBDISC handle 1$SUBDISC: pfifo
 			done
-			## Stats can be accessed with: tc -s qdisc ls dev eth1
 
 			## add a filter so DIP's within the house go to prio band #1 instead of being assigned by TOS
 			## thus traffic going to an inhouse location has top priority
@@ -74,13 +82,21 @@ case "$1" in
 			### Critical:
 
 			## Hwi's mail services:
-			filter_port imap sport 143 1
+			filter_port smtp sport 25 1
+			filter_port imap2 sport 143 1
 			filter_port imap3 sport 220 1
 			filter_port imaps sport 993 1
+			filter_port pop2 sport 109 1
+			filter_port pop3 sport 110 1
+			filter_port pop3s sport 995 1
 			## Remote mail:
-			filter_port imap dport 143 3
+			filter_port smtp dport 25 3
+			filter_port imap2 dport 143 3
 			filter_port imap3 dport 220 3
 			filter_port imaps dport 993 3
+			filter_port pop2 dport 109 3
+			filter_port pop3 dport 110 3
+			filter_port pop3s dport 995 3
 
 			## Peercast:
 			filter_port peercast dport 7144 4
@@ -110,6 +126,15 @@ case "$1" in
 			## CVS:
 			filter_port cvs dport 2401 7
 			filter_port cvs sport 2401 7
+
+			## And all the smeggin rest:
+			## I gave up on socks line 217 of /etc/services, resume there?  I don't really know which ones are needed.  rsync might be preferably batched.  irc probably needs higher priority, unless it's being used for d/l'ing!
+			##          ftp telnet dns? gopher finger hostnames rtelnet sftp nntp ntp! snmp irc ldap snpp talk ntalk rsync ftps ftps-data telnets ircs socks
+			for PORT in 21  23     53   70     79     101       107     115  119  123  161  194 389  444  517  518   873   990  989       992     994  1080
+			do
+				filter_port batch$PORT sport $PORT 7
+				filter_port batch$PORT dport $PORT 7
+			done
 
 			## small IP packets go to band #2 (Joey: #3)
 			## by small I mean <128 bytes in the IP datagram, or in other words, the upper 9 bits of the iph.tot_len are 0
