@@ -19,8 +19,7 @@
 ## $JPATH/jsh
 ## Since jsh is not sourced, "$0" should contain said call
 
-ABSOLUTEPATH=`echo "$0" | grep "^/"`
-if test "$ABSOLUTEPATH" = ""; then
+if echo "$0" | grep "^/"; then
 	export JPATH="$PWD/"`dirname "$0"`
 else
 	export JPATH=`dirname "$0"`

@@ -17,6 +17,7 @@ test -x "$BASH_BASH" && source "$BASH_BASH"
 
 ## Try to guess the top directory of j install
 ## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
+## TODO: Must ensure JPATH is full path (jsh may have been called locally)
 if test ! $JPATH; then
 	if test -d "$HOME/j"; then
 		export JPATH=$HOME/j
