@@ -14,8 +14,11 @@ source zshkeys
 
 # source dirhistorysetup.bash
 source dirhistorysetup.zsh
-source hwipromptforbash
-source hwipromptforzsh
+if endswith "$SHELL" "/bash"
+	source hwipromptforbash
+elif endswith "$SHELL" = "/zsh"
+	source hwipromptforzsh
+fi
 source javainit
 source hugsinit
 source lscolsinit

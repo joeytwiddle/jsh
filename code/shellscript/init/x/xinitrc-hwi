@@ -52,7 +52,7 @@ aumix -v 40
 
 kfmclient openProfile startbrowsing &
 
-netscape -messenger &
+# netscape -messenger &
 
 
 
