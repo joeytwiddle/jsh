@@ -1,4 +1,9 @@
-## To find what external (and internal) programs a jsh script depends on, run this.  Without arguments, finds dependencies for all jsh scripts.  You need to do this to find reverse-dependencies (scripts which depend on a particular script).
+## Lists all+ executables and jsh shellscripts which could be called by the target perl/shell/any-script.
+
+## Performs stripping of comments, etc., ATM specifically for shellscripts, to reduce false positives.
+## Could drop words which are obviously directories, eg. "/wget/".
+
+# ## To find what external (and internal) programs a jsh script depends on, run this.  Without arguments, finds dependencies for all jsh scripts.  You need to do this to find reverse-dependencies (scripts which depend on a particular script).
 ## Note: you need to have all the programs on your system (!), otherwise add them to $LIST below.
 ## Hence, this script will eventually export the dependency info, so it can be useful on machines without those programs.
 ## (Eg. installj and updatejsh will remove scripts from $JPATH/tools if their dependencies are not met.)
@@ -18,7 +23,7 @@
 . selfmemo -nodir -d $JPATH/code/shellscript - "$0" "$@"; shift
 # echo "after:  >$0< >$1< >$2< >$3<" >&2
 
-PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin"
+PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin" # /usr/sbin dunno why really should be in!
 
 ## Ever-present programs which we don't want to observe dependencies on:
 ## TODO: turn this into a line-delimited list, and check which packages the progs belong to.

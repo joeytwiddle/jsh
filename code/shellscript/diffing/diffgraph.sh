@@ -1,8 +1,10 @@
 #!/bin/bash
 
-## Exponential by number of arguments!!
 ## Diffs each file in a bunch of files against every other to find which files
 #  are most similar.  Finally produces a graph showing relations between files.
+
+## Exponential by number of arguments!!
+## Considuer using size-difference heuristic to skip diffs which will never beat current best
 
 ## This script also serves to demonstrate setting variables in a loop.
 #  It seems that the pipe in

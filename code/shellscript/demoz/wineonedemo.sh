@@ -1,3 +1,5 @@
+xset fp- unix/:7101 2>/dev/null
+
 curseyellow
 echo
 echo "==== UNZIPPING $1 ===="

@@ -12,7 +12,7 @@ if test "$1" = "-tree"; then
 	shift
 	# pstree -ap | grep -v "\-gvim(" | gvim -R - -c "/$@"
 	# bigwin 'pstree -ap | grep -v "\-vi(" | vi -R - -c '"/$@"
-	bigwin 'env COLUMNS=65535 myps -A --forest | grep -v "vim -R - -c" | vim -R - -c '"/$@"
+	bigwin 'env COLUMNS=65535 myps -A --forest | grep -v "vim -R - -c" | vim -R - -c '"?$@"
 fi
 
 PID=$$

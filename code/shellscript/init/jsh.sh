@@ -28,24 +28,29 @@ case "$1" in
 	;;
 esac
 
-test "$STARTJ_BLOCK" && exit 0
+if [ "$STARTJ_BLOCK" ]
+then
+	echo "jsh: Aborting because STARTJ_BLOCK is set." >&2
+	exit 0
+fi
 
 ## Check that we have a valid JPATH environment variable:
-if test ! -d "$JPATH/tools"  ## the definitive proof no doubt!
+if [ ! -d "$JPATH/tools" ]  ## the definitive proof no doubt!
 then
 	## If not, we examine $0th arg and assume user called $JPATH/jsh
 	if echo "$0" | grep "^/" > /dev/null
 	then export JPATH=`dirname "$0"`        ## absolute
 	else export JPATH="$PWD/"`dirname "$0"` ## relative
 	fi
-	if test ! -d "$JPATH/tools"
+	if [ -d "$JPATH/tools" ]
 	then
 		echo "jsh: Could not find JPATH with subdir tools :-(" >&2
 		exit 1
 	fi
 fi
 
-if test "$*"; then
+if [ "$*" ]
+then
 
 	## Non-interactive shell: start jenv then run command.
 	source "$JPATH"/startj-simple
@@ -57,7 +62,7 @@ else
 	## Interactive shell: start user's favourite shell with startj as rc file.
 	# if test "`hostname`" = hwi && test $USER = joey; then
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
-	if test `which zsh` 2>&1 > /dev/null &&
+	if [ `which zsh` > /dev/null 2>&1 ] &&
 	   grep '^\(source\|\.\) .*/startj$' $HOME/.zshrc > /dev/null 2>&1
 	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
@@ -74,7 +79,8 @@ else
 		# export BASH_ZSH=why_not
 		# zsh $JPATH/startj
 		## But it's no better than:
-		source $JPATH/startj # simple ## we want half-simple, exporting VARS, but skipping aliases which won't get exported
+		# source $JPATH/startj # simple ## we want half-simple, exporting VARS, but skipping aliases which won't get exported
+		[ "$DEBUG" ] && echo "jsh: invoking zsh" >&2
 		zsh
 		## which isn't guaranteed to give aliases, but will work if .zshrc sources startj (for a second time!)
 	else
@@ -82,6 +88,7 @@ else
 		## triggered by:
 		export BASH_BASH=yes_please
 		# echo "calling bash --rcfile $JPATH/startj"
+		[ "$DEBUG" ] && echo "jsh: invoking bash" >&2
 		bash --rcfile "$JPATH/startj"
 	fi
 

@@ -16,10 +16,10 @@
 
 ## Conclusive (?) proof that bash provides nothing to tell us where this script is when it is called with source.
 ## $_ comes out as previous command (the one called before source!)
-# echo "\$\_ = >$_<"
-# echo "\$\0 = >$0<"
-# echo "\$\* = >$*<"
-# echo "\$\FUNCNAME = >$FUNCNAME<"
+# echo "\$\_ = >$_<" >&2
+# echo "\$\0 = >$0<" >&2
+# echo "\$\* = >$*<" >&2
+# echo "\$\FUNCNAME = >$FUNCNAME<" >&2
 # env > /tmp/env.out
 # set > /tmp/set.out
 # chmod a+w /tmp/env.out
@@ -42,11 +42,13 @@
 	# echo "$@"
 # }
 
-if test "$STARTJ_BLOCK"
-then echo "startj blocked ok" >&2
+if [ "$STARTJ_BLOCK" ]
+then echo "startj: Blocked ok (if ~/.bashrc sources startj, then jsh needn't start bash with startj as its rc script /and/ BASH_BASH set!)" >&2
 else
 
-	if test "$BASH_BASH"
+	## Source bash's profile script (if we have replaced it with this script)
+	## But be sure not to end up in an infinite loop!
+	if [ "$BASH_BASH" ]
 	then
 		## Dangerous loop if user runs jsh from their .bashrc, so:
 		export STARTJ_BLOCK=true
@@ -54,18 +56,23 @@ else
 		# ! grep "\<jsh\>" "$BASH_BASH" > /dev/null &&
 		# ! grep "\<startj\>" "$BASH_BASH" > /dev/null &&
 		# . "$BASH_BASH"
-		if test -f $HOME/.bash_profile
-		then . $HOME/.bash_profile
+		if [ -f $HOME/.bash_profile ]
+		then
+			[ "$DEBUG" ] && echo "startj: sourcing $HOME/.bash_profile" >&2
+			. $HOME/.bash_profile
+		fi
 		## Note: this elif (as opposed to fi \n if) assumes .bash_profile always sources .bashrc (like my Debian one)
-		elif test -f $HOME/.bashrc
-		then . $HOME/.bashrc
+		# elif [ -f $HOME/.bashrc ]
+		if [ -f $HOME/.bashrc ]
+		then
+			[ "$DEBUG" ] && echo "startj: sourcing $HOME/.bashrc" >&2
+			. $HOME/.bashrc
 		fi
 		unset STARTJ_BLOCK
 	fi
 
 	lookslikejpath () {
-		# test -f "$1/startj"
-		test -f "$1/startj"
+		[ -f "$1/startj" ]
 	}
 
 	OKTOSTART=true
@@ -73,6 +80,7 @@ else
 	## Try to guess the top directory of j install
 	## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
 	## TODO: Ensure JPATH is an absolute path (jsh may have been called relative to wd)
+	##       Is that a problem?!  A previous initialised jsh should export JPATH, so presumably we can deal with that sensibly enough!
 	if ! lookslikejpath $JPATH
 	then
 		## TODO: Create a list here then loop it.
@@ -88,11 +96,13 @@ else
 			echo "startj: Could not find JPATH. Not starting." >&2
 			OKTOSTART=
 		fi
-		# test "$OKTOSTART" && echo "startj: found JPATH=$JPATH"
+		# test "$OKTOSTART" && echo "startj: found JPATH=$JPATH" >&2
 	fi
 
-	if test $OKTOSTART
+	if [ $OKTOSTART ]
 	then
+
+		[ "$DEBUG" ] && echo "startj: starting jsh system" >&2
 
 		PATHBEFORE="$PATH"
 		export PATH="$JPATH/tools:$HOME/bin:$PATH"

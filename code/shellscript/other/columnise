@@ -1,3 +1,11 @@
+
+## Unsupported as yet, but should prevent alignment of columns beyond # $UPTO
+if [ "$1" = -upto ]
+then
+	UPTO="$2"
+	shift; shift
+fi
+
 # column -t -s '	 ' "$@"
 # -x ?
 # column -t -s ' ' "$@"

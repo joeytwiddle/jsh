@@ -5,6 +5,7 @@
 if test "$1" = "-nobuf"
 then
 
+	shift
 	while read LINE
 	do
 		echo "$LINE"
@@ -13,6 +14,13 @@ then
 	exit
 
 fi
+
+if [ "$1" = -join ]
+then JOIN_LINES=true; shift
+fi
+
+NL="
+"
 
 ## Wait for whole block:
 
@@ -48,10 +56,17 @@ fi
 	# tr "\n" " " |
 	# sed "s|\(\. new paragraph\.\)|\1\\
 # |g" |
-	sed "s/^$/NEW_PARAGRAPH/" |
-	tr "\n" " " |
-	sed "s/NEW_PARAGRAPH/\\
-/g" |
+	if [ "$JOIN_LINES" ]
+	then
+		sed "s/^$/NEW_PARAGRAPH/" |
+		tr "\n" " " |
+		sed "s/NEW_PARAGRAPH/\\
+/g"
+	else
+		# sed 's+^$+.'"$NL"'+ ; s+$+;+'
+		sed 's+.$+\0.+ ; s/^$/ : : '"\\$NL . : . \\$NL"/
+		# cat
+	fi |
 	sed "s/\%/ percent /g" |
 	sed "s/\?/./g" |
 	sed "s/^ /\\
@@ -60,11 +75,16 @@ fi
 	# sed 's|(\([^)]*\))| open-bracket \1 close-bracket |g' |
 	sed 's|(| open-bracket |g' |
 	sed 's|)| close-bracket |g' |
-	sed 's|\"| unmatched-quote |g'
+	sed 's|\"| unmatched-quote |g' |
+
+	sed 's|\<magic\>|majjichk|g' |
+	sed 's|\<of\>|orve|g'
 
 	echo ")"
 
 ) |
+
+pipeboth |
 
 if test "$1" = "-tomp3"
 then

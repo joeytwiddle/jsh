@@ -1,7 +1,7 @@
 # set -e
 # set -x
 
-PRIVFILE="/home/joey/private.tgz.encrypted"
+PRIVFILE="/home/joey/linux/.private/private.tgz.encrypted"
 PRIVFILEDIR="`dirname "$PRIVFILE"`"
 PRIVFILEBASE="`basename "$PRIVFILE" .tgz.encrypted`"
 

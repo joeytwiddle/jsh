@@ -17,5 +17,5 @@ if test ! $JPATH; then
 fi
 export PATH=$JPATH/tools:$PATH
 
-. javainit
-. hugsinit
+# . javainit
+# . hugsinit
