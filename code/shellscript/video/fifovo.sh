@@ -25,10 +25,13 @@
 # jsh-depends-ignore: mplayer before
 # jsh-ext-depends-ignore: from killall size less
 
-## My poor computer needs to encode at low quality, just in case demoscene.tv is playing a very detailed video!
+## These vars are here and not in initialise, because they are needed for --help.
+
 ## Reduce this to encode at better quality, if you have a fast enough machine.
 ## (Check that your encoding_thead is managing one second of stream every second!)
+## My poor computer needs to encode at low quality, just in case demoscene.tv is playing a very detailed video!
 [ "$VQSCALE" ] || export VQSCALE="10"
+
 export FIFOVO_MESSAGE_DIR=/tmp/fifovo
 
 encoding_thread () {
@@ -215,7 +218,7 @@ restreaming_thread () {
 			jshwarn "Waiting for block $CURRENT_STREAMING_BLOCK to finish writing (letting encoder get ahead)..."
 			jshwarn "MPlayer may temporarily block; consider pausing for a moment, or rewind!"
 			jshwarn "(The alternative is to wait longer before initially starting the player.)"
-			verbosely sleep 10
+			verbosely sleep 15
 		done
 
 		jshinfo "Re-streaming to mplayer from block $CURRENT_STREAMING_BLOCK"

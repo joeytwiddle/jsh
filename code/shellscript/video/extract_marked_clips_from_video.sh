@@ -33,6 +33,10 @@ do
 
 	COPY="-oac copy -ovc copy"
 	# COPY="-oac lavc -ovc lavc"
+	# COPY="-oac lavc -lavcopts abitrate=224 -ovc lavc -ofps 8 -vf scale=200:-2"
+	# COPY="-oac lavc -srate 32000 -lavcopts vbitrate=40 -ovc lavc -ofps 8 -vf scale=320:-2"
+	# COPY="-oac lavc -srate 48000 -lavcopts vbitrate=80 -ovc lavc -ofps 10 -vf scale=480:-2"
+	# COPY="-oac lavc -srate 48000 -lavcopts vbitrate=160 -ovc lavc -ofps 20 -vf scale=480:-2"
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=4000"
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## Huge!
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
