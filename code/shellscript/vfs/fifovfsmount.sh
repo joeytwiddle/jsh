@@ -6,14 +6,14 @@
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-cat | more << !
+more << !
 
   fifovfsmount [ -rw ] -ssh <user>@<hostname>:<path> <mountpoint>
 
-	  will create a fifo vfs under <mountpoint> of the remote directory.
+    will create a fifo vfs under <mountpoint> of the remote directory.
     and start a transfer server, with the following limitations:
 
-      You must have ssh authentication setup to easily access the remote account.
+      You must have ssh authentication setup to access the remote account.
 
       Average delay is proportional to the number of files, so do not choose
       too large a tree under <path>.
@@ -24,7 +24,7 @@ cat | more << !
 
       Seeking into files will probably not work.
 
-      It's not a proper filesystem; you can't add or delete files.
+      It's not a proper filesystem; you can't add or delete files or directores.
 
   How does it work?
 
@@ -46,13 +46,14 @@ cat | more << !
     So the client can only read one file at a time.
 
     Aside from this script's obvious inefficiencies, the fifos on my Linux
-    system seem to work slowly themselves (when there are only two cats running).
+    system seem to work slowly themselves (when there are only 2 cats running).
 
-    Obviously trying each file in turn is terrible.  You /can/ run multiple
+    Obviously trying each file in turn is terrible.  You could run staggered
     instances of the server!  I tried to get lsof to tell us which fifo might
     be being accessed at any time, but it refused.
 
 !
+exit 1
 fi
 
 FILELIST=/tmp/fifovfs_filelist.$$.txt
