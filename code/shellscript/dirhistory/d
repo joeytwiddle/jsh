@@ -1,20 +1,25 @@
 # d: change directory and record for b and f shell tools
 
-# Sometimes DESTDIR="$@" breaks under ssh!
+# Sometimes NEWDIR="$@" breaks under ssh!
 
-echo "You requested >$1<"
-
-DESTDIR="$1"
+NEWDIR="$@"
 
 echo "$PWD" >> $HOME/.dirhistory
 
-# echo "Doing cd $DESTDIR"
+# echo "Doing cd $NEWDIR"
 # I think "cd" prevents aliasing
-if [ "$DESTDIR" = "" ]; then
+if [ "$NEWDIR" = "" ]; then
   "cd"
+elif test -d "$NEWDIR"; then
+  "cd" "$NEWDIR"
 else
-  'cd' /
-#  "cd" "$DESTDIR"
+	'ls' -d "$NEWDIR"* |
+		 while read X; do
+			 if test -d "$X"; then
+				 echo -n "$X/ "
+			 fi
+		 done
+	 echo "?"
 fi
 
 # pwd >> $HOME/.dirhistory

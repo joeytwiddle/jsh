@@ -1,6 +1,15 @@
+#!/bin/sh
+
 if test ! -e $*; then
   echo 0
 else
-  awk ' END { print NR } '
+  awk ' END { print NR } ' $*
 fi
-#X=0; cat $* | while read L; do X=$[$X+1]; done; echo "$X"
+
+# LINES=0;
+# cat $* |
+	# while read L; do
+		# LINES=$(($LINES+1));
+		# echo "$LINES"
+	# done;
+# echo "$LINES"

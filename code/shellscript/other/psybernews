@@ -1,1 +1,8 @@
-tin -g psybertech.yi.org
+# tin -g psybertech.yi.org
+# tin -g psybertech.hn.org
+RCFILE="$HOME/.slrnrc"
+ARGS=""
+if test ! -f $RCFILE; then
+	ARGS="--create"
+fi
+slrn --nntp -h psybertech.hn.org -f $RCFILE $ARGS

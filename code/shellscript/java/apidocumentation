@@ -36,11 +36,11 @@ fi
 echo "$POSSIBLE"
 
 # Open the doc files
-for X in $FILES ; do
+for X in $FILES; do
   # echo "$X"
   # bigwin lynx $X
-	echo "Not browsing"
-  # browse $X &
+# 	echo "Not browsing"
+  browse $X
 done
 
 if [ "$FILES" = "" ]; then
