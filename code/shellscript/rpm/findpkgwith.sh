@@ -19,7 +19,7 @@ if test $WEBSRCH; then
 		browse "$PAGE"
 		# newwin lynx "$PAGE"
 	else
-		lynx "$PAGE" &
+		links "$PAGE"
 	fi
 fi
 
