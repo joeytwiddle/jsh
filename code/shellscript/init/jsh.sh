@@ -15,6 +15,12 @@
 ## we ignores user's ~/.bashrc
 ## They might not want to run another shell!
 
+# set -x
+
+# debug () {
+	# test "$JSH_DEBUG" && echo "$*" >&2
+# }
+
 ## Check that we have a valid JPATH environment variable:
 if test ! -d "$JPATH/tools"  ## the definitive proof no doubt!
 then
@@ -24,12 +30,13 @@ then
 	else export JPATH="$PWD/"`dirname "$0"` ## relative
 	fi
 	if test ! -d "$JPATH/tools"
-	then echo "jsh: Could not find JPATH with subdir tools :-("
-	     exit 1
+	then
+		echo "jsh: Could not find JPATH with subdir tools :-(" >&2
+		exit 1
 	fi
 fi
 
-if test ! "$*" = ""; then
+if test "$*"; then
 
 	## Non-interactive shell: start jenv then run command.
 	source "$JPATH"/startj-simple
@@ -40,14 +47,17 @@ else
 
 	## Interactive shell: start user's favourite shell with startj as rc file.
 	# if test `which zsh`; then
-	## TODO: problems with zsh running startj on orion
-	if test `hostname -s` = "hwi"; then
+	if test "`hostname`" = hwi && test $USER = joey; then
+		# export BASH_BASH=$HOME/.zshrc
+		## Neither of these two work, so we actually need to source startj in .zshrc :-(
 		export ENV="$JPATH/startj"
+		# env ENV="$JPATH/startj" zsh
 		zsh
 	else
 		## Bash will not import default .rcs as well startj, so startj has a digital hammer
 		## triggered by:
 		export BASH_BASH=$HOME/.bashrc
+		# echo "calling bash --rcfile $JPATH/startj"
 		bash --rcfile "$JPATH/startj"
 	fi
 
