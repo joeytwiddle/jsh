@@ -10,7 +10,7 @@
 # echo "# Try cvsdiff .* * to see which local files do not exist in repository."
 # echo "# Sorry subdirs' files don't work 'cos status loses path."
 
-PRE=`cat CVS/Root`"/"`cat CVS/Repository`"/"
+PRE=`cat CVS/Root | afterlast ":"`"/"`cat CVS/Repository`"/"
 
 echo "Status of files compared to repository:"
 
@@ -28,7 +28,8 @@ echo
 echo "Local files not in repository:"
 
 find . -type f | grep -v "/CVS/" > /tmp/local.txt
-jfc nolines /tmp/local.txt /tmp/in-repos.txt
+jfc nolines /tmp/local.txt /tmp/in-repos.txt |
+	sed "s+^./+cvs add ./+"
 
 exit 0
 
