@@ -14,7 +14,7 @@ then tr -d '\n'
 else cat
 fi |
 
-unj decodeslashn
+unj unescapenewlines
 
 exit
 

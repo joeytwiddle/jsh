@@ -26,6 +26,3 @@ then
 	# sed "s+\(.\)+\\$NL\1\\$NL+g"
 else cat
 fi
-
-## Doesn't work:
-## Actually maybe it does, but the sed decoder doesn't.
