@@ -4,10 +4,11 @@ if test ! -f "$1"; then
 fi
 
 XDVI=`jwhich xdvi`
-XDVIVERSION=`$XDVI -version | head -1 | after "version " | getint`
+XDVIVERINFO=`$XDVI -version | head -1 | after "version "`
+XDVIVERSION=`echo "$XDVIVERINFO" | getint`
 # echo "version=$XDVIVERSION"
 # if startswith `hostname` qanir; then
-if contains `$XDVI -version | head -1 | after "version "` j; then
+if contains "$XDVIVERINFO" j; then
   # Does work on qanir:
   COM="$XDVI -install -nopostscript -geometry 790x920 -s 7"
 elif test $XDVIVERSION -gt 20; then
