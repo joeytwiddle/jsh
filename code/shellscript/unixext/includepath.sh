@@ -1,3 +1,5 @@
+# Usage: . includepath <root-prefix>
+
 NEWROOT="$1"
 
 PATH="$NEWROOT/bin:$PATH"

@@ -1,7 +1,14 @@
-MBOX="/tmp/mbox"
+## TODO: doesn't recognise:
+## 1:00pm Friday Feb. 15th, 2002. Room 4.01 Merchant Venturers Building
+## (Wed 9th / 8pm / =A33/2
 
+# cp "$HOME/evolution/local/A/subfolders/Calendar/mbox" /tmp/mbox
+MBOX="/tmp/mbox"
+MBOXOUT="$MBOX-done"
+
+## Interface to /usr/bin/mail =)
 maildo() {
-	echo "$1" | mail -N -f "$MBOX"
+	echo "$1" | /usr/bin/mail -N -f "$MBOX"
 }
 
 TOTAL=`
@@ -32,7 +39,7 @@ for X in `seq 1 $TOTAL`; do
 
 		maildo "$X" |
 
-		fromstring "" |
+		fromstring "" | ## drops headers
 
 		perl -n -e "
 			/([0-3]?[0-9])($NUMPOST( of|)|) $MONTHLISTRE( ([0-9]*)|)/ && "'
@@ -56,13 +63,14 @@ for X in `seq 1 $TOTAL`; do
 
 	if test "$FOUND" = ""; then
 		echo "No dates found in $X!"
+		maildo "$X"
 	else
 		echo "Dates found in $X:"
 		echo "$FOUND"
-		## Move out of todo box
-		maildo "s $X $MBOX-done" > /dev/null
-		maildo "d $X" > /dev/null
-		X=`expr "$X" - 1` ## Doesn't work of course!
+		### ## Move out of todo box
+		### maildo "s $X $MBOXOUR" > /dev/null
+		### maildo "d $X" > /dev/null
+		### X=`expr "$X" - 1` ## Doesn't work of course!
 	fi
 
 done
