@@ -28,11 +28,10 @@ find /stuff/mp3s/ -iname "*.mp3" | grep -v /horrid > $JPATH/music/list.m3u
 # echo "PID= $$"
 # requestsudo "source $JPATH/startj
 # myrenice -15 '-E (esd|mpg123|xmms|freeamp|$$)'"
-(
-	sleep 3s
-	TOMOD=`ps -A | grep -E "(esd|mpg123|xmms|freeamp)" | takecols 1`
-	requestsudo "$JPATH/tools/jrun renice -15 -p "`echo $TOMOD`
-) &
+# TOMOD=`ps -A | grep -E "(esd|mpg123|xmms|freeamp)" | takecols 1`
+TOMOD=$$
+MODCOM="renice -15 -p "`echo $TOMOD`
+requestsudo "$MODCOM"
 
 # consolemixer
 

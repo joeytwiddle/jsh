@@ -1,1 +1,3 @@
-dpkg -l "*$**" | grep "^[hi]"
+dpkg -l "*$**" | egrep -v "^?n"
+# dpkg -l "*$**" | grep "^[hi]"
+

@@ -6,5 +6,9 @@
 ) > $JPATH/tmp/sudo.tmp
 echo "$*" > $JPATH/tmp/sudo2.tmp
 chmod u+x $JPATH/tmp/sudo.tmp $JPATH/tmp/sudo2.tmp
-newwin $JPATH/tmp/sudo.tmp
+if xisrunning; then
+	newwin $JPATH/tmp/sudo.tmp
+else
+	$JPATH/tmp/sudo.tmp
+fi
 # 'rm' $JPATH/tmp/sudo.tmp
