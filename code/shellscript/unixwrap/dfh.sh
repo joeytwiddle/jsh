@@ -1,6 +1,12 @@
+WHERE="$1"
 df -h |
-if test "$1" = ""; then
-	cat
+if test ! "$WHERE"
+then cat
 else
-	higrep "$1"
+  realpath "$WHERE"
+  MOUNTPNT="`wheremounted \"$WHERE\"`"
+  higrep "$MOUNTPNT"
+  if test -d "$MOUNTPNT/RECLAIM"
+  then dush "$MOUNTPNT/RECLAIM"
+  fi
 fi

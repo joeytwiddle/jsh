@@ -1,2 +1,7 @@
-CGI=`echo $@ | sed "s/ /+/g"`
-echo "www.google.com/search?q=$CGI"
+if test "$1" = -lucky
+then EXTRA="&btnI=%23"; shift
+fi
+
+CGI=`echo "$@" | sed "s/ /+/g"`
+
+echo "http://www.google.com/search?q=$CGI$EXTRA"

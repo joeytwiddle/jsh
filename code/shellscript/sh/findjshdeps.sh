@@ -11,6 +11,8 @@
 ##       Will it be a code block or will it actually be a call that checks?!
 ## TODO: Somehow we want efficient lookup of which package binaries come from.
 
+PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin"
+
 ## Ever-present programs which we don't want to observe dependencies on:
 ## TODO: turn this into a line-delimited list, and check which packages the progs belong to.
 EVER_PRESENT='^\('
@@ -34,7 +36,7 @@ LIST=`jgettmp possdepslist`
 
 (
 	## TODO: Haven't yet included $HOME/bin (could just use $PATH!)
-	find /bin /usr/bin /sbin -maxdepth 1 -type f
+	find $PATHS_TO_SYSTEM_BINARIES -maxdepth 1 -type f
 	test $BOTHER_JSH && (
 		find $JPATH/tools -maxdepth 1 -type l |
 		( test $DISCRIMINATE_JSH && sed 's+$+ (jsh)+' || cat )

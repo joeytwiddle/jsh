@@ -17,6 +17,9 @@
 ## That way when bits fail, it can be run in partially-interactive mode, so developer can fix the relevant command.
 ## It may be just a special case of the buildcommand function.
 
+## How is hakpak different from any other situation where you need to build up and test a set of commands?
+## Not much, it just suggests approriate things to do!
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then cat << !
 
@@ -27,6 +30,8 @@ Usage:
   hakpak list [<pattern>] : lists all available hakpak manages packages
   ledit hakpak new <name> : interactive create a new hakpak package
   hakpak update <name> : attempt to update to the latest version
+
+  In future hakpak may support building of rpm's .deb's etc.
 
 Note: hakpak is very experimental.
 
@@ -144,10 +149,16 @@ case "$1" in
         do
           case "$URL" in
             G|g)
-              ## todo
+              browse `googlesearch "$NAME"`
             ;;
             L|l)
-              ## todo
+              browse `googlesearch -lucky "$NAME"`
+            ;;
+            F|f)
+              browse `freshmeatsearch "$NAME"`
+            ;;
+            S|s)
+              browse `sourceforgesearch "$NAME"`
             ;;
             http://*)
               break
@@ -164,7 +175,7 @@ case "$1" in
         PAGE=`jgettmp "hakpak-page-$NAME.html"`
         wget "$URL" -O "$PAGE"
 
-        echo "OK so now we need to extract the versions from the page."
+        echo "OK so now we need to extract the different versions available on the page."
 
         ## TODO...
         # EXTRACT_VERSION_LISTINGS=`buildcommand "produce a list of all the zip (or otherwise packaged) files on the page." "cat \'$PAGE\' | extractregex \'\\\"$NAME\.*zip\\\"\'"`

@@ -12,24 +12,27 @@ RESPONSE=`lynx -dump "$WHOLE"`
 
 NO=`echo "$RESPONSE" | head -n 1 | awk '{ printf($1) }'`
 # echo "# Got no: $NO"
-if [ "$NO" = "200" ]; then # Good response
-  echo "$REPONSE"
-  exit 0
-else if [ "$NO" = "211" -o "$NO" = "210" ]; then # Multiple responses
-    RESPONSE=`echo "$RESPONSE" | head -n 2 | tail -n 1`
-    # echo "# Trimmed response to: $RESPONSE"
-    GENRE=`echo "$RESPONSE" | awk '{ printf($1) }'`
-    # echo "# Genre: $GENRE"
-    DISCID=`echo "$RESPONSE" | awk '{ printf($2) }'`
-    # echo "# DiscID: $DISCID"
-    # TITLE=`echo "$RESPONSE" | sed "s/$NO $GENRE $DISCID //"`
-    # echo "# TITLE $TITLE"
-    echo "# CDDB returned multiple responses - getting $GENRE $DISCID"
-    WHOLE="$URL?cmd=cddb+read+$GENRE+$DISCID&$HELLO"
-    lynx -dump "$WHOLE"
-    exit 0
-  fi
+if [ "$NO" = "200" ]
+then # Good response
+  GENRE=`echo "$RESPONSE" | awk '{ printf($2) }'`
+  DISCID=`echo "$RESPONSE" | awk '{ printf($3) }'`
+  echo "# CDDB returned $GENRE $DISCID" >&2
+elif [ "$NO" = "211" -o "$NO" = "210" ]
+then # Multiple responses
+  RESPONSE=`echo "$RESPONSE" | head -n 2 | tail -n 1`
+  # echo "# Trimmed response to: $RESPONSE"
+  GENRE=`echo "$RESPONSE" | awk '{ printf($1) }'`
+  # echo "# Genre: $GENRE"
+  DISCID=`echo "$RESPONSE" | awk '{ printf($2) }'`
+  echo "# CDDB returned multiple responses - getting $GENRE $DISCID" >&2
+else
+  echo "# getcddb scared by error number: $NO" >&2
+  echo "$RESPONSE"
+  exit 1
 fi
 
-echo "# getcddb scared by error number: $NO"
-echo "$RESPONSE"
+# echo "# DiscID: $DISCID"
+# TITLE=`echo "$RESPONSE" | sed "s/$NO $GENRE $DISCID //"`
+# echo "# TITLE $TITLE"
+WHOLE="$URL?cmd=cddb+read+$GENRE+$DISCID&$HELLO"
+lynx -dump "$WHOLE"

@@ -5,7 +5,17 @@ addonetoclasspath() {
 	fi
 }
 
-if test "$*" = ""; then
+## TODO: Consider adding to beginning of classpath (although arguments remain in same order)
+## This make the script more powerful on its own.
+
+if test "$*" = ""
+then
+	echo "Adds each argument to the end of your classpath."
+	exit 1
+fi
+
+if test "$1" = -
+then
 	while read X
 	do
 		addonetoclasspath "$X"
