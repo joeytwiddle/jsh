@@ -29,7 +29,9 @@ do
 	then
 		echo "Only in $DIRA: $FILE"
 	else
-		if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
+		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
+		if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
+		# if [ "`filesize \"$DIRA/$FILE\"`" = "`filesize \"$DIRB/$FILE\"`" ]
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		then noop # echo "Identical: $FILE"
 		# else echo "Differ: $FILE"

@@ -14,8 +14,10 @@ do
 	# cd $JPATH/wallpapers
 	WALLPAPERDIRS="/stuff/wallpapers/" # /stuff/mirrors/" # /www/uploads/"
 
-	FILETYPES="jpg Jpeg jpeg JPG JPEG gif GIF bmp BMP pcx PCX lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
-	SEARCHARGS='-name "*.'`echo "$FILETYPES" | sed 's+ +" -or -name "*.+g'`'"'
+	FILETYPES="jpg jpeg gif bmp pcx lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
+	SEARCHARGS=' -iname "*.'` echo "$FILETYPES" | sed 's+ +" -or -iname "*.+g' `'"'
+	## And if we want to catch them.gz too:
+	SEARCHARGS="$SEARCHARGS"' -or -iname "*.'` echo "$FILETYPES" | sed 's+ +.gz" -or -iname "*.+g' `'.gz"'
 
 	AVOID="thumbnails"
 
@@ -40,9 +42,13 @@ do
 			tr -d '\n' |
 			sed 's+|$++'
 		`
+		if [ "$UNGREPEXPR" = "" ]
+		then UNGREPEXPR="^$"
+		fi
 	fi
 
 	## Ditto optimisation recommended above
+	[ "$DEBUG" ] && debug "Running: find $WALLPAPERDIRS $SEARCHARGS | egrep -v \"$UNGREPEXPR\""
 	FILE=`
 		echo "memo find $WALLPAPERDIRS $SEARCHARGS" | sh |
 		egrep -v "$UNGREPEXPR" |
@@ -53,12 +59,23 @@ do
 		fi |
 		chooserandomline
 	`
+
+	## If it's a zip, unzip it.  TODO: zip it up again after!
+	if endswith "$FILE" "\.gz"
+	then
+		gunzip "$FILE"
+		FILE=`echo "$FILE" | beforelast "\.gz"`
+	fi
+
+	# set -x
 	if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ]
 	then
+		# set +x
 		echo "del \"$FILE\""
 		ln -sf "$FILE" "$JPATH/background1.jpg"
 		xsetbg "$FILE" || REPEAT=true
 	else
+		# set +x
 		echo "Wallpaper $FILE does not exist or is not an image or is too small!"
 		## Dangerous!
 		# randomwallpaper

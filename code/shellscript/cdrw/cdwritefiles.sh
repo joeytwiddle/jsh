@@ -21,10 +21,10 @@ CDRECORD_OPTS="minbuf=90"
 ## -eject
 cursegreen
 echo "nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |"
-echo "nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -"
+echo "nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=31M -v speed=8 -pad $MULTICDRECORD -overburn -"
 cursenorm
       nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |
-      nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -
+      nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=31M -v speed=8 -pad $MULTICDRECORD -overburn -
 
 ## From HOWTO (does multi)
 # mkisofs -R -o cd_image2 -C $NEXT_TRACK -M /dev/scd5 private_collection/
@@ -53,9 +53,13 @@ fi |
 tee $CDLDIR/newcd.qkcksum.sb
 
 centralise "Checksumming cdrw"
+  ## Dunno why but my drive sometimes needs this sorta hard reset!
+  eject /mnt/cdrw
+  uneject /mnt/cdrw
 mount /mnt/cdrw
 cd /mnt/cdrw
 $CDLDIR/findaz.sh | tee $CDLDIR/newcd.qkcksum
+# find . -type f | sed 's+^\./++' | foreachdo cksum | tee $CDLDIR/newcd.cksum
 
 centralise "Comparing cksums"
 jfcsh -bothways $CDLDIR/newcd.qkcksum.sb $CDLDIR/newcd.qkcksum

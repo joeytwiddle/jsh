@@ -6,7 +6,6 @@
 
 ## Uses for revssh...
 ## Well you can run most shell commands (maybe not "cat"!), but ...
-##   BUG TODO many characters in response data are not un-cgi'd properly.
 ##   BUG: fixable? You can't send Ctrl+D or Ctrl+C or Ctrl+Z
 ##   BUG: you can't run standard editors because the remote shell is non-interactive
 ##   BUG: programs won't let u type passwords because the remote shell is non-interactive

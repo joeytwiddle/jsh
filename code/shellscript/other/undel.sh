@@ -1,6 +1,6 @@
 #!/bin/sh
 
-## Should now also consider /RECLAIM directory of partition, to reflect new del.
+## TODO: Should now also consider /RECLAIM directory of partition, to reflect new del.
 
 TRASHDIR="$JPATH/trash"
 if test ! -w "$JPATH/trash"
@@ -29,6 +29,7 @@ else
 				echo "Try one of these ..."
 				find $TRASHDIR -name "$1"
 				echo "Note: there were $# files left to undel."
+				error "(should be warning) undel needs updating to deal with RECLAIM directories; but what you could try is deleting a dummy and watching where it goes, then looking there for the thing you were after."
 				exit 1
 			fi
 		fi
