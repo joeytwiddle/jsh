@@ -81,7 +81,7 @@ xttitle "$SHOWUSER$SHOWHOST$PWD %% "
 ## TODO: unreadable files / locked dirs
 ## TODO: accurate labeling of single/multiple
 ## TODO: "examine" mime-magic (see)
-if [ "$LINUXADVENTURE" ]
+if [ "$LINUX_ADVENTURE" ]
 then
 	echo
 	echo "`cursebold`You find yourself in $PWD"
