@@ -11,8 +11,8 @@ if test "$1" = "-x"; then
 	FORMAT="pid,user,args"
 	shift
 fi
-ps -A -o "$FORMAT" | grep $@ |
+ps -A -o "$FORMAT" | grep "$*" |
 	# Hide this shell (with $@ passed as args!)
 	grep -v "^$$ " |
 	# Hide the first grep (with $@ passed as args!) and yourself
-	grep -v "grep $@"
+	grep -v "grep $*"

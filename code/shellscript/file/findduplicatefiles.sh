@@ -2,8 +2,8 @@ echo "Note: these may be hard links,"
 echo "or possibly (to check) symlinks, so don't delete the target!"
 echo
 
-if test "$1" = "--help" || test "$1" = "-h"; then
-	echo "findduplicatefiles [ -size ] [ -samename ]"
+if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
+	echo "findduplicatefiles [ -size ] [ -samename ] [ <files/directories>... ]"
 	echo "  -size     : use file size instead of checksum (faster)."
 	echo "  -samename : expect identical filenames (faster)."
 	exit 1
@@ -16,12 +16,19 @@ if test "$1" = "-size"; then
 	echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done' >> /dev/stderr
 fi
 
+SAMENAME=
 if test "$1" = "-samename"; then
-
+	SAMENAME=true
 	shift
+fi
+
+WHERE="$*"
+test "$WHERE" || WHERE="."
+
+if test $SAMENAME; then
 
 	# Faster, but assumes filenames are the same
-	find . -type f | sed "s+.*/++" | keepduplicatelines |
+	find $WHERE -type f | sed "s+.*/++" | keepduplicatelines |
 	while read X; do
 		find . -name "$X" | while read Y; do $HASH "$Y"; done
 	done |
@@ -30,7 +37,7 @@ if test "$1" = "-samename"; then
 
 else
 
-	find . -type f -printf "%s %p\n" |
+	find $WHERE -type f -printf "%s %p\n" |
 	keepduplicatelines 1 |
 	afterfirst " " |
 	while read X; do

@@ -1,3 +1,13 @@
+# runhugs $JPATH/code/haskell/tools/treelist.hs "$@"
+TMPFILE=`jgettmp tree`
+cat "$@" > $TMPFILE
+$JPATH/code/haskell/tools/treelist.hs $TMPFILE |
+vi - -R +":so ~/.vim/joey/joeyfolding.vim"
+jdeltmp $TMPFILE
+
+################# OLD STUFF (is it worth anything or should it be chucked?)
+exit 0
+#################
 
 filetodiff () {
 	echo "$1" > /tmp/1

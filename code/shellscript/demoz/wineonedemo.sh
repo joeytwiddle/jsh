@@ -19,26 +19,6 @@ while read X; do
 
 	curseyellow
 	echo
-	echo "==== KILLING WINE ===="
-	echo
-	cursenorm
-
-	(
-	curseblue
-		killall wine.bin
-		killall wineserver
-		rm -rf $HOME/.wine/wineserver-*
-	cursenorm
-	) > /dev/null
-	# Check it has been killed!
-	# sleep 1
-	# findjob wine |
-	# grep -v "$JPATH/tools/" |
-	# grep -v "winealldemoz" |
-	# grep -v "wineonedemo"
-
-	curseyellow
-	echo
 	echo "==== RUNNING $X ===="
 	echo
 	cursenorm
@@ -47,9 +27,36 @@ while read X; do
 	# -dll opengl32=s,n 
 	# --managed 
 	# --desktop 640x480+0+0 
+	# export WINEPREFIX=$HOME/.wine_fake
 	wine "$X"
 
 	sleep 1
+
+	## This is safer but the killall below should be used for certainty!
+	mykill -x "wine $X"
+
+	curseyellow
+	echo
+	echo "==== KILLING WINE ===="
+	echo
+	cursenorm
+
+	curseblue
+	# (
+		# killall wine.bin
+		# killall wineserver
+		rm -rf $HOME/.wine/wineserver-*
+	# ) > /dev/null
+	# Check it has been killed!
+	sleep 1
+	findjob wine |
+	grep -v "$JPATH/tools/" |
+	grep -v "winealldemoz" |
+	grep -v "wineonedemo"
+	cursenorm
+
+	sleep 10
+	waitforkeypress
 
 done
 

@@ -11,7 +11,7 @@ awk '
   {
     printf(int(100001*rand()));
     printf(" ");
-    printf($1);
+    printf("%s",$1);
     printf("\n");
   }
 ' "$@" |
