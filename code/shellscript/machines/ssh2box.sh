@@ -13,7 +13,7 @@ if test `hostname -d` = `echo "$1" | afterfirst "\."`; then
 fi
 
 if xisrunning; then
-	xterm -e $SSHCOM
+	xterm -title "$@" -e $SSHCOM
 else
 	$SSHCOM
 fi
