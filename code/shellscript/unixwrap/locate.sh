@@ -1,1 +1,1 @@
-`jwhich locate` "$1" | highlight "$1"
+`jwhich locate` "$@" | highlight "$1" # really want last argument (or otherwise strip locate options)

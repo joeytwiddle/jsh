@@ -22,14 +22,21 @@ B=`jgettmp "$2"`
 cat "$1" | sort > "$A"
 cat "$2" | sort > "$B"
 
-test $BOTHWAYS && echo "vvvvvvvvvvvvvvvv Lines only in $A vvvvvvvvvvvvvvvv"
+test $BOTHWAYS &&
+	cursecyan &&
+	centralise -pad "v" " " "v" "Lines only in $A" &&
+	cursegrey
 
 diff "$A" "$B" |
 	grep "^< " | sed "s/^< //"
 
 if test $BOTHWAYS; then
 
+	# echo `cursecyan`
+	cursecyan
 	echo "--------------------------------------------------------------------------------"
+	# echo `cursegrey`
+	cursegrey
 
 	diff "$B" "$A" |
 		grep "^< " | sed "s/^< //"
@@ -38,6 +45,8 @@ if test $BOTHWAYS; then
 	# diff "$A" "$B" |
 		# grep "^> " | sed "s/^> //"
 
-	echo "^^^^^^^^^^^^^^^^ Lines only in $B ^^^^^^^^^^^^^^^^"
+	cursecyan
+	centralise -pad "^" " " "^" "Lines only in $B"
+	cursegrey
 
 fi

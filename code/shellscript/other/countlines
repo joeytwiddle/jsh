@@ -1,21 +1,21 @@
 #!/bin/sh
 
-AWKPRINT=""
+docountlines () {
+	awk " END { print $AWKPRINT "' NR } ' "$@"
+}
+
+# If only one file, print just the number of lines counted
+# If more than one file, print filenames alongside counts
+export AWKPRINT=""
 if test "$2" != ""; then
 	AWKPRINT='FILENAME "	"'
 fi
 
-for X
-do
-
-	awk " END { print $AWKPRINT NR } " "$X"
-
-	# LINES=0;
-	# cat "$X" |
-	# while read L; do
-	# LINES=$(($LINES+1));
-	# echo "$LINES"
-	# done;
-	# echo "$LINES"
-
-done
+if test "$1" = ""; then
+	docountlines
+else
+	for X
+	do
+		docountlines "$X"
+	done
+fi

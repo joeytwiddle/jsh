@@ -1,5 +1,13 @@
 if test ! $JPATH; then
-	export JPATH=$HOME/j
+	if test -d "$HOME/j"; then
+		export JPATH=$HOME/j
+	elif test -d `dirname "$0"`; then
+	# This doesn't work, bash cannot see it unless we call startj direct (no source)
+		export JPATH=`dirname "$0"`
+	else
+		echo "startj:  Could not find JPATH.  Not starting."
+		exit 0
+	fi
 fi
 export PATH=$JPATH/tools:$PATH
 
@@ -115,6 +123,8 @@ case $TERM in
 		esac
 	;;
 esac
+
+cd . # to do the initial titling
 
 # . $JPATH/tools/jshellalias
 # . $JPATH/tools/jshellsetup
