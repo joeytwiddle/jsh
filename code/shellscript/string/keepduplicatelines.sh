@@ -15,9 +15,12 @@
 # OK that's all done by keeping the streams and reading them back :-P not scalable
 # Only "bug" now is that clipped columns must be adjacent for final grep to work.
 
-# Isn't the KEEP=`...` broken if sort doesn't keep them numerical according to requested columns?!
+# # Isn't the KEEP=`...` broken if sort doesn't keep them numerical according to requested columns?!
 
 # Gap mode now separates the (adjacent) columns from the other data on the matched lines
+
+# Only problem now is with substring matches.
+# We can't do a ^...$ match because we might be taking columns.
 
 FILE=`jgettmp keepduplicatelines`
 
@@ -54,6 +57,7 @@ cat > "$FILE"
         echo
         # echo "$X ------------------"
         echo "$X"
+		  # Er what is this sed for
         grep "$X" "$FILE" | sed "s+$X++"
       else
         grep "$X" "$FILE" # Yes this one!
