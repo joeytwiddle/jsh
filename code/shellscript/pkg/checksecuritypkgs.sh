@@ -19,45 +19,24 @@
 # 	then
 
 ## List all installed packages:
-apt-list -installed all |
-takecols 1 |
+apt-list -installed all | grep "$*" |
 
-while read PKG
+while read PKG CURRENT_VERSION CURRENT_DISTRO CURRENT_SOURCE
 do
 
-	# apt-list -installed pkg "$PKG"
-
-	## Does it have a security version?
+	## Does it have a security version at same stability, but not same version?
 	if \
 		apt-list from security.debian.org |
-		grep "$PKG" > /dev/null
+		grep "\<$PKG\>" | grep "\<$CURRENT_DISTRO\>" | grep -v "\<$CURRENT_VERSION\>" > /dev/null
 	then
-
-		## Package is installed
-		apt-list -installed pkg "$PKG" |
-		read PKG CURRENT_VERSION CURRENT_DISTRO CURRENT_SOURCE
-
-		if \
-
-			# pkgversions "$PKG" | grep -v "^$" | # pipeboth |
-			# ## Check if installed package is lower (or equal) version to security package.
-			# ## By testing whether Installed ("Selected") pkg comes after security pkg in version list (given that the list prints later versions nearer the top.)
-			# grep -A99 "("security.debian.org_ |
-			# drop 1 | ## To strip security line, in case security is Selected.
-			# grep "\[Selected\]" > /dev/null
-
-			apt-list pkg "$PKG" | grep "\<$CURRENT_DISTRO\>" | grep "\<security.debian.org\>"
-
-		then
-			echo "`cursered;cursebold`$PKG needs updating.`cursenorm`"
-			pkgversions "$PKG"
-			# echo
-		else
-			echo "`cursegreen`$PKG is up-to-date (or later version than security version)`cursenorm`"
-			echo
-			# :
-		fi
-
+		echo
+		echo "$PKG `cursered;cursebold`needs updating.`cursenorm`"
+		pkgversions "$PKG"
+		# echo
+	else
+		echo "$PKG `cursegreen`is up-to-date (or later version than security version)`cursenorm`"
+		# echo
+		:
 	fi
 
 done # |
