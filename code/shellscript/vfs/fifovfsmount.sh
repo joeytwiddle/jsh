@@ -1,4 +1,10 @@
-## Currently read-only, and requires ssh/RSA authentication to remote host, but works!
+## Developers:
+## It should be easy to create your own vfs methods.  All that needs implementing is:
+##   a function to return the list of files in the VFS, as seen by the user,
+##   a function to read a file from within the VFS, to stdout,
+##   a function to write a file into the VFS, from stdin,
+##   a syntax line in the documentation below,
+##   and some argument parsing for the new method.
 
 ## I hoped we might be able to use lsof to infer which fifo the user might be
 ## trying to read from or to.  But unfortunately, entries in my lsof do not appear
@@ -11,7 +17,7 @@ then
 more << !
 
   fifovfsmount [ -rw ] -ssh <user>@<hostname>:<path> <mountpoint>
-  fifovfsmount [ -rw ] -gzip <path_to_zips> <mountpoint>
+  fifovfsmount [ -rw ] -gzip <path_to_tree_of_gzips> <mountpoint>
   fifovfsmount [ -rw ] -zip <zipfile> <mountpoint>
 
     will create a fifo vfs under <mountpoint> of the remote/zipped dir/files,
@@ -29,7 +35,7 @@ more << !
       Seeking into files will probably not work.
 
       It's not a proper filesystem; you can't add or delete files or directores.
-      (Actually you can get away with mkfifo in some modes (to make a new file).)
+      (Actually you can get away with mkfifo in some modes, to make a new file.)
 
   How does it work?
 
