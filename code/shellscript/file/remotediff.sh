@@ -71,15 +71,35 @@ myspecialdiff () {
 
 	vim "$EDITFILE"
 
+		## Nice try but I think it cats everything at the first opportunity :-(
 		cat "$EDITFILE" | grep "^local " |
 		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			echo "$FILENAME"
-		done | sed 's+\./++' > tosend.list
+			echo "$LEN $RDIR/$FILENAME"
+			cat "$LOCAL/$FILENAME"
+		done |
+		ssh $RUSER@$RHOST '
+			while read LEN FILENAME; do
+				printf "Writing $FILENAME..." > &2
+				dd bs=1 count=$LEN > "$FILENAME" 2> /dev/null
+				echo "done." > &2
+			done
+		'
 
 		cat "$EDITFILE" | grep "^remote " |
 		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			echo "$FILENAME"
-		done | sed 's+\./++' > tobring.list
+			echo "$LEN $FILENAME"
+		done |
+		ssh $RUSER@$RHOST '
+			while read LEN FILENAME; do
+				echo "$LEN $FILENAME"
+				cat "'"$RDIR"'/$FILENAME"
+			done
+		' |
+		while read LEN FILENAME; do
+			printf "Reading $FILENAME..." > &2
+			dd bs=1 count=$LEN > "$LOCAL/$FILENAME" 2> /dev/null
+			echo "done." > &2
+		done
 
 	echo "rsync -vv -P -r --exclude=\"*\" --include-from=tosend.list \"$LOCAL/\" \"$RUSER@$RHOST:$RDIR/\""
 	echo "rsync -vv -P -r --exclude=\"*\" --include-from=tobring.list \"$RUSER@$RHOST:$RDIR/\" \"$LOCAL/\""
@@ -103,11 +123,11 @@ myspecialdiff () {
 		# echo "scp -B $TOCOME$LOCAL/"
 }
 
-echo "Getting cksums for remote $RHOST:$RDIR"
-ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
-
 echo "Getting cksums for local $LOCAL"
 cd "$LOCAL" && find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE.longer" && echo "Got local" &
+
+echo "Getting cksums for remote $RHOST:$RDIR"
+ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
 
 wait
 
