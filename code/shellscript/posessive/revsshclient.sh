@@ -4,7 +4,13 @@
 ## Monitor output from remote shell (passed to us by CGI script)
 touch /tmp/revssh-client-output.txt
 chown www-data:www-data /tmp/revssh-client-output.txt
-tail -f /tmp/revssh-client-output.txt &
+# tail -f /tmp/revssh-client-output.txt &
+tail -f /tmp/revssh-client-output.txt |
+while read X; do
+	printf "\033[00;32m"
+	echo "$X"
+	printf "\033[0m"
+done &
 
 ## Pass user input to remote shell (well, leave it in file for CGI script to
 ## pass to remote revsshserver when it makes http request)
@@ -14,3 +20,5 @@ while read LINE; do
 	chown www-data:www-data /tmp/revssh-client-input.txt
 	sleep 1
 done
+
+wait
