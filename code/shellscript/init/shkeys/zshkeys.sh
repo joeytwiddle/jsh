@@ -36,7 +36,6 @@ bindkey "^b" backward-word
 bindkey "^x" kill-word
 bindkey "^r" expand-history
 # and of course the vim paste!
-bindkey "^P" vi-put-after
 bindkey "^p" vi-put-after
 
 # My preferred word movement and deletion.
@@ -48,7 +47,8 @@ bindkey "^f" vi-forward-word
 # Deletion in small chunks
 bindkey "^x" vi-backward-kill-word
 # bindkey "^v" kill-word # no vi-kill-forward! (or was I spelling forword?!)
-bindkey "^v" forward-kill-word
 bindkey -s "^v" "^f^x"
+# bindkey -s "^v" "^f^x"
+# bindkey "^v" "kill-word" # too large
 
 bindkey "^u" vi-undo-change
