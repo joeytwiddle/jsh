@@ -34,8 +34,8 @@ do
 
     ## If deleting to $MOUNTPNT/RECLAIM then move MOUNTPNT from parent dir to delete to (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
     if test "$TRASHDIR" = "$MOUNTPNT/RECLAIM"
-    then DELTOPARENTDIR=`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
-    else DELTOPARENTDIR="$PARENTDIR"
+    then TODELPARENTDIR=`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
+    else TODELPARENTDIR="$PARENTDIR"
     fi
     DEST="$TRASHDIR/$TODELPARENTDIR"
     PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
