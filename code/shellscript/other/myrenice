@@ -1,1 +1,1 @@
-renice $1 -p `findjob $2 | awk ' { printf($3" ") } ' `
+echo renice $1 -p `findjob $2 | awk ' { printf($3" ") } ' `

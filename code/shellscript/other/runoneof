@@ -4,8 +4,8 @@ if test "$1x$2" = "x"; then
   echo '  Will find and run on the first working executable!'
 fi
 
-LIST="$1";
-ARGS="$2";
+LIST=$1;
+ARGS=`echo "$*" | afterfirst "$LIST"`;
 
 # echo "l='$LIST' a='$ARGS'"
 
