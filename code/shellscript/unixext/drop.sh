@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# Skips N lines from the front of a stream.
 # Note: awkdrop is recommended for speed.
 
 N=$1

@@ -1,2 +1,2 @@
 # access time
-ls -aulrF --color $@
+ls -aultrF --color $@
