@@ -1,6 +1,6 @@
 echo `dlocate -du "$@" | grep total | takecols 1`"	$@"
 
-# # My version, much slower but robust to missing files
+# My version, much slower but robust to missing files
 # FILES=`dpkg -L "$*" | while read Y; do
         # if test -f "$Y"; then
                 # echo "$Y"

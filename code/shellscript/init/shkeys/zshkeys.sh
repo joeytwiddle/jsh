@@ -29,13 +29,13 @@ bindkey -a "\E" vi-insert
 bindkey "\E" vi-cmd-mode # escape
 bindkey "^ " vi-cmd-mode
 
-# Vim-like movement if CTRL held
-bindkey "^w" forward-word
-bindkey "^b" backward-word
-bindkey "^x" kill-word
-bindkey "^r" expand-history
-# and of course the vim paste!
-bindkey "^p" vi-put-after
+# # Vim-like movement if CTRL held
+# bindkey "^w" forward-word
+# bindkey "^b" backward-word
+# bindkey "^x" kill-word
+# bindkey "^r" expand-history
+# # and of course the vim paste!
+# bindkey "^p" vi-put-after
 
 # My preferred word movement and deletion.
 # It's purely left-handed and positioned to avoid the reserved keys qeaszc.
@@ -53,16 +53,26 @@ bindkey -s "^v" "^f^x"
 # no good:
 # bindkey -s "^v" "^f^x ^[[D"
 
-# Alternative funky attempt, not diagonalised
-bindkey "^d" vi-backward-word
-bindkey "^f" forward-word
-bindkey "^x" vi-backward-kill-word
-bindkey "^v" kill-word
+# # Alternative funky attempt, not diagonalised
+# bindkey "^d" vi-backward-word
+# bindkey "^f" forward-word
+# bindkey "^x" vi-backward-kill-word
+# bindkey "^v" kill-word
 
 # Alternative funky attempt, diagonalised as it were
-bindkey "^d" backward-word
-bindkey "^f" vi-forward-word
-bindkey "^x" vi-backward-kill-word
-bindkey "^v" kill-word
+# bindkey "^d" backward-word
+# bindkey "^f" vi-forward-word
+# bindkey "^x" vi-backward-kill-word
+# bindkey "^v" kill-word
+
+# The lot, spanning zx sdfg vb
+# bindkey "^d" vi-backward-word
+# bindkey "^f" vi-forward-word
+# bindkey "^s" backward-word
+# bindkey "^g" forward-word
+# bindkey "^x" vi-backward-kill-word
+# bindkey "^v" vi-kill-word
+# bindkey "^z" backward-kill-word
+# bindkey "^b" kill-word
 
 bindkey "^u" vi-undo-change

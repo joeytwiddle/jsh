@@ -16,11 +16,13 @@ MAPGEOM="2000x1000"
 
 if test "$1" = "getclouds"; then
 
+  shift
   # DATE=`date`
   # echo "$DATE: getting clouds" >> $JPATH/logs/jxplanet.txt
 
   rm $CLIMG
-  wget http://xplanet.sourceforge.net/$CLIMG
+  # header supposed to stop corruption but still occurring:
+  wget --header 'Pragma: no-cache' http://xplanet.sourceforge.net/$CLIMG
   touch $CLIMG
 
   # Overlay the clouds onto the planet image.
@@ -30,12 +32,12 @@ if test "$1" = "getclouds"; then
 
 elif test "$1" = "render"; then
 
-  EXTRAARGS="$2 $3 $4 $5 $6 $7 $8 $9"
+  shift
   if test ! "$JXPGEOM"; then
     JXPGEOM="1280x1024"
   fi
 
-  ALLARGS="-label $EXTRAARGS -image day-clouds.jpg -night_image night-clouds.jpg -projection orthographic -blend -geometry $JXPGEOM -radius 45"
+  ALLARGS="-label -fuzz 0 $@ -image day-clouds.jpg -night_image night-clouds.jpg -projection orthographic -blend -geometry $JXPGEOM -radius 45"
 
   nice -n 2 env DISPLAY= xplanet -dayside $ALLARGS -output $JPATH/background1.jpg
   xv -root -rmode 5 -maxpect -quit $JPATH/background1.jpg

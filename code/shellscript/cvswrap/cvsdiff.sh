@@ -10,6 +10,38 @@
 echo "# Try cvsdiff .* * to see which local files do not exist in repository."
 echo "# Sorry subdirs' files don't work 'cos status loses path."
 
+find . -type d | grep -v "/CVS/" | grep -v "/CVS$" |
+	while read DIR; do
+		cvs status "$DIR" 2>/dev/null > /dev/null
+		if test ! "$?" = 0; then
+			echo "# "`curseyellow`"Adding unknown directory $DIR/"`cursegrey`
+			echo "cvs add $DIR"
+		fi
+	done
+
+find . -type f | grep -v "/CVS/" |
+while read FILE; do
+	cvs status "$FILE" 2>/dev/null |
+	grep "Status: " | sed "s/File: \([^ 	]*\).*Status: \(.*\)/\2/" |
+	while read STATUS; do
+		if test ! "$STATUS" = "Up-to-date"; then
+			if test "$STATUS" = "Unknown"; then
+				ACTION="add"
+			else
+				ACTION="commit"
+			fi
+			echo "# "`curseyellow`"$ACTION""ing $FILE because "`cursered`"$STATUS"`cursegrey`
+			echo "cvs add \"$FILE\""
+		fi
+	done
+done
+
+exit 0
+
+curseyellow
+echo "OLDER VERSION **********************"
+cursegrey
+
 SHABLE=
 if test "$1" = "-nocol"; then
 	SHABLE=true

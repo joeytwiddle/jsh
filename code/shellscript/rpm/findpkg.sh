@@ -8,18 +8,16 @@ WEBSRCH=
 while test ! "$2" = ""; do
 	case "$1" in
 		-all)
-			shift
 			SHOWALL=true
 			;;
 		-web)
-			shift
 			WEBSRCH=true
 			;;
 		*)
 			echo "$1: invalid argument"
-			shift
 			exit 1
 	esac
+	shift
 done
 SEARCH="$1"
 
