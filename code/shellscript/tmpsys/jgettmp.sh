@@ -7,7 +7,9 @@
 ## NOTE: You should clear your temp files after use with: jdeltmp $TMPFILE
 ## Automatic clearing has not yet been implemented.
 
+## RECOMMEND:
 ## debianutils >= 1.6 provides tempfile
+## We could use this.
 
 ### TODO: Policy questions:
 ## Should we put a default timeout on each file?
@@ -25,11 +27,12 @@ if test "x$ARGS" = "x"; then
   ARGS="$$"
 fi
 
-# If already exists, choose a larger ver number!
-X=0;
-TMPFILE="$TOPTMP/$ARGS.tmp"
+## Because we don't do any locking, I start tmpfile on $$ to avoid collision.
+X=$$;
+TMPFILE="$TOPTMP/$ARGS.$X.tmp"
 while test -f "$TMPFILE" || test -d "$TMPFILE"; do
   # X=$(($X+1));
+  # If already exists, choose a larger ver number!
   X=`expr "$X" + $$`; ## Much better at avoiding buildups.
   TMPFILE="$TOPTMP/$ARGS.$X.tmp"
 done

@@ -12,13 +12,17 @@ then
 	echo "Using cdrecord options: $MULTICDRECORD"
 fi
 
+CDRECORD_OPTS="minbuf=90"
+
 ## Worked for me as initial write:
 ## Removed inaccurate tsize=359232s (means 700, but did work!), may need to use mkisofs -print-size
 ## -eject
 cursegreen
-echo "nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS | nice --20 cdrecord dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -"
+echo "nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |"
+echo "nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -"
 cursenorm
-      nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS | nice --20 cdrecord dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -
+      nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |
+      nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -
 
 ## From HOWTO (does multi)
 # mkisofs -R -o cd_image2 -C $NEXT_TRACK -M /dev/scd5 private_collection/
@@ -48,7 +52,11 @@ $CDLDIR/findaz.sh | tee $CDLDIR/newcd.qkcksum
 centralise "Comparing cksums"
 jfcsh -bothways $CDLDIR/newcd.qkcksum.sb $CDLDIR/newcd.qkcksum
 
+echo
 if cmp $CDLDIR/newcd.qkcksum.sb $CDLDIR/newcd.qkcksum
-then echo "CD written OK =)"
-else echo "Oh dear: $CDLDIR/newcd.qkcksum.sb and $CDLDIR/newcd.qkcksum should match."
+then echo "CD written OK."
+else
+  echo "Oh dear: $CDLDIR/newcd.qkcksum.sb and $CDLDIR/newcd.qkcksum do not appear to match."
+  echo "CD FAILED WRITE!"
 fi
+echo
