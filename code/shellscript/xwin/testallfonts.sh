@@ -16,11 +16,12 @@ printf "" > fonts-so-far.txt
 printf "" > fonts-reported.txt
 
 (
-	# fslsfonts -server unix/:7100
 	fslsfonts -server localhost:7101
 ) |
 
 grep -v "000000" |
+
+grep "\(win98\|off97\)" |
 
 while read FNT; do
 
