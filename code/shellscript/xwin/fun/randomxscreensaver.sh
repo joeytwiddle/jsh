@@ -21,6 +21,9 @@ NL='
 
 chooserandomxscreensaverhack () {
 	find "$XSCRBINS" -perm +u+x |
+	## This sh call was used so that if chooserandomline is imported as a function, the seed $$ changes.
+	# sh chooserandomline
+	## But it broke if chooserandomline was imported as a function, and now randomorder uses date as seed.
 	chooserandomline
 }
 

@@ -5,11 +5,13 @@
 #   xv -root -rmode 5 -maxpect -quit $JPATH/background.jpg )
 
 # Local images for the planet
-FAVEARTHIMG="/usr/share/celestia/textures/earth.jpg"
+# FAVEARTHIMG="/usr/share/celestia/textures/earth.jpg"
+FAVEARTHIMG="/usr/share/xplanet/images/earth.jpg"
 XPID="/usr/share/xplanet/images/"
+CLOUDS_URL="http://giga.forfun.net/"
 
 # The cloud image to get from the web
-CLIMG="clouds_2000.jpg"
+CLIMG="clouds_2048.jpg"
 MAPGEOM="2000x1000"
 
 mkdir -p "$HOME/.jxplanetimgs"
@@ -25,7 +27,7 @@ case "$1" in
 
 		rm $CLIMG
 		# header supposed to stop corruption but still occurring:
-		wget --header 'Pragma: no-cache' http://xplanet.sourceforge.net/$CLIMG
+		wget --header 'Pragma: no-cache' $CLOUDS_URL/$CLIMG
 		touch $CLIMG
 
 		# Overlay the clouds onto the planet image.
@@ -45,7 +47,7 @@ case "$1" in
 		ALLARGS="-label -fuzz 20 -image day-clouds.jpg -night_image night-clouds.jpg -projection orthographic -blend -geometry $JXPGEOM -radius 45"
 
 		nice -n 2 env DISPLAY= xplanet -dayside $ALLARGS -output $JPATH/background1.jpg
-		xv -root -rmode 5 -maxpect -quit $JPATH/background1.jpg
+		xsetbg $JPATH/background1.jpg
 		sleep 300
 		nice -n 2 env DISPLAY= xplanet -nightside $ALLARGS -output $JPATH/background2.jpg
 		nice -n 2 env DISPLAY= xplanet -moonside $ALLARGS -output $JPATH/background3.jpg
