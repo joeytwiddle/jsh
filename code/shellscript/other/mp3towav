@@ -1,1 +1,9 @@
-mpg123 -b 10000 -s "$1" | sox -t raw -r 44100 -s -w -c2 - "$2"
+if [ ! "$2" ] || [ "$1" = --help ]
+then
+	echo "mp3towav <mp3_file> <new_wav_file>"
+	echo "  You can use - in either parameter for stdin/out."
+	exit 1
+fi
+
+## Added -t wav on output in case user specified output to "-" and hence no type is suggested.
+mpg123 -b 10000 -s "$1" | sox -t raw -r 44100 -s -w -c2 - -t wav "$2"

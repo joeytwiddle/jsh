@@ -1,3 +1,6 @@
+## TODO: migrate to options:
+export MADPLAY_STANDIN_PLAYS_RANDOM_TUNE_TOO=true
+
 if [ "$1" = -playnlock ]
 then
 
@@ -5,6 +8,16 @@ then
 	shift; shift
 
 	mplayer "$@"
+
+	if [ "$MADPLAY_STANDIN_PLAYS_RANDOM_TUNE_TOO" ]
+	then
+		FILE=`cat $JPATH/music/list.m3u | chooserandomline`
+		echo
+		echo "`curseyellow`Also playing: `cursemagenta``cursebold`$FILE`cursenorm`"
+		echo
+		echo "Also playing: $FILE" | txt2speech
+		mplayer "$FILE"
+	fi
 
 	jdeltmp "$LOCKFILE"
 

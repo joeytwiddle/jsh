@@ -5,7 +5,7 @@ if test "$NAME" = "-f"; then
 	FORCE="-f";
 	NAME="$2"
 fi
-LSLINE=`justlinks $JPATH/tools/$NAME`
+LSLINE=`realpath $JPATH/tools/$NAME`
 
 TOOL="$LSLINE";  # `echo "$LSLINE" | after symlnk`
 if test "x$TOOL" = "x"; then TOOL="."; fi

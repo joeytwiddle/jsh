@@ -1,1 +1,2 @@
+## TODO: This doesn't currently, but should, detect whether or not that display is reachable!
 [ ! "$DISPLAY" = "" ]

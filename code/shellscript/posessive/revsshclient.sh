@@ -27,6 +27,8 @@ then
 	echo "To enable one, type one of the following:"
 	echo "$ATTEMPTS" |
 	sed 's+\(.*\)+touch /tmp/revssh-host-\1.on+' |
+	## Move is not possible since .off file was created by the www user (cgi)
+	# sed 's+\(.*\)+mv /tmp/revssh-host-\1.off /tmp/revssh-host-\1.on+' |
 	indent
 fi
 
@@ -46,7 +48,7 @@ then
 	read SESSID
 fi
 
-echo "Waiting to join $SESSID..."
+echo "Joining session $SESSID ..."
 
 tail -f /tmp/revssh-client-output-$SESSID.txt |
 while read X; do

@@ -2,6 +2,7 @@
 ## The fluxbox xinitrc HOWTO mentions:
 # wmaker & wmpid=$!
 ## will store wmaker's new PID nice one!
+## TODO: yeah dd man page mentions it too: use thet method!
 
 BINARY="$1"
 shift

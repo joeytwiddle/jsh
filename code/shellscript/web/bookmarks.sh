@@ -10,21 +10,66 @@ function isurl () {
 		startswith "$URL" "ftp://" ||
 		startswith "$URL" "file://"
 }
-	
+
+
+
+if [ "$1" = -inhtml ]
+then
+
+	shift
+
+	echo "<HTML><HEAD><TITLE>All bookmarks for $USER on $HOSTNAME</TITLE></HEAD><BODY>"
+	bookmarks "$@" |
+	## BUG TODO: problems with bookmarklets which contain space characters
+	##           could seek "[" provided all browsers types output it (they do atm) but then we'd need to strip " " from end of \1
+	sed 's+^\([^ ]*\) \(.*\)+<A href="\1">\2</A><BR>+'
+	echo "</BODY></HTML>"
+
+	exit
+
+fi
+
+
+
+### Konqueror:
+
+INFOLDER="(none)"
 
 KDEBOOKMARKS="$HOME/.kde/share/apps/konqueror/bookmarks.xml"
 if [ -f "$KDEBOOKMARKS" ]
 then
+
 	cat "$KDEBOOKMARKS" |
-	grep "<\(bookmark \|title\)" |
-	sed 's+.*href="++;s+" >++' |
-	sed 's+.*<title>++;s+</title>++' |
-	while read URL
+	grep  "^[ 	]*<\(folder\|bookmark\|title\)[ >]" |
+	sed 's+^[ 	]*<folder.*+FOLDER+' |
+	sed 's+^[ 	]*<bookmark.*href="\([^"]*\)".*+BOOKMARK \1+' |
+	sed 's+^[ 	]*<title>++;s+</title>++' |
+	# pipeboth |
+
+	while read TYPE URL
 	do
-		read TITLE
-		echo "$URL [Konqueror] $TITLE"
+
+		if [ "$TYPE" = FOLDER ]
+		then
+			read INFOLDER
+
+		elif [ "$TYPE" = BOOKMARK ]
+		then
+			read TITLE
+			echo "$URL [Konqueror/$INFOLDER] $TITLE"
+
+		else
+			error echo "Unknown: $TYPE"
+
+		fi
+
 	done
+
 fi
+
+
+
+### Mozilla and friends:
 
 # MOZBOOKMARKS="$HOME/.mozilla/*/*/bookmarks.html"
 # $HOME/.firebird $HOME/.firefox
@@ -39,6 +84,10 @@ do
 	grep "HREF=" |
 	sed 's+.*HREF="\([^"]*\)"[^>]*>\([^<]*\)<.*+\1 ['"$SOURCE"'] \2+'
 done
+
+
+
+### Galeon:
 
 find $HOME/.galeon -name bookmarks.xbel |
 while read GALBOOKMARKS
@@ -65,8 +114,41 @@ do
 			read URL || break
 		done
 		read TITLE
-		echo "$URL [Galeon]/$FOLDER $TITLE"
+		echo "$URL [Galeon/$FOLDER] $TITLE"
 	done
 done
 
-## TODO: Opera!
+
+
+### Opera:
+
+OPERAFILE="$HOME"/.opera/opera6.adr
+if [ -f "$OPERAFILE" ]
+then
+
+	INFOLDER="(none)"
+
+	cat "$OPERAFILE" |
+	while read LINE
+	do
+
+		if [ "$LINE" = "#FOLDER" ]
+		then
+			read IDLINE
+			read LINE
+			INFOLDER=`echo "$LINE" | after "NAME="`
+
+		elif [ "$LINE" = "#URL" ]
+		then
+			read IDLINE
+			read LINE
+			NAME=`echo "$LINE" | after "NAME="`
+			read LINE
+			URL=`echo "$LINE" | after "URL="`
+			echo "$URL [Opera/$INFOLDER] $NAME"
+
+		fi
+	
+	done
+
+fi

@@ -1,2 +1,2 @@
 eject -t $1
-mount /mnt/$1
+mount $1

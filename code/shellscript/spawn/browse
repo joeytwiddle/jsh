@@ -1,8 +1,8 @@
 #!/bin/sh
 ## browse: given a url (or possibly path), opens up the users favourite browser
 
-FAVOURITE_BROWSERS='konqueror galeon skipstone mozilla netscape encompass nautilus amaya lynx links w3m w3c jazilla'
-FAVOURITE_TERM_BROWSERS='lynx links w3c'
+FAVOURITE_BROWSERS='konqueror opera encompass firefox firebird phoenix mozilla galeon skipstone netscape amaya links lynx w3m w3c jazilla'
+FAVOURITE_TERM_BROWSERS='links lynx w3m w3c'
 
 ARGS="$@"
 if test "x$ARGS" = "x"; then

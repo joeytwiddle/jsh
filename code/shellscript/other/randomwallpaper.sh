@@ -60,7 +60,7 @@ do
 		chooserandomline
 	`
 
-	## If it's a zip, unzip it.  TODO: zip it up again after!
+	## If it's a gz, unzip it.  TODO: zip it up again after!
 	if endswith "$FILE" "\.gz"
 	then
 		gunzip "$FILE"
