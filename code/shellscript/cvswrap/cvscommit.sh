@@ -51,6 +51,7 @@ then
 			## TODO: optionally use figlet with font here!
 			(
 			curseblue
+			## TODO: this is the cvs status that blocks, because it's directory is locked.
 			cvs status "$FILE"
 			# cvs diff "$FILE"
 			cvs -q update -p "$FILE" > $TMPFILE 2>/dev/null

@@ -1,8 +1,7 @@
-## If the full contents of the stream is not too large,
-## and the time is spent reading the stream (not creating it),
-## then this cat will show progress.
-## This script assumes dd blocks.
-## Fortunately it does!
+## If the time is spent reading the stream (not creating it), then this cat will show progress.
+## This script assumes dd blocks.  Fortunately it does!
+## This script saves a temporary copy of the stream contents, so don't use it if the stream is very long or unbounded.
+## If the full contents of the stream is too large, this script is not suitable, since it must temporarily save the stream contents in a file.
 
 TMPFILE=`jgettmp catwithprogress`
 
