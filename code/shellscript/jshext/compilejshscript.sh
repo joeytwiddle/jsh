@@ -1,8 +1,24 @@
+## Notes on cleanup:
+##   If a script sources another using . <script>, then this should be at the start of a line, not hidden in a pipe.
+##   If a script exits explicily with "exit", then this should be at the start of a line, not hidden in a pipe.
+
+
+
+## TODO: In non-interactive mode, consider including jsh-depends-tocheck too, since they may well be needed, and it won't hurt (too much) if they aren't.
+
+
+
+## For jshdepwiz:
+# export DEPWIZ_NON_INTERACTIVE=true
+# export DEPWIZ_VIGILANT=true
+# export DEPWIZ_LAZY=true
+
+
+
 MAINSCRIPT="$1"
 
 NL="
 "
-
 
 
 ### Find dependencies:
@@ -31,6 +47,13 @@ do
   do
 
     ## Find dependencies of script:
+    # ADDJSH=`memo -d $JPATH/code/shellscript jshdepwiz getjshdeps "$SCRIPT"`
+    # ADDEXT=`memo -d $JPATH/code/shellscript jshdepwiz getextdeps "$SCRIPT"`
+    # REALSCRIPT=`realpath \`which "$SCRIPT"\``
+    # ADDJSH=`memo -f "$REALSCRIPT" jshdepwiz getjshdeps "$SCRIPT"`
+    # ADDEXT=`memo -f "$REALSCRIPT" jshdepwiz getextdeps "$SCRIPT"`
+    ## Fastest but misses changes:
+    # export DEPWIZ_VIGILANT=
     ADDJSH=`jshdepwiz getjshdeps "$SCRIPT"`
     ADDEXT=`jshdepwiz getextdeps "$SCRIPT"`
 
@@ -92,7 +115,9 @@ echo "`curseyellow`Compiling script...`cursenorm`" >&2
 TMPFILE=`jgettmp compilejshscript $MAINSCRIPT`
 
 ## Cleanup: We cannot .|source functions, but I think they work the same when called directly anyway:
-FINALSED='s+^\([ 	]*\)\. ++'
+FINALSED="s+^\([ 	]*\)\. +\1+"
+## Cleanup: All 'exit's must become 'return's:
+FINALSED="$FINALSED;s+^\([ 	]*\)exit +\1return +"
 
 echo -n "Importing: " >&2
 for DEP in $JSHDEPS

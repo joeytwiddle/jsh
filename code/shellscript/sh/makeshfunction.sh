@@ -4,6 +4,8 @@
 
 # Does not appear to speed up processing.  :-(
 
+# CHECKING=true
+
 if [ ! "$1" ]
 then
 	echo "makeshfunction <shellscript>"
@@ -46,6 +48,14 @@ do
 		echo # Needed for files with no trailing \n
 		echo "}"
 	fi
+
+  if [ "$CHECKING" ]
+  then
+    # cat "$FILE" | grep " \. [a-zA-Z]"
+    ## TODO: I'm not sure this is even working:
+    cat "$FILE" | grep "[^ 	]exit " &&
+    echo "\\\\ calls to exit may cause problems!"
+  fi >&2
 
 	echo
 

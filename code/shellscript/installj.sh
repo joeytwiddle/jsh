@@ -105,7 +105,7 @@ ln -s "$JPATH"/tools/jsh "$JPATH"
 echo "Done installing."
 echo
 
-echo "To start jsh now, run $JPATH/jsh.  Then type jhelp for help."
+echo "To start jsh now, run $JPATH/jsh .  Then type jhelp for help."
 echo "To have jsh start automatically, do one the following:"
 echo "  For bash to ~/.bash_profile add \"/home/joey/j/jsh\""
 echo "  For zsh  to ~/.zshrc        add \". /home/joey/j/startj\""

@@ -16,6 +16,8 @@ cd / # for memoing
 # apt-get-list $SOURCE_LIST > /dev/null
 # apt-get-list -installed $SOURCE_LIST > /dev/null
 
+# echo "$0 $*" >&2
+
 while true
 do
   if [ "$1" = --source-list ]
@@ -43,33 +45,45 @@ DPKGMEMOCOM="$MEMOCOM"
 if [ "$1" = --help ]
 then
 
-  echo
-  echo "Usage:"
-  echo
-  echo "  apt-list-all                    : list all available packages & sources"
-  echo "  apt-list-all sources            : list repositories which we draw from"
-  echo "  apt-list-all status             : list stability status"
-  echo "  apt-list-all in <source/status> : list packages in source or status"
-  echo "  apt-list-all pkg <package>      : list available versions of package"
-  echo "                                   (see also pkgversions)"
-  echo
-  echo "Options:"
-  echo
-  echo "  -installed           : trims results to show installed packages only"
-  # echo "  -refresh  : refresh cache (use when you have new updates)"
-  echo "  --source-list <file> : use alternative sources list"
-  echo
-  echo "Note:"
-  echo
-  echo "  apt-list-all is responsive to the sources in your current sources.list,"
-  echo "  but if like me you apt-get update using a broader sources file, you"
-  echo "  should use the --source-list option."
-  echo
-  exit 1
+cat << ! | more
 
-  ## There is also the command apt-list-all generate, but that is meant for internal use only.
+Usage:
 
-elif [ "$1" = in ]
+  apt-list-all                      : list all available packages & sources
+  apt-list-all sources              : list repositories which we draw from
+  apt-list-all distros              : list stability status
+  apt-list-all from <source/distro> : list packages in source or distro
+  apt-list-all pkg <package>        : list available versions of package
+
+Options:
+
+  -installed           : trims results to show installed packages only
+  --source-list <file> : use alternative sources list
+
+Note:
+
+  apt-list-all is responsive to the sources in your current sources.list,
+  so if like me you apt-get update using a broader sources file, you
+  should use the --source-list option to specify it.
+
+Examples:
+
+  To see a list of available sources:
+     sh apt-list-all.sh sources
+
+  To see a list of packages installed from one source:
+     sh apt_list_all.sh -installed from marillat.free.fr
+
+  To see where different versions of libc6 come from:
+     sh apt_list_all.sh pkg libc6
+
+!
+# echo "  -refresh  : refresh cache (use when you have new updates)"
+# (see also pkgversions) [it uses apt-cache directly, and tells you which one is currently installed. ]
+## There is also the command apt-list-all generate, but that is meant for internal use only.
+exit 1
+
+elif [ "$1" = from ]
 then
 
   SRC="$2"
@@ -90,7 +104,7 @@ then
 
   $MEMOCOM "apt-list-all $INSTALLED $SOURCE_LIST | takecols 4 | drop 1 | removeduplicatelines"
 
-elif [ "$1" = status ]
+elif [ "$1" = distros ]
 then
 
   $MEMOCOM "apt-list-all $INSTALLED $SOURCE_LIST | takecols 3 | drop 1 | removeduplicatelines"
@@ -103,22 +117,22 @@ then
 
     ## Used to build a big regexp for grep but it was too slow.
 
-    LIST=`jgettmp apt-list-all`
+    export LIST=`jgettmp apt-list-all`
     export INSTALLED=
     apt-list-all $SOURCE_LIST | tr -s ' ' > $LIST
 
-    echo "`cursemagenta`apt-list-all: building installed cache subset, you may start getting annoyed now...`cursenorm`" >&2
+    echo "`cursemagenta`apt-list-all: building installed cache subset, u may get annoyed now...`cursenorm`" >&2
 
-    ## TODO: this memo file is too large, and we only need cache the output
+    ## This memo file is too large, and we cache the output anyway!
     # $DPKGMEMOCOM "env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5" |
     env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5 |
     while read PKGNAME PKGVER REST
     do
       [ "$REST" ] && error "Unexpected data: $REST"
-      # echo "seeking $PKGNAME $PKGVER" >&2
+      # echo "seeking >$PKGNAME $PKGVER<" >&2
       cat $LIST | grep "^$PKGNAME \([0-9]*:\|\)$PKGVER" || # && error "Got $PKGNAME $PKGVER ok"
       # grep "^$PKGNAME $PKGVER" $LIST # && ( echo "found $PKGNAME ok" >&2 ) ||
-      error "Could not find $PKGNAME ver $PKGVER (which dpkg reports installed) in cache!"
+      error "Could not find $PKGNAME ver $PKGVER (which dpkg reports installed) in cache $LIST !"
     done |
     column -t
 
@@ -128,12 +142,13 @@ then
 
     echo "`cursemagenta`apt-list-all: building cache from apt-cache$APT_EXTRA_ARGS dump, please be patient...`cursenorm`" >&2
     (
-      echo "PACKAGE	VERSION	STATUS	SOURCE"
-      $MEMOCOM apt-cache $APT_EXTRA_ARGS dump |
+      echo "PACKAGE	VERSION	DISTRO	SOURCE"
+      ## This memo file is too large, and we cache the output anyway!
+      apt-cache $APT_EXTRA_ARGS dump |
       grep "^\(Package\| Version\|[ ]*File\): " |
       # This sed fails for non-traditional archives (lacking dist/ dir):
       sed "s|File: .*/\([^_]*\).*dists_\([^_]*\).*|File: \1 \2|" |
-      sed "s|File: /var/lib/dpkg/status|File: local_only unknown|" |
+      sed "s|File: /var/lib/dpkg/status|File: no_source unknown|" |
       sed "s|File: /var/lib/apt/lists/\(.*\)_\._Packages|File: \1 unknown|" |
       sed "s|File: /var/lib/apt/lists/\(.*\)_Packages|File: \1 unknown|" |
       awk ' {

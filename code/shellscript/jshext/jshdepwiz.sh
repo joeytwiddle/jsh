@@ -17,9 +17,13 @@
 
 ## Note: instead of commenting out, the first two could be sourced and checked at runtime.
 
-# export NON_INTERACTIVE=true
-# export VIGILANT=true
-export LAZY=true
+# export DEPWIZ_NON_INTERACTIVE=true
+# export DEPWIZ_VIGILANT=true
+# export DEPWIZ_LAZY=true
+
+## TODO: error exit if no line, but empty exit if empty line
+
+## TODO: suggest removal of dependencies which findjshdeps no longer sees, but how to pin it in the rare case that it's OK?
 
 function getrealscript () {
   jwhich inj "$1"
@@ -82,15 +86,18 @@ function adddeptoscript () {
       sed "s+^$LINESTART.*+$LINESTART$DEPS$DEP+" |
       cat > $NEWSCRIPT
     fi
-    diff "$REALSCRIPT" "$NEWSCRIPT" >&2
-    echo -n "`curseyellow`jshdepwiz: Are you happy with the suggested changes to the file? [Yn] `cursenorm`" >&2
-    read USER_SAYS
-    case "$USER_SAYS" in
-      y|Y|"")
-        cp "$REALSCRIPT" "$REALSCRIPT.b4jdw" ## backup
-        cp $NEWSCRIPT "$REALSCRIPT"
-      ;;
-    esac
+    if ! cmp "$REALSCRIPT" "$NEWSCRIPT" > /dev/null
+    then
+      diff "$REALSCRIPT" "$NEWSCRIPT" >&2
+      echo -n "`curseyellow`jshdepwiz: Are you happy with the suggested changes to the file? [Yn] `cursenorm`" >&2
+      read USER_SAYS
+      case "$USER_SAYS" in
+        y|Y|"")
+          cp "$REALSCRIPT" "$REALSCRIPT.b4jdw" ## backup
+          cp $NEWSCRIPT "$REALSCRIPT"
+        ;;
+      esac
+    fi
   fi
  }
 
@@ -101,7 +108,7 @@ case "$1" in
     SCRIPT="$2"
 
     JSH_DEPS=`extractdep -err "$SCRIPT" depends`
-    if [ ! "$LAZY" ] && ( [ ! "$?" = 0 ] || [ "$VIGILANT" ] )
+    if [ ! "$DEPWIZ_LAZY" ] && ( [ ! "$?" = 0 ] || [ "$DEPWIZ_VIGILANT" ] )
     then
       jshdepwiz gendeps "$SCRIPT"
       JSH_DEPS=`extractdep "$SCRIPT" depends`
@@ -115,11 +122,11 @@ case "$1" in
     SCRIPT="$2"
 
     EXT_DEPS=`extractdep -err "$SCRIPT" ext-depends`
-    if [ ! "$LAZY" ] && ( [ ! "$?" = 0 ] || [ "$VIGILANT" ] )
-    then
-      jshdepwiz gendeps "$SCRIPT"
-      EXT_DEPS=`extractdep "$SCRIPT" ext-depends`
-    fi
+    # if [ ! "$DEPWIZ_LAZY" ] && ( [ ! "$?" = 0 ] || [ "$DEPWIZ_VIGILANT" ] )
+    # then
+      # jshdepwiz gendeps "$SCRIPT"
+      # EXT_DEPS=`extractdep "$SCRIPT" ext-depends`
+    # fi
     echo "$EXT_DEPS"
 
   ;;
@@ -129,10 +136,11 @@ case "$1" in
     SCRIPT="$2"
     REALSCRIPT=`getrealscript "$SCRIPT"`
 
-    echo "`cursemagenta`jshdepwiz: Generating dependencies for $SCRIPT`cursenorm`" >&2
+    echo "`cursemagenta`jshdepwiz: Checking dependencies for $SCRIPT`cursenorm`" >&2
 
-    FOUND_JSH_DEPS=`memo findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
-    FOUND_EXT_DEPS=`memo findjshdeps "$SCRIPT" | grep -v " (jsh)$" | grep -v "^  " | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
+    # FOUND_JSH_DEPS=`memo -f "$REALSCRIPT" findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
+    FOUND_JSH_DEPS=`findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
+    FOUND_EXT_DEPS=`findjshdeps "$SCRIPT" | grep -v " (jsh)$" | grep -v "^  " | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
     # replacelinestarting "$SCRIPT" "# jsh-depends:" " $JSH_DEPS"
     # replacelinestarting "$SCRIPT" "# jsh-depends:" " $JSH_DEPS"
     KNOWN_JSH_DEPS=`extractdep "$SCRIPT" depends depends-tocheck depends-ignore`
@@ -148,14 +156,16 @@ case "$1" in
     # echo "# jsh-depends-tocheck: + $NEW_JSH_DEPS" >&2
     # echo "# jsh-ext-depends-tocheck: + $NEW_EXT_DEPS" >&2
     # [ "$NEW_JSH_DEPS" = "" ] && echo "`cursemagenta`jshdepwiz: No new dependencies found in $SCRIPT`cursenorm`" >&2
-    if [ "$NEW_JSH_DEPS" = "" ]
-    then
-      adddeptoscript "$REALSCRIPT" depends ""
-    fi
+    # if [ "$NEW_JSH_DEPS" = "" ]
+    # then
+      # adddeptoscript "$REALSCRIPT" depends ""
+    # fi
     for DEP in $NEW_JSH_DEPS
     do
-      if [ ! "$NON_INTERACTIVE" ]
+      if [ "$DEPWIZ_NON_INTERACTIVE" ]
       then
+        echo "New dep $DEP not added to $SCRIPT because DEPWIZ_NON_INTERACTIVE." >&2
+      else
         echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
         higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
         echo -n "`curseyellow`jshdepwiz: Do you think this is a real dependency? [Yn] `cursenorm`" >&2
@@ -169,8 +179,6 @@ case "$1" in
           ;;
         esac
         echo >&2
-      else
-        echo addtoline ... >&2
       fi
     done
     ## TODO: EXT

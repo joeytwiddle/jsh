@@ -21,7 +21,10 @@
 
 ## Choosing suitable top tmp directory has been abstracted out (at cost!) for memoing (boris)
 
-test -w "$TOPTMP" || . jgettmpdir -top || exit 1
+test -w "$TOPTMP" ||
+## Note: need this . at start of line, or makeshfunction will miss it.
+. jgettmpdir -top ||
+exit 1
 
 # Neaten arguments (to string not needings ""s *)
 ARGS=`printf "%s" "$*" | tr -d "\n" | tr " /" "_-"`

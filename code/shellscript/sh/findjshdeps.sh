@@ -15,7 +15,7 @@
 
 ## First experiment selfmemoing =)
 # echo "before: >$0< >$1< >$2< >$3<" >&2
-. selfmemo -nodir - "-d $JPATH/code/shellscript" "$0" "$@"; shift
+. selfmemo -nodir -d $JPATH/code/shellscript - "$0" "$@"; shift
 # echo "after:  >$0< >$1< >$2< >$3<" >&2
 
 PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin"
