@@ -1,10 +1,15 @@
 if test "$1" = "" || test "$1" = --help
 then
-	echo "jwatch [ -quiet ] [ -direct ] ... <command>"
-	echo "  Executes the given command every 5 seconds, and reports changes lines in output."
-	echo "  -quiet: does not do initial verbose command check" ## CONSIDER: alternatively, -verbose could be a recommended ish alias, and quiet the default
+	echo "jwatch [ -oneway ] [ -quiet ] [ -direct ] ... <command>"
+	echo "  Executes the given command every 5 seconds, and reports changed lines."
+	echo "  -oneway: does not show dropped lines (red), only shows new lines (white)."
+	echo "  -quiet:  does not do initial verbose command check" ## CONSIDER: alternatively, -verbose could be a recommended sh alias, and quiet the default
 	echo "  -direct: executes the command inline rather than piping to a new sh"
 	exit 1
+fi
+
+if test "$1" = -oneway
+then ONEWAY="-oneway"; shift
 fi
 
 if test "$1" = -quiet
@@ -48,9 +53,9 @@ then
 	cursenorm
 fi
 
-if test "x$JWATCHCOMPCOM" = "x"; then
-  # JWATCHCOMPCOM="jwatchcomp -oneway"
-  JWATCHCOMPCOM="jwatchcomp"
+if test ! "$JWATCHCOMPCOM";
+then
+  JWATCHCOMPCOM="jwatchcomp $ONEWAY"
 fi
 
 eval "$METHOD" > $NEW
