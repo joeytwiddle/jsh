@@ -13,21 +13,23 @@ if test -f "$FILE"; then
 
 	MAXVOL=`expr 80 "*" 50`
 
-	# Determine desired height
 	LINES=`countlines $FILE`
+	LONGEST=`longestline $FILE`
+	LONGEST=`expr '(' $LONGEST '+' 2 ')' '*' 11 '/' 10`
+
+	# echo "LINES = $LINES"
+	# echo "LONGEST = $LONGEST"
+
+	# Determine desired height
 	ROWS=`expr '(' $LINES '+' 2 ')' '*' 11 '/' 10`;
 	if test $ROWS -gt 50; then
 		ROWS=50
 	fi
 
-	# Determine desired width
-	LONGEST=`longestline $FILE`
-	LONGEST=`expr '(' $LONGEST '+' 2 ')' '*' 11 '/' 10`
-
 	# Determine optimal distribution
-	# Actually choose columns from maxvolume and rows
+	# Actually choose width cols from maxvolume and rows
 	COLS=`expr $MAXVOL / $ROWS`
-	# But expand columns to fill longest line!
+	# but reduce to longest line if above.
 	if test $LONGEST -lt $COLS; then
 		COLS=$LONGEST;
 	fi

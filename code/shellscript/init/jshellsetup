@@ -5,7 +5,8 @@ echo -en "\033[01;37m"
 
 # echo "Running .jshellsetup"
 
-JPATH='/home/joey/j';
+# JPATH='/home/joey/j';
+JPATH="$HOME/j/../j"
 export JPATH
 
 if [ -f ~/.bashrc ]; then

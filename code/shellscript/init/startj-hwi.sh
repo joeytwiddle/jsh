@@ -1,4 +1,5 @@
-export JPATH=/home/joey/j
+# export JPATH=/home/joey/j
+export JPATH=$HOME/j
 export JWHICHOS=linux
 export PATH=.:$JPATH/tools:$PATH
 
