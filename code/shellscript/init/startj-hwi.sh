@@ -52,19 +52,20 @@ case $TERM in
 				swd () {
 					# Dunno why doesn't work:
 					# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
-					echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
+					# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
+					echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
 				}
 				preexec () {
 					export LASTCMD="$*"
-					xttitle "$USER@$HOST:"`swd`"/# $LASTCMD"
+					xttitle "[$USER@$HOST:"`swd`"] # $LASTCMD"
 				}
 				precmd () {
-					xttitle "$USER@$HOST:"`swd`"/%% $LASTCMD"
+					xttitle "($USER@$HOST:"`swd`") %% $LASTCMD"
 				}
 			;;
 			# Doesn't work 'cos tcsh can't exec this far!
 			tcsh)
-				alias postcmd 'xttitle "${USER}@${HOST}:${PWD}% \!#"'
+				alias postcmd 'xttitle "${USER}@${HOST}:${PWD}%% \!#"'
 			;;
 		esac
 	;;
