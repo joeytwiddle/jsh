@@ -1,6 +1,6 @@
-ARGS="$@";
-if test "x$ARGS" = "x"; then
-  # ARGS="file://$JPATH/org/jumpgate.html";
-  ARGS="http://hwi.ath.cx/jumpgate.html";
+if test "$*" = ""
+then
+	unj lynx http://hwi.ath.cx/jumpgate.html
+else
+	unj lynx "$@"
 fi
-`jwhich lynx` $ARGS

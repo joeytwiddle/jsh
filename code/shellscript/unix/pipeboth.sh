@@ -1,3 +1,5 @@
+## Takes input on stdin (stdout), echos output on both stdout and stderr
+
 ## Note: If you want to pipe FROM both stdout and stderr streams of previous call, you should do:
 # ... command ... 2>&1 | pipeboth ... | ...
 ## ie. outputs on both streams, but | only inputs the previous stdout, not stderr

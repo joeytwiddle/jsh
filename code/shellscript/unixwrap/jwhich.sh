@@ -36,7 +36,7 @@ for dir in $PATHS; do
   fi
 done
 
-## These were originally for DEBUG only.
-## But I'm keeping them in, since it's better than no output and it can be turned off.
-test ! $QUIETLY && echo "jwhich_error_could_not_find_$FILE"
+## For debug: returns this command as "found" file (useful cos it's non-empty so it reaches further!)
+# echo "jwhich_error_could_not_find_$FILE"
+
 exit 1          # Not found  :(

@@ -1,2 +1,1 @@
-ARGS="$@";
-xterm -bg black -fg white -title "vi:$ARGS" -e "vi $ARGS"
+xterm -bg black -fg white -title "$* - VI" -e vi "$@"
