@@ -15,7 +15,7 @@ fi
 
 STRING="$1"
 
-while read LINE && [ ! "$LINE" = "$STRING"]
+while read LINE && [ ! "$LINE" = "$STRING" ]
 do echo "$LINE"
 done |
 if [ $ECHOBEFORE]
