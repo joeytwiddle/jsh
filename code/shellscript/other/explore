@@ -1,4 +1,0 @@
-# pwd > ~/tmp.txt
-# forall -stealth in ~/tmp.txt do exploredir %w/$1
-# rm ~/tmp.txt
-exploredir $PWD/$1

@@ -1,1 +1,1 @@
-sshbox pclark@maxx.cs.bris.ac.uk
+ssh2box pclark@maxx.cs.bris.ac.uk

@@ -43,7 +43,7 @@ done
 if [ ! "$QUIETLY" = "quietly" ]; then
   echo "Could not find $FILE in any of"
   echo "$PATHS"
-fi
+fi > /dev/stderr
 exit 1          # Not found  :(
 
 # OLDPATH="$PATH";

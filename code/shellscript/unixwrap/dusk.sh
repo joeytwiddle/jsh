@@ -11,9 +11,9 @@ if test $JM_COLOUR_LS; then
 	LSCOM="ls -artFd --color"
 else
 	# Too slow on Unix ATM (and not enough for it ATM ;):
-	# LSCOM="fakels -d"
-	LSCOM="ls -dF"
-	LSCOM="echo"
+	LSCOM="fakels -d"
+	# LSCOM="ls -dF"
+	# LSCOM="echo"
 fi
 
 (

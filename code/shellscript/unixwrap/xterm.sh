@@ -1,5 +1,5 @@
 ARGS=""
-if test "$JM_UNAME" = "linux"; then
+if test "$JM_UNAME" = "linux" && ! startswith `hostname` "qanir"; then
 	ARGS="-rightbar"
 	FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
 else

@@ -6,7 +6,12 @@ fi
 XDVI=`jwhich xdvi`
 XDVIVERSION=`$XDVI -version | head -1 | after "version " | getint`
 # echo "version=$XDVIVERSION"
-if test $XDVIVERSION -gt 20; then
+# if startswith `hostname` qanir; then
+if contains `$XDVI -version | head -1 | after "version "` j; then
+  # Does work on qanir:
+  COM="$XDVI -install -nopostscript -geometry 790x920 -s 7"
+elif test $XDVIVERSION -gt 20; then
+  # Qanir can't handle the shrinkbuttons (not sure about -s and -nopost...)
   COM="$XDVI -install -nopostscript -geometry 790x920 -s 7 -shrinkbutton1 11 -shrinkbutton2 8 -shrinkbutton3 5 -shrinkbutton4 3"
   # COM="$XDVI -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 6 -shrinkbutton4 3"
   # COM="$XDVI -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 7 -shrinkbutton4 5"
