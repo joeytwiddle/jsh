@@ -26,6 +26,8 @@ alias xterm='xtermbg'
 
 alias man='jman'
 
+alias mykilljob=". 'mykilljob' -jc"
+
 ## I guess we need this as an aliased function because a script would lost the history!
 if test "$SHORTSHELL" = zsh
 then

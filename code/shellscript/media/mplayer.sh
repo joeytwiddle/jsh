@@ -1,4 +1,5 @@
-killall xscreensaver
+killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
+
 # OPTS="-vo x11" # -stop_xscreensaver"
 OPTS="-vo xv" ## allows me to adjust contrast!
 # OPTS="-vo xv"
@@ -8,5 +9,7 @@ then
 	OPTS="-vo sdl"
 fi
 OPTS="$OPTS -ao sdl -zoom -idx"
+
 unj mplayer $OPTS "$@"
-[ "$DISPLAY" = ":0" ] && xscreensaver &
+
+[ "$XSCREENSAVER_WAS_RUNNING" ] && xscreensaver &

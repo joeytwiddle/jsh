@@ -1,7 +1,7 @@
 OUTDIR=/var/www/jsh/
 
-makejshwebdocs $OUTDIR/list
-makejshwebdocs -onlydocumented $OUTDIR/list-documented
+# makejshwebdocs $OUTDIR/list
+# makejshwebdocs -onlydocumented $OUTDIR/list-documented
 
 (
 
@@ -31,9 +31,10 @@ makejshwebdocs -onlydocumented $OUTDIR/list-documented
 			s+$SCRIPT\$+<A href=\"$PAGE\">$SCRIPT</A>+
 		"
 		echo "</TT>"
-		if cvs status `realpath "$SCRIPT"` | grep "Status: Up-to-date" >/dev/null
+		STATUS=`cvs status \`realpath "$SCRIPT"\` | grep "Status: " | after "Status: "`
+		if echo "$STATUS" | grep "Up-to-date" >/dev/null
 		then :
-		else echo "[Not yet in CVS]"
+		else echo "[$STATUS]"
 		fi
 		echo "<BR>"
 	done

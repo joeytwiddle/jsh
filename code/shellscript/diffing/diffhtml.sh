@@ -15,6 +15,7 @@ quicktidy () {
 <+g'
 }
 
+## Used to use w3c tidy, but it didn't really do what was needed (or was it just too slow?)
 cat "$OLDFILE" | quicktidy > "$OLDFILE".tidy
 cat "$NEWFILE" | quicktidy > "$NEWFILE".tidy
 
@@ -22,34 +23,26 @@ cat "$NEWFILE" | quicktidy > "$NEWFILE".tidy
 OLDFILE="$OLDFILE".tidy
 NEWFILE="$NEWFILE".tidy
 
-PATCHFILE=`jgettmp diffhtml_patch`
+PATCHEDFILE=`jgettmp diffhtml_diffed`
+
+cp "$OLDFILE" "$PATCHEDFILE"
 
 diff -U3 "$OLDFILE" "$NEWFILE" |
-sed 's|^+\(.*\)$|+<div class="added">\1</div>|' |
+# sed 's|^+\(.*\)$|+<div class="added">\1</div>|' |
+sed 's|^+\([^+].*\)$|+<div class="added">\1</div>|' |
 ## This one causes problems, eg. with Bristol Indymedia:
 # sed 's|^! \(<span class="date">03/02 11:55.*\)$|! <div class="changed">\1</div>|' |
 # sed 's|^- \(.*\)$|\! <div class="added">\1</div>|' |
+patch "$PATCHEDFILE" |
 
-cat > "$PATCHFILE"
+# ## Nasty nasty hack to drop the error message
+# grep -v "^missing header for unified diff at line" |
+## OK but the error only appears because we change the initial +++ line.
+## Oh dear this one is still needed!
+grep -v "^patching file $PATCHEDFILE$"
 
-# editandwait "$PATCHFILE"
+cat "$PATCHEDFILE" |
+sed "s+<[Hh][Ee][Aa][Dd]>+<head>$ADDTOHEAD+"
 
-cp "$OLDFILE" tmp.html
-
-patch tmp.html < "$PATCHFILE"
-
-cat tmp.html |
-sed "s+<[Hh][Ee][Aa][Dd]>+<head>$ADDTOHEAD+" |
-pipebackto tmp.html
-
-## Doesn't work:  better to just reverse what we've already done
-# diff -U3 "$OLDFILE" "$NEWFILE" |
-# sed 's|^-\(.*\)$|-<div class="removed">\1</div>|' |
-# cat > "$PATCHFILE"
-# cp "$OLDFILE" tmp.old.html
-# patch tmp.old.html < "$PATCHFILE"
-
-jdeltmp \"$PATCHFILE\"
-del "$OLDFILE" "$NEWFILE"
-
-echo "tmp.html created"
+jdeltmp "$PATCHEDFILE"
+# del "$OLDFILE" "$NEWFILE"

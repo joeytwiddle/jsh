@@ -19,10 +19,15 @@
 
 ## Turn off default mode which asks user to resolve new dependencies:
 # export DEPWIZ_NON_INTERACTIVE=true
-## Makes getjshdeps and getextdeps less lazy: they will always check for ext links
-# export DEPWIZ_VIGILANT=true
+## Makes getjshdeps and getextdeps less lazy: they will check for new dependencies even if some have already been defined.
+## You want this on if any of the scripts may have been changed since its dependencies were defined.  (Should really be on by default, but SLOW if user only wants to compile scripts whose dependencies are valid (ie. on up-to-date jsh's, should be able to default off!), and FORCES INTERACTION unless DEPWIZ_NON_INTERACTIVE is set.)  Recommended solution: jsh developers have DEPWIZ_VIGILANT set, but by default it is off.  Or, invert the meaning of the boolean, but have neat checkouts set the var.
+## Vigilance is not needed in order to include dependencies for scripts for which no dependency info has been generated, because vigilance is normal in that for such scripts.
+[ "$DEPWIZ_NOT_VIGILANT" ] || export DEPWIZ_VIGILANT=true
 ## Makes getjshdeps and getextdeps very lazy: they won't check even if the script has no dependency info of that type
 # export DEPWIZ_LAZY=true
+
+## If developer is lazy, and happy to make a decision on every possible dependency, then <Enter> on query means Yes not Skip.
+# export DEFAULT_TO_YES=true
 
 ## TODO: error exit if no line, but empty exit if empty line
 
@@ -35,6 +40,47 @@ function getrealscript () {
 		find "$JPATH/code/shellscript" -name "$1" -or -name "$1".sh | notindir CVS | head -1
 	fi
 }
+
+function gendeps () {
+
+		SCRIPT="$1"
+		REALSCRIPT=`getrealscript "$SCRIPT"`
+
+		echo "`cursemagenta`jshdepwiz: Checking dependencies for $SCRIPT`cursenorm`" >&2
+
+		# FOUND_JSH_DEPS=`memo -f "$REALSCRIPT" findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
+		FOUND_JSH_DEPS=`findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
+		FOUND_EXT_DEPS=`findjshdeps "$SCRIPT" | grep -v " (jsh)$" | grep -v "^  " | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
+		# replacelinestarting "$SCRIPT" "# jsh-depends:" " $JSH_DEPS"
+		# replacelinestarting "$SCRIPT" "# jsh-depends:" " $JSH_DEPS"
+		KNOWN_JSH_DEPS=`extractdep "$SCRIPT" depends depends-tocheck depends-ignore`
+		KNOWN_EXT_DEPS=`extractdep "$SCRIPT" ext-depends ext-depends-tocheck ext-depends-ignore`
+		# CURRENT_TODO_JSH_DEPS=`extractdep "$SCRIPT" depends-tocheck`
+		# CURRENT_TODO_EXT_DEPS=`extractdep "$SCRIPT" ext-depends-tocheck`
+		# [ "$KNOWN_JSH_DEPS" ] && SORTED_JSH_DEPS=`echo "$KNOWN_JSH_DEPS $CURRENT_TODO_JSH_DEPS" | tr ' ' '\n' | list2regexp` || SORTED_JSH_DEPS="^$"
+		[ "$KNOWN_JSH_DEPS" ] && SORTED_JSH_DEPS=`echo "$KNOWN_JSH_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || SORTED_JSH_DEPS="^$"
+		[ "$KNOWN_EXT_DEPS" ] && SORTED_EXT_DEPS=`echo "$KNOWN_EXT_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || SORTED_EXT_DEPS="^$"
+		# echo "Echoing: $FOUND_JSH_DEPS   Ungrepping: $SORTED_JSH_DEPS" >&2
+		NEW_JSH_DEPS=`echo "$FOUND_JSH_DEPS" | tr ' ' '\n' | grep -v "$SORTED_JSH_DEPS"`
+		NEW_EXT_DEPS=`echo "$FOUND_EXT_DEPS" | tr ' ' '\n' | grep -v "$SORTED_EXT_DEPS"`
+		# echo "# jsh-depends-tocheck: + $NEW_JSH_DEPS" >&2
+		# echo "# jsh-ext-depends-tocheck: + $NEW_EXT_DEPS" >&2
+		# [ "$NEW_JSH_DEPS" = "" ] && echo "`cursemagenta`jshdepwiz: No new dependencies found in $SCRIPT`cursenorm`" >&2
+		# if [ "$NEW_JSH_DEPS" = "" ]
+		# then
+			# adddeptoscript "$REALSCRIPT" depends ""
+		# fi
+		addnewdeps depends $NEW_JSH_DEPS
+		addnewdeps ext-depends $NEW_EXT_DEPS
+
+		if [ "$DEPWIZ_NON_INTERACTIVE" ]
+		then
+			## Exit happy if no new deps
+			[ ! "$NEW_JSH_DEPS" ] && [ ! "$NEW_EXT_DEPS" ]
+		fi
+
+}
+
 
 function extractdep () {
 	if [ "$1" = -err ]
@@ -95,7 +141,7 @@ function adddeptoscript () {
 		fi
 		if ! cmp "$REALSCRIPT" "$NEWSCRIPT" > /dev/null
 		then
-			echo "Making changes to: $REALSCRIPT (backup in .b4jdw)" >&2
+			echo "Made changes to: $REALSCRIPT (backup in .b4jdw)" >&2
 			diff "$REALSCRIPT" "$NEWSCRIPT" >&2
 			# echo -n "`curseyellow`jshdepwiz: Are you happy with the suggested changes to the file? [Yn] `cursenorm`" >&2
 			# read USER_SAYS
@@ -116,19 +162,26 @@ function addnewdeps () {
 	do
 		if [ "$DEPWIZ_NON_INTERACTIVE" ]
 		then
-			echo "$DEP? " >&2
 			# echo "New dep $DEP not added to $SCRIPT because DEPWIZ_NON_INTERACTIVE." >&2
+			# echo "$DEP? " >&2
+			# jshwarn "Vigilance suggests '$DEP' may be a dependency, but non-interactiveness means we aren't including it, or are we?  We probably should!"
+			jshwarn "jshdepwiz: Unchecked possible dependency of $SCRIPT on '$DEP'"
 		else
 			echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
 			higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
-			echo -n "`curseyellow`jshdepwiz: Do you think `cursered;cursebold`$DEP`curseyellow` is a real `cursemagenta`jsh-$TYPE`curseyellow`? [Yn] `cursenorm`" >&2
+			[ "$DEFAULT_TO_YES" ] && OPTIONS="Y/n/skip" || OPTIONS="Skip/y/n"
+			echo -n "`curseyellow`jshdepwiz: Do you think `cursered;cursebold`$DEP`curseyellow` is a real `cursemagenta`jsh-$TYPE`curseyellow`? [$OPTIONS] `cursenorm`" >&2
 			read USER_SAYS
+			[ "$DEFAULT_TO_YES" ] && [ "$USER_SAYS" = "" ] && USER_SAYS=y
 			case "$USER_SAYS" in
 				n|N|no|NO|No)
 					adddeptoscript "$REALSCRIPT" "$TYPE"-ignore "$DEP"
 				;;
-				*)
+				y|Y|yes|YES|Yes)
 					adddeptoscript "$REALSCRIPT" "$TYPE" "$DEP"
+				;;
+				*)
+					echo "Not making any changes to $REALSCRIPT" >&2
 				;;
 			esac
 			echo >&2
@@ -143,10 +196,12 @@ case "$1" in
 		SCRIPT="$2"
 
 		JSH_DEPS=`extractdep -err "$SCRIPT" depends`
-		if [ ! "$DEPWIZ_LAZY" ] && ( [ ! "$?" = 0 ] || [ "$DEPWIZ_VIGILANT" ] )
+		## Should we do a vigilant check by re-generating the dependencies?
+		if [ "$DEPWIZ_VIGILANT" ] || ( [ ! "$?" = 0 ] && [ ! "$DEPWIZ_LAZY" ] )
 		then
-			jshdepwiz gendeps "$SCRIPT"
-			JSH_DEPS=`extractdep "$SCRIPT" depends`
+			## If new dependencies were found, but were not checked (non-interactive), then add them anyway:
+			gendeps "$SCRIPT" || ADD="$NEW_JSH_DEPS "
+			JSH_DEPS="$ADD"`extractdep "$SCRIPT" depends`
 		fi
 		echo "$JSH_DEPS"
 
@@ -157,10 +212,11 @@ case "$1" in
 		SCRIPT="$2"
 
 		EXT_DEPS=`extractdep -err "$SCRIPT" ext-depends`
-		if [ ! "$DEPWIZ_LAZY" ] && ( [ ! "$?" = 0 ] || [ "$DEPWIZ_VIGILANT" ] )
+		if [ "$DEPWIZ_VIGILANT" ] || ( [ ! "$?" = 0 ] && [ ! "$DEPWIZ_LAZY" ] )
 		then
-			jshdepwiz gendeps "$SCRIPT"
-			EXT_DEPS=`extractdep "$SCRIPT" ext-depends`
+			## If new dependencies were found, but were not checked (non-interactive), then add them anyway:
+			gendeps "$SCRIPT" || ADD="$NEW_EXT_DEPS "
+			EXT_DEPS="$ADD"`extractdep "$SCRIPT" ext-depends`
 		fi
 		echo "$EXT_DEPS"
 
@@ -168,41 +224,7 @@ case "$1" in
 
 	gendeps)
 
-		SCRIPT="$2"
-		REALSCRIPT=`getrealscript "$SCRIPT"`
-
-		echo "`cursemagenta`jshdepwiz: Checking dependencies for $SCRIPT`cursenorm`" >&2
-
-		# FOUND_JSH_DEPS=`memo -f "$REALSCRIPT" findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
-		FOUND_JSH_DEPS=`findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
-		FOUND_EXT_DEPS=`findjshdeps "$SCRIPT" | grep -v " (jsh)$" | grep -v "^  " | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
-		# replacelinestarting "$SCRIPT" "# jsh-depends:" " $JSH_DEPS"
-		# replacelinestarting "$SCRIPT" "# jsh-depends:" " $JSH_DEPS"
-		KNOWN_JSH_DEPS=`extractdep "$SCRIPT" depends depends-tocheck depends-ignore`
-		KNOWN_EXT_DEPS=`extractdep "$SCRIPT" ext-depends ext-depends-tocheck ext-depends-ignore`
-		# CURRENT_TODO_JSH_DEPS=`extractdep "$SCRIPT" depends-tocheck`
-		# CURRENT_TODO_EXT_DEPS=`extractdep "$SCRIPT" ext-depends-tocheck`
-		# [ "$KNOWN_JSH_DEPS" ] && SORTED_JSH_DEPS=`echo "$KNOWN_JSH_DEPS $CURRENT_TODO_JSH_DEPS" | tr ' ' '\n' | list2regexp` || SORTED_JSH_DEPS="^$"
-		[ "$KNOWN_JSH_DEPS" ] && SORTED_JSH_DEPS=`echo "$KNOWN_JSH_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || SORTED_JSH_DEPS="^$"
-		[ "$KNOWN_EXT_DEPS" ] && SORTED_EXT_DEPS=`echo "$KNOWN_EXT_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || SORTED_EXT_DEPS="^$"
-		# echo "Echoing: $FOUND_JSH_DEPS   Ungrepping: $SORTED_JSH_DEPS" >&2
-		NEW_JSH_DEPS=`echo "$FOUND_JSH_DEPS" | tr ' ' '\n' | grep -v "$SORTED_JSH_DEPS"`
-		NEW_EXT_DEPS=`echo "$FOUND_EXT_DEPS" | tr ' ' '\n' | grep -v "$SORTED_EXT_DEPS"`
-		# echo "# jsh-depends-tocheck: + $NEW_JSH_DEPS" >&2
-		# echo "# jsh-ext-depends-tocheck: + $NEW_EXT_DEPS" >&2
-		# [ "$NEW_JSH_DEPS" = "" ] && echo "`cursemagenta`jshdepwiz: No new dependencies found in $SCRIPT`cursenorm`" >&2
-		# if [ "$NEW_JSH_DEPS" = "" ]
-		# then
-			# adddeptoscript "$REALSCRIPT" depends ""
-		# fi
-		addnewdeps depends $NEW_JSH_DEPS
-		addnewdeps ext-depends $NEW_EXT_DEPS
-
-		if [ "$DEPWIZ_NON_INTERACTIVE" ]
-		then
-			## Exit happy if no new deps
-			[ ! "$NEW_JSH_DEPS" ] && [ ! "$NEW_EXT_DEPS" ]
-		fi
+		gendeps "$2"
 
 	;;
 

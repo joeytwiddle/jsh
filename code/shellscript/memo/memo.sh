@@ -10,6 +10,15 @@ MEMODIR=$TOPTMP/memo
 ## TODO:
 #  - Allow user to specify their own hash (essentially making memo a hashtable)
 
+## TODO: there are two main things slowing it down:
+##       the realpath     : well, move jsh realpath out of the way for a start!
+##                        : also, add the -ignoredir or -nd option, because there's no point doing realpath if cd / has already been done to prevent cwd hashing
+##                        : if realpath slows it down, then just use $PWD, it's not that much of a feature loss (memo's from different $PWD's will fail even if `realpath $PWD` is identical)
+##                          don't do realpath on /!   OK it doesn't do realpath on /, which helped a lot for scripts which call memo after cd /
+##       the checksumming : is there a quicker hash we can use in the shell?
+
+## TODO: refactor the destination nonsense out of memo/rememo to somewhere common!
+
 ## DONE:
 #  - Leaves an empty or partial memo file if interrupted
 #    We should memo to a temp file and move to memo file when complete
@@ -94,7 +103,10 @@ do
   esac
 done
 
-REALPWD=`realpath "$PWD"`
+if [ "$PWD" = / ]
+then REALPWD=/
+else REALPWD=`realpath "$PWD"`
+fi
 CKSUM=`echo "$REALPWD/$*" | md5sum`
 NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
 FILE="$MEMODIR/$NICECOM.memo"

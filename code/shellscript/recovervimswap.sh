@@ -13,7 +13,6 @@ do
   # SWAPS=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" | countlines `
   SWAPFILES=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" `
 	SWAPS=`echo "$SWAPS" | countlines`
-	sleep 4
 
   if test $SWAPS -lt 1
   then echo "No swapfiles found for $X"
