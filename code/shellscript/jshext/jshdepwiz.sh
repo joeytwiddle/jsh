@@ -29,7 +29,11 @@
 ## TODO: suggest removal of dependencies which findjshdeps no longer sees, but how to pin it in the rare case that it's OK?
 
 function getrealscript () {
-	jwhich inj "$1"
+	if ! jwhich inj "$1"
+	then
+		error "Not found inj: $1"
+		find "$JPATH/code/shellscript" -name "$1" -or -name "$1".sh | notindir CVS | head -1
+	fi
 }
 
 function extractdep () {
