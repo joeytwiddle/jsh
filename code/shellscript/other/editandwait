@@ -1,7 +1,7 @@
 if xisrunning; then # test "x$DISPLAY" = "x"; then
-  FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite"
+  FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim"
 else
-  FAVOURITE_EDITORS="vim vi ae pico jpico"
+  FAVOURITE_EDITORS="vim vi ae pico jpico gvim"
 fi
 
 runoneof "$FAVOURITE_EDITORS" "$@"
