@@ -1,5 +1,9 @@
 #!/bin/sh
 
+export JM_DOES_COLOUR=;
+export JM_COLOURLS=;
+export JM_ADVANCED_DU=;
+
 UNAME=`uname`
 
 case "$UNAME" in
@@ -15,7 +19,3 @@ case "$UNAME" in
 		JM_DOES_COLOUR=true
 		;;
 esac
-
-export JM_DOES_COLOUR;
-export JM_COLOURLS;
-export JM_ADVANCED_DU;

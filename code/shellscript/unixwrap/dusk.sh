@@ -6,6 +6,15 @@ else
 	DUCOM="du -sk"
 fi
 
+if test $JM_COLOUR_LS; then
+	LSCOM="ls -artFd --color"
+else
+	# Too slow on Unix ATM (and not enough for it ATM ;):
+	# LSCOM="fakels -d"
+	LSCOM="ls -dF"
+	LSCOM="echo"
+fi
+
 (
 
 	ARGS="$@";
@@ -31,8 +40,8 @@ fi
 
 # Pretty printing
 while read X Y; do
-	echo -e "$X\t"`ls -artFd --color "$Y"`
-	# echo "$X	"`ls -dF "$Y"`
+	printf "$X\t"
+	$LSCOM "$Y"
 done
 
 # files

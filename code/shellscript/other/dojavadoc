@@ -11,6 +11,7 @@ if [ "$FILES" = "" ]; then
 						grep -v "notready/" |
 						grep -v "/old/" |
 						grep -v "/data/" |
+						grep -v "/ver" |
 						grep -v "/.ver"`
 fi
 
@@ -19,5 +20,5 @@ echo "Making javadocs for $NAME in $DIR/javadoc/"
 echo "Making javadocs for $NAME in $DIR/javadoc/" >> $JPATH/logs/cron.txt
 echo "Making javadocs for $NAME in $DIR/javadoc/" >> $LOGFILE
 mkdir -p javadoc
-$JAVADOC -d javadoc $FILES
+$JAVADOC -d javadoc $FILES > /dev/null
 echo "<A HREF=\"$PWD/javadoc/index.html\">$1</A><br>" >> $DOCSUM

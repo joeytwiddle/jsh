@@ -8,7 +8,7 @@ fi
 HTMLFILE="browsepics.html"
 
 # EXTRAS=""
-EXTRAS="-geom 200 -interlace Plane"
+EXTRAS="-geom 100 -interlace Plane"
 
 echo "<html><body>" > $HTMLFILE
 forall $IMAGES do convert $EXTRAS %w browsepics%n.Jpeg : echo "\"<img src=\\\"browsepics%n.Jpeg\\\"><br>%w<br><br>\"" %p%p $HTMLFILE

@@ -10,7 +10,7 @@ LSLINE=`justlinks $JPATH/tools/$NAME`
 TOOL="$LSLINE";  # `echo "$LSLINE" | after symlnk`
 if test "x$TOOL" = "x"; then TOOL="."; fi
 # Can't put quotes around the -f "$TOOL" !
-if test "x$TOOL" != "x" -a -f "$TOOL"; then
+if test "x$TOOL" != "x" -a -f $TOOL; then
 	printf ""
 else
 	TOOL="$PWD/$NAME.sh"
