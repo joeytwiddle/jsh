@@ -37,11 +37,13 @@ else
 fi
 #echo ">$TOOL<"
 
-if xisrunning; then
-  editandwait $FORCE "$TOOL" &
-else
-  editandwait $FORCE "$TOOL"
-fi
+edit $FORCE "$TOOL" # now handles below
+
+#if xisrunning; then
+#  editandwait $FORCE "$TOOL" &
+#else
+#  editandwait $FORCE "$TOOL"
+#fi
 
 
 whereis $1

@@ -1,4 +1,8 @@
-editandwait $* &
+if xisrunning; then
+	editandwait $* &
+else
+	editandwait $*
+fi
 
 # FILE="$1"
 # if [ "$FILE" = "-f" ]; then
