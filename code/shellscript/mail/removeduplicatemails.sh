@@ -1,30 +1,45 @@
 CACHEFILE="$HOME/.msgid_cache.formail"
 
+reusemsg() {
+cat << !
+  Note: Re-use is dangerous, because if yous can the same folder, it will
+    remove all the msgs as already seen!  Similary, never list an mbox twice!
+!
+}
+
 if test "$1" = ""; then
-	echo "removeduplicatemails [ -d | -f ] <mailbox_file>..."
-	echo "  Recommended usage:"
-	echo "    removeduplicatemails -d <folders_which_together_should_contain_no_duplicates>..."
-	echo "  Note: this will delete duplicate mails even if you received them differently,"
-	echo "  because it looks at message ID, as opposed to all the headers."
-	echo "  Therefore in each case below only one email will remain in your mailboxes:"
-	echo "    a mail you sent to a list, received from the list, and CCed to yourself"
-	echo "    a mail sent to two of your lists (one will get removed!)"
-	# echo "  (Warning: message IDs (cksums) are not guaranteed to be unique, so if"
-	# echo "   you are really unlucky it is possible that this will delete non-duplicates!)"
-	exit 0
+cat << !
+removeduplicatemails ( -d | -f ) <mailbox_files>...
+  where -d deletes the old msgID cache, -f forces re-use of the old cache.
+`reusemsg`
+  Recommended usage:
+    removeduplicatemails -d <folders_to_scan>...
+  Note: This will delete any duplicate copies of an email encountered if even
+    if you received them differently, because it looks at message ID (hash of
+    contents), as opposed to all the headers.
+    Therefore in each case below only one email will remain in your mailboxes:
+       a mail you sent to a list, received from the list, and CCed to yourself
+       a mail sent to two of your lists (one will get removed!)
+!
+# (Warning: message IDs (cksums) are not guaranteed to be unique, so if
+# you are really unlucky it is possible that this will delete non-duplicates!)
+exit 0
 fi
 
-if test "$1" = "-f"; then
-	shift
-elif test "$1" = "-d"; then
+if test "$1" = "-d"; then
 	shift
 	rm -f "$CACHEFILE"
+elif test "$1" = "-f"; then
+	shift
 else
-	if test -f "$CACHEFILE"; then
-		echo "Warning, message ID cache file $CACHEFILE already contains a list of previously seen messages."
-		echo "Use -d to delete the cache, or -f to force removal of these messages."
-		exit 1
-	fi
+if test -f "$CACHEFILE"; then
+cat << !
+Warning, message ID cache file $CACHEFILE already contains a list of previously seen messages.
+Use -d to delete the cache, or -f to force removal of these messages.
+!
+reusemsg
+exit 1
+fi
 fi
 
 for X
