@@ -74,9 +74,7 @@ while test "$1"; do
       
       # This used to go wrong if $y is a dir ending in "/"
       while test -e "$DEST/$y"; do
-        if test -n $JECHOENCODE; then
-          echo "$y already in trash - writing $y.new"
-        fi
+        # echo "$y already in trash - writing $y.new"
         # mv "$y" "$y.new"   # required with $y $DEST below:   # now broken - needs $SRCDIR ?
         y="$y.new"
       done
