@@ -12,9 +12,9 @@
 ## Method 1: pre-generate rules for selected commands
 
 ## TODO: obtain more commands from shell-history
-COMMANDS="ls man tar ssh rsync mplayer btdownloadcurses grep diff chmod chown java jar cvs svn ci co"
-if [ "$ZSH_NAME" ]
-then COMMANDS=(ls man tar ssh rsync mplayer btdownloadcurses grep diff chmod chown java jar cvs svn ci co)
+COMMANDS="ls man tar ssh rsync mplayer btdownloadcurses grep diff cvs svn dpkg apt-get rpm"
+if [ "$ZSH_NAME" ] ## TODO: convert the bash string to a zsh array!
+then COMMANDS=(ls man tar ssh rsync mplayer btdownloadcurses grep diff cvs svn dpkg apt-get rpm)
 fi
 
 for COMMAND in $COMMANDS
