@@ -66,16 +66,16 @@ grep "\(^cvs \(status\|server\):\|^File:\)" |
 	sed "
 		s=^cvs \(status\|server\):[	 ]*Examining \(.*\)=PARENT \2=
 		s=^File:[	 ]*\(no file\|\)\(.*\)[ 	]*Status:[	 ]*\(.*\)=\2 \3=
-	" |
+	" | # pipeboth |
 	while read FNAME STATUS
 	do
-		if test "$FNAME" = PARENT
-		then
-			# echo "A `cursemagenta`$FNAME $STATUS`cursenorm`"
+		while [ "$FNAME" = PARENT ]
+		do
+			# [ "$DEBUG" ] && debug "A `cursemagenta`$FNAME $STATUS`cursenorm`"
 			PARENT="$STATUS"
 			read FNAME STATUS
-		fi
-		# echo "B `curseblue`$FNAME $STATUS`cursenorm`"
+		done
+		# [ "$DEBUG" ] && debug "B `curseblue`$FNAME $STATUS`cursenorm`"
 		FILE="$PARENT/$FNAME"
 		echo "$FILE	# "`curseyellow`"$STATUS"`cursenorm`
 		echo "$FILE" | sed 's+^\.\/++' >> $REPOSLIST
@@ -91,13 +91,13 @@ grep "\(^cvs \(status\|server\):\|^File:\)" |
 	else cat
 	fi
 
-if test $CHECKALL
+if [ $CHECKALL ]
 then
 
 	# jfc nolines $LOCALLIST $REPOSLIST |
 		# sed "s+^./+cvs add ./+"
 
-	if test "$1" = ""
+	if [ ! "$1" ]
 	then
 		find . -type f
 	else
@@ -118,9 +118,8 @@ then
 	sed 's+^\.\/++' |
 	while read D
 	do
-		if test ! -d "$D/CVS"
-		then
-			echo "cvs add $D"
+		if [ ! -d "$D/CVS" ]
+		then echo "cvs add $D"
 		fi
 	done
 

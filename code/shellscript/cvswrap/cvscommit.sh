@@ -61,7 +61,7 @@ then
 				;;
 				*)
 					echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
-					echo "`cursecyan`cvscommit -m \"$INPUT\" \"$FILE\"`cursenorm`"
+					echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 					cvscommit -m "$INPUT" "$FILE" ||
 					error "cvscommit failed!"
 					break

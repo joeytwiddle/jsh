@@ -1,3 +1,5 @@
+# jsh-depends: playmp3andwait takecols chooserandomline filename
+# jsh-depends-ignore: music del
 TRACK=`cat $JPATH/music/list.m3u | chooserandomline`
 # filename "$TRACK"
 SIZE=`du -sh "$TRACK" | takecols 1`

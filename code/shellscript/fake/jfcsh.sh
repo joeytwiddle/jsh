@@ -5,15 +5,20 @@
 
 case "$1" in
 	""|-h|--help)
+		echo
 		echo "jfcsh [ -bothways | -common ] [ -sorted ] <file_A> <file_B>"
+		echo
 		echo "  will show lines in file_A which are not in file_B."
+		echo
 		echo "    -bothways: also shows lines in file_B not in file_A, verbosely for user"
 		echo "    -common: instead, show lines which are in both file_A and file_B"
 		echo "    -sorted: for efficiency, jfcsh may assume files are already sorted"
+		echo
 		echo "  NOTE: Syntax may change as jfcsh becomes a standin for binary jfc."
 		echo "        But preferably a bridge-wrapper will be used, to retain syntax."
 		echo "        The main difference is the verbose output of jfc."
 		echo "        Is it ever useful for jfc to stand in for jfcsh (now it uses diff is it always fast)?"
+		echo
 		exit 1
 	;;
 esac

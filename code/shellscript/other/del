@@ -12,8 +12,8 @@ if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo 'del [-cvs] <file>...'
 	echo '  will move each <file> to the first writeable directory out of:'
-	echo '    /RECLAIM on same partition, $TRASHDIR, $JPATH/trash, $HOME/.trash,'
-	echo '    or /tmp/$USER-trash'
+	echo '    /RECLAIM on same partition (see reclaimspace), $TRASHDIR, $JPATH/trash,'
+	echo '    $HOME/.trash, or /tmp/$USER-trash'
 	echo '  The option -cvs also runs "cvs remove" on each file.'
 	exit 1
 fi
@@ -55,7 +55,7 @@ do
 
 		## If deleting to $MOUNTPNT/RECLAIM then move MOUNTPNT from parent dir to delete to (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
 		if [ "$TRASHDIR" = "$MOUNTPNT/RECLAIM" ]
-		then TODELPARENTDIR=`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
+		then TODELPARENTDIR=/`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
 		else TODELPARENTDIR="$PARENTDIR"
 		fi
 		DEST="$TRASHDIR/$TODELPARENTDIR"

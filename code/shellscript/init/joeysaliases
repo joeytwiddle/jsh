@@ -142,5 +142,6 @@ alias dusk="rememo dusk"
 
 # alias wget='screen wget'
 
+## Shellscripts in their own right, but oneliners: (could make functions)
 
-
+alias quiet='fadevolume 0'

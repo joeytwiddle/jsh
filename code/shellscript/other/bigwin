@@ -1,6 +1,10 @@
-# jsh-depends-ignore: xterm
+# jsh-depends-ignore: xterm jsh
 # jsh-depends: waitforkeypress xisrunning jdeltmp jgettmp
 ## Based on xtermsh
+
+if [ "$1" = -fg ]
+then FOREGROUND=true; shift
+fi
 
 COM="$@"
 
@@ -12,6 +16,8 @@ TMPSH=`jgettmp "bigwin: $*"`
 	echo "$COM"
 	if xisrunning
 	then
+		echo '## Should only do this if time taken to exec $COM was brief.'
+		echo '## No. That wont work if user presses <space> on the last page in less.'
 		echo 'echo "Press <Enter> key to quit"'
 		echo 'waitforkeypress'
 	fi
@@ -24,7 +30,10 @@ chmod a+x "$TMPSH"
 if xisrunning
 then
 	# konsole -vt_sz 120x60 -nowelcome -caption "$1" -e sh "$TMPSH" &
-	xterm -title "bigwin: $*" -bg "#600000" -geometry 120x50 -e "$TMPSH" &
+	if [ "$FOREGROUND" ]
+	then xterm -title "bigwin: $*" -bg "#600000" -geometry 120x50 -e "$TMPSH"
+	else xterm -title "bigwin: $*" -bg "#600000" -geometry 120x50 -e "$TMPSH" &
+	fi
 else
 	"$TMPSH"
 fi

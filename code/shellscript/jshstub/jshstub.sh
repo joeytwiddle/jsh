@@ -103,7 +103,7 @@ then
 
 		touch "$LOCKFILE"
 
-		test "$JSH_STUB_NET_SOURCE" || export JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshstubtools/"
+		test "$JSH_STUB_NET_SOURCE" || export JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshtools/"
 
 		if which wget 2>&1 > /dev/null
 		then WGETCOM="wget -O -"
@@ -121,7 +121,7 @@ then
 			echo "[ jshstub: \\ Downloaded $SCRIPTNAME ok ]" >&2
 			chmod a+x "$SCRIPTFILE"
 		else
-			echo "[ jshstub: ! Error: failed to retrieve http://hwi.ath.cx/jshstubtools/$SCRIPTNAME ]" >&2
+			echo "[ jshstub: ! Error: failed to retrieve http://hwi.ath.cx/jshtools/$SCRIPTNAME ]" >&2
 			echo "[ jshstub: ! Replacing removed symlink, and stopping with false. ]" >&2
 			rm -f "$SCRIPTFILE"
 			ln -s "$JPATH/tools/jshstub" "$SCRIPTFILE"

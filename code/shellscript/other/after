@@ -1,6 +1,8 @@
-# Works on a line-by-line basis
-# If that's not what you want try afterfirst and afterlast
-sed -e "s%.*$1%%"
+## Deprecated?
+
+afterfirst "$@"
+
+# sed -e "s%.*$1%%"
 
 # With sed:
 # .*s mean I can get before first and after last

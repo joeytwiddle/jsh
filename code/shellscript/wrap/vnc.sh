@@ -19,9 +19,14 @@ ADDRESS=`
 
 sleep 5
 if xisrunning
-# then xvncviewer "$ADDRESS"
 then
+	echo "Running X vnc viewer"
+	xvncviewer "$ADDRESS"
+then
+	echo "Running java vnc viewer"
 	cd /stuff/joey/src/deb/vnc-java-3.3.3r2/
 	appletviewer page.html
-else svncviewer "$ADDRESS"
+else
+	echo "Running console vnc viewer"
+	svncviewer "$ADDRESS"
 fi

@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: afterfirstall
 
 # #!/usr/local/bin/zsh
 # /usr/bin/nawk '

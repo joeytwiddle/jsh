@@ -1,5 +1,11 @@
 #!/bin/sh
 
+## When compiljsh puts a wrapper sh in a function, it may call jwhich on itself.
+## To avoid inf loop jwhich should return full path or nothing, never just the
+## name of the script.
+
+## bash has 'type'.  How is this different from 'where' or 'which'?
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
     echo "jwhich [ inj ] <file> [ quietly ]"

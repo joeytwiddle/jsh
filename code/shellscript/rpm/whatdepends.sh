@@ -7,7 +7,7 @@ takecols 1 |
 
 ## Formatted for easy insertion
 ## The current context is for downgrading to stable:
-sed 's+$+/stable+' |
+# sed 's+$+/unstable+' |
 tr '\n' ' '
 
 echo

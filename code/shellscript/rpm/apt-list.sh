@@ -69,13 +69,13 @@ Note:
 Examples:
 
   To see a list of available sources:
-     sh apt-list-all.sh sources
+     apt-list-all sources
 
   To see a list of packages installed from one source:
-     sh apt_list_all.sh -installed from marillat.free.fr
+     apt_list_all -installed from marillat.free.fr
 
   To see where different versions of libc6 come from:
-     sh apt_list_all.sh pkg libc6
+     apt_list_all pkg libc6
 
 !
 # echo "  -refresh  : refresh cache (use when you have new updates)"

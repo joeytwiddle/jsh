@@ -1,6 +1,0 @@
-cp $1.c $1.bak
-(
-echo "// "`date`
-cat /mnt/filfirin/myblurb $JPATH/c/new.c
-) > $1.c
-e $1

@@ -1,31 +1,36 @@
-# jsh-depends-ignore: jsh
 # jsh-depends: jdeltmp jgettmp
-if test "$1" = -top
+# jsh-depends-ignore: jsh
+
+if [ "$1" = -top ]
 then
 
 	## First usage: find a suitable top temp directory.
 
-	[ "$TMPDIR" ] && TOPTMP="$TMPDIR" || TOPTMP="/tmp/jsh-$USER"
-
-	# if test ! -w $TOPTMP || ( test "$JTMPLOCAL" && test -w . )
-	# then
-	# # Note we don't use $PWD because might break * below
-	# TOPTMP="/tmp"
-	# fi
-
-	if [ ! -w "$TOPTMP" ]
+	if [ ! "$TOPTMP" ] || [ ! -w "$TOPTMP" ]
 	then
-		TOPTMP="/tmp/jsh-$USER"
-		## If it exists but isn't writeable:
-		while [ -e $TOPTMP ] && [ ! -w $TOPTMP ]
-		do TOPTMP="$TOPTMP"_
+
+		for TOPTMP in "$TMPDIR" "$JPATH/tmp" "/tmp/jsh-$USER" "$PWD/.tmp" NO_DIR_WRITEABLE
+		do
+
+			if [ "$TOPTMP" ]
+			then
+				if [ -w "$TOPTMP" ]
+				then break
+				fi
+				PARENT="`dirname \"$TOPTMP\"`"
+				if [ -w "$PARENT" ]
+				then
+					echo "Creating a temporary directory for jsh: $TOPTMP" >&2
+					mkdir "$TOPTMP" && break
+				fi
+			fi
+
 		done
-		if [ ! -e $TOPTMP ]
-		then
-			echo "Creating a temporary directory for jsh: $TOPTMP" >&2
-			mkdir -p $TOPTMP
-		fi
+
+		## Could be moved up into dir creation code, if people want to open up their tmpdirs!
 		chmod go-rwx $TOPTMP
+		## Also, what's to say that we are neccessarily owner?!
+
 	fi
 
 	export TOPTMP

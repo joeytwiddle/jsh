@@ -5,7 +5,7 @@ then cat
 else
   MOUNTPNT="`wheremounted \"$WHERE\"`"
   REALPATH=`realpath "$WHERE"`
-	REST=`echo "$REALPATH" | after "$MOUNTPNT"`
+	REST=`echo "$REALPATH" | afterfirst "$MOUNTPNT"`
   grep "$MOUNTPNT$" |
 	sed "s+[ 	]$MOUNTPNT+ `cursegreen`$MOUNTPNT`cursenorm`$REST+g" |
   if [ -d "$MOUNTPNT/RECLAIM" ]

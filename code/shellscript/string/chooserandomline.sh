@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: randomorder
 
 randomorder "$@" | head -n 1
 

@@ -2,7 +2,7 @@
 ## Although for some reason (on ghostpuppy) this dropped me out of zsh :-( (even using zsh instead of sh above)
 
 JPATH=/tmp/jsh-$$
-JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshstubtools/"
+JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshtools/"
 
 if which wget 2>&1 > /dev/null
 then WGETCOM="wget -nv -O -"
@@ -23,7 +23,7 @@ chmod a+x joeybashsource
 
 ## Link all the jshtools to jshstub
 # 'ls' /home/joey/j/tools/ |
-# $WGETCOM "http://hwi.ath.cx/jshstubtools" -O - |
+# $WGETCOM "http://hwi.ath.cx/jshtools" -O - |
 # grep "<img" | grep -v "Parent Directory" |
 # sed 's+.*href="\(.*\)">.*+\1+' |
 $WGETCOM "$JSH_STUB_NET_SOURCE/.listing" |

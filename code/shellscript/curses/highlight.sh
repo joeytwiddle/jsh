@@ -41,4 +41,5 @@ NORMCOL=`cursenorm`
 
 # printf "$NORMCOL" ## Can throw off regexps, notably in jdiff, but could be fixed there if this is needed here.
 # sed "s#$1#$HIGHCOL$1$NORMCOL#g"
-sed "s#\($1\)#$HIGHCOL\1$NORMCOL#g"
+# sed "s#\($1\)#$HIGHCOL\1$NORMCOL#g"
+sed "s#$1#$HIGHCOL\0$NORMCOL#g"
