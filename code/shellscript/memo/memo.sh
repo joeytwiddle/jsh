@@ -1,3 +1,6 @@
+# jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath md5sum
+# jsh-depends-ignore: arguments filename arguments todo
+
 . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
 

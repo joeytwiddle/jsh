@@ -1,4 +1,6 @@
 #!/bin/sh
+# jsh-depends: jgettmpdir
+
 ## Gives you a temporary file you can use in your scripts.
 # eg: TMPFILE=`jgettmp`
 #     LOGFILE=`jgettmp my_log`
