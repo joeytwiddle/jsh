@@ -31,9 +31,10 @@ alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
 export FIGNORE=".class"
 
 # Avoid error if not on a tty
-if test ! "$BAUD" = "0"; then
+# Nice try Joey but doesn't work on kimo.
+# if test ! "$BAUD" = "0"; then
 	mesg y
-fi
+# fi
 
 # Message on user login/out (zsh, tcsh, ...?)
 export WATCH=all

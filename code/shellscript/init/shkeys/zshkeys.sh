@@ -143,7 +143,8 @@ bindkey "^f" forward-word
 bindkey "^r" vi-backward-word
 bindkey "^t" vi-forward-word
 bindkey "^v" kill-word
-bindkey "^b" vi-kill-word
+# Solaris zsh complains (after all it don't exist!):
+# bindkey "^b" vi-kill-word
 # Unfortunately, there is no vi-kill-word, so we fake it:
 bindkey -s "^b" "^t^x"
 # and to keep inline, we fake the other too:
