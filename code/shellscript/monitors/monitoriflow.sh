@@ -13,7 +13,8 @@ getbytes () {
 
 if [ "$1" ]
 then IFACE="$1"
-else IFACE=ppp0
+# else IFACE=ppp0
+else IFACE=eth1
 fi
 
 SLEEPFOR=1
