@@ -6,4 +6,4 @@
 # fi
 
 # `jwhich ghostview` $* &
-`jwhich gv` $* &
+`jwhich gv` "$@" &

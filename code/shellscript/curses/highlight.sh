@@ -39,7 +39,7 @@ if test "$COLOR" = ""; then
 	# OK this one works now that I've randomised randomorder with $$
 	COLI=`seq 1 5 | tr " " "\n" | chooserandomline`
 
-	# echo ">$COLI< hvprel nan over"
+	# COLI=$SHLVL
 
 	if test "$COLI" = ""; then
 		COLI=3

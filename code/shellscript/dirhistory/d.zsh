@@ -1,3 +1,4 @@
+#!/bin/bash
 # d: change directory and record for b and f shell tools
 
 # Shouldn't we remember moved-into, not moved-out-of?
@@ -24,7 +25,11 @@ else
 	# unique directory which the user probably meant.
 	# Useful substitue when tab-completion unavailable,
 	# or with tab-completion which does not contextually exclude files.
-	NEWLIST=`'ls' -d "$NEWDIR"* |
+	# NEWLIST=`echo "$NEWDIR"* 2>/dev/null |
+	LOOKIN=`dirname "$NEWDIR"`
+	LOOKFOR=`filename "$NEWDIR"`
+	NEWLIST=`
+		find "$LOOKIN" -maxdepth 1 -name "$LOOKFOR*" |
 		while read X; do
 			if test -d "$X"; then
 				echo "$X"
@@ -42,8 +47,8 @@ else
 		'cd' "$NEWLIST"
 	# A few possibilities, suggest them to the user.
 	else
-		echo "? $NEWLIST" | tr "\n" " "
-		echo
+		# echo "? $NEWLIST" | tr "\n" " "
+		echo "$NEWLIST" | sed "s+^+\? +"
 		# echo -n "$NEWLIST" | tr "\n" " "
 		# echo " ?"
 	fi

@@ -11,6 +11,8 @@ else
   # "ls" -l $@ | awk ' { printf($9"symlnk"$11"\n"); } '
   # "ls" -l $* | awk ' { printf($11"\n"); } '
   # "ls" -ld $* | awk ' { printf($11"\n"); } '
-  'ls' -ld $* | takecols 11
+  # 'ls' -ld $* | takecols 11 12 13 14 15 17 18 19 20 21 22 23 24 25 26
+  # 'ls' -ld "$@" | sed "s/[^ ]*[ ]*[^ ] [^ ]*[ ]*[^ ]*[ ]*[^ ]* [^ ]* [^ ]* [^ ]* [^ ]* [^ ]* //"
+  'ls' -ld "$@" | grep " -> " | trimempty | afterfirst " -> "
 fi
 

@@ -59,7 +59,9 @@ kfmclient openProfile startbrowsing &
 # Start the panel.
 # On logout from the panel, the X session will quit.
 
-if test ""`findjob panel`; then
+SEEK=`findjob panel`
+# How strange: this test only works without spaces around the =
+if test ! "$SEEK"=""; then
 	`jwhich xterm` -title "--- master - panel already running ---"
 else
 	# `jwhich xterm` -title "--- run panel! ---"

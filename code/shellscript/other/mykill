@@ -1,5 +1,5 @@
 KILLCOM="kill -KILL"
-for x in `mykillps $@ | takecols 1`; do
+for x in `mykillps "$@" | takecols 1`; do
   echo $x
   $KILLCOM $x
 done
