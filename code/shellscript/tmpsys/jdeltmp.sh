@@ -1,6 +1,14 @@
 TOPTMP="$JPATH/tmp"
-if test $JTMPLOCAL && test -w .; then
-	TOPTMP="."
+
+# if test $JTMPLOCAL && test -w .; then
+	# TOPTMP="."
+# fi
+
+if test ! -w "$TOPTMP"
+then
+	TOPTMP="/tmp/jsh-tempdir-for-$USER"
+	mkdir -p $TOPTMP
+	chmod go-rwx $TOPTMP
 fi
 
 for X in "$@"; do
