@@ -4,7 +4,7 @@
 # xmodmap /stuff/portablelinux/etc/X11/Xmodmap.hwiDeb &
 
 # `jwhich xterm`  +sb -sl 5000 -vb -si -sk -bg black -fg white -font '-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-iso646.1991-irv' -geometry 80x25+0+500 $* &
-xterm &
+xterm -geometry 80x24+583+700 &
 
 # inwheel --wheel-fifo
 
@@ -22,9 +22,19 @@ del .gnome/session
 # Lets get some kind of window manager starting!
 # gnome-session
 # WinMan=`echo "wmaker sawmill" | tr " " "\n" | chooserandomline`
+WinMan="wmaker"
 # WinMan="sawfish"
 # WinMan="sawmill"
-WinMan="twm"
+# WinMan="fvwm"
+# WinMan="twm"
+# WinMan="fvwm2"
+# WinMan="ratpoison"
+# WinMan="blackbox" # KDE-compliant
+# My favourites:
+# WinMan="icewm" # Gnome-compliant
+# WinMan="ion"
+# WinMan="pwm"
+# WinMan="fluxbox" # KDE-compliant
 $WinMan || `jwhich xterm` -title "--- failed to start $WinMan wm ---" &
 
 sleep 2
@@ -57,6 +67,10 @@ kfmclient openProfile startbrowsing &
 
 
 
+xscreensaver &
+
+
+
 # Start the panel.
 # On logout from the panel, the X session will quit.
 
@@ -67,7 +81,7 @@ if test ! "$SEEK"=""; then
 else
 	# `jwhich xterm` -title "--- run panel! ---"
 	# If you don't trust its stability, catch it:
-	( panel || `jwhich xterm` -title "--- panel died ---" )
+	( panel || `jwhich xterm` -bg darkred -fg white -title "--- panel died ---" )
 	# panel
 	# xterm -title "--- panel closed ---"
 	# `jwhich xterm` -e panel
