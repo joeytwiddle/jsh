@@ -21,6 +21,8 @@
 	# test "$JSH_DEBUG" && echo "$*" >&2
 # }
 
+test "$STARTJ_BLOCK" && exit 0
+
 ## Check that we have a valid JPATH environment variable:
 if test ! -d "$JPATH/tools"  ## the definitive proof no doubt!
 then
@@ -48,15 +50,18 @@ else
 	## Interactive shell: start user's favourite shell with startj as rc file.
 	# if test `which zsh`; then
 	if test "`hostname`" = hwi && test $USER = joey; then
+		## I believe zsh sources its own rc scripts automatically, so this is not needed:
 		# export BASH_BASH=$HOME/.zshrc
-		## Neither of these two work, so we actually need to source startj in .zshrc :-(
-		export ENV="$JPATH/startj"
+		## However we are having trouble source the startj script!
+		## These should work, but don't:
+		# export ENV="$JPATH/startj"
 		# env ENV="$JPATH/startj" zsh
+		## So we actually end up sourcing startj in .zshrc :-(
 		zsh
 	else
-		## Bash will not import default .rcs as well startj, so startj has a digital hammer
+		## Bash will not source its default .rcs when we specify startj, so startj has to source them itself.
 		## triggered by:
-		export BASH_BASH=$HOME/.bashrc
+		export BASH_BASH=yes_please
 		# echo "calling bash --rcfile $JPATH/startj"
 		bash --rcfile "$JPATH/startj"
 	fi
