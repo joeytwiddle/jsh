@@ -1,12 +1,17 @@
 echo "## Purge old:"
-find $HOME/Mail/ -maxdepth 1 -type l -name "\|*" |
+find $HOME/0MailEvolution/ -maxdepth 1 -type l -name "\|*" |
 sed 's+^+rm "+;s+$+"+'
 
 echo
+echo "del \"$HOME/0MailEvolutionTree/$Z/\""
+echo
 
 echo "## Link new:"
+
 find $HOME/evolution/local/ -name "mbox" |
+
 while read X; do
+
 	Y=`
 		echo "$X" |
 		tr " " "_" |
@@ -18,6 +23,18 @@ while read X; do
 		sed "s+^ ++"
 		# sed 's+^|+\\\\+'
 	`
-	echo "ln -s \"$X\" \"$HOME/Mail/$Y\""
+	echo "ln -s \"$X\" \"$HOME/0MailEvolution/$Y\""
 	# ln -s "$X" "./$Y"
+
+	Z=`echo "$Y" | tr "|" "/" | sed "s+/$++"`
+	Q=`echo "$X" | sed 's+/mbox$++'`
+	if find "$Q/subfolders" -type f > /dev/null 2> /dev/null
+	then
+		echo "mkdir -p \"$HOME/0MailEvolutionTree/$Z\""
+		echo "ln -s \"$X\" \"$HOME/0MailEvolutionTree/$Z/0mbox\""
+	else
+		echo "mkdir -p \""`dirname "$HOME/0MailEvolutionTree/$Z.mbox"`"\""
+		echo "ln -s \"$X\" \"$HOME/0MailEvolutionTree/$Z.mbox\""
+	fi
+
 done

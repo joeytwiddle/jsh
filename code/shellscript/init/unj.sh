@@ -6,7 +6,7 @@ then shift; UNJ_QUIET=true
 fi
 PROG="$1"
 shift
-REALPROG=`jwhich -quiet "$PROG"`
+REALPROG=`jwhich "$PROG"`
 if test "$REALPROG"
 then
 	"$REALPROG" "$@"
@@ -15,8 +15,8 @@ else
 	then
 		INJ=`which "$PROG"`
 		if test "$INJ"
-		then echo "unj: $PROG does not exist outside jsh"
-		else echo "unj: $PROG does not exist in or out of jsh"
+		then echo "unj: $PROG exists in jsh but not outside it"
+		else echo "unj: $PROG does not exist in jsh or in your PATH"
 		fi
 	fi
 	exit 1

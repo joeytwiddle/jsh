@@ -4,7 +4,7 @@
 ## Neccessary to make a one-liner, because when sourcing with bash, the path
 ## of the script is unknown.
 ## Also makes it easy to leave the J environment again!
-## Alternatively can be used as a one-liner to call run a command inside J env.
+## Alternatively can be used as a one-liner to run a command inside J env, then exit.
 
 ## Shit my collection of shellscripts (and the method of using them) really
 ## needs a proper name.  What about JSE (joey's shell environment)?  Nah that's naff!
@@ -15,14 +15,18 @@
 ## we ignores user's ~/.bashrc
 ## They might not want to run another shell!
 
-## We assume user has called:
-## $JPATH/jsh
-## Since jsh is not sourced, "$0" should contain said call
-
-if echo "$0" | grep "^/" > /dev/null; then
-	export JPATH=`dirname "$0"`
-else
-	export JPATH="$PWD/"`dirname "$0"`
+## Check that we have a valid JPATH environment variable:
+if test ! -d "$JPATH/tools"  ## the definitive proof no doubt!
+then
+	## If not, we examine $0th arg and assume user called $JPATH/jsh
+	if echo "$0" | grep "^/" > /dev/null
+	then export JPATH=`dirname "$0"`        ## absolute
+	else export JPATH="$PWD/"`dirname "$0"` ## relative
+	fi
+	if test ! -f "$JPATH/tools"
+	then echo "Say what?"
+	     exit 1
+	fi
 fi
 
 if test ! "$*" = ""; then

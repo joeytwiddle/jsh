@@ -4,7 +4,7 @@ if test "$1" = "-diff"; then
 fi
 
 cd "$JPATH/code/home" &&
-find . |
+find . -maxdepth 2 |
 	grep -v "/CVS$" | grep -v "/CVS/" |
 	sed "s+^./++" | grep -v "^\.$" |
 	while read X; do

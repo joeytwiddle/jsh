@@ -6,6 +6,7 @@ test -f "$HOME/evolution-config-bak.tgz" &&
 cd "$HOME/evolution"
 FILES=`'ls' | grep -v "local"`
 tar cfz "$HOME/evolution-config-bak.tgz" $FILES
+rotate -nozip -max 4 "$HOME/evolution-config-bak.tgz"
 
 echo "Starting evolution..."
 

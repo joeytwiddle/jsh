@@ -1,12 +1,55 @@
-# IP="ip=`ppp-getip`"
+## This bit is a check to ensure we didn't already do an update for this IP
+## Ideally we would like other puters on the net to tell us when our ip is wrong.  (By connecting to them and asking them presumably.)
+
+IP=`ppp-getip`
+
+LAST=/tmp/ppp-updateip.last
+
+LASTIP=`cat "$LAST"`
+if test "$LASTIP" = "$IP"
+then
+	echo "$0: Last time we did an update, ip $IP was the same, so skipping."
+	exit 0
+fi
+
+## This bit is a check to ensure we didn't update already in the last 15 minutes.
+
+if test -f "$LAST"
+then
+
+	NOW=/tmp/ppp-updateip.now
+	touch "$NOW"
+
+	if test ! -x "`which datediff`"
+	then echo "$0: Couldn't find datediff - not trying to update ip." ; exit 3
+	fi
+	SECONDSSINCE=`datediff -secs -files "$LAST" "$NOW"`
+
+	if test "$SECONDSSINCE" -lt 1000
+	then
+
+		X=`datediff -files "$LAST" "$NOW"`
+		echo "$0: Trying to re-update too soon.  ($X < 15m ago.)"
+		exit 1
+
+	fi
+
+fi
+
+## Repeated at bottom =)
+if ! touch "$LAST"
+then echo "$0: Couldn't touch $LAST.  Not trying to update ip." ; exit 2
+fi
+
+FAIL=false
 
 # dyndhs.org update (using hwi.ath.cx):
-/root/ipcheck/doipcheck
+/root/ipcheck/doipcheck || FAIL=true
 
-# no-ip.org update (for a domain probably better left unmentioned!):
-/root/noip_updater_v1.6/noip -c /root/noip_updater_v1.6/no-ip.conf
-# since it likes to detach, and daemon itself, I kill it =)
 ( sleep 10m ; killall noip ) &
+# no-ip.org update (for a domain probably better left unmentioned!):
+/root/noip_updater_v1.6/noip -c /root/noip_updater_v1.6/no-ip.conf || FAIL=true
+# since it likes to detach, and daemon itself, I kill it =)
 
 # # dhs.org for hwi.dyn.dhs.org:
 # HOST="hwi"
@@ -29,4 +72,12 @@
 # echo "UPDATING IP!"
 # env TERM=vt100 lynx -auth=$USER:$PASS -dump "$WHOLEURL"
 
-( date && ppp-getip ) >> /home/joey/j/logs/iphistory.txt
+if test "$FAIL" = "true"
+then
+	echo "ppp-updateip: failed!"
+	exit 4
+fi
+
+( date && echo "$$IP" ) >> /home/joey/j/logs/iphistory.txt
+
+echo "$IP" > "$LAST"

@@ -1,17 +1,21 @@
 ## Shellscript library offering simple mailbox interface via /usr/bin/mail =)
 
-## Requires: env var MBOX to be set before sourcing
+## Requires: env var MBOX to be set before sourcing (can be provided as first argument)
 
-## TODO: there a move-to-another-mailbox method in mailcalendar.sh which should come here but it's not ideal
+## TODO: there is a move-to-another-mailbox method in mailcalendar.sh which should come here but it may not be ideal (how is its error handling?)
 
 if test ! "$MBOX"
 then
-	MBOX=/tmp/mbox
-	if test ! -f "$MBOX"
+	MBOX="$1"
+	if test ! "$MBOX"
 	then
-		echo "No \$MBOX provided and nothing in /tmp/mbox"
-		## Rather too harsh at the com-line:!
-		# exit 1
+		MBOX=/tmp/mbox
+		if test ! -f "$MBOX"
+		then
+			echo "No \$MBOX provided and nothing in /tmp/mbox"
+			## Rather too harsh at the com-line:!
+			# exit 1
+		fi
 	fi
 fi
 

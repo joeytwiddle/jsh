@@ -5,4 +5,4 @@ then
 	OPTS="-vo sdl"
 fi
 OPTS="$OPTS -ao sdl -zoom -idx"
-`jwhich mplayer` $OPTS "$@"
+unj mplayer $OPTS "$@"

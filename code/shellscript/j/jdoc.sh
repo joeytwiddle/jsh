@@ -8,15 +8,43 @@ else
 
   LINKTOCOM="$JPATH/tools/$1"
 
-  if test -f "$LINKTOCOM"; then
+  if test -f "$LINKTOCOM"
+  then
 
+    dothis() {
     (
-      echo `justlinks "$LINKTOCOM"`
-      echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
-      cat "$LINKTOCOM"
-      echo
-      echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+      barline() {
+        echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
+      }
+      ## If if appears to accept the --help argument, then just run it!
+      ## (TODO: we could in fact attempt this on binaries!)
+      if grep '\-\-help' "$LINKTOCOM" > /dev/null
+      then
+        barline
+        cursecyan
+        echo "$LINKTOCOM --help"
+        cursenorm
+        barline
+        $LINKTOCOM --help
+        echo
+      fi
+      ## Show the script:
+        barline
+        cursecyan
+        echo `justlinks "$LINKTOCOM"`
+        cursenorm
+        barline
+        cat "$LINKTOCOM" |
+        ## Pretty print it (I'd like to use a dedicated program with syntax highlighting)
+        highlight "\#\#.*" | ## for comments
+        highlight "\# [QWERTYUIOPLKJHGFDSAZXCVBNM].*" ## for lines likely to be a sentence
+        echo
+        barline
     ) | more
+    }
+
+    ## I really want to dothis in a bigwin (if X is running)
+    dothis
 
   else
 
