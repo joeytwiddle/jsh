@@ -1,5 +1,7 @@
-## TODO: symlinks causing unwanted loops are not caught by diff :-(
+## DONE: symlinks causing unwanted loops are not caught by diff :-(
 ##       need to tar up files only and then diff extracted tars!
+## TODO: Nope, we should tar up everything,
+##       then untar current and previous, strip links, then diff.
 
 # Paranoid; sensible.
 set -e
@@ -20,6 +22,7 @@ BACKUPNAME="$BASENAME"
 mkdir -p "$BACKUPDIR" || exit 1
 
 CREATEDIR=`jgettmpdir makebak-create`
+if test "$CREATEDIR" = ""; then echo "Problem with CREATEDIR = >$CREATEDIR<"; exit 1; fi
 cd "$DIRNAME"
 cp -a "$BASENAME" "$CREATEDIR"
 
@@ -29,7 +32,8 @@ cd "$CREATEDIR" &&
 if test `pwd` = "$CREATEDIR"; then
 	if test -d "$TOBACKUP"
 	then
-		find . -type l |
+		find "$CREATEDIR" -type l |
+		sed "s+^$CREATEDIR+\.+" |
 		while read X
 		do
 			'ls' -ld "$X" # | sed 's/[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*//' | sed 's/ -> /	->	/'
@@ -44,12 +48,12 @@ else
 	echo "Problem: "`pwd`" != $CREATEDIR"
 fi
 
-VER=1
+VER=0
 while test -f "$BACKUPDIR/$BACKUPNAME-$VER.diff.gz" || test -f "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz"; do
 	VER=`expr $VER + 1`
 done
 
-if test ! "$VER" = 1; then
+if test ! "$VER" = 0; then
 
 	PREVER=`expr $VER - 1`
 
