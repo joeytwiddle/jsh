@@ -5,7 +5,7 @@ else
   IMAGES="$ARGS"
 fi
 
-HTMLFILE="ImageIndex.html"
+HTMLFILE="_ImageIndex.html"
 
 EXTRAS="-geometry 100"
 # EXTRAS=""

@@ -1,4 +1,4 @@
-cd "$JPATH/code/home"
+cd "$JPATH/code/home" &&
 find . |
 	grep -v "/CVS$" | grep -v "/CVS/" |
 	sed "s+^./++" | grep -v "^\.$" |
