@@ -10,7 +10,10 @@ export FINDDIR="$HOME/evolution/local/"
 TMPFILE=`jgettmp "evolution-b4-mutt"`
 touch "$TMPFILE" # probably already happened anyway
 
-`jwhich mutt` "$@"
+if test "$*"
+then unj mutt "$@"
+else unj mutt -f "$HOME/Mail/incoming"
+fi
 
 MBSCHANGED=`
 find "$FINDDIR" -newer "$TMPFILE"

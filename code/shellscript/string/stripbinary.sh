@@ -13,3 +13,6 @@
 hexdump -C |
 sed 's+.*|\(.*\)|+\1+' |
 tr -d '\n'
+
+## Another possibility:
+# sed 's+[^A-Za-z0-9_\-!"...]++g'
