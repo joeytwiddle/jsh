@@ -1,8 +1,8 @@
 # MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
 ## transcode: --export_fps 25,3 
-# TOCLIP="-c 0-200"
-TOCLIP="-c 1000-1200"
+# TC_CLIP="-c 0-200"
+# TC_CLIP="-c 500-1200"
 
 NOT_SO_BLUE=-k
 RIGHT_WAY_UP=-z
@@ -18,8 +18,12 @@ do
 	# transcode -i "$VIDEOFILE" -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav
 	# transcode -i "$VIDEOFILE" -N 0x1     -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
 	# transcode -i "$VIDEOFILE" -x ffmpeg    -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE || exit
-	transcode -i "$VIDEOFILE" -x mplayer -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $TOCLIP $DOWNSAMPLE || exit
-	transcode -i "$VIDEOFILE" -x mplayer -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TOCLIP || exit
+	transcode -i "$VIDEOFILE" -x mplayer -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || exit
+
+	transcode -i "$VIDEOFILE" -x mplayer -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP || exit
+	## Haven't managed to get cinelerra reading mp3 (smaller files)
+	# transcode -i "$VIDEOFILE" -x mplayer -N 0x55 -o "$VIDEOFILE-audio" -y null,lame $TC_CLIP || exit
+	# transcode -i "$VIDEOFILE" -x mplayer -N 0x50 -o "$VIDEOFILE-audio" -y null,mp2enc $TC_CLIP || exit
 
 	# mencoder "$VIDEOFILE" -o "$VIDEOFILE"-video.mpeg -oac raw -nosound -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || exit
 	# mencoder $VIDEOFILE" -dumpaudio "$VIDEOFILE"-audio.mp3 -o /dev/null -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || exit

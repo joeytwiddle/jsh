@@ -9,20 +9,16 @@ more << !
 generate_clip_markers <video_file>
 
   will play the video file in mplayer, and allow you to mark the positions of
-  clips you want to extract.
+  clips you want to extract.  This can be useful to get small clips out of a
+  large video before importing the clips to a video editing package.
 
-  This can be useful to get small files out of a large video before importing
-  the clips to a video editing package.
+  The script watches for whenever you PAUSE the playback (by pressing <SPACE>).
 
-  The script watches for whenever you pause the playback (by pressing <SPACE>).
+    * The first time you PAUSE marks the beginning of a clip you want to
+      extract (an In_Mark).
 
-  The first time you pause marks the beginning of a clip you want to extract
-  (an In_Mark).
-
-  The second time marks the end of the clip (an Out_Mark), and the two
-  timepoints are written to a file.
-
-  By default the marked points are stored in the file $CLIPMARKERFILE
+    * The second PAUSE marks the end of the clip (an Out_Mark), and the two
+      timepoints are written to the file: $CLIPMARKERFILE
 
   If you accidentally mark an unwanted In_Mark, you should mark the
   corresponding Out_Mark and then delete the last line from the file.
@@ -37,19 +33,30 @@ fi
 VIDEOFILE="$1"
 
 ## Backup the marker file in case you realise u wanted an older one!
-[ -f "$CLIPMARKERFILE" ] && which rotate >/dev/null && rotate -nozip $CLIPMARKERFILE
+[ -f "$CLIPMARKERFILE" ] && which rotate >/dev/null && rotate -nozip "$CLIPMARKERFILE"
 
+echo "# Clip_start	Clip_end (seconds)" > "$CLIPMARKERFILE"
+
+echo
+echo "OK kid you gotta hit PAUSE to mark in and out points."
 echo
 curseyellow
 
 MARKERTYPE=In_Mark
 LASTMARKERPOS=not_yet_set
 
-mplayer "$VIDEOFILE" 2>&1 |
+## gmplyer doesn't give the output!
+# MPLAYER=`which gmplayer`
+[ "$MPLAYER" ] || MPLAYER=`which mplayer`
+
+$MPLAYER "$VIDEOFILE" 2>&1 |
 
 # sed 's++'`echo`'+g' |
 
 tr '' '\n' |
+
+## Would make pause recognition more responsive, if it didn't buffer the stream
+# grep -A1 "PAUSE" |
 
 while read LINE
 do
@@ -67,11 +74,13 @@ do
 		MARKERPOS=$VIDEOPOS
 		# MARKERPOS=$VIDEOPOS
 
-		echo "Got $MARKERTYPE at $MARKERPOS"
+		echo "User has set $MARKERTYPE at $MARKERPOS seconds"
 
 		if [ "$MARKERTYPE" = Out_Mark ]
 		then
-			echo "$LASTMARKERPOS	$MARKERPOS" >> $CLIPMARKERFILE
+			echo "Adding clip $LASTMARKERPOS -> $MARKERPOS to $CLIPMARKERFILE"
+			echo "$LASTMARKERPOS	$MARKERPOS" >> "$CLIPMARKERFILE"
+			echo
 			MARKERTYPE=In_Mark
 		else
 			LASTMARKERPOS=$MARKERPOS
@@ -85,12 +94,11 @@ done
 cursenorm
 
 echo
-echo "Clip markers have been stored in `cursecyan`$CLIPMARKERFILE`cursenorm`"
+echo "Clip markers have been saved to `cursecyan`$CLIPMARKERFILE`cursenorm`"
 
 echo
-echo    "I can extract the clips now to:"
-echo    "  `cursegreen`$PWD`cursenorm`"
-echo -n "Do you want to extract the clips now? `curseyellow`[Y/n]`cursenorm` "
+echo    "I can extract the clips now to: `cursegreen`$PWD`cursenorm`"
+echo -n "Would you like me to do that? `curseyellow`[Y/n]`cursenorm`"
 
 read DECISION
 echo

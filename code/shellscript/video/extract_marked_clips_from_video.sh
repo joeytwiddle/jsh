@@ -4,6 +4,7 @@ CLIPMARKERFILE=/tmp/clipmarkers.txt
 CLIPNUM=1
 
 cat "$CLIPMARKERFILE" |
+grep -v "^#" |
 
 while read IN OUT
 do
@@ -16,6 +17,9 @@ do
 
 	COPY="-oac copy -ovc copy"
 	# COPY="-oac lavc -ovc lavc"
+	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=4000"
+	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## Huge!
+	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
 	mencoder $COPY $CLIPOPTS "$VIDEOFILE" -o clip$CLIPNUM.avi
 
 	# prepare_for_editing "$VIDEOFILE"
