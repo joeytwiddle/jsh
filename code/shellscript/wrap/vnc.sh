@@ -17,7 +17,11 @@ ADDRESS=`
 
 # echo "Found: >$ADDRESS<"
 
+sleep 5
 if xisrunning
-then sleep 5; xvncviewer "$ADDRESS"
-else sleep 5; svncviewer "$ADDRESS"
+# then xvncviewer "$ADDRESS"
+then
+	cd /stuff/joey/src/deb/vnc-java-3.3.3r2/
+	appletviewer page.html
+else svncviewer "$ADDRESS"
 fi
