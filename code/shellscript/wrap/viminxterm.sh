@@ -59,4 +59,4 @@ TITLE=`absolutepath "$1"`" [vim-never-shown]"
 # XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 # `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
 
-xterm -geometry $INTGEOM -title "$TITLE" -e vim "$@"
+xterm -bg "#000048" -geometry $INTGEOM -title "$TITLE" -e vim "$@"

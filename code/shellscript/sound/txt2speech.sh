@@ -7,12 +7,13 @@
 	col -bx |
 	# tr -s "\n" |
 
-	# For IRC logs:
+	## For IRC logs:
 	# sed 's+\[\(..\):\(..\)\] <\([^>]*\)>+At \1 \2 user \3 said +' |
 	sed "s+\[\(..\):\(..\)\] <\([^>]*\)>+ . \\
 \3 says +" |
 
- tee /tmp/tmp-tts.txt |	
+	## for debugging:
+	# tee /tmp/tmp-tts.txt |	
 
 	sed "s/--/, /g" |
 	sed "s/-/ dash /g" |
@@ -43,3 +44,5 @@
 
 festival --tts
 
+## Output a wav (in a format suitable for bladeenc)
+# ./text2wave -F 48000 -otype riff -o /tmp/festival-out.wav

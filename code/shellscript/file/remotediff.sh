@@ -158,33 +158,3 @@ fi
 echo "Comparing local to remote using \"$DIFFCOM\" ..."
 
 "$DIFFCOM" "$TMPONE" "$TMPTWO" | tee "$TMPTHREE"
-
-# # Commented not working
-# 
-# # This summary is a bit haphazard because jfc and diff act differently,
-# # and gvimdiff and vimdiff don't give any output!
-# 
-# # Works for diff:
-# # RESULT=`cat "$TMPTHREE"`
-# # if test "$RESULT"; then
-# # Works for jfc, don't know why not for diff (tried #!/bin/bash):
-# if test ! "$?" = "0"; then
-	# echo "There were differences. :-("
-	# echo "  Although if you are using vimdiff (as opposed to a com-line tool) this might not be true."
-	# exit 1
-# else
-	# NUMS1=`countlines "$TMPONE"`
-	# NUMS2=`countlines "$TMPTWO"`
-	# if test "$NUMS1" = "$NUMS2"; then
-		# echo "All $NUMS1 lines appear to be the same =)"
-		# echo "  Although if you are using vimdiff (as opposed to a com-line tool) this might not be true."
-		# exit 0
-	# else
-		# echo "Error: \"$DIFFCOM\" found them the same but linecount $NUMS1 != $NUMS2."
-		# echo "  Although if you are using vimdiff (as opposed to a com-line tool) this is probably not an error."
-		# exit 1
-	# fi
-# fi
-# 
-# exit 123
-

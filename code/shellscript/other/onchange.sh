@@ -5,7 +5,7 @@
 #   newer "$file" "$COMPFILE"
 # }
 
-if test ! "$1" = "-nowinxterm"; then
+if test ! "$1" = "-nowinxterm" && xisrunning; then
 	xterm -e onchange -nowinxterm "$@" &
 	exit
 fi
@@ -42,6 +42,7 @@ while true; do
 			echo "something changed, running: $COMMANDONCHANGE"
 			xttitle "> onchange running $COMMANDONCHANGE"
 			$COMMANDONCHANGE
+			echo "Done."
 			xttitle "# onchange watching $FILES"
 			sleep 1
 			touch "$COMPFILE"
@@ -53,6 +54,7 @@ while true; do
 				echo "$file changed, running: $COMMANDONCHANGE"
 				xttitle "> onchange running $COMMANDONCHANGE ($file changed)"
 				$COMMANDONCHANGE
+				echo "Done."
 				xttitle "# onchange watching $FILES ($file changed last)"
 				# break
 			fi
