@@ -1,6 +1,9 @@
 # jsh-depends: absolutepath isabsolutepath justlinks filename
 # Basically an implementation of realpath(1,3) in sh.
 
+## TODO: make it identical to realpath?  Would require error + fail if file does not exist.
+##       also realpath deals with ..'s properly
+
 # Apparently dodgy?
 # But certainly works better than former!
 # Oh this was probably marked dodgy because var Y changed

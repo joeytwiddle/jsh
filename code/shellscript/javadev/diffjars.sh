@@ -1,3 +1,5 @@
+## BUGS: Does not always delete .class files properly.  I suspect this is the $1 $2 inner class file labels being lost within withalldo - need escaping!
+
 if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo
@@ -24,20 +26,34 @@ if [ "$1" = -diffcom ]
 then JARDIFFCOM="$2"; shift; shift
 fi
 
+JARADIR=`jgettmpdir "$1"`
+JARBDIR=`jgettmpdir "$2"`
+
 JARA=`realpath "$1"`
 JARB=`realpath "$2"`
 
-JARADIR=`jgettmpdir "$JARA"`
-JARBDIR=`jgettmpdir "$JARB"`
-
-cd $JARADIR &&
+cd $JARADIR
 jar xf "$JARA" &&
-[ "$DECOMPILE" ] && javadecompile 2>&1 | grep -v "^Parsing " && find $JARADIR -name "*.class" | withalldo rm
+if [ "$DECOMPILE" ]
+then
+	if javadecompile 2>&1 | grep -v "^Parsing "
+	then
+		find $JARADIR -name "*.class" |
+		withalldo rm
+	fi
+fi
 
-cd $JARBDIR &&
+cd $JARBDIR
 jar xf "$JARB" &&
-[ "$DECOMPILE" ] && javadecompile 2>&1 | grep -v "^Parsing " && find $JARBDIR -name "*.class" | withalldo rm
+if [ "$DECOMPILE" ]
+then
+	if javadecompile 2>&1 | grep -v "^Parsing "
+	then
+		find $JARBDIR -name "*.class" |
+		withalldo rm
+	fi
+fi
 
 $JARDIFFCOM $JARADIR $JARBDIR
 
-# jdeltmp "$JARADIR" "$JARBDIR"
+jdeltmp "$JARADIR" "$JARBDIR"

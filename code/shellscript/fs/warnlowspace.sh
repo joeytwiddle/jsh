@@ -1,12 +1,15 @@
+# jsh-depends: drop pipeboth takecols
 if [ "$3" = "" ] || [ "$1" = --help ]
 then
   echo
-  echo "Usage: warnlowspace [ -v ] <email_address> <min_size_k> <device_pattern>s..."
+  echo "Usage: warnlowspace [ -v ] \"<email_address(es)>...\" <min_size_k> <device_pattern>s..."
   echo
   echo "  eg.: warnlowspace jim 10240 ^/dev/hd"
   echo "       will mail jim if any of his partitions has less than 10M of free space."
   echo
-  echo "  option -v displays matching devices on stderr, to check your pattern works ok."
+  echo "  Option -v displays matching devices on stderr, to check your pattern works ok."
+  echo
+  echo "  To send multiple emails, quote and separate with spaces: \"firstname@host secondname@host\""
   echo
   exit 1
 fi
@@ -49,6 +52,8 @@ do
   if [ "$SPACE" -lt "$MINSIZE" ]
   then
 
+    [ "$VERBOSE" ] && echo "Sending warning: only $SPACE"k" on $DEVICE ($MNTPNT)"
+
     [ "$HOST" ] || HOST=`hostname`
     (
       echo "    WARNING from: $HOST"
@@ -60,7 +65,7 @@ do
       echo "  [ Warning sent by script: warnlowspace, running as user #: $UID ]"
       ## TODO: it would be nice to du -sk $MNTPNT/*, but only on fs'es which can do it without grinding!
     ) |
-    mail -s "[$HOST] Warning low space on $MNTPNT ($SPACE"k")" "$EMAIL"
+    mail -s "[$HOST] Warning low space on $MNTPNT ($SPACE"k")" $EMAIL
 
   fi
 
