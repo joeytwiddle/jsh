@@ -46,6 +46,10 @@ esac
 # PS1="[\u@\h \W]\\$ "
 # PS1="(\h \t \u) \w/ "
 
+if test "$SCREEN_RUNNING"
+then PS1="[screen] $PS1"
+fi
+
 export PS1
 
 ## for sh -x debugging

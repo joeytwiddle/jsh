@@ -1,6 +1,8 @@
 ## Should unj deprecate jwhich?
 ## Note: Both are dangerous because if X calls unj X but unj X return the same X then infinite loop :-(
 
+## Could be made much simpler.  Just ungrep the path, then run "$@"
+
 if test "$1" = "-quiet"
 then shift; UNJ_QUIET=true
 fi

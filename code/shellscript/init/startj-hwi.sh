@@ -42,14 +42,16 @@ if test ! $JPATH; then
 		echo "startj: guessed JPATH=$JPATH"
 	else
 		echo "startj: Could not find JPATH. Not starting."
-		exit 0
+		exit 1
 	fi
 fi
 export PATH=$JPATH/tools:$PATH
 
 if jwhich jwhich
 then
-	echo "Warning: it looks like you have a different jsh in your path, could be very dangerous (script recursion)."
+	echo "Warning: it looks like you have a different jsh in your path, which can be very dangerous (script recursion)."
+	echo "$PATH"
+	echo "Aborting"
 	exit 1
 fi
 

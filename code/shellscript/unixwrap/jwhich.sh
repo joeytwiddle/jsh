@@ -7,6 +7,11 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
+## Why not grep -v?  I guess we'd need to unj it wouldn't we!
+
+## Instead of ungrepping, we could do a test for $PATHDIR/jsh to be super-sure.
+## This would be slow but would remove the occasional possible inf-loop problems.
+
 fakeungrep () {
 	sed "s|.*$*.*||"
 }
