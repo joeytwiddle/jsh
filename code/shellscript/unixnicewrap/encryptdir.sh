@@ -20,4 +20,11 @@ then
 else
 	tar cz "$DIR"
 fi |
+
 gpg -r "Paul Clark <pclark@cs.bris.ac.uk>" -e > "$FILE"
+
+if test ! "$?" = 0
+then
+	rm -f "$FILE" ## Neater; cleans up the file if compression failed (usually means 0 length anyway).
+	exit 1
+fi

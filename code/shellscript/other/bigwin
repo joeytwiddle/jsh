@@ -6,6 +6,7 @@ if [ "$COM" = "" ]; then COM="jsh"; fi
 
 TMPSH=`jgettmp "bigwin: $*"`
 (
+	echo "export COLUMNS=120"
 	echo "$COM"
 	if xisrunning
 	then

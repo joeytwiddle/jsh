@@ -94,15 +94,15 @@ else
 fi |
 
 # sed 's/[a-zA-Z0-9]* [0-9]* \(.*\)/del "\1"/'
-# dropcols 1 2 | sed 's+^.+del "+;s+.$+"+'
+dropcols 1 2 | sed 's|^\(.\+\)|del "\1"|'
 # cat
 
-while readgroup
-do
-	echo "GROUP:"
-	echo "$GROUP"
-	test ! "$GROUP" && break
-done
+# while readgroup
+# do
+	# echo "GROUP:"
+	# echo "$GROUP"
+	# # test ! "$GROUP" && break
+# done
 
 exit
 

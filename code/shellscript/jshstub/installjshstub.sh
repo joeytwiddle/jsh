@@ -71,6 +71,7 @@ export JSH_STUB_NET_SOURCE=$JSH_STUB_NET_SOURCE
 alias source="'.' \$JPATH/tools/joeybashsource"
 alias .="'.' \$JPATH/tools/joeybashsource"
 source \$JPATH/tools/startj-hwi
+export BASH_ENV=\$JPATH/jshrc
 !
 
 echo "### To start jshenv in bash type:"

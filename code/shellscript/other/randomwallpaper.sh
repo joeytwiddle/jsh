@@ -10,10 +10,12 @@ do
 	REPEAT=
 
 	# cd $JPATH/wallpapers
-	WALLPAPERDIRS="/stuff/wallpapers/" # /stuff/mirrors/ /www/uploads/"
+	WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/" # /www/uploads/"
 
 	FILETYPES="jpg Jpeg jpeg JPG JPEG gif GIF bmp BMP pcx PCX lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
 	SEARCHARGS='-name "*.'`echo "$FILETYPES" | sed 's+ +" -or -name "*.+g'`'"'
+
+	AVOID="thumbnails"
 
 	# find . -type f -and -not -name "*.html" > tmp.txt
 	# FILE=`chooserandomline tmp.txt`
@@ -42,6 +44,7 @@ do
 	FILE=`
 		echo "memo find $WALLPAPERDIRS $SEARCHARGS" | sh |
 		egrep -v "$UNGREPEXPR" |
+		notindir $AVOID |
 		if test $SPECIALISE
 		then grep "$SPECIALISE"
 		else cat

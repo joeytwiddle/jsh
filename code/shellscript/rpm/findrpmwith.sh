@@ -3,5 +3,5 @@ while read X
 do
 	rpm -ql "$X" |
 	grep "$@" &&
-	echo "  found in $X"
+	printf "%s\n\n" "  was found in $X"
 done

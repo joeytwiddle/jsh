@@ -1,4 +1,21 @@
-#!/bin/sh
+## Oops I'd forgotten about that, but of course it's ignored on sources  Nothing should happen if we remove it.
+# #!/bin/sh
+
+## TODO: We still have problems with when the user invokes (not sources) a script, and that script tries to
+##       source something else.
+##       This problem can be solved if, when a new script is downloaded, it's dependencies are also downloaded.
+## Notes:
+##       In zsh presumably ARGZERO is unset, for sh emulation.
+##       Bash loses it't alias . hack.
+##       This results in a call to jsbstub which can't see the name of the sourced script!
+##       Observe how dusk + memo fail in fresh jshstub install.
+##       I tried setting BASH_ENV, which appeared in jshstub, but the aliases didn't.
+##       Anyway the problems exists with zsh too.
+##       Yes it appears whenever a user-invoked script sources another script (often . jgettmpdir -top)
+##       Unlike within the user shell, $0 is not set.  Is zsh's ARGZERO option still set?
+##       $_ does not look very useful, maybe we should grep env at problem time!
+
+# echo "[ jshstub: \$_ = >$_< ]" >&2
 
 OKTOGO=true
 GOTBYANOTHERSTUB=
@@ -9,7 +26,7 @@ SCRIPTNAME=`basename "$SCRIPTFILE"`
 
 if test "$TOSOURCE"
 then
-	# echo "[ jshstub: Noticed joeybashource = $TOSOURCE ok ]" >&2
+	echo "[ jshstub: Noticed joeybashsource = $TOSOURCE ok ]" >&2
 	if test ! "${TOSOURCE##/*}"
 	then SCRIPTFILE="$TOSOURCE"
 	else SCRIPTFILE="$JPATH/tools/$TOSOURCE"
@@ -42,7 +59,13 @@ then
 		## But of course this doesn't always work 'cos startj is often sourced with full path!
 		SCRIPT_WAS_SOURCED="(sourced) "
 	else
+		PROCCHECK=$$
 		echo "[ jshstub: $SCRIPTFILE is not a symlink! ]" >&2
+		echo "[ jshstub: most likely cause is an unaliased source in bash which did not pass \$0 ]" >&2
+		# echo "[ jshstub: maybe you wanted to run `ps -o time,ppid,pid,user,comm | grep $PROCCHECK` ]" >&2
+		echo "[ jshstub: BASH_ENV=>$BASH_ENV< ]" >&2
+		alias . >&2
+		alias source >&2
 		OKTOGO=true
 		GOTBYANOTHERSTUB=true
 	fi
@@ -68,7 +91,7 @@ then
 			touch -d "1 minute ago" "$LOCKFILE.compare"
 			if test "$LOCKFILE.compare" -nt "$LOCKFILE"
 			then
-				# echo "[ jshstub: Timeout on $LOCKFILE.  Ploughing on... ]" >&2
+				echo "[ jshstub: Timeout on $LOCKFILE.  Ploughing on... ]" >&2
 				ls -l "$LOCKFILE" "$LOCKFILE.compare" >&2
 				break
 			fi
@@ -89,7 +112,7 @@ then
 
 		rm -f "$SCRIPTFILE"
 
-		# echo "[ jshstub: Received call $SCRIPT_WAS_SOURCED$SCRIPTNAME ($*) ]" >&2
+		echo "[ jshstub: Received call $SCRIPT_WAS_SOURCED$SCRIPTNAME ($*) ]" >&2
 		## When sourced in zsh, $WGETCOM was not being expanded as desired.
 		eval $WGETCOM -q "$JSH_STUB_NET_SOURCE/$SCRIPTNAME" > "$SCRIPTFILE"
 
@@ -112,9 +135,10 @@ then
 	if test $OKTOGO && test ! "$DONTEXEC"
 	then
 
-		# echo "[ jshstub: Calling . $SCRIPTFILE $* ]" >&2
+		echo "[ jshstub: Calling . $SCRIPTFILE $* ]" >&2
 		# echo >&2
 
+		# set -x
 		. "$SCRIPTFILE" "$@"
 
 	else false

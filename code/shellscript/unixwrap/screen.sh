@@ -15,9 +15,10 @@ else
 	# echo "Once attached, press Ctrl+k then ? for help."
 	unj screen -list
 	# sleep 1
-	echo "Type session name to attach or start new (<Enter> defaults to \"screen\")."
+	DEFNAME="`hostname`"
+	echo "Type session name to attach or start new (<Enter> defaults to \"$DEFNAME\")."
 	read NAME
-	test "$NAME" || NAME=$HOST
+	test "$NAME" || NAME="$DEFNAME"
 	test "$NAME" || NAME=screen
 	# if test "$NAME"
 	# then

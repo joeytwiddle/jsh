@@ -6,6 +6,8 @@ fi
 
 ## Somehow the values set in the while loop get preserved by the variables, even with /bin/sh above.
 ## So what's the problem with variables in while loops?  Mabe its only when piping?!
+## It's because the while loop is not being piped into, for a change.
+## That's what causes a separate sh to run and the vars to be localised so often.
 SHOWALL=
 WEBSRCH=
 HEAD=

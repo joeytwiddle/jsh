@@ -26,6 +26,6 @@ then
 	cat > "$FILE.decrypted"
 else
 	tar $TARCOM
-fi
+fi &&
 
 mv "$FILE" "$FILE.prev"

@@ -32,11 +32,11 @@ then
 	fi
 	SECONDSSINCE=`datediff -secs -files "$LAST" "$NOW"`
 
-	if test "$SECONDSSINCE" -lt 1000
+	if test "$SECONDSSINCE" -lt 960
 	then
 
 		X=`datediff -files "$LAST" "$NOW"`
-		echo "$0: Trying to re-update too soon.  ($X < 15m ago.)"
+		echo "$0: Trying to re-update too soon.  ($X < 16m ago.)"
 		exit 1
 
 	fi
