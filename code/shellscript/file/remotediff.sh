@@ -18,7 +18,17 @@ TMPTHREE=`jgettmp difference.txt`
 
 FINDOPTS="-type f $@"
 
-CKSUMCOM='while read X; do cksum "$X"; done | tr "\t" " " | grep -v "/CVS/"'
+CKSUMCOM='
+	while read X; do
+		date "+%Y/%m/%d-%H:%M:%S" -r "$X" | tr -d "\n"
+		printf " "
+		cksum "$X"
+	done |
+	tr "\t" " " |
+	grep -v "/CVS/"
+'
+		# ls -l "$X" |
+		# sed "s/[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*//;s/ .*//"
 
 # REMOTECOM='find "'"$RDIR"'" '"$FINDOPTS"' | '"$CKSUMCOM"
 REMOTECOM='cd "'"$RDIR"'" && find . '"$FINDOPTS"' | '"$CKSUMCOM"
@@ -30,7 +40,7 @@ if test ! "$DIFFCOM"; then
 	## Note jfc not suitable because currently one-way only
 	DIFFCOMS="gvimdiff vimdiff jfc jdiff diff"
 	for X in $DIFFCOMS; do
-		if test "$DIFFCOM" = "" && which "$X" > /dev/null; then
+		if test "$DIFFCOM" = "" && which "$X" > /dev/null 2>&1; then
 			DIFFCOM="$X"
 		fi
 	done
@@ -42,17 +52,55 @@ if test ! "$DIFFCOM"; then
 fi
 # echo "Will use \"$DIFFCOM\" for diffing."
 
+DIFFCOM="myspecialdiff"
 
+myspecialdiff () {
+	jfcsh "$1" "$2" > "$1.only"
+	jfcsh "$2" "$1" > "$2.only"
+	(
+		cat "$1.only" |
+		while read X; do grep "$X$" "$1.longer"; done |
+		sed "s/^/local /"
+		cat "$2.only" |
+		while read X; do grep "$X$" "$2.longer"; done |
+		sed "s/^/remote /"
+	) |
+	sort -k 2 | sort -s -k 5 |
+	column -t -s '   ' > remotediff.edit
+
+	vim remotediff.edit
+
+	TOGO=`
+		cat remotediff.edit | grep "^local " |
+		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			printf "\"$LOCAL/$FILENAME\" "
+		done
+	`
+	TOCOME=`
+		cat remotediff.edit | grep "^remote " |
+		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			printf "\"$RUSER@$RHOST:$RDIR/$FILENAME\" "
+		done
+	`
+	echo
+	test ! "$TOGO" = "" &&
+		echo "scp $TOGO$RUSER@$RHOST:$RDIR/"
+	test ! "$TOCOME" = "" &&
+		echo "scp $TOCOME$LOCAL/"
+}
 
 echo "Getting cksums for remote $RHOST:$RDIR"
-ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO" && echo "Got remote" &
+ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
 
 echo "Getting cksums for local $LOCAL"
-cd "$LOCAL" && find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE" && echo "Got local" &
+cd "$LOCAL" && find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE.longer" && echo "Got local" &
 
 wait
 
 
+
+cat "$TMPONE.longer" | cut -d " " -f 2,3,4 > "$TMPONE"
+cat "$TMPTWO.longer" | cut -d " " -f 2,3,4 > "$TMPTWO"
 
 # Diff works badly if not sorted
 preparefordiff () {
