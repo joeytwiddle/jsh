@@ -1,8 +1,11 @@
-findjob $2 | grep -v renice |
+PRI="$1"
+shift
+
+for JOB do findjob "$JOB"; done | grep -v renice |
 sed 's+^+# +'
 
-echo -n "renice $1 -p"
-findjob $2 | grep -v renice |
+echo -n "renice $PRI -p"
+for JOB do findjob "$JOB"; done | grep -v renice |
 striptermchars |
 awk ' { printf($3" ") } '
 echo

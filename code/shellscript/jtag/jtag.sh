@@ -1,4 +1,4 @@
-if test "$1" = ""
+if [ "$1" = "" ]
 then
 	echo "jtag <file>... <tag>"
 	echo "jtag <file>... - <tag>..."
@@ -17,18 +17,18 @@ tagfilefor() {
 
 FILES=""
 
-while test ! "$2" = "" && test ! "$1" == "-"
+while [ ! "$2" = "" ] && [ ! "$1" == "-" ]
 do
 	FILES="$FILES$1
 "
 	shift
 done
 
-if test "$1" = "-"
+if [ "$1" = "-" ]
 then shift
 fi
 
-if test "$FILES" = ""
+if [ "$FILES" = "" ]
 then
 	## TODO: Construct an edit ... line to open all in one editor
 	for FILE
@@ -41,7 +41,7 @@ fi
 
 TAGS=""
 
-while test ! "$1" = ""
+while [ ! "$1" = "" ]
 do
 	TAGS="$TAGS$1
 "
@@ -53,7 +53,7 @@ FILE="$1"
 printf "$FILES" |
 while read FILE
 do
-	if test ! -e "$FILE"
+	if [ ! -e "$FILE" ]
 	then
 		echo "jtag: aborting since file does not exist: $FILE"
 		exit 2

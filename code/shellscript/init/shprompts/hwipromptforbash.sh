@@ -52,22 +52,26 @@ case "$SHORTHOST" in
 			G2COL="\[\033[01;31m\]"
 			G2U=""
 			G2P=" #"
+			G2DIRCOLOR="\[\033[01;34m\]"
 		else
 			COLOR="\[\033[00;36m\]"
 			OTHERCOLOR="\[\033[00m\]"
 			DIRCOLOR="\[\033[00;32m\]"
 			HISTCOL="\[\033[00;33m\]"
 			RESCOL="\[\033[01;31m\]"
+			# G2COL="\[\033[01;32m\]"
 			G2COL="\[\033[01;32m\]"
 			G2U="\u@"
-			G2P="/"
+			G2P=" $"
+			G2DIRCOLOR="\[\033[01;34m\]"
 		fi
+		EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]>>$?<< "`'
 		if [ "$RUNNING_GENTOO" = 1 ]
 		then
-			PS1="$G2COL$G2U\h`curseblack`:$DIRCOLOR\[\033[01;34m\]\w$G2P \[\033[00m\]"
+			PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$G2COL$G2P \[\033[00m\]"
 		else
 			DOLLARDOESNTDOMUCH="\$"
-			PS1="$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR\h $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
+			PS1="$EXITERR $HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR\h $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
 		fi
 	;;
 

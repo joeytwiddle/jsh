@@ -26,8 +26,8 @@ do
 		echo "`curseblue`Normalising next track: $TRACK`cursenorm`"
 		cp "$TRACK" "$NORMALISEDTRACK" || continue
 		cursecyan
-		nice -20 mp3gain "$NORMALISEDTRACK" | grep '\(Recommended "Track" mp3 gain change\| not \)'
-		nice -20 mp3gain -r -c "$NORMALISEDTRACK" > /dev/null 2>&1
+		nice -n 20 mp3gain "$NORMALISEDTRACK" | grep '\(Recommended "Track" mp3 gain change\| not \)'
+		nice -n 20 mp3gain -r -c "$NORMALISEDTRACK" > /dev/null 2>&1
 		cursenorm
 	fi
 
@@ -55,7 +55,10 @@ do
 
 	[ "$USE_MP3GAIN" ] && [ ! "$FIRSTLOOP" ] && TRACK="$NORMALISEDTRACK"
 
-	/usr/bin/time -f "%e seconds ( Time: %E CPU: %P Mem: %Mk )" playmp3andwait "$TRACK" &
+	if [ -x /usr/bin/time ]
+	then /usr/bin/time -f "%e seconds ( Time: %E CPU: %P Mem: %Mk )" playmp3andwait "$TRACK" &
+	else playmp3andwait "$TRACK" &
+	fi
 	## Gives mpg123 time to cache, so mp3gain doesn't steal vital CPU!  TODO: renice mpg123
 	sleep 10
 	echo

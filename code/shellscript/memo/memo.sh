@@ -117,7 +117,7 @@ export CHECKDIR CHECKFILE REMEMOWHEN FILE AGEFILE
 # echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$FILE" ] || eval "$REMEMOWHEN"
 then
-	[ "$DEBUG" ] && debug "memoRE:   `cursemagenta`$NICECOM`cursenorm` rememo=$REMEMO filecached=`mytest test -f \"$FILE\"` rememowhen=$REMEMOWHEN"
+	[ "$DEBUG" ] && ( debug "memoRE:   `cursemagenta`$NICECOM`cursenorm` rememo=$REMEMO filecached=`mytest test -f \"$FILE\"` rememowhen=$REMEMOWHEN" | tr '\n' ';' ; echo>&2 )
 	# eval "$REMEMOWHEN" && [ "$DEBUG" ] && debug "memo:     `cursemagenta`Refresh needed with com: $REMEMOWHEN`cursenorm`"
 	rememo "$@"
 else

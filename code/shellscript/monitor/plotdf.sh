@@ -14,7 +14,7 @@ sed "s+/[^ ]* ++g" > "$PLOTFILE"
 
 FSES=`
 halfway |
-tail -1 |
+tail -n 1 |
 sed "s+[^/]*\(/[^ ]*\) [^/]*+\1 +g"
 `
 

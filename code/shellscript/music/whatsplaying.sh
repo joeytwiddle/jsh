@@ -1,6 +1,11 @@
-# tail -1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
+## BUG: doesn't work if you use a sound server (eg. artsd or esd).  Fixing that would probably require a different approach.
 
-PROGNAME=`fuser -v /dev/dsp | drop 2 | head -n 1 | takecols 5`
+# tail -n 1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
+
+PROGNAME=`
+	( fuser -v /dev/dsp ; fuser -v /dev/sound/dsp ) |
+	drop 2 | head -n 1 | takecols 5
+`
 
 if [ ! "$PROGNAME" ]
 then

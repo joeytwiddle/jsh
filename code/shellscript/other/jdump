@@ -1,1 +1,3 @@
-java -cp $CLASSPATH:$JPATH/code/java/tools/dump/ dump $@
+which hexdump > /dev/null 2>&1 &&
+	hexdump -C "$@" ||
+	java -cp $CLASSPATH:$JPATH/code/java/tools/dump/ dump "$@"

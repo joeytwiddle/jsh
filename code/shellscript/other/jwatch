@@ -51,7 +51,7 @@ else
 	METHOD='eval "$EXECSTR"'
 fi
 
-METHOD="$METHOD | striptermchars"
+# METHOD="$METHOD | striptermchars"
 
 NEW=`jgettmp "new-$1"`
 OLD=`jgettmp "old-$1"`
@@ -64,7 +64,7 @@ then
 	cursemagenta
 	# $EXECSH
 	# echo "$EXECSTR" | sh
-	eval "$METHOD" | tail -20
+	eval "$METHOD" | tail -n 20
 	cursecyan
 	echo "### End check; starting watch. ----------------------------- "
 	cursenorm

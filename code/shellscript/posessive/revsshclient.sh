@@ -47,7 +47,7 @@ then
 	TARGETHOST="$2"; shift; shift
 	
 	echo "Waiting for a fresh connection to $TARGETHOST"
-	echo "TODO: you have to touch the .on file before this is worthwhile."
+	# echo "TODO: you have to touch the .on file before this is worthwhile."
 
 	touch /tmp/revssh-host-$TARGETHOST.on
 

@@ -5,6 +5,8 @@
 # jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted
 
 ## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash
+## TODO: check for reclaimspace in crontab or otherwise, and warn if not present!
+## BUG: doesn't work in chroot without bound mounts because df only reports /.
 
 DOCVS=
 if [ "$1" = "-cvs" ]

@@ -133,7 +133,7 @@ HIGHESTPRIORITYPROGS="cdrecord mkisofs xcdroast"
 
 ## I don't know why I had to `echo _`
 for PROG in `echo $HIGHESTPRIORITYPROGS`
-do alias "$PROG"="nice --20 $PROG"
+do alias "$PROG"="nice -n -20 $PROG"
 done
 
 # alias jhelp="$JPATH/tools/help" ## Because bash went and used it!

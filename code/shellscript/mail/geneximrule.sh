@@ -38,6 +38,7 @@ case "$COMMAND" in
 		shift
 		DESTFILE="$1"
 		echo "then"
+		echo "	logwrite \"$DESTFILE [geneximrule:$RULENAME]\""
 		echo "	save \"$DESTFILE\""
 		echo "	seen finish"
 		echo "endif"
@@ -47,6 +48,7 @@ case "$COMMAND" in
 		shift
 		FILTERFILE="$1"
 		RULENAME="$2"
+		export RULENAME; ## for use in log in thenSaveTo
 		shift; shift
 		NL="
 "

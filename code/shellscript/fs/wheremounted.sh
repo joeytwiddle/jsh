@@ -15,4 +15,4 @@ do
 
 done |
 
-tail -1
+tail -n 1

@@ -1,3 +1,4 @@
+export SHELL ## dircolors wants this
 if test -f $HOME/.lscols
 then . $HOME/.lscols
 elif test -f "$HOME/.dircolors"

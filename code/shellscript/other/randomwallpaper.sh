@@ -2,6 +2,11 @@
 
 ## TODO: skip images below a certain size (pixelswise or bytewise)
 
+if [ "$*" ]
+then WALLPAPERDIRS="$*"
+else WALLPAPERDIRS="/stuff/wallpapers/" # /stuff/mirrors/" # /www/uploads/"
+fi
+
 cd / # just for memoing
 
 REPEAT=once
@@ -12,7 +17,6 @@ do
 	REPEAT=
 
 	# cd $JPATH/wallpapers
-	WALLPAPERDIRS="/stuff/wallpapers/" # /stuff/mirrors/" # /www/uploads/"
 
 	FILETYPES="jpg jpeg gif bmp pcx lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
 	SEARCHARGS=' -iname "*.'` echo "$FILETYPES" | sed 's+ +" -or -iname "*.+g' `'"'

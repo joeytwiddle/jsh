@@ -34,7 +34,7 @@ getbytestc () {
 	echo -n "0 "
 	/sbin/tc -s qdisc ls dev $IFACE |
 	grep -A1 " $DISCNUM:" |
-	tail -1 |
+	tail -n 1 |
 	# pipeboth |
 	takecols 2 # | pipeboth
 }

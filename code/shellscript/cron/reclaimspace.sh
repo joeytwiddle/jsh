@@ -1,3 +1,6 @@
+# jsh-ext-depends: find
+# jsh-depends-ignore: there
+# jsh-depends: flatdf takecols randomorder drop error
 ## Rare danger of infinite loop if somehow rm -f repeatedly succeeds but does not reduce disk usage, or the number of files in RECLAIM/ .
 ## DONE: so that reclaimspace may be run regularly from cron, put in a max loop threshold to catch that condition.
 
@@ -35,45 +38,51 @@ do
 	find . -type f |
 	( randomorder && echo ) | ## need this end line otherwise read FILE on last entry ends the stream and hence the sh is killed.
 
-	## I can't get set -e to work on these tests; because they are in while loop?
-	while [ "$SPACE" -lt "$MINKBYTES" ] && [ "$GOAGAIN" ]
-	do
+	( ## This sub-clause is needed so that the cat can send the rest of the randomorder stream somwhere, other bash under gentoo complains about a "Broken pipe"
 
-		ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
-		if [ "$ATTEMPTSMADE" -gt 999 ]
-		then
-			## BUG: of course this can be reached legitimately before the work is done if the reclaim dir is full of many small or empty files.
-			error "Stopping on $ATTEMPTSMADE"st" reclamation attempt, assuming problem!"
-			exit 12
-		fi
+		## I can't get set -e to work on these tests; because they are in while loop?
+		while [ "$SPACE" -lt "$MINKBYTES" ] && [ "$GOAGAIN" ]
+		do
 
-		GOAGAIN=
-
-		echo "Partition $PARTITION mounted at $POINT has $SPACE"k" < $MINKBYTES"k" of space."
-
-		if [ -d "$POINT"/RECLAIM ]
-		then
-
-			read FILE
-			# debug "$FILE"
-
-			if [ -f "$POINT"/RECLAIM/"$FILE" ]
+			ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
+			if [ "$ATTEMPTSMADE" -gt 999 ]
 			then
-				echo "Reclaiming: rm -f $POINT"/RECLAIM/"$FILE"
-				rm -f "$POINT"/RECLAIM/"$FILE" &&
-				GOAGAIN=true
-			else
-				echo "But there is nothing in $POINT/RECLAIM to reclaim.  $FILE"
+				## BUG: of course this can be reached legitimately before the work is done if the reclaim dir is full of many small or empty files.
+				error "Stopping on $ATTEMPTSMADE"st" reclamation attempt, assuming problem!"
+				exit 12
 			fi
 
-		else
+			GOAGAIN=
 
-			echo "But there is no $POINT/RECLAIM directory to reclaim from."
+			echo "Partition $PARTITION mounted at $POINT has $SPACE"k" < $MINKBYTES"k" of space."
 
-		fi
+			if [ -d "$POINT"/RECLAIM ]
+			then
 
-		SPACE=`nicedf | grep "^$PARTITION" | takecols 4`
+				read FILE
+				# debug "$FILE"
 
-	done
+				if [ -f "$POINT"/RECLAIM/"$FILE" ]
+				then
+					echo "Reclaiming: rm -f $POINT"/RECLAIM/"$FILE"
+					rm -f "$POINT"/RECLAIM/"$FILE" &&
+					GOAGAIN=true
+				else
+					echo "But there is nothing in $POINT/RECLAIM to reclaim.  $FILE"
+				fi
+
+			else
+
+				echo "But there is no $POINT/RECLAIM directory to reclaim from."
+
+			fi
+
+			SPACE=`flatdf | grep "^$PARTITION" | takecols 4`
+
+		done
+
+	cat > /dev/null
+
+	)
 
 done

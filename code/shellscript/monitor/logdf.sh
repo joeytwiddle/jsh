@@ -1,5 +1,5 @@
 (
 printf "TIME="
 date "+%s"
-df
+df 2>/dev/null
 ) >> $JPATH/logs/df.log

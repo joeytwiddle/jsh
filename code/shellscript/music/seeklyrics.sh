@@ -194,7 +194,7 @@ else
 
 fi
 
-
+echo "Get it from: $TMPDIR"
 
 # jdeltmp $TMPDIR
 
