@@ -38,10 +38,11 @@ alias xv=myxv
 
 alias igrep='grep -i'
 
-HIGHESTPRIORITYPROGS='cdrecord mkisofs xcdroast'
+HIGHESTPRIORITYPROGS="cdrecord mkisofs xcdroast"
 # HIGHPRIORITYPROGS='xmms mplayer mpg123'
 ## don't usually have root for these
 
-for PROG in $HIGHESTPRIORITYPROGS
-do alias "$PROG" "nice -20 $PROG"
+## I don't know why I had to `echo _`
+for PROG in `echo $HIGHESTPRIORITYPROGS`
+do alias "$PROG"="nice -20 $PROG"
 done
