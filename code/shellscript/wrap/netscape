@@ -1,0 +1,1 @@
+`jwhich netscape` -install -no-about-splash -geometry =550x550+10+10 "$@" &
