@@ -5,8 +5,8 @@ cat << ! |
 13 fmail
 14 int
 15 web
-16 wserv
-17 other
+16 other
+17 wserv
 18 small
 19 big
 !
