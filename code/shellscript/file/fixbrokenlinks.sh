@@ -1,6 +1,7 @@
 if test "$1" = ""
 then
 	echo "fixbrokenlinks <in_dir> <scope_dir>..."
+	echo "fixbrokenlinks <in_dir> -list <scope_list_file>"
 	echo "  don't worry it doesn't overwrite anything - just suggests something to |sh"
 	exit 1
 fi
@@ -13,7 +14,12 @@ shift
 
 FILELIST=`jgettmp fixbrokenlinks_filelist`
 
-find "$@" > $FILELIST
+if test "$1" = "-list"
+then
+	cp "$2" "$FILELIST"
+else
+	find "$@" > $FILELIST
+fi
 
 find "$INDIR" -type l |
 
