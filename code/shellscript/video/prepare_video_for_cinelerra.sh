@@ -5,7 +5,7 @@ fi
 # MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
 ## transcode: --export_fps 25,3 
-# TC_CLIP="-c 0-200"
+# TC_CLIP="-c 0-100"
 # TC_CLIP="-c 500-1200"
 
 NOT_SO_BLUE=-k
@@ -24,6 +24,11 @@ do
 
 		reencode_video_simple "$VIDEOFILE" && VIDEOFILE="$VIDEOFILE"-simple.avi || jshwarn "Foolproof decode failed!"
 
+		## Hehe sometimes -x mplayer below will not read the output!
+		## But sometimes it reads from /dev/null and doesn't complain!
+		## That's why -x mplayer is prioritised as second,
+		## but I suspect we get the same problem sometimes without -x.
+
 	fi
 
 	# ## Joey converged upon split:
@@ -34,9 +39,13 @@ do
 	# transcode -i "$VIDEOFILE" -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav
 	# transcode -i "$VIDEOFILE" -N 0x1     -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
 	# transcode -i "$VIDEOFILE" -x ffmpeg    -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE || continue
-	transcode -i "$VIDEOFILE" -x mplayer -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
+	rm -f stream.yuv ## If not cleaned up (eg. due to crash), mplayer input plugin will not work
+	transcode -i "$VIDEOFILE" -x mplayer -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	transcode -i "$VIDEOFILE" -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
 
-	transcode -i "$VIDEOFILE" -x mplayer -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP || continue
+	rm -f stream.yuv
+	transcode -i "$VIDEOFILE" -x mplayer -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP ||
+	transcode -i "$VIDEOFILE" -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP || continue
 	## Haven't managed to get cinelerra reading mp3 (smaller files)
 	# transcode -i "$VIDEOFILE" -x mplayer -N 0x55 -o "$VIDEOFILE-audio" -y null,lame $TC_CLIP || continue
 	# transcode -i "$VIDEOFILE" -x mplayer -N 0x50 -o "$VIDEOFILE-audio" -y null,mp2enc $TC_CLIP || continue
