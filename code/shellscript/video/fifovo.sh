@@ -1,5 +1,10 @@
 ## fifovo: Watches a streaming video, saving it in rotating files, so that video from the past few minutes can be retrieved.
 
+## TODO: Add facility to save the playing stream (so can rewind, then "hit" "start recording").
+##       This might run into problems, since header is likely to be missing, but _we_ know what stream type it is (or we could possibly keep the very start of the stream and append it; hacky but it will at least get a working video with the bit we want).
+## TODO: If playing stream has paused at block 10 (or is just being slow to playback than encode),
+##       when saving stream reaches 9, it should start creating new files rather than overtaking / overwriting the playing thread / stream.
+
 ## BUG: Doesn't currently work for rtsp because for mencoder to encode rtsp, it requires output formats that do not suit our fifo trick
 
 ## TODO: Try what Rande on #freevo said: "mplayer will play anything and output to mpegpes"
@@ -38,104 +43,128 @@ encoding_thread () {
 	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg2video:vqscale=6"
 
 	## Seems ok but expensive for CPU:
-	ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
+	# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
 	## One time the video did not play on one clip:
-	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=6"
+	ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=3"
 
 	verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
+	## Try to make reencoder use less CPU by running gentoo version:!
+	# export LD_LIBRARY_PATH="/lib:/usr/lib:/mnt/gentoo/lib:/mnt/gentoo/usr/lib"
+	# verbosely /mnt/gentoo/usr/bin/mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
 	#
 	## Won't work for me cos I have no /dev/dvb/adapter0/video0+audio0
 	# verbosely mplayer "$STREAM_SOURCE" -vo mpegpes 2>&1 |
 	# verbosely mplayer "$STREAM_SOURCE" -vo yuv4mpeg -ao pcm 2>&1 |
 	# highlight ".*" yellow
 	cat
+
+	# wget "$STREAM_SOURCE" -O - > "$ENCODED_FIFO"
+
 }
 
-piping_thread () {
+saving_thread () {
+
+	WRITING_BLOCK=0
 
 	cat "$ENCODED_FIFO" |
 
 	while true
 	do
 
-		for X in `seq -w 1 20`
+		echo "$WRITING_BLOCK" > "$CURRENT_WRITING_BLOCK_INFO_FILE"
+		WRITING_BLOCK=`printf "%04i" "$WRITING_BLOCK"`
+		FILE="$STREAM_DATA_DIR/streamed.$WRITING_BLOCK.mpeg"
+		jshinfo "Now piping into $FILE"
+
+		# verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
+		# verbosely dd count=1 bs=$BLOCK_SIZE of="$FILE"
+
+		## Seems worse:
+		TRANS_BLOCK_SIZE=`expr "$BLOCK_SIZE" / 1024`
+		verbosely dd count=$TRANS_BLOCK_SIZE bs=1024 | cat > "$FILE"
+
+		# verbosely dd count=$BLOCK_SIZE bs=1 | cat > "$FILE"
+
+		if [ ! "$?" = 0 ]
+		then
+			jshinfo "There was a problem"
+			return
+		fi
+
+		WRITING_BLOCK=`expr "$WRITING_BLOCK" + 1`
+		if [ ! "$WRITING_BLOCK" -lt "$BUFFER_SIZE" ]
+		then WRITING_BLOCK=0
+		fi
+
+	done
+
+}
+
+restreaming_thread () {
+
+	CURRENT_STREAMING_BLOCK=0
+
+	# while true
+	# do
+		
+	while true
+	do
+
+		## This paragraph lets you rewind the playing stream, eg.:
+		##   echo "20" > /tmp/rewind
+		## TODO: doesn't check whether you cross the boundary of the
+		##       start of the ringbuffer (go too far back)
+		if [ -f /tmp/rewind ]
+		then
+			DISTANCE=`cat /tmp/rewind`
+			jshinfo "Rewinding $DISTANCE blocks (of size $BLOCK_SIZE)"
+			LAST_CURRENT_STREAMING_BLOCK="$CURRENT_STREAMING_BLOCK"
+			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - $DISTANCE`
+			if [ ! "$CURRENT_STREAMING_BLOCK" ]
+			then
+				echo "Error rewinding by \"$DISTANCE\" blocks."
+				CURRENT_STREAMING_BLOCK="$LAST_CURRENT_STREAMING_BLOCK"
+			fi
+			if [ "$CURRENT_STREAMING_BLOCK" -lt 0 ]
+			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + "$BUFFER_SIZE"`
+			fi
+			rm -f /tmp/rewind
+		fi
+		
+		while [ `cat "$CURRENT_WRITING_BLOCK_INFO_FILE"` = "$CURRENT_STREAMING_BLOCK" ]
 		do
-
-			## This paragraph lets you send earlier/other streams to the player, eg.:
-			##   echo "/tmp/streamed.02.avi" > /tmp/replay.todo
-			## Warning this causes the encoding thread to block, but hopefully it won't hang permanently if the replay is short.  (It frequently does cause encode to break though :( .)
-			## mencoder complains: FAAD: error: Channel coupling not yet implemented, trying to resync!
-			## Maybe it happens because the encoder's output fifo blocks because the player is not reading quickly enough (it played something else for a while).
-			## Tho interestingly, it didn't seem to happen until after mplayer rejoined the encoded stream
-			## We could either add a buffer, or maybe skip some of the real input, to keep the encoder's output buffer from filling.
-			## OK this new method avoids sending some of the input stream from the toplay.fifo
-			## BUG: Of course, viewing a fixed size replay and skipping a fixed size from encoder, does not neccessarily take the same amount of time for each process
-			## So, (bad1) the encoder's output stream might become a little more blocked,
-			## or (notsobad2) the player will play the replay quickly, and then have to wait for the encoder.
-			## (bad1) especially happens if you replay more than one file.
-			## I'm not sure if it causes audio-unsync too; that might have been when the & was inside the do.
-			## Could avoid that by fixing bitrate.
-			## Can avoid (bad1) by dropping all input from encoder, which would probably cause (notsobad2) to happen.
-			## So, what about... dropping all but a fixed amount?!
-			## TODO: Or this might be a solution: all the time you are replaying, dd into dev/null, but dd back into toplay when replaying is over.  This will most likely cause the player to need to rebuffer because dev/null probably reads a lot faster than the fifo!
-			TODO=
-			if [ -f /tmp/replay.todo ]
-			then
-				TODO=`cat /tmp/replay.todo`
-				printf "" > /tmp/replay.todo
-				echo "$TODO" | grep -v "^$" |
-				while read TOREPLAY
-				do
-					jshinfo "Replaying from $TOREPLAY"
-					verbosely dd if="$TOREPLAY"
-				done &
-			fi
-
-			## CONSIDER: Here, instead of piping from encoder to player
-			## we could just pipe to files, and have a separate playing
-			## thread pipe back from files into player fifo.
-			## This new thread could also manage rewinding, and possibly
-			## setting record points etc.
-
-			FILE="/tmp/streamed.$X.avi"
-			if [ "$TODO" ]
-			then jshinfo "Now piping into $FILE, but not into $PLAYER_FIFO"
-			else jshinfo "Now piping into $FILE, and also into $PLAYER_FIFO"
-			fi
-
-			# verbosely dd if="$ENCODED_FIFO" count=1024 bs=1024 |
-
-			verbosely dd count=1024 bs=1024 |
-
-			# verbosely tee -a "$PLAYER_FIFO" >> "$FILE"
-
-			verbosely tee "$FILE" |
-			# cat > "$PLAYER_FIFO"
-
-			# verbosely tee "$PLAYER_FIFO" |
-			# cat > "$FILE"
-
-			if [ "$TODO" ] ## I think this if breaks the usefulness of "$?" below.
-			then cat > /dev/null
-			else cat
-			fi
-
-			wait ## For replay dd to finish
-
-			if [ ! "$?" = 0 ]
-			then
-				jshinfo "There was a problem"
-				return
-			fi
-
+			# CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - 1`
+			jshinfo "Waiting for $CURRENT_STREAMING_BLOCK to finish writing..."
+			sleep 10
 		done
 
-	done |
+		jshinfo "Streaming block $CURRENT_STREAMING_BLOCK"
 
-	cat > "$PLAYER_FIFO" 2>&1 |
+		CURRENT_STREAMING_BLOCK=`printf "%04i" "$CURRENT_STREAMING_BLOCK"`
+		# dd if="$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg" |
+		# cat
+		cat "$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg"
 
-	# highlight -bold ".*" red
-	cat
+		if [ ! "$?" = 0 ]
+		then
+			jshinfo "There was a problem"
+			return
+		fi
+
+		CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + 1`
+		if [ ! "$CURRENT_STREAMING_BLOCK" -lt "$BUFFER_SIZE" ]
+		then CURRENT_STREAMING_BLOCK=0
+		fi
+
+	# done
+
+	done > "$PLAYER_FIFO"
+	# done |
+
+	# # dd of="$PLAYER_FIFO"
+	# cat > "$PLAYER_FIFO" 2>&1 |
+	# cat
+
 }
 
 playing_thread () {
@@ -145,8 +174,17 @@ playing_thread () {
 ## I don't know why but if you leave the ()s out it causes a nasty infloop!
 initialise () {
 
+	export TOTAL_BUFFER_SIZE_MEG=20
+	# export STREAM_DATA_DIR=/tmp/
+	export STREAM_DATA_DIR=/dev/shm/joey/
+	# export CURRENT_WRITING_BLOCK_INFO_FILE=/tmp/current_block.info
+	export CURRENT_WRITING_BLOCK_INFO_FILE="$STREAM_DATA_DIR"/current_block.info
+
 	export STREAM_SOURCE="$1"
 	shift
+
+	export BUFFER_SIZE=100
+	export BLOCK_SIZE=`expr 10240 '*' $TOTAL_BUFFER_SIZE_MEG`
 
 	export ENCODED_FIFO="/tmp/encoded.fifo"
 	# export ENCODED_FIFO="./stream.yuv"
@@ -162,9 +200,17 @@ initialise () {
 
 	sleep 2
 
-	guifyscript "$0" piping_thread &
-	PIPING_PID="$!"
-	echo "PIPING_PID=$PIPING_PID"
+	guifyscript "$0" saving_thread &
+	SAVING_PID="$!"
+	echo "SAVING_PID=$SAVING_PID"
+
+	sleep 2
+
+	guifyscript "$0" restreaming_thread &
+	## Didn't appear to help:
+	# guifyscript nice -n 15 "$0" restreaming_thread &
+	RESTREAMING_PID="$!"
+	echo "RESTREAMING_PID=$RESTREAMING_PID"
 
 	sleep 2
 
@@ -184,8 +230,11 @@ case "$COMMAND" in
 	encoding_thread)
 		encoding_thread "$@"
 	;;
-	piping_thread)
-		piping_thread "$@"
+	saving_thread)
+		saving_thread "$@"
+	;;
+	restreaming_thread)
+		restreaming_thread "$@"
 	;;
 	playing_thread)
 		playing_thread "$@"
