@@ -31,8 +31,9 @@ then
 	cd $JPATH/tools
 	echo "Linking ..."
 	(
-		find ../code/shellscript/ \
-			\( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) -not -type d
+		## Some Solaris boxes don't support -regex, so using grep instead.
+		find ../code/shellscript/ -not -type d |
+		grep ".*/\([^\.]*\|.*\.\(sh\|hs\|zsh\|bash\|shlib\)\)$"
 		# test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	/bin/grep -v "/.ignore/" |
