@@ -1,10 +1,12 @@
 # Does a simple one-way jfc diff
 
-if test "$1" = ""; then
-	echo "jfcsh [ -bothways | -common ] <file_A> <file_B>"
-	echo "  will show lines in file_A which are not in file_B."
-	exit 1
-fi
+case "$1" in
+	""|-h|--help)
+		echo "jfcsh [ -bothways | -common ] <file_A> <file_B>"
+		echo "  will show lines in file_A which are not in file_B."
+		exit 1
+	;;
+esac
 
 BOTHWAYS=
 COMMON=

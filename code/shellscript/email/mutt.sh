@@ -16,6 +16,8 @@ MBSCHANGED=`
 find "$FINDDIR" -newer "$TMPFILE"
 `
 
+jdeltmp $TMPFILE
+
 if test ! "$MBSCHANGED" = ""; then
 	echo "The following mailboxes were changed:"
 	cursegreen
@@ -32,5 +34,3 @@ if test ! "$MBSCHANGED" = ""; then
 		# sed 's+^+rm \"+;s=$=\"='
 	done
 fi
-
-jdeltmp $TMPFILE
