@@ -1,7 +1,4 @@
 #!/bin/sh
-# /bin/sh on Solaris says: test argument expected
-# but Maxx doesn't have bash and zsh is in /usr/bin, so I fixed the:
-# test ! $QUIETLY to test ! "$QUIETLY" and now it works!
 
 if [ "$1" = "" ]; then
   echo "jwhich [ inj ] <file> [ quietly ]"
@@ -39,6 +36,7 @@ for dir in $PATHS; do
   fi
 done
 
-## I think these are for DEBUG only:
-# test ! $QUIETLY && echo "jwhich_error_could_not_find_$FILE"
-# exit 1          # Not found  :(
+## These were originally for DEBUG only.
+## But I'm keeping them in, since it's better than no output and it can be turned off.
+test ! $QUIETLY && echo "jwhich_error_could_not_find_$FILE"
+exit 1          # Not found  :(

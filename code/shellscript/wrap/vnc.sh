@@ -9,4 +9,14 @@
 # I wanted -dpi 80 but Gnome (xscreensaver) lost its fonts
 # vncserver -depth 16 -geometry 1024x768 -dpi 75
 # vncserver -depth 16 -geometry 1024x768 -dpi 100
-vncserver -depth 16 -geometry 800x600 -dpi 75
+DESKTOP=`
+	vncserver -depth 16 -geometry 800x600 -dpi 75 2>&1 |
+	pipeboth |
+	grep "desktop is" | afterlast ":"
+`
+
+echo "Found: >$DESKTOP<"
+
+if xisrunning
+then xvncviewer hwi:"$DESKTOP"
+fi

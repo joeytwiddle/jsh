@@ -1,0 +1,2 @@
+unj -quiet newer "$@" ||
+mynewer "$@"
