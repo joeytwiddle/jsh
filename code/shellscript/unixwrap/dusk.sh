@@ -31,8 +31,8 @@ fi
 
 # Pretty printing
 while read X Y; do
-	# echo -e "$X\t"`ls -artFd --color "$Y"`
-	echo "$X	"`ls -dF "$Y"`
+	echo -e "$X\t"`ls -artFd --color "$Y"`
+	# echo "$X	"`ls -dF "$Y"`
 done
 
 # files
