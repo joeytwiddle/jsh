@@ -1,7 +1,10 @@
 #!/bin/sh
 
 # cd $JPATH/wallpapers
-cd /stuff/wallpapers
+WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/ /www/uploads/"
+
+FILETYPES="jpg Jpeg jpeg JPG JPEG gif GIF bmp BMP pcx PCX lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
+SEARCHARGS='-name "*.'`echo "$FILETYPES" | sed 's+ +" -or -name "*.+g'`'"'
 
 # find . -type f -and -not -name "*.html" > tmp.txt
 # FILE=`chooserandomline tmp.txt`
@@ -15,7 +18,7 @@ if test "$1" = "-all"; then
 	UNGREPEXPR='^$'
 else
 	UNGREPEXPR=`
-		find . -name "noshow" |
+		find $WALLPAPERDIRS -name "noshow" |
 		while read X; do
 		echo '^'\`dirname "$X"\`'|'
 		done |
@@ -25,7 +28,7 @@ else
 fi
 
 FILE=`
-	find . -type f -and -not -name "*.html" |
+	echo "find $WALLPAPERDIRS $SEARCHARGS" | sh |
 	egrep -v "$UNGREPEXPR" |
 	if test $SPECIALISE; then
 		grep "$SPECIALISE"
@@ -34,11 +37,9 @@ FILE=`
 	fi |
 	chooserandomline
 `
-# echo "$FILE"
-
 if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null; then
-  echo "$PWD$FILE"
-  ln -sf "$PWD/$FILE" "$JPATH/background1.jpg"
+  echo "del \"$FILE\""
+  ln -sf "$FILE" "$JPATH/background1.jpg"
   xv -root -rmode 5 -maxpect -quit "$FILE" 1>&2 ||
   xsetroot -bitmap "$FILE" 1>&2 &
 else

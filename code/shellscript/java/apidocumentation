@@ -24,6 +24,7 @@ APIDOCPATH="
 /home/joey/multicom/joey_dev/lib/notinuse/multicom_docs
 /mnt/pod2/stuff/docs
 /home/joey/j/code/java/HTTPClient/doc
+/usr/local/install/java/castor/doc
 "
 
 APIDOCPATH=`echo "$APIDOCPATH" | while read X; do

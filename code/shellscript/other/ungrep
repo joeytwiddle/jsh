@@ -1,3 +1,12 @@
-# By leaving $@ without ""s you can pass parameters to ungrep ok
-# But if you pass a string "with a space" it will get passed as "with" "a" "space"
-/bin/grep -v $@
+# /bin/grep -v $@
+
+# Now changed to recursive method
+# multiple arguments are multiple ungreps, not classic grep arguments.
+
+if test "$1" = ""; then
+	cat
+else
+	STR="$1"
+	shift
+	/bin/grep -v "$STR" | ungrep "$@"
+fi
