@@ -59,6 +59,8 @@ bindkey "^f" forward-word
 bindkey "^x" vi-backward-kill-word
 bindkey "^v" kill-word
 
+bindkey "^u" vi-undo-change
+
 # trying to jump words with CTRL+arrows
 # bindkey "^[OC" backward-word
 # bindkey "^[[C" forward-word

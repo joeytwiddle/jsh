@@ -29,6 +29,8 @@ FILENAME=`filename "$LOCALFILE"`
 REPOSFILEDIR=`cat "$FILEPATH/CVS/Repository"`
 REPOSDESTDIR=`cat "$LOCALDESTDIR/CVS/Repository"`
 
+# Last line doesn't work if LOCALDESTDIR not in cvsroot repository!
+
 echo "# Moving $FILEPATH / $FILENAME in $REPOSLOCAL"
 
 CVSFILE="$CVSROOT/$REPOSFILEDIR/$FILENAME,v"
@@ -52,4 +54,7 @@ if test ! -f "$CVSFILE"; then
 fi
 
 echo "mv \"$LOCALFILE\" \"$LOCALDESTDIR/\""
+if test ! -d "$CVSDESTDIR"; then
+  echo "mkdir -p \"$CVSDESTDIR\""
+fi
 echo "mv \"$CVSFILE\" \"$CVSDESTDIR/\""
