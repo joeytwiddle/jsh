@@ -32,7 +32,7 @@ do
 	# memo dpkg -L "$PACKAGE" | sed "s|$|	[$PACKAGE]|"
 	## All in one memo:
 	# memo "dpkg -L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
-	## Inner memo because there is a small chance dpkg -L ... may have been run elsewhere
+	## Inner memo because there is a small chance dpkg-L ... may have been run elsewhere
 	memo "memo dpkg-L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
 	## yuk: memo dpkg -L "$PACKAGE" '|' sed "'s|$|	[$PACKAGE]|'"
 done |

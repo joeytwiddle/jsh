@@ -16,3 +16,7 @@ States:
 	       -> unused (=sleeping) (fadevolume, xscreensaver)
 
 ability to tag current song or current background with a meta-word
+
+
+
+TODO: remove ppp-updateip because it gives too much of my security away!

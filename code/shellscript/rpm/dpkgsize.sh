@@ -9,7 +9,7 @@ fi
 # My version, much slower but robust to missing files
 ## I had problems with unwanted printing of file lists after the size list but maybe that problem is elsewhere
 # FILES=`dlocate -L "$@" | while read Y; do
-FILES=`dpkg -L "$@" | while read Y; do
+FILES=`dpkg-L "$@" | while read Y; do
         if test -f "$Y"; then
                 echo "$Y"
         fi
