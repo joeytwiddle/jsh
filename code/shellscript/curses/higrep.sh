@@ -19,8 +19,8 @@ grep $GREPARGS "$@" 2>/dev/null |
 		sed "s|^--$|`curseblue`--`cursenorm`|" | ## Don't understand why this one doesn't prevent later ^ regexps from failing!
     ## Render lines beginning <filename>: and <filename>-
     ## Too annoying so disabled, until we can establish multiple file input or -r
-		# sed "s|^\([^:-]*\)\(:\)|`cursecyan;cursebold`\1\2`cursenorm`$TABCHAR|" |
-		# sed "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
+		sed "s|^\([^:-]*\)\(:\)|`cursecyan;cursebold`\1\2`cursenorm`$TABCHAR|" |
+		sed "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
 		cat
 	else
 		cat
