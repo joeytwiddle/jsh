@@ -1,5 +1,3 @@
-#!/bin/sh
-
 export JPATH=$HOME/j
 export PATH=$JPATH/tools:$PATH
 
@@ -49,6 +47,7 @@ if test "$SHOWUSER" = "joey@"; then
 	SHOWUSER=""
 fi
 
+# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
 SHORTSHELL=`echo "$SHELL" | afterlast "/"`
 # echo "shell = $SHORTSHELL"
 
