@@ -1,7 +1,8 @@
 encoding_thread () {
 	verbosely mencoder "$STREAM_SOURCE" -of avi -o "$ENCODED_FIFO" \
-		-oac lavc -ovc lavc -lavcopts vqscale=6
+		-oac lavc -ovc lavc -lavcopts vqscale=6 2>&1 |
 		# -oac copy -ovc copy
+	highlight ".*" yellow
 }
 
 piping_thread () {
@@ -9,19 +10,30 @@ piping_thread () {
 	# while true
 	for X in `seq -w 1 20`
 	do
-		echo "Now piping into $FILE"
 		FILE="/tmp/streamed.$X.avi"
+		echo "Now piping into $FILE"
+		# verbosely dd if="$ENCODED_FIFO" count=1024 bs=1024 |
+		# tee -a "$PLAYER_FIFO" >> "$FILE"
 		verbosely dd if="$ENCODED_FIFO" count=1024 bs=1024 |
-		tee -a "$PLAYER_FIFO" >> "$FILE"
-	done
+		tee "$FILE" >> "$PLAYER_FIFO"
+	done 2>&1 |
+	highlight -bold ".*" red
 }
 
 playing_thread () {
-	verbosely mplayer "$PLAYER_FIFO"
+	verbosely mplayer "$PLAYER_FIFO" # | highlight ".*" green
 }
 
 initialise () {
 
+	xterm -e fifovo inner_initialise "$@"
+	exit 1
+
+}
+
+inner_initialise {
+
+	shift
 	export STREAM_SOURCE="$1"
 	shift
 
@@ -32,28 +44,30 @@ initialise () {
 	mkfifo "$ENCODED_FIFO"
 	mkfifo "$PLAYER_FIFO"
 
-	xterm -e "$0" encoding_thread "$STREAM_SOURCE" &
+	encoding_thread "$STREAM_SOURCE" &
 	ENCODING_PID="$!"
 	echo "ENCODING_PID=$ENCODING_PID"
 
 	sleep 2
 
-	xterm -e "$0" piping_thread &
+	piping_thread &
 	PIPING_PID="$!"
 	echo "PIPING_PID=$PIPING_PID"
 
 	sleep 2
 
-	xterm -e "$0" playing_thread &
+	playing_thread &
 	PLAYER_PID="$!"
 	echo "PLAYER_PID=$PLAYER_PID"
 
 	wait
 
+	echo "Press a key."
+	read KEY
+
 	rm -f "$ENCODED_FIFO" "$PLAYER_FIFO"
 
 }
-
 
 COMMAND="$1"
 shift
@@ -67,8 +81,11 @@ case "$COMMAND" in
 	playing_thread)
 		playing_thread "$@"
 	;;
+	inner_initialise)
+		inner_initialise "$@"
+	;;
 	stream)
-		initialise "$@"
+		xterm -e fifovo inner_initialise "$@"
 	;;
 	*)
 		echo "Don't know command: $COMMAND"
