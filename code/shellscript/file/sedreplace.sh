@@ -41,12 +41,14 @@ else
 			continue
 		fi
 		cat "$FILE" | sed "s$FROM$TOg" > "$TMPFILE"
+		## TODO: what about symlinks?  Is it better to cat over?
 		chmod --reference="$FILE" "$TMPFILE"
 		# Shouldn't I be checking for SHOWCHANGES here?
 		if cmp "$FILE" "$TMPFILE" >&2; then
 			test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >&2
 			jdeltmp "$TMPFILE"
 		else
+			## TODO: sometimes we move it sometimes we don't!
 			if test $DOBACKUP; then
 				mv "$FILE" "$FILE.b4sr" ||
 				if test ! "$?" = 0; then

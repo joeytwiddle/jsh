@@ -4,7 +4,9 @@ REALMAN=`jwhich man`
 ## If screen is running, could pop up in an extra window.  Could make this X/screen window popup functionality generic
 
 ## If user is running in X, we pop up a separate window for them
-if xisrunning
+if [ "$STY" ]
+then screen -X screen $REALMAN -a "$@"
+elif xisrunning
 then
 	# [ "$INJ" ] && whitewin -title "jdoc $1" -geometry 80x60 -e jdoc "$1"
 	## man will try to fit page within COLUMNS>=80plz, and then we will fit to whatever man outputs

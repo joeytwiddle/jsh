@@ -1,6 +1,8 @@
 ## bigwin supports sh |s, newwin supports ""s
 
-if xisrunning; then
+if [ "$STY" ]
+then screen -X screen "$@"
+elif xisrunning; then
 	xterm -bg "#500000" -title "$*" -e "$@" &
 else
 	"$@"
