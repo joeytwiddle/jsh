@@ -15,9 +15,10 @@ TMPTWO="/tmp/remote.cksum"
 
 FINDOPTS="-type f"
 
-CKSUMCOM='while read X; do cksum "$X"; done'
+CKSUMCOM='while read X; do cksum "$X"; done | tr "\t" " " | grep -v "/CVS/"'
 
-REMOTECOM='find "'"$RDIR"'" '"$FINDOPTS"' | '"$CKSUMCOM"
+# REMOTECOM='find "'"$RDIR"'" '"$FINDOPTS"' | '"$CKSUMCOM"
+REMOTECOM='cd "'"$RDIR"'"; find . '"$FINDOPTS"' | '"$CKSUMCOM"
 
 # Diff works badly if not sorted
 preparefordiff () {
@@ -27,9 +28,11 @@ preparefordiff () {
 	TMPTWO="$TMPTWO.sorted";
 }
 
-ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO"
+ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO" && echo "Got remote" &
 
-find "$LOCAL" $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE"
+cd "$LOCAL"; find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE" && echo "Got local" &
+
+wait
 
 # Try to use (g)vimdiff or jfc if available
 if which gvimdiff > /dev/null; then

@@ -1,1 +1,2 @@
-ps -A -o pid,user,comm | grep $@
+ps -A -o pid,user,args | grep $@
+# ps -A -o pid,user,comm | grep $@
