@@ -27,7 +27,7 @@
 # INTERFACE=eth1
 
 ## This is actually the max output bytes per second you can observe from monitoriflow running without shaping
-BANDWIDTH_OUT=22000
+BANDWIDTH_OUT=20000
 # BANDWIDTH_OUT=25000
 
 # PROPORTION_SMALL_PIPE="15"
@@ -47,6 +47,7 @@ INTERFACE=`/home/joey/j/jsh ifonline`
 ## Stats can be accessed with: /sbin/tc -s qdisc ls dev eth1
 ## In jsh I use: jwatchchanges /sbin/tc -s qdisc ls dev eth1 "|" trimempty
 ## I also use: monitoriflow
+## Actually now I recommend: traffic_shaping_monitor
 
 ## TODO:
 ##   - I don't know if we are affecting ingress at all.  man tc suggests that we can.
@@ -64,10 +65,11 @@ function filter_port () {
 	PORTDIR="$2"
 	PORT="$3"
 	DESTDISC="$4"
+	[ "$5" ] && PRIO="$5" || PRIO="$DESTDISC"
 	if [ "$DESTDISC" = 2 ]
 	then error "[traffic_shaping] filter_port $1 $2 $3 $4 : Don't use disc 2 it's dodgy!  (I don't know why but it gets packets without rules!)"
 	fi
-	/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio $DESTDISC protocol ip u32 match ip $PORTDIR $PORT 0xffff flowid 1:$DESTDISC
+	/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio $PRIO protocol ip u32 match ip $PORTDIR $PORT 0xffff flowid 1:$DESTDISC
 }
 
 case "$1" in
@@ -81,6 +83,8 @@ case "$1" in
 
 
 			## >>>>>>>>>>>>>>>>>>>> Initialisation
+
+			[ "$PROPORTION_TO_ALLOW" ] && BANDWIDTH_OUT=`expr "$BANDWIDTH_OUT" '*' $PROPORTION_TO_ALLOW`
 
 			[ "$BUT_ALLOW_WEBSERVER_TWICE" ] || BUT_ALLOW_WEBSERVER_TWICE=1
 
@@ -255,17 +259,18 @@ case "$1" in
 			filter_port pop2     sport 109  3
 			filter_port pop3     sport 110  3
 			filter_port pop3s    sport 995  3
-			## Remote mail:
-			filter_port smtp     dport 25   3
-			filter_port ssmtp    dport 465  3
-			filter_port imap2    dport 143  3
-			filter_port imap3    dport 220  3
-			filter_port imaps    dport 993  3
-			filter_port pop2     dport 109  3
-			filter_port pop3     dport 110  3
-			filter_port pop3s    dport 995  3
-			## Spamassassin or razor, dunno:
-			filter_port razor    dport 773  3
+			# ## Remote mail:
+			## Make sure email gets out, but doesn't flood the connection:
+			filter_port smtp     dport 25   "$WEBSERVER_DISC" 3
+			filter_port ssmtp    dport 465  "$WEBSERVER_DISC" 3
+			filter_port imap2    dport 143  "$WEBSERVER_DISC" 3
+			filter_port imap3    dport 220  "$WEBSERVER_DISC" 3
+			filter_port imaps    dport 993  "$WEBSERVER_DISC" 3
+			filter_port pop2     dport 109  "$WEBSERVER_DISC" 3
+			filter_port pop3     dport 110  "$WEBSERVER_DISC" 3
+			filter_port pop3s    dport 995  "$WEBSERVER_DISC" 3
+			# ## Spamassassin or razor, dunno:
+			filter_port razor    dport 773  "$WEBSERVER_DISC" 3
 
 			## Peercast:
 			filter_port peercast dport 7144 4
@@ -295,29 +300,32 @@ case "$1" in
 			filter_port ssh      dport 2200  4
 
 			## Vnc-http, Vnc, and X
-			for VNCPORT in `seq 5800 5899` `seq 5900 5999` `seq 6000 6010`
+			## Oh but it gets eMule too!
+			# for VNCPORT in `seq 5800 5899` `seq 5900 5999` `seq 6000 6010`
+			# for VNCPORT in `seq 5800 5849`
+			for VNCPORT in `seq 5800 5899` `seq 5900 5999`
 			do
-				filter_port vnc dport $VNCPORT 4
 				filter_port vnc sport $VNCPORT 4
+				# filter_port vnc dport $VNCPORT 4
 			done
 
 			## Realplay
-			filter_port realplay dport 554 5
-			filter_port realplay sport 554 5
+			filter_port realplay sport 554 4
+			filter_port realplay dport 554 4
 
 			## Webcam
-			filter_port webcam   dport 9192   5
 			filter_port webcam   sport 9192   5
+			filter_port webcam   dport 9192   5
 
-			## Fast websurfing:
-			filter_port http   dport 80   3
-			filter_port https  dport 443  3
 			## You probably want your webserver to go reasonably fast (compared to file sharing networks for example).
 			## If you prefer to choke your webserver too, you can send it to band 8 or 9 instead.  (9 seems great but sometimes tails off!)
 			## Or I could set up a third sub-pipe for webserver throttling...
 			## Lower priority webserver:
 			filter_port http   sport 80   $WEBSERVER_DISC
 			filter_port https  sport 443  $WEBSERVER_DISC
+			## Fast websurfing:
+			filter_port http   dport 80   5
+			filter_port https  dport 443  5
 
 			## Experiment to test whether torrents were flooding gnutella:
 			# filter_port gtkgnut sport 6346 $WEBSERVER_DISC
@@ -339,7 +347,7 @@ case "$1" in
 			##          ftp telnet dhcp gopher finger hostnames rtelnet sftp nntp ntp! snmp irc ldap snpp talk ntalk rsync ftps ftps-data telnets ircs webcam socks
 			for PORT in 21  23     67   70     79     101       107     115  119  123  161  194 389  444  517  518   873   990  989       992     994  9192   1080
 			do
-				filter_port batch$PORT sport $PORT 6
+				# filter_port batch$PORT sport $PORT 6
 				filter_port batch$PORT dport $PORT 6
 			done
 

@@ -90,23 +90,19 @@ runnable_config () {
 
 	create_main_pipe
 	create_throttled_pipe 9 30000 ## low priority traffic (latency ok)
-	create_throttled_pipe 8 30000 ## general traffic
-	create_throttled_pipe 7 30000 ## priority traffic (interactive)
+	create_throttled_pipe 5 30000 ## general traffic
+	create_throttled_pipe 3 30000 ## priority traffic (interactive)
 	create_free_pipe 1            ## really really priority traffic (which can exceed all limits)
 
 	## Now we need to classify packets and filter them into one of the pipes:
+	## This time they go in order I believe :)
 
-	filter_ports -from `seq 7777 7779` 7  ## game ports (UT here) are throttled but higher priority than webserver
-
-	filter_ports -from 22 1               ## ssh sessions (including scp/rsync/ssh port forwarding) are umlimited
-
-	# filter_destip 82.33.185.244 1         ## Hwi gets unlimited on anything not yet classified
-
-	filter_ports -to 80 7                 ## websurfing is also priority
-
-	filter_ports -from 80 8               ## webserver is general
-
-	filter_rest 9                         ## any other traffic is throttled and very low priority
+	filter_ports -from 22              1  ## ssh sessions (including scp/rsync/ssh port forwarding) are umlimited!
+	filter_ports -from `seq 7777 7779` 3  ## game ports (UT here) are throttled but higher priority than webserver
+	filter_ports -to   80              3  ## websurfing is also priority
+	# filter_destip 82.33.185.244      1  ## Hwi gets unlimited on anything not yet classified
+	filter_ports -from 80              5  ## webserver is general
+	filter_rest                        9  ## any other traffic is throttled and very low priority
 
 }
 
