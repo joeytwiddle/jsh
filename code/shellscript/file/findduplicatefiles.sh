@@ -4,7 +4,7 @@
 readgroup () {
 	while read LINE
 	do
-		test ! $LINE && break
+		test ! "$LINE" && break
 		echo "$LINE" >&2
 	done
 }
@@ -97,11 +97,11 @@ fi |
 # dropcols 1 2 | sed 's+^.+del "+;s+.$+"+'
 # cat
 
-while true
+while readgroup
 do
-	readgroup
 	echo "GROUP:"
 	echo "$GROUP"
+	test ! "$GROUP" && break
 done
 
 exit

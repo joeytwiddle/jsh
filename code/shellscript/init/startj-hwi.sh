@@ -25,13 +25,17 @@
 # chmod a+w /tmp/env.out
 # chmod a+w /tmp/set.out
 
+## For jshstub bash support:
+# alias .="'.' $JPATH/tools/joeybashsource"
+
 # set -x
-## in bash on a 486 told me that points of slowness were:
+## in bash on a 486 told me that points of slowness WERE:
 # jwhich jwhich
 # startswith CYGWIN
 # the runnable (which) checks in dirhistorysetup.zsh
 # the business with JM_UNAME
 # grepping the date in hwipromptforbash
+## so I fixed a few of them.
 
 # mytime () {
 	# time "$@"

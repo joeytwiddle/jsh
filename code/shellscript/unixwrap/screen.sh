@@ -3,6 +3,7 @@ export DISPLAY=
 
 ## This _might_ get it to buggy if problems persist:
 # export WINNAMEW
+export STY
 
 if test "$*"
 then
@@ -16,10 +17,11 @@ else
 	# sleep 1
 	echo "Type session name to attach or start new (<Enter> defaults to \"screen\")."
 	read NAME
+	test "$NAME" || NAME=$HOST
 	test "$NAME" || NAME=screen
 	# if test "$NAME"
 	# then
-		screen -a "-e^kk" -S "$NAME" -D -RR
+		screen -a "-e^k^l" -S "$NAME" -D -RR
 		# screen -a "-e^kk" -S "$NAME"
 		# ## If screen named exists
 		# if unj screen -list grep "$NAME"

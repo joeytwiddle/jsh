@@ -68,6 +68,12 @@ while [ true ]; do
 	$JWATCHCOMPCOM $NEW $OLD
 
 	sleep 5
+	## If we want jwatch to keep in time, ie. run exactly every 5 seconds,
+	## then we could bg this sleep at the start with & and then wait here.
+	## This assumes that the process takes < 5s to run.
+	## If not, timing will be wrong, and jwatch will never sleep!
+	## If the process is heavy, this could drain your system.
+	## Hence the existing method is good as a default.
 
 	## Not sure this really works:
 	# `breakonctrlc`

@@ -1,7 +1,13 @@
-# Watches ps output for processes starting/stopping
-# Quite useful, but note that very fast processes are
-# not noticed if they start and stop inbetween two
-# successive poles of ps.
+## Watches ps output for processes starting/stopping
+## Quite useful, but note that very fast processes are
+## not noticed if they start and stop inbetween two
+## successive poles of ps.
+
+## TODO: If other jwatches are running to monitor other things, monitorps will
+## observe their processes.  This can be distracting, so we should try to
+## prevent it.  We could ungrep 'jwatch' at least, or possible get jwatch to
+## provide us a parent-process list which we can ungrep.
+
 # export JWATCHCOMPCOM="jwatchcomp -ungrep '\(cat$\|sh$\)'"
 export JWATCHCOMPCOM="jwatchcomp"
 jwatch -direct psforwatch

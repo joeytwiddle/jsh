@@ -26,7 +26,7 @@ then
 
 	## Faster
 
-	echo "Linking tools into jsh PATH ($JPATH/tools)"
+	echo "Linking tools into jsh PATH ... ($JPATH/tools)"
 	(
 		find $JPATH/code/shellscript \
 			\( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) ! -type d

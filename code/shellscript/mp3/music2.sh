@@ -4,5 +4,5 @@ find /stuff/mp3s/ /mnt/big/winmxdownloads -iname "*.mp3" -not -size 0 |
 # ungrep "__INCOMPLETE__" |
 notindir horrid dontplay _dontplay |
 ## Sort them by filename (rather than path)
-# sortpathsbyfilename |
+sortpathsbyfilename |
 cat > $JPATH/music/list.m3u

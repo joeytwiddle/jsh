@@ -9,6 +9,8 @@ jwatch -quiet "$@" |
 while read X
 do
 
+	echo "Line changed, running:"
+	echo "$DOCOMMAND \"$X\""
 	$DOCOMMAND "$X"
 
 done

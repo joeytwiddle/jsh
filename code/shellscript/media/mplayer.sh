@@ -1,4 +1,5 @@
-OPTS="-vo x11"
+# OPTS="-vo x11"
+OPTS="-vo xv"
 if test "$1" = "-turbo"
 then
 	shift

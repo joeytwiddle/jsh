@@ -1,11 +1,11 @@
-## Quick installation with: wget "http://hwi.ath.cx/installjshstub" -O - | sh
+## Quick installation with: wget -nv "http://hwi.ath.cx/installjshstub" -O - | sh
 ## Although for some reason (on ghostpuppy) this dropped me out of zsh :-( (even using zsh instead of sh above)
 
 export JPATH=/tmp/jsh-$$
 export JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshstubtools/"
 
 if which wget 2>&1 > /dev/null
-then WGETCOM="wget -O -"
+then WGETCOM="wget -nv -O -"
 else WGETCOM="lynx --source"
 fi
 
@@ -37,21 +37,22 @@ cd ..
 # ln -s tools/jsh .
 ln -s tools/startj-hwi ./startj ## Needed at least for jsh to start!
 
+echo
 echo "### Stub jsh installed in $JPATH"
+echo
 
-echo "### I have already done:"
+echo "### If you have zsh, type the following:"
+echo "zsh"
 echo "export JPATH=$JPATH"
-echo "export JSH_STUB_NET_SOURCE=$JSH_STUB_NET_SOURCE"
-
-echo "### For bash experiments:"
-echo "alias source=\"'.' $JPATH/tools/joeybashsource\""
-echo "alias .=\"'.' $JPATH/tools/joeybashsource\""
-
-echo "### Type the following to start:"
 echo "source \$JPATH/tools/startj-hwi"
-zsh || echo "Sorry jshstub only works with zsh (still working on bash)."
+echo
+# echo "export JSH_STUB_NET_SOURCE=$JSH_STUB_NET_SOURCE"
 
-# $JPATH/tools/joeybashsource /
-# echo "@ Type the following to start:"
-# echo "source \$JPATH/tools/startj-hwi"
-# bash
+echo "### Or to help debug (broken) bash support type:"
+echo "bash"
+echo "export JPATH=$JPATH"
+echo "alias source=\"'.' \$JPATH/tools/joeybashsource\""
+echo "alias .=\"'.' \$JPATH/tools/joeybashsource\""
+echo "source \$JPATH/tools/startj-hwi"
+echo
+

@@ -1,6 +1,6 @@
 cd "$JPATH/code/shellscript/" || exit 1
 
-echo "Updating files from CVS ($JPATH/code/shellscript)"
+echo "Updating files from CVS ... ($JPATH/code/shellscript)"
 cvsupdate -AdP
 
 if test ! "$1" = "-quick"
