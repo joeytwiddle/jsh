@@ -57,6 +57,7 @@ case $TERM in
 					echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|\1|"
 				}
 				preexec () {
+					# $* repeats on magenta under zsh :-(
 					export LASTCMD="$*"
 					xttitle "$LASTCMD # [$HOST:"`swd`"]"
 				}
