@@ -1,5 +1,5 @@
-HASHFILE=`jgettmp $0-$$-hash`
-SEDFILE=`jgettmp $0-$$-sed`
+CLASSES=`jgettmp $0-$$-classes`
+ANCESTORS=`jgettmp $0-$$-ancestors`
 
 
 find . -name "*.java" |
@@ -11,29 +11,39 @@ extractregex "[^ 	]*[ 	]*extends[ 	]*[^ 	]*" |
 while read CHILD EXTENDS PARENT
 do
 
-	# echo "$PARENT->$CHILD" >> $HASHFILE
-	echo "$CHILD" >> $HASHFILE
-	echo "s+\<$CHILD\>+$PARENT->$CHILD+" >> "$SEDFILE"
+	echo "$CHILD" >> $CLASSES
+	echo "$CHILD $PARENT" >> "$ANCESTORS"
 
 done
 
-cat "$HASHFILE" |
+
+cat "$CLASSES" |
 removeduplicatelines |
-dog "$HASHFILE"
 
+while read NAME
+do
 
-more "$HASHFILE"
+	CHECK="$NAME"
+	while true
+	do
 
+		PARENT=`grep "^$CHECK" $ANCESTORS | head -1 | takecols 2`
+		if [ "$PARENT" ]
+		then
+			NAME="$PARENT -> $NAME"
+			CHECK="$PARENT"
+		else
+			break
+		fi
 
-cat "$SEDFILE" |
-removeduplicatelines | sed 's+<+\\\\<+;s+>+\\\\>+' |
-pipeboth |
-dog "$SEDFILE"
+	done
 
+	echo "$NAME"
 
-cat "$HASHFILE" |
-sed --file=$SEDFILE |
+done |
 
-sort |
-# tree
-cat
+if [ "$1" =  -tree ]
+then sort | treesh -onlyat ">"
+else sort
+fi
+
