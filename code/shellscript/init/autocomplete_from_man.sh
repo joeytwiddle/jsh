@@ -7,6 +7,8 @@
 
 ## CONSIDER: could get filename/type regexps from mimetypes!
 
+## PROBLEM: with zsh at least, is that the command is post-aliased so if eg. the user type "man -"<Tab> then they get options for aliased jman script, not man itself.  (Since at time of writing, alias man=jman)
+
 # jsh-depends: extractpossoptsfrommanpage
 # jsh-ext-depends: sed find
 

@@ -9,7 +9,8 @@
 
 ## NOTE: not yet tested on /multiple/ updates per conf-file
 
-CONFIGLIST=/tmp/config-matches.list
+# CONFIGLIST=/tmp/config-matches.list
+CONFIGLIST=$HOME/.jsh_emerge--helpconfig_config-matches.list
 
 # ## DEPRECATED: I think I was trying to speed it up.  But this is no good cos we need to compare against the checksum of the conffile in the /old/ package!
 # if [ "$1" = "-new" ]
