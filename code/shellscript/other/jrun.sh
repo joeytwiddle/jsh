@@ -2,6 +2,7 @@
 
 # Derive j/ path from execution of this script
 
+# What about $_ absolute (bash at least)?
 POSSTOOLDIR=`dirname "$0"`
 POSSJDIR=`dirname "$POSSTOOLDIR"`
 POSSJDIR2=`echo "$POSSTOOLDIR" | sed "s+j/.*+j/+"`

@@ -43,19 +43,9 @@
   echo "Press <enter> to see usage of/dependencies on $1"
   read KEY
   if test "$KEY" = ""; then
-    # echo "Usage of $1:"
-    # grepcount $1 $JPATH/code/shellscript/ -r | afterlastall "/"
-    # grep $1 $JPATH/tools/* 2>/dev/null
-    # grep $1 $JPATH/tools/* 2>/dev/null |
     TABCHAR=`echo -e "\011"`
     cd $JPATH/tools/
-	 higrep "$1" -C2 *
-    # grep -1 "$1" * 2>/dev/null |
-      # egrep -v "^Binary file .* matches$" |
-      # sed "s|^|"`cursered``cursebold`"|;s|:|"`cursegrey`":$TABCHAR|" |
-      # # sed "s|^|"`cursecyan`"|;s|:|:"`cursegrey`"|" |
-      # # sed "s|$1|"`curseyellow`"$1"`cursegrey`"|g"
-      # highlight "$1" yellow
+	 higrep "\<$1\>" -C2 *
   fi
 
-) # | more
+)

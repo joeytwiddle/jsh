@@ -14,16 +14,28 @@ NEWDIR="$@"
 echo "$PWD" >> $HOME/.dirhistory
 
 if test "$NEWDIR" = ""; then
+
+	# I prefer the directory above my home if I have multiple ~ directories.
 	if test `filename "$HOME"` = "$USER"; then
 		"cd" "$HOME"
 	 else
-		# I prefer the directory above my home!
 		"cd" "$HOME/.."
 	fi
 	# "cd"
+
 elif test -d "$NEWDIR"; then
+
+	# The user specified a directory, plain and simple.
 	'cd' "$NEWDIR"
+
+elif test `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = "found"; then
+
+	# The user asked for: cd ..... (...)
+	cd `echo "$NEWDIR" | sed 's+^\.++;s+\.+../+g'`
+	# Todo: allow user to say: cd foo/..../ba/......./bo
+
 else
+	
 	# If incomplete dir given, check if there is a
 	# unique directory which the user probably meant.
 	# Useful substitue when tab-completion unavailable,

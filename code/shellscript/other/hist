@@ -1,1 +1,2 @@
-history | grep $@
+# 1 tells zsh to check all
+history 1 | grep $@

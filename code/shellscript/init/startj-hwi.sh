@@ -82,6 +82,8 @@ case $TERM in
 			;;
 
 			zsh)
+				export HISTSIZE=10000
+				export EXTENDED_HISTORY=true
 				# For zsh, use preexec/cmd builtins
 				swd () {
 					# Dunno why doesn't work:

@@ -1,16 +1,34 @@
-# . importshfn <shellscriptname>
+# . importshfn <jtoolname> | <shellscript> ...
+# Warning: incomptabile scripts can entirely kill your shell!
 
-SCRIPT=`jwhich inj "$1"`
+for SCRIPT
+do
 
-if test "$SCRIPT" = ""; then
-	echo "importshfn: no such script: $1" > /dev/stderr
-	exit 1
-fi
+	# Find the script
+	LOCATION="$JPATH/tools/$SCRIPT"
+	if test ! -f "$LOCATION"; then
+		LOCATION="$SCRIPT"
+		if test ! -f "$LOCATION"; then
+			LOCATION=""
+		fi
+	fi
 
-TMPFILE=`jgettmp`
+	if test "$LOCATION" = ""; then
 
-makeshfunction "$SCRIPT" > $TMPFILE
+		echo "importshfn: no such script: $SCRIPT" > /dev/stderr
 
-. $TMPFILE
+	else
 
-jdeltmp $TMPFILE
+		# Import it
+
+		TMPFILE=`jgettmp`
+
+		makeshfunction "$LOCATION" > $TMPFILE
+
+		. $TMPFILE
+
+		jdeltmp $TMPFILE
+
+	fi
+
+done
