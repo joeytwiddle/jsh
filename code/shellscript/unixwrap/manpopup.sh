@@ -1,4 +1,6 @@
 REALMAN=`jwhich man`
+
+## If X is running, will pop up a terminal at appropriate width
 if xisrunning
 then
 	rememo $REALMAN -a "$@" > /dev/null
@@ -13,6 +15,7 @@ else
 	$REALMAN -a "$@"
 fi
 
+## Always in terminal; looks for documentation within j project
 if test -x "$JPATH/tools/$1"
 then jdoc "$@"
 fi
