@@ -7,8 +7,11 @@ fi
 
 SSHCOM="ssh $@"
 
-if test `hostname -d` = `echo "$1" | afterfirst "\."`; then
-	echo "Both on "`hostname -d`": forwarding X session."
+# Problem: Unix hostname does not allow this!
+SHORTHOSTNAME=`hostname`
+DOMAIN=`host "$SHORTHOSTNAME" | before " " | afterfirst "\."`
+if test "$DOMAIN" = `echo "$1" | afterfirst "\."`; then
+	echo "Both on $DOMAIN: forwarding X session."
 	SSHCOM="$SSHCOM -X"
 fi
 

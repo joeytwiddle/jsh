@@ -1,2 +1,3 @@
-# konqueror $* &
-kfmclient openURL `tourl "$1"` &
+nautilus "$@" &
+# konqueror "$@" &
+# kfmclient openURL `tourl "$1"` &

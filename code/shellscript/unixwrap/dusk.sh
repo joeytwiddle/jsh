@@ -7,6 +7,7 @@ else
 fi
 
 if test $JM_COLOUR_LS; then
+	# This is bad if the output is being streamed through autoamtion!
 	LSCOM="ls -artFd --color"
 else
 	# Too slow on Unix ATM (and not enough for it ATM ;):

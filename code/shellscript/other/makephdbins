@@ -1,3 +1,5 @@
+echo "You should also ensure that $JPATH/images exists, and $JPATH/code/c/phd/images links to it!"
+
 cd $JPATH/code/c/phd
 
 cd texture
@@ -19,3 +21,5 @@ cd ..
 
 cd improc
 xt invert
+
+echo "You should also ensure that $JPATH/images exists, and $JPATH/code/c/phd/images links to it!"

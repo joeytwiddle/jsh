@@ -3,10 +3,11 @@
 # It is an approximation of my basic LSCOLS of directories, executables and symlinks.
 # ls -atrF -C "$@" |
 'ls' -atrF -C "$@" |
-	if test -f "$HOME/.dircolors"; then
-		SEDSTR=`fakelshi`
-		sed "$SEDSTR"
-	fi |
+	# On Unix this now kills the whole string!
+	# if test -f "$HOME/.dircolors"; then
+		# SEDSTR=`fakelshi`
+		# sed "$SEDSTR"
+	# fi |
 	# else # now always do this too:
 		highlight "/" green |
 		highlight -bold "*" red |
