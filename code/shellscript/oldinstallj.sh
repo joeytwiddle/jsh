@@ -9,7 +9,7 @@
 # talk about settings (editor...)
 # set up sync client (and proper files)
 
-# echo "--- j installer ----------------"
+echo "--- j installer ----------------"
 
 echo "installj <os> [ <from dir> [ <to dir> ] ]"
 echo "  where <os> = linux | unix | dos"
