@@ -52,12 +52,29 @@
 
 export FIFOVO_MESSAGE_DIR=/tmp/fifovo
 
+unbuffered_tr () {
+	## We use tr to scan mencoder's output, but tr's buffer causes final user output to burst in blocks.
+	## If we want continuous output from mencoder to user, then we can do this:
+	if [ "$MORE_PRETTY_LESS_EFFICIENT" ]
+	then
+		## TODO BUG: this doesn't catch sync loss which is a problem!  (Well, maybe it catches it, but it doesn't exit cleanly.)
+		while true
+		do nice -n 15 dd bs=200 count=1 2>/dev/null | nice -n 15 tr "$@" || break
+		done
+	else
+		## this still catches sync loss :)
+		nice tr "$@"
+	fi
+}
+
 encoding_thread () {
 
 	# ENCODING_NUM=0
 
 	while [ ! -f "$FIFOVO_MESSAGE_DIR"/stop_everything ]
 	do
+
+		MENCODER_OUTPUT_FORMAT="-of mpeg" ## Needed for the ones I got working
 
 		## CODE_TO_CHANGE_FIFO wasn't needed once we "while true; cat fifo; done"d because now fifo closes and reopens at both ends properly.
 		# # verbosely rm -f "$ENCODED_FIFO"
@@ -72,7 +89,7 @@ encoding_thread () {
 		## Has real trouble encoding video as mpeg4:
 		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg4:vqscale=6"
 		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vqscale=6"
-		## Often nasty:
+		## Often nasty (might work on some stream formats, but didn't for demoscene.tv):
 		# ENCODING_OPTIONS="-oac copy -ovc copy"
 		## This successfully encodes RTSP, but doesn't create a stream playable from a fifo or even a file :(  In fact it is probably encoding into fifo that failed.
 		# ENCODING_OPTIONS="-oac pcm -ovc lavc -lavcopts vqscale=6"
@@ -84,12 +101,24 @@ encoding_thread () {
 		# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
 		## One time the video did not play on one clip:
 		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=2"
-		OPTIMISATION_ATTEMPT="vhq:dia=-3:subq=4" # :last_pred=20
+		# OPTIMISATION_ATTEMPT="vhq:dia=-3:subq=4" # :last_pred=20
 		ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=$VQSCALE:$OPTIMISATION_ATTEMPT"
 
+		## Got this working one time; survived the nonsense at start, then seemed ok.  So it's maybe just the start that is the problem.
+		## Much easier on CPU.  But can it be recorded?  Probably equally buggy for recording :-( .
+		## Hmmm haven't even successfully rewound yet!
+		# ENCODING_OPTIONS="-oac lavc -ovc copy"
+		# MENCODER_OUTPUT_FORMAT="-of avi"
+
+		## Unfortunately I couldn't get the lossless codecs to play back (well not automatically)!
+		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## slow cos big or broken, requires NOT -of mpeg
+		# MENCODER_OUTPUT_FORMAT=
+		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## slow cos big or broken, requires -of mpeg
+
 		## I thought a cache might buffer input if mencoder was temporarily slow
-		## but 1) mencoder doesn't seem to use it; 2) it's a pre-cache not post-cache, so it starts full not empty!
-		# MENCODER_OPTIONS="$MENCODER_OPTIONS -cache 10000"
+		## but 1) mencoder doesn't seem to use it; 2) when mplayer uses it, it's a pre-cache not post-cache, so it starts full not empty!
+		## Left it in anyway!
+		MENCODER_OPTS="$MENCODER_OPTS -cache 2000" ## Hey don't do that, we are in a loop!  (Bring all these outside loop, but not vqscale.)
 
 		# ## WORKING METHOD:
 		# # verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
@@ -108,7 +137,16 @@ encoding_thread () {
 		## Ah but now it won't exit when the user wants to quit!
 		## Alright, now if either mencoder or toline stop, they kill the other, by killing the parent pipe.
 		(
-			verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $MENCODER_OPTIONS $ENCODING_OPTIONS 2>&1 # &
+			if [ "$USE_MPLAYER_MPEGPES_NOT_MENCODER" ]
+			# then verbosely unj mplayer -x 100 -cache 3000 "$STREAM_SOURCE" -vo mpegpes -ao mpegpes 2>&1
+			then
+				verbosely unj mplayer -cache 3000 "$STREAM_SOURCE" \
+					-vo mpegpes:"$ENCODED_FIFO" -vf lavc=$VQSCALE \
+					-ao mpegpes:"$ENCODED_FIFO" -af-adv force=2 2>&1
+			else
+				verbosely mencoder "$STREAM_SOURCE" \
+					$MENCODER_OUTPUT_FORMAT -o "$ENCODED_FIFO" $MENCODER_OPTS $ENCODING_OPTIONS 2>&1
+			fi
 			# MENCODER_PID="$!"
 			# jshinfo "FYI MENCODER_PID was $MENCODER_PID"
 			# echo "$MENCODER_PID" > "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid
@@ -137,10 +175,11 @@ encoding_thread () {
 			## Either td or toline's awk is causing buffering which means output is not continuous (ever 3 secs).
 			export TOLINE_LEAVE_REST=true
 			## Print initial mencoder info normally (optional):
-			tr '' '\n' | toline "^Writing.*" ## Strangly if we do this it works, but the following doesn't show.  Ah, before I tr-ed here, the awk never finished reading that last long line!
+			# unbuffered_tr '' '\n' | toline "^(Writing|Starting).*" ## Strangely if we do this it works, but the following doesn't show.  Ah, before I tr-ed here, the awk never finished reading that last long line!
+			unbuffered_tr '' '\n' | toline "^(Pos|A):.*" ## Strangely if we do this it works, but the following doesn't show.  Ah, before I tr-ed here, the awk never finished reading that last long line!
 			## Watch for any errors reporting sync loss:
-			tr '' '\n' | toline ".*trying to resync.*" |
-			tr '\n' '' ## optional
+			unbuffered_tr '' '\n' | toline ".*rying to resync.*" |
+			unbuffered_tr '\n' '' ## optional
 			echo
 			jshinfo "Detected sync loss; exiting encoding thread..."
 			## Earlier attempts:
@@ -192,7 +231,7 @@ encoding_thread () {
 		# ( cat /dev/zero > "$ENCODED_FIFO" ) &
 		# ( cat /dev/zero > "$ENCODED_FIFO" ) &
 
-		# findjob mencoder
+		findjob mencoder
 
 	done
 
@@ -235,18 +274,32 @@ saving_thread () {
 	while true
 	do
 
-		jshinfo "Saving re-encoded stream into block $WRITING_BLOCK / $BUFFER_SIZE"
+		jshinfo "Saving re-encoded stream into block $WRITING_BLOCK / $TOTAL_BLOCKS"
 		echo "$WRITING_BLOCK" > "$CURRENT_WRITING_BLOCK_INFO_FILE"
 		WRITING_BLOCK=`printf "%04i" "$WRITING_BLOCK"`
 		FILE="$STREAM_DATA_DIR/streamed.$WRITING_BLOCK.mpeg"
 
-		sleep 0.2 &
+		## This method uses too much CPU:
+		# # dd count=$BLOCK_SIZE bs=1 of="$FILE"
+		# verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
+		# verbosely nice -n 18 dd count=$BLOCK_SIZE bs=1 of="$FILE"
 
-		verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
-		# dd count=$BLOCK_SIZE bs=1 of="$FILE"
-
-		## Bad:
+		## This one appears to drop out early if there is nothing immediate to read from stream.
+		## Can be sort of fixed with the sleep/wait:
+		# # sleep 2 & ## But how do we know what amount is appropriate?
 		# verbosely dd count=1 bs=$BLOCK_SIZE of="$FILE"
+		# ## For the record, this is even worse:!
+		# # verbosely dd count=1 ibs=$BLOCK_SIZE obs=$BLOCK_SIZE of="$FILE"
+		# # wait
+
+		## Better, compromise:
+		COUNT=`expr "$BLOCK_SIZE" / 1024`
+		# # COUNT=`expr "$BLOCK_SIZE"`
+		BS=1024
+		verbosely dd count=$COUNT bs=$BS of="$FILE"
+		## Helps free some CPU for encoder, but should be reduced if blocks are copied really quickly:
+		verbosely sleep 0.2 # ideally we would only sleep if we observed that much less than max bytes were available for reading
+		## Is this really releasing CPU or is it just causing mencoder to halt while the fifo blocks?!
 
 		# ## Seems worse:
 		# TRANS_BLOCK_SIZE=`expr "$BLOCK_SIZE" / 1024`
@@ -262,10 +315,8 @@ saving_thread () {
 			return
 		fi
 
-		wait
-
 		WRITING_BLOCK=`expr "$WRITING_BLOCK" + 1`
-		if [ "$WRITING_BLOCK" -gt "$BUFFER_SIZE" ]
+		if [ "$WRITING_BLOCK" -gt "$TOTAL_BLOCKS" ]
 		then WRITING_BLOCK=1
 		fi
 
@@ -277,7 +328,7 @@ saving_thread () {
 
 restreaming_thread () {
 
-	jshinfo "Will start streaming once MPlayer starts..."
+	jshinfo "Will start streaming when MPlayer starts..."
 
 	CURRENT_STREAMING_BLOCK=0
 
@@ -300,12 +351,15 @@ restreaming_thread () {
 				CURRENT_STREAMING_BLOCK="$LAST_CURRENT_STREAMING_BLOCK"
 			fi
 			if [ "$CURRENT_STREAMING_BLOCK" -lt 1 ]
-			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + "$BUFFER_SIZE"`
+			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + "$TOTAL_BLOCKS"`
 			fi
 			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
 			jshwarn "Due to mplayers cache you may need to wait a moment for the change..."
 			rm -f "$FIFOVO_MESSAGE_DIR"/rewind
 		fi
+
+		## TODO: Might be a nice feature, if they are recording, but forwardwind, to
+		##       record all the inbetween streams, but just forwardwing the player.
 
 		## Copied from previous; bugs and all:
 		if [ -f "$FIFOVO_MESSAGE_DIR"/fastforward ]
@@ -316,11 +370,11 @@ restreaming_thread () {
 			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + $DISTANCE`
 			if [ ! "$CURRENT_STREAMING_BLOCK" ]
 			then
-				echo "Error rewinding by \"$DISTANCE\" blocks."
+				echo "Error fast-forwarding by \"$DISTANCE\" blocks."
 				CURRENT_STREAMING_BLOCK="$LAST_CURRENT_STREAMING_BLOCK"
 			fi
-			if [ "$CURRENT_STREAMING_BLOCK" -gt "$BUFFER_SIZE" ]
-			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - "$BUFFER_SIZE"`
+			if [ "$CURRENT_STREAMING_BLOCK" -gt "$TOTAL_BLOCKS" ]
+			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - "$TOTAL_BLOCKS"`
 			fi
 			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
 			jshwarn "Due to mplayers cache you may need to wait a moment for the change..."
@@ -335,7 +389,7 @@ restreaming_thread () {
 			RECORDING_NUM=0
 			if [ ! "$RECORDING_FILE" ]
 			then
-				while [ -f ""$FIFOVO_MESSAGE_DIR"/recorded$RECORDING_NUM.mpeg" ]
+				while [ -f "$FIFOVO_MESSAGE_DIR"/recorded$RECORDING_NUM.mpeg ]
 				do RECORDING_NUM=`expr "$RECORDING_NUM" + 1`
 				done
 				RECORDING_FILE="$FIFOVO_MESSAGE_DIR"/recorded$RECORDING_NUM.mpeg
@@ -372,11 +426,12 @@ restreaming_thread () {
 			verbosely sleep 15
 		done
 
-		jshinfo "Re-streaming to mplayer from block $CURRENT_STREAMING_BLOCK / $BUFFER_SIZE"
+		jshinfo "Re-streaming to mplayer from block $CURRENT_STREAMING_BLOCK / $TOTAL_BLOCKS"
 
 		CURRENT_STREAMING_BLOCK=`printf "%04i" "$CURRENT_STREAMING_BLOCK"`
 		if [ "$RECORDING" ]
 		then
+			jshinfo "Also saving block $CURRENT_STREAMING_BLOCK to $RECORDING_FILE"
 			verbosely cat "$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg" >> "$RECORDING_FILE"
 		fi
 		# dd if="$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg" |
@@ -390,7 +445,7 @@ restreaming_thread () {
 		fi
 
 		CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + 1`
-		if [ "$CURRENT_STREAMING_BLOCK" -gt "$BUFFER_SIZE" ]
+		if [ "$CURRENT_STREAMING_BLOCK" -gt "$TOTAL_BLOCKS" ]
 		then CURRENT_STREAMING_BLOCK=1
 		fi
 
@@ -404,9 +459,21 @@ restreaming_thread () {
 }
 
 playing_thread () {
+	# PLAYER_CACHE=32 ## Ideally we would use mplayer's minimum but it requires too much live dd-ing (gobbles CPU)!
+	PLAYER_CACHE=128 ## This works OK on my system
+	# PLAYER_CACHE=512
+	# PLAYER_CACHE=2048 ## Too slow really
+	## But for mpegpes:
+	# PLAYER_CACHE=4096 ## Tried to make mpegpes stream better but didn't actually help
 	jshinfo "Giving the encoder a head-start before starting the player..."
 	verbosely sleep 10
-	verbosely mplayer -cache-prefill 99 "$PLAYER_FIFO" # | highlight ".*" green
+	if [ "$USE_MPLAYER_MPEGPES_NOT_MENCODER" ]
+	then
+		PLAYER_CACHE=2048
+		MPLAYER_OPTS="$MPLAYER_OPTS -speed 1.0"
+	fi
+	## Not recognised by gentoo's mplayer: -cache-prefill 99 
+	verbosely unj mplayer $MPLAYER_OPTS -cache "$PLAYER_CACHE" "$PLAYER_FIFO" # | highlight ".*" green
 
 	touch "$FIFOVO_MESSAGE_DIR"/stop_everything
 	## Might not be needed:
@@ -424,7 +491,7 @@ initialise () {
 	export STREAM_SOURCE="$1"
 	shift
 
-	[ "$TOTAL_BUFFER_SIZE_MEG" ] || export TOTAL_BUFFER_SIZE_MEG=20
+	[ "$BUFFER_SIZE_MEG" ] || export BUFFER_SIZE_MEG=20
 	## With my machine (and now that we are reading and writing from files), I really needed to save the ringbuffer in memory (aka ramfs):
 	## (Ah that is now no longer necessary, since I increased VQSCALE.)
 	# export STREAM_DATA_DIR=/dev/shm/joey/
@@ -432,12 +499,28 @@ initialise () {
 	[ "$STREAM_DATA_DIR" ] && [ -w "$STREAM_DATA_DIR" ] || export STREAM_DATA_DIR=/tmp
 	export CURRENT_WRITING_BLOCK_INFO_FILE="$FIFOVO_MESSAGE_DIR"/current_block.info
 
-	## Larger bits, less shell cycles:
-	export BUFFER_SIZE=`expr 5 '*' $TOTAL_BUFFER_SIZE_MEG`
-	export BLOCK_SIZE=`expr 10240 '*' 20`
+	if [ ! "$DONT_USE_MPEGPES" ] && unj mplayer -vo help | grep "mpegpes.*Mpeg-PES file" >/dev/null
+	then
+		export USE_MPLAYER_MPEGPES_NOT_MENCODER=true
+		# export ENCODED_FIFO=$PWD/grab.mpg
+		jshinfo "Using mplayer with mpegpes output instead of mencoder :)"
+	fi
+
 	## Fine-grained buffer bits:
-	# export BUFFER_SIZE=1000
-	# export BLOCK_SIZE=`expr 1024 '*' $TOTAL_BUFFER_SIZE_MEG`
+	# export TOTAL_BLOCKS=1000
+	# export BLOCK_SIZE=`expr 1024 '*' $BUFFER_SIZE_MEG`
+	if [ "$USE_MPLAYER_MPEGPES_NOT_MENCODER" ]
+	then
+		## Even larger:
+		# export TOTAL_BLOCKS=`expr 1 '*' $BUFFER_SIZE_MEG`
+		export BLOCK_SIZE=`expr 1024 '*' 1024` ## 1Meg
+	else
+		## Larger bits, less shell cycles:
+		# export TOTAL_BLOCKS=`expr 5 '*' $BUFFER_SIZE_MEG`
+		export BLOCK_SIZE=`expr 1024 '*' 200` ## 200k
+	fi
+	export TOTAL_BLOCKS=`expr "$BUFFER_SIZE_MEG" '*' 1024 '*' 1024 / "$BLOCK_SIZE"`
+	jshinfo "TOTAL_BLOCKS=$TOTAL_BLOCKS"
 
 	export ENCODED_FIFO="/tmp/encoded.fifo"
 	# export ENCODED_FIFO="./stream.yuv"
@@ -458,36 +541,37 @@ initialise () {
 	export XTERM_OPTS="-geometry 80x12"
 
 	# export XTERM_OPTS=
-	verbosely guifyscript sh "$0" -invokefunction encoding_thread "$STREAM_SOURCE" &
+	guifyscript sh "$0" -invokefunction encoding_thread "$STREAM_SOURCE" &
 	ENCODING_PID="$!"
-	echo "ENCODING_PID=$ENCODING_PID"
+	# echo "ENCODING_PID=$ENCODING_PID"
 
 	# verbosely sleep 2
 	sleep 0.5
 
 	# export XTERM_OPTS="-geometry 80x10"
-	verbosely guifyscript sh "$0" -invokefunction saving_thread &
+	# verbosely guifyscript sh "$0" -invokefunction saving_thread &
+	guifyscript nice -n 5 sh "$0" -invokefunction saving_thread &
 	SAVING_PID="$!"
-	echo "SAVING_PID=$SAVING_PID"
+	# echo "SAVING_PID=$SAVING_PID"
 
 	# jshinfo "Giving the encoder a head-start before starting the player..."
 	# verbosely sleep 5
 	sleep 0.5
 
 	# export XTERM_OPTS="-geometry 80x10"
-	verbosely guifyscript sh "$0" -invokefunction restreaming_thread &
+	# verbosely guifyscript sh "$0" -invokefunction restreaming_thread &
 	## Didn't appear to help:
-	# verbosely guifyscript -timeout 2 nice -n 15 sh "$0" restreaming_thread &
+	guifyscript nice -n 5 sh "$0" -invokefunction restreaming_thread &
 	RESTREAMING_PID="$!"
-	echo "RESTREAMING_PID=$RESTREAMING_PID"
+	# echo "RESTREAMING_PID=$RESTREAMING_PID"
 
 	# verbosely sleep 5
 	sleep 0.5
 
 	# export XTERM_OPTS=
-	verbosely guifyscript sh "$0" -invokefunction playing_thread &
+	guifyscript sh "$0" -invokefunction playing_thread &
 	PLAYER_PID="$!"
-	echo "PLAYER_PID=$PLAYER_PID"
+	# echo "PLAYER_PID=$PLAYER_PID"
 
 	sleep 1 ## Ensures the &-ed verbosely prints before the following does.
 
@@ -507,13 +591,13 @@ initialise () {
 
 fifovohelp () {
 	echo
-	echo "Commands you can send to fifovo:"
+	echo "Commands you can send to fifovo as it runs:"
 	echo "  echo 20 > $FIFOVO_MESSAGE_DIR/rewind"
 	echo "  echo 10 > $FIFOVO_MESSAGE_DIR/fastforward"
 	echo "  touch $FIFOVO_MESSAGE_DIR/start_recording"
-	echo "    or        (NOTE: due to mplayer's cache, you should start recording early!)"
 	echo "  echo \$HOME/save_recording_here.mpeg > $FIFOVO_MESSAGE_DIR/start_recording"
 	echo "  touch $FIFOVO_MESSAGE_DIR/stop_recording"
+	# echo "(NOTE: due to mplayer's cache, you should start recording early!)"
 	echo
 	echo "To stop fifovo:"
 	echo "  Press 'q' on the mplayer window, and wait for the other threads to stop."
@@ -521,9 +605,8 @@ fifovohelp () {
 	# echo "  If they don't, then press Ctrl+C here to close all remaining windows."
 	# echo
 	# echo "Hopefully you no longer need these:"
-	echo "If that doesn't work, press Ctrl+C once on each spawned window (playing_thread first!), or Ctrl+C here.  You could also:"
+	echo "  If that doesn't work, press Ctrl+C once on each spawned window (playing_thread first!), or Ctrl+C here; and then: killall -KILL mencoder mplayer"
 	# echo "  kill -KILL $ENCODING_PID $SAVING_PID $RESTREAMING_PID $PLAYER_PID"
-	echo "  killall -KILL mencoder mplayer"
 	# echo "  killall \"$0\""
 	# echo "  mykill -x saving_thread"
 	echo
@@ -548,6 +631,8 @@ then
 	echo
 	echo "  Plays a streaming video, saving it in rotating files, and accepts messages"
 	echo "  to rewind, fast-forward, or record the stream."
+	echo
+	echo "  Options: BUFFER_SIZE_MEG, DONT_USE_MPEGPES, MPLAYER_OPTS, MENCODER_OPTS."
 	fifovohelp
 	exit 1
 
