@@ -2,6 +2,8 @@
 
 ## Note afterwards, leftover files are: sizes.log divx2pass.log frameno.avi (and of course the video file you started with!).
 
+[ "$TARGETSIZE" ] && jshwarn "Variable TARGETSIZE has been renamed to TARGET_SIZE" && TARGET_SIZE="$TARGETSIZE"
+
 if [ ! "$1" ] || [ "$1" = --help ]
 then
 cat << !
@@ -17,7 +19,7 @@ No options at the moment, but you can pass the following variables:
 
   BITRATE=<bps>              Set this to override the default bitrate (700MB),
 
-  TARGETSIZE=<megabytes>     or this to produce a final file of this many MB.
+  TARGET_SIZE=<megabytes>     or this to produce a final file of this many MB.
 
 And more...
 
@@ -85,20 +87,20 @@ if [ "$BITRATE" ]
 then jshinfo "Using user supplied bitrate $BITRATE"
 else
 	BITRATE=`tail -50 "$SIZELOG" | grep "Recommended video bitrate for 700MB CD: " | afterlast ": "`
-	if [ "$TARGETSIZE" ] && [ "$TARGETSIZE" -gt 0 ]
+	if [ "$TARGET_SIZE" ] && [ "$TARGET_SIZE" -gt 0 ]
 	then
 		AUDIOSIZE=`filesize "frameno.avi"`
 		AUDIOSIZE=`expr "$AUDIOSIZE" / 1024 / 1024`
 		jshinfo "Audio stream is currently $AUDIOSIZE""M."
-		if [ "$AUDIOSIZE" -gt "$TARGETSIZE" ]
-		then jshwarn "Cannot generate file size $TARGETSIZE""M when audio stream is larger ($AUDIOSIZE""M)!  You might try reducing the audio bitrate."
+		if [ "$AUDIOSIZE" -gt "$TARGET_SIZE" ]
+		then jshwarn "Cannot generate file size $TARGET_SIZE""M when audio stream is larger ($AUDIOSIZE""M)!  You might try reducing the audio bitrate."
 	  else
-			TARGETBITRATE=`expr '(' "$TARGETSIZE" - "$AUDIOSIZE" ')' '*' "$BITRATE" / '(' 700 - "$AUDIOSIZE" ')'`
+			TARGETBITRATE=`expr '(' "$TARGET_SIZE" - "$AUDIOSIZE" ')' '*' "$BITRATE" / '(' 700 - "$AUDIOSIZE" ')'`
 			if [ "$TARGETBITRATE" -gt 0 ]
 			then
-				jshinfo "Calculated from 700M bitrate $BITRATE that $TARGETSIZE""M requires bitrate $TARGETBITRATE"
+				jshinfo "Calculated from 700M bitrate $BITRATE that $TARGET_SIZE""M requires bitrate $TARGETBITRATE"
 				BITRATE="$TARGETBITRATE"
-			else jshwarn "Calculation of required bitrate for target size $TARGETSIZE failed."
+			else jshwarn "Calculation of required bitrate for target size $TARGET_SIZE failed."
 			fi
 		fi
 	fi
@@ -150,10 +152,12 @@ addfilter () {
 [ "$NEWSIZE" ] && addfilter scale "$NEWSIZE"
 [ "$NEWSIZE" ] && addfilter dsize "$NEWSIZE" ## This overwrites old aspect ratio with one implied by new size. =)
 [ "$POSTPROC" ] && addfilter pp "$POSTPROC"
+## Does it really matter if the output of the first pass goes into the final file?  Probably not, if/since with this method, it's size is no larger than final file will be.  But /dev/null is faster!
+FIRST_VIDEO_PASS_GOES_TO=/dev/null
+# FIRST_VIDEO_PASS_GOES_TO=preview.avi
 for PASS in 1 2
 do
-	# [ $PASS = 1 ] && OUTPUT=/dev/null || OUTPUT="$INPUT".reencoded.avi ## Does it really matter if the output of the first pass goes into that file?
-	[ $PASS = 1 ] && OUTPUT=preview.avi || OUTPUT="$INPUT".reencoded.avi ## Does it really matter if the output of the first pass goes into that file?
+	[ $PASS = 1 ] && OUTPUT="$FIRST_VIDEO_PASS_GOES_TO" || OUTPUT="$INPUT".reencoded.avi
 	# vqmin=2:vqmax=31:
 	ENCODING="-oac copy -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=$BITRATE:vhq:vpass=$PASS"
 	jshinfo "############################ Pass $PASS / 2"
