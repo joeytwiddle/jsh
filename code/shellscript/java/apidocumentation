@@ -14,12 +14,20 @@ else
   CLASS="$@"
 fi
 
+APIDOCPATH="
+/home/joey/j/code/java
+/stuff/software/doc/java/
+/home/joey/multicom/joey_dev/multicom_docs
+/home/joey/multicom/jtidy-04aug2000r7-dev
+/home/joey/j/code/java/HTTPClient/doc
+"
+
 # Finds likely javadoc file
 # Excludes my duplicate copies and class use files
 # POSSIBLE=`locate "/$CLASS.html" |
 # POSSIBLE=`memo find /mnt/stig/javadoc/ -name "$CLASS.html" |
 cd / # For memo
-POSSIBLE=`memo find /home/joey/j/code/java /stuff/software/doc/java/ -name "$CLASS.html" |
+POSSIBLE=`memo find $APIDOCPATH -name "$CLASS.html" |
             ungrep "$JPATH/trash" |
 						ungrep "/CVS/" |
 #           ungrep "^/mnt/filfirin/stig/javadoc/jdk1.2.2/docs/" |

@@ -1,6 +1,18 @@
-## TODO: Pass "$?" out in a way that works!  (Eg. tmp file.)
+export TMPFILE=`jgettmp caught-err`
+
 (
 	"$@" 2>&1
-	export CAUGHTERR="$?"
+	echo "$?" > "$TMPFILE"
 ) | more
+
+CAUGHTERR=`cat "$TMPFILE"`
+jdeltmp "$TMPFILE"
+
+if test "$CAUGHTERR" != "" && test "$CAUGHTERR" != "0"; then
+	cursered
+	cursebold
+	echo "Exited with error $CAUGHTERR" >&2
+	cursenorm
+fi
+
 exit $CAUGHTERR
