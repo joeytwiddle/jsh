@@ -1,3 +1,3 @@
-cvs update -AP $*
-# cvs update -AP $* | grep -v "^? "
+# cvs update -AP "$@"
+cvs update "$@" 2>&1 | grep -v "^? " | grep -v "^cvs update: Updating "
 
