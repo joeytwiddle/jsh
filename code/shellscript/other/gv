@@ -1,2 +1,2 @@
-LOCALgv=`jwhich gv`
+LOCALgv=`jwhich gv 2>/dev/null`
 runoneof "ghostview $LOCALgv" "$*" &

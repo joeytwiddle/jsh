@@ -1,0 +1,1 @@
+`jwhich locate` "$@" | highlight "$@"
