@@ -1,7 +1,8 @@
 #!/bin/sh
 
 export JM_DOES_COLOUR=;
-export JM_COLOUR_LS=;
+export JM_COLOUR_LS=; # deprecated in favour of:
+export JM_LS_OPTS=;
 export JM_ADVANCED_DU=;
 
 export JM_UNAME=`
@@ -16,6 +17,7 @@ case "$JM_UNAME" in
 		JM_DOES_COLOUR=true
 		JM_COLOUR_LS=true
 		JM_ADVANCED_DU=true
+		JM_LS_OPTS="-F --color"
 	;;
 	"sunos")
 		JM_DOES_COLOUR=true

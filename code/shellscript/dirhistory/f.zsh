@@ -21,4 +21,4 @@ export PWD='$NEXT';
 
 dirhistory "$@"
 
-xttitle "($USER@$HOST:$PWD) %% "
+xttitle "$SHOWUSER$SHOWHOST$PWD %% "

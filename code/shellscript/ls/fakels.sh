@@ -3,7 +3,7 @@
 # but do support ls -F, so we can search for filetypes!
 # It is an approximation of my basic LSCOLS of directories, executables and symlinks.
 # ls -atrF -C "$@" |
-'ls' -atrF -C "$@" |
+'ls' -atr -C $JM_LS_OPTS "$@" |
 	# On Unix this now kills the whole string!
 	# if test -f "$HOME/.dircolors"; then
 		# SEDSTR=`fakelshi`

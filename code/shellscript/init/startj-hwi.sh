@@ -56,6 +56,14 @@ fi
 if test "$SHOWUSER" = "joey@"; then
 	SHOWUSER=""
 fi
+export SHOWHOST # for d f b
+
+# tcsh makes itself known by ${shell} envvar.
+# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
+# SHORTSHELL=`echo "$SHELL" | afterlast "/"`
+SHELLPS="$$"
+SHORTSHELL=`findjob "$SHELLPS" | grep 'sh$' | tail -1 | sed "s/.* \([^ ]*sh\)$/\1/"`
+echo "shell = $SHORTSHELL"
 
 # xterm title change
 case $TERM in

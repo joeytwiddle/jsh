@@ -1,1 +1,1 @@
-ls -d -artF --color "$@"
+ls -d -art $JM_LS_OPTS "$@"

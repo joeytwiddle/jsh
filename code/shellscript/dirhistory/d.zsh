@@ -1,4 +1,7 @@
-#!/bin/bash
+#!/bin/sh
+
+# #!/bin/bash
+
 # d: change directory and record for b and f shell tools
 
 # Shouldn't we remember moved-into, not moved-out-of?
@@ -26,18 +29,24 @@ else
 	# Useful substitue when tab-completion unavailable,
 	# or with tab-completion which does not contextually exclude files.
 	# NEWLIST=`echo "$NEWDIR"* 2>/dev/null |
+
 	LOOKIN=`dirname "$NEWDIR"`
 	LOOKFOR=`filename "$NEWDIR"`
+
+	# Problem: 'ls' does not seem to override fakels alias on Solaris :-(
 	NEWLIST=`
 		# maxdepth does not work for Unix find!
 		# find "$LOOKIN" -maxdepth 1 -name "$LOOKFOR*" |
 		'ls' -d "$LOOKIN/$LOOKFOR"* |
 		while read X; do
+			echo "__$X"
 			if test -d "$X"; then
-				echo "$X"
+				echo "== $X" > /dev/stderr
 			fi
-		done` 2> /dev/null
+		done
+	` 2> /dev/null
 	# echo ">$NEWLIST<"
+
 	if test "$NEWLIST" = ""; then
 		# No directory found
 		echo "X $LOOKIN/$LOOKFOR*"
@@ -54,6 +63,6 @@ else
 	fi
 fi
 
-xttitle "($USER@$HOST:$PWD) %% "
+xttitle "$SHOWUSER$SHOWHOST$PWD %% "
 
 # pwd >> $HOME/.dirhistory

@@ -25,4 +25,4 @@ mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 
 dirhistory "$@"
 
-xttitle "($USER@$HOST:$PWD) %% "
+xttitle "$SHOWUSER$SHOWHOST$PWD %% "

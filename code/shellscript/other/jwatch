@@ -8,7 +8,8 @@ chmod a+x "$EXECSH"
 $EXECSH > $NEW
 
 if test "x$JWATCHCOMPCOM" = "x"; then
-  JWATCHCOMPCOM="jfc simple oneway"
+  JWATCHCOMPCOM="jfcsh"
+  # JWATCHCOMPCOM="jfc simple oneway"
 fi
 
 sleep 1
