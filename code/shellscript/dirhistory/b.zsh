@@ -7,11 +7,22 @@
 SEARCHDIR="$1"
 
 if [ "$SEARCHDIR" = "" ]; then
-  LAST=`tail -1 $HOME/.dirhistory`
+	LAST=`tail -1 $HOME/.dirhistory`
 else
-  # LAST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -1`
-  # Exact:
-  LAST=`grep "$SEARCHDIR$" $HOME/.dirhistory | tail -1`
+	# LAST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -1`
+	# Note: the following greps are in "best last" order because of tail -1
+	LAST=`
+		(
+			# Anywhere in path:
+			grep "$SEARCHDIR" $HOME/.dirhistory
+			# Matches end dirname:
+			grep "$SEARCHDIR$" $HOME/.dirhistory
+			# Matches begin dirname:
+			grep "/$SEARCHDIR\[\^ \]$" $HOME/.dirhistory
+		)
+	`
+	# echo "$LAST"
+	LAST=`echo "$LAST" | tail -1`
 fi
 
 # echo "\"$@\""
