@@ -1,5 +1,5 @@
 echo "## Purge old:"
-find $HOME/Mail -maxdepth 1 -type l -name "\|*" |
+find $HOME/Mail/ -maxdepth 1 -type l -name "\|*" |
 sed 's+^+rm "+;s+$+"+'
 
 echo
@@ -14,7 +14,7 @@ while read X; do
 		sed "s+/mbox$++" |
 		sed "s+/subfolders/+|+g" |
 		# sed "s+\(.*\)/\(.*\)$+\1|\2+" |
-		# sed 's+/+|+g' |
+		sed 's+/+|+g' |
 		sed "s+^ ++"
 		# sed 's+^|+\\\\+'
 	`
