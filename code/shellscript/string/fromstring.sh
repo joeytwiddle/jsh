@@ -6,3 +6,5 @@ while read LINE &&
       [ ! "$LINE" = "$STRING" ]
 do noop
 done
+
+cat
