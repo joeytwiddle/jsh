@@ -1,3 +1,4 @@
+# jsh-depends: cursebold cursecyan curseyellow cursenorm
 ## TODO: CONSIDER: WARN=off disabled it?
 ## TODO: CONSIDER: some global variable sends jsh logs to a file?
 # if [ "$WARN" ]

@@ -143,7 +143,7 @@ function adddeptoscript () {
 		fi
 		if ! cmp "$REALSCRIPT" "$NEWSCRIPT" > /dev/null
 		then
-			echo "Made changes to: $REALSCRIPT (backup in .b4jdw)" >&2
+			echo "Made changes to $REALSCRIPT (backup in .b4jdw):" >&2
 			diff "$REALSCRIPT" "$NEWSCRIPT" >&2
 			# echo -n "`curseyellow`jshdepwiz: Are you happy with the suggested changes to the file? [Yn] `cursenorm`" >&2
 			# read USER_SAYS
@@ -170,7 +170,7 @@ function addnewdeps () {
 			jshwarn "jshdepwiz: Unchecked possible dependency of $SCRIPT on '$DEP'"
 			## Actually I think this is ok.  Provided lazy isn't on, DEPWIZ_NON_INTERACTIVE or empty dependencies will cause a re-gendeps, which means the whole set gets returned.
 		else
-			echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
+			echo "`curseyellow`jshdepwiz: These might be calls to `cursered;cursebold`$DEP`curseyellow` made from `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
 			higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
 			[ "$DEFAULT_TO_YES" ] && OPTIONS="Y/n/skip" || OPTIONS="Skip/y/n"
 			echo -n "`curseyellow`jshdepwiz: Do you think `cursered;cursebold`$DEP`curseyellow` is a real `cursemagenta`jsh-$TYPE`curseyellow`? [$OPTIONS] `cursenorm`" >&2

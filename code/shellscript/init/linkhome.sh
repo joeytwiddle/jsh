@@ -17,13 +17,19 @@ then
 	echo
 	echo "  -diff shows the differences between the files when there is a collision"
 	echo
+	echo "  (Due to inefficiency depth 7 is only attempted if <grep_pattern> is provided.)"
+	echo
 	exit 1
 fi
 
 GREPBY="$1"
+if [ "$GREPBY" ]
+then DEPTH=7
+else DEPTH=2
+fi
 
 cd "$JPATH/code/home" &&
-find . -maxdepth 2 |
+find . -maxdepth $DEPTH |
 	grep -v "/CVS$" | grep -v "/CVS/" |
 	sed "s+^./++" | grep -v "^\.$" |
 
@@ -36,12 +42,12 @@ find . -maxdepth 2 |
 		NICEDEST="~/$X"
 		if [ ! -d "$DEST" ] && [ ! -f "$DEST" ]
 		then
-			echo "linking: ~/$X <- $SOURCE"
+			echo "`cursegreen`linking`cursenorm`: ~/$X `cursegreen`<-`cursenorm` $SOURCE"
 			ln -sf "$SOURCE" "$DEST"
 		else
 			if [ ! `realpath "$DEST"` = `realpath "$SOURCE"` ]
 			then
-				echo "problem: $NICEDEST is in the way of $SOURCE"
+				echo "`cursered;cursebold`problem:`cursenorm` $NICEDEST `cursered;cursebold`is in the way of`cursenorm` $SOURCE"
 				if [ -f "$DEST" ] && [ -f "$SOURCE" ] && cmp "$DEST" "$SOURCE"
 				then echo "         but they are identical, so why not: del \"$NICEDEST\""
 				fi

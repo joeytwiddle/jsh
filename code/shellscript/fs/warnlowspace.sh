@@ -42,7 +42,8 @@ done
 DEVICES="$DEVICES)"
 
 ## Get disk usage data
-df | drop 1 | takecols 1 4 6 |
+## Redirected stderr because hwibot repeats: df: `proc': No such file or directory
+df 2>/dev/null | drop 1 | takecols 1 4 6 |
 
 ## Select only those matching pattern
 egrep "$DEVICES" |
