@@ -17,6 +17,11 @@ fi
 EMAIL="$1"
 MINSIZE="$2"
 shift; shift
+
+if [ ! "$HOST" ]
+then HOST=`hostname`  ## TODO: not on Solaris!
+fi
+
 ## Parse device patterns, and build (...|...) regexp for grep
 DEVICES="\("
 while [ "$1" ]
@@ -52,7 +57,7 @@ do
       echo "       on device: $DEVICE"
       echo "  at mount point: $MNTPNT"
       echo
-      echo "  [ Warning sent by script: warnlowspace, running as user: $USER ]"
+      echo "  [ Warning sent by script: warnlowspace, running as user #: $UID ]"
       ## TODO: it would be nice to du -sk $MNTPNT/*, but only on fs'es which can do it without grinding!
     ) |
     mail -s "[$HOST] Warning low space on $MNTPNT ($SPACE"k")" "$EMAIL"

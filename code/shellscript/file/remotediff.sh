@@ -102,9 +102,11 @@ rsyncdiff () {
 		echo "done." >&2
 	done
 
+	## BUG TODO: vimdiff doesn't work because it's inside a pipe!
+
 	cat "$EDITFILE" | grep "^diff " |
 	while read LOCATION DATETIME CKSUM LEN FILENAME
-	do vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.remote"
+	do vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.from-$RHOST"
 	done
 
 }

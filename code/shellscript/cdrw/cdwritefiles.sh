@@ -21,10 +21,10 @@ CDRECORD_OPTS="minbuf=90"
 ## -eject
 cursegreen
 echo "nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |"
-echo "nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -"
+echo "nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=1 -pad $MULTICDRECORD -overburn -"
 cursenorm
       nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |
-      nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=2 -pad $MULTICDRECORD -overburn -
+      nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=4096k -v speed=1 -pad $MULTICDRECORD -overburn -
 
 ## From HOWTO (does multi)
 # mkisofs -R -o cd_image2 -C $NEXT_TRACK -M /dev/scd5 private_collection/
@@ -35,7 +35,7 @@ fi
 
 
 
-### Post-write checksumming (to check write OK, and to keep handy file index)
+### Post-write checksumming (to check it burnt OK, and to keep handy file index)
 
 sleep 10
 cursecyan
@@ -43,8 +43,14 @@ cursecyan
 CDLDIR=/stuff/cdlistings
 
 centralise "Checksumming directory"
-cd "$1"
-$CDLDIR/findaz.sh | tee $CDLDIR/newcd.qkcksum.sb
+if [ -f "$1" ]
+then
+	qkcksum "$@"
+else
+	cd "$1"
+	$CDLDIR/findaz.sh
+fi |
+tee $CDLDIR/newcd.qkcksum.sb
 
 centralise "Checksumming cdrom"
 mount /mnt/cdrom1

@@ -1,7 +1,7 @@
 ## TODO: use of TMPDIR is dodgy!  (to save dependency hugeness?)
+## "mel and kim" "respectable" came back wrong!
 
 # jsh-depends: cursered cursenorm filesize diffgraph googlesearch takecols reverse grouplinesbyoccurrence jgettmpdir lynx pipeboth
-## "mel and kim" "respectable" came back badly!
 
 ## The web is fuzzy:
 #    - Need to kill discography listings!
@@ -129,8 +129,10 @@ then
 
 	pipeboth |
 
-	tee $TMPDIR/diffgraph.out |
+	tee $TMPDIR/diffgraph.out
 
+	cat $TMPDIR/diffgraph.out |
+	
 	takecols 3 | grouplinesbyoccurrence | sort -n -k 1 | reverse |
 
 	pipeboth |

@@ -4,7 +4,7 @@
 # Requires SHORTSHELL from startj
 
 ## Maybe too strict but this script is too heavy for low-spec machines.
-if test "$TERM" = xterm || [ "$TERM" = screen ]
+if [ "$TERM" = xterm ] || [ "$TERM" = screen ]
 then
 
 	HEAD=""
@@ -57,7 +57,8 @@ then
 	case $SHORTSHELL in
 
 		bash)
-			if test "$0" = "bash"; then
+			if [ "$0" = "bash" ]
+			then
 				## For bash, get prompt to send xttitle escseq:
 				# export TITLEBAR=`xttitle "\u@\h:\w"`
 				## xterm title:

@@ -12,7 +12,7 @@ do
 	REPEAT=
 
 	# cd $JPATH/wallpapers
-	WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/" # /www/uploads/"
+	WALLPAPERDIRS="/stuff/wallpapers/" # /stuff/mirrors/" # /www/uploads/"
 
 	FILETYPES="jpg Jpeg jpeg JPG JPEG gif GIF bmp BMP pcx PCX lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
 	SEARCHARGS='-name "*.'`echo "$FILETYPES" | sed 's+ +" -or -name "*.+g'`'"'
@@ -53,13 +53,13 @@ do
 		fi |
 		chooserandomline
 	`
-	if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null
+	if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ]
 	then
 		echo "del \"$FILE\""
 		ln -sf "$FILE" "$JPATH/background1.jpg"
 		xsetbg "$FILE" || REPEAT=true
 	else
-		echo "Wallpaper $FILE does not exist or is not an image!"
+		echo "Wallpaper $FILE does not exist or is not an image or is too small!"
 		## Dangerous!
 		# randomwallpaper
 		REPEAT=true

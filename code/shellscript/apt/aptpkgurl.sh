@@ -1,3 +1,6 @@
+## TODO: offer alternative mode, which uses debian website's package search
+##       and find URLs for package sources that way, without requiring local apt source cache.
+
 ## Not working for security.debian.org (they have strange paths)
 
 # grep "$1.*\.deb$" /var/lib/apt/lists/* 2> /dev/null |

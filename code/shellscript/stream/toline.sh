@@ -9,14 +9,22 @@ if [ "$1" = -x ]
 then
 	shift
 	PAT="$1"
-	awk ' /'"$PAT"'/ { exit } { print $0'\n' } '
+	awk -W interactive ' /'"$PAT"'/ { exit } { print $0'\n' } '
 else
 	PAT="$1"
-	awk ' { print $0'\n' } /'"$PAT"'/ { exit } '
+	awk -W interactive ' { print $0'\n' } /'"$PAT"'/ { exit } '
 fi
 
+# echo "AWK OVER" >&2
+
 ## Drop the rest of the stream
-cat > /dev/null
+## By backgrounding this I hope to avoid "broken stream/pipe" errors,
+## but still achieve that alternate functionality, which is,
+## rather than to chop a stream at a certain point,
+## to wait until a certain point in a stream is reached
+## (eg. watching for particular even in a logfile).
+## TODO: Note I also had to make awk interactive to achieve this, which is actually a mawk option that might cause problems on Solaris, etc.
+cat > /dev/null &
 
 # # OUT="/dev/stdout"
 # OUT="&1" ## Ha! It was saving a file with that name!

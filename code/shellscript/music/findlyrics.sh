@@ -6,8 +6,11 @@
 ## TODO: Cannot take every 3rd link because there is
 ##   occasionally extra links like "More results from X"
 
+## I think this has now been superceded by seeklyrics
+
 if test "$*" = ""; then
 	echo "findlyrics <artist> <song_name>"
+	echo "  see seeklyrics - probably better"
 	exit 1
 fi
 

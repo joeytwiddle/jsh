@@ -53,3 +53,10 @@ fi
 ## for sh -x debugging (bad for bash though!)
 export PS4="%{[00;35m%}[%{[00;31m%}%N[00;35m%}]%{[00;33m%}%_%{%{[00m%}%% "
 
+## TODO: Should really go in bash's .bash_profile (or is it .rc?), so that it is invoked when user types: sh -x something.sh
+##       At the moment that calls bash with zsh's PS4, which makes a horrid mess.
+## So for now I'm defaulting to a bash-compatible PS4:
+# export PS4="\[\033[01;31m\]=$$=\[\033[00m\]"
+# export PS4='\['"`cursered`"'\]'"=="'\['"`cursenorm`"'\]'"
+export PS4="[bash] "
+

@@ -20,7 +20,7 @@ else
 fi
 
 if test "$1" = "" -o "$2" = ""; then
-	echo 'onchange [-ignore] <files> [do] <command>'
+	echo 'onchange [-ignore] "<files>.." [do] <command>'
 	echo '  Multiple files must be contained in "quotes".'
 	echo '  There is currently no support for the command to know which file changed, but there could be...'
 	# NO!  echo '  If you are really cunning, you could use "\$file" in your command!'

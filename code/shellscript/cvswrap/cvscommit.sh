@@ -31,6 +31,8 @@ getfiles () {
 if [ "$1" = "-diff" ]
 then
 
+	## TODO: if a file needs /updating/ then just print a message saying so.  =)
+
 	shift
 	FILES=`getfiles "$@"`
 	TMPFILE=`jgettmp "repository_version"`

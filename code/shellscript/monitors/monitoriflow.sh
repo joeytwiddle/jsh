@@ -1,23 +1,29 @@
 # jsh-depends: takecols
+# jsh-ext-depends: bc
 ## Usage: monitoriflow [ <interface> ]
 ##   will display incoming, outcoming and total bytes per second travelling over the specified interface
 
 ## For floating point, we could use awk or perl, or bc as below.
 
 getbytes () {
-	/sbin/ifconfig "$IF" |
+	/sbin/ifconfig "$IFACE" |
 	grep "RX bytes" |
 	sed 's+.*RX bytes:\([^ ]*\).*TX bytes:\([^ ]*\).*+\1 \2+g'
 }
 
 if [ "$1" ]
-then IF="$1"
-else IF=ppp0
+then IFACE="$1"
+else IFACE=ppp0
 fi
 
 SLEEPFOR=1
 
 FIRSTRUN=true
+
+## Check the interface is up:
+if ! /sbin/ifconfig $IFACE > /dev/null
+then exit
+fi
 
 while true
 do

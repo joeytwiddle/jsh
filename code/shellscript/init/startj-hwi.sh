@@ -150,13 +150,15 @@ else
 				. getmachineinfo
 
 				## Which flavour shell are we running?
-				if test $ZSH_NAME; then
+				if [ $ZSH_NAME ]
+				then
 					SHORTSHELL="zsh"
 					. zshkeys
 					. hwipromptforzsh
 					## TODO: problem, this can leave nonomatch in $1 of sourced scripts (in the interactive sh)
 					setopt nonomatch
-				elif test "$BASH"; then
+				elif [ "$BASH" ]
+				then
 					SHORTSHELL="bash"
 					. bashkeys
 					. hwipromptforbash
@@ -186,6 +188,8 @@ else
 				## Message on user login/out (zsh, tcsh, ...?)
 				export WATCH=all
 
+				# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
+				## Nope better to have a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
 				. xttitleprompt
 
 				### Better solution in jsh.

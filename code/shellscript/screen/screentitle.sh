@@ -12,11 +12,12 @@ then
 
 else
 
-	## Only works on local screen:
-	[ "$STY" ] && screen -S "$STY" -X title "$*"
+	## Only works on local screen (desirable if they are nested, for local window titling):
+	## TODO: prints error after su (still STY) since no screen present - we should really check during init and only attempt here if screen exists (could run previous method instead - or just nothing)
+	screen -S "$STY" -X title "$*"
 
 fi
 
-## We probably want the former more commonly, so local screens update local display.
+## We probably want the latter more commonly, so local screens update local display.
 ## However if ssh2box does not set the title before ssh'ing, the latter passthrough method would be useful
 ## for the remote jsh to see TERM=screen but STY="", so passthrough the name of the machine and be done with.

@@ -17,12 +17,13 @@ then
 fi
 # echo "columns=$COLUMNS, needed=$SOFAR"
 
-if test "$COLUMNS" -lt "$SOFAR" && xisrunning
+if test "$SOFAR" -gt "160"
+then SOFAR="160"
+fi
+# if test "$COLUMNS" -lt "$SOFAR" && xisrunning
+if true
 then
 	# echo "Terminal width $COLUMNS < $SOFAR needed, forking."
-	if test "$SOFAR" -gt "160"
-  then SOFAR="160"
-	fi
 	xterm -geometry "$SOFAR"x`expr "$SOFAR" / 2` -e `jwhich vimdiff` "$EXTRAARGS" "$@"
 else
 	`jwhich vimdiff` "$EXTRAARGS" "$@"

@@ -4,12 +4,15 @@
 #  are most similar.  Finally produces a graph showing relations between files.
 
 ## Exponential by number of arguments!!
-## Considuer using size-difference heuristic to skip diffs which will never beat current best
+## Consider using a size-difference heuristic to skip diffs which will never beat current best
 
 ## This script also serves to demonstrate setting variables in a loop.
 #  It seems that the pipe in
-#    printf "%s" "$FILES" | while read
-#  invokes a new sh and hence variables are forgotten.
+#    printf "%s" "$FILES" | while read X; do
+#  invokes a new sh and hence variables are forgotten,
+#  whereas the
+#    for X in $FILES; do
+#  remembers vars set inside once it's finished.  =)
 
 ## Note:
 #  Sometimes we might need to go for say the n'th best in order to make the
@@ -59,7 +62,7 @@ do
 	# printf "%s" "$FILES" |
 	for Y in "$@"
 	do
-		if test ! "$X" = "$Y" ## output would be empty anyway
+		if [ ! "$X" = "$Y" ]
 		then
 			# echo "Testing: $X $Y" >&2
 			## Diff the files, and find size of diff:
