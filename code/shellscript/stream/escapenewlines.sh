@@ -1,31 +1,31 @@
-# unj encodeslashn "$@"
+# unj escapenewlines "$@"
 
 EXPAND_WORDS=
-if test "$1" = "-words"
-then shift; EXPAND_WORDS=basic
-elif test "$1" = "-xwords"
-then shift; EXPAND_WORDS=super
+if test "$1" = -x
+then shift; EXPAND_WORDS=true
 fi
 
 NL="
 "
 
-unj encodeslashn "$@" |
+# unj escapenewlines "$@" |   ## C version
+sed 's+\\+\\\\+;s+$+\\n+' "$@" | tr -d '\n' |
 
-if test "$EXPAND_WORDS" = basic
-then tr ' ' '\n'
-elif test "$EXPAND_WORDS" = super
+if test "$EXPAND_WORDS"
 then
-	## Sufficient for my HTML purposes:
-	sed "s=\([a-zA-Z]+\|[ 	]+\|[;\"'<>]\|\\\\n\)=\\$NL\1\\$NL=g" | tr -s '\n' ## TODO: make this regex a 1+ to match n whitespaces ## NOTE: we will interpret some 'n's wrong, namely this one: "...\\n..."
+	## NOTE: we will interpret some 'n's wrong, namely this one: "...\\n..."
+	#   whole-word whitespace special-chars escaped-newline  ## Sufficient for my HTML purposes
+	sed "s=\([a-zA-Z]+\|[ 	]+\|[;\"'<>]\|\\\\n\)=\\$NL\1\\$NL=g" |
+	tr -s '\n'
 	## Others (testing):
-	# then sed 's+\( \|	\|\\\\n\)+'"\\$NL\1\\$NL+g" | tr -s '\n' ## TODO: make this regex a 1+ to match n whitespaces ## NOTE: we will interpret some 'n's wrong, namely this one: "...\\n..."
-	# then sed "s+\( +\|	+\|\\\\n\)+\\$NL\1\\$NL+g" | tr -s '\n' ## TODO: make this regex a 1+ to match n whitespaces ## NOTE: we will interpret some 'n's wrong, namely this one: "...\\n..."
-	# then sed "s+\([a-zA-Z]+\|[^a-zA-Z 	]+\|[ 	]+\)+\\$NL\1\\$NL+g" | tr -s '\n' ## TODO: make this regex a 1+ to match n whitespaces ## NOTE: we will interpret some 'n's wrong, namely this one: "...\\n..."
-	# then sed "s+\(.\)+\\$NL\1\\$NL+g" | tr -s '\n' ## TODO: make this regex a 1+ to match n whitespaces ## NOTE: we will interpret some 'n's wrong, namely this one: "...\\n..."
+	# sed "s=\([a-zA-Z]+\|[ 	]+\|[;\"'<>]\|\\\\n\|[^a-zA-Z 	;\"'<>\\]*\)=\\$NL\1\\$NL=g" |
+	# sed "s+\( \|	\|\\\\n\|[a-zA-Z]*\)+\\$NL\1\\$NL+g"
+	# sed 's+\( \|	\|\\\\n\)+'"\\$NL\1\\$NL+g"
+	# sed "s+\( +\|	+\|\\\\n\)+\\$NL\1\\$NL+g"
+	# sed "s+\([a-zA-Z]+\|[^a-zA-Z 	]+\|[ 	]+\)+\\$NL\1\\$NL+g"
+	# sed "s+\(.\)+\\$NL\1\\$NL+g"
 else cat
 fi
 
 ## Doesn't work:
 ## Actually maybe it does, but the sed decoder doesn't.
-# sed 's+\\+\\\\+;s+$+\\n+' | tr -d '\n'
