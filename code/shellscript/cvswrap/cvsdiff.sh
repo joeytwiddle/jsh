@@ -12,6 +12,8 @@
 
 PRE=`cat CVS/Root`"/"`cat CVS/Repository`"/"
 
+echo "Status of files compared to repository:"
+
 cvs -q status | egrep "(^File:|Repository revision:)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
 	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
