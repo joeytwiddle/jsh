@@ -1,3 +1,6 @@
+## TODO: make an unlinkhome script
+## Ideally it would be a link to this script, which would poll $0, hence keeping all the code together, but jsh deploy doesn't yet support symlinks.
+
 if test "$1" = "-diff"; then
 	shift
 	SHOWDIFFS=true
