@@ -42,7 +42,7 @@ then
 			SSHCOM="screen -D -R $SCRSES -S $SCRSES"
 		fi
 	else
-		SSHCOM="screen -h 10000 -a -e^b^l -S $SCRNAME $SSHCOM"
+		SSHCOM="screen -h 10000 -a -e^k^l -S $SCRNAME $SSHCOM"
 	fi
 fi
 

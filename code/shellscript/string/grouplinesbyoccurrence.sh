@@ -4,6 +4,8 @@ cat > $TMPFILE
 
 cat $TMPFILE |
 
+removeduplicatelines |
+
 while read LINE
 do
 

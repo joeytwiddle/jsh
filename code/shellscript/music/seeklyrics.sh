@@ -1,3 +1,5 @@
+## "mel and kim" "respectable" came back badly!
+
 ## The web is fuzzy:
 #    - Need to kill discography listings!
 #    - There are also quite a few pages containing lyrics for a group of songs
@@ -27,7 +29,7 @@ else
 
 	googlesearch -links "$@" "lyrics" |
 
-	pipeboth |
+	# pipeboth |
 
 	## TODO: should strip duplicate hostnames
 
@@ -45,7 +47,7 @@ else
 	do
 
 		# wget -O - "$LINK" |
-		# echo "$LINK" >&2
+		echo "$LINK" >&2
 		lynx -dump "$LINK" | cat > $TMPDIR/$N.lyrics &
 
 	done
@@ -66,10 +68,24 @@ do
 
 done
 
-echo "$TMPDIR"
-diffgraph $TMPDIR/*.lyrics.nopun | sed "s+$TMPDIR++g"
+# echo "$TMPDIR"
+# diffgraph $TMPDIR/*.lyrics.nopun | sed "s+$TMPDIR++g"
 # diffgraph -diffcom worddiff $TMPDIR/*.lyrics.nopun
 # diffgraph -diffcom proportionaldiff $TMPDIR/*.lyrics.nopun
 
+diffgraph $TMPDIR/*.lyrics.nopun |
+
+pipeboth |
+
 ## drop columns 1 and 2, yeah and drop 4+, just take #3 (their duplicity should weight again st them?    nah but it shouldn't weight for them either)
 ## then see which one is most common.  it may be the lyrics!
+
+takecols 3 |
+
+grouplinesbyoccurrence |
+
+sort -n -k 1 |
+
+reverse
+
+# jdeltmp $TMPDIR
