@@ -1,4 +1,4 @@
-if test "$1" = ""; then
+if test "$1" = "" || test "$1" = "--help"; then
 
   echo "jdoc <command>"
   echo "  will show you the documentation for the command"
@@ -18,10 +18,11 @@ else
       }
       ## If if appears to accept the --help argument, then just run it!
       ## (TODO: we could in fact attempt this on binaries!)
-      if grep '\-\-help' "$LINKTOCOM" > /dev/null
+      # if grep '\-\-help' "$LINKTOCOM" > /dev/null
+      if head -100 "$LINKTOCOM" | grep '\-\-help' > /dev/null
       then
         barline
-        cursecyan
+        curseyellow
         echo "$LINKTOCOM --help"
         cursenorm
         barline
@@ -48,8 +49,8 @@ else
 
   else
 
-    jman "$@" &&
-    info "$@"
+    jman "$@" # &&
+    # info "$@"
 
   fi
 

@@ -1,16 +1,20 @@
 echo "Making quick backup of evolution config..."
 
-test -f "$HOME/evolution-config-bak.tgz" &&
-	mv "$HOME/evolution-config-bak.tgz" "$HOME/evolution-config-bak-previous.tgz"
+BACKUPFILE="$HOME/evolution-config-bak.tgz"
+MARKERFILE="$HOME/evolution-config-bak-ok.marker"
 
-if test -f "$HOME/evolution-config-bak-ok.marker"
-then
-	cd "$HOME/evolution"
-	FILES=`'ls' | grep -v "local"`
-	tar cfz "$HOME/evolution-config-bak.tgz" $FILES
-	rotate -nozip -max 4 "$HOME/evolution-config-bak.tgz"
+if test ! -f "$MARKERFILE"
+then echo "If you want me to keep rotated backups of your evolution config, touch $MARKERFILE"
 else
-	echo "If you want me to keep rotated backups of your evolution config, touch $HOME/evolution-config-bak-ok.marker"
+
+	test -f "$BACKUPFILE" &&
+		mv "$BACKUPFILE" "$HOME/evolution-config-bak-previous.tgz"
+
+	cd "$HOME/evolution"
+	FILES=`'ls' | grep -v ^local | grep -v ^mail`
+	tar cfz "$BACKUPFILE" $FILES
+	rotate -nozip -max 4 "$BACKUPFILE"
+
 fi
 
 echo "Starting evolution..."

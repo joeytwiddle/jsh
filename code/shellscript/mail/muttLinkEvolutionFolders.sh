@@ -1,3 +1,6 @@
+mkdir -p $HOME/0MailEvolution
+mkdir -p $HOME/0MailEvolutionTree
+
 echo "## Purge old:"
 find $HOME/0MailEvolution/ -maxdepth 1 -type l -name "\|*" |
 sed 's+^+rm "+;s+$+"+'

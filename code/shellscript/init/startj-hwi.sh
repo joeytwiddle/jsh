@@ -45,6 +45,7 @@ if test ! $JPATH; then
 		exit 1
 	fi
 fi
+export PATH=$HOME/bin:$PATH ## Now doing this before jpath now cos i consider latter more important
 export PATH=$JPATH/tools:$PATH
 
 if jwhich jwhich
@@ -59,7 +60,7 @@ test -f "$JPATH/global.conf" && . "$JPATH/global.conf"
 test -f "$JPATH/local.conf" && . "$JPATH/local.conf"
 
 ## Setup user bin, libs, man etc...
-export PATH=$HOME/bin:$PATH
+# export PATH=$HOME/bin:$PATH
 ## not yet finished, should be option - refer to setuppath in pclark/pubbin
 
 # zsh on Solaris gives errors on . so I use source

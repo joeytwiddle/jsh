@@ -2,7 +2,7 @@
 ## 1:00pm Friday Feb. 15th, 2002. Room 4.01 Merchant Venturers Building
 ## (Wed 9th / 8pm / =A33/2
 
-# cp "$HOME/evolution/local/A/subfolders/Calendar/mbox" /tmp/mbox
+test ! -e /tmp/mbox && cp "$HOME/evolution/local/A/subfolders/Calendar/mbox" /tmp/mbox
 MBOX="/tmp/mbox"
 MBOXOUT="$MBOX-done"
 
@@ -29,16 +29,18 @@ for N in `seq 1 $TOTAL`; do
 		fromstring "" | ## drops headers
 
 		perl -n -e "
-			/([0-3]?[0-9])($NUMPOST( of|)|) $MONTHLISTRE( ([0-9]*)|)/ && "'
+			# /([0-3]?[0-9])($NUMPOST( of|)|) $MONTHLISTRE( ([0-9]*)|)/
+			/([0-3]?[0-9])($NUMPOST|)( of|) $MONTHLISTRE[,]?( ([0-9]*)|)/
+			&& "'
 				# print("$_") &&
-				print("$1/$5/$7\n");
+				print("$1/$5/$7 [A]\n");
 			'"
 			/$MONTHLISTRE ([0-3]?[0-9])($NUMPOST|[^0-9][^0-9])/ && "'
 				# print("$_") &&
-				print("$2/$1/\n");
+				print("$2/$1/ [B]\n");
 			'"
 			/this $WEEKLISTRE/ && "'
-				printf("WEEKDAY: THIS $1");
+				printf("WEEKDAY: THIS $1 [C]");
 			'"
 			# /$MONTHLISTRE/ && "'
 				# # print("$_") &&
@@ -49,13 +51,16 @@ for N in `seq 1 $TOTAL`; do
 	`
 
 	if test "$FOUND" = ""; then
+		cursered
 		echo "No dates found in $N!"
+		curseblue
 		getmail "$N"
+		cursenorm
 	else
 		echo "Dates found in $N:"
 		echo "$FOUND"
 		### ## Move out of todo box
-		### maildo "s $N $MBOXOUR" > /dev/null
+		### maildo "s $N $MBOXOUT" > /dev/null
 		### maildo "d $N" > /dev/null
 		### N=`expr "$N" - 1` ## Doesn't work of course!
 	fi

@@ -1,13 +1,10 @@
 #!/bin/sh
-
-# #!/bin/bash
-# Works for bash too despite its name!
-
 # d: change directory and record for b and f shell tools
-
+# Works for bash too despite its name!
+# TODO:
 # Shouldn't we remember moved-into, not moved-out-of?
-
-# Sometimes NEWDIR="$@" breaks under ssh!
+# Sometimes NEWDIR="$@" breaks under ssh?
+# Investigate: echo "($LAST)"
 
 NEWDIR="$@"
 

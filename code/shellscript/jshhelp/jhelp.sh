@@ -1,3 +1,7 @@
+if test ! "$*" = ""
+then jdoc "$@"
+else
+
 more << !
 
 * About the jsh system *
@@ -31,3 +35,5 @@ To get started, try some of these scripts:
   del <files>: safer than rm
 
 !
+
+fi

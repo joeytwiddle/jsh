@@ -5,8 +5,9 @@ do
 	FILE=`filename "$CLASSFILE"`
 	JADFILE=`echo "$FILE" | sed 's/\.class$/\.jad/'`
 	FINALFILE=`echo "$JADFILE" | sed 's/\.jad$/\.java/'`
-	jad -f -ff "$DIR/$FILE"
+	jad -f -ff -t -safe "$DIR/$FILE"
 	mv "$JADFILE" "$DIR/$FINALFILE"
 done
 # jad -f -ff *.class
-# -o to overwrite
+# -b additional braces
+# -o to overwrite (not needed since we move)

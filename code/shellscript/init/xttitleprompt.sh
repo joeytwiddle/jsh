@@ -1,6 +1,13 @@
 ### xterm title change
 # Requires SHORTSHELL from startj
 
+## The screen check, and hence HEAD at the moment may be redundant
+## because screen probably disables X forwarding.
+HEAD=""
+if test "$SCREEN_RUNNING"
+then export HEAD="[screen] "
+fi
+
 ## Gather hostname and username
 SHOWHOST=$HOST
 ## Fix 'cos sometimes HOSTNAME is set instead of HOST
@@ -25,7 +32,7 @@ if xisrunning; then
 	if test "$0" = "bash"; then
 		## For bash, get prompt to send xttitle escseq:
 		# export TITLEBAR=`xttitle "\u@\h:\w"`
-		export TITLEBAR="\[\033]0;\u@\h:\w\007\]"
+		export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
 		export PS1="$TITLEBAR$PS1"
 	fi
 	case $TERM in
@@ -36,7 +43,7 @@ if xisrunning; then
 					## These two should go outside TERM case but only zsh!
 					export HISTSIZE=10000
 					export EXTENDED_HISTORY=true
-					## For zsh, use preexec/cmd builtins
+					## For zsh we define the preexec/cmd builtins
 					swd () {
 						## Dunno why doesn't work:
 						# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
@@ -48,11 +55,11 @@ if xisrunning; then
 						## $* repeats under zsh4 :-(
 						## $1 before alias expansion, $2 and $3 after
 						export LASTCMD="$1"
-						xttitle "# $LASTCMD [$SHOWUSER$SHOWHOST"`swd`"]"
+						xttitle "$HEAD# $LASTCMD [$SHOWUSER$SHOWHOST"`swd`"]"
 					}
 					precmd () {
 						# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
-						xttitle "$SHOWUSER$SHOWHOST"`swd`" % ($LASTCMD)"
+						xttitle "$HEAD$SHOWUSER$SHOWHOST"`swd`" % ($LASTCMD)"
 					}
 				;;
 
@@ -60,7 +67,7 @@ if xisrunning; then
 				## Doesn't actually appear 'cos tcsh can't exec this far!
 				## See .tcshrc for actual postcmd!
 				tcsh)
-					alias postcmd 'xttitle "${USER}@${HOST}:${PWD}%% \!#"'
+					alias postcmd 'xttitle "${HEAD}${USER}@${HOST}:${PWD}%% \!#"'
 				;;
 
 			esac

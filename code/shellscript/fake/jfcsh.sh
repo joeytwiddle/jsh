@@ -4,6 +4,8 @@ case "$1" in
 	""|-h|--help)
 		echo "jfcsh [ -bothways | -common ] <file_A> <file_B>"
 		echo "  will show lines in file_A which are not in file_B."
+		echo "  NOTE: syntax is likely to change as jfcsh becomes a standin for binary jfc."
+		echo "        Main difference in change is the verbose output of jfc."
 		exit 1
 	;;
 esac
@@ -29,6 +31,11 @@ if test $COMMON; then
 		done
 
 else
+
+	## I used to do this very inefficiently by grepping $2 once for each line in $1!
+	## Now instead I first sort the files, then GNU diff them, and extract from that.
+	## Note: This gives a slightly different output.  Now all extra lines are shown,
+	## including duplicates, wheras before only unique lines were shown.
 
 	A=`jgettmp "$1"`
 	B=`jgettmp "$2"`

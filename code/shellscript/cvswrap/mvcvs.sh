@@ -1,5 +1,5 @@
 ## BUG: Now allows you rename files, but if there are multiple srcs it should check that dest is a dir!
-## TODO: ability to move whole directories (we could perform build a new tree and mvcvs every file)
+## NEW: "Prototyped" ability to move whole directories (we could perform build a new tree and mvcvs every file)
 
 # safe until you | sh
 
@@ -32,39 +32,68 @@ mvcvs1() {
 	REPOSFILEDIR=`cat "$FILEPATH/CVS/Repository"`
 	REPOSDESTDIR=`cat "$LOCALDESTDIR/CVS/Repository"`
 
-	# Last line doesn't work if LOCALDESTDIR not in cvsroot repository!
+	## Last line doesn't work if LOCALDESTDIR not in cvsroot repository!
+	if test ! "$REPOSDESTDIR"
+	then echo "$LOCALDESTDIR is not a cvs directory; aborting."; exit 1
+	fi
 
 	echo "# $REPOSFILEDIR/$FILENAME -> $REPOSDESTDIR"
 
-	CVSFILE="$CVSROOT/$REPOSFILEDIR/$FILENAME,v"
 	CVSDESTDIR="$CVSROOT/$REPOSDESTDIR"
 
 	## Checking ok:
 	if test ! -d "$FILEPATH"; then
-	  echo "Probleming resolving local directory.  Got \"$FILEPATH\""
-	  exit 1
+		echo "Probleming resolving local directory.  Got \"$FILEPATH\""
+		exit 1
 	fi
 	if test ! -d "$CVSDESTDIR"; then
-	  echo "CVS destination \"$CVSROOT\" is not a directory."
-	  exit 1
-	fi
-	if test ! -f "$LOCALSRC"; then
-	  echo "\"$LOCALSRC\" is not a file!"
-	  exit 1
-	fi
-	if test ! -f "$CVSFILE"; then
-	  echo "cvs file \"$CVSFILE\" does not exist!"
-	  exit 1
+		## I don't think we should mkdir this ourselves.  Dunno: consider.
+		echo "CVS destination \"$CVSROOT\" is not a directory."
+		exit 1
 	fi
 
-	# echo "mv \"$LOCALSRC\" \"$LOCALDESTDIR/\""
-	if test ! -d "$CVSDESTDIR"; then
-	  echo "mkdir -p \"$CVSDESTDIR\""
+	if test -d "$LOCALSRC"
+	then
+
+		## Moving a directory:
+
+		echo "TODO: Create new directory tree, and add to CVS"
+		echo "TODO: mvcvs all the files from current tree to new tree"
+		echo "TODO: Remove local src tree and dirs from cvs."
+		echo "  or"
+		echo "TODO: Copy tree over in cvs."
+		echo "TODO: Remove src tree from CVS and local checkout."
+		echo "TODO: Update local."
+	
+	elif test -f "$LOCALSRC"
+	then
+
+		## Moving a file:
+
+		CVSFILE="$CVSROOT/$REPOSFILEDIR/$FILENAME,v"
+		
+		## Checking ok:
+		if test ! -f "$CVSFILE"; then
+		  echo "cvs file \"$CVSFILE\" does not exist!"
+		  exit 1
+		fi
+
+		## Unreachable due to above:
+		# if test ! -d "$CVSDESTDIR"
+		# then echo "mkdir -p \"$CVSDESTDIR\""
+		# fi
+
+		## We can copy the file in the CVS repository to create the new entry
+		echo "cp \"$CVSFILE\" \"$CVSDESTDIR/$DESTFILENAME,v\""
+		## I think somebody has to do this (and commit it, although nobody has to add mmm)
+		echo "del -cvs \"$LOCALSRC\""
+
+	else
+
+		echo "Source \"$LOCALSRC\" is not a file or a directory!"
+		exit 1
+
 	fi
-	## We can copy the file in the CVS repository to create the new entry
-	echo "cp \"$CVSFILE\" \"$CVSDESTDIR/$DESTFILENAME,v\""
-	## I think somebody has to do this (and commit it, although nobody has to add mmm)
-	echo "del -cvs \"$LOCALSRC\""
 
 }
 

@@ -94,10 +94,10 @@ ln -s "$JPATH"/tools/jsh "$JPATH"
 echo "Done installing."
 echo
 
-echo "To always start the environment, you should put the following lines in your ~/.<preferredshell>rc:"
+echo "To start jsh now, run $JPATH/jsh.  Then type jhelp for help."
+echo "To have jsh start automatically, put the following lines in your ~/.*shrc:"
 echo "  export JPATH=\"$JPATH\"   ## this line is optional for zsh or if JPATH=$HOME/j"
 echo "  source \"$STARTFILE\""
-echo "or you can just run $JPATH/jsh by hand."
 echo "(You may also want to run linkhome to use my .rc files)"
-echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, memo, onchange, findduplicatefiles, undelext2, b, et)"
+# echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, memo, onchange, findduplicatefiles, undelext2, b, et)"
 echo
