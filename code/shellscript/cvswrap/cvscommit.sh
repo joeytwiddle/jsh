@@ -1,2 +1,2 @@
-cvs -q commit "$@" &&
+cvs -q commit "$@" | grep -v "^? " &&
 cvsedit

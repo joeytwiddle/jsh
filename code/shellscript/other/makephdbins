@@ -3,23 +3,23 @@ echo "You should also ensure that $JPATH/images exists, and $JPATH/code/c/phd/im
 cd $JPATH/code/c/phd
 
 cd texture
-xt jnn
-xt blob
+jmake jnn
+jmake blob
 cd ..
 
 cd locthr
-xt locthr
+jmake locthr
 cd ..
 
 cd projprof
-xt pp
+jmake pp
 cd ..
 
 cd gentestimg
-xt simgen
+jmake simgen
 cd ..
 
 cd improc
-xt invert
+jmake invert
 
 echo "You should also ensure that $JPATH/images exists, and $JPATH/code/c/phd/images links to it!"
