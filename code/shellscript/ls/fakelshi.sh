@@ -17,17 +17,19 @@ replace () {
 }
 
 # Really want to say "without spaces" too
-MATCHSTART='^\\(.*\\)\1'
-MATCHMID='\\( .*\\)\1'
-MATCHSTART='\1'
-REPLACE="(\1{$STARTCURSE"'\2'"$ENDCURSE"'\\1\1'"$NORM}\1)"
-REPLACE="$STARTCURSE"'\2'"$ENDCURSE"'\\1\1'"$NORM"
-SEDSTR=
+# MATCHSTART='^\\(.*\\)\1'
+# MATCHMID='\\( .*\\)\1'
+# MATCHSTART='\1'
+# REPLACE="(\1{$STARTCURSE"'\2'"$ENDCURSE"'\\1\1'"$NORM}\1)"
+# REPLACE="$STARTCURSE"'\2'"$ENDCURSE"'\\1\1'"$NORM"
+# SEDSTR=
 # Don't know why the spaces are causing this to fail
 # anyway this is naff version which doesn't highlight whole fname, just relevant match.
-SEDSTR="$SEDSTR;s+$MATCHSTART +$REPLACE +g"
-SEDSTR="$SEDSTR;s+$MATCHSTART$+$REPLACE+"
-SEDMID="s+$MATCHMID+$REPLACE+"
+# SEDSTR="$SEDSTR;s+$MATCHSTART +$REPLACE +g"
+# SEDSTR="$SEDSTR;s+$MATCHSTART$+$REPLACE+"
+# SEDMID="s+$MATCHMID+$REPLACE+"
+REPLACE="$STARTCURSE"'\2'"$ENDCURSE"'\\1\1'"$NORM"
+SEDSTR="s+\1+$REPLACE+"
 
 cat "$DCFILE" |
 grep -v "^TERM" |
