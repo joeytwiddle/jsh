@@ -1,5 +1,5 @@
 if test "$1" = ""; then
-  echo "findpkg [ -all | -web ] <part-of-package-name>"
+  echo "findpkg [ -all ] [ -web ] <part-of-package-name>"
   exit 1
 fi
 

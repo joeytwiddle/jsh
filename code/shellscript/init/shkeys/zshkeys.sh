@@ -175,14 +175,16 @@ bindkey -s "^v" "^f^x"
 # # and since we replace e:
 # bindkey "^g" end-of-line
 
-# The lot, spanning xdfv nhjkl yuo
+# The lot, spanning zxdfv nhjkl yuo
 # Shorter here thanx to CTRL+arrow below:
 # bindkey "^x" backward-kill-word
 # bindkey "^d" backward-word
 # bindkey "^f" forward-word
+bindkey "^z" backward-kill-word
 bindkey "^x" vi-backward-kill-word
 bindkey "^d" vi-backward-word
 bindkey "^f" vi-forward-word
+# there is no vi-kill-word
 bindkey "^v" kill-word
 #
 bindkey "^n" vi-backward-kill-word

@@ -10,6 +10,8 @@
 # echo "# Try cvsdiff .* * to see which local files do not exist in repository."
 # echo "# Sorry subdirs' files don't work 'cos status loses path."
 
+# TODO: when a new file (not yet in repos) is found, if the dir is also new, the dir should be "cvs add"ed too.
+
 CHECKALL=
 if test "$1" = "-all"; then
 	CHECKALL=true
@@ -34,7 +36,7 @@ if test $CHECKALL; then
 	echo
 	echo "Local files not in repository:"
 
-	find . -type f | grep -v "/CVS/" > /tmp/local.txt
+	find . -type f | grep -iv "/CVS/" > /tmp/local.txt
 	jfc nolines /tmp/local.txt /tmp/in-repos.txt |
 		sed "s+^./+cvs add ./+"
 fi

@@ -46,7 +46,7 @@ convert $DESTIMGFILE -crop $HALFIMGWIDTH"x"$IMGHEIGHT+0+0 $LEFTIMGFILE
 convert $DESTIMGFILE -crop $HALFIMGWIDTH"x"$IMGHEIGHT+$HALFIMGWIDTHMAJ+0 $RIGHTIMGFILE
 
 # LINE='                <a href='$HREF'><img border="0" align="middle" src="'$DESTIMGFILE'"></a>'
-LINE='                <td width="'$IMGWIDTHPLUS'" valign="middle" align="center"><a href="http://www.google.com/"><img alt="(Home)" border="0" align="middle" src="'$LEFTIMGFILE'"></a><a alt="(Topical)" href='$HREF'><img border="0" align="middle" src="'$RIGHTIMGFILE'"></a></td>'
+LINE='                <td width="'"$IMGWIDTHPLUS"'" valign="middle" align="center"><a href="http://www.google.com/"><img alt="(Home)" border="0" align="middle" src="'"$LEFTIMGFILE"'"></a><a href='"$HREF"'><img alt="(Topical)" border="0" align="middle" src="'"$RIGHTIMGFILE"'"></a></td>'
 
 cp $JPATH/org/jumpgate.html jumpgate-orig.html
 replaceline jumpgate-orig.html "<\!-- #~googleimage~# -->" "<\!-- #~googleimage~# -->$LINE" > finaljumpgate.html
