@@ -1,5 +1,9 @@
 ## Currently read-only, and requires ssh/RSA authentication to remote host, but works!
 
+## I hoped we might be able to use lsof to infer which fifo the user might be
+## trying to read from or to.  But unfortunately, entries in my lsof do not appear
+## until the fifo has be joined at both ends!
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 cat | more << !
@@ -29,8 +33,12 @@ cat | more << !
 
     It then watches these files for read access by attempting a dd into each one
     in turn (sourcing the stream, delayed, from the remote machine).  If, after
-    one decisecond, dd is not seen to be writing to the fifo, then it stops the
-    dd, and (almost) the ssh sourcing, and tries the next file instead.
+    one decisecond, dd is not happily writing to the fifo, then it stops the
+    ssh sourcing stream, and hence dd, and tries the next file instead.
+
+    For write access, it just tried to cat from each file in turn.  If the cat
+    has produced no bytes in 0.1 seconds, it is killed, otherwise its data is
+    transferred into to the remote file.
 
   BUGS:
 
@@ -39,6 +47,10 @@ cat | more << !
 
     Aside from this script's obvious inefficiencies, the fifos on my Linux
     system seem to work slowly themselves (when there are only two cats running).
+
+    Obviously trying each file in turn is terrible.  You /can/ run multiple
+    instances of the server!  I tried to get lsof to tell us which fifo might
+    be being accessed at any time, but it refused.
 
 !
 fi
@@ -51,6 +63,12 @@ DO_WRITING=
 
 if [ "$1" = -rw ]
 then DO_WRITING=true; shift
+fi
+if [ "$1" = -ssh ]
+then shift
+else
+  echo "-ssh is the only valid protocol at the moment."
+  exit 1
 fi
 TARGET="$1"
 MOUNTPOINT=`realpath "$2"`
@@ -111,52 +129,98 @@ another_notify_progress () {
 	done
 }
 
-send_needed_daemon () {
+do_reading () {
+
+  FILE="$1"
+
+  jshinfo "[READ] Trying: $FILE"
+
+  BS=99999999
+  rm -f $GO_AHEAD_MARKER
+  (
+    sleep 0.3
+    [ -f $GO_AHEAD_MARKER ] &&
+    ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
+  ) |
+  another_notify_progress "<" |
+  dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
+  DDPID="$!"
+
+  sleep 0.1 ## This seems neccessary for the below:
+
+  ## Well how odd!  It appears that if the fifo is not being read, then this signal kills the dd, but if it is being read, the dd survives, and echos to stderr as it should =)
+  kill -USR1 "$DDPID" > /tmp/killsig.out 2> /tmp/killsig.err
+
+  CONTENT=`cat /tmp/dd.out`
+  if [ ! "$CONTENT" ]
+  then
+    jshinfo "[READ] dd has (probably) died => file not being read"
+  else
+    touch $GO_AHEAD_MARKER
+    jshhappy "[READ] PUSHING Waiting for dd to finish..."
+    wait
+    jshinfo "[READ] PUSHED OK dd finished."
+  fi
+
+  # wait ## We don't have to wait for the ssh clause to finish, but if we don't it might get confused (picking up a goahead/sending_state tag meant for a later file) but who cares anyway?!
+  ## Oh it appears it is needed.  Without it the first send never finishes!
+
+}
+
+do_writing () {
+
+  FILE="$1"
+
+  jshinfo "[WRITE] Trying: $FILE"
+
+  rm -f $TMPFILE
+  cat "$MOUNTPOINT/$FILE" > $TMPFILE &
+  ## Below oesn't kill the cat in this form:
+  # cat "$MOUNTPOINT/$FILE" |
+  # another_notify_progress "<" |
+  # cat > $TMPFILE &
+  CATPID="$!"
+
+  sleep 0.1
+  # ls -l $TMPFILE
+  SIZE=`find $TMPFILE -printf %s`
+  if [ "$SIZE" ] && [ "$SIZE" -gt 0 ]
+  then
+    jshhappy '[WRITE] PULL waiting for all of file...'
+    wait
+    jshhappy '[WRITE] Sending file to remote filesystem...'
+    # cat $TMPFILE | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
+    cat $TMPFILE | another_notify_progress ">" | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
+    jshhappy "[WRITE] File sent OK" ||
+    jshinfo '[WRITE] ERROR sending file!'
+    sleep 5
+  else
+    jshinfo '[WRITE] No data so killing cat'
+    kill "$CATPID" ## presumably blocked
+  fi
+
+  # wait ## Why not?!
+
+}
+
+iterative_transfer_daemon () {
+
 	cd "$MOUNTPOINT"
+
 	while true
 	do
-    ## I wonder if we shouldn't use the fifos rather than the old list.
+
+    ## I wonder if we shouldn't use the fifos rather than the old list.  Beyond scope.
 		cat $FILELIST |
 		while read FILE
-		# for FILE in `cat $FILELIST` ## No spaces in filenames allowed for the moment!
+		# for FILE in `cat $FILELIST` ## No spaces in filenames allowed with this method!
 		do
 
       if [ "$DO_READING" ]
       then
 
         echo
-
-        jshinfo "[READ] Trying: $FILE"
-
-        BS=99999999
-        rm -f $GO_AHEAD_MARKER
-        (
-          sleep 0.3
-          [ -f $GO_AHEAD_MARKER ] &&
-          ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
-        ) |
-        another_notify_progress "<" |
-        dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
-        DDPID="$!"
-
-        sleep 0.1 ## This seems neccessary for the below:
-
-        ## Well how odd!  It appears that if the fifo is not being read, then this signal kills the dd, but if it is being read, the dd survives, and echos to stderr as it should =)
-        kill -USR1 "$DDPID" > /tmp/killsig.out 2> /tmp/killsig.err
-
-        CONTENT=`cat /tmp/dd.out`
-        if [ ! "$CONTENT" ]
-        then
-          jshinfo "[READ] dd has (probably) died => file not being read"
-        else
-          touch $GO_AHEAD_MARKER
-          jshhappy "[READ] PUSHING Waiting for dd to finish..."
-          wait
-          jshinfo "[READ] PUSHED OK dd finished."
-        fi
-
-        # wait ## We don't have to wait for the ssh clause to finish, but if we don't it might get confused (picking up a goahead/sending_state tag meant for a later file) but who cares anyway?!
-        ## Oh it appears it is needed.  Without it the first send never finishes!
+        do_reading "$FILE"
 
       fi
 
@@ -164,49 +228,23 @@ send_needed_daemon () {
       then
 
         echo
-
-        jshinfo "[WRITE] Trying: $FILE"
-
-        rm -f $TMPFILE
-        cat "$MOUNTPOINT/$FILE" > $TMPFILE &
-        ## Below oesn't kill the cat in this form:
-        # cat "$MOUNTPOINT/$FILE" |
-        # another_notify_progress "<" |
-        # cat > $TMPFILE &
-        CATPID="$!"
-
-        sleep 0.1
-        # ls -l $TMPFILE
-        SIZE=`find $TMPFILE -printf %s`
-        if [ "$SIZE" ] && [ "$SIZE" -gt 0 ]
-        then
-          jshhappy '[WRITE] PULL waiting for all of file...'
-          wait
-          jshhappy '[WRITE] Sending file to remote filesystem...'
-          # cat $TMPFILE | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
-          cat $TMPFILE | another_notify_progress ">" | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
-          jshhappy "[WRITE] File sent OK" ||
-          jshinfo '[WRITE] ERROR sending file!'
-          sleep 5
-        else
-          jshinfo '[WRITE] No data so killing cat'
-          kill "$CATPID" ## presumably blocked
-        fi
-
-        # wait ## Why not?!
+        do_writing "$FILE"
 
       fi
 
       wait
 
-		done || break # this was good for user Ctrl+Cing
+      true
+
+		done # || break # this is good for user Ctrl+C'ing, oh but I think it is causing exit after successful read, dunno why!, maybe cos there is nothing to wait for! Fixed with true above.
 
 		echo
-		jshinfo "[READ] PAUSING after a full pass over the filelist"
+		jshinfo "[PAUSE] Pausing after a full pass over the filelist"
 		echo
 		sleep 5
 
 	done
+
 }
 
-send_needed_daemon
+iterative_transfer_daemon
