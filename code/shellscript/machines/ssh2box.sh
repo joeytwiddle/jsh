@@ -31,6 +31,7 @@ then
 	then
 		echo "Rejoining screen $SCRSES with $SSHCOM"
 		screen -S $SCRSES -X screen $SSHCOM
+		screen -S $SCRSES -X title ">$*>"
 		# SSHCOM="screen -DDR -S $SCRSES"
 		SSHCOM="screen -D -R $SCRSES -S $SCRSES"
 	else
