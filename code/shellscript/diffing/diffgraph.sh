@@ -18,6 +18,7 @@ NL="
 
 if test "$DIFFCOM" = ""
 then DIFFCOM=diff
+# then DIFFCOM=worddiff
 fi
 
 # FILES=""
