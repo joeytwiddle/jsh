@@ -102,22 +102,6 @@ done
 # exit
 
 notify_progress () {
-	NOTIFY_FILE="$1"
-	BS=1
-	while true
-	do
-		# dd bs=$BS count=1 2>/dev/null || break
-		dd bs=$BS count=1 2>/tmp/dd.out || break
-		if grep "^0+0 " /tmp/dd.out >/dev/null
-		then
-			jshinfo "[notify_progress] dd exiting gracefully"
-			break
-		fi
-		BS=1024
-	done
-}
-
-another_notify_progress () {
   [ "$1" ] && CHAR="$1" || CHAR=.
 	# CNT=1024
   CNT=1
@@ -143,7 +127,7 @@ do_reading () {
     [ -f $GO_AHEAD_MARKER ] &&
     ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
   ) |
-  another_notify_progress "<" |
+  notify_progress "<" |
   dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
   DDPID="$!"
 
@@ -178,7 +162,7 @@ do_writing () {
   cat "$MOUNTPOINT/$FILE" > $TMPFILE &
   ## Below oesn't kill the cat in this form:
   # cat "$MOUNTPOINT/$FILE" |
-  # another_notify_progress "<" |
+  # notify_progress "<" |
   # cat > $TMPFILE &
   CATPID="$!"
 
@@ -191,7 +175,7 @@ do_writing () {
     wait
     jshhappy '[WRITE] Sending file to remote filesystem...'
     # cat $TMPFILE | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
-    cat $TMPFILE | another_notify_progress ">" | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
+    cat $TMPFILE | notify_progress ">" | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
     jshhappy "[WRITE] File sent OK" ||
     jshinfo '[WRITE] ERROR sending file!'
     sleep 5
