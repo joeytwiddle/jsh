@@ -121,15 +121,20 @@ rsyncdiff () {
 
 if test ! $2 # --help
 then
+	echo
 	echo "remotediff [ -diffcom <diff_command> ] <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
+	echo
 	echo "Supported diff commands: (may alternatively be provided in \$DIFFCOM)"
+	echo
 	echo "  gvimdiff"
 	echo "  vimdiff"
 	echo "  jfc"
 	echo "  jdiff"
 	echo "  diff"
 	echo "  rsyncdiff - Lets you edit diff list then transports files."
-	# echo
+	echo
+	echo "Note: wildcards in <find_options> should be double-quoted, eg: -name \"'*.txt'\""
+	echo
 	# rsyncdiffdoc
 	exit 1
 fi
@@ -177,6 +182,7 @@ fi
 ### Set up commands for cksum retrieval:
 
 FINDOPTS="-type f $@"
+echo "Find options: $FINDOPTS"
 
 CKSUMCOMEXT=""
 if test "$DIFFCOM" = "rsyncdiff"; then
@@ -198,18 +204,18 @@ CKSUMCOM='
 		# sed "s/[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*//;s/ .*//"
 
 # REMOTECOM='find "'"$RDIR"'" '"$FINDOPTS"' | '"$CKSUMCOM"
-REMOTECOM='cd "'"$RDIR"'" && find . '"$FINDOPTS"' | '"$CKSUMCOM"
+REMOTECOM='cd "'"$RDIR"'" && eval "find . '"$FINDOPTS"'" | '"$CKSUMCOM"
 
 
 
 ### Get the cksums:
 
 echo "Getting cksums for remote $RHOST:$RDIR"
-debug ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" '>' "T$MPTWO.longer" && echo "Got remote"
+debug ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" '>' "T$MPTWO.longer" "&&" echo "Got remote"
 ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
 
 echo "Getting cksums for local $LOCAL"
-cd "$LOCAL" && find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE.longer" && echo "Got local" &
+cd "$LOCAL" && eval find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE.longer" && echo "Got local" &
 
 wait
 
