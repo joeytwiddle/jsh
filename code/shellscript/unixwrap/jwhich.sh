@@ -1,7 +1,5 @@
 #!/bin/sh
 
-# #!/usr/local/bin/zsh
-
 if [ "$1" = "" ]; then
   echo "jwhich [ inj ] <file> [ quietly ]"
   echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
@@ -18,10 +16,6 @@ else
 fi
 FILE="$1"
 QUIETLY="$2"
-
-# echo "JPATH = $JPATH" > ~/tmp.txt
-# echo "PATHS = $PATHS" >> ~/tmp.txt
-# echo "file = $FILE" >> ~/tmp.txt
 
 # Note the quotes around $PATHS here are important, otherwise unix converts into one line again!
 # This is no good cos it spawns a new process, and the exit doesn't work.
@@ -43,7 +37,7 @@ done
 if [ ! "$QUIETLY" = "quietly" ]; then
   echo "Could not find $FILE in any of"
   echo "$PATHS"
-fi > /dev/stderr
+fi >&2
 exit 1          # Not found  :(
 
 # OLDPATH="$PATH";
