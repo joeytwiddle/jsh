@@ -198,10 +198,17 @@ else
 				if [ "$BOGOMIPS" ] && [ "$BOGOMIPS" -gt 500 ]
 				then
 					if [ "$BASH" ] && [ -f /etc/bash_completion ]
-					then . /etc/bash_completion
-					elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
-					then . $HOME/.zsh_completion_rules
-					else . autocomplete_from_man
+					then
+						[ "$DEBUG" ] && debug "Tab completion for bash: loading /etc/bash_completion"
+						. /etc/bash_completion
+					## Disabled because "ls --col"<Tab> didn't work:
+					# elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
+					# then
+						# [ "$DEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
+						# . $HOME/.zsh_completion_rules
+					else
+						[ "$DEBUG" ] && debug "Tab completion for zsh: loading jsh:autocomplete_from_man"
+						. autocomplete_from_man
 					fi
 				fi
 

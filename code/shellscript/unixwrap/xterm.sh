@@ -1,3 +1,4 @@
+# jsh-ext-depends-ignore: konqueror
 # jsh-depends: jwhich xtermopts
 # No longer backgrounded - that should be done as shell alias.
 # XTERME=`jwhich kterm`

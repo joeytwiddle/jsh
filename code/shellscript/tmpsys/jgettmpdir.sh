@@ -29,8 +29,13 @@ then
 				PARENT="`dirname \"$TOPTMP\"`"
 				if [ -w "$PARENT" ]
 				then
-					echo "Creating a temporary directory for jsh: $TOPTMP" >&2
-					mkdir "$TOPTMP" && break
+					# echo "Creating a temporary directory for jsh: $TOPTMP" >&2
+					jshwarn "jgettmpdir: Creating a temporary directory for jsh: $TOPTMP"
+					# mkdir "$TOPTMP" && break
+					mkdir "$TOPTMP"
+					## TODO: we should be do ( -d || -L (symlink) ), provided it will fail if symlink target dir is not writeable (ie. doesn't use perms of symlink itself)
+					[ -d "$TOPTMP" ] && [ -w "$TOPTMP" ] && break
+					jshwarn "jgettmpdir: but it isn't writeable by $JSHUSERNAME (uid=$UID)"
 				fi
 			fi
 
@@ -45,11 +50,16 @@ then
 
 	export TOPTMP
 
+	[ "$DEBUG" ] && debug "export TOPTMP=$TOPTMP" || true ## || true ensures this script exits/returns 0 (because it is sometimes sourced, and its exit code is checked)!
+
+	## Even better exit code:
+	[ -d "$TOPTMP" ] && [ -w "$TOPTMP" ]
+
 else
 
 	## Second usage: allocate a tmpdir for an app to use temporarily.
 
-	# Makes bash exit if jgettmp fails.
+	# Makes bash exit (with error code) if jgettmp fails.
 	set -e
 	TMP=`jgettmp "$@"`
 	jdeltmp "$TMP"

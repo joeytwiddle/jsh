@@ -1,3 +1,5 @@
+# jsh-ext-depends: screen
+# jsh-depends: screen
 ## Is the -S really neccessary?
 
 if [ "$1" = -remote ]

@@ -75,6 +75,7 @@ then
   JWATCHCOMPCOM="jwatchcomp $ONEWAY"
 fi
 
+## Strange: I was getting a bail on this line doing "jwatch findjob sleep" with error "/home/joey/linux/j/tools/jwatch: line 78: 1: ambiguous redirect" but then it stopped!
 eval "$METHOD" > $NEW
 
 sleep $DELAY

@@ -1,3 +1,7 @@
+# jsh-ext-depends: diff vim
+# jsh-ext-depends-ignore: sed
+# jsh-depends: higrep bigwin dropcols takecols myps foreachdo jgettmp pipeboth
+# jsh-depends-ignore: highlight
 # This is pretty nice (although it gets itself sometimes :-/ )
 
 ## TODO: optionally allow user to edit process list.  Those lines which are deleted, means the process is killed.  =)

@@ -1,3 +1,5 @@
+# jsh-ext-depends-ignore: time
+# jsh-depends-ignore: pid
 ## pcpu and pmem are used by wotgobblecpu and wotgobblemem, but are variable, so are not useful for watching!
 if [ "$1" = -novars ]
 then

@@ -1,3 +1,5 @@
+# jsh-ext-depends: sed
+# jsh-depends: ishdbusy findjob ezbtdownload
 # OPTIONS="--max_uploads 5 --max_upload_rate 10" # --check_hashes 0"
 
 ## When spawning lots of clients:

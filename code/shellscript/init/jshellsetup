@@ -13,8 +13,16 @@ PATH=.:$JPATH/tools:$PATH:$HOME/bin
 PATH=$PATH:/usr/local/jdk1.2.2/bin:/usr/local/enhydra3.0.1/bin
 #PATH=$PATH:$JPATH/install/CVIPHOME:$JPATH/install/CVIPHOME/CVIPTCL:$JPATH/install/CVIPHOME/bin
 BASH_ENV=$HOME/.bashrc
-USERNAME=""
-export USERNAME BASH_ENV PATH
+## AFAIK this was never needed:
+# USERNAME=""
+## But this one (JSHUSERNAME) should "guarantee" that it is the true username (not one passed down and not cleared!)
+if [ ! "$JSHUSERNAME" ]
+then
+	## TODO: write getusername script which gets it somehow (eg. grep /etc/passwd!)
+	JSHUSERNAME="($UID)"
+fi
+# export USERNAME BASH_ENV PATH
+export JSHUSERNAME BASH_ENV PATH
 
 # PS1="(\h \t \u) \w/ ";
 # PS1="(\033[00;31m\h \033[00;34m\t \033[00;32m\u\033[00;00m) \w/ ";

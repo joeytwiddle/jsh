@@ -1,3 +1,4 @@
+# jsh-depends: jdeltmp jgettmp
 ## Takes input on stdin (stdout), echos output on both stdout and stderr
 ## Can be useful for debugging:  Insert |pipeboth| somewhere in a chain of |s to print the state of the stream at that point to stderr, without breaking the original operation.
 ## pipeboth's behaviour is to output on both streams, but only accept input from the stdin (the previous stdout), not stderr.

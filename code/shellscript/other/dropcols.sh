@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-ext-depends: sed
 ## dropcols takes a list of columns numbers to drop, eg. df | dropcols 2 3 5 6
 ## Could have generated arguments for takecols (*) but instead generates a sedscript (no trailing spaces =)
 ## (*): eg. by catting to file, then finding max # cols, then providing inverse args to takecols on file

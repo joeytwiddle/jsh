@@ -14,6 +14,8 @@ fi
 
 echo "Reading RealMedia resources from $LISTFILE"
 
+[ "$DISPLAY" ] && DIALOG_PROG=Xdialog || DIALOG_PROG=dialog
+
 while true
 do
 
@@ -27,7 +29,13 @@ do
 	OPTIONS="$OPTIONS NEW \"Enter a new url\" on "
 	OPTIONS="$OPTIONS CHANGE \"Change output directory (currently '$PWD')\" off "
 
-	RESULT=` eval "Xdialog --stdout --radiolist \"Which stream do you want to rip?\" 24 80 10 $OPTIONS" | tail -n 1 `
+	## Broken:
+	# 'ls' "$PWD"/*.avi |
+	# while read FILENAME
+	# do OPTIONS="$OPTIONS \"WATCH_$FILENAME\" \"Change output directory (currently '$PWD')\" off "
+	# done
+
+	RESULT=` eval "$DIALOG_PROG --stdout --radiolist \"Which stream do you want to rip?\" 24 80 10 $OPTIONS" | tail -n 1 `
 
 	if [ ! "$RESULT" ]
 	then exit 1 # break
@@ -37,7 +45,7 @@ do
 
 	if [ "$RESULT" = NEW ]
 	then
-		INPUT=`Xdialog --2inputsbox "Enter new RealMedia resource" 24 80 "Name of resource" "" "URL of resource" "http://.../something.ram" 2>&1`
+		INPUT=`$DIALOG_PROG --2inputsbox "Enter new RealMedia resource" 24 80 "Name of resource" "" "URL of resource" "http://.../something.ram" 2>&1`
 		NAME=`echo "$INPUT" | beforefirst /`
 		URL=`echo "$INPUT" | afterfirst /`
 		echo "$URL $NAME" >> "$LISTFILE"
@@ -46,8 +54,8 @@ do
 
 	if [ "$RESULT" = CHANGE ]
 	then
-		# INPUT=`Xdialog --dselect "Changing directory" 24 80 "" "" "URL of resource" "http://.../something.ram" 2>&1`
-		INPUT=`Xdialog --dselect "$PWD" 24 80 2>&1`
+		# INPUT=`$DIALOG_PROG --dselect "Changing directory" 24 80 "" "" "URL of resource" "http://.../something.ram" 2>&1`
+		INPUT=`$DIALOG_PROG --dselect "$PWD" 24 80 2>&1`
 		## BUG TODO : doesn't work!!
 		cd "$INPUT"
 		continue

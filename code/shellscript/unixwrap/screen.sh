@@ -1,3 +1,4 @@
+# jsh-depends: unj screentitle
 ## screen (this script) with no args should only be interactive when run
 ## by user directly from shell, so make interactivity an option, and make
 ## an alias for it.

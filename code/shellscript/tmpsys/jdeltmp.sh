@@ -22,7 +22,8 @@ do
     # mv "$TMPFILE" $JPATH/trash/$TMPFILE
     # del "$TMPFILE" > /dev/null
   else
-    jshwarn "jdeltmp: $TMPFILE does not start with $TOPTMP"
+    jshwarn "jdeltmp: Since $TMPFILE does not start with $TOPTMP"
+    jshwarn "jdeltmp:       $TMPFILE has not been deleted."
     exit 1
   fi
 done

@@ -8,7 +8,7 @@
 	do
 		sleep $SLEEPTIME
 		echo >&2
-		echo "[tail] ... $SLEEPTIME seconds passed" >&2
+		echo "[tail] ... $SLEEPTIME seconds passed" | highlight ".*" >&2
 		echo >&2
 	done
 ) &

@@ -49,7 +49,7 @@ then
 					barline
 					cat "$LINKTOCOM" |
 					## Pretty print it (I'd like to use a dedicated program with syntax highlighting)
-					highlight "\#\#.*" magenta | ## for comments
+					highlight "^[ 	]*\#\#.*" magenta | ## for comments
 					highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
 					highlight "	" blue | ## tabs
 					# sed 's+	+|--+g' | ## tabs
