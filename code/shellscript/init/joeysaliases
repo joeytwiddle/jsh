@@ -8,5 +8,6 @@ else
 fi
 
 alias l="ls -l"
+alias dl="ls -ld"
 
 alias hist='history -100 | grep'
