@@ -5,28 +5,64 @@ else
   IMAGES="$ARGS"
 fi
 
-HTMLFILE="_ImageIndex.html"
+MAXPERPAGE=30
 
 EXTRAS="-geometry 100"
 # EXTRAS=""
 
-echo "<html><body>" > $HTMLFILE
-# forall -shell $IMAGES do convert $EXTRAS %w browsepics%n.Jpeg : echo "\"<image src=\\\"browsepics%n.Jpeg\\\"><br>%w<br><br>\"" %p%p $HTMLFILE
+htmlFile () { # takes num
+	echo "ImageIndex$1.html"
+}
+
+startHtml () { # takes num
+	echo "<html><title>Images Page $1</title><body>"
+}
+
+offerPage() { # takes next page number and filename
+	echo "<a href=\"$2\">Next Page ($1)</a>"
+}
+
+endHtml () { # takes nothing or name of next page
+	echo "</body></html>"
+}
+
+N=1
+
+HTMLFILE=`htmlFile $N`
+startHtml $N > "$HTMLFILE"
+
 n=0
+
 for w in $IMAGES; do
-  echo "$n: $w"
-  n=`expr $n + 1`
 
-  # SHOWPIC="browsepics$n.Jpeg"
-  # convert $EXTRAS $w "$SHOWPIC"
+	echo "$n: $w"
 
-  SHOWPIC=$w
+	# Note n now loops back!
+	# SHOWPIC="browsepics$n.Jpeg"
+	# convert $EXTRAS $w "$SHOWPIC"
 
-  echo "<image src=\"$SHOWPIC\"><br>$w<br><br>" >> $HTMLFILE
+	SHOWPIC=$w
+
+	echo "<image src=\"$SHOWPIC\"><br>$w<br><br>" >> "$HTMLFILE"
+
+	n=`expr $n + 1`
+	if test "$n" = "$MAXPERPAGE"; then
+		n=0
+		N=`expr $N + 1`
+		NEWHTMLFILE=`htmlFile $N`
+		offerPage "$N" "$NEWHTMLFILE" >> "$HTMLFILE"
+		endHtml >> "$HTMLFILE"
+		HTMLFILE="$NEWHTMLFILE"
+		echo "Starting page $N"
+		startHtml $N > "$HTMLFILE"
+	fi
+
 done
-echo "</body></html>" >> $HTMLFILE
 
-browse $HTMLFILE
+endHtml >> "$HTMLFILE"
 
-echo "browsepics*.Jpeg and $HTMLFILE will be deleted in 60 seconds"
-(sleep 60 ; "rm" browsepics*.Jpeg $HTMLFILE) &
+# browse $HTMLFILE
+# netscape $HTMLFILE &
+
+# echo "browsepics*.Jpeg and $HTMLFILE will be deleted in 60 seconds"
+# (sleep 60 ; "rm" browsepics*.Jpeg $HTMLFILE) &
