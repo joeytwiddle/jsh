@@ -24,17 +24,17 @@ if jwhich screen quietly
 then
 	while [ "$2" ]; do shift; done
 	# SCRNAME="$1"
-	SCRNAME="sshs"
+	SCRNAME="boxen"
 	export SCREENNAME="$SCRNAME"
-	SCRSES=`screen -list | grep "$1" | head -1 | takecols 1`
+	SCRSES=`screen -list | grep "$SCRNAME" | head -1 | takecols 1`
 	if [ "$SCRSES" ]
 	then
 		echo "Rejoining screen $SCRSES with $SSHCOM"
 		screen -S $SCRSES -X screen $SSHCOM
 		# SSHCOM="screen -DDR -S $SCRSES"
-		SSHCOM="screen -R -S $SCRSES"
+		SSHCOM="screen -D -R $SCRSES -S $SCRSES"
 	else
-		SSHCOM="screen -h 10000 -a -e^s^l -S $SCRNAME $SSHCOM"
+		SSHCOM="screen -h 10000 -a -e^b^l -S $SCRNAME $SSHCOM"
 	fi
 fi
 

@@ -1,8 +1,8 @@
-## TODO: jmusic should have lock/active/run-file
+## TODO: jmusic should have lock/active/run-file?
 
 ## Should be whichmediaplayer
 xmmsisplaying () {
-	top c | head -15 | grep xmms > /dev/null
+	top c n 1 b | head -50 | grep xmms > /dev/null
 }
 
 if xmmsisplaying

@@ -47,13 +47,11 @@ esac
 # PS1="(\h \t \u) \w/ "
 
 
-if test "$TERM" = screen || test "$STY"
+# if test "$TERM" = screen || test "$STY"
+if [ "$STY" ]
 then
-	if test ! "$TERM" = screen
-	then echo "DEVEL-NOTE: STY test is desirable in prompt" >&2
-	fi
 	SCREEN_NAME=`echo "$STY" | afterfirst '\.'`
-	test "$SCREEN_NAME" || SCREEN_NAME=screen
+	# test "$SCREEN_NAME" || SCREEN_NAME=screen
 	PS1="[$SCREEN_NAME$WINDOW] $PS1"
 fi
 

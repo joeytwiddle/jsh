@@ -42,10 +42,11 @@ fi
 # then PROMPT="($SHLVL) $PROMPT"
 # fi
 
-if test "$TERM" = screen
+# if [ "$TERM" = screen ]
+if [ "$STY" ]
 then
 	SCREEN_NAME=`echo "$STY" | afterfirst '\.'`
-	test "$SCREEN_NAME" || SCREEN_NAME=screen
+	# test "$SCREEN_NAME" || SCREEN_NAME=screen
 	PROMPT="[$SCREEN_NAME$WINDOW] $PROMPT"
 fi
 
