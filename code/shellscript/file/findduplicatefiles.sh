@@ -1,13 +1,21 @@
 ## WISHLIST:
 # - order duplicates by least number of /s to bring us closer to automatic removal choice
 
+debug () {
+	# echo "$*" >&2
+	noop
+}
+
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
 	echo "findduplicatefiles [ -samename ] [ -qkck | -size ] <files/directories>..."
-	echo "  The search is done in two stages.  First files with the same size are found."
-	echo "    -samename : extract only files with identical names (faster)"
-	echo "  Second, the files are hashed (cksum) to check if they really are identical."
+	echo "  The search has three stages:  First files with the same size are grouped."
+	echo "    -samename : group only files with identical names (faster but incomplete)"
+	echo "  Second, similar files are hashed (cksum) to ensure they really are identical."
 	echo "    -qkck : use quick checksum, (only examine 16k at either end of file)"
-	echo "    -size : use file size instead of checksum (much faster but DANGEROUS)."
+	echo "    -size : use file size instead of checksum (very fast but DANGEROUS)."
+	echo "  Finally redundant files deemed to have duplicates are suggested for removal."
+	echo "    TODO: output formats."
+	echo "    Note: ATM it outputs results, but doesn't delete anything, so ph34r not!"
 	exit 1
 fi
 
@@ -40,36 +48,49 @@ test "$WHERE" || WHERE="."
 if test $SAMENAME
 then
 
-	# Faster, because initially extracts duplicated filenames
+	## Faster, because initially extracts duplicated filenames
+	## If only two same-named files are grouped, they could be cmp-ed rather than hashed.
 	find $WHERE -type f |
 	sed "s+.*/++" |
+	# sed "s+\(.*\)/\(.*\)+\2 \1/\2+" |  ## More similar to other method (wouldn't need the inner find =) but would have a problem with spaced filenames
 	keepduplicatelines |
 	while read X
 	do
-		find . -name "$X" |
+		debug "Group $X"
+		find $WHERE -name "$X" |
 		while read Y
-		do $HASH "$Y"
+		do
+			debug "Hashing $Y"
+			$HASH "$Y"
 		done
+		debug
 	done |
 	keepduplicatelines -gap 1 2
+	# cat
 
 else
 
+	## Whatever method we use (other than -samename), we first group by filesize.
+	## This is different from the -filesize option which matches on filesize!
 	find $WHERE -type f -printf "%s %p\n" |
 	keepduplicatelines 1 |
 	afterfirst " " |
 	while read X
-	do $HASH "$X"
+	do
+		debug "Hashing $X"
+		$HASH "$X"
 	done |
 	keepduplicatelines -gap 1 2
 
 fi |
 
-sed 's/[0123456789]* [0123456789]* \(.*\)/del "\1"/'
+# sed 's/[a-zA-Z0-9]* [0-9]* \(.*\)/del "\1"/'
+dropcols 1 2 | sed 's+^.+del "+;s+.$+"+'
+# cat
 
 exit
 
-## A simple version which just sorts by checksum, then looks for adjacent duplicates.
+## OLD: A simple version which just sorts by checksum, then looks for adjacent duplicates.
 
 LASTX=
 LASTY=
