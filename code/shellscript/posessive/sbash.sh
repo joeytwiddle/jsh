@@ -42,7 +42,7 @@ bash
 
 cd "$PRIVFILEDIR"
 encryptdir "$PRIVFILEBASE" &&
-echo "sbash: You should rm -rf $PRIVFILEDIR/$PRIVFILEBASE" ||
+rm -rf "$PRIVFILEDIR/$PRIVFILEBASE" ||
 echo "sbash: Error re-encrypting, please archive $PRIVFILEDIR/$PRIVFILEBASE manually!"
 
 ## TODO: this is a little dangerous, in the rare case that the user types the command, but forgets to type the last directory in the path,, in which case the automated backups and the current copy are lost!!!  Decrypt it somewhere else, and why not rm -rf it automatically.  Preserve a diff instead for the user (to delete) if they fear losing their changes.
