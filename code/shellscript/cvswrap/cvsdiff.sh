@@ -66,6 +66,19 @@ if test $CHECKALL; then
 
 	echo
 	cursecyan
+	echo "Local directories not in repository:"
+	cursegrey
+
+	find . -type d |
+	grep -v "/CVS" |
+	while read D; do
+		if test ! -d "$D/CVS"; then
+			echo "cvs add \"$D\""
+		fi
+	done
+
+	echo
+	cursecyan
 	echo "Local files not in repository:"
 	cursegrey
 
