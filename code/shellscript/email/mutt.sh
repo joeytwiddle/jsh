@@ -3,6 +3,8 @@
 ## which (for Evolution at least) are (now out of date) index files
 ## which should be regenerated.
 
+## TODO: Would be quicker to touch a file beforehand, and do a find -newer afterwards.
+
 export FINDDIR="$HOME/evolution/local/"
 
 dofind() {

@@ -1,5 +1,5 @@
-if test "$2" = ""; then
-	echo 'sedreplace <options> "search_string" "replace_string" <filename>...'
+if test "$*" = ""; then
+	echo 'sedreplace [ <options> ] "search_string" "replace_string" [ <filename>... ]'
 	echo "  where <options> ="
 	echo "    -nobackup : do not create backup in <filename>.b4sr"
 	# currently doesn't actually show # of changes
