@@ -16,6 +16,7 @@ else
 	inscreendo -xterm madplay madplay -playnlock "$LOCKFILE" "$@"
 	# mplayer "$@"
 
+	echo "Waiting on $LOCKFILE ..." >&2
 	while [ -f "$LOCKFILE" ]
 	do
 
@@ -24,5 +25,6 @@ else
 		sleep 5
 
 	done
+	echo "Unlocked" >&2
 
 fi
