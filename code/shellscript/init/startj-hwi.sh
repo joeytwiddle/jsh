@@ -34,9 +34,15 @@ fi
 # Message on user login/out (zsh, tcsh, ...?)
 export WATCH=all
 
-if test "$HOST" = ""; then
-	export HOST=`echo "$HOSTNAME" | beforefirst "\."`
-	# echo "set HOST=\"$HOST\""
+SHOWHOST=$HOST
+# Fix 'cos sometimes HOSTNAME is set instead of HOST
+if test "$SHOWHOST" = ""; then
+	export SHOWHOST=`echo "$HOSTNAME" | beforefirst "\."`
+fi
+SHOWHOST="$SHOWHOST:"
+# Exception for user's "home machine"
+if test "$SHOWHOST" = "hwi:"; then
+	SHOWHOST=""
 fi
 
 SHORTSHELL=`echo "$SHELL" | afterlast "/"`
@@ -54,15 +60,15 @@ case $TERM in
 					# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
 					# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
 					# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
-					echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|\1|"
+					echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|\1|;s|^$HOME|~|"
 				}
 				preexec () {
 					# $* repeats on magenta under zsh :-(
 					export LASTCMD="$*"
-					xttitle "$LASTCMD # [$HOST:"`swd`"]"
+					xttitle "$LASTCMD # [$SHOWHOST"`swd`"]"
 				}
 				precmd () {
-					xttitle "$HOST:"`swd`" %% ($LASTCMD)"
+					xttitle "$SHOWHOST"`swd`" %% ($LASTCMD)"
 				}
 			;;
 			# Doesn't work 'cos tcsh can't exec this far!
