@@ -7,7 +7,7 @@
 ## Goddammit I have that classic problem when bash sources us!
 
 ## For bash: hmmm still working on it
-# echo "jshstub: $SCRIPTNAME ( $_ | $0 | $# | $* | $FUNCNAME )" >&2
+echo "[[ jshstub: $SCRIPTNAME ( $_ | $0 | $# | $* | $FUNCNAME ) =$TOSOURCE= ]]" >&2
 # echo "\$\_ = >$_<" >&2
 # echo "\$\0 = >$0<" >&2
 # echo "\$\# = >$#<" >&2
@@ -16,6 +16,9 @@
 # set > /tmp/set.out >&2
 # env > /tmp/env.out >&2
 # history > /tmp/history.out >&2
+
+OKTOGO=true
+GOTBYANOTHERSTUB=
 
 SCRIPTFILE="$0"
 ## note not yet absolute path
@@ -45,9 +48,6 @@ fi
 	# echo "jshstub: Aborting because $SCRIPTFILE is not in \$JPATH/tools" >&2
 	# exit 1
 # fi
-
-OKTOGO=true
-GOTBYANOTHERSTUB=
 
 if test "$SCRIPTNAME" = jshstub
 then
@@ -108,12 +108,14 @@ then
 
 		touch "$LOCKFILE"
 
-		rm -f "$SCRIPTFILE"
+		test "$JSH_STUB_NET_SOURCE" || export JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshstubtools/"
 
 		if which wget 2>&1 > /dev/null
 		then WGETCOM="wget -O -"
 		else WGETCOM="lynx --source"
 		fi
+
+		rm -f "$SCRIPTFILE"
 
 		echo "[ jshstub: Retrieving $SCRIPT_WAS_SOURCED\"$SCRIPTNAME\" args=$* ]" >&2
 		## When sourced in zsh, $WGETCOM was not being expanded as desired.
@@ -132,17 +134,18 @@ then
 
 		rm -f "$LOCKFILE"
 
-	fi
-
-	if test $OKTOGO
-	then
-
 		echo "[ jshstub: Got script \"$SCRIPTNAME\" ok, running: $SCRIPTFILE $* ]" >&2
 		echo >&2
 
-		## For bash experiment (not working!):
+	fi
+
+	if test $OKTOGO && test ! "$DONTEXEC"
+	then
+
+		## For bash experiment (doesn't work!):
 		hash -r
 
+		## Really we want to source it anyway (no point starting another sub-sh, script would have run in this one had it been there!)
 		# if test "$SCRIPT_WAS_SOURCED"
 		# then
 			# test "$TOSOURCE" &&
