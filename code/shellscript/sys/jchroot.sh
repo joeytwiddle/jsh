@@ -3,7 +3,6 @@ TARGET="$1"
 [ "$TARGET" ] || exit 1
 
 
-
 ### Initialise
 
 chroot "$TARGET" mount -t proc /proc proc
@@ -17,9 +16,11 @@ dd if=/dev/zero bs=1024 count=100 of="$TARGET"/dev/zero
 chmod ugo+r "$TARGET"/dev/zero
 
 ## Bind all the same mounts
+TARGET=`echo "$TARGET" | tr -s / | sed 's+/$++'`
 for MNTPNT in /mnt/*
 do
-	if [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ]
+	REGEXP=`echo "^$MNTPNT[ 	].*$TARGET/$MNTPNT$" | tr -s /`
+	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && ! memo -t "10 seconds" flatdf | grep "$REGEXP"
 	then mount --bind "$MNTPNT" "$TARGET"/"$MNTPNT"
 	fi
 done
@@ -39,9 +40,12 @@ chroot "$TARGET" umount -lf /proc
 mv -f $TARGET/dev/null.b4 $TARGET/dev/null
 mv -f $TARGET/dev/zero.b4 $TARGET/dev/zero
 
+## Unbind all those mounts
 for MNTPNT in /mnt/*
 do
-	if [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && df | grep "^$MNTPNT[ 	].*$TARGET/$MNTPNT$"
+	REGEXP=`echo "^$MNTPNT[ 	].*$TARGET/$MNTPNT$" | tr -s /`
+	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && memo -t "10 seconds" flatdf | grep "$REGEXP"
 	then umount "$TARGET"/"$MNTPNT"
 	fi
 done
+
