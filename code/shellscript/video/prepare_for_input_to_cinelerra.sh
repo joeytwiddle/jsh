@@ -5,7 +5,7 @@ fi
 # MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
 ## transcode: --export_fps 25,3 
-# TC_CLIP="-c 0-100"
+# TC_CLIP="-c 200-600"
 # TC_CLIP="-c 500-1200"
 
 NOT_SO_BLUE=-k
@@ -17,17 +17,33 @@ do
 	echo
 	jshinfo "Doing: $VIDEOFILE"
 
+	MPLAYER_OR_NOT="-x mplayer"
+
 	if [ "$FOOLPROOF" ]
 	then
 
-		jshinfo "Doing simple re-encode to make the process more foolproof..."
+		echo
+		jshinfo "Doing simple re-encode with mplayer to make the process more foolproof..."
 
-		reencode_video_simple "$VIDEOFILE" && VIDEOFILE="$VIDEOFILE"-simple.avi || jshwarn "Foolproof decode failed!"
+		if reencode_video_simple "$VIDEOFILE"
+		then
+			VIDEOFILE="$VIDEOFILE"-simple.avi
+			MPLAYER_OR_NOT="$RIGHT_WAY_UP $NOT_SO_BLUE"
+			## Note this makes the second attempts below identical to the first, except for the RIGHT_WAY_UP and NOT_SO_BLUE, and hence superfluous
+		else jshwarn "Foolproof decode failed!"
+		fi
 
 		## Hehe sometimes -x mplayer below will not read the output!
 		## But sometimes it reads from /dev/null and doesn't complain!
 		## That's why -x mplayer is prioritised as second,
 		## but I suspect we get the same problem sometimes without -x.
+		## ok now it's prioritised first but switched off by MPLAYER_OR_NOT
+
+		## TODO:
+		## I still have problems:
+		## with s11redux.wmv (and -foolproof), I need to reduce the size!
+		## ok did that with -Q 2 but it's prolly bad - it's prolly related to the 1000fps hence 32identicaldrops!
+		## ok sorted reencode_video_simple now has -ofps 25 =)
 
 	fi
 
@@ -39,13 +55,20 @@ do
 	# transcode -i "$VIDEOFILE" -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav
 	# transcode -i "$VIDEOFILE" -N 0x1     -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
 	# transcode -i "$VIDEOFILE" -x ffmpeg    -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE || continue
+
+	echo
+	jshinfo "Transcoding video"
+
 	rm -f stream.yuv ## If not cleaned up (eg. due to crash), mplayer input plugin will not work
-	transcode -i "$VIDEOFILE" -x mplayer -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
-	transcode -i "$VIDEOFILE" -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
+	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	transcode -i "$VIDEOFILE"                 -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
+
+	echo
+	jshinfo "Transcoding audio"
 
 	rm -f stream.yuv
-	transcode -i "$VIDEOFILE" -x mplayer -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP ||
-	transcode -i "$VIDEOFILE" -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP || continue
+	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$VIDEOFILE-audio.wav" -N 0x1 -y null,wav $TC_CLIP ||
+	transcode -i "$VIDEOFILE"                 -o "$VIDEOFILE-audio.wav" -N 0x1 -y null,wav $TC_CLIP || continue
 	## Haven't managed to get cinelerra reading mp3 (smaller files)
 	# transcode -i "$VIDEOFILE" -x mplayer -N 0x55 -o "$VIDEOFILE-audio" -y null,lame $TC_CLIP || continue
 	# transcode -i "$VIDEOFILE" -x mplayer -N 0x50 -o "$VIDEOFILE-audio" -y null,mp2enc $TC_CLIP || continue
