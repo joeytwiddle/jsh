@@ -1,3 +1,4 @@
+# jsh-depends: cursered cursenorm filesize diffgraph googlesearch takecols reverse grouplinesbyoccurrence jgettmpdir lynx pipeboth
 ## "mel and kim" "respectable" came back badly!
 
 ## The web is fuzzy:
@@ -17,7 +18,8 @@ fi
 
 ## would be nice to name filenames simialr to the url (just strip '/'s "http::" and "www.".
 
-TMPDIR=`jgettmpdir seeklyrics "$@"`
+# TMPDIR=`jgettmpdir seeklyrics "$@"`
+TMPDIR=`jgettmpdir seeklyrics`
 
 # rm $TMPDIR/*.lyrics*
 
@@ -54,9 +56,9 @@ else
 	while read N LINK
 	do
 
-		# wget -O - "$LINK" |
 		echo "$LINK" >&2
-		lynx -dump "$LINK" | cat > $TMPDIR/$N.lyrics &
+		# wget -O - "$LINK" |
+		lynx -dump "$LINK" > $TMPDIR/$N.lyrics
 
 	done
 
@@ -97,6 +99,17 @@ grouplinesbyoccurrence |
 
 sort -n -k 1 |
 
-reverse
+reverse |
+
+pipeboth |
+
+head -1 |
+
+while read SCORE PAGE
+do
+
+	more "$PAGE"
+
+done
 
 # jdeltmp $TMPDIR
