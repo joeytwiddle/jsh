@@ -1,11 +1,13 @@
 #!/bin/sh
 
+## Usage: randomwallpaper [ <path>s ]* [ <regexp_for_grep> ]
+
 ## TODO: skip images below a certain size (pixelswise or bytewise)
 
-if [ "$*" ]
-then WALLPAPERDIRS="$*"
-else WALLPAPERDIRS="/stuff/wallpapers/" # /stuff/mirrors/" # /www/uploads/"
-fi
+while [ "$*" ]
+do [ -d "$1" ] && WALLPAPERDIRS="$WALLPAPERDIRS $1" && shift || break
+done
+[ "$WALLPAPERDIRS" ] || WALLPAPERDIRS="/stuff/wallpapers/" # /stuff/mirrors/" # /www/uploads/"
 
 cd / # just for memoing
 

@@ -38,19 +38,20 @@ done
 
 while true
 do
-	sleep 10
-	# PIDTOKILL=`echo -n "$PIDS" | grep -v '^$' | chooserandomline`
-	PIDTOKILL=`mykillps -x "$XSCRBINS" | takecols 1 | chooserandomline`
-	echo kill -KILL "$PIDTOKILL"
-	if kill -KILL "$PIDTOKILL"
+	sleep 2
+	RUNNINGPIDS=`mykillps -x "$XSCRBINS" | takecols 1`
+	NUMRUNNINGPIDS=`echo -n "$RUNNINGPIDS" | countlines`
+	echo "$NUMRUNNINGPIDS"
+	if [ ! "$NUMRUNNINGPIDS" -lt "$NUM" ]
 	then
-		PIDS=`echo -n "$PIDS" | grep -v "^$PIDTOKILL$"`
-		CHOSEN=`chooserandomxscreensaverhack`
-		echo "Starting $CHOSEN"
-		NEWPID=`execgetpid "$CHOSEN" -root`
-		PIDS="$PIDS$NL$NEWPID"
-		# ( sleep 60; kill -KILL $NEWPID ) &
+		PIDTOKILL=`echo "$RUNNINGPIDS" | head -1` ## Evenly rotate by killing oldest every time
+		echo kill -KILL "$PIDTOKILL"
+		kill -KILL "$PIDTOKILL"
 	fi
+	sleep 1
+	CHOSEN=`chooserandomxscreensaverhack`
+	echo "Starting $CHOSEN"
+	NEWPID=`execgetpid nice -n 20 "$CHOSEN" -root`
 done
 
 echo "Killing all"

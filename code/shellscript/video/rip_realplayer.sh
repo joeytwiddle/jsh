@@ -35,6 +35,8 @@ then
 	else
 		RPURL="file://$URL"
 	fi
+else
+	RPURL="$URL"
 fi
 
 if ! startswith "$RPURL" "rtsp://" && ! startswith "$RPURL" "pnm://" && ! startswith "$RPURL" "file://"
