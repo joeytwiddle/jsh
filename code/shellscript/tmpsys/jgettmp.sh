@@ -15,26 +15,11 @@
 ## Should jsh boot clear all tmp files older than 1 day?  <-- my favourite
 ## What if the computer's date is wrong?!
 
-test "$TMPDIR" && TOPTMP="$TMPDIR" || TOPTMP="$JPATH/tmp"
+## Choosing suitable top tmp directory has been abstracted out (at cost!) for memoing (boris)
+. jgettmpdir -top
 
-# if test ! -w $TOPTMP || ( test "$JTMPLOCAL" && test -w . )
-# then
-	# # Note we don't use $PWD because might break * below
-	# TOPTMP="/tmp"
-# fi
-
-if test ! -w "$TOPTMP"
-then
-	TOPTMP="/tmp/jsh-tempdir-for-$USER"
-	## If it exists but isn't writeable:
-	while test -e $TOPTMP && test ! -w $TOPTMP
-	do TOPTMP="$TOPTMP"_
-	done
-	if test ! -e $TOPTMP
-	then mkdir -p $TOPTMP
-		echo "Created a temporary directory for you: $TOPTMP" >&2
-	fi
-	chmod go-rwx $TOPTMP
+if test ! "$TOPTMP"
+then error "$0: no TOPTMP"; exit 1
 fi
 
 # Neaten arguments (to string not needings ""s *)

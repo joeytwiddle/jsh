@@ -1,4 +1,5 @@
-MEMODIR="$JPATH/data/memo"
+. jgettmpdir -top
+MEMODIR=$TOPTMP/memo
 REALPWD=`realpath "$PWD"`
 CKSUM=`echo "$*" | md5sum`
 NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(................................................................................\).*+\1+'`

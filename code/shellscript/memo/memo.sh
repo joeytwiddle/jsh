@@ -1,4 +1,5 @@
-MEMODIR="$JPATH/data/memo"
+. jgettmpdir -top
+MEMODIR=$TOPTMP/memo
 
 ## TODO:
 #  - Allow user to specify their own hash (essentially making memo a hashtable)
