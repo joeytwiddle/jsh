@@ -2,7 +2,7 @@
 # This is rather dodgy if the first isn't a directory!
 
 if test "$1" = "" || test -d "$1"; then
-	ls -lartFd "$@"
+	ls -lartFd --color "$@"
 else
 echo 2
 	`jwhich ld` "$@"

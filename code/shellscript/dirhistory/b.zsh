@@ -11,7 +11,7 @@ if [ "$SEARCHDIR" = "" ]; then
 else
   # LAST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -1`
   # Exact:
-  LAST=`grep "$SEARCHDIR/$" $HOME/.dirhistory | tail -1`
+  LAST=`grep "$SEARCHDIR$" $HOME/.dirhistory | tail -1`
 fi
 
 # echo "\"$@\""
@@ -25,4 +25,4 @@ mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 # alias cd='cd'
 "cd" "$LAST"
 
-xttitle "$USER@$HOST:$PWD"
+xttitle "$HOST:$PWD"

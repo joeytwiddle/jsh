@@ -1,5 +1,5 @@
 ( TMP=`jgettmp`
-echo 'runoneof "vncviewer xvncviewer" panic.cs.bris.ac.uk:1' > $TMP
+echo 'runoneof "xvncviewer vncviewer" panic.cs.bris.ac.uk:1' > $TMP
 chmod a+x $TMP
 xterm -geometry 80x5 -e $TMP &
 sleep 5
