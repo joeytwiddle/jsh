@@ -25,4 +25,4 @@ mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 # alias cd='cd'
 "cd" "$LAST"
 
-xttitle "$HOST:$PWD"
+xttitle "($USER@$HOST:$PWD) %% "

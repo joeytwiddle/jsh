@@ -56,6 +56,6 @@ else
 	fi
 fi
 
-xttitle "$HOST:$PWD"
+xttitle "($USER@$HOST:$PWD) %% "
 
 # pwd >> $HOME/.dirhistory
