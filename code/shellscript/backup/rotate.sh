@@ -2,15 +2,25 @@
 ## TODO: Instead of moving, or deleting, original file, sometimes it may be better to echo -n into it.  (inode business)
 ## TODO: auto -nozip for all zip files!  (or files which compress badly, ie. compressed in any way, eg. au, vid)
 
+## Wait a minute: is this used for backups, or for overlarge rolling logs?
+## TODO: don't create another file if its a duplicate of the last
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-	echo "rotate [ -nozip ] [ -max <num> ] <file>"
+	echo "rotate [ -keep ] [ -nozip ] [ -max <num> ] <file>"
 	echo "  will move <file> to <file>.N"
-	echo "  -max: will rotate to ensure no more than <num> + 1 logs."
+	echo "  -keep:  will retain the file after rotation (via tmpfile <file>.keep)"
+	echo "  -nozip: will not gzip or tar-up the file or directory before rotation"
+	echo "  -max:   will rotate to ensure no more than <num> + 1 logs"
 	echo "  never rotates <file>.0"
 	echo
 	echo "You may also wish to investigate savelog(8), part of debianutils."
 	exit 1
+fi
+
+KEEP=
+if [ "$1" = -keep ]
+then KEEP=true; shift
 fi
 
 ZIP=true
@@ -24,6 +34,10 @@ then shift; MAX="$1"; shift
 fi
 
 FILE="$1"
+
+if [ "$KEEP" ]
+then cp "$FILE" "$FILE.keep"
+fi
 
 if [ ! "$ZIP" ]
 then
@@ -56,6 +70,10 @@ done
 
 echo "rotate: mv \"$FINALFILE\" \"$FINALFILE.$N\""
 mv "$FINALFILE" "$FINALFILE.$N"
+
+if [ "$KEEP" ]
+then mv "$FILE.keep" "$FILE"
+fi
 
 if [ "$MAX" ]
 then
