@@ -5,7 +5,7 @@ if [ ! -f "$LISTFILE" ]
 then
 mkdir -p $HOME/.jsh-rip_realplayer || exit
 cat > "$LISTFILE" << !
-http://www.bbc.co.uk/newsa/n5ctrl/tvseq/bb_news_ost.ram	BBC news
+http://news.bbc.co.uk/media/news_web/video/40545000/bb/40545855_bb_16x9.ram	BBC news
 http://www.bbc.co.uk/newsa/n5ctrl/tvseq/newsnight/newsnight.ram	Newsnight
 http://www.bbc.co.uk/newsa/n5ctrl/progs/question_time/latest.ram	Question time
 http://www.bbc.co.uk/newsa/n5ctrl/progs/panorama/latest.ram	Panorama
@@ -45,19 +45,38 @@ do
 
 	if [ "$RESULT" = NEW ]
 	then
-		INPUT=`$DIALOG_PROG --2inputsbox "Enter new RealMedia resource" 24 80 "Name of resource" "" "URL of resource" "http://.../something.ram" 2>&1`
-		NAME=`echo "$INPUT" | beforefirst /`
-		URL=`echo "$INPUT" | afterfirst /`
-		echo "$URL $NAME" >> "$LISTFILE"
+		if [ "$DIALOG_PROG" = Xdialog ]
+		then
+			INPUT=`$DIALOG_PROG --2inputsbox "Enter new RealMedia resource" 24 80 "Name of resource" "" "URL of resource" "http://.../something.ram" 2>&1`
+			NAME=`echo "$INPUT" | beforefirst /`
+			URL=`echo "$INPUT" | afterfirst /`
+		else
+			## TODO: Use a form!
+			$DIALOG_PROG --inputbox "Enter name of stream" 10 30 "name" 2> /tmp/result.$$ ; NAME=`cat /tmp/result.$$`
+			$DIALOG_PROG --inputbox "URL of resource" 10 30 "http://.../something.ram" 2> /tmp/result.$$ ; URL=`cat /tmp/result.$$`
+		fi
+		if [ "$NAME" ] && [ "$URL" ]
+		then
+			echo "$URL $NAME" >> "$LISTFILE"
+		else
+			echo "You must provide a URL and a name for the stream."
+			sleep 4
+		fi
 		continue
 	fi
 
 	if [ "$RESULT" = CHANGE ]
 	then
 		# INPUT=`$DIALOG_PROG --dselect "Changing directory" 24 80 "" "" "URL of resource" "http://.../something.ram" 2>&1`
-		INPUT=`$DIALOG_PROG --dselect "$PWD" 24 80 2>&1`
+		# INPUT=`$DIALOG_PROG --fselect "$PWD" 20 60 2>&1` || exit
+		$DIALOG_PROG --fselect "$PWD" 20 60 2>/tmp/result.$$ ; INPUT=`cat /tmp/result.$$`
 		## BUG TODO : doesn't work!!
-		cd "$INPUT"
+		echo "Changing directory to: $INPUT"
+		sleep 2
+		if [ -d "$INPUT" ]
+		then cd "$INPUT"
+		else error "Not a directory: $INPUT" ; sleep 2
+		fi
 		continue
 	fi
 
