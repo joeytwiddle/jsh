@@ -33,7 +33,12 @@ else
 	for FILE do
 		if test ! -w "$FILE"; then
 			echo "sedreplace: $FILE not writeable" >&2
-			break
+			continue
+		fi
+		if test ! -f "$FILE"
+		then
+			echo "sedreplace: $FILE is not a file" >&2
+			continue
 		fi
 		cat "$FILE" | sed "s$FROM$TOg" > "$TMPFILE"
 		chmod --reference="$FILE" "$TMPFILE"

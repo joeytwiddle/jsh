@@ -9,15 +9,15 @@
 
 TOPTMP="$JPATH/tmp"
 
-if test ! -w $TOPTMP || ( test "$JTMPLOCAL" && test -w . )
-then
-	# Note we don't use $PWD because might break * below
-	TOPTMP="/tmp"
-fi
+# if test ! -w $TOPTMP || ( test "$JTMPLOCAL" && test -w . )
+# then
+	# # Note we don't use $PWD because might break * below
+	# TOPTMP="/tmp"
+# fi
 
 if test ! -w "$TOPTMP"
 then
-	TOPTMP=/tmp/$USER
+	TOPTMP="/tmp/jsh-tempdir-for-$USER"
 	mkdir -p $TOPTMP
 	chmod go-rwx $TOPTMP
 fi
