@@ -1,6 +1,7 @@
 #!/bin/sh
 N=$1
-while read LINE; do
+shift
+cat "$@" | while read LINE; do
   if test "$N" = "0"; then
     echo "$LINE"
   else

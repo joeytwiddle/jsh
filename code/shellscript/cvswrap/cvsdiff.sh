@@ -1,4 +1,4 @@
-#!/bin/zsh
+# not sure why #!/bin/zsh
 
 # Searches current cvs directory and looks for directories and files
 # which have not yet been added to the _local_ repository.

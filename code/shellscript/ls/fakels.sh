@@ -6,8 +6,9 @@
 	if test -f "$HOME/.dircolors"; then
 		SEDSTR=`fakelshi`
 		sed "$SEDSTR"
-	else
+	fi |
+	# else # now always do this too:
 		highlight "/" green |
 		highlight -bold "*" red |
-		highlight "@" yellow
-	fi
+		highlight -bold "@" yellow
+	# fi

@@ -2,7 +2,7 @@
 /usr/bin/nawk '
   BEGIN {
     FS="\n";
-    srand();
+    srand('$$');
   }
   {
     printf(int(100001*rand()));
