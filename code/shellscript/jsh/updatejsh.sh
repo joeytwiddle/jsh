@@ -19,11 +19,11 @@ then
 			echo "Relinking .rc scripts ... ($HOME)"
 			linkhome
 		else
-			echo "Not auto-linking .rc scripts until you touch $JPATH/code/home/.linkhome_auto"
+			echo "Not auto-linking .rc scripts unless you touch $JPATH/code/home/.linkhome_auto"
 		fi
 	fi
 
-	echo "your jsh install is so up to date that now we are really loving it =)"
+	echo "Your jsh install is now up to date.  =)"
 
 fi
 
