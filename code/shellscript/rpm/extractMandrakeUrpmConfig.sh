@@ -11,7 +11,7 @@ cat "$ROOT/etc/urpmi/urpmi.cfg" |
 	sed "s/ 	$//g" |
 	while read SRC; do
 		echo "# Source $SRC:"
-		LISTFILE="/mnt/mandrake/var/lib/urpmi/list.$SRC"
+		LISTFILE="/$ROOT/var/lib/urpmi/list.$SRC"
 		if test -f "$LISTFILE"; then
 			URL=`head -1 "$LISTFILE" |
 				beforelast "/"`
