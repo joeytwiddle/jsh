@@ -1,6 +1,7 @@
 #!/bin/sh
+# jsh-ext-depends: sed
 
-# jsh-depends: curseblue highlight cursenorm countargs
+# jsh-depends: curseblue highlight cursenorm countargs cursebold cursecyan
 
 ## Recommended usage:
 ## higrep <grepstring> [ <grepopts> ... ] [ <grepfiles> ... ]

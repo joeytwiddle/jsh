@@ -1,4 +1,5 @@
 #!/bin/bash
+# jsh-ext-depends: sed
 # jsh-depends: cursebold cursenorm getrandom
 # zsh would also do (just need $RANDOM param)
 

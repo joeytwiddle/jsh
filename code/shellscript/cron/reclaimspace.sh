@@ -14,8 +14,12 @@
 # export MINKBYTES=10240 ## 10Meg
 [ "$MINKBYTES" ] || export MINKBYTES=51200 ## 50Meg
 
+SELECTIONREGEXP="$1"
+
 echo
 date
+
+## TODO: this verision doesn't recognise when there is low space but nothing to reclaim, because the find is empty the inner loop is never called
 
 ## TODO: determine whether mount is ro, and if so skip it.
 
@@ -49,13 +53,18 @@ function spaceon () {
 	echo "$SPACE"
 }
 
-mount | grep "^/dev" | takecols 1 3 |
+mount | grep "^/dev" |
+
+grep "$SELECTIONREGEXP" |
+
+takecols 1 3 |
+
 while read DEVICE MNTPNT
 do
 
 	# SPACE=`flatdf | grep "^$DEVICE[ 	]" | takecols 4`
 	## TODO: the following method is duplicated below; should be migrated into flatdf.
-	SPACE=`df "$MNTPNT" | tail -n 1 | sed 's+^[^ 	]*[ 	]*[^ 	]*[ 	]*[^ 	]*[ 	]*\([^ 	]*\).*+\1+'` ## Like flatdf but better - only works on one mountpoint at a time.
+	SPACE=`spaceon "$MNTPNT"` ## Like flatdf but better - only works on one mountpoint at a time.
 	## But since we grep "^dev", we don't tend to get an overflowing field 1 anyway!
 	# SPACE=`df "$MNTPNT" | takecols 4`
 
@@ -123,7 +132,7 @@ do
 					fi
 
 					# SPACE=`flatdf | grep "^$DEVICE[ 	]" | takecols 4`
-					SPACE=`df "$MNTPNT" | tail -n 1 | sed 's+^[^ 	]*[ 	]*[^ 	]*[ 	]*[^ 	]*[ 	]*\([^ 	]*\).*+\1+'` ## Like flatdf but better - only works on one mountpoint at a time.
+					SPACE=`spaceon "$MNTPNT"` ## Like flatdf but better - only works on one mountpoint at a time.
 					# echo "Now space is: $SPACE"
 
 					if [ ! "$REMOVED" ]
