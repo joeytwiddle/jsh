@@ -1,17 +1,54 @@
+# jsh-ext-depends-ignore: over
+
 # jsh-depends: takecols
-# jsh-ext-depends: bc
-## Usage: monitoriflow [ <interface> ]
-##   will display incoming, outcoming and total bytes per second travelling over the specified interface
+# jsh-ext-depends: bc sed ifconfig
 
 ## TODO: deal with rollover of numbers.  easily detectable (new < last), but how much do we add (~1213030)
 
-## For floating point, we could use awk or perl, or bc as below.
+## Needed to use bc because expr cannot process floating point, but alternatively could have tried awk or perl.
 
-getbytes () {
+if [ ! "$1" ] || [ "$1" = --help ]
+then
+cat << !
+
+monitoriflow [ -tc <qdisc_num> ] [ <interface> ]
+
+  will display incoming, outgoing and total average bytes per second
+  travelling over the specified interface (or eth1 by default).
+
+  With the -tc option, will display mean outgoing bps over the specified qdisc.
+
+  The window used to take measurements gets larger until it reaches 30 seconds.
+
+!
+exit
+fi
+
+getbytesifconfig () {
 	/sbin/ifconfig "$IFACE" |
 	grep "RX bytes" |
 	sed 's+.*RX bytes:\([^ ]*\).*TX bytes:\([^ ]*\).*+\1 \2+g'
 }
+
+getbytestc () {
+	echo -n "0 "
+	/sbin/tc -s qdisc ls dev $IFACE |
+	grep -A1 " $DISCNUM:" |
+	tail -1 |
+	# pipeboth |
+	takecols 2 # | pipeboth
+}
+
+GETBYTESIO=getbytesifconfig
+if [ "$1" = -tc ]
+then
+	GETBYTESIO=getbytestc
+	DISCNUM="$2"
+	shift; shift
+	if [ ! "$DISCNUM" ]
+	then error "You must also provide a <qdisc_num>"; exit
+	fi
+fi
 
 if [ "$1" ]
 then IFACE="$1"
@@ -31,9 +68,9 @@ fi
 while true
 do
 
-	# getbytes | read NEWIN NEWOUT
-	NEWIN=`getbytes | takecols 1`
-	NEWOUT=`getbytes | takecols 2`
+	# $GETBYTESIO | read NEWIN NEWOUT
+	NEWIN=`$GETBYTESIO | takecols 1`
+	NEWOUT=`$GETBYTESIO | takecols 2`
 	# NEWTIME=`date +"%s.%N"`
 	NEWTIME=`date +"%s.%N" | sed 's+\(.*\....\).*+\1+'`
 	# echo "$NEWTIME $NEWIN $NEWOUT"
@@ -62,7 +99,7 @@ do
 
 	fi
 
-	# getbytes | read OLDIN OLDOUT
+	# $GETBYTESIO | read OLDIN OLDOUT
 	OLDIN="$NEWIN"
 	OLDOUT="$NEWOUT"
 	OLDTIME="$NEWTIME"
