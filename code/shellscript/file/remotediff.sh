@@ -12,16 +12,16 @@ RUSER=`echo "$REMOTESTRING" | sed "s/@.*//"`
 RHOST=`echo "$REMOTESTRING" | sed "s/.*@//" | sed "s/:.*//"`
 RDIR=`echo "$REMOTESTRING" | sed "s/.*://"`
 
-TMPONE="/tmp/local.cksum"
-TMPTWO="/tmp/remote.cksum"
-TMPTHREE="/tmp/difference.txt"
+TMPONE=`jgettmp local.cksum`
+TMPTWO=`jgettmp remote.cksum`
+TMPTHREE=`jgettmp difference.txt`
 
 FINDOPTS="-type f $@"
 
 CKSUMCOM='while read X; do cksum "$X"; done | tr "\t" " " | grep -v "/CVS/"'
 
 # REMOTECOM='find "'"$RDIR"'" '"$FINDOPTS"' | '"$CKSUMCOM"
-REMOTECOM='cd "'"$RDIR"'"; find . '"$FINDOPTS"' | '"$CKSUMCOM"
+REMOTECOM='cd "'"$RDIR"'" && find . '"$FINDOPTS"' | '"$CKSUMCOM"
 
 
 
@@ -47,7 +47,7 @@ echo "Getting cksums for remote $RHOST:$RDIR"
 ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO" && echo "Got remote" &
 
 echo "Getting cksums for local $LOCAL"
-cd "$LOCAL"; find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE" && echo "Got local" &
+cd "$LOCAL" && find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE" && echo "Got local" &
 
 wait
 
