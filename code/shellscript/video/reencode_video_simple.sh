@@ -1,13 +1,24 @@
 # mencoder crouching\ tiger,\ hidden\ dragon.avi -o re_encoded.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=5
 
-# MP_CLIP="-ss 1:00 -endpos 0:20"
+# MP_CLIP="-ss 1:00 -endpos 0:10"
+
+# MP_MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
+# MP_MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
+MP_MEET_STANDARD="-vf scale=360:286 -ofps 25" ## half PAL
+
+## Couldn't open codec mp2, br=224
+#	1) audio must be 16 bits per sample, so add -channels 2
+#	2) Not all sampling rates are good, so try to resample:
+#	-srate 48000 or -srate 22050 or -srate 32000.
 
 for VIDEOFILE
 do
 
 	# mencoder "$@" -o re_encoded.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 || exit
 
-	mencoder "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
+  ## -ofps 25 needed for s11redux.wmv which "has 1000fps"!
+  ## -srate 3200 needed for parliament_palestine_march.avi, which had pcm with bad sample rate
+	mencoder -srate 32000 -ofps 30 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
 
 done
 

@@ -12,16 +12,17 @@ then
 	chmod go-rwx $TOPTMP
 fi
 
-for X in "$@"; do
-  if startswith "$X" "$TOPTMP" || startswith "$X" "/tmp/" ||
-     ( test "$TMPDIR" && startswith "$X" "$TMPDIR" )
+for TMPFILE
+do
+  if startswith "$TMPFILE" "$TOPTMP" || startswith "$TMPFILE" "/tmp/" ||
+     ( test "$TMPDIR" && startswith "$TMPFILE" "$TMPDIR" )
   then
-    rm -rf "$X"
+    rm -rf "$TMPFILE"
     # mkdir -p $JPATH/trash/$TOPTMP
-    # mv "$X" $JPATH/trash/$X
-    # del "$X" > /dev/null
+    # mv "$TMPFILE" $JPATH/trash/$TMPFILE
+    # del "$TMPFILE" > /dev/null
   else
-    echo "jdeltmp: $X does not start with $TOPTMP" > /dev/stderr
+    jshwarn "jdeltmp: $TMPFILE does not start with $TOPTMP"
     exit 1
   fi
 done

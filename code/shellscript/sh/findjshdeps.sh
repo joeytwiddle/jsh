@@ -33,6 +33,8 @@ EVER_PRESENT="$EVER_PRESENT"'touch\|mkdir\|tr\|sh\|nice\|sleep\|date\|'
 EVER_PRESENT="$EVER_PRESENT"'chmod\|chgroup\|chown\|cat\|more\|head\|tail\|grep\|egrep\|du\|'
 EVER_PRESENT="$EVER_PRESENT"'true\|false\|which\|'
 # EVER_PRESENT="$EVER_PRESENT"'mount\|sed\|cksum\|'
+## Dunno whether to document dependency on expr.  It's builtin to modern shells, and part of coreutils.  Only really needed if there is ever a system out there without it as binary or builtin to shell.  It may present dependency resolution problems, if the binary is absent, and jsh doesn't realise expr is provided by sh.
+EVER_PRESENT="$EVER_PRESENT"'expr\|'
 EVER_PRESENT="$EVER_PRESENT"'\)$'
 
 ## Will show up jsh programs as well as /bin ones.  (Faster without; even faster if specialised out!)

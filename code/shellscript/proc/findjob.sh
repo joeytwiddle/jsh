@@ -47,6 +47,13 @@ findjobtree () {
 
 PID=$$
 
+if [ "$1" = -tre ]
+then
+	shift
+	findjobtree | dropcols 1 4 5 6 | higrep "$@" -B3 -A1
+	exit
+fi
+
 if [ "$KILL" ] || [ "$TREE" ]
 then
 

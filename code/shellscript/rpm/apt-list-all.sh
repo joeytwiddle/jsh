@@ -91,7 +91,7 @@ then
 
   SRC="$2"
   shift; shift
-  $MEMOCOM apt-list-all $INSTALLED $SOURCE_LIST "$@" | grep " \<$SRC\>" |
+  $MEMOCOM "$MEMOCOM apt-list-all $INSTALLED $SOURCE_LIST \"$@\" | grep \" \<$SRC\>\"" |
   column -t
 
 elif [ "$1" = pkg ]
@@ -105,7 +105,7 @@ then
 elif [ "$1" = sources ]
 then
 
-  $MEMOCOM "apt-list-all $INSTALLED $SOURCE_LIST | takecols 4 | drop 1 | removeduplicatelines"
+  $MEMOCOM "$MEMOCOM apt-list-all $INSTALLED $SOURCE_LIST | takecols 4 | drop 1 | removeduplicatelines"
 
 elif [ "$1" = distros ]
 then
