@@ -10,7 +10,7 @@
 # Create custom keymap with viins
 # bindkey -N mymap viins
 
-# Clear all CTRL+Xs from viins keymap to leave CTRL+X free for me
+# Clear all CTRL+Xs from viins keymap to leave CTRL+X free for me!
 bindkey "^X^B" undefined-key # vi-match-bracket
 bindkey "^X^F" undefined-key # vi-find-next-char
 bindkey "^X^J" undefined-key # vi-join
@@ -28,7 +28,7 @@ bindkey "^Xr" undefined-key # history-incremental-search-backward
 bindkey "^Xs" undefined-key # history-incremental-search-forward
 bindkey "^Xu" undefined-key # undo
 
-# Clear all CTRL+[s cos I want to use them
+# Clear all CTRL+[s cos I want to use it.
 # nah this loses loads of stuff i like and doesn't fully clear ^[
 # bindkey "^[" undefined-key # vi-backward-kill-word
 # bindkey "^[^D" undefined-key # list-choices
@@ -121,7 +121,7 @@ bindkey "^ " forward-char
 # and other Vi usefuls:
 bindkey "^p" vi-put-after
 bindkey "^p" vi-put-before
-bindkey "^h" expand-history
+bindkey "^g" expand-history
 bindkey "^u" vi-undo-change # now taken
 bindkey "^z" vi-undo-change # now taken
 bindkey "^r" vi-undo-change # now taken
@@ -131,54 +131,11 @@ bindkey "^y" vi-undo-change
 # It's purely left-handed and positioned to avoid the reserved keys qeaszc.
 # Oops d is reserved and I use it, but it works OK on Hwi.
 # Movement in big jumps
-bindkey "^d" backward-word
-bindkey "^f" forward-word
-# bindkey "^d" vi-backward-word
-# bindkey "^f" vi-forward-word
 # Deletion in small chunks
 bindkey "^x" vi-backward-kill-word
 # bindkey "^v" kill-word # no vi-kill-forward!
 
-# # Alternative funky attempt, not diagonalised
-# bindkey "^d" vi-backward-word
-# bindkey "^f" forward-word
-# bindkey "^x" vi-backward-kill-word
-# bindkey "^v" kill-word
-
-# Alternative funky attempt, diagonalised as it were
-# bindkey "^d" backward-word
-# bindkey "^f" vi-forward-word
-# bindkey "^x" vi-backward-kill-word
-# bindkey "^v" kill-word
-
-# The lot, spanning zx sdfg vb
-# bindkey "^z" backward-kill-word
-# bindkey "^x" vi-backward-kill-word
-# bindkey "^s" backward-word
-# bindkey "^d" vi-backward-word
-# bindkey "^f" vi-forward-word
-# bindkey "^g" forward-word
-# bindkey "^v" vi-kill-word
-# bindkey "^b" kill-word
-
-# The lot, spanning er df zx vb (w instead of z?)
-# bindkey "^d" backward-word
-# bindkey "^f" forward-word
-# bindkey "^e" vi-backward-word
-# bindkey "^r" vi-forward-word
-# bindkey "^x" backward-kill-word
-# bindkey "^v" kill-word
-# # bindkey "^z" vi-backward-kill-word
-# bindkey "^w" vi-backward-kill-word
-# bindkey "^b" vi-kill-word
-# # and since we replace e:
-# bindkey "^g" end-of-line
-
 # The lot, spanning zxdfv nhjkl yuo
-# Shorter here thanx to CTRL+arrow below:
-# bindkey "^x" backward-kill-word
-# bindkey "^d" backward-word
-# bindkey "^f" forward-word
 bindkey "^z" vi-backward-kill-word
 bindkey "^x" backward-kill-word
 bindkey "^d" backward-word
@@ -186,19 +143,12 @@ bindkey "^f" forward-word
 bindkey "^r" vi-backward-word
 bindkey "^t" vi-forward-word
 bindkey "^v" kill-word
-# there is no vi-kill-word so we fake it
-# approximation
+bindkey "^b" vi-kill-word
+# Unfortunately, there is no vi-kill-word, so we fake it:
 bindkey -s "^b" "^f^x"
-# And to keep inline:
+# and to keep inline, we fake the other too:
 bindkey -s "^z" "^d^v"
-# no good:
-# bindkey -s "^v" "^f^x ^[[D"
 
-# bindkey "^n" vi-backward-kill-word
-# bindkey "^h" backward-word
-# bindkey "^j" vi-backward-word
-# bindkey "^k" vi-forward-word
-# bindkey "^l" forward-word
 bindkey "^u" backward-kill-line # (default!)
 bindkey "^o" kill-line
 
@@ -210,7 +160,3 @@ bindkey "^o" kill-line
 # At last, bindkey on CTRL+arrow
 bindkey "^[[5D" backward-word
 bindkey "^[[5C" forward-word
-# And at last, fake vi-kill-word using vi-forward-word and vi-backward-kill-word of course!
-# Bad at end of line.
-# Um yes nasty!
-# bindkey -s "^v" "^f^x"

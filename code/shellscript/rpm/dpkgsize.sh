@@ -1,6 +1,6 @@
 echo `dlocate -du "$@" | grep total | takecols 1`"	$@"
 
-# My version, much slower but robust to missing files
+# # My version, much slower but robust to missing files
 # FILES=`dpkg -L "$@" | while read Y; do
         # if test -f "$Y"; then
                 # echo "$Y"
@@ -13,5 +13,5 @@ echo `dlocate -du "$@" | grep total | takecols 1`"	$@"
 	# DUSK=`du -sk $FILES`
 	# # echo "$DUSK" > files-"$@".txt
 	# PKGSIZE=`echo "$DUSK" | takecols 1 | awksum`
-	# printf "$PKGSIZE\t$@" # >> totals.txt
+	# printf "$PKGSIZE\t$@\n" # >> totals.txt
 # fi
