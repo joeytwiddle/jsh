@@ -1,6 +1,7 @@
 # jsh-depends-ignore: vimdiff
 # jsh-depends: cursebold cursecyan cursegreen curseyellow cursenorm cvsdiff cvsedit cvsvimdiff edit jdeltmp jgettmp jdiff newer error
 getfiles () {
+	## This is very slow, could try: cvs diff 2>/dev/null | grep "^Index:"
 	cvsdiff "$@" |
 	grep "^cvs commit " |
 	sed 's+^cvs commit ++' |
