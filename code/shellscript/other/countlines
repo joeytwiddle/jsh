@@ -1,15 +1,21 @@
 #!/bin/sh
 
-# if test ! -e "$1"; then
-  # echo 0
-# else
-  awk ' END { print NR } ' "$@"
-# fi
+AWKPRINT=""
+if test "$2" != ""; then
+	AWKPRINT='FILENAME "	"'
+fi
 
-# LINES=0;
-# cat "$@" |
+for X
+do
+
+	awk " END { print $AWKPRINT NR } " "$X"
+
+	# LINES=0;
+	# cat "$X" |
 	# while read L; do
-		# LINES=$(($LINES+1));
-		# echo "$LINES"
+	# LINES=$(($LINES+1));
+	# echo "$LINES"
 	# done;
-# echo "$LINES"
+	# echo "$LINES"
+
+done

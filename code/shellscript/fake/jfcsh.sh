@@ -16,8 +16,8 @@ while true; do
 	shift
 done
 
-A=`jgettmp jfcsh1`
-B=`jgettmp jfcsh1`
+A=`jgettmp jfcsh`
+B=`jgettmp jfcsh`
 
 cat "$1" | sort > "$A"
 cat "$2" | sort > "$B"
@@ -28,5 +28,8 @@ diff "$A" "$B" |
 if test $BOTHWAYS; then
 	echo "--------------------------------------------------------------------------------"
 	diff "$B" "$A" |
-		grep "^> " | sed "s/^> //"
+		grep "^< " | sed "s/^< //"
+	## Or:
+	# diff "$A" "$B" |
+		# grep "^> " | sed "s/^> //"
 fi

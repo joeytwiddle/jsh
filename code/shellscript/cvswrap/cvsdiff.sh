@@ -14,17 +14,25 @@
 
 # TODO: when a new file (not yet in repos) is found, if the dir is also new, the dir should be "cvs add"ed too.
 
-# cvsdiff [-all] [-del] [<files>]
-
 CHECKALL=
-SUGGEST="update"
 while true; do
 	case "$1" in
 		-all)
 			CHECKALL=true
-		;;
+			SUGGEST="update"
+			;;
 		-del)
+			CHECKALL=true
 			SUGGEST="remove"
+		;;
+		-h|--help)
+			echo "cvsdiff [ -all [ -del ] ] [<files>]"
+			echo "  Without -all you get a brief listing of the status of your CVS files."
+			echo "  With -all you get a full listing:"
+			echo "    It suggests you add local files which are not in the repository."
+			echo "    Without -del it suggests you update repository files you do not have."
+			echo "    With -del it suggests removal of repository files you do not have."
+			exit 1
 		;;
 		*)
 			break
@@ -33,20 +41,17 @@ while true; do
 	shift
 done
 
-if test "$1" = "-all"; then
-	CHECKALL=true
-	shift
-fi
-
 REPOSLIST=`jgettmp in-repos`
 LOCALLIST=`jgettmp local`
 
 PRE=`cat CVS/Root | afterlast ":"`"/"`cat CVS/Repository`"/"
 
 echo
+printf "# "
 cursecyan
-echo "Status of files compared to repository:"
+printf "Status of files compared to repository:"
 cursegrey
+printf "\n"
 
 cvs -q status "$@" | egrep "(^File:|Repository revision:)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
@@ -74,9 +79,11 @@ if test $CHECKALL; then
 	fi | grep -iv "/CVS/" > $LOCALLIST
 
 	echo
+	printf "# "
 	cursecyan
-	echo "Local directories not in repository:"
+	printf "Local directories not in repository:"
 	cursegrey
+	printf "\n"
 
 	find . -type d |
 	grep -v "/CVS" |
@@ -87,17 +94,21 @@ if test $CHECKALL; then
 	done
 
 	echo
+	printf "# "
 	cursecyan
-	echo "Local files not in repository:"
+	printf "Local files not in repository:"
 	cursegrey
+	printf "\n"
 
 	jfcsh $LOCALLIST $REPOSLIST |
 		sed "s+^./+cvs add ./+"
 
 	echo
+	printf "# "
 	cursecyan
-	echo "Repository files missing locally:"
+	printf "Repository files missing locally:"
 	cursegrey
+	printf "\n"
 	jfcsh $REPOSLIST $LOCALLIST |
 		sed "s+^./+cvs $SUGGEST ./+"
 

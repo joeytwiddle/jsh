@@ -3,7 +3,9 @@
 TOPTMP="$JPATH/tmp"
 if test $JTMPLOCAL && test -w .; then
 	# Note cos not use $PWD because might break * below
-	TOPTMP="."
+	test -w . && TOPTMP="." || TOPTMP="/tmp"
+	echo "jgettmp: Using $TOPTMP as temp dir" >> /dev/stderr
+	echo "         because $JPATH/tmp is not writeable." >> /dev/stderr
 fi
 
 # Neaten arguments (to string not needings ""s *)

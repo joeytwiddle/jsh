@@ -1,5 +1,6 @@
 # . importshfn <jtoolname> | <shellscript> ...
 # Warning: incomptabile scripts can entirely kill your shell!
+# Actually maybe that's just sourced scripts which have an exit in them.
 
 for SCRIPT
 do

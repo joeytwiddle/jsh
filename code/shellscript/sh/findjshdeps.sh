@@ -8,10 +8,7 @@ cd "$JPATH/tools"
 while read SCRIPT
 do
 	FILE="$TMPTREE/$SCRIPT.usedby"
-	cd "$JPATH/code/shellscript/"
-	grep -l "\<$SCRIPT\>" * -r |
-	grep -v CVS |
-	afterlast "/" | beforelast "\." >> "$FILE"
+	grep -l "\<$SCRIPT\>" * >> "$FILE"
 done
 
 cd "$JPATH/tools"
