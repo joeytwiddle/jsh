@@ -24,7 +24,7 @@ then
 	else export JPATH="$PWD/"`dirname "$0"` ## relative
 	fi
 	if test ! -d "$JPATH/tools"
-	then echo "Say what?"
+	then echo "jsh: Could not find JPATH with subdir tools :-("
 	     exit 1
 	fi
 fi

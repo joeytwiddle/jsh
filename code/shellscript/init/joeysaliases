@@ -47,4 +47,4 @@ for PROG in `echo $HIGHESTPRIORITYPROGS`
 do alias "$PROG"="nice -20 $PROG"
 done
 
-alias jhelp "$JPATH/tools/help" ## Because bash went and used it!
+alias jhelp="$JPATH/tools/help" ## Because bash went and used it!
