@@ -1,12 +1,15 @@
-echo `dlocate -du "$@" | grep total | takecols 1`"	$@"
-exit 0
+if which dlocate > /dev/null 2>&1
+then
+	echo `dlocate -du "$@" | grep total | takecols 1`"	$@"
+	exit
+fi
 
 #############################################
 
 # My version, much slower but robust to missing files
 ## I had problems with unwanted printing of file lists after the size list but maybe that problem is elsewhere
-# FILES=`dpkg -L "$@" | while read Y; do
-FILES=`dlocate -L "$@" | while read Y; do
+FILES=`dpkg -L "$@" | while read Y; do
+# FILES=`dlocate -L "$@" | while read Y; do
         if test -f "$Y"; then
                 echo "$Y"
         fi
