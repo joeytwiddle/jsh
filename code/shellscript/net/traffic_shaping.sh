@@ -17,7 +17,7 @@ case "$1" in
 			## this can fail if there is nothing attached, btw, but that is fine
 			/sbin/tc qdisc del dev "$DEV" root 2>/dev/null
 
-			## add default 3-band priority qdisc to "$DEV"
+			## add default 4-band priority qdisc to "$DEV"
 			/sbin/tc qdisc add dev "$DEV" root handle 1: prio
 
 			## add a <128kbit rate limit (matches DSL upstream bandwidth) with a very deep buffer to the bulk band (#3)
@@ -41,7 +41,7 @@ case "$1" in
 
 			## ssh packets to the outside go to band #2 (this is harsh, but I can't tell scp from ssh so I can't filter them better)
 			## (actually I could tell ssh from scp; scp sets the IP diffserv flags to indicate bulk traffic)
-			## Joey moved ssh to band 1 =)
+			## Joey moved ssh to band 1.  He hasn't a clue how to recognise whether diffserv is set or not.
 			# /sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match ip sport 22 0xffff flowid 1:2
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 22 0xffff flowid 1:2
 
@@ -51,13 +51,24 @@ case "$1" in
 			## we happen to not have many (any? icmp maybe, but tcp?) fragmented packets going out the DSL line
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:2
 
-			## a final catch-all filter that redirects all remaining ip packets to band #3
+			## Joey made this one to give http higher priority than the rest of the traffic
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match ip sport 80 0xffff flowid 1:3
+
+			## Joey: and imap:
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match ip sport 143 0xffff flowid 1:3
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match ip sport 220 0xffff flowid 1:3
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match ip sport 993 0xffff flowid 1:3
+
+			## Joey: and peercast:
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match ip sport 7144 0xffff flowid 1:3
+
+			## a final catch-all filter that redirects all remaining ip packets to band #4
 			## presumably all that is left are large packets headed out the DSL line, which are
 			## precisly those we wish to rate limit in order to keep them from filling the
 			## DSL modem's uplink egress queue and keeping the shorter 'interactive' packets from
 			## getting through
 			## the dummy match is required to make the command parse
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match u8 0 0 at 0 flowid 1:3
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 4 protocol ip u32 match u8 0 0 at 0 flowid 1:4
 
 			## have the rest of the house think we are the gateway
 			## the reason I use arpspoofing is that I want automatic failover to the real gateway
