@@ -1,3 +1,8 @@
+if test "$1" = "-diff"; then
+	shift
+	SHOWDIFFS=true
+fi
+
 cd "$JPATH/code/home" &&
 find . |
 	grep -v "/CVS$" | grep -v "/CVS/" |
@@ -12,7 +17,7 @@ find . |
 		else
 			if test ! `realpath "$DEST"` = `realpath "$SOURCE"`; then
 				echo "problem: $NICESOURCE is in the way of $DEST"
-				if test ! -d "$SOURCE"; then
+				if test ! -d "$SOURCE" && test $SHOWDIFFS; then
 					gvimdiff "$DEST" "$SOURCE"
 				fi
 			else
