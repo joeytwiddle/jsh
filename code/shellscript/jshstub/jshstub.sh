@@ -21,14 +21,22 @@ SCRIPTFILE="$0"
 ## note not yet absolute path
 SCRIPTNAME=`basename "$SCRIPTFILE"`
 
+#### For bash experiment:
 # test $SCRIPTNAME = bash &&
 # echo "AAA = $TOSOURCE" | tee -a /tmp/jshstub.log >&2 &&
 # echo "SCRIPTNAME=$SCRIPTNAME TOSOURCE=$TOSOURCE" >&2
 # if test "$SCRIPTNAME" = bash && test "$TOSOURCE"
-# then
-	# test ! "${TOSOURCE##/*}" && SCRIPTFILE="$TOSOURCE" || SCRIPTFILE="$JPATH/tools/$TOSOURCE"
-	# SCRIPTNAME=`basename "$SCRIPTFILE"`
-# fi
+if test "$TOSOURCE"
+then
+	echo "[ jshstub: Noticed joeybashource = $TOSOURCE ok ]" >&2
+	if test ! "${TOSOURCE##/*}"
+	then SCRIPTFILE="$TOSOURCE"
+	else SCRIPTFILE="$JPATH/tools/$TOSOURCE"
+	fi
+	SCRIPTNAME=`basename "$SCRIPTFILE"`
+	SCRIPT_WAS_SOURCED="(joeybashsourced) "
+	unset TOSOURCE
+fi
 
 ## TODO: need a better check than this! (would need absolute path at least)
 # TOOLDIR="$JPATH/tools"
@@ -132,10 +140,13 @@ then
 		echo "[ jshstub: Got script \"$SCRIPTNAME\" ok, running: $SCRIPTFILE $* ]" >&2
 		echo >&2
 
+		## For bash experiment (not working!):
+		hash -r
+
 		# if test "$SCRIPT_WAS_SOURCED"
 		# then
 			# test "$TOSOURCE" &&
-			export TOSOURCE="$SCRIPTFILE"
+			# export TOSOURCE="$SCRIPTFILE"
 			# echo "ZZZ = $TOSOURCE" | tee -a /tmp/jshstub.log >&2
 			# . $JPATH/tools/joeybashsource "$SCRIPTFILE" "$@"
 			# echo "ZZZfinished = $SCRIPTFILE $TOSOURCE" | tee -a /tmp/jshstub.log >&2

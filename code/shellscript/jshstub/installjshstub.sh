@@ -17,6 +17,10 @@ cd tools
 $WGETCOM "$JSH_STUB_NET_SOURCE/jshstub" > jshstub
 chmod a+x jshstub
 
+## For bash experiment:
+$WGETCOM "$JSH_STUB_NET_SOURCE/joeybashsource" > joeybashsource
+chmod a+x joeybashsource
+
 ## Link all the jshtools to jshstub
 # 'ls' /home/joey/j/tools/ |
 # $WGETCOM "http://hwi.ath.cx/jshstubtools" -O - |
@@ -26,7 +30,7 @@ $WGETCOM "$JSH_STUB_NET_SOURCE/.listing" |
 while read X
 do ln -s jshstub "$X"
 done 2>&1 |
-grep -v "jshstub.*File exists"
+grep -v "\(jshstub\|joeybashsource\).*File exists"
 
 cd ..
 
@@ -39,12 +43,15 @@ echo "### I have already done:"
 echo "export JPATH=$JPATH"
 echo "export JSH_STUB_NET_SOURCE=$JSH_STUB_NET_SOURCE"
 
+echo "### For bash experiments:"
+echo "alias source=\"'.' $JPATH/tools/joeybashsource\""
+echo "alias .=\"'.' $JPATH/tools/joeybashsource\""
+
 echo "### Type the following to start:"
 echo "source \$JPATH/tools/startj-hwi"
 zsh || echo "Sorry jshstub only works with zsh (still working on bash)."
 
 # $JPATH/tools/joeybashsource /
 # echo "@ Type the following to start:"
-# echo "alias source='. $JPATH/tools/joeybashsource'"
 # echo "source \$JPATH/tools/startj-hwi"
 # bash
