@@ -5,4 +5,9 @@ NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(..................
 FILE="$MEMODIR/$NICECOM.memo"
 mkdir -p "$MEMODIR"
 
-"$@" | tee "$FILE"
+# "$@" | tee "$FILE"
+## Now passes back appropriate exit code: =)
+"$@" > "$FILE"
+EXITWAS="$?"
+cat "$FILE"
+exit "$EXITWAS"

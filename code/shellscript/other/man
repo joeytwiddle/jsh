@@ -1,4 +1,0 @@
-if test -x "$JPATH/tools/$1"; then
-	jdoc "$@"
-fi
-`jwhich man` -a "$@"

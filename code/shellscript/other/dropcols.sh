@@ -1,6 +1,7 @@
 #!/bin/sh
 ## dropcols takes a list of columns numbers to drop, eg. df | dropcols 2 3 5 6
-## Could have generated arguments for takecols but instead generates a sedscript (no trailing spaces =)
+## Could have generated arguments for takecols (*) but instead generates a sedscript (no trailing spaces =)
+## (*): eg. by catting to file, then finding max # cols, then providing inverse args to takecols on file
 
 ## *** Unix provides colrm.  It takes ranges rather than lots of numbers.
 
