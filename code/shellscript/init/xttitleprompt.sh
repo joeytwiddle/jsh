@@ -4,7 +4,7 @@
 ## The screen check, and hence HEAD at the moment may be redundant
 ## because screen probably disables X forwarding.
 HEAD=""
-if test "$SCREEN_RUNNING"
+if test "$TERM" = screen
 then export HEAD="[screen] "
 fi
 

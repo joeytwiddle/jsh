@@ -45,7 +45,7 @@ esac
 # PS1="[\u@\h \W]\\$ "
 # PS1="(\h \t \u) \w/ "
 
-if test "$SCREEN_RUNNING"
+if test "$TERM" = screen
 then PS1="[screen] $PS1"
 fi
 

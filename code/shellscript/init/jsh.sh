@@ -48,8 +48,11 @@ if test "$*"; then
 else
 
 	## Interactive shell: start user's favourite shell with startj as rc file.
-	# if test `which zsh`; then
-	if test "`hostname`" = hwi && test $USER = joey; then
+	# if test "`hostname`" = hwi && test $USER = joey; then
+	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
+	if test `which zsh` &&
+	   ( test $USER = joey || test $USER = pclark || test $USER = edwards )
+	then
 		## I believe zsh sources its own rc scripts automatically, so this is not needed:
 		# export BASH_BASH=$HOME/.zshrc
 		## However we are having trouble source the startj script!

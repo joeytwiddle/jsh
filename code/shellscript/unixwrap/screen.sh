@@ -1,4 +1,5 @@
-export SCREEN_RUNNING=true
+# export SCREEN_RUNNING=true
+export DISPLAY=
 
 if test "$*"
 then

@@ -27,7 +27,8 @@ alias xterm='xtermbg'
 alias man='jman'
 
 myhist() {
-history 1 | grep "$@"
+# history 1 | grep "$@" ## no 1 for bash!
+history | grep "$@"
 }
 alias hist=myhist
 
