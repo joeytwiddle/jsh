@@ -6,13 +6,13 @@ fi
 
 # Hopefully passed down from .xinitrc
 # Nah didn't!
-CURRENTWMFILE="$JPATH/data/currentwinman.$DISPLAY.dat"
+CURRENTWMFILE="$HOME/.currentwinman.$DISPLAY.dat"
 if [ ! -f "$CURRENTWMFILE" ]
 then
 	DISPLAY=`echo "$DISPLAY" | beforelast "\."`
-	CURRENTWMFILE="$JPATH/data/currentwinman.$DISPLAY.dat"
+	CURRENTWMFILE="$HOME/.currentwinman.$DISPLAY.dat"
 fi
-NEXTWMFILE="$JPATH/data/nextwinman.$DISPLAY.dat"
+NEXTWMFILE="$HOME/.nextwinman.$DISPLAY.dat"
 
 echo "$1" > "$NEXTWMFILE"
 

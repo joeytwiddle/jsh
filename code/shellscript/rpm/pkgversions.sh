@@ -1,3 +1,4 @@
+## TODO: Change "[Selected]" to "[Installed]" to be accurate, but also check for dependencies on it by other scripts!
 for X in "$@"
 do
 	if [ "$1" != "$*" ]

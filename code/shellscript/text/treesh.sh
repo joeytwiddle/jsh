@@ -151,7 +151,7 @@ do
 			# [ "$DEBUG" ] && debug "<<<<"
 			echo "- $CURRENTCOMMON }"
 			COMMONSOFAR=`echo "$COMMONSOFAR" | chop 1`
-			CURRENTCOMMON=`echo "$COMMONSOFAR" | tail -1`
+			CURRENTCOMMON=`echo "$COMMONSOFAR" | tail -n 1`
 			# [ "$DEBUG" ] && debug "newcurrentcommon = $CURRENTCOMMON"
 		done
 	fi

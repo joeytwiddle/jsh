@@ -1,3 +1,5 @@
+## An alternative to striptermchars, but not as good!
+
 ## Or is it keepascii.sh?!
 
 # TOKILL=""

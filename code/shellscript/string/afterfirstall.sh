@@ -1,3 +1,4 @@
+# jsh-ext-depends: sed
 # Actually does last per line
 # sed "s|.*$*||"
 
@@ -9,7 +10,13 @@
   # echo "$X" | sed "s|^$Y$*||"
 # done
 
+SEARCHSTR="$1"
+shift
+
 # Valid provided following string unique
 SEDHACKSTRING="<'\"34098)£~thisisjoeyssedhackstring>"
-sed "s|$@\(.*\)|$SEDHACKSTRING\1|" |
-  sed "s|.*$SEDHACKSTRING||"
+
+cat "$@" |
+sed "s$SEARCHSTR\(.*\)$SEDHACKSTRING\1" |
+sed "s.*$SEDHACKSTRING" |
+cat

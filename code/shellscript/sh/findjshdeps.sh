@@ -118,7 +118,7 @@ do
 		extractregex '[A-Za-z0-9_\-.]+' | ## couldn\'t get \<...\> to work
 		removeduplicatelines |
     ## Hack because grep doesn\'t handle long lists well, and we occasionally (accidentally) hit binaries!
-    head -500 |
+    head -n 500 |
     ## Escape special chars for regexp (first '.', then "\[]")
     sed 's#\.#\\\.#g;s#\(\\\|\[\|\]\)#\\\1#g' |
 		## Note: no need to remove shell builtin words because any which were in the proglist have been removed by EVER_PRESENT.
@@ -142,3 +142,5 @@ do
 done
 
 ## TODO: Show reverse dependencies.
+
+jdeltmp "$LIST" "$TMPEXPR"

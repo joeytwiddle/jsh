@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-ext-depends: sort
 # jsh-depends: afterfirstall
 
 # #!/usr/local/bin/zsh

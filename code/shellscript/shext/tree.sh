@@ -87,7 +87,7 @@ while read LINE; do
 	while ! startswith "$LINE" "$CURRENT"; do
 		echo ">>> *** not inside current"
 		N=`expr "$N" - 1`
-		CURRENT=`echo "$STACK" | tail -1`
+		CURRENT=`echo "$STACK" | tail -n 1`
 		STACK=`echo "SSTACK" | chop 1`
 		echo ">>> ### end"
 		TODROP="$TODROP

@@ -1,3 +1,4 @@
+# jsh-ext-depends: mencoder
 # mencoder crouching\ tiger,\ hidden\ dragon.avi -o re_encoded.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=5
 
 # MP_CLIP="-ss 1:00 -endpos 0:10"
@@ -18,7 +19,8 @@ do
 
   ## -ofps 24 needed for s11redux.wmv which "has 1000fps"!
   ## -srate 3200 needed for parliament_palestine_march.avi, which had pcm with bad sample rate
-	mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
+	  mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
+	# mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6:acodec=mp2 $MP_CLIP || exit
 
 done
 

@@ -24,17 +24,16 @@ do
 		do echo -n "\"$NAME\" \"$URL\" off "
 		done
 	`
-	OPTIONS="$OPTIONS NEW \"enter a new url\" on "
+	OPTIONS="$OPTIONS NEW \"Enter a new url\" on "
+	OPTIONS="$OPTIONS CHANGE \"Change output directory (currently '$PWD')\" off "
 
-	RESULT=`
-	eval "Xdialog --radiolist \"Which stream do you want to rip?\" 24 80 10 $OPTIONS" 2>&1
-	`
+	RESULT=` eval "Xdialog --stdout --radiolist \"Which stream do you want to rip?\" 24 80 10 $OPTIONS" | tail -n 1 `
 
 	if [ ! "$RESULT" ]
 	then exit 1 # break
 	fi
 
-	echo "You chose: $RESULT"
+	echo "You chose: >$RESULT<"
 
 	if [ "$RESULT" = NEW ]
 	then
@@ -42,6 +41,14 @@ do
 		NAME=`echo "$INPUT" | beforefirst /`
 		URL=`echo "$INPUT" | afterfirst /`
 		echo "$URL $NAME" >> "$LISTFILE"
+		continue
+	fi
+
+	if [ "$RESULT" = CHANGE ]
+	then
+		# INPUT=`Xdialog --dselect "Changing directory" 24 80 "" "" "URL of resource" "http://.../something.ram" 2>&1`
+		INPUT=`Xdialog --dselect "$PWD" 24 80 2>&1`
+		cd "$INPUT"
 		continue
 	fi
 

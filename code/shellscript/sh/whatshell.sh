@@ -7,7 +7,7 @@
 # # findjob "$SHELLPS" | # (not on cygwin!)
 # ps | grep "$SHELLPS" |
 # grep 'sh$' |
-# tail -1 |
+# tail -n 1 |
 # sed "s/.* \([^ ]*sh\)$/\1/" |
 # sed "s/^-//"
 # `

@@ -10,7 +10,7 @@ while read PKG VER REST; do
 	LAST=`
 		dar -d $FILES |
 		grep -v "/$" | grep -v " -> " |
-		takecols 6 7 | trimempty | tail -1
+		takecols 6 7 | trimempty | tail -n 1
 	`
 	printf "$PKG\t$LAST\t$REST\n"
 done

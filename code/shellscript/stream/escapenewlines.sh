@@ -1,3 +1,6 @@
+# jsh-ext-depends-ignore: file
+# jsh-ext-depends: sed
+# jsh-depends-ignore: after
 # unj escapenewlines "$@"
 
 ## This tty call might slow things down, but it's my first attempt at using tty to check whether

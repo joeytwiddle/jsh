@@ -56,6 +56,7 @@ fi
 # -lavcopts abitrate=8:acodec=mp2
 # -lavcopts vqscale=6 ## <-- this approximately halves the size of the BBC news
 
+## TODO: Mplayer should attempt "audio-only" ripping before trplayer and realplayer are attempted (or does -ovc copy handle no video ok?) Well, it might, but I've used -ocv lavc below anyway!
 for AUDIO_METHOD in "-oac lavc" "-oac pcm" NO_VIDEO_trplayer NO_VIDEO_realplay
 do
 

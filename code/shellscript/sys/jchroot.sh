@@ -7,13 +7,13 @@ TARGET="$1"
 
 chroot "$TARGET" mount -t proc /proc proc
 
-mv "$TARGET"/dev/null "$TARGET"/dev/null.b4
-touch "$TARGET"/dev/null
-chmod ugo+rw "$TARGET"/dev/null
+# mv "$TARGET"/dev/null "$TARGET"/dev/null.b4
+# touch "$TARGET"/dev/null
+# chmod ugo+rw "$TARGET"/dev/null
 
-mv "$TARGET"/dev/zero "$TARGET"/dev/zero.b4
-dd if=/dev/zero bs=1024 count=100 of="$TARGET"/dev/zero
-chmod ugo+r "$TARGET"/dev/zero
+# mv "$TARGET"/dev/zero "$TARGET"/dev/zero.b4
+# dd if=/dev/zero bs=1024 count=100 of="$TARGET"/dev/zero
+# chmod ugo+r "$TARGET"/dev/zero
 
 ## Bind all the same mounts
 TARGET=`echo "$TARGET" | tr -s / | sed 's+/$++'`
@@ -37,8 +37,10 @@ chroot "$@"
 
 chroot "$TARGET" umount -lf /proc
 
-mv -f $TARGET/dev/null.b4 $TARGET/dev/null
-mv -f $TARGET/dev/zero.b4 $TARGET/dev/zero
+# # cp -a /dev/null "$TARGET"/dev/null
+# # cp -a /dev/zero "$TARGET"/dev/zero
+# mv -f $TARGET/dev/null.b4 $TARGET/dev/null
+# mv -f $TARGET/dev/zero.b4 $TARGET/dev/zero
 
 ## Unbind all those mounts
 for MNTPNT in /mnt/*
@@ -48,4 +50,3 @@ do
 	then umount "$TARGET"/"$MNTPNT"
 	fi
 done
-

@@ -1,7 +1,7 @@
 # jsh-ext-depends-ignore: linux
 # jsh-ext-depends: hostname
 # jsh-depends: endswith
-# ARGS="-cc 33:48,37:48,45-47:48,64:48,126:48"
+ARGS="-cc 33:48,37:48,45-47:48,64:48,126:48"
 if [ "$VNCDESKTOP" = "X" ]
 then ## Actually for low-res desktops; we could guess this from xdpyinfo?
 	# FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1'

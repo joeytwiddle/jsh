@@ -3,7 +3,10 @@
 #   but sometimes creation fails!
 #   recommend using mykillps or something to count instances and then kill or create to meet target.
 
-NUM=5
+NUM=4
+if [ "$1" ]
+then NUM="$1"; shift
+fi
 XSCRBINS=/usr/lib/xscreensaver
 
 NL='

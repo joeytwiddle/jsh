@@ -15,8 +15,8 @@ function checkWebPageForRegexp () {
 
 function askPortExpect () {
 	echo "`curseyellow`Connecting to $1:$2 sending \"$3\" hoping to get \"$4\" ...`cursenorm`"
-	NC=`which nc`
-	[ ! "$NC" ] && NC=`which telnet`
+	NC=`which nc 2>/dev/null`
+	[ ! "$NC" ] && echo "No netcat: using telnet" && NC=`which telnet`
 	RESPONSE=`
 		( echo "$3" ; sleep 99 ) |
 		"$NC" "$1" "$2" & ncpid=$!
@@ -37,6 +37,13 @@ askPortExpect hwi.ath.cx 25 "HELO" "SMTP"
 
 echo
 
+askPortExpect hwi.ath.cx 22 whatever "OpenSSH"
+
+echo
+
+askPortExpect hwi.ath.cx 222 whatever "OpenSSH"
+
+echo
 checkWebPageForRegexp "http://hwi.ath.cx/" "How to contact Joey"
 
 echo
