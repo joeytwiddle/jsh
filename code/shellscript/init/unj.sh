@@ -1,3 +1,5 @@
+# jsh-depends: jwhich
+# jsh-depends-ignore: exists jsh
 ## Should unj deprecate jwhich?
 ## Note: Both are dangerous because if X calls unj X but unj X return the same X then infinite loop :-(
 

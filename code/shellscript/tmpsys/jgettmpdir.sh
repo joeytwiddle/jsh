@@ -1,3 +1,4 @@
+# jsh-depends: jdeltmp jgettmp
 if test "$1" = -top
 then
 

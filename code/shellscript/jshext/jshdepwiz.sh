@@ -18,13 +18,17 @@
 ## Note: instead of commenting out, the first two could be sourced and checked at runtime.
 
 export INTERACTIVE=true
-export VIGILANT=true
+# export VIGILANT=true
+export LAZY=true
 
 function getrealscript () {
   jwhich inj "$1"
 }
 
 function extractdep () {
+  if [ "$1" = -err ]
+  then RETURN_ERROR=true; shift
+  fi
   SCRIPT="$1"
   REALSCRIPT=`getrealscript "$1"`
   shift
@@ -34,7 +38,8 @@ function extractdep () {
       cat "$REALSCRIPT" |
       grep "^# jsh-$DEPTYPE:"
     `
-    # [ ! "$?" = 0 ] && return 1
+    # [ ! "$?" = 0 ] && [ "$RETURN_ERROR" ] && debug "failed to find jsh-$DEPTYPE in $SCRIPT" && return 1
+    [ ! "$?" = 0 ] && [ "$RETURN_ERROR" ] && return 1
     echo "$RES" |
     afterfirst :
     # sed 's+^# jsh-$DEPTYPE:++'
@@ -103,8 +108,8 @@ case "$1" in
 
     SCRIPT="$2"
 
-    JSH_DEPS=`extractdep "$SCRIPT" depends`
-    if [ ! "$?" = 0 ] || [ "$VIGILANT" ]
+    JSH_DEPS=`extractdep -err "$SCRIPT" depends`
+    if [ ! "$LAZY" ] && ( [ ! "$?" = 0 ] || [ "$VIGILANT" ] )
     then
       jshdepwiz gendeps "$SCRIPT"
       JSH_DEPS=`extractdep "$SCRIPT" depends`
@@ -117,8 +122,8 @@ case "$1" in
 
     SCRIPT="$2"
 
-    EXT_DEPS=`extractdep "$SCRIPT" ext-depends`
-    if [ ! "$?" = 0 ] || [ "$VIGILANT" ]
+    EXT_DEPS=`extractdep -err "$SCRIPT" ext-depends`
+    if [ ! "$LAZY" ] && ( [ ! "$?" = 0 ] || [ "$VIGILANT" ] )
     then
       jshdepwiz gendeps "$SCRIPT"
       EXT_DEPS=`extractdep "$SCRIPT" ext-depends`
@@ -150,9 +155,10 @@ case "$1" in
     NEW_EXT_DEPS=`echo "$FOUND_EXT_DEPS" | tr ' ' '\n' | grep -v "$SORTED_EXT_DEPS"`
     # echo "# jsh-depends-tocheck: + $NEW_JSH_DEPS" >&2
     # echo "# jsh-ext-depends-tocheck: + $NEW_EXT_DEPS" >&2
-    if [ "$JSH_DEPS" = "" ]
+    # [ "$NEW_JSH_DEPS" = "" ] && echo "`cursemagenta`jshdepwiz: No new dependencies found in $SCRIPT`cursenorm`" >&2
+    if [ "$NEW_JSH_DEPS" = "" ]
     then
-      echo "`cursemagenta`jshdepwiz: No new dependencies found in $SCRIPT`cursenorm`" >&2
+      adddeptoscript "$REALSCRIPT" depends ""
     fi
     for DEP in $NEW_JSH_DEPS
     do

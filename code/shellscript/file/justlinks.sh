@@ -1,3 +1,4 @@
+# jsh-depends: absolutepath takecols
 if test "$1" = ""; then
   echo "justlinks <symlinks>"
   echo "  or"

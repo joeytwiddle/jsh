@@ -1,3 +1,4 @@
+# jsh-depends: absolutepath isabsolutepath justlinks filename
 # Basically an implementation of realpath(1,3) in sh.
 
 # Apparently dodgy?

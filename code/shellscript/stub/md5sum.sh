@@ -1,3 +1,4 @@
+# jsh-depends: jwhich cksum
 MD5SUM=`jwhich md5sum`
 if test -x "$MD5SUM"
 then

@@ -1,3 +1,5 @@
+# jsh-depends: unj endswith filename newer
+# jsh-depends-ignore: jsh
 ## cksum caching, re-checked when file is newer than cached cksum
 ## Unfortaunetly at the moment it doesn't provide any speed increase,
 ## at least in the presence of a small proportion of small files.

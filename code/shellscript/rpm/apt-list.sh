@@ -1,3 +1,5 @@
+# jsh-depends-ignore: arguments pkgversions
+# jsh-depends: cursemagenta cursenorm memo removeduplicatelines takecols jdeltmp jgettmp drop error
 cd / # for memoing
 
 # if [ "$1" = -refresh ]

@@ -1,3 +1,4 @@
+# jsh-depends: afterlast
 basename "$1"
 exit
 
