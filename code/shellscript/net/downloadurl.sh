@@ -1,6 +1,6 @@
-if `jwhich -quietly wget`
+if `jwhich wget -quietly`
 then wget -O - "$@"
-elif `jwhich -quietly lynx`
+elif `jwhich lynx -quietly`
 then lynx -source "$@"
 else
 	error "downloadurl: neither wget nor lynx present, no telnet implemented."
