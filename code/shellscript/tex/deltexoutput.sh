@@ -1,13 +1,14 @@
 BADEXTS="bbl aux log blg" # dvi
 
 # find
-COM="find ."
+GREPFOR="\.("
 FIRST=true
 for X in $BADEXTS; do
 	if test $FIRST; then FIRST=; else
-		COM="$COM -or"
+		GREPFOR="$GREPFOR|"
 	fi
-	COM="$COM -name *.$X"
+	GREPFOR="$GREPFOR$X"
 done
+GREPFOR="$GREPFOR)\$"
 
-$COM
+find . -type f | egrep "$GREPFOR"
