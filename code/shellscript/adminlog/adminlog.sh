@@ -23,16 +23,30 @@ if test "$1" = "add"; then
 
 fi
 
+(
+
+echo
 printf "\033[00;32m" # green
 printf "Welcome to neuralyte.  "
 printf "\033[00;36m" # cyan
 printf "Here follows the adminlog:"
 echo
+echo
 
 printf "\033[00m" # normal
 tail -15 $LOGFILE
 
+echo
 printf "\033[00;36m" # cyan
-echo "To add to the admin log, run adminlog."
+echo "To add to the admin log, type: adminlog add"
+echo "The full log is available from: $LOGFILE"
 
 printf "\033[00m" # normal
+echo
+
+) | if test "$1" = "add"; then
+	cat > /etc/motd
+	cat /etc/motd
+else
+	cat
+fi
