@@ -36,6 +36,7 @@ highlight -bold '^[ 	][ 	]*>\(.*\| .*\|	.*\|\)$' green | ## eh?!
 ## I see no way of fixing this which breaks often, even by matching ~ COLUMNS/2 chars because diff -sbs outputs TABS!
 ## We could demand only one '|' on the entire line (or maybe an odd number!), which would drop all false positives (many), but also a few (fewer) true positives.
 ## i have changed following since writing above:
+## Now it colours very likely changed line in bright yellow, and maybe changed lines in dark yellow.
 highlight -bold "^.*$WSC$WSC|$WSC$WSC.*$" yellow |
 highlight "^.*$WSC|$WSC.*$" yellow |
   ##                \\ should we have 1 or 2 spaces here?  1 matches lots of false +ves in files, but 2 fails to match changed lines which are so long they leave no space.  :-(

@@ -23,4 +23,4 @@ fi
 ## Big Courier:
 # FONT='-adobe-courier-medium-r-normal-*-*-140-*-*-p-*-iso8859-2'
 
-echo $ARGS +sb -sl 5000 -vb -si -sk -bg black -fg white -font "$FONT" "$@"
+echo $ARGS $GEOM +sb -sl 5000 -vb -si -sk -bg black -fg white -font "$FONT" "$@"

@@ -1,3 +1,4 @@
+# jsh-depends: notindir chop endswith startswith jdeltmp jgettmp pipeboth treevim
 # [ "$DEBUG" ] && . importshfn debug
 
 ## Scans folds in one forwards pass, so would not do well at:
@@ -42,6 +43,7 @@ TMPFILE=`jgettmp common`
 
 regexpescape () {
 	## Escapes the special regexp chars in a plain string so it can appear as a plain string in a regexp expression.
+	## More TODO I'm sure!
 	sed '
 		s+\[+\\\\[+g
 		s+\.+\\\\.+g
