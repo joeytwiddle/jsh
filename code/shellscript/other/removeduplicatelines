@@ -8,6 +8,8 @@
 
 ## TODO: at some point check whether sort's -u option might make removeduplicatelines or keepduplicatelines or something else faster...
 
+## Also see: uniq(1)
+
 if [ "$1" = "--help" ]
 then
   # outputs the set of lines from stdin or <files>, sorted, with duplicates removed.

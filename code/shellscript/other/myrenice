@@ -3,5 +3,6 @@ sed 's+^+# +'
 
 echo -n "renice $1 -p"
 findjob $2 | grep -v renice |
+striptermchars |
 awk ' { printf($3" ") } '
 echo

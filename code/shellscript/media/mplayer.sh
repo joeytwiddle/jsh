@@ -2,8 +2,8 @@ killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
 
 # -stop_xscreensaver"
 # OPTS="-vo xv" ## my preference: allows me to adjust contrast!
-# OPTS="-vo x11" ## for Morphix
-OPTS="-vo sdl" ## for Morphix in case the machine is slow (not so pretty)
+OPTS="-vo x11" ## for Morphix
+# OPTS="-vo sdl" ## good if the machine is slow (but not so pretty)
 # OPTS="-vo xv"
 if test "$1" = "-turbo"
 then

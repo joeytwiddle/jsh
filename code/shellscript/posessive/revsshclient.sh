@@ -44,17 +44,28 @@ then
 elif [ "$1" = -wait ]
 then
 
-	HOST="$2"; shift; shift
+	TARGETHOST="$2"; shift; shift
 	
-	echo "Waiting for a fresh connection to $HOST"
+	echo "Waiting for a fresh connection to $TARGETHOST"
 	echo "TODO: you have to touch the .on file before this is worthwhile."
+
+	touch /tmp/revssh-host-$TARGETHOST.on
 
 	while true
 	do
-		OLD=`memo ls "/tmp/revssh-client-output-$HOST*" 2>/dev/null`
-		NOW=`rememo ls "/tmp/revssh-client-output-$HOST*" 2>/dev/null`
-		KILLRE=`echo "$OLD" | list2regexp`
-		NEW=`echo "$NOW" | grep -v "$KILLRE"`
+		# OLD=`memo ls "/tmp/revssh-client-output-$TARGETHOST*" 2>/dev/null`
+		# NOW=`rememo ls "/tmp/revssh-client-output-$TARGETHOST*" 2>/dev/null`
+		# OLD=`memo ls "/tmp/revssh-client-output-$TARGETHOST*"`
+		# NOW=`rememo ls "/tmp/revssh-client-output-$TARGETHOST*"`
+		OLD=`memo   ls /tmp | grep "revssh-client-output-$TARGETHOST"`
+		NOW=`rememo ls /tmp | grep "revssh-client-output-$TARGETHOST"`
+		if [ "$OLD" ]
+		then
+			KILLRE=`echo -n "$OLD" | list2regexp`
+			NEW=`echo "$NOW" | grep -v "$KILLRE"`
+		else
+			NEW="$NOW"
+		fi
 		echo "--------------------------------"
 		echo "$OLD"
 		echo "------------------"
@@ -69,13 +80,16 @@ then
 	SESSID=`echo "$NEW" | head -1 | afterlast - | beforefirst "\."`
 
 	echo "OK, joining session: $SESSID"
-	echo "You may want to: rm /tmp/revssh-host-$HOST.on"
+	echo "You may want to: rm /tmp/revssh-host-$TARGETHOST.on"
 	echo
+
+	rm /tmp/revssh-host-$TARGETHOST.on ## Neat =)
 
 	revsshclient -join "$SESSID"
 
 else
 
+	ls -l /tmp/revssh-host-*.off | dropcols 1 2 3 4
 	echo "The following hosts have tried to initiate revssh sessions:"
 	ATTEMPTS=`ls /tmp/revssh-host-*.off | sed 's+^/tmp/revssh-host-++;s+\.off$++'`
 	echo "$ATTEMPTS" | indent
@@ -88,24 +102,29 @@ else
 		## Move is not possible since .off file was created by the www user (cgi)
 		# sed 's+\(.*\)+mv /tmp/revssh-host-\1.off /tmp/revssh-host-\1.on+' |
 		indent
-	fi
-
-	SESSID="$1"
-	if [ ! "$SESSID" ]
-	then
-		echo
-		if ! ls -l /tmp/revssh-client-input-*.txt
-		then
-			echo "There are no open connections at this time."
-			exit 1
+		echo "Which box do you want to join?"
+		read TARGETHOST
+		if [ "$TARGETHOST" ]
+		then revsshclient -wait "$TARGETHOST"
 		fi
-		echo "Choose which session to join:"
-		ls /tmp/revssh-client-input-*.txt |
-		sed "s+^/tmp/revssh-client-input-++;s+\.txt$++" |
-		indent
-		read SESSID
 	fi
 
-	revsshclient -join "$SESSID"
+	# SESSID="$1"
+	# if [ ! "$SESSID" ]
+	# then
+		# echo
+		# if ! ls -l /tmp/revssh-client-input-*.txt
+		# then
+			# echo "There are no open connections at this time."
+			# exit 1
+		# fi
+		# echo "Choose which session to join:"
+		# ls /tmp/revssh-client-input-*.txt |
+		# sed "s+^/tmp/revssh-client-input-++;s+\.txt$++" |
+		# indent
+		# read SESSID
+	# fi
+
+	# revsshclient -join "$SESSID"
 
 fi

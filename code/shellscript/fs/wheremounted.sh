@@ -1,3 +1,4 @@
+# jsh-ext-depends: sort realpath
 # jsh-depends: takecols drop realpath
 DIR=`realpath "$1"`
 

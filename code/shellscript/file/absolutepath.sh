@@ -1,3 +1,4 @@
+# jsh-ext-depends-ignore: file
 # jsh-depends: isabsolutepath
 if test "$1" = ""; then
   echo "absolutepath <file>"

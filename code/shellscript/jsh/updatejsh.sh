@@ -16,7 +16,7 @@ then
 	then
 		echo "Updating .rc scripts in $JPATH/code/home from CVS"
 		cd "$JPATH/code/home/"
-		cvsupdate -AdP
+		cvsupdate -AdP || exit
 		echo
 		if [ -f "$JPATH/code/home/.linkhome_auto" ]
 		then

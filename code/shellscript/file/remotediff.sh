@@ -18,12 +18,15 @@
 
 rsyncdiffdoc () {
 cat << !
+
 rsyncdiff - a special diff command for remotediff which lets you edit a set of recommended file transfers and then performs them =)
-  The remote machine must have find and cksum but doesn\'t need anything else.
+
   rsyncdiff presents a list of files, with the words send / bring / diff beside them.
   Delete the lines for actions you do not wish to perform, or edit them, then save and exit and the transfers will take place.
   Files for diffing will be brought locally, and the extension .from-<host> will be added.  That is all.
   You then need to type your password twice more for the transfers.  (TODO: these could be merged into one, but I wonder if we could keep the earlier ssh session open and reattach to it... )
+  The remote machine must have find and cksum but doesn\'t need anything else.  Oh maybe it does need tar.
+
   TODO: We never actually create any diff lines, although the user can change the command.
         diff could be recommended for files present on both machines.
 !
@@ -210,6 +213,8 @@ if test ! $2 # --help
 then
 	echo
 	echo "remotediff [ -diffcom <diff_command> ] <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
+	echo
+	echo "  shows the difference between local and remote directory trees, and optionally syncs differences."
 	echo
 	echo "Supported diff commands: (may alternatively be provided in \$DIFFCOM)"
 	echo

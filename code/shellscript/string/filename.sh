@@ -1,3 +1,4 @@
+# jsh-ext-depends: sed basename
 # jsh-depends: afterlast
 basename "$1"
 exit

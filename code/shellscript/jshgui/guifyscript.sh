@@ -1,3 +1,4 @@
+# jsh-depends: xterm error
 if [ "$1" = -inxterm ]
 then
 

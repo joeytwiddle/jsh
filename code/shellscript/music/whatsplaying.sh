@@ -15,7 +15,7 @@ fi
 	# grep -v "\(/tmp\|/dev/null\|/usr/bin/xmms\|/dev/dsp.\|/dev/pts.\|/dev/pts..\|pipe\|socket\|/\|/tmp/xmms_[^ ]*\)$" |
 
 	## Positive match:
-	grep -i '\.\(mp3\|ogg\)$' |
+	grep -i '\.\(mp3\|ogg\|avi\|mov\|bin\|wav\|pcm\|raw\|mpg\|mpeg\|rm\|wmv\)$' |
 
 	# pipeboth |
 

@@ -14,6 +14,7 @@ then
 		then JPATH="/NOT/LIKELY"
 		fi
 
+		[ ! "$USER" ] && USER="$UID"
 		for TOPTMP in "$TMPDIR" "/tmp/jsh-$USER" "$JPATH/tmp" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
 		do
 

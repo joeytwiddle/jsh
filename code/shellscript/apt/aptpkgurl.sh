@@ -1,3 +1,5 @@
+## This is much quicker than apt-get, but of course it doesn't resolve dependencies.
+
 ## TODO: offer alternative mode, which uses debian website's package search
 ##       and find URLs for package sources that way, without requiring local apt source cache.
 

@@ -1,3 +1,5 @@
+# jsh-ext-depends-ignore: clip
+# jsh-ext-depends: dirname mencoder
 VIDEOFILE="$1"
 CLIPMARKERFILE=/tmp/clipmarkers.txt
 

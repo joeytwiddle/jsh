@@ -1,3 +1,4 @@
+# jsh-ext-depends: basename dirname
 ## An implementation of realpath(1,3) in sh.
 ## Finds absolute path of given filename (by following all symlinks in path, from leaf to root).
 

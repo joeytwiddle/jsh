@@ -1,4 +1,7 @@
 #!/bin/sh
+# jsh-ext-depends-ignore: from file cvs
+# jsh-ext-depends: sed basename dirname realpath
+# jsh-depends-ignore: reclaimspace
 # jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted
 
 ## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash

@@ -1,3 +1,4 @@
+# jsh-ext-depends: sed
 # sed "s+\\+\\\\+g;s+\n+\\n+g" |
 # sed "s+.*$1++" |
 # sed "s+\\n+

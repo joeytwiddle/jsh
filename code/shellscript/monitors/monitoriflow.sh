@@ -7,11 +7,11 @@
 
 ## Needed to use bc because expr cannot process floating point, but alternatively could have tried awk or perl.
 
-if [ ! "$1" ] || [ "$1" = --help ]
+if [ "$1" = --help ]
 then
 cat << !
 
-monitoriflow [ -tc <qdisc_num> ] [ <interface> ]
+monitoriflow [ -window <seconds> ] [ -tc <qdisc_num> ] [ <interface> ]
 
   will display incoming, outgoing and total average bytes per second
   travelling over the specified interface (or eth1 by default).
@@ -39,6 +39,13 @@ getbytestc () {
 	takecols 2 # | pipeboth
 }
 
+WINDOW=30
+if [ "$1" = -window ]
+then
+	WINDOW="$2"
+	shift; shift
+fi
+
 GETBYTESIO=getbytesifconfig
 if [ "$1" = -tc ]
 then
@@ -46,14 +53,18 @@ then
 	DISCNUM="$2"
 	shift; shift
 	if [ ! "$DISCNUM" ]
-	then error "You must also provide a <qdisc_num>"; exit
+	then error "You must also provide a <qdisc_num>"; exit 2
 	fi
 fi
 
 if [ "$1" ]
 then IFACE="$1"
 # else IFACE=ppp0
-else IFACE=eth1
+else
+	IFACE=eth1
+	if ! /sbin/ifconfig $IFACE > /dev/null
+	then IFACE=eth0
+	fi
 fi
 
 SLEEPFOR=1
@@ -62,11 +73,15 @@ FIRSTRUN=true
 
 ## Check the interface is up:
 if ! /sbin/ifconfig $IFACE > /dev/null
-then exit
+then
+	error "Interface $IFACE does not exist."; exit 3
 fi
 
 while true
 do
+
+	wait
+	sleep $SLEEPFOR &
 
 	# $GETBYTESIO | read NEWIN NEWOUT
 	NEWIN=`$GETBYTESIO | takecols 1`
@@ -92,9 +107,14 @@ do
 		BPSIN=`echo "scale=0; $DIN.0 / $DTIME" | bc`
 		BPSOUT=`echo "scale=0; $DOUT.0 / $DTIME" | bc`
 
-		echo "$BPS bps ($BPSIN in, $BPSOUT out, over $DTIME"s")"
-		if [ $SLEEPFOR -lt 32 ]
-		then SLEEPFOR=`expr $SLEEPFOR '*' 2`
+		if [ "$BPS" -lt 0 ]
+		then echo "Readings obscured by counter rollover" >&2
+		else echo "$BPS bps ($BPSIN in, $BPSOUT out, over $DTIME"s")"
+		fi
+
+		SLEEPFOR=`expr $SLEEPFOR '*' 2`
+		if [ $SLEEPFOR -gt "$WINDOW" ]
+		then SLEEPFOR="$WINDOW"
 		fi
 
 	fi
@@ -103,7 +123,5 @@ do
 	OLDIN="$NEWIN"
 	OLDOUT="$NEWOUT"
 	OLDTIME="$NEWTIME"
-
-	sleep $SLEEPFOR
 
 done

@@ -38,7 +38,7 @@ shift
 if [ "$1" = "do" ]
 then shift
 fi
-COMMANDONCHANGE="$*"
+COMMANDONCHANGE="eval $*"
 COMPFILE=`jgettmp onchange`
 # COMPFILE="$JPATH/tmp/onchange.tmp"
 touch "$COMPFILE"

@@ -1,5 +1,4 @@
 DELAY=1
-
 [ "$1" = -delay ] && DELAY="$2" && shift && shift
 
 while true

@@ -5,18 +5,16 @@ mkdir -p "$HOME/Desktop" || exit 123
 
 ## Because we go in reverse; we need to get the last letter!
 cat /etc/fstab | grep "^/dev/hd" |
-while read DEVICE MNTPOINT FSTYPE OPTIONS DUMP PASS
-do LETTER=`echo "$LETTER" | tr " $LETTERS" "$LETTERS"`
-done
-
-cat /etc/fstab | grep "^/dev/hd" |
+while read LINE
+do
+	echo "$LETTER $LINE"
+	LETTER=`echo "$LETTER" | tr " $LETTERS" "$LETTERS"`
+done |
 
 reverse |
 
-while read DEVICE MNTPOINT FSTYPE OPTIONS DUMP PASS
+while read LETTER DEVICE MNTPOINT FSTYPE OPTIONS DUMP PASS
 do
-
-	LETTER=`echo "$LETTER" | tr "$LETTERS" " $LETTERS"`
 
 	if [ -d "$MNTPOINT" ]
 	then

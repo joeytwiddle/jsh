@@ -1,3 +1,5 @@
+## watchwebpages could watch whole website, but it would have to use -mirror or something (really only html wanted)
+
 ### Configuration and command-line argument parsing
 
 URLFILE="$HOME/.jsh-watchwebpages/urlstowatch.list"

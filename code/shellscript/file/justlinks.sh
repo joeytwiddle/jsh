@@ -1,3 +1,5 @@
+# jsh-ext-depends-ignore: symlinks
+# jsh-ext-depends: sed dirname
 # jsh-depends: absolutepath takecols
 if test "$1" = ""; then
   echo "justlinks <symlinks>"

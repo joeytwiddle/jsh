@@ -1,3 +1,7 @@
+# jsh-ext-depends-ignore: savelog file
+# jsh-ext-depends: gzip tar cmp
+# jsh-depends: del
+# jsh-depends-ignore: after before
 ## TODO: What's that oldMEGA business?  Is it kosha?
 ## TODO: Instead of moving, or deleting, original file, sometimes it may be better to echo -n into it.  (inode business)
 ## TODO: auto -nozip for all zip files!  (or files which compress badly, ie. compressed in any way, eg. au, vid)
