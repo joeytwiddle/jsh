@@ -14,7 +14,17 @@ if test "_$*" = "_"; then
   exit 1
 fi
 
+# N=1;
+# while test ! "x$[$N]" = "x"; do
+	# GET="x=$[$N]"
+	# $GET
+	# x=[$N];
+	# x=$(N);
+	# echo "x=$x"
+	# N=$[$N+1];
+
 for x in $*; do
+
   # if ! there $x ]; then
   if test ! -e $x; then
     echo "$x does not exist!"
@@ -71,6 +81,11 @@ for x in $*; do
       # mv -f "$y" "$DEST"   # (see above)
       echo "$x -> $DEST/$y"
       mv -f "$x" "$DEST/$y"
+
+			# Remove from CVS
+			if test -d "$SRCDIR/CVS"; then
+				cvs remove $x
+			fi
 
     fi
   fi

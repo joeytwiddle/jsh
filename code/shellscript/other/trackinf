@@ -1,1 +1,1 @@
-$JPATH/install/audiovideo/cddb/cd-discid-0.5/cd-discid /dev/cdrom
+cd-discid /dev/cdrom

@@ -5,6 +5,6 @@ echo "$SIZE: "`filename "$TRACK"`" ("`dirname "$TRACK"`")"
 MP3INFO=`mp3info "$TRACK"`
 echo "$MP3INFO"
 # mp3info "$TRACK"
-echo "'rm' "'"'"$TRACK"'"'
+echo "del "'"'"$TRACK"'"'
 /usr/bin/time -f "%e seconds ( Time: %E CPU: %P Mem: %Mk )" playmp3andwait "$TRACK"
 echo "--------------------------------------"

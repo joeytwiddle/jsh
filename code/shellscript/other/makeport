@@ -49,3 +49,4 @@ mv -f hwiport.tgz "$DESTDIR"
 cp -f $JPATH/code/shellscript/installj.sh "$DESTDIR"
 echo
 echo Port created in $DESTDIR
+

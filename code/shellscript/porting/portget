@@ -31,7 +31,7 @@ find $1 -size 7 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp
 forall -stealth in $JPATH/portmp/tmp.portget -filesonly do cp "\"%w\"" "\"$PORTMP/$1\""
 
 # Get subdirs (off)
-# The grep skip this dir $1, and all .* dirs $1/.*
-find "$1" -type d -maxdepth 1 | ungrep "^$1$" | ungrep "^$1/\." > $JPATH/tmp/portmp1.txt
+# The grep skip this dir $1, and all .* dirs $1/.* and CVS dir
+find "$1" -type d -maxdepth 1 | ungrep "^$1$" | ungrep "^$1/\." | ungrep "CVS" > $JPATH/tmp/portmp1.txt
 # more $JPATH/tmp/portmp1.txt
 forall -stealth -dirsonly in $JPATH/tmp/portmp1.txt do portget "\"%w\"" $2 $PWD
