@@ -14,7 +14,7 @@ echo
 ls
 echo
 
-ls *.exe *.EXE |
+find . -name "*.exe" -or -name "*.EXE" |
 while read X; do
 
 	curseyellow
@@ -24,15 +24,17 @@ while read X; do
 	cursegrey
 
 	sleep 2
-	curseblue
 	(
+	curseblue
 		killall wine.bin
 		killall wineserver
 		del $HOME/.wine/wineserver-*
-	)
 	cursegrey
+	) > /dev/null
 	sleep 1
-	findjob wine | grep -v "\.sh"
+	findjob wine |
+	grep -v "$JPATH/tools/" |
+	grep -v "xterm"
 	sleep 1
 
 	curseyellow

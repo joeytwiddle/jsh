@@ -10,10 +10,10 @@
 # FILES="$@"
 
 if test "$1x" = "x"; then
-  echo "del [-cvs] <files>"
-  echo "will move <files> to $JPATH/trash/"
-  echo "and optionally (-cvs) remove them from CVS too."
-  exit 1
+	echo "del [-cvs] <files>"
+	echo "will move <files> to $JPATH/trash/"
+	echo "and optionally (-cvs) remove them from CVS too."
+	exit 1
 fi
 
 DOCVS=
@@ -35,58 +35,62 @@ while test "$1"; do
 	x="$1"
 	shift
 
-  # if ! there $x ]; then
-  if test -f "$x" || test -d "$x"; then
+	# if ! there $x ]; then
+	if test -f "$x" || test -d "$x"; then
 
-    # Work out source => destination directory
-    # SRCDIR=$PWD;
-    # This goes wrong if $x starts with "/" or "."
-    if isabsolutepath $x; then
-      SRCDIR=`dirname "$x"`
-    else
-      SRCDIR=`dirname "$PWD/$x"`
-    fi
-    # echo "$SRCDIR"
-    if test "x$SRCDIR" = "x."; then
-      echo "Unexpected: SRCDIR=."
-      SRCDIR=$PWD
-    fi
-    DEST="$JPATH/trash$SRCDIR"
+		# Work out source => destination directory
+		# SRCDIR=$PWD;
+		# This goes wrong if $x starts with "/" or "."
+		if isabsolutepath $x; then
+			SRCDIR=`dirname "$x"`
+		else
+			SRCDIR=`dirname "$PWD/$x"`
+		fi
+		# echo "$SRCDIR"
+		if test "x$SRCDIR" = "x."; then
+			echo "Unexpected: SRCDIR=."
+			SRCDIR=$PWD
+		fi
+		DEST="$JPATH/trash$SRCDIR"
 
-    # Create destination directory
-    while test -f "$DEST"; do
-      echo "$DEST is a file - using $DEST.dir"
-      DEST="$DEST.dir"
-    done
-    mkdir -p "$DEST"
-    if test ! -d "$DEST"; then
-      echo "del: problem creating destination directory $DEST"
-      echo "del: $x not moved to trash"
-      # exit 1
-    else
+		# Create destination directory
+		while test -f "$DEST"; do
+			echo "$DEST is a file - using $DEST.dir"
+			DEST="$DEST.dir"
+		done
+		mkdir -p "$DEST"
+		if test ! -d "$DEST"; then
+			cursered
+			cursebold
+			echo "del: problem creating destination directory $DEST"
+			echo "del: $x not moved to trash"
+			cursegrey
+			waitforkeypress
+			# exit 1
+		else
 
-      # Work out destination filename
-      # y=`echo $x | filename` # this also adds ' '!
-      y=`filename "$x"`   # or y=`echo $x | filename`
-      # echo ">$y<"
-      
-      # $x is as given, $SRCDIR/$y is absolute
-      # if test ! "_$SRCDIR/$y" = "_$x"; then
-      #   echo "Warning: $SRCDIR/$y != $x"
-      #   exit 1
-      # fi
-      
-      # This used to go wrong if $y is a dir ending in "/"
-      while test -f "$DEST/$y" -o -d "$DEST/$y"; do
-        # echo "$y already in trash - writing $y.new"
-        # mv "$y" "$y.new"   # required with $y $DEST below:   # now broken - needs $SRCDIR ?
-        y="$y.new"
-      done
+			# Work out destination filename
+			# y=`echo $x | filename` # this also adds ' '!
+			y=`filename "$x"`   # or y=`echo $x | filename`
+			# echo ">$y<"
+			
+			# $x is as given, $SRCDIR/$y is absolute
+			# if test ! "_$SRCDIR/$y" = "_$x"; then
+			#   echo "Warning: $SRCDIR/$y != $x"
+			#   exit 1
+			# fi
+			
+			# This used to go wrong if $y is a dir ending in "/"
+			while test -f "$DEST/$y" -o -d "$DEST/$y"; do
+				# echo "$y already in trash - writing $y.new"
+				# mv "$y" "$y.new"   # required with $y $DEST below:   # now broken - needs $SRCDIR ?
+				y="$y.new"
+			done
 
-      # Move it and report =)
-      # mv -f "$y" "$DEST"   # (see above)
-      echo "$x -> $DEST/$y"
-      mv -f "$x" "$DEST/$y"
+			# Move it and report =)
+			# mv -f "$y" "$DEST"   # (see above)
+			echo "$x "`cursegreen`"->"`cursegrey`" $DEST/$y"
+			mv -f "$x" "$DEST/$y"
 
 			# Remove from CVS
 			if test $DOCVS; then
@@ -95,16 +99,19 @@ while test "$1"; do
 					if test "$?" = "0"; then
 						echo "Removed from CVS"
 					else
+						cursered
+						cursebold
 						echo "Error with CVS"
+						cursegrey
 					fi
 				fi
 			fi
 
-    fi
+		fi
 
-  else
-    echo "del: does not exist: $x"
-  fi
+	else
+		echo "del: does not exist: $x"
+	fi
 done
 
 # echo "mkdir -p $JPATH/trash/$PWD/"

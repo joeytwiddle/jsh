@@ -186,6 +186,8 @@ bindkey "^v" kill-word
 # there is no vi-kill-word so we fake it
 # approximation
 bindkey -s "^b" "^f^x"
+# And to keep inline:
+bindkey -s "^z" "^d^v"
 # no good:
 # bindkey -s "^v" "^f^x ^[[D"
 

@@ -7,7 +7,7 @@ while read X; do
 
 	echo "$X"
 
-	`jwhich xterm` -fg white -bg black -e wineonedemo "$X"
+	`jwhich xterm` -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
 	# wineonedemo "$X"
 
 done
