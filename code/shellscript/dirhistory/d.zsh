@@ -13,22 +13,25 @@ NEWDIR="$*"
 # Record where we are for b and f sh tools
 echo "$PWD" >> $HOME/.dirhistory
 
-if test -d "$NEWDIR"; then
+if [ -d "$NEWDIR" ]
+then
 
 	# The user specified a directory, plain and simple.
-
 	'cd' "$NEWDIR"
 
-elif test "$NEWDIR" = ""; then
+elif [ "$NEWDIR" = "" ]
+then
 
 	# If I own the directory above ~, I prefer 'cd' to take me there.
-	if test `filename "$HOME"` = "$USER"; then
+	if [ `filename "$HOME"` = "$USER" ]
+	then
 		'cd' "$HOME"
 	else
 		'cd' "$HOME/.."
 	fi
 
-elif test `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = "found"; then
+elif [ `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = found ]
+then
 
 	# The user asked for: cd ..... (...)
 
@@ -50,20 +53,21 @@ else
 
 	# Problem: 'ls' does not seem to override fakels alias on Solaris :-(
 	NEWLIST=`
-		# maxdepth does not work for Unix find!
-		# find "$LOOKIN" -maxdepth 1 -name "$LOOKFOR*" |
 		'ls' -d "$LOOKIN/$LOOKFOR"* |
-		while read X; do
-			if test -d "$X"; then
-				echo "$X"
+		while read X
+		do
+			if [ -d "$X" ]
+			then echo "$X"
 			fi
 		done
 	` 2> /dev/null
 
-	if test "$NEWLIST" = ""; then
+	if [ "$NEWLIST" = "" ]
+	then
 		# No directory found
-		echo "X"`cursered;cursebold`" $LOOKIN/$LOOKFOR*"`cursenorm`
-	elif test `echo "$NEWLIST" | countlines` = "1"; then
+		echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" # beep
+	elif [ `echo "$NEWLIST" | countlines` = 1 ]
+	then
 		# One unique dir =)
 		echo ">"`curseyellow`" $NEWLIST"`cursenorm`
 		'cd' "$NEWLIST"
@@ -76,5 +80,3 @@ else
 fi >&2
 
 xttitle "$SHOWUSER$SHOWHOST$PWD %% "
-
-# pwd >> $HOME/.dirhistory

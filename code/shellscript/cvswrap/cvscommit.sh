@@ -9,7 +9,8 @@ getfiles () {
 	# grep -v "^$" | grep -v "^#" |
 }
 
-export COLUMNS
+## If we can leave it out, it lets us resize during run:
+# export COLUMNS
 
 if test "$1" = "-diff"
 then
@@ -35,8 +36,11 @@ then
 		while true
 		do
 			# echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
-			echo "`curseyellow`Hit <E>dit, <V>imdiff, re-<D>iff, <Enter> to skip, or <.> or comment to commit.`cursenorm`"
+			# echo "`curseyellow`Type: comment or [.] to [C]ommit, <Enter> to [S]kip, [E]dit [V]imdiff [R]ediff." #  (.=\"\").`cursenorm`"
+			echo "`curseyellow`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
 			read INPUT
+			[ "$INPUT" = "" ] && INPUT=s
+			[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
 			case "$INPUT" in
 				e|E)
 					edit "$FILE"
@@ -44,15 +48,18 @@ then
 				v|V)
 					vimdiff "$FILE" $TMPFILE
 				;;
-				d|D)
+				r|R|d|D)
 					jdiff -infg $TMPFILE "$FILE" | more
 				;;
-				"")
+				s|S)
 					echo "`cursegreen`Skipping:`cursenorm` $FILE"
 					break
 				;;
-				"."|*)
-					[ "$INPUT" = "." ] && INPUT=""
+				?|??|???)
+					echo "Will not accept such a small comment - assuming user error."
+					break
+				;;
+				*)
 					echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
 					echo "`cursecyan`cvscommit -m \"$INPUT\" \"$FILE\"`cursenorm`"
 					cvscommit -m "$INPUT" "$FILE" ||
