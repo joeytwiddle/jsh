@@ -10,10 +10,12 @@ fi
 echo "Clearing existing links"
 "rm" -f $JPATH/tools/*
 
-if test ! "$1" = "-old" # || test ! "this" = "good"
+if test ! "$1" = "-old" && test "ifonly" = "itworked"
 then
 
 	## Faster
+
+	## Main (only) problem is that d.zsh gets ln'ed to d not d.zsh
 
 	echo "Linking"
 	(
