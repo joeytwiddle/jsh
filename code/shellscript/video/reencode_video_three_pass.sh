@@ -1,6 +1,23 @@
-## If you want a target size other than 700Mb, then you need to keep trying the script with different BITRATEs.
 ## After the first audio pass, you can rerun with SKIP_FIRST_PASS=true.
-## After a couple of minutes the first video pass will give an approximation of the final size of the video.
+
+if [ ! "$1" ] || [ "$1" = --help ]
+then
+cat << !
+
+reencode_video_three_pass <video_file>
+
+  No options at the moment, but you can pass the following variables:
+
+  SKIP_FIRST_PASS=anything   Set this if you have already done the audio pass
+                             (the frameno.avi file already exists from before).
+
+  BITRATE=<bps>              Set this to override the default bitrate (700MB),
+
+  TARGETSIZE=<megabytes>     or this to produce a final file of this many MB.
+
+!
+exit 1
+fi
 
 ## I wanted to make a script which would make it easy to reencode videos.
 ## I didn't really care to learn about mencoder's options and so on.
