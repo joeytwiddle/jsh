@@ -1,0 +1,3 @@
+#cp /mnt/filfirin/joey/code/c/phd/images/small/$1.bmp image.bmp
+cp /mnt/filfirin/joey/code/c/phd/images/$1.bmp original.bmp
+scale original.bmp image.bmp -s 0.5

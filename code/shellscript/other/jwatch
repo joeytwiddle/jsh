@@ -1,0 +1,15 @@
+$* > $JPATH/tmp/"new.$1"
+if test "x$JWATCHCOMPCOM" = "x"; then
+  JWATCHCOMPCOM="jfc simple oneway"
+fi
+sleep 1
+while [ true ]; do
+  mv $JPATH/tmp/"new.$1" $JPATH/tmp/"old.$1"
+  $* > $JPATH/tmp/"new.$1"
+  $JWATCHCOMPCOM $JPATH/tmp/"new.$1" $JPATH/tmp/"old.$1"
+  # diff $JPATH/tmp/"new.$1" $JPATH/tmp/"old.$1" | grep "^> "
+  sleep 5
+done
+# docheck
+# rm $JPATH/tmp/old.check
+# rm $JPATH/tmp/new.check

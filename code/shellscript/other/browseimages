@@ -1,0 +1,6 @@
+browsepics $@
+
+#echo "<html><body>" > images.html
+#forall -stealth $@ do echo "\<img src=\\%q%f\\%q\>\<br\>" >> images.html
+#echo "</body></html>" >> images.html
+#browse images.html &

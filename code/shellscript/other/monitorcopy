@@ -1,0 +1,5 @@
+SIZE=`du -sk $1 | awk ' { printf($1) } '`
+SOFAR=`du -sk $2 | awk ' { printf($1) } '`
+echo "So far, $SOFAR out of $SIZE has been copied"
+echo "Now showing proportion:"
+jrep du -sk $2 | awk ' { printf("\r"$1/'$SIZE'" ") } '

@@ -1,0 +1,2 @@
+echo "$@" > $JPATH/tmp/ctwquery.sql
+psql -f $JPATH/tmp/ctwquery.sql ctw

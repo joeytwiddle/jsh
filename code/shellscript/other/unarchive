@@ -1,0 +1,2 @@
+# forall -shell $@ do mkdir %s : cd %s : if : cd ..
+echo not written!

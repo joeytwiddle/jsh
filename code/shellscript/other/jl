@@ -1,0 +1,3 @@
+FILEPATH=`memo find $JPATH/code/java -name "$*.java"`
+# FILEPATH="$JPATH/code/java/jlib/"`echo "$1" | tr "." "/"`".java"
+editall "$FILEPATH" # this works?!

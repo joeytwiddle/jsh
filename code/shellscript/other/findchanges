@@ -1,0 +1,34 @@
+FOLLOW=""
+# FOLLOW="-follow"
+SEARCHDIRS="$JPATH/code/"
+# SEARCHDIRS="$JPATH/code/ $JPATH/tools/"
+
+if [ ! "$1" = "" ]; then
+  SEARCHDIRS="$@"
+fi
+
+# Find files newer than the record file uptodate.txt
+FINDCOM="find $SEARCHDIRS $FOLLOW -cnewer $JPATH/uptodate.txt"
+
+# From this list remove all
+#   .class files
+#   ,v revision files
+#   files in a /javadoc/ directory
+#   files in a hidden directory
+#   bitmaps
+LIST=` $FINDCOM | ungrep "\.class\$"   \
+                | ungrep "\,v$"        \
+                | ungrep "/javadoc/"   \
+                | ungrep "/\."         \
+                | ungrep "\.bmp$" `
+# latter \ in .class may be neglected as in .v
+# alternatively ,v and .bmp may use this \ !
+
+# Only report those files which are actually files
+# (not directories)
+for x in $LIST ; do
+  # if [ -f $x ]; then
+  if [ ! -d $x ]; then
+    echo "$x"
+  fi
+done

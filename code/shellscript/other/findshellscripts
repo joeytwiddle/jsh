@@ -1,0 +1,2 @@
+find /bin /sbin /etc /usr /home -follow -size 1 -perm -a+x # > $JPATH/tmp/ss.txt
+# forall in $JPATH/tmp/ss.txt do grepcount

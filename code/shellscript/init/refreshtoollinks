@@ -1,0 +1,34 @@
+# Symbolically link all relevant tools into $JPATH/tools/ directory
+# so that they may all be put in the path in one go!
+
+"rm" -f $JPATH/tools/**
+
+files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | grep -v "/.ignore/"`
+files="$files "`find $JPATH/code/java -name "*.sh"`
+for x in $files; do
+  #y=`echo $x | sed "s/\.sh$//"`
+  #if [ ! -e $y ]; then
+  #  ln -sf $x $y
+  #fi
+#  echo -e "$x ... \n"
+  ln -sf $x $JPATH/tools/
+done
+# ln -sf $files $JPATH/tools/
+
+cd $JPATH/tools
+
+# Rename any of those with .sh extensions to not have it!
+for x in `find . -name "*.sh"`; do
+  y=`echo $x | sed "s/\.sh$//"`
+  "rm" $y
+  mv -f $x $y
+done
+
+# Rename any of those with .hs extensions to not have it!
+for x in `find . -name "*.hs"`; do
+  y=`echo $x | sed "s/\.hs$//"`
+  "rm" $y
+  mv -f $x $y
+done
+
+refreshbintoollinks

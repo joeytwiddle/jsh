@@ -1,0 +1,8 @@
+# if test "$JWHICHOS" = "linux"; then
+#   /usr/bin/X11/gv -antialias "$@" &
+# else
+# LOCALgv=`jwhich gv`
+# runoneof "ghostview $LOCALgv" "$*" &
+# fi
+
+`jwhich ghostview` $* &

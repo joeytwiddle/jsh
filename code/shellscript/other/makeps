@@ -1,0 +1,2 @@
+anytopnm $1 > tmp.pnm
+pnmtops tmp.pnm $1.eps

@@ -1,0 +1,10 @@
+ARGS="$@"
+if [ "$ARGS" = "" ]; then
+  echo "setuid <file>"
+  echo "  Provides <file>'s group permission to execute <file> as root."
+  echo "  Only use this on secure and predictable programs!"
+  exit 1
+fi
+chown root $@
+chmod a-wrxs $@
+chmod ug+sx $@

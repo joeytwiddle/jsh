@@ -1,0 +1,4 @@
+grep $@ -c | grep ":0" -v | awk ' BEGIN { FS=":" }; { printf($1"\n"); } '
+#grep $1 * -r -c > /tmp/tmp.grep
+#grep ":0" -v /tmp/tmp.grep
+#rm /tmp/tmp.grep

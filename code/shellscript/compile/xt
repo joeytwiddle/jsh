@@ -1,0 +1,6 @@
+$JPATH/tools/x $1
+jwhere $1 &
+mv $1 $JPATH/bin
+chmod a+x $JPATH/bin/$1
+cd $JPATH/tools
+ln -sf ../bin/$1 .

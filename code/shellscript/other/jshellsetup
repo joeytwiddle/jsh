@@ -1,0 +1,103 @@
+MOZILLA_FIVE_HOME=/usr/local/mozilla
+export MOZILLA_FIVE_HOME
+
+echo -en "\033[01;37m"
+
+# echo "Running .jshellsetup"
+
+JPATH='/home/joey/j';
+export JPATH
+
+if [ -f ~/.bashrc ]; then
+	. ~/.bashrc
+fi
+
+PATH=.:$JPATH/tools:$PATH:$HOME/bin
+PATH=$PATH:/usr/local/jdk1.2.2/bin:/usr/local/enhydra3.0.1/bin
+#PATH=$PATH:$JPATH/install/CVIPHOME:$JPATH/install/CVIPHOME/CVIPTCL:$JPATH/install/CVIPHOME/bin
+BASH_ENV=$HOME/.bashrc
+USERNAME=""
+export USERNAME BASH_ENV PATH
+
+# PS1="(\h \t \u) \w/ ";
+# PS1="(\033[00;31m\h \033[00;34m\t \033[00;32m\u\033[00;00m) \w/ ";
+# PS1="(\h \033[00;34m\t\033[00;00m \u) \033[00;32m\w/\033[00;00m ";
+# PS1="(\033[01;36m\\h \t \u\033[00;00m) \033[01;32m\w/\033[00;00m ";
+# PS1="(\033[01;36m\\h \033[00;37m\t\033[01;36m \u\033[00m) \033[00;32m\w/\033[00m ";
+# PS1="\033[01;37m(\033[01;36m\\h \033[00;37m\t\033[01;36m \u\033[01;37m) \033[00;32m\w/\033[01;37m ";
+# PS1="\[\033[01;37m\](\[\033[01;36m\]\\h \[\033[00;37m\]\t\[\033[01;36m\] \u\[\033[01;37m\]) \[\033[00;32m\]\w/\[\033[01;37m\] ";
+# export PS1
+
+dircolors ~/.dircolors > ~/.lscols
+source ~/.lscols
+export LS_COLORS
+
+FIGNORE='.class';
+export FIGNORE
+
+#echo -e "\033[01;31m/\033[01;35m_\033[01;31m\\\\\   /\\"
+#echo -e "\033[01;31m\\ / \\\\\033[01;35m!\033[01;31m/ / \033[00;32mgreets thee"
+echo -en "\033[01;37m"
+
+xhost +
+
+$JPATH/tools/fortune
+$JPATH/tools/automount
+$JPATH/tools/newback
+# /usr/games/fortune
+
+CLASSPATH=./;
+# Java runtime environment:
+CLASSPATH=$CLASSPATH:/usr/local/jdk1.2.2/jre/lib/rt.jar;
+# Java tools (doclets):
+CLASSPATH=$CLASSPATH:/usr/local/jdk1.2.2/lib/tools.jar;
+# PostGreSQL:
+CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc6.5-1.1.jar;
+CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc6.5-1.2.jar;
+CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc7.0-1.1.jar;
+CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc7.0-1.2.jar;
+# Apache JServ:
+CLASSPATH=$CLASSPATH:/home/httpd/classes/servlet-2.0.jar;
+CLASSPATH=$CLASSPATH:/home/httpd/servlets/;
+# My code (jlib etc.):
+CLASSPATH=$CLASSPATH:$JPATH/code/java/;
+# Java3D:
+CLASSPATH=$CLASSPATH:/usr/local/jre1.2.2/jre/lib/ext/j3dutils.jar;
+# Inspector
+CLASSPATH=$CLASSPATH:$JPATH/install/lang/inspector;
+# Inspector
+CLASSPATH=$CLASSPATH:$JPATH/install/lang/jbeautifull.jar;
+export CLASSPATH
+
+JIKESPATH=$CLASSPATH;
+export JIKESPATH
+
+#CVIPHOME='$JPATH/install/CVIPHOME';
+#CVIP_IMGPATH='./';
+#CVIP_DISPLAY='picture';
+#TCL_LIBRARY='$JPATH/install/CVIPHOME/CVIPTCL/lib/tcl7.6';
+#TK_LIBRARY='$JPATH/install/CVIPHOME/CVIPTCL/lib/tk4.2';
+#XF_LOAD_PATH='$JPATH/install/CVIPHOME/CVIPTCL/GUI_SCRIPTS';
+#export CVIPHOME CVIP_IMGPATH CVIP_DISPLAY TCL_LIBRARY TK_LIBRARY XF_LOAD_PATH
+
+# Java Antlr
+#CLASSPATH=$JPATH/install/antlr-2.7.0/antlr
+#export CLASSPATH
+
+EDITOR=pico;
+export EDITOR
+
+# PostGreSQL
+PGLIB=/usr/lib/pgsql
+PGDATA=/home/postgres
+export PGLIB PGDATA
+
+# xscreensaver &
+
+domount
+
+HUGSFLAGS='-P/usr/local/share/hugs/lib/:$JPATH/install/hugs98/lib:$JPATH/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:$JPATH/code/hugs -E"pico +%d %s" +s';
+export HUGSFLAGS
+HUGSPATH='/usr/local/share/hugs/lib/:$JPATH/install/hugs98/lib:$JPATH/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:$JPATH/code/hugs';
+export HUGSPATH
+

@@ -1,0 +1,20 @@
+# d: change directory and record for b and f shell tools
+
+# Sometimes DESTDIR="$@" breaks under ssh!
+
+echo "You requested >$1<"
+
+DESTDIR="$1"
+
+echo "$PWD" >> $HOME/.dirhistory
+
+# echo "Doing cd $DESTDIR"
+# I think "cd" prevents aliasing
+if [ "$DESTDIR" = "" ]; then
+  "cd"
+else
+  'cd' /
+#  "cd" "$DESTDIR"
+fi
+
+# pwd >> $HOME/.dirhistory

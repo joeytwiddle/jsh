@@ -1,0 +1,10 @@
+echo Creating ports in $JPATH/out
+jport
+
+echo Copying ports to floppy
+mount /mnt/floppy/
+cd $JPATH/out
+# cp hwiport.tgz ctwport.tgz org.tgz tools.tgz /mnt/floppy/
+cp * /mnt/floppy/
+
+alluptodate

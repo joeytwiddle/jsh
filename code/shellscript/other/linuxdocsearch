@@ -1,0 +1,1 @@
+echo "http://www.linuxdoc.org/cgi-bin/ldpsrch.cgi?srch=$@"

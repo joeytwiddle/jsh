@@ -1,0 +1,2 @@
+cd $JPATH/code/c/tools/$1
+$JPATH/tools/xt $1

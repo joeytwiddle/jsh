@@ -1,0 +1,2 @@
+QUERY=`echo $@ | sed "s/ /+/g"`
+browseurl "http://www.cddb.com/php/search1.php3?f=artist&f=disc&f=track&q=$QUERY&image=Search"

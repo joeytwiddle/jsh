@@ -1,0 +1,1 @@
+echo "$@" | awk ' BEGIN { FS="/" } { printf($3"\n") } '

@@ -1,0 +1,3 @@
+echo recurse: $PWD
+$@
+forall -stealth * -dirsonly do "cd \"%w\" && recurse $@ && cd .."

@@ -1,0 +1,8 @@
+JLIB="$JPATH/code/java/jlib/*.java $JPATH/code/java/jlib/*/*.java"
+# CTW="$JPATH/code/java/changetheworld/*.java"
+# jikes $CTW |more
+jikes $* *.java $JLIB # |more
+# jikes $* *.java
+if [ "$?" = "0" ]; then
+  echo "OK"
+fi

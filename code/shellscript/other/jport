@@ -1,0 +1,25 @@
+echo Porting code
+makeport
+echo
+
+echo "Skipping port of changetheworld (java source will be ported with code anyway)"
+# echo "Porting changetheworld code, data, and html pages"
+# ctwport
+echo
+
+echo Porting org
+cd $JPATH/org
+tar cfzh $JPATH/out/org.tgz *
+# cp -r $JPATH/org /mnt/floppy/
+echo
+
+echo Porting $JPATH/tools
+cd $JPATH/tools
+tar cfz $JPATH/out/tools.tgz *
+echo
+
+echo Porting installation shells
+cp $JPATH/tools/installj $JPATH/out/installj.sh
+# cp $JPATH/tools/jshellsetup $JPATH/out/jshellsetup.sh
+# cp $JPATH/tools/jshellalias $JPATH/out/jshellalias.sh
+echo

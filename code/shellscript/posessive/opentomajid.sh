@@ -1,0 +1,1 @@
+setfacl -f $HOME/wantedfacl $*

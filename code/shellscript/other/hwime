@@ -1,0 +1,2 @@
+cp /home/joey/.bash_profile ~
+cp /home/joey/.bashrc ~

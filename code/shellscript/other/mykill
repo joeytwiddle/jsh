@@ -1,0 +1,17 @@
+#PIDS=`mykillps $@ | awk '{print $1}'`
+# PIDS=`ps -A | grep $@ | awk '{print $1}'`
+# PIDS=`findjob $@ | awk '{print $4}'`
+# for x in $PIDS; do echo "$x"; kill -s 9 $x; done
+#for x in $PIDS; do echo "$x"; kill -s KILL $x; done
+if test "$JWHICHOS" = "linux"; then
+  KILLCOM="kill -s KILL"
+elif test "$JWHICHOS" = "unix"; then
+  KILLCOM="kill -KILL"
+else
+  echo "mykill: Don't know OS, don't know command."
+  KILLCOM="kill -s KILL"
+fi
+for x in `mykillps $@ | awk '{printf($1"\n")}'`; do
+  echo $x
+  $KILLCOM $x
+done

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+case $1 in
+  up)
+    touch /var/hwi/orders/ensure-ip-up
+    ;;
+  down)
+    /bin/rm -f /var/hwi/orders/ensure-ip-up
+    ;;
+  *)
+    echo 'Do not know "$1"'
+    ;;
+esac

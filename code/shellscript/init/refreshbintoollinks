@@ -1,0 +1,6 @@
+cd "$JPATH/tools/"
+# "rm" *
+ln -sf ../bin/* .
+#FILES=`find "$JPATH/code/shellscript/" -name "*" | tr "\n" " "`
+#echo "$FILES"
+#ln -sf $FILES .

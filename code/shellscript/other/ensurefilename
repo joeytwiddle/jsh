@@ -1,0 +1,1 @@
+echo "$@" | sed "s/<//g" | sed "s/>//g" | sed "s/\///g" | sed "s/\\\\//g" | sed "s/\"//g" | sed "s/\?//g" | tr -d "\r"

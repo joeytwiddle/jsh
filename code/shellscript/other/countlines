@@ -1,0 +1,6 @@
+if test ! -e $*; then
+  echo 0
+else
+  awk ' END { print NR } '
+fi
+#X=0; cat $* | while read L; do X=$[$X+1]; done; echo "$X"

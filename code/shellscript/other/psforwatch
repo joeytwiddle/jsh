@@ -1,0 +1,2 @@
+ps --cols 160 -o pid,user,args -A | ungrep ps | ungrep ungrep | ungrep psforwatch | ungrep defunct | ungrep sleep | ungrep bash
+# "%p %u %a"

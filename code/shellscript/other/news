@@ -1,0 +1,6 @@
+READALL="-n"
+if [ "$1" = "all" ]; then
+  READALL=""
+fi
+tin $READALL -g news.cableinet.net
+# tin -n -g news.care4free.net

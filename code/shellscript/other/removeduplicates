@@ -1,0 +1,18 @@
+WORDSIN="$@"
+WORDS=""
+for WORD in $WORDSIN; do
+  GOT="false"
+  for X in $WORDS; do
+    if [ "$WORD" = "$X" ]; then
+      GOT="true"
+    fi
+  done
+  if [ "$GOT" = "false" ]; then
+    WORDS="$WORDS$WORD
+    "
+    # echo "Adding $WORD"
+  # else
+    # echo "Already got $WORD"
+  fi
+done
+echo "$WORDS"

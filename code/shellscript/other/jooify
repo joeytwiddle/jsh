@@ -1,0 +1,6 @@
+rm open/*
+mkdir open
+java -cp $JPATH/code/java/joo/ Main $1 $2 $3 $4 $5 $6 $7 $8 $9
+cp $JPATH/code/java/joo/Field.* open/
+cp $JPATH/code/java/joo/Joo.* open/
+cp $JPATH/code/java/joo/JooFrame* open/

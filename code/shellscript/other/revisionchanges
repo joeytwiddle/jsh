@@ -1,0 +1,2 @@
+cd /home/joey/j/code/c/joeylib
+forall *.c *.h do rcs -i -t-autostart %f : rcs -ajoey,root %f : ci -q -t-autochangeerror -mautochange %f : co -q %f -stealth

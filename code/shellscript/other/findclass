@@ -1,0 +1,15 @@
+echo "----- in JServ:"
+jar tf /home/httpd/classes/servlet-2.0.jar | grep $1
+echo "----- in Joey's code:"
+find $JPATH/code/java/jlib/ -name "*.class" | grep $1
+echo "----- in CTW:"
+find /home/httpd/servlets/ -name "*.class" | grep $1
+echo "----- in JDBC:"
+jar tf /usr/lib/pgsql/jdbc6.5-1.1.jar | grep $1
+jar tf /usr/lib/pgsql/jdbc6.5-1.2.jar | grep $1
+echo "----- in Java:"
+jar tf /usr/local/jdk1.2.2/jre/lib/rt.jar | grep $1
+echo "----- in Java3D:"
+cd /usr/local/jre1.2.2
+find . -name "*.jar" > $JPATH/tmp/tmp.txt
+forall in $JPATH/tmp/tmp.txt do "jar tf %w | grep $1"

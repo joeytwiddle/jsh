@@ -1,0 +1,1 @@
+find / -perm +a+s

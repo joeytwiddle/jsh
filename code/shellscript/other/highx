@@ -1,0 +1,4 @@
+newback
+cp /etc/X11/BigConfig /etc/X11/XF86Config
+# startx
+xinit $JPATH/tools/kde.xinit

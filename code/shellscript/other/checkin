@@ -1,0 +1,11 @@
+if [ -x -f RCS ]; then
+  mkdir RCS
+fi
+
+if [ ! -f RCS/$1,v ]; then
+  rcs -i -t-checkinstart $1
+  rcs -ajoey,root $1
+fi
+
+ci -mcheckinchange $1
+co $1

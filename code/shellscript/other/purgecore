@@ -1,0 +1,5 @@
+rm `locate core | grep "/core$"`
+
+# locate core | grep "/core$" > ~/purge.tmp
+# forall -shell in ~/purge.tmp do "/bin/rm" %w
+# "/bin/rm" ~/purge.tmp

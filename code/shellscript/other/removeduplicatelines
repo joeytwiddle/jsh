@@ -1,0 +1,24 @@
+# Doesn't work
+
+LINESIN=`cat $* | awk ' { printf("\""$_"\"\n"); } '`
+echo "$LINESIN"
+exit 1
+LINES=""
+for LINE in $LINESIN; do
+  for X in $LINES; do
+    echo 'Comparing "'$LINE'" "'$X'"'
+    GOT=""
+    if [ "$LINE" = "$X" ]; then
+      GOT="true"
+      # echo "************* ALREADY GOT"
+    fi
+  done
+  if [ ! "$GOT" = "true" ]; then
+    LINES="$LINES$LINE
+"
+    # echo "Adding $LINE"
+  else
+    echo "Already got $LINE"
+  fi
+done
+echo "$LINES"

@@ -1,0 +1,2 @@
+bmptoppm $1 > tmp.ppm
+ppmtogif tmp.ppm > $1.gif

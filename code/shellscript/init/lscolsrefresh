@@ -1,0 +1,8 @@
+if test ! -f $HOME/.dircolors; then
+  echo "I am generating a default colour list in $HOME/.dircolors"
+  echo "Change it if you want funkier colours"
+  dircolors -p > $HOME/.dircolors
+fi
+dircolors $HOME/.dircolors > $HOME/.lscols
+source $HOME/.lscols
+export LS_COLORS

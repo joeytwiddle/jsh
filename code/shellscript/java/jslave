@@ -1,0 +1,32 @@
+if [ "$1" = "" ]; then
+  echo "jslave <classpath> <class name>"
+  exit 1
+fi
+
+TODOFILE="$JPATH/data/dothis.slave"
+WAKEUPFILE="$JPATH/data/wakeup.slave"
+FINISHEDFILE="$JPATH/data/finished.slave"
+
+if [ -e "$FINISHEDFILE" ]; then
+  echo "Old job still running.  Cancelling."
+  "rm" "$FINISHEDFILE"
+fi
+
+if [ -e "$TODOFILE" ]; then
+  echo "Unprocessed job waiting in $TODOFILE ..."
+  # cat "$TODOFILE"
+fi
+
+SLAVEDATA="$1
+$2
+$SLAVEARGS";
+
+echo "$SLAVEDATA"
+echo "$SLAVEDATA" > "$TODOFILE"
+
+touch "$WAKEUPFILE"
+
+while [ ! -e "$FINISHEDFILE" ]; do
+  sleep 1
+done
+"rm" "$FINISHEDFILE"

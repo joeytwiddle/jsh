@@ -1,0 +1,5 @@
+jsync $@
+cat $JPATH/tmp/sync-summary.txt
+FILES=`allinone $JPATH/tmp/sync-keeping.txt`
+tar cfz sync.tgz $FILES
+# echo `allinone $JPATH/tmp/sync-keeping.txt`

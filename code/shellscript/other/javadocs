@@ -1,0 +1,3 @@
+netscape "file:/usr/local/jdk1.2.2/docs/index.html" &
+# sleep 1m
+netscape "file:/usr/local/jdk1.2.2/docs/tutorial/index.html" &

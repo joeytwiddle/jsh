@@ -1,0 +1,5 @@
+echo ""
+echo "The compiler is your friend (gcov-ing) ------------------------------"
+echo ""
+g++ $1.c -w -o $1 -fconserve-space -I $JPATH/joeylib -g -pg $2 $3 $4 $5 $6
+chmod g+x $1

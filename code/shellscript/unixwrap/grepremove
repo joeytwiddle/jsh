@@ -1,0 +1,2 @@
+grep -v $1 $2 > $JPATH/tmp/grepremove.txt
+mv $JPATH/tmp/grepremove.txt $2

@@ -1,0 +1,5 @@
+forall *.ps do gv \"%f\"
+forall *.ps.gz *.ps.Z do ghostview \"%f\"
+forall *.pdf do acroread \"%f\"
+forall *.html do exploredir \"%f\"
+forall *.txt do editandwait \"%f\"

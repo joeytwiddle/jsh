@@ -1,0 +1,1 @@
+for x in $@; do edit "$x"; done

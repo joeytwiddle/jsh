@@ -1,0 +1,16 @@
+choosefile $HOME/GNUstep/Library/AfterStep/themes -dest $JPATH/tmp/ast.tgz
+
+perl /usr/X11R6/bin/installastheme.pl $JPATH/tmp/ast.tgz
+
+#cd $JPATH/tmp/
+#mkdir tmp2
+#cd tmp2
+#tar xfz ../ast.tgz
+#rm -f $HOME/GNUstep/Library/AfterStep/desktop/themes/*
+#cp */* $HOME/GNUstep/Library/AfterStep/desktop/themes/
+#cd ..
+#rm -rf tmp2
+
+rm -f ast.tgz
+
+xinit $JPATH/tools/afterstep.xinit

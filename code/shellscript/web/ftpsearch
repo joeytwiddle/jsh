@@ -1,0 +1,5 @@
+TEXT="$1"
+HITS="20"
+# DOMAIN="uk"
+DOMAIN=""
+lynx -dump "http://ftpsearch.lycos.com/cgi-bin/search?form=medium&query=$TEXT&doit=Search&type=Case+insensitive+multiple+substrings+search&hits=$HITS&matches=&hitsprmatch=&limdom=$DOMAIN&limpath=&f1=Count&f2=Mode&f3=Size&f4=Date&f5=Host&f6=Path&header=none&sort=none&trlen=20" | grep "ftp://ftp." | awk ' { printf($2"\n") } '

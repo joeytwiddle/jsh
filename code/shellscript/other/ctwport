@@ -1,0 +1,2 @@
+cd /home/httpd/servlets
+tar cfzh $JPATH/out/ctwport.tgz */*.java data/* ../html/*.html ../html/*/*.html ../html/*/*/*.html

@@ -1,0 +1,8 @@
+FILES=$@;
+if [ "$FILES" = "" ]; then
+  FILES="*";
+fi
+for x in $FILES; do
+  gzip "$x" &
+done
+

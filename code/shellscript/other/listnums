@@ -1,0 +1,14 @@
+#!/usr/local/bin/zsh
+START=$1
+END=$2
+X=$START
+LIST=""
+DONE=""
+while [ ! "$X" = "$END" ]; do
+  # LIST="$LIST$X "
+  echo "$X"
+  X=$[$X+1]
+done
+echo $END
+# LIST="$LIST$END"
+# echo "$LIST"

@@ -1,0 +1,2 @@
+TERM=linux
+edit $@

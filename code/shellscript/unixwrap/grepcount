@@ -1,0 +1,4 @@
+grep -c $@ | grep -v ":0"
+#grep $1 * -r -c > /tmp/tmp.grep
+#grep ":0" -v /tmp/tmp.grep
+#rm /tmp/tmp.grep

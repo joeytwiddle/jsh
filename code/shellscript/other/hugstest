@@ -1,0 +1,15 @@
+#!/usr/local/bin/runhugs
+
+module Main where
+import System
+
+myshow [] = ""
+myshow (h:t) = h++myshow t
+
+main = do
+       args <- getArgs
+       putStr ("Hello world =)\n"++(show (args))++"\n")
+       -- myshow args)
+
+fart = show getArgs
+

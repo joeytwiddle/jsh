@@ -1,0 +1,12 @@
+rm -r ~/portmp
+cd $JPATH/code/c
+portcollect c/
+cd $JPATH/code/java
+portcollect java/
+cd /home/httpd/servlets
+rm changetheworld
+portcollect servlets/
+ln -s . changetheworld
+cd ~/portmp
+mkdir -p ~/out
+tar cfz ~/out/codeport.tgz *

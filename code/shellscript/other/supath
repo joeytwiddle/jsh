@@ -1,0 +1,2 @@
+env PATH="${PATH}:/usr/sbin:/sbin"
+# export PATH

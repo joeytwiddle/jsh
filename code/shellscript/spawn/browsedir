@@ -1,0 +1,4 @@
+echo "browsedir deprecated ?"
+browse $*
+# exploredir "$@" &
+#/usr/bin/netscape "$@" &

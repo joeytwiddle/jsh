@@ -1,0 +1,33 @@
+if [ "$1" = "" -o "$2" = "" ]; then
+  echo "ctoshell <toolname> <system shell call>"
+  echo "  Creates a C program which performs the given shell call."
+  echo "  Source in this dir, exec in \$JPATH/bin/ and link in \$JPATH/tools/"
+  echo "  If you are using this to create a root executable shell call,"
+  echo "  the shell call must be secure and predictable!"
+  exit 1
+fi
+
+# F="$JPATH/tools/$1"
+# F="shelltool"
+F="$1"
+C="$F.c"
+
+echo "#include <stdio.h>" > $C
+echo "void main() {"     >> $C
+# echo "  system(\"$@\");" >> $C
+echo "  system(\"$2\");" >> $C
+echo "}"                 >> $C
+
+echo "$C created:"
+echo
+more "$C"
+
+xt "$F"
+
+echo "binary $F created in $JPATH/bin/"
+
+# echo "Deleting $C"
+# rm "$C"
+# echo
+echo "Source in ./$C, exec in \$JPATH/bin/ and link in \$JPATH/tools/"
+# echo

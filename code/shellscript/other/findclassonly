@@ -1,0 +1,2 @@
+# begins directory, ends .class
+findclass "/$@\."

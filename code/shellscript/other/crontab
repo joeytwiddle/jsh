@@ -1,0 +1,2 @@
+# env VISUAL=vi /usr/bin/crontab $1 $2 $3 $5 $6 $7 $8 $9
+`jwhich crontab` $*

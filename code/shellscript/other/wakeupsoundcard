@@ -1,0 +1,5 @@
+aumix -v0
+# so that sndconfig can find insmod
+# cd /sbin
+/usr/sbin/sndconfig
+aumix -v100

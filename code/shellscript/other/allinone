@@ -1,0 +1,4 @@
+# forall $@ do echo %f
+# From file:
+forall -shell in "$1" -stealth do echo -en "\"%w \""
+# forall -shell in "$1" -stealth do echo -en "\"\\\"%w\\\" \""

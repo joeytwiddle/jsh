@@ -1,0 +1,2 @@
+MOZPATH=`jwhich mozilla`
+$MOZPATH $*

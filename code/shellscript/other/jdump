@@ -1,0 +1,1 @@
+java -cp $CLASSPATH:$JPATH/code/java/tools/dump/ dump $@

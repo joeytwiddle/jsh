@@ -1,0 +1,20 @@
+ARGS="$@"
+if [ "$ARGS" = "" ]; then
+  IMAGES="*.jpg *.jpeg *.bmp *.xpm *.gif *.pgm *.ppm *.pcx"
+else
+  IMAGES="$ARGS"
+fi
+
+HTMLFILE="browsepics.html"
+
+# EXTRAS=""
+EXTRAS="-geom 200 -interlace Plane"
+
+echo "<html><body>" > $HTMLFILE
+forall $IMAGES do convert $EXTRAS %w browsepics%n.Jpeg : echo "\"<img src=\\\"browsepics%n.Jpeg\\\"><br>%w<br><br>\"" %p%p $HTMLFILE
+echo "</body></html>" >> $HTMLFILE
+
+browse $HTMLFILE
+
+echo "browsepics* will be deleted in 300 seconds"
+(sleep 300 ; rm browsepics*) &

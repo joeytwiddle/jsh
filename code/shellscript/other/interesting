@@ -1,0 +1,1 @@
+# (cd /usr/src/linux && tar cf - . ) | (cd ./linux && tar xvfp - )

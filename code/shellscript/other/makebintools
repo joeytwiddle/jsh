@@ -1,0 +1,5 @@
+cd $JPATH/code/c/tools
+cd forall
+xt forall
+cd ..
+forall -shell -stealth -dirsonly * do cd %f : xt %f : cd ..

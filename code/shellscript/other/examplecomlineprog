@@ -1,0 +1,2 @@
+export ARGS="$@"
+runcomlineprog "" jlib.ExampleComLineProg

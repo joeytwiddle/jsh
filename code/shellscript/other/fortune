@@ -1,0 +1,5 @@
+/usr/games/fortune $@ > $JPATH/tmp/lastfortune.txt
+echo "" >> /home/joey/log/fortune.txt
+more $JPATH/tmp/lastfortune.txt >> /home/joey/log/fortune.txt
+more $JPATH/tmp/lastfortune.txt
+rm $JPATH/tmp/lastfortune.txt

@@ -1,0 +1,2 @@
+kfmclient openURL file:///$1 &
+# kfmclient openURL file://$PWD/$1 &

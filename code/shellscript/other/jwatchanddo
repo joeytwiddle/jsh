@@ -1,0 +1,17 @@
+pico ~/watch.jwatch
+pico ~/do.jwatch
+chmod a+x ~/do.jwatch ~/watch.jwatch
+~/watch.jwatch > ~/new.jwatch
+sleep 1s
+while [ true ]; do
+  mv ~/new.jwatch ~/old.jwatch
+  ~/watch.jwatch > ~/new.jwatch
+  jfc ~/new.jwatch ~/old.jwatch simple oneway > changes.jwatch
+  forall -stealth in changes.jwatch do ~/do.jwatch %w &
+  sleep 1s
+done
+rm ~/old.jwatch
+rm ~/new.jwatch
+rm ~/changes.jwatch
+# rm ~/watch.jwatch
+# rm ~/do.jwatch

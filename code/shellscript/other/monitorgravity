@@ -1,0 +1,23 @@
+# Uses du to monitor the changing size of files or directories
+# Provide nothing for a measure of files/dirs in .
+# or provide a list of directories
+
+if [ "$1" = "" ]; then
+  WHERE="*"
+else
+  WHERE="$@"
+  # WHERE=""
+  # for x in "$@" ; do
+  #   WHERE="$WHERE $x/*"
+  # done
+fi
+
+# if only one parameter given
+if [ "$1" = "$WHERE" ]; then
+  if [ -d "$WHERE" ]; then
+    WHERE="$WHERE/*"
+  fi
+fi
+
+# ensures $WHERE is not evaluated until jwatch calls $@
+jwatch du "-sk $WHERE"

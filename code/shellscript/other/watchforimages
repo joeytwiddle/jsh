@@ -1,0 +1,3 @@
+echo "ls *.bmp" > ~/watch.jwatch
+echo "xv \$1" > ~/do.jwatch
+jwatchanddo

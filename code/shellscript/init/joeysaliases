@@ -1,0 +1,6 @@
+alias ls='ls -atrhF --color'
+
+# del puts deleted files in trash
+# alias rm='echo "Deprecated, please use: del <files>"'
+#alias rm='echo "Deprecated, please use: del <files>" && $JPATH/tools/del'
+# alias rm='$JPATH/tools/del'

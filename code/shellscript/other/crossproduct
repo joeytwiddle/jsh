@@ -1,0 +1,22 @@
+SETX="$1"
+SETY="$2"
+SEP="$3"
+
+if [ "$SETX" = "" -o "$SETY" = "" ]; then
+  echo "crossproduct <setx> <sety> <sep>"
+  echo "  produces \"<x1><y1><sep><x1><y2><sep>...<x2><y1><sep><x2><y2><sep>...\""
+  exit 1
+fi
+
+# Use default seperator " " if none specified
+if [ "$SEP" = "" ]; then
+  SEP=" "
+fi
+
+OUTPUT=""
+for x in $1 ; do
+  for y in $2 ; do
+    OUTPUT="$OUTPUT$x$y$SEP"
+  done
+done
+echo "$OUTPUT"

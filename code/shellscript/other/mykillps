@@ -1,0 +1,1 @@
+ps -A -o pid,user,comm | grep $@

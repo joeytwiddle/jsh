@@ -1,0 +1,1 @@
+forall in "$@" do "showpingtime \`url2host %w\`"

@@ -1,0 +1,2 @@
+# Reports the ttys in use by a user
+utmpdump | grep joey | awk ' BEGIN { FS="]" } { printf($5"\n") } ' | after "["

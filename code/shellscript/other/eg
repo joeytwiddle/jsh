@@ -1,0 +1,3 @@
+editandwait ~/j/code/java/parser/$1.grm
+cd ~/j/code/java/parser/
+source ./creategrammar c

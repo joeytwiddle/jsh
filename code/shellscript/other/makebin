@@ -1,0 +1,3 @@
+rm binned.bmp
+getbin $JPATH/images/$1.bmp $JPATH/images/regs/$1top.bmp
+mv binned.bmp $JPATH/images/bin/$1.bmp

@@ -1,0 +1,5 @@
+mount /mnt/cdrom
+cd /mnt/cdrom
+MP3S=`find . -name "*.mp3*"`;
+MP3S="$MP3S "`find . -name "*.MP3*"`;
+nice -n 20 'cp -P $MP3S $JPATH/tracks/'

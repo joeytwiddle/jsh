@@ -1,0 +1,3 @@
+for x in `more $1` ; do
+  echo -n "$x" "$2" ;
+done

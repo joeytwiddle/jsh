@@ -1,0 +1,13 @@
+lynx -dump "$@" > $JPATH/tmp/cddb.webdump
+
+ARTIST=`cat $JPATH/tmp/cddb.webdump | grep "\[13\]" | after "\]" | before "/"`
+DTITLE=`cat $JPATH/tmp/cddb.webdump | grep "\[13\]" | after "/" | after "]"`
+echo "DTITLE=$ARTIST- $DTITLE"
+
+for N in `listnums 1 40`; do
+  TTITLE=`cat $JPATH/tmp/cddb.webdump | grep " $N\. \[" | after "\]"`
+  if [ ! "$TTITLE" = "" ]; then
+    M=$[$N-1];
+    echo "TTITLE$M=$TTITLE"
+  fi
+done

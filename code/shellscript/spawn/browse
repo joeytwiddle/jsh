@@ -1,0 +1,5 @@
+FAVOURITE_BROWSERS='konqueror mozilla netscape encompass nautilus amaya lynx'
+
+runoneof "$FAVOURITE_BROWSERS" "$@"
+
+# netscape "file://$PWD/$@" &

@@ -1,0 +1,3 @@
+# By leaving $@ without ""s you can pass parameters to ungrep ok
+# But if you pass a string "with a space" it will get passed as "with" "a" "space"
+/bin/grep -v $@

@@ -1,0 +1,18 @@
+# if test ! "x$DISPLAY" = "x"; then
+
+if xisrunning; then
+  FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite"
+else
+  FAVOURITE_EDITORS="vim vi ae pico jpico"
+fi
+
+runoneof "$FAVOURITE_EDITORS" "$*"
+
+# case $TERM in
+#   xterm)
+#     kwrite $1 $2 $3 $4 $5 $6 $7 $8 $9
+#     ;;
+#   *)
+#     pico $1 $2 $3 $4 $5 $6 $7 $8 $9
+#     ;;
+# esac

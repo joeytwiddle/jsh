@@ -1,0 +1,4 @@
+for X in `rpm -qa`; do
+  echo -e "\n$X"
+  rpm -ql $X
+done

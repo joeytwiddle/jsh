@@ -1,0 +1,7 @@
+if test "$1" = "" -o "$2" = "" ; then
+  echo "wav2mp3 <wav input filename> <mp3 output filename>"
+  exit 1
+fi
+
+bladeenc -QUIT "$1"
+mv "tmp.mp3" "$2"

@@ -1,0 +1,14 @@
+mv ~/new.check ~/old.check
+ps -o "%u : %a" -A > ~/new.check
+sleep 1s
+while [ true ]; do
+mv ~/new.check ~/old.check
+# ps -o "%u : %a" -u $USER -U $USER -N > ~/new.check
+ps -o "%u : %a" -A > ~/new.check
+# jfc ~/new.check ~/old.check simple oneway
+jfc ~/new.check ~/old.check simple oneway
+sleep 1s
+done
+#docheck
+rm ~/old.check
+rm ~/new.check

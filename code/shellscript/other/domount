@@ -1,0 +1,39 @@
+echo Filfirin
+#umount /mnt/filfirin/
+automount
+cp /etc/fstab.exec /etc/fstab
+mount /mnt/filfirin/
+
+echo Stig
+umount /mnt/stig/
+mount /mnt/stig/
+
+echo CDrom
+# Disabled so as not to interrupt cd playing
+mount /mnt/cdrom
+
+echo Floppy
+mount /mnt/floppy
+
+#echo Babylon
+#smbmount //babylon/c -c "mount /mnt/babylon/c"
+#smbmount //babylon/e -c "mount /mnt/babylon/e"
+
+#echo Xanadu
+##smbmount //xanadu/c -c "mount /mnt/xanadu/c"
+##smbmount //xanadu/d -c "mount /mnt/xanadu/d"
+
+#smbmount //xanadu/B5 -c "mount /mnt/xanadu/babylon5"
+#smbmount //xanadu/cd1 -c "mount /mnt/xanadu/cd1"
+#smbmount "//xanadu/cd 2" -c "mount /mnt/xanadu/cd2"
+
+#echo Pru
+#smbmount "//gnome/a" -c "mount /mnt/gnome/a"
+#smbmount "//gnome/c" -c "mount /mnt/gnome/c"
+#smbmount "//gnome/d" -c "mount /mnt/gnome/d"
+#smbmount "//gnome/desktop" -c "mount /mnt/gnome/desktop"
+#smbmount "//gnome/joey" -c "mount /mnt/gnome/joey"
+
+#echo Merlin
+#smbmount "//merlin/in" -c "mount /mnt/merlin"
+

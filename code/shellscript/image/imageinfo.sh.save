@@ -1,0 +1,5 @@
+
+
+
+
+convert -verbose "$*" $JPATH/tmp/tmp.jpg 2>/dev/null

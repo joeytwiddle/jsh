@@ -1,0 +1,1 @@
+grep "^From: " "$1" | head -n 1 | after "From:" | tr -d "\r"

@@ -1,0 +1,2 @@
+`jwhich man` -a $@
+# /usr/bin/man -a $@

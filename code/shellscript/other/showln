@@ -1,0 +1,5 @@
+# Displays all symbolic links in current directory
+
+forall * -shell -stealth -followdirs do echo %f > $JPATH/tmp/showln1.txt
+forall * -shell -stealth -nofollowfiles do echo %f > $JPATH/tmp/showln2.txt
+jfc simple oneway $JPATH/tmp/showln1.txt $JPATH/tmp/showln2.txt

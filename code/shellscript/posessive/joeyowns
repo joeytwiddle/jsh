@@ -1,0 +1,5 @@
+WHAT="$@"
+if test "$WHAT" = ""; then
+	WHAT="*"
+fi
+chown joey:joey $WHAT -R

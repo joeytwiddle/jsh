@@ -1,0 +1,3 @@
+del "$HOME/mailsort"
+START="$PWD";
+forall * */* */*/* */*/*/* */*/*/*/* -dirsonly do -shell cd '"%w"' : emailsort "*" : cd '"$START"'

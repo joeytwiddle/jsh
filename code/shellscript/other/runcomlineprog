@@ -1,0 +1,7 @@
+# You must provide $ARGS
+CP="$JPATH/code/java/$1"
+CLASS="$2"
+#echo "$1_9 $1-9 $1.9"
+#REST="$3"
+#echo "$REST"
+java -classpath $CLASSPATH:$CP jlib.RunComLineProg $CLASS $ARGS

@@ -1,0 +1,51 @@
+#!/bin/sh
+echo -n `nicedate`"/ ensure-ip-state: "
+
+PPPON=false;
+if [ -r /var/run/ppp0.pid ]; then
+  # Doesn't work on Mandrake
+  PID=`cat /var/run/ppp0.pid`;
+  JOB=`ps -A | grep $PID`
+  if test "x$JOB" = "x" -o "x$PID" = "x"; then
+    echo -n "(has pid but off) "
+    # rm -f /var/run/ppp0.pid
+  else
+    echo -n "(on) "
+    PPPON=true;
+  fi
+else
+  # So for Mandrake:
+  FIND=`ps -A | grep pppd`
+  if test "x$FIND" = "x"; then
+    echo -n "(off) "
+  else
+    echo -n "(on but no PID) "
+    PPPON=true
+  fi
+fi
+
+if [ ! -f /var/hwi/orders/ensure-ip-up ]; then
+  if test "$PPPON" = "true"; then
+    echo "Going down"
+    killall pppd
+    exit 0
+    # kill -INT `cat /var/run/ppp0.pid` || echo "Kill failed"
+  else
+    echo "Down OK"
+    exit 0
+  fi
+fi
+
+if test "$PPPON" = "true"; then
+  echo "Up OK"
+  exit 0
+fi
+
+echo "Coming up"
+'rm' -f $JPATH/logs/packetdata.ppp
+/usr/sbin/pppd call provider
+# /usr/sbin/pppd record $JPATH/logs/packetdata.ppp call provider
+sleep 60
+echo "Updating IP"
+ppp-updateip
+exit 0

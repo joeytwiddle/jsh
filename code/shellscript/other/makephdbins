@@ -1,0 +1,14 @@
+cd $JPATH/code/c/phd
+
+cd texture
+xt jnn
+xt blob
+cd ..
+
+cd locthr
+xt locthr
+cd ..
+
+cd projprof
+xt pp
+cd ..

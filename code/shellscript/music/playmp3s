@@ -1,0 +1,8 @@
+WHERE="$@"
+if [ "$WHERE" = "" ]; then
+  WHERE="$PWD/" # This '/' is vital for find to work if $PWD is a link!
+else
+  WHERE="$PWD/$WHERE"
+fi
+find "$WHERE" -name "*.mp3" > $JPATH/music/group.m3u
+xmms -e $JPATH/music/group.m3u

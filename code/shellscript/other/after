@@ -1,0 +1,16 @@
+# Works on a line-by-line basis
+# If that's not what you want try afterfirst and afterlast
+sed -e "s%.*$1%%"
+
+# With sed:
+# .*s mean I can get before first and after last
+# for single characters, I can use [^c] to get after first or before last
+# awk will give me 2
+# tr "\n" " " | sed -e "s%.*$1%%"
+# echo ">>> s%[^$1]*$1%% <<<"
+# sed -e "s%[^$1]*$1%%"
+# tr "\n" " " | awk ' BEGIN { FS="'"$1"'" } { printf($2"\n") } '
+
+# Once we know $2, we could loop back round to search for "$1"'$1'$2
+# Provided that string is unqiue, the $2 the second time round will
+# reach to the end

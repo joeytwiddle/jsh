@@ -1,0 +1,4 @@
+umount /mnt/filfirin
+cp /etc/fstab.noexec /etc/fstab
+mount /mnt/filfirin/
+mount /mnt/stig

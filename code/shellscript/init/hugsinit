@@ -1,0 +1,5 @@
+HUGSFLAGS=-'P/usr/local/share/hugs/lib/:'$JPATH'/install/hugs98/lib:'$JPATH'/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:'$JPATH'/code/hugs -E"edit +%d %s" +s';
+export HUGSFLAGS
+HUGSPATH='/usr/local/share/hugs/lib/:'$JPATH'/install/hugs98/lib:'$JPATH'/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:'$JPATH'/code/hugs';
+export HUGSPATH
+

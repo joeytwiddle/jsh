@@ -1,0 +1,1 @@
+myps --cols 65535 -A | grep -v grep | grep "$*"

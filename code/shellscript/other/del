@@ -1,0 +1,82 @@
+# del <files> : moves files to trash directory
+# It tries to keep the directory structure in the trash dir
+# but because it's not very clever, it uses your current dir
+# which might be different from the parent dir of a file you
+# are deleting.
+# If you want to preserve directory structure, always use del
+# in the directory the files are in.
+
+# FILES="$@"
+
+if test "_$*" = "_"; then
+  echo "del <files>"
+  echo "will move <files> to $DEST"
+  exit 1
+fi
+
+for x in $*; do
+  # if ! there $x ]; then
+  if test ! -e $x; then
+    echo "$x does not exist!"
+  else
+
+    # Work out source => destination directory
+    # SRCDIR=$PWD;
+    # This goes wrong if $x starts with "/" or "."
+    if isabsolutepath $x; then
+      SRCDIR=`dirname $x`
+    else
+      SRCDIR=`dirname $PWD/$x`
+    fi
+    # echo "$SRCDIR"
+    if test "x$SRCDIR" = "x."; then
+      echo "Unexpected: SRCDIR=."
+      SRCDIR=$PWD
+    fi
+    DEST="$JPATH/trash$SRCDIR"
+    
+    # Create destination directory
+    while test -f "$DEST"; do
+      echo "$DEST is a file - using $DEST.dir"
+      DEST="$DEST.dir"
+    done
+    mkdir -p "$DEST"
+    if test ! -d "$DEST"; then
+      echo "del: problem creating destination directory $DEST"
+      echo "del: $x not moved to trash"
+      exit 1
+    else
+
+      # Work out destination filename
+      # y=`echo $x | filename` # this also adds ' '!
+      y=`filename $x`   # or y=`echo $x | filename`
+      # echo ">$y<"
+      
+      # $x is as given, $SRCDIR/$y is absolute
+      # if test ! "_$SRCDIR/$y" = "_$x"; then
+      #   echo "Warning: $SRCDIR/$y != $x"
+      #   exit 1
+      # fi
+      
+      # This used to go wrong if $y is a dir ending in "/"
+      while test -e "$DEST/$y"; do
+        if test -n $JECHOENCODE; then
+          echo "$y already in trash - writing $y.new"
+        fi
+        # mv "$y" "$y.new"   # required with $y $DEST below:   # now broken - needs $SRCDIR ?
+        y="$y.new"
+      done
+
+      # Move it and report =)
+      # mv -f "$y" "$DEST"   # (see above)
+      echo "$x -> $DEST/$y"
+      mv -f "$x" "$DEST/$y"
+
+    fi
+  fi
+done
+
+# echo "mkdir -p $JPATH/trash/$PWD/"
+# mkdir -p $JPATH/trash/$PWD/
+# echo "mv -f $@ $JPATH/trash/$PWD/"
+# mv -f $@ $JPATH/trash/$PWD/

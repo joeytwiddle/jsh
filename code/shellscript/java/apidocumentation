@@ -1,0 +1,48 @@
+# Opens Java documentation for given class name
+
+if [ "$1" = "" ]; then
+  echo "Usage: apidocumentation [ all ] <classname>"
+  echo "  displays Java API documentation for the first class it finds with that name,"
+  echo "  or all of those classes if \"all\" argument is provided."
+  exit 1
+fi
+# Check if user wants to open all known javadocs
+if [ "$1" = "all" ]; then
+  ALL="yes"
+  CLASS="$2"
+else
+  CLASS="$@"
+fi
+
+# Finds likely javadoc file
+# Excludes my duplicate copies and class use files
+# POSSIBLE=`locate "/$CLASS.html" |
+# POSSIBLE=`memo find /mnt/stig/javadoc/ -name "$CLASS.html" |
+cd / # For memo
+POSSIBLE=`memo find /home/joey/j/code/java /stuff/software/doc/java/ -name "$CLASS.html" |
+            ungrep "$JPATH/trash" |
+#           ungrep "^/mnt/filfirin/stig/javadoc/jdk1.2.2/docs/" |
+            ungrep "class-use"`
+
+# Only takes top one anyway! (unless "all" specified)
+if [ $ALL ]; then
+  FILES="$POSSIBLE";
+else
+  FILES=`echo "$POSSIBLE" | head -n 1`
+fi
+# FILES=`find /usr/local/jdk1.2.2/docs/ -name "$@.html" | ungrep "class-use"`
+
+# List all the possible files that could have been opened
+echo "$POSSIBLE"
+
+# Open the doc files
+for X in $FILES ; do
+  # echo "$X"
+  # bigwin lynx $X
+	echo "Not browsing"
+  # browse $X &
+done
+
+if [ "$FILES" = "" ]; then
+  echo "Sorry, no class $CLASS found"
+fi

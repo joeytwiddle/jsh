@@ -1,0 +1,9 @@
+# set -b -k $HELLO
+echo "$HELLO"
+echo "$ARGUMENTS"
+echo "$1"
+echo "$-"
+echo "$"
+echo "$N"
+echo "$1-$9"
+echo $@

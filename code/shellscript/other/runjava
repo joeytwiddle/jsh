@@ -1,0 +1,1 @@
+echo "java -classpath $CLASSPATH:$2 $1"

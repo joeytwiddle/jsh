@@ -1,0 +1,5 @@
+echo portcollect: $1
+mkdir -p ~/portmp/$1
+cp *.c *.h *.java *.class *.hs *.pl ~/portmp/$1
+# The rmdir cleans up the directory if it's empty
+forall -stealth -dirsonly * do cd %f %a%a portcollect $1%f/ %a%a cd .. %a%a rmdir --ignore-fail-on-non-empty %f

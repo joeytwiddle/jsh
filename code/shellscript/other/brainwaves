@@ -1,0 +1,3 @@
+kpm &
+ktop &
+konsole -nowelcome -caption "monitorps: Watching for new processes" -e sh $JPATH/tools/monitorps &

@@ -1,0 +1,10 @@
+# echo "<html><body>" && ( find . -name "recover*" | while read X; do echo "<img src=\"$X\">"; done ) && echo "</body></html>"
+
+echo "<html>"
+echo "<body>"
+# echo "<table width=\"100%\">"
+forall -shell -stealth -dirsonly * do echo "\<a href=\\%q%f/Index.html\\%q\>%f\</a\>\<br\>"
+forall -shell -stealth *.[J:j][P:p]*[G:g] *.gif do echo "\<img src=\\%q%f\\%q\>\<br\>"
+# echo "</table>"
+echo "</body>"
+echo "</html>"

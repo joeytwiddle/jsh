@@ -1,0 +1,3 @@
+forall *.zip do "mkdir '%s' && cd '%s' && unzip '../%f'"
+forall *.tar.gz *.tgz do "mkdir '%s' && cd '%s' && tar xfz '../%f'"
+forall *.tar do "mkdir '%s' && cd '%s' && tar xf '../%f'"

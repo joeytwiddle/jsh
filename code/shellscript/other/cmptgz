@@ -1,0 +1,4 @@
+tar tfz $1.tgz > $JPATH/tmp/cmptgz1.txt
+tar tfz $2.tgz > $JPATH/tmp/cmptgz2.txt
+jfc $JPATH/tmp/cmptgz?.txt
+# rm -f $JPATH/tmp/cmptgz?.txt

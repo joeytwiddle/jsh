@@ -1,0 +1,1 @@
+ps -o "(%x %C) %u : %a" -u $USER -U $USER -N

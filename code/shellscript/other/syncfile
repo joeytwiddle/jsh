@@ -1,0 +1,24 @@
+FILE="$1"
+KEEP="yes"
+
+FINDRES=`find "$FILE" -size 0`
+FINDRES="$FINDRES`find \"$FILE\" -size 1`"
+FINDRES="$FINDRES`find \"$FILE\" -size 2`"
+FINDRES="$FINDRES`find \"$FILE\" -size 3`"
+FINDRES="$FINDRES`find \"$FILE\" -size 4`"
+FINDRES="$FINDRES`find \"$FILE\" -size 5`"
+FINDRES="$FINDRES`find \"$FILE\" -size 6`"
+FINDRES="$FINDRES`find \"$FILE\" -size 7`"
+FINDRES="$FINDRES`find \"$FILE\" -size 8`"
+FINDRES="$FINDRES`find \"$FILE\" -size 9`"
+# echo "sync: >$FINDRES<"
+if [ ! "$FINDRES" = "$FILE" ]; then
+  echo "sync: Too large: $FILE"
+  KEEP="no"
+fi
+
+# echo "syncfile $FILE : $KEEP"
+
+if [ "$KEEP" = "yes" ]; then
+  echo "$FILE" > $HOME/tosync.txt
+fi

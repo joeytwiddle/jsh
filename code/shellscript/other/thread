@@ -1,0 +1,3 @@
+$@ &
+sleep 1
+export PID=`findjob "$@" | tail -n 1 | awk '{ printf($3"\n") }'`

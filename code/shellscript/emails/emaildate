@@ -1,0 +1,3 @@
+#grep "^Date: " "$1" | head -n 1 | after "Date:"
+DATESTR=`grep "^Date: " "$1" | head -n 1 | after "Date:"`
+date --date="$DATESTR" +%Y%m%d%H%M

@@ -1,0 +1,15 @@
+SRCDIR="$JPATH/music/streamed/"
+DESTDIR="$JPATH/tracks/streamed/"
+
+SRCFILENAME=`"ls" -t "$SRCDIR" | head -n 1`
+FILENAME="$SRCFILENAME"
+echo "$FILENAME"
+
+DESTFILE="$DESTDIR/$FILENAME"
+while [ -f "$DESTFILE" ]; do
+  FILENAME="_$FILENAME"
+  DESTFILE="$DESTDIR/$FILENAME";
+done
+echo "$DESTFILE"
+
+cp "$SRCDIR/$SRCFILENAME" "$DESTFILE"

@@ -1,0 +1,11 @@
+choosefile
+rm $JPATH/background2.jpg
+cp -df $JPATH/background.jpg $JPATH/background2.jpg
+# sleep 1s
+choosefile
+# sleep 1s
+
+KFM=`findjob kfmclient`;
+if [ ! "$KFM" = "" ]; then
+  kfmclient refreshDesktop
+fi

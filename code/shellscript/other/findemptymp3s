@@ -1,0 +1,1 @@
+du -a . | grep "\.mp3$" | grep "^0" | awk ' { printf($2"\n"); } '

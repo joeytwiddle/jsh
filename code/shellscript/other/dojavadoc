@@ -1,0 +1,11 @@
+NAME="$1"
+DIR="$2"
+FILES="$3"
+if [ "$FILES" = "" ]; then
+  FILES="*.java"
+fi
+
+"cd" "$DIR"
+mkdir -p javadoc
+$JAVADOC -d javadoc $FILES
+echo "<A HREF=\"$PWD/javadoc/index.html\">$1</A><br>" >> $DOCSUM

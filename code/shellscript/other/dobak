@@ -1,0 +1,14 @@
+domount
+cd /mnt/filfirin
+mkdir hwibak
+cd hwibak
+mkdir root
+cp /root/.* root
+cp /root/* root
+mkdir joey
+cp /home/joey/.* joey
+cp /home/joey/* joey
+mkdir etc
+cp /etc/fstab etc
+cp /etc/hosts etc
+cp /etc/lilo.conf etc

@@ -1,0 +1,1 @@
+forall -shell *.b4sr do mv %f %s

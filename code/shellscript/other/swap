@@ -1,0 +1,13 @@
+mv "$1" tmp.swp
+if [ -e "$1" ]; then
+  echo "Tried moving $1 to tmp.swp but it's still there!"
+  exit 1
+fi
+mv "$2" "$1"
+if [ -e "$2" ]; then
+  echo "Tried moving $2 to $1 but it's still there!"
+  echo "$1 is now in tmp.swp"
+  exit 1
+fi
+mv tmp.swp "$2"
+echo "$1 <-> $2"

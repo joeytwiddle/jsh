@@ -1,0 +1,8 @@
+COM="$@"
+if [ "$COM" = "" ]; then COM="zsh"; fi
+echo -e "$COM" > $JPATH/tmp/newwin.sh
+echo -e 'echo "Press <Enter> key to quit"' >> $JPATH/tmp/newwin.sh
+echo -e "waitforkeypress" >> $JPATH/tmp/newwin.sh
+chmod a+x $JPATH/tmp/newwin.sh
+# konsole -vt_sz 120x60 -nowelcome -caption "$1" -e sh $JPATH/tmp/newwin.sh &
+xterm -geometry 120x50 -e $JPATH/tmp/newwin.sh

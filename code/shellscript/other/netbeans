@@ -1,0 +1,1 @@
+$JPATH/install/netbeans/bin/runide.sh -jdkhome /usr/local/jdk1.2.2 &

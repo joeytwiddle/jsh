@@ -1,0 +1,2 @@
+awk ' BEGIN { FS="'$1'" } { printf($2"\n") } '
+

@@ -1,0 +1,18 @@
+alias ls='ls -atrhF --color'
+
+# del puts deleted files in trash
+alias rm='echo "Deprecated, please use: del <files>" && $JPATH/tools/del'
+# alias rm='$JPATH/tools/del'
+
+# My dirhistory tool
+alias cd='source $JPATH/tools/d'
+alias d='source $JPATH/tools/d'
+alias f='source $JPATH/tools/f'
+alias b='source $JPATH/tools/b'
+
+# For f.old and b.old which use `...` instead of source and export
+# alias cd='`$JPATH/tools/d`'
+# alias d='`$JPATH/tools/d`'
+# alias f='`$JPATH/tools/f`'
+# alias b='`$JPATH/tools/b`'
+

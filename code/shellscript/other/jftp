@@ -1,0 +1,11 @@
+TMPFILE="$JPATH/data/secret.txt"
+if [ ! -f "$TMPFILE" ]; then
+  # echo " " > "$TMPFILE"
+  touch "$TMPFILE"
+  # chmod a-r "$TMPFILE"
+fi
+chmod a-rwx "$TMPFILE"
+chmod u+rw "$TMPFILE"
+java -classpath $CLASSPATH:$JPATH/code/java/net/jftp/ jftp $@
+chmod a-rwx "$TMPFILE"
+chmod u+rw "$TMPFILE"

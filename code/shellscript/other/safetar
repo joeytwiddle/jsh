@@ -1,0 +1,2 @@
+cd $1
+/bin/tar cfz /mnt/stig/backups/$2.tgz *

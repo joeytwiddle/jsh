@@ -1,0 +1,2 @@
+CGI=`echo $@ | sed "s/ /+/g"`
+echo "www.google.com/search?q=$CGI"

@@ -1,0 +1,44 @@
+if test "$OUTDIR" = ""; then
+  OUTDIR="/home/joey/mailsort/$PWD/"
+fi
+# forall * */* */*/* */*/*/* */*/*/*/* -dirsonly do cd %w : mailconv "*" -shell
+for Z in $@; do
+  if [ -d "$Z" ]; then
+   echo "Skipping $Z"
+   #cd "$Z"
+   #forall * do mailconv %f -stealth
+   #cd ..
+  else
+    FROM=`emailfrom "$Z"`
+    SUBJ=`emailsubject "$Z"`
+    FROM=`ensurefilename "$FROM"`
+    SUBJ=`ensurefilename "$SUBJ"`
+    DATE=`emaildate "$Z"`
+    # echo "date=$DATE"
+    for X in $FROM; do
+     FROM="$X"
+     #echo "$X"
+    done
+    #for X in $SUBJ; do
+    # SUBJ="$X"
+     #echo "$X"
+    #done
+    mkdir -p "$OUTDIR"
+    FILENAME="$OUTDIR/$FROM-$SUBJ"
+    if [ -e "$FILENAME.txt" ]; then
+      N=2
+      while [ -e "$FILENAME$N.txt" ]; do
+        N=$[$N+1]
+      done
+    FILENAME="$FILENAME$N"
+    echo "$Z -------------------------------------------"
+    echo "  From: $FROM"
+    echo "  Subject: $SUBJ"
+    echo "  Date: $DATE"
+    # echo "-> $FILENAME"
+   fi
+   # echo "fname=$FILENAME.txt"
+   cp -i "$PWD/$Z" "$FILENAME.txt"
+   touch -t $DATE "$FILENAME.txt"
+  fi
+done

@@ -1,0 +1,1 @@
+grep $1 * -r -c | grep :0 -v

@@ -1,0 +1,23 @@
+xterm -e "$* && waitforkeypress"
+
+# FAVOURITE_XTERMS="xterm gnome-terminal konsole"
+# 
+# ARGS="$*";
+# if test "x$ARGS" = "x"; then
+#   COM="";
+#   STARTCOM="";
+# else
+#   TITLE=`echo -n '$ARGS' | tr ' ' '_'` 
+#   COM="$ARGS" # && waitforkeypress'
+#   STARTCOM='-e'
+# fi
+# 
+# WHICH_TERM=`jwhich "$FAVOURITE_XTERMS"`
+# echo "$WHICH_TERM $STARTCOM $COM"
+# $WHICH_TERM $STARTCOM "$COM" &
+
+# if [ "$COM" = "" ]; then COM="zsh"; fi
+# echo -e "$@" > $JPATH/tmp/newwin.sh
+# $WHICH_TERM -nowelcome -caption "$@" -e sh $JPATH/tmp/newwin.sh &
+# $WHICH_TERM -nowelcome -caption "$COM" -e "$COM" &
+

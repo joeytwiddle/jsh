@@ -1,0 +1,2 @@
+mv $JPATH/tools/$1 $JPATH/tools/$2
+whereis $2 &
