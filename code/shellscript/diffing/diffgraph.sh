@@ -5,11 +5,11 @@
 #    printf "%s" "$FILES" | while read
 #  invokes a new sh and hence variables are forgotten.
 
-FILES=""
-for X
-do FILES="$FILES$X
-"
-done
+# FILES=""
+# for X
+# do FILES="$FILES$X
+# "
+# done
 
 DIFFDIR=`jgettmpdir diffgraph`
 
