@@ -19,7 +19,7 @@ PID=$$
 env COLUMNS=65535 myps -A |
 	grep -v "grep" | grep "$@" | grep -v " $PID " | grep -v "findjob" |
 	# Highlighting and grep to hide it
-	highlight "$@" | grep -vE "sed s#.*$@"
+	highlight "$@" | egrep -v "sed s#.*$@"
 	# if test $JM_DOES_COLOUR; then
 		# sed "$SEDSTR"
 	# else
