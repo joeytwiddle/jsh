@@ -15,14 +15,14 @@
 # cvsdiff [-all] [-del] [<files>]
 
 CHECKALL=
-SUGGEST="add"
+SUGGEST="update"
 while true; do
 	case "$1" in
 		-all)
 			CHECKALL=true
 		;;
 		-del)
-			SUGGEST="del"
+			SUGGEST="remove"
 		;;
 		*)
 			break
@@ -70,14 +70,14 @@ if test $CHECKALL; then
 	cursegrey
 
 	jfcsh /tmp/local.txt /tmp/in-repos.txt |
-		sed "s+^./+cvs $SUGGEST ./+"
+		sed "s+^./+cvs add ./+"
 
 	echo
 	cursecyan
 	echo "Repository files missing locally:"
 	cursegrey
 	jfcsh /tmp/in-repos.txt /tmp/local.txt |
-		sed "s+^./+cvs remove ./+"
+		sed "s+^./+cvs $SUGGEST ./+"
 
 fi
 

@@ -8,7 +8,10 @@ if test "$1" = "-h" || test "$1" = "--help"; then
 fi
 
 USEDICT="g"
-XTERMTOUSE="kterm"
+# default to crxvt because kterm appears to be doing kanji!
+XTERMTOUSE=crxvt
+ARGS="-im xcin -pt Root"
+export LANG=fake
 
 for X; do
 	if test "$X" = "-k"; then

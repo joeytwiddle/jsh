@@ -30,25 +30,23 @@ else
 	LOOKFOR=`filename "$NEWDIR"`
 	NEWLIST=`
 		# maxdepth does not work for Unix find!
-		find "$LOOKIN" -maxdepth 1 -name "$LOOKFOR*" |
+		# find "$LOOKIN" -maxdepth 1 -name "$LOOKFOR*" |
+		'ls' -d "$LOOKIN/$LOOKFOR"* |
 		while read X; do
 			if test -d "$X"; then
 				echo "$X"
 			fi
-		 done`
-	# No way, this is really naff if you have up-history:
-	# # Nothing: assume user chose a file with tab-completion, and go
-	# # to directory above.  (What if it doesn't exist?!)
-	# if test "$NEWLIST" = ""; then
-		# DIRABOVE=`dirname "$NEWDIR"`
-		# echo "< $DIRABOVE"
-		# 'cd' "$DIRABOVE"
-	# One unique dir =)
-	if test `echo "$NEWLIST" | countlines` = "1"; then
+		done` 2> /dev/null
+	# echo ">$NEWLIST<"
+	if test "$NEWLIST" = ""; then
+		# No directory found
+		echo "X $LOOKIN/$LOOKFOR*"
+	elif test `echo "$NEWLIST" | countlines` = "1"; then
+		# One unique dir =)
 		echo "> $NEWLIST"
 		'cd' "$NEWLIST"
-	# A few possibilities, suggest them to the user.
 	else
+		# A few possibilities, suggest them to the user.
 		# echo "? $NEWLIST" | tr "\n" " "
 		echo "$NEWLIST" | sed 's+\(.*/\)\(.*\)+\? \1'`cursegreen`'\2/'`cursegrey`'+;s+/+'`cursegreen`'/'`cursegrey`"+g"
 		# echo -n "$NEWLIST" | tr "\n" " "
