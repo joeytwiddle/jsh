@@ -9,7 +9,7 @@ fi
 
 if test "$3" = ""; then
 
-	sed "s$FROM$TOg"
+	sed "s$1$2g"
 
 else
 

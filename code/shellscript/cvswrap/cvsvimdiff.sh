@@ -32,6 +32,7 @@ then
 	do
 		touch -r "$FILE" "$ORIGFILETIME"
 		cvsvimdiff "$FILE" # doesn't work sometimes: > /dev/null 2>&1
+		echo
 		if newer "$FILE" "$STARTTIME"
 		then
 			echo "Committing $FILE"
@@ -41,6 +42,7 @@ then
 		else
 			echo "Not committing $FILE"
 		fi
+		echo
 	done
 	jdeltmp $STARTTIME $ORIGFILETIME
 	exit 0
