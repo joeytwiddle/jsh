@@ -16,11 +16,11 @@ REMAINING=`expr "$COLUMNS" - "$LEN"`
 LEFT=`expr "$REMAINING" / 2 - 2`
 for X in `seq 1 $LEFT`
 do
-	printf "$PADLEFT"
+	printf "%s" "$PADLEFT"
 done
-printf "$PADBRACE$@$PADBRACE"
+printf "%s" "$PADBRACE$@$PADBRACE"
 for X in `seq 1 $LEFT`
 do
-	printf "$PADRIGHT"
+	printf "%s" "$PADRIGHT"
 done
 printf "\n"
