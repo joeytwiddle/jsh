@@ -1,6 +1,6 @@
-startx -- -bpp 24
+# startx -- -bpp 24
 
 #newback
-#cp /etc/X11/PrettyConfig /etc/X11/XF86Config
-## startx
+cp /etc/X11/XF86Config-4.lowres /etc/X11/XF86Config-4
+startx
 #xinit $JPATH/tools/kde.xinit
