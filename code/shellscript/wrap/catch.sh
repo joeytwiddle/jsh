@@ -1,7 +1,8 @@
 export TMPFILE=`jgettmp caught-err`
 
 (
-	"$@" 2>&1
+	# "$@" 2>&1
+	eval "$@" 2>&1
 	echo "$?" > "$TMPFILE"
 ) | more
 
