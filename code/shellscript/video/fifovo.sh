@@ -287,8 +287,8 @@ initialise () {
 	export CURRENT_WRITING_BLOCK_INFO_FILE="$FIFOVO_MESSAGE_DIR"/current_block.info
 
 	## Larger bits, less shell cycles:
-	export BUFFER_SIZE=100
-	export BLOCK_SIZE=`expr 10240 '*' $TOTAL_BUFFER_SIZE_MEG`
+	export BUFFER_SIZE=`expr 5 '*' $TOTAL_BUFFER_SIZE_MEG`
+	export BLOCK_SIZE=`expr 10240 '*' 20`
 	## Fine-grained buffer bits:
 	# export BUFFER_SIZE=1000
 	# export BLOCK_SIZE=`expr 1024 '*' $TOTAL_BUFFER_SIZE_MEG`
