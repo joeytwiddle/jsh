@@ -6,11 +6,11 @@ FILE="$@"
 FILE=`echo "$FILE" | sed 's+/$++'`
 
 # Remove last '/' and everything after it
-PATH=`echo "$FILE" | beforelast "/"`
+STRIPPEDPATH=`echo "$FILE" | beforelast "/"`
 
 # If no slashes we get the same back
-if test "x$PATH" = "x$FILE"; then
+if test "x$STRIPPEDPATH" = "x$FILE"; then
   echo "."
 else
-  echo "$PATH"
+  echo "$STRIPPEDPATH"
 fi

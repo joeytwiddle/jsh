@@ -48,3 +48,6 @@ do alias "$PROG"="nice -20 $PROG"
 done
 
 alias jhelp="$JPATH/tools/help" ## Because bash went and used it!
+
+## Because it's nice for the user, but overriding is bad for scripts:
+alias apropos=japropos

@@ -1,16 +1,20 @@
 REALMAN=`jwhich man`
 
-## If X is running, will pop up a terminal at appropriate width
+## If user is running in X, we pop up a separate window for them
 if xisrunning
 then
-	rememo $REALMAN -a "$@" > /dev/null
-	test "$?" = 0 || exit 5
-	WIDTH=`memo $REALMAN -a "$@" | col -bx | longestline`
+	## man will try to fit page within COLUMNS>=80plz, and then we will fit to whatever man outputs
 	export COLUMNS=120
-	# or whatever you prefer
-	WIDTH=`expr $WIDTH + 2`
-	if test "$WIDTH" -lt "10"; then echo "col -bx | longestline failed"; WIDTH="80"; fi
-	whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN "$@"
+	## First, check a manual page actually exists: (man will print error for us if not)
+	rememo $REALMAN -a "$@" > /dev/null
+	if test "$?" = 0
+	then
+		## Need to format output to find widest line
+		WIDTH=`memo $REALMAN -a "$@" | col -bx | longestline`
+		# WIDTH=`expr $WIDTH + 2`
+		if test "$WIDTH" -lt "10"; then echo "col -bx | longestline failed" | tee -a "$JPATH/logs/jshdebug"; WIDTH="80"; fi
+		whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN "$@"
+	fi
 else
 	$REALMAN -a "$@"
 fi
