@@ -12,13 +12,15 @@ then
 fi
 
 for X in "$@"; do
-  if startswith "$X" "$TOPTMP" || startswith "$X" "/tmp/"; then
-	 rm -rf "$X"
+  if startswith "$X" "$TOPTMP" || startswith "$X" "/tmp/" ||
+     ( test "$TMPDIR" && startswith "$X" "$TMPDIR" )
+  then
+    rm -rf "$X"
     # mkdir -p $JPATH/trash/$TOPTMP
     # mv "$X" $JPATH/trash/$X
     # del "$X" > /dev/null
   else
     echo "jdeltmp: $X does not start with $TOPTMP" > /dev/stderr
-	 exit 1
+    exit 1
   fi
 done
