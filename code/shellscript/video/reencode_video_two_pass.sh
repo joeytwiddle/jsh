@@ -41,6 +41,7 @@ rm -f ./stream.yuv
 [ "$TARGET_SIZE" ] || TARGET_SIZE=700
 if [ ! "$AUDIO_BITRATE" ]
 then
+	## TODO: should make this 48 if it needs to be low.
 	jshinfo "Defaulting AUDIO_BITRATE of output to 64 kilobits per second."
 	AUDIO_BITRATE=64
 fi
@@ -68,8 +69,8 @@ OUTPUT_CODEC="-y ffmpeg,mjpeg -F mpeg4" ## Tried some others because this one wa
 # transcode -i "$INPUT" -x mplayer -o "$OUTPUT" $OUTPUT_CODEC -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $EXTRA_TRANSCODE_OPTS
 
 ## Two pass:
-transcode -i "$INPUT" -x vob -o /dev/null $OUTPUT_CODEC -R 1 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
-transcode -i "$INPUT" -x vob -o "$OUTPUT" $OUTPUT_CODEC -R 2 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
+transcode -i "$INPUT" -x mplayer -o /dev/null $OUTPUT_CODEC -R 1 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
+transcode -i "$INPUT" -x mplayer -o "$OUTPUT" $OUTPUT_CODEC -R 2 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
 
 ## Notes:
 ## +1kbps on a 1hr40min video will increase size by 3/4Meg
