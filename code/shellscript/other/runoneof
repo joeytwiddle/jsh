@@ -1,4 +1,5 @@
 #!/bin/sh
+
 # #!/usr/local/bin/zsh
 
 # Problems without zsh - why?  `which $FILE` doesn't work in sh
@@ -15,7 +16,7 @@ ARGS="$2";
 # echo "l='$LIST' a='$ARGS'"
 
 for FILE in `echo $LIST`; do
-  # echo "file: $FILE"
+  echo "file: $FILE"
   TRY=`jwhich $FILE`
   # TRY=`which $FILE`
   # Uncomment this, disrupt $? next line   echo 'Got: "'$TRY'"'

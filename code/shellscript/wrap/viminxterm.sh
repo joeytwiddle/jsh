@@ -2,6 +2,7 @@
 
 # jwhich inj vim > /dev/null
 jwhich vim > /dev/null
+
 if test ! "$?" = "0"; then
 	echo "viminxterm failing: vim not present"
 	exit 1
@@ -55,4 +56,9 @@ INTGEOM=`echo "$COLS"x"$ROWS" | sed 's|\..*x|x| ; s|\..*$||'`
 TITLE=`absolutepath "$@"`" [vim]"
 
 XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
-`jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
+
+XTERM=`jwhich xterm`
+
+echo "Got xterm = $XTERM"
+
+$XTERM -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"

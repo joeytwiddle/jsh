@@ -10,6 +10,7 @@ TOOLJDIR=`dirname "$TOOLDIR"`
 TRYDIRS="$TOOLJDIR
 $HOME/j
 /home/joey/j
+/home/joey/linux/j
 /home/pgrad/pclark/solaris/j"
 
 # Perform the search

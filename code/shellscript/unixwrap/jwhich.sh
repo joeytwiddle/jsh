@@ -1,4 +1,8 @@
 #!/usr/local/bin/zsh
+# #!/bin/sh
+
+# echo "jwhich: $@"
+
 if [ "$1" = "" ]; then
   echo "jwhich [ inj ] <file> [ quietly ]"
   echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
@@ -6,16 +10,19 @@ if [ "$1" = "" ]; then
 fi
 
 if test "$1" = "inj"; then
-  FILE="$2"
-  QUIETLY="$3"
   PATHS=`echo "$PATH" | tr ":" "\n"`
+  shift
 else
-  FILE="$1"
-  QUIETLY="$2"
   # Remove all references to JLib from the path
   PATHS=`echo "$PATH" | tr ":" "\n" | grep -v "$JPATH" | grep -v "^.\$"`;
   # PATHS=`echo "$PATH" | tr ":" "\n" | grep -v "^$JPATH/tools" | grep -v "^.\$"`;
 fi
+FILE="$1"
+QUIETLY="$2"
+
+echo "JPATH = $JPATH" > ~/tmp.txt
+echo "PATHS = $PATHS" >> ~/tmp.txt
+echo "file = $FILE" >> ~/tmp.txt
 
 # for dir in $PATHS; do
 echo $PATHS | while read dir; do

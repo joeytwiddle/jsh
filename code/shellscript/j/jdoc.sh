@@ -56,5 +56,5 @@
       # sed "s|$1|"`curseyellow`"$1"`cursegrey`"|g"
       highlight "$1" yellow
   fi
-    
+
 ) # | more
