@@ -1,5 +1,5 @@
 export JPATH=$HOME/j
-export JWHICHOS=linux
+export JWHICHOS=unix
 export PATH=.:$JPATH/tools:$PATH
 
 source getmachineinfo

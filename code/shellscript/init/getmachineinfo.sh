@@ -6,6 +6,7 @@ case "$UNAME" in
 	"Linux")
 		JM_DOES_COLOUR=true
 		JM_COLOUR_LS=true
+		JM_ADVANCED_DU=true
 		;;
 	"SunOS")
 		JM_DOES_COLOUR=true

@@ -2,8 +2,6 @@
 
 # #!/usr/local/bin/zsh
 
-# echo "jwhich: $@"
-
 if [ "$1" = "" ]; then
   echo "jwhich [ inj ] <file> [ quietly ]"
   echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
@@ -25,16 +23,19 @@ QUIETLY="$2"
 # echo "PATHS = $PATHS" >> ~/tmp.txt
 # echo "file = $FILE" >> ~/tmp.txt
 
-# for dir in $PATHS; do
 # Note the quotes around $PATHS here are important, otherwise unix converts into one line again!
-echo "$PATHS" | while read dir; do
-  if [ -f "$dir/$FILE" ]; then
+# This is no good cos it spawns a new process, and the exit doesn't work.
+# echo "$PATHS" | while read dir; do
+for dir in $PATHS; do
+  if test -f "$dir/$FILE"; then
     if [ ! "$QUIETLY" = "quietly" ]; then
       echo $dir/$FILE
     fi
     exit 0      # Found!  :)
   # else
     # echo "$dir/$FILE does not exist"
+  # else
+	  # echo "$dir/$FILE is not a file"
   fi
 done
 

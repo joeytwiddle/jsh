@@ -15,7 +15,7 @@ ARGS="$2";
 
 # echo "l='$LIST' a='$ARGS'"
 
-for FILE in `echo $LIST`; do
+for FILE in $LIST; do
   # echo "file: $FILE"
   TRY=`jwhich inj $FILE`
   # TRY=`which $FILE`
