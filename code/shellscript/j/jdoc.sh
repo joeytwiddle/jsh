@@ -58,12 +58,16 @@ else
   fi
 
   echo
-  echo "Press <Enter> to see usage of/dependencies on $1"
+  echo -n "Would you like to see uses of / dependencies on $1? [yN] "
   read KEY
-  if test "$KEY" = ""; then
-    TABCHAR=`echo -e "\011"`
-    cd $JPATH/tools/
-    higrep "\<$1\>" -C2 *
-  fi
+  printf "\033[01;30mDidn't think so`cursenorm`\n"
+  # echo
+  case "$KEY" in
+    y|Y)
+      TABCHAR=`echo -e "\011"`
+      cd $JPATH/tools/
+      higrep "\<$1\>" -C2 *
+    ;;
+  esac
 
 fi

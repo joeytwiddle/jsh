@@ -21,6 +21,13 @@
 	# test "$JSH_DEBUG" && echo "$*" >&2
 # }
 
+case "$1" in
+	-h|--help)
+		"$0" jhelp
+		exit 0
+	;;
+esac
+
 test "$STARTJ_BLOCK" && exit 0
 
 ## Check that we have a valid JPATH environment variable:
@@ -51,7 +58,8 @@ else
 	# if test "`hostname`" = hwi && test $USER = joey; then
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
 	if test `which zsh` 2>&1 > /dev/null &&
-	   ( test $USER = joey || test $USER = pclark || test $USER = edwards )
+	   grep '\(source\|\.\) .*/startj$' $HOME/.zshrc 2>&1 > /dev/null
+	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
 		## I believe zsh sources its own rc scripts automatically, so this is not needed:
 		# export BASH_BASH=$HOME/.zshrc

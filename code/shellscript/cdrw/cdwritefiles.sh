@@ -27,7 +27,9 @@ if test ! "$?" = 0
 then exit
 fi
 
-## Post-write checksumming (to check write OK, and to keep handy file index)
+
+
+### Post-write checksumming (to check write OK, and to keep handy file index)
 
 sleep 10
 cursecyan

@@ -94,7 +94,8 @@ while test "$1"; do
 			while test -f "$DEST/$y" -o -d "$DEST/$y"; do
 				# echo "$y already in trash - writing $y.new"
 				# mv "$y" "$y.new"   # required with $y $DEST below:   # now broken - needs $SRCDIR ?
-				y="$y.new"
+				# y="$y.new"
+				y="$y"_
 			done
 
 			# Move it and report =)
