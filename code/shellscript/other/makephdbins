@@ -15,3 +15,7 @@ cd ..
 
 cd gentestimg
 x simgen
+cd ..
+
+cd improc
+xt invert
