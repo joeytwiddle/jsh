@@ -1,4 +1,0 @@
-for DUMMY in ${1+"$@"} ; do
-  echo $DUMMY
-  echo $#
-done

@@ -2,7 +2,7 @@
 
 FILES="$*";
 if test "$FILES" = ""; then
-  FILES=*.[J:j][P:p]*[G:g] *.gif;
+  FILES="*.[J:j][P:p]*[G:g] *.gif";
 fi
 
 echo "<html>"
