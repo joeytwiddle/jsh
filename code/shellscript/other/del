@@ -9,9 +9,16 @@
 # FILES="$@"
 
 if test "$1x" = "x"; then
-  echo "del <files>"
+  echo "del [-cvs] <files>"
   echo "will move <files> to $JPATH/trash/"
+  echo "and optionally (-cvs) remove them from CVS too."
   exit 1
+fi
+
+DOCVS=
+if test "$1" = "-cvs"; then
+	DOCVS=true
+	shift
 fi
 
 # N=1;
@@ -83,13 +90,14 @@ while test "$1"; do
       mv -f "$x" "$DEST/$y"
 
 			# Remove from CVS
-			if test -d "$SRCDIR/CVS"; then
-				cvs remove $x > /dev/null 2>&1
-				# if test ! "$?" = "0"; then
-				if test "$?" = "0"; then
-					echo "Removed from CVS"
-				else
-					echo "Error with CVS"
+			if test $DOCVS; then
+				if test -d "$SRCDIR/CVS"; then
+					cvs remove $x > /dev/null 2>&1
+					if test "$?" = "0"; then
+						echo "Removed from CVS"
+					else
+						echo "Error with CVS"
+					fi
 				fi
 			fi
 

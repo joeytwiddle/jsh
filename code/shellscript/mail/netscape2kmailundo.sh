@@ -2,6 +2,12 @@
 
 purgelinks "$HOME/nsmail/"
 
+# delete netscape and kmail caches
+find . -name ".*.summary" -or -name ".*.sorted" -or -name ".*.index" | # kmail
+	while read X; do
+		echo "rm \"$X\""
+	done
+
 echo "recommend | sh" >> /dev/stderr
 
 exit 0

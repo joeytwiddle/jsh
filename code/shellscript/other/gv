@@ -5,4 +5,5 @@
 # runoneof "ghostview $LOCALgv" "$*" &
 # fi
 
-`jwhich ghostview` $* &
+# `jwhich ghostview` $* &
+`jwhich gv` $* &

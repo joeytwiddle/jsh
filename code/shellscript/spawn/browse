@@ -1,6 +1,7 @@
 #!/bin/sh
 
 FAVOURITE_BROWSERS='konqueror mozilla netscape encompass nautilus amaya lynx'
+FAVOURITE_TERM_BROWSERS='lynx links w3c'
 
 ARGS="$@"
 if test "x$ARGS" = "x"; then
@@ -10,7 +11,7 @@ fi
 if xisrunning; then
 	runoneof "$FAVOURITE_BROWSERS" "$@" &
 else
-	runoneof "$FAVOURITE_BROWSERS" "$@"
+	runoneof "$FAVOURITE_TERM_BROWSERS" "$@"
 fi
 
 # netscape "file://$PWD/$@" &

@@ -26,7 +26,8 @@
 find /stuff/mp3s/ -iname "*.mp3" |
 	grep -v /horrid |
 	grep -v /dontplay/ |
-	grep -v /_dontplay/ > $JPATH/music/list.m3u
+	grep -v /_dontplay/ |
+	sed 's+\(.*\)/\(.*\)+"\2" \1/\2+' | sort -f -k 1 | sed 's+.*" ++' > $JPATH/music/list.m3u
 
 # echo "PID= $$"
 # requestsudo "source $JPATH/startj

@@ -1,22 +1,18 @@
-if test ! -f "$*"; then
-	echo "$* does not exist!"
+if test ! -f "$@"; then
+	echo "$@ does not exist!"
 	exit 1
 fi
 
-if test "$JWHICHOS" = "linux"; then
-  COM=`jwhich xdvi`" -install -nopostscript -geometry 790x920 -s 7 -shrinkbutton1 11 -shrinkbutton2 8 -shrinkbutton3 5 -shrinkbutton4 3"
-  # COM=`jwhich xdvi`" -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 6 -shrinkbutton4 3"
-  # COM=`jwhich xdvi`" -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 7 -shrinkbutton4 5"
-  # COM=`jwhich xdvi`" -geometry 550x650 -s 11 -shrinkbutton1 11"
-elif test "$JWHICHOS" = "unix"; then
-  # COM="/usr/local/bin/xdvi -bg white -fg black"
-  COM=`jwhich xdvi`" -bg white -fg black"
+XDVI=`jwhich xdvi`
+XDVIVERSION=`$XDVI -version | head -1 | after "version " | getint`
+# echo "version=$XDVIVERSION"
+if test $XDVIVERSION -gt 20; then
+  COM="$XDVI -install -nopostscript -geometry 790x920 -s 7 -shrinkbutton1 11 -shrinkbutton2 8 -shrinkbutton3 5 -shrinkbutton4 3"
+  # COM="$XDVI -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 6 -shrinkbutton4 3"
+  # COM="$XDVI -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 7 -shrinkbutton4 5"
+  # COM="$XDVI -geometry 550x650 -s 11 -shrinkbutton1 11"
 else
-  export PATH=`echo $PATH | tr ":" "\n" | grep -v "$JPATH" | tr "\n" ":"`;
-  COM=`which xdvi`
-  if test "$COM" = ""; then
-    echo "Could not find xdvi"
-  fi
+  COM="$XDVI -nopostscript -bg white -fg black"
 fi
 
 $COM "$@" &

@@ -5,7 +5,7 @@ find $HOME/nsmail -type d -name "*.sbd" -follow |
 		if test -d "$Y"; then
 			echo "already exists: $Y"
 		else
-			echo "$Y -> $X"
+			echo "$Y -> "`filename "$X"`
 			ln -s "$X" "$Y"
 		fi
 	done
