@@ -12,6 +12,12 @@ fi
 
 ### Read parameters
 
+if test "$1" = -diffcom
+then
+	DIFFCOM="$2"
+	shift; shift
+fi
+
 LOCAL="$1"
 REMOTESTRING="$2"
 shift
