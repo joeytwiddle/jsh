@@ -7,4 +7,4 @@ else
 	LOOK="$@"
 fi
 
-find "$LOOK" -type l | sed "s/^/rm /"
+find "$LOOK" -type l | sed 's/^/rm "/;s/$/"/'

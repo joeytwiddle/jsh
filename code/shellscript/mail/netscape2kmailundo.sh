@@ -1,9 +1,12 @@
 # Purges Kmail cache and links to ns folders
 
+echo "# Symlinks"
+
 purgelinks "$HOME/nsmail/"
 
-# delete netscape and kmail caches
-find . -name ".*.summary" -or -name ".*.sorted" -or -name ".*.index" | # kmail
+echo "# Netscape and Kmail caches"
+
+find "$HOME/nsmail/" -name ".*.summary" -or -name ".*.sorted" -or -name ".*.index" | # kmail
 	while read X; do
 		echo "rm \"$X\""
 	done
