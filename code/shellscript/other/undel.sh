@@ -1,6 +1,7 @@
 #!/bin/sh
 
 ## TODO: Should now also consider /RECLAIM directory of partition, to reflect new del.
+## DONE: for "$1" = "" but not otherwise.
 
 TRASHDIR="$JPATH/trash"
 if test ! -w "$JPATH/trash"
@@ -12,8 +13,26 @@ DIR=`realpath "$PWD"`
 
 if [ "$1" = "" ]
 then
-	echo "Deleted files in `#cursegreen`$TRASHDIR/$DIR/`#cursenorm`:"
-	ls -ArtFh --color $TRASHDIR/$DIR
+
+	## Old style deleting to $JPATH/trash:
+
+	if [ -d "$TRASHDIR/$DIR" ]
+	then
+		echo "Deleted files in `#cursegreen`$TRASHDIR/$DIR/`#cursenorm`:"
+		ls -l -ArtFh --color $TRASHDIR/$DIR
+	fi
+
+	## New style deleting to /RECLAIM
+
+	MOUNTPNT=`wheremounted .`
+	TRASHDIR="$MOUNTPNT/RECLAIM"
+	if [ -d "$TRASHDIR" ]
+	then
+		FINALPATH=$TRASHDIR/`realpath . | sed "s+$MOUNTPNT++"`
+		echo "Deleted files in `#cursegreen`$FINALPATH`#cursenorm`:"
+		ls -l -ArtFh --color $FINALPATH
+	fi
+
 else
 	while [ ! "$1" = "" ]
 	do

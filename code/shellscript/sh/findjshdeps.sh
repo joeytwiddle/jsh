@@ -133,8 +133,8 @@ do
   # echo "$REGEXP" >&2
 
   grep "$REGEXP" "$LIST" &&
-  echo "  is/are needed for $SCRIPT" ||
-  echo "$SCRIPT is pure sh (or its dependencies are not present)" >&2
+  echo "  may be needed for $SCRIPT" ||
+  echo "$SCRIPT probably runs standalone (or its dependencies are not present)" >&2
   echo
 
 done

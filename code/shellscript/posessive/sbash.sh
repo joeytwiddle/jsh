@@ -1,6 +1,12 @@
 # set -e
 # set -x
 
+xhost
+xhost - || error "Clearing xhost permissions failed."
+echo "NOTE: xhost permissions cleared, you will have to restore them manually"
+## TODO: restore xhost permissions to previous when sbash is done
+echo
+
 PRIVFILE="/home/joey/linux/.private/private.tgz.encrypted"
 PRIVFILEDIR="`dirname "$PRIVFILE"`"
 PRIVFILEBASE="`basename "$PRIVFILE" .tgz.encrypted`"

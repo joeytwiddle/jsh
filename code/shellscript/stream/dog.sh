@@ -1,1 +1,2 @@
+# jsh-depends: pipebackto
 pipebackto "$@"

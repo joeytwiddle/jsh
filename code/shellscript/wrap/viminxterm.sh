@@ -10,47 +10,65 @@ then
 	exit 1
 fi
 
-FILE="$1";
+FILE="$1"
 
+## TODO: this algorithm should be refactored out.  But how should it return /two/ values?  Source it or use it as a fn?  But it uses so many variables, we should ensure they are kept local.  Fn then, not direct sourcing.
+## If the file exists, this cunning algorithm is used to determine the optimal dimensions for the editor window
+## If the file needs more space than the maximum volume allowed, the algorithm prioritises height over width, but within limits.
 if [ -f "$FILE" ] && [ ! `filesize "$FILE"` = "0" ]
 then
 
-	## TODO/BUG: Longest line calculations do not work on .gz files, but could with gunzip -c ...
+	MAXVOL=`expr 140 "*" 50`
+	MAXCOLS=180
+	MAXROWS=50
+	MINCOLS=20
+	MINROWS=10
 
-	# MAXVOL=`expr 80 "*" 50`
-	MAXVOL=`expr 120 "*" 60`
-
-	LINES=`countlines "$FILE"`
-	LONGEST=`longestline "$FILE"`
-	LONGEST=`expr '(' $LONGEST '+' 2 ')' '*' 11 '/' 10`
-
-	# echo "LINES = $LINES"
-	# echo "LONGEST = $LONGEST"
-
-	# Determine desired height
-	ROWS=`expr '(' $LINES '+' 2 ')' '*' 11 '/' 10`;
-	if [ $ROWS -gt 50 ]
-	then ROWS=50
+	## In some ways, this only applies to vim, because most editors won't unzip .gzipped files when reading them.
+	if endswith "$FILE" "\.gz"
+	then
+		FILETOREAD=`jgettmp viminxterm_"$FILE".unzipped`
+		gunzip -c "$FILE" > "$FILETOREAD"
+	else
+		FILETOREAD="$FILE"
 	fi
 
-	# Determine optimal distribution
-	# Actually choose width cols from maxvolume and rows
+	ROWSINFILE=`countlines "$FILETOREAD"`
+	COLSINFILE=`longestline "$FILETOREAD"`
+	# echo "ROWSINFILE = $ROWSINFILE"
+	# echo "COLSINFILE = $COLSINFILE"
+
+	if [ ! "$FILETOREAD" = "$FILE" ]
+	then jdeltmp $FILETOREAD
+	fi
+
+	## Expand the perceived dimensions of the file, so that the editor will show a little gap at the sides
+	ROWSINFILE=`expr '(' $ROWSINFILE '+' 2 ')' '*' 11 '/' 10`;
+	COLSINFILE=`expr '(' $COLSINFILE '+' 2 ')' '*' 11 '/' 10`
+
+	## Determine desired height, without exceeding needed height, or maximum allowed height
+	if [ $ROWSINFILE -lt $MAXROWS ]
+	then ROWS=$ROWSINFILE
+	else ROWS=$MAXROWS
+	fi
+
+	## Determine largest possible width without exceeding maximum allowed volume
 	COLS=`expr $MAXVOL / $ROWS`
-	# but reduce to longest line if above.
-	if [ $LONGEST -lt $COLS ]
-	then COLS=$LONGEST;
+	## Also, do not exceed needed width
+	if [ $COLSINFILE -lt $COLS ]
+	then COLS=$COLSINFILE
 	fi
-	## But don't go too far!
-	if test $COLS -gt 180
-	then COLS=180
+	## Also, do not exceed maximum allowed width
+	if [ $COLS -gt $MAXCOLS ]
+	then COLS=$MAXCOLS
 	fi
 
-	# Ensure at least minimum size
-	if [ $COLS -lt 20 ]
-	then COLS=20
+	## And do not fall below minimum allowed width and height
+	if [ $COLS -lt $MINCOLS ]
+	then COLS=$MINCOLS
 	fi
-	if [ $ROWS -lt 5 ]
-	then ROWS=5
+	if [ $ROWS -lt $MINROWS ]
+	then ROWS=$MINROWS
 	fi
 
 else

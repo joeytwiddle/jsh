@@ -25,7 +25,7 @@ then
 	echo "<stream_of_dirs_and_jars> | . addtoclasspath [-quiet] -"
 	echo "Adds each argument or line to the end of your classpath."
 	echo "Option -quiet: do not complain if classpath not found."
-	exit 1
+	# Don't exit 1 because this script is usually sourced (!), and besides it doesn't matter.
 fi
 
 if [ "$1" = -quiet ]

@@ -18,7 +18,9 @@ then
 		WIDTH=`memo $REALMAN -a "$@" | col -bx | longestline`
 		# WIDTH=`expr $WIDTH + 2`
 		if test "$WIDTH" -lt "10"; then echo "col -bx | longestline failed" | tee -a "$JPATH/logs/jshdebug"; WIDTH="80"; fi
+		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN -a "$@"
 		whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN -a "$@"
+		## TODO: whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e inscreendo man $REALMAN -a "$@"
 	fi
 else
 	$REALMAN -a "$@"

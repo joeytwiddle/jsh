@@ -208,8 +208,18 @@ case "$1" in
 
 	*)
 
-		echo "jshdepwiz: command \"$*\" not recognised."
-		exit 1
+		if [ ! "$1" = --help ]
+		then echo "jshdepwiz: command \"$*\" not recognised."
+		fi
+
+		echo
+		echo "jshdepwiz [ getjshdeps | getextdeps | gendeps ] <scriptname>"
+		echo
+		echo "  getjshdeps and getextdeps extract meta-data from the script."
+		echo
+		echo "  gendeps uses heuristics to identify the script's dependencies, and"
+		echo "    requests developer feedback before writing the meta-data."
+		echo
 
 	;;
 

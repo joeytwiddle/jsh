@@ -25,19 +25,20 @@ do
 
 	if [ ! -f "$DIRA/$FILE" ]
 	then
-		echo "Only in $DIRB: $FILE"
+		echo "`cursegreen`Only in $DIRB: $FILE`cursenorm`"
 	elif [ ! -f "$DIRB/$FILE" ]
 	then
-		echo "Only in $DIRA: $FILE"
+		echo "`cursered;cursebold`Only in $DIRA: $FILE`cursenorm`"
 	else
 		if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
 		## This is no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
 		# if [ "`filesize \"$DIRA/$FILE\"`" = "`filesize \"$DIRB/$FILE\"`" ]
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
-		then noop # echo "Identical: $FILE"
+		then noop
+		# then echo "Identical: $FILE"
 		# else echo "Differ: $FILE"
 		else
-			echo "Differ: \"$DIRA/$FILE\" \"$DIRB/$FILE\""
+			echo "`curseyellow`Differ: diff \"$DIRA/$FILE\" \"$DIRB/$FILE\"`cursenorm`"
 			if [ "$SHOWDIFFSWITH" ]
 			then
 				echo "Here are the differences:"

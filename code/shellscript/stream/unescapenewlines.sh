@@ -1,6 +1,6 @@
 # unj decodeslashn "$@"
 
-## In fact, for decoding a newline-escaped stream, tr -d '\n' should never be harmful, so the -x option needn't really be specified, it could be assumed.  (But the -x should still be caught if it is still used of course!)
+## In fact, for decoding a newline-escaped stream, tr -d '\n' should never be harmful, so the -x option needn't really be specified, it could be assumed.  (But if it is going to be sent, the -x should be caught!)
 
 if [ "$1" = -test ]
 then
@@ -59,7 +59,10 @@ fi |
 # sed 's+\\n+\
 # +g;s+\\\\+\\+g'
 
-# Inelegant fudge:
+## Inelegant fudge:
+## Turns '\''\'  into $UNIQUE (to get them out of the way without affecting the '\''\n's),
+##  then '\''n'  into '\n',
+##  then $UNIQUE into '\'.
 (
 UNIQUE="jadljfofjw90f02""4329r2934SFKSLFSL""s;kxc8DJknk4;lkkk09""DkSPlerA(3428*Kasd298jh"
 sed 's+\\\\+$UNIQUE+g;s+\\n+\

@@ -95,6 +95,11 @@ mvcvs1() {
 		## Could be replaced with: rm -f "$LOCALSRC" ; cvs remove "$LOCALSRC"
 		echo "del -cvs \"$LOCALSRC\""
 
+		## Finalise changes
+		echo "cvsupdate -AdP"
+		echo "cvscommit -m \"MOVED to $LOCALDEST\" $LOCALSRC"
+		echo "cvscommit -m \"MOVED from $LOCALSRC\" $LOCALDEST"
+
 	else
 
 		echo "Source \"$LOCALSRC\" is not a file or a directory!"
@@ -129,10 +134,6 @@ while read X
 do
 	echo "cd .."
 done
-
-## Finalise changes
-echo "cvsupdate -AdP"
-echo "cvscommit"
 
 # FILE="$1"
 # DESTDIR="$2"

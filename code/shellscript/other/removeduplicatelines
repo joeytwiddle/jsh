@@ -1,5 +1,5 @@
+## Does not preserve order, which makes it a "set" function, whereas removeduplicatelinespo is the corresponding (slower) "list" fn.  Could rephrase / rename scripts to convey this concept.
 # jsh-depends: bounce
-# Does not preserve order
 # but there is a nice new version with extension po which does
 # using sort...
 
@@ -8,15 +8,31 @@
 
 ## TODO: at some point check whether sort's -u option might make removeduplicatelines or keepduplicatelines or something else faster...
 
-if [ "$1" = "--help" ] || [ "$1" = "-h" ]
+if [ "$1" = "--help" ]
 then
-	echo "Use -adj to preserve order if you know duplicates will appear adjacent to each other anyway."
-	exit 0
+  # outputs the set of lines from stdin or <files>, sorted, with duplicates removed.
+cat << !
+
+removeduplicatelines [ -adj ] [ <files> ]
+
+  reads from stdin or <files>, removes duplicate lines, and echos to stdout.
+
+  BUT: it does not preserve the order of the stream; it sorts it.
+
+  With the -adj option: does not sort the lines before processing.
+    This can be used to save processing if the stream is already sorted.
+    Otherwise, preserves line order, but only squeezes adjacent duplicates.
+
+  Note: to preserve order but remove non-adjacent duplicates, use
+        removeduplicatelinespo .
+
+!
+exit 1
 fi
 
 SORT="sort"
 if [ "$1" = "-adj" ]
-then SORT="cat"
+then SORT="cat"; shift
 fi
 
 Y="what would be a non-existent string, if such a string was possible"

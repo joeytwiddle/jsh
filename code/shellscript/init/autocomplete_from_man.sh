@@ -28,6 +28,7 @@ then
 	}
 
 	## Since bash only runs completion on named commands, we must go and get the names of all commands in $PATH:
+	# (Turned off all alternative completion types until I find a subset which works)
 	# complete -a -b -c -d -f -g -j -k -s -u -F joeyComplete `
 	complete -F joeyComplete `
 		echo "$PATH" | tr ':' '\n' |
@@ -51,7 +52,7 @@ then
 			reply=
 		else
 			## Cache:
-			MEMOFILE=/tmp/completion_options/"$COMMAND".cached
+			MEMOFILE=/tmp/completion_options-$USER/"$COMMAND".cached
 			if [ ! -f "$MEMOFILE" ] || [ "$REMEMO" ]
 			then
 				mkdir -p `dirname "$MEMOFILE"` ## This works even if COMMAND is an alias with '/'s in path.
@@ -62,6 +63,8 @@ then
 		fi
 	}
 
-	compctl -f -c -u -r -K joeyComplete -H 0 '' "*" -tn
+	compctl -f -c -u -r -K joeyComplete "*" -tn
+	## History made directory /s not work and was in general quite annoying for me:
+	# -H 0 '' 
 
 fi

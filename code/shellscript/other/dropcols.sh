@@ -9,6 +9,10 @@
 ## TODO:
 ## Sometimes fields are delimited by single tabs, single spaces, or multiple spaces.  What's yours?
 
+## TODO:
+## Sometimes retaining the indentation of the first field is desirable.
+## See columnise-clever, which has initial attempts at splitting after indent.
+
 ## Currently matches adjacent spaces/tabs as one delimeter
 SEDSTRINGBITA='\([^ 	]*\)[ 	]*'
 

@@ -19,6 +19,10 @@ TMPFILE=`jgettmp tmprememo`
 ## This doesn't work if input is "x | y"
 # "$@" | tee "$FILE"
 
+if ! tty >/dev/null
+then jshwarn "rememo found no pts on \"$*\".  If different input streams can give different outputs, then memoing should not be employed."
+fi
+
 ## eval caused problems when one of the args was a URL containing the '&' character
 ## BUG: can't handle single bracket in filename eg. memo du -sk ./*
 ## BUG: also can't handle 's in filenames

@@ -60,6 +60,9 @@ FAIL=false
 # dyndns.org update (using hwi.ath.cx):
 /root/ipcheck_emailforever.net/doipcheck_emailforever.net.sh || FAIL=true
 
+# dyndns.org update (using hwi.ath.cx):
+/root/ipcheck_open-lists.net/doipcheck_open-lists.net.sh || FAIL=true
+
 ( sleep 10m ; killall noip ) &
 # no-ip.org update (for freenet):
 /root/noip_updater_v1.6/noip -c /root/noip_updater_v1.6/no-ip.conf || FAIL=true

@@ -28,6 +28,21 @@
 
 # OK now we fork depending on cols or not, so problem will only occur if using cols
 
+if [ "$1" = --help ]
+then
+cat << !
+
+keepduplicatelines [ -gap ] [ <column_#>s ]
+
+  reads from stdin, and keeps any lines which have duplicates
+	(or, if columns are specified, keeps lines which have duplicates
+	in just those columns).
+
+	With -gap, prints an empty line between each set of duplicates
+
+!
+fi
+
 TMPFILE=`jgettmp keepduplicatelines`
 
 export GAP=
@@ -35,12 +50,15 @@ while test "$1" = "-gap"
 do export GAP=true; shift
 done
 
+## Save the stream (we need to read it twice later).
 cat > "$TMPFILE"
+
+## Find lines which are duplicated (in specified columns).
 
 LAST=""
 
 cat "$TMPFILE" |
-takecols "$@" |
+takecols "$@" | ## TODO: is this syntax ok?
 sort |
 
 while read LINE
@@ -51,8 +69,10 @@ do
   LAST="$LINE"
 done |
 
+## OK but if a line had lots of duplicates, we only need one instance of it to get each set, so:
 removeduplicatelines |
 
+## For each duplicate line-type found, show all its instances:
 while read LINE; do
   if test "$LINE"
   then
@@ -61,12 +81,13 @@ while read LINE; do
     fi
     if test ! "$1"
     then echo "$LINE"
-    # else grep "$LINE" "$TMPFILE" # The dodgy grep
+    # else grep "$LINE" "$TMPFILE"
+		## Dodgy grep which ensures the string is in its own column:
     else grep "\(^\|[ 	]\)$LINE\([ 	]\|$\)" "$TMPFILE" # The dodgy grep
     fi
   fi
 done |
 
-removeduplicatelinespo # These can occur if the kept column matches an irrelevent line (eg. subset or irrelevent column)
+removeduplicatelinespo # These can occur if the kept column matches an irrelevent line (eg. subset or irrelevent column)     ## TODO: Eh?!  Example please.
 
 jdeltmp "$TMPFILE"

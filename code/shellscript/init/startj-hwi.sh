@@ -138,7 +138,7 @@ else
 
 			### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
 
-			if [ ! "$1" = "simple" ]
+			if [ ! "$1" = "simple" ] && ! [ "$STARTJ_SIMPLE" ]
 			then
 
 				## TODO: Separate scripts which need to run to init stuff for runtime

@@ -3,7 +3,8 @@
 
 getfiles () {
 	## This is very slow, could try: cvs diff 2>/dev/null | grep "^Index:"
-	cvsdiff "$@" |
+	## I use memo to avoid locking problems caused by two cvs's querying the same directory.  Ie. I get the cvsdiff saved to a file (thanks to memo) before I do any commits.
+	memo -t "30 seconds" cvsdiff "$@" |
 	grep "^cvs commit " |
 	sed 's+^cvs commit ++' |
 	sed 's+[	 ]*#.*++'

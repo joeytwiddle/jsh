@@ -15,7 +15,7 @@ FIRSTLOOP=true
 while true
 do
 
-	TRACK=`cat $JPATH/music/list.m3u | grep -i "$SEARCH" | ungrep INCOMPLETE | chooserandomline`
+	TRACK=`cat $JPATH/music/list.m3u | grep -i "$SEARCH" | chooserandomline`
 
 	[ ! -f "$TRACK" ] && continue
 

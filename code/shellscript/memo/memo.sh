@@ -1,6 +1,9 @@
 # jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath md5sum debug
 # jsh-depends-ignore: arguments filename arguments todo
 
+## Note: if you see a script which does "cd /" and claims to do it for memoing, this is because it wants all its memo's to be "working-directory independent"
+##       this might be solved in future by TODO: an option (or envvar) to specify that the working-directory is irrelevant to memo's output, and should be ignored in the hash
+
 . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
 

@@ -1,3 +1,12 @@
+## To display the diff, some style definitions must be made
+## either by linking to a remote file:
+# ADDTOHEAD='<link rel="stylesheet" type="text/css" href="http://hwi.ath.cx/tmp/diffstyles.css" media="all">'
+## Or by direct inclusion in the page, which makes it standalone.
+ADDTOHEAD='<STYLE type="text/css">'`
+	cat /var/www/tmp/diffstyles.css |
+	sed 's+$+\\\\+'
+`'</STYLE>'
+
 OLDFILE="$1"
 NEWFILE="$2"
 
@@ -9,6 +18,7 @@ quicktidy () {
 cat "$OLDFILE" | quicktidy > "$OLDFILE".tidy
 cat "$NEWFILE" | quicktidy > "$NEWFILE".tidy
 
+## IMPORTANT: if you change these two lines, you should also change the "del" below...
 OLDFILE="$OLDFILE".tidy
 NEWFILE="$NEWFILE".tidy
 
@@ -29,7 +39,7 @@ cp "$OLDFILE" tmp.html
 patch tmp.html < "$PATCHFILE"
 
 cat tmp.html |
-sed 's+<[Hh][Ee][Aa][Dd]>+<head><link rel="stylesheet" type="text/css" href="http://hwi.ath.cx/tmp/diffstyles.css" media="all">+' |
+sed "s+<[Hh][Ee][Aa][Dd]>+<head>$ADDTOHEAD+" |
 pipebackto tmp.html
 
 ## Doesn't work:  better to just reverse what we've already done
@@ -39,6 +49,7 @@ pipebackto tmp.html
 # cp "$OLDFILE" tmp.old.html
 # patch tmp.old.html < "$PATCHFILE"
 
-echo "jdeltmp \"$PATCHFILE\""
+jdeltmp \"$PATCHFILE\"
+del "$OLDFILE" "$NEWFILE"
 
 echo "tmp.html created"

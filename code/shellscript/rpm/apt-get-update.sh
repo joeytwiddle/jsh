@@ -1,6 +1,6 @@
 FILE=/etc/apt/all-sources.list
 
-if [ ! -f "$FILE" || "$1" = --help ]
+if [ ! -f "$FILE" ] || [ "$1" = --help ]
 then
 	echo "apt-get-update is intended to update a larger set of packages than your default install sources, from $FILE"
 	echo "  It won't do anything unless that file exists!"
