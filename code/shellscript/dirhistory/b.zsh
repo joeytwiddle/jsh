@@ -6,11 +6,11 @@
 
 SEARCHDIR="$1"
 
-LIST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -5`
+# LIST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -5`
+# echo "$LIST"
+# LAST=`echo "$LIST" | tail -1`
 
-echo "$LIST"
-
-LAST=`echo "$LIST" | tail -1`
+LAST=`grep "$SEARCHDIR" "$HOME/.dirhistory" | tail -1`
 
 # echo "\"$@\""
 # echo "last=$LAST"
@@ -22,5 +22,7 @@ mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 # export PWD='$LAST';
 # alias cd='cd'
 "cd" "$LAST"
+
+dirhistory "$@"
 
 xttitle "($USER@$HOST:$PWD) %% "

@@ -1,4 +1,7 @@
 #!/bin/sh
+
+# Note: awkdrop is recommended for speed.
+
 N=$1
 shift
 cat "$@" | while read LINE; do
