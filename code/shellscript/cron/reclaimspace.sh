@@ -10,9 +10,18 @@ while read PARTITION SPACE POINT
 do
 
   GOAGAIN=true
+  ATTEMPTSMADE=0
 
-  while test $SPACE -lt 10240 && test "$GOAGAIN"
+  ## I can't get set -e to work on these tests; because they are in while loop?
+  while test "$SPACE" -lt 102400 && test "$GOAGAIN"
   do
+
+    ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
+    if test "$ATTEMPTSMADE" -gt 50
+    then
+      error "Stopping on $ATTEMPTSMADE"st" reclamation attempt, assuming problem!"
+      exit 12
+    fi
 
     GOAGAIN=
 
