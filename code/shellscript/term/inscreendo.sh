@@ -1,4 +1,4 @@
-## BUGS: Well, it's inconsistent: When rejoining an existing screen, it exits immediately.  But when creating a new screen, it blocks until the screen ends or is disconnected.
+## BUGS: Well, it's inconsistent: When rejoining an existing screen, it exits immediately.  But when creating a new screen, it blocks until the screen ends or is disconnected.  Behaviour should be made consistent, or optional.
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
@@ -32,14 +32,20 @@ then
 	## Run command in existing screen:
 	screen -S "$SCRSES" -X screen "$@"
 	## Set screen's title (niceity):
-	screen -S "$SCRSES" -X title "==$*=="
+	screen -S "$SCRSES" -X title "[$*]"
 
 else
 
 	## Start a new screen with the command:
 	if [ "$INXTERM" ]
 	then xterm -e screen -S "$SCRNAME" "$@"
-	else screen -S "$SCRNAME" "$@"
+	else
+		## TODO:
+		# if live terminal
+		# then screen -S "$SCRNAME" "$@"
+		# else
+		screen -d -m -S "$SCRNAME" "$@"
+		# fi
 	fi
 
 fi

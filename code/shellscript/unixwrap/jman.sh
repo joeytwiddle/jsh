@@ -4,6 +4,7 @@ then manpopup "$@"
 fi
 
 ## If the command is a jsh script, show jsh documentation (may popup, but always asks questions in the terminal):
+## TODO: should always popup if called as man (in sync with real man pages!)
 if [ -x "$JPATH/tools/$1" ]
 then jdoc "$@"
 fi

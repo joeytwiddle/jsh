@@ -1,6 +1,8 @@
 ## BUG: Now allows you rename files, but if there are multiple srcs it should check that dest is a dir!
 ## NEW: "Prototyped" ability to move whole directories (we could perform build a new tree and mvcvs every file)
 
+echo "TODO: check the file has been committed, otherwise it doesn't work!!!" >&2
+
 # safe until you | sh
 
 ## Oops

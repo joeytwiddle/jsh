@@ -1,2 +1,2 @@
 eject -t $1
-mount $1
+# mount $1

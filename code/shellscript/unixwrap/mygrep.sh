@@ -11,6 +11,6 @@ if test "$JM_UNAME" = "sunos"; then
 else
 
 	grep -d skip "$@"
-	# (grep no longer redirected)
+	# (other errors no longer redirected)
 
 fi

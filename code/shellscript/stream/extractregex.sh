@@ -1,9 +1,11 @@
-## Each (non-overlapping?) occurrence in the stream of the Perl RE is printed on an individual line.
-## Option -atom specifies that only the first bracketed atom matched should be echoed.
+## Prints (non-overlapping?) occurrences of the given (perl) regular expression found in the stream, each on an individual line.
+## The -atom option specifies that only the first bracketed atom matched should be echoed, allowing you to extract onlt a part of each matched string.
 
-## FAQ:
-##   Q) Why am I getting error "unmatched ( marked by <-- HERE" when my brackets are matched?
-##   A) You have probably terminated the perl regexp prematurely with the special symbol '/' which you should replace with "\/".
+# jsh-ext-depends: perl
+## Maybe I could make a grep+sed version.
+
+### Troubleshooting:
+## If you are getting the error: "unmatched ( marked by <-- HERE", but your brackets are matched, then the problem is probably that you need to escape your '/'s as "\/"s, because unescaped they end the perl expression.
 
 if [ "$1" = -atom ]
 then shift; EXPR="$@"

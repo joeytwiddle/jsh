@@ -16,9 +16,9 @@ fi
 
 CDRECORD_OPTS="minbuf=90"
 
-## Worked for me as initial write:
 ## Removed inaccurate tsize=359232s (means 700, but did work!), may need to use mkisofs -print-size
 ## -eject
+## -dummy 
 cursegreen
 echo "nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |"
 echo "nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=31M -v speed=8 -pad $MULTICDRECORD -overburn -"
