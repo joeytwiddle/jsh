@@ -24,7 +24,7 @@ fi
 if test `hostname` = "magenta" -o "$USER" = "pru"; then
 # if test `hostname` = "colossus" || test "$USER" = "pru"; then
   # panic style, magenta colors PS1='\['`cursegreen`'\]\$\['`cursecyan`'\]\!\['`cursegrey`'\]/\['`curseblue`'\]\u\['`cursegrey`'\]\\\['`cursemagenta`'\]\t\['`cursegrey`'\]/\['`curseblue`'\]\h\['`cursegrey`'\]\\\\\['`cursecyan`'\]\w/\['`cursegrey`'\] '
-  PS1="\[\033[00;32m\]\$\[\033[00;36m\]\! \[\033[01;34m\]\u\[\033[01m\]\\\\\[\033[00;35m\]\t\[\033[01m\]/\[\033[01;34m\]\h \[\033[01;36m\]\w\\\\\[\033[01m\] "
+  PS1="\[\033[00;32m\]\$\[\033[00;36m\]\! \[\033[01;34m\]\u\[\033[01m\]\\\\\[\033[00;35m\]\t\[\033[01m\]/\[\033[01;34m\]\h \[\033[01;36m\]\w\\\\\[\033[00m\] "
   # Gnome?
   # PS1="\[\033[00;33m\]\!\[\033[01;31m\]\$\[\033[00m\](\[\033[00;35m\]\u\[\033[00m\]|\[\033[00;36m\]\t\[\033[00m\]|\[\033[00;35m\]\h\[\033[00m\])\[\033[00;32m\]\w/\[\033[00m\] "
 fi
