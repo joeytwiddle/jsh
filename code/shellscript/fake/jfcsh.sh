@@ -62,7 +62,7 @@ else
 
 	test $BOTHWAYS && (
 		cursecyan
-		centralise -pad "v" " " "v" "Lines only in $A"
+		centralise -pad "v" " " "v" "Lines only in $1"
 		cursenorm
 		echo
 	)
@@ -85,7 +85,7 @@ else
 			# grep "^> " | sed "s/^> //"
 
 		cursecyan
-		centralise -pad "^" " " "^" "Lines only in $B"
+		centralise -pad "^" " " "^" "Lines only in $2"
 		cursenorm
 		echo
 

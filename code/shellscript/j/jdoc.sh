@@ -5,6 +5,12 @@ then
 	echo "  will show you the documentation for the command"
 	echo "  and if requested usage of / dependencies on that command in all jsh scripts"
 
+elif [ "$1" = -hasdoc ]
+then
+
+	head -100 "$2" | grep '\-\-help' > /dev/null	
+	exit "$?"
+
 elif [ "$1" = showjshtooldoc ]
 then
 
@@ -17,7 +23,7 @@ then
 				## If if appears to accept the --help argument, then just run it!
 				## (TODO: we could in fact attempt this on binaries!)
 				# if grep '\-\-help' "$LINKTOCOM" > /dev/null
-				if head -100 "$LINKTOCOM" | grep '\-\-help' > /dev/null
+				if jdoc -hasdoc "$LINKTOCOM"
 				then
 					barline
 					curseyellow

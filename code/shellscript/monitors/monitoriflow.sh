@@ -3,6 +3,8 @@
 ## Usage: monitoriflow [ <interface> ]
 ##   will display incoming, outcoming and total bytes per second travelling over the specified interface
 
+## TODO: deal with rollover of numbers which apparently happens as one woule expect
+
 ## For floating point, we could use awk or perl, or bc as below.
 
 getbytes () {

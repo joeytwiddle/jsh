@@ -61,8 +61,9 @@ else
 				fi
 			fi
 			## Maybe this'll do better at preserving permissions (links?!)?
-			cat "$TMPFILE" > "$FILE" ||
 			# mv "$TMPFILE" "$FILE" ||
+			cat "$TMPFILE" > "$FILE" &&
+				jdeltmp "$TMPFILE" ||
 				echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >&2
 		fi
 	done

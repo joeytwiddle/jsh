@@ -1,10 +1,10 @@
 # Breaks on Unix:
 
-if test $JM_ADVANCED_DU; then
-	DUCOM="du -skx"
-else
+# if test $JM_ADVANCED_DU; then
+	# DUCOM="du -skx"
+# else
 	DUCOM="du -sk"
-fi
+# fi
 
 if test $JM_COLOUR_LS; then
 	# This is bad if the output is being streamed through autoamtion!

@@ -43,7 +43,8 @@ else
 	# echo "$EXECSTR" > $EXECSH
 	# chmod a+x "$EXECSH"
 	## We default to pipe method:
-	METHOD='echo "$EXECSTR" | sh'
+	# METHOD='echo "$EXECSTR" | sh'
+	METHOD='eval "$EXECSTR"'
 fi
 
 NEW=`jgettmp "new-$1"`

@@ -30,6 +30,8 @@ findjob () {
 		##       Presumably that could be solved by starting new shell with #!/bin/sh
 		grep -v " $PID " |
 		grep -v "findjob"
+		## TODO: We fail to hide the highlight below, but it only occasionally slips through.
+		## TODO: Usually the best solution is to grep -v "\<$$\>"
 }
 
 findjobtree () {
