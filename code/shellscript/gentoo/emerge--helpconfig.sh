@@ -1,46 +1,59 @@
+## TODO: not tested: if you ever decide to keep an old version of a config file instead of replacing it with the new one, (presumably because you prefer the configuration of the old default)
+##       you should definitely -scan, so hopefully emerge--helpconfig will forget that the one
+##       you chose to keep was ever a default (because now that you have decided to keep it, it
+##       shouldn't be replaced automatically).
+##       Check: I think this script retains the old versions as well with a >> .  What's wrong with > ?
+
+## Also: When are CONTENTS files present or not?  Does that affect the script?
+##       Are we checking non-installed packages as well as installed ones (dodgy since we only care about actually installed config files, although unlikely to cause major problems).
+
 ## NOTE: not yet tested on /multiple/ updates per conf-file
 
 CONFIGLIST=/tmp/config-matches.list
 
-## No this is no good cos we need to compare against the checksum of the conffile in the /old/ package!
-if [ "$1" = "-new" ]
-then
+# ## DEPRECATED: I think I was trying to speed it up.  But this is no good cos we need to compare against the checksum of the conffile in the /old/ package!
+# if [ "$1" = "-new" ]
+# then
+# 
+	# find /etc -iname '._cfg????_*' |
+# 
+	# while read NEWCONFIG
+	# do
+		# CONFIG=`echo "$NEWCONFIG" | sed 's+/\._cfg...._+/+'`
+		# # PACKAGES=`qpkg -f "$CONFIG" | striptermchars | takecols 1`
+		# grep "^[^ ]* $CONFIG " /var/db/pkg/*/*/CONTENTS |
+		# sed 's+/var/db/pkg/\([^:]*\)/CONTENTS:\([^ ]*\) \([^ ]*\) \([^ ]*\) \(.*\)+\1 \2 \3 \4 \5+' |
+		# while read PACKAGE FILETYPE FILE MD5SUM LENGTH
+		# do
+			# [ "$FILE" = "$CONFIG" ] || jsherror "Expected $FILE = $CONFIG"
+			# EXPECTEDSUM="$MD5SUM  $FILE"
+			# GOTSUM=`md5sum "$FILE"`
+			# if [ "$EXPECTEDSUM" = "$GOTSUM" ]
+			# then
+				# echo "$FILE `cursegreen`matches`cursenorm` $PACKAGE"
+				# echo "Recommend: mv -f \"$NEWCONFIG\" \"$CONFIG\""
+			# else
+				# echo "$FILE `cursered`mismatches`cursenorm` $PACKAGE"
+				# echo "  expected: $EXPECTEDSUM"
+				# echo "  got     : $GOTSUM"
+				# echo "If no others match, you could: vimdiff \"$NEWCONFIG\" \"$CONFIG\""
+			# fi
+		# done	
+# 
+	# done
+# 
+	# exit
+# 
+# fi	
 
-	find /etc -iname '._cfg????_*' |
+## Original working method:
+## For each installed package, the scan looks for any config file which matches its checksum in its portage CONTENTS file.
+## Config files which match the package's default are recorded, so that later we can check they haven't changed, and replace them with the latest.
+## (This is supposedly more efficient than just recording /all/ the CONTENTS's md5sums for later.)
+## (And I guess it is more secure, only recording md5sums for those configs you do have installed.)
+# ## # XXXXXX [[[[[[ not accurate: The scan looks through /etc for any config file which matches its checksum in its portage package's CONTENTS file. ]]]]]]
 
-	while read NEWCONFIG
-	do
-		CONFIG=`echo "$NEWCONFIG" | sed 's+/\._cfg...._+/+'`
-		# PACKAGES=`qpkg -f "$CONFIG" | striptermchars | takecols 1`
-		grep "^[^ ]* $CONFIG " /var/db/pkg/*/*/CONTENTS |
-		sed 's+/var/db/pkg/\([^:]*\)/CONTENTS:\([^ ]*\) \([^ ]*\) \([^ ]*\) \(.*\)+\1 \2 \3 \4 \5+' |
-		while read PACKAGE FILETYPE FILE MD5SUM LENGTH
-		do
-			[ "$FILE" = "$CONFIG" ] || jsherror "Expected $FILE = $CONFIG"
-			EXPECTEDSUM="$MD5SUM  $FILE"
-			GOTSUM=`md5sum "$FILE"`
-			if [ "$EXPECTEDSUM" = "$GOTSUM" ]
-			then
-				echo "$FILE `cursegreen`matches`cursenorm` $PACKAGE"
-				echo "Recommend: mv -f \"$NEWCONFIG\" \"$CONFIG\""
-			else
-				echo "$FILE `cursered`mismatches`cursenorm` $PACKAGE"
-				echo "  expected: $EXPECTEDSUM"
-				echo "  got     : $GOTSUM"
-				echo "If no others match, you could: vimdiff \"$NEWCONFIG\" \"$CONFIG\""
-			fi
-		done	
-
-	done
-
-	exit
-
-fi	
-
-## Old method:
-## Hmm I think this works on the principle that the conffile matched the one in a package /when you did the scan/.
-
-if [ "$1" = scan ]
+if [ "$1" = -scan ]
 then
 
 	ls -l "$CONFIGLIST"
@@ -82,7 +95,7 @@ then
 	cat "$CONFIGLIST" | removeduplicatelines | dog "$CONFIGLIST"
 	ls -l "$CONFIGLIST"
 
-elif [ "$1" = check ]
+elif [ "$1" = -check ]
 then
 
 	find /etc -iname '._cfg????_*' |
@@ -115,7 +128,30 @@ then
 
 else
 
-	echo "Don't understand: \"$1\"  Try \"scan\" then \"check\""
+	echo
+	echo "emerge--helpconfig [ --help | -scan | -check ]"
+	echo
+	if [ "$1" = --help ]
+	then
+		echo "Emerge does not appear to know when a new version of a config file should"
+		echo "overwrite an old one, even if the old one hasn't changed since it was"
+		echo "installed.  This emerge--helpconfig script can solve the problem."
+		echo
+		echo "  -scan  : makes a record of all current config files which are unchanged from"
+		echo "           their package's default."
+		echo
+		echo "  -check : informs you which old config files can be overridden with new ones"
+		echo "           because they haven't changed from the old default."
+		echo
+		echo "  You need to do -scan before you emerge, because it needs to record the"
+		echo "  default for the old config file, in order to know whether it can be replaced"
+		echo "  by the new version."
+		echo
+		echo "  If this doc is confusing, just try it.  It's harmless; it only reports."
+	else	
+		echo "Don't understand: \"$1\".  Try \"--help\" then \"-scan\" then \"-check\""
+	fi	
+	echo
 	exit 1
 
 fi
