@@ -48,12 +48,20 @@ case $TERM in
 	xterm*)
 		case $SHORTSHELL in
 			zsh)
+				swd () {
+					# Dunno why doesn't work:
+					# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
+					echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
+				}
 				preexec () {
-					xttitle "$USER@$HOST:$PWD% $*"
-					# print -Pn "\e]0;$*\a"
+					export LASTCMD="$*"
+					xttitle "$USER@$HOST: "`swd`" # $LASTCMD"
+				}
+				precmd () {
+					xttitle "$USER@$HOST: "`swd`" % ($LASTCMD)"
 				}
 			;;
-			# Doesn't work 'cos tcsh can't exec my scripts!
+			# Doesn't work 'cos tcsh can't exec this far!
 			tcsh)
 				alias postcmd 'xttitle "${USER}@${HOST}:${PWD}% \!#"'
 			;;
