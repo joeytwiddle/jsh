@@ -102,7 +102,7 @@ do
 
 	if [ ! "$NEWIN" ] || [ ! "$NEWOUT" ]
 	then
-		echo "Problem with device" >&2
+		echo "`nicedate`: Problem with device" >&2
 		continue
 	fi
 

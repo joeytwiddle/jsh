@@ -5,6 +5,8 @@
 
 ## BUGS: formail appears to add an extra line at the bottom of each message (or is it only the last msg in each mbox?); this changes the message id :-/
 
+## TODO: Could make $COMMAND a call back to eximrefiltermbox, which will only process mails matching user selection (eg. mail contains grep expression).
+
 if [ "$UID" = 0 ]
 then
 	echo "Need to change \$USER in script to correct user innit."
@@ -24,7 +26,9 @@ then COMMAND="/usr/sbin/exim -bf $HOME/.forward"
 else COMMAND="/usr/sbin/exim -bm $USER"
 fi
 
-cat /tmp/mbox | formail -s $COMMAND
+cat /tmp/mbox | formail -s $COMMAND |
+
+highlight "^Save message to: .*"
 
 # ## I was worried it would add more headers, making the mails get long if repeated.
 # ## But this dodgy method actually makes the headers shorter!

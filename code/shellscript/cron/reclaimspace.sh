@@ -9,7 +9,7 @@
 ## OK but this doesn't deal with the case when rm blocks for unhealthy system reasons.  So my cron line for relcaimspace now has a findjob check.
 
 ## This didn't work when if test -f "$FILE" hadn't quotes on a spaced file.
-set -e
+# set -e
 
 # export MINKBYTES=10240 ## 10Meg
 [ "$MINKBYTES" ] || export MINKBYTES=51200 ## 50Meg
@@ -36,6 +36,19 @@ date
 # while read DEVICE SPACE MNTPNT
 # do
 
+## Like flatdf but better - only works on one mountpoint at a time.
+function spaceon () {
+	MNTPNT="$1"
+	SPACE=`
+		df "$MNTPNT" |
+		## This ensures that if the line overflowed (eg. because the device was a long filename), we drop the file line and get only the stats line:
+		tail -n 1 |
+		## This extracts the available space field, whether the file/device was dropped or not:
+		sed 's+^[^ 	]*[ 	]*[^ 	]*[ 	]*[^ 	]*[ 	]*\([^ 	]*\).*+\1+'
+	`
+	echo "$SPACE"
+}
+
 mount | grep "^/dev" | takecols 1 3 |
 while read DEVICE MNTPNT
 do
@@ -48,7 +61,6 @@ do
 
 	echo "Doing $DEVICE $MNTPNT ($SPACE"k")"
 
-	GOAGAIN=true
 	ATTEMPTSMADE=0
 
 	# [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM && find . -type f | countlines
@@ -100,18 +112,18 @@ do
 					then
 						echo "Reclaiming: rm -f $MNTPNT"/RECLAIM/"$FILE"
 						## Now we need to turn set -e off!
-						set +e
+						# set +e
 						if rm -f "$MNTPNT"/RECLAIM/"$FILE"
 						then
 							REMOVED=true
 							DIR=`dirname "$MNTPNT"/RECLAIM/"$FILE"`
 							rmdir -p "$DIR" 2>/dev/null
 						fi
-						set -e
+						# set -e
 					fi
 
 					# SPACE=`flatdf | grep "^$DEVICE[ 	]" | takecols 4`
-					SPACE=`df "$MNTPNT" | tail -n 1 | sed 's+^[ 	]*[ 	]*[^ 	]*[ 	]*[^ 	]*[ 	]*\([^ 	]*\).*+\1+'` ## Like flatdf but better - only works on one mountpoint at a time.
+					SPACE=`df "$MNTPNT" | tail -n 1 | sed 's+^[^ 	]*[ 	]*[^ 	]*[ 	]*[^ 	]*[ 	]*\([^ 	]*\).*+\1+'` ## Like flatdf but better - only works on one mountpoint at a time.
 					# echo "Now space is: $SPACE"
 
 					if [ ! "$REMOVED" ]
@@ -123,6 +135,7 @@ do
 						## No problem; two shouldn't really be running simultaneously anyway.
 					fi
 
+				# else echo "Skipping $FILE because $SPACE"k
 				fi
 
 			done
@@ -132,11 +145,7 @@ do
 			# cat > /dev/null
 			## So now we do it inside the loop.
 
-			# if [ "$GOAGAIN" ]
-			# then echo "Success on $DEVICE $MNTPNT ($SPACE"k")"
-			# else echo "Failure on $DEVICE $MNTPNT ($SPACE"k")"
-			# fi
-			echo "Done $DEVICE $MNTPNT ($SPACE"k")"
+			echo " done $DEVICE $MNTPNT ($SPACE"k")"
 
 		# )
 

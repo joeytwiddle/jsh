@@ -78,8 +78,9 @@ else
 	## Interactive shell: start user's favourite shell with startj as rc file.
 	# if test "`hostname`" = hwi && test $USER = joey; then
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
+	## Second line: current approach is, jsh in zsh will only work if startj is sourced in .zshrc
 	if [ `which zsh` > /dev/null 2>&1 ] &&
-	   grep '^\(source\|\.\) .*/startj$' $HOME/.zshrc > /dev/null 2>&1 &&
+	   cat $HOME/.zshrc | grep -v "^[ 	]*#" | grep '^\(source\|\.\) .*/startj$' > /dev/null 2>&1 &&
 		[ ! "$USE_SHELL" = bash ]
 	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
@@ -101,11 +102,10 @@ else
 		zsh
 		## which isn't guaranteed to give aliases, but will work if .zshrc sources startj (for a second time!)
 	else
-		## Bash will not source its default .rcs when we specify startj, so startj has to source them itself.
-		## triggered by:
-		export BASH_BASH=yes_please
-		# echo "calling bash --rcfile $JPATH/startj"
 		[ "$DEBUG" ] && echo "jsh: invoking bash" >&2
+		## Bash does not source its default .rcs when we specify startj, so startj should source them itself.
+		## This is be triggered by:
+		export BASH_BASH=yes_please
 		bash --rcfile "$JPATH/startj"
 	fi
 

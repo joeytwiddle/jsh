@@ -19,6 +19,10 @@ then
 	echo
 	echo "  (Due to inefficiency depth 7 is only attempted if <grep_pattern> is provided.)"
 	echo
+	echo "  TODO: This script runs really slowly if no 'realpath' binary is present."
+	echo "        In the meantime (and in general) you are recommended to install one."
+	# echo "        maybe we could check inode instead of path?"
+	echo
 	exit 1
 fi
 
@@ -34,6 +38,8 @@ find . -maxdepth $DEPTH |
 	sed "s+^./++" | grep -v "^\.$" |
 
 	grep "$GREPBY" |
+
+	# Doesn't work: catwithprogress |
 	
 	while read X
 	do
@@ -56,7 +62,7 @@ find . -maxdepth $DEPTH |
 					gvimdiff "$DEST" "$SOURCE"
 				fi
 			else
-				: # echo "ok: $NICEDEST"
+				echo "ok: $NICEDEST"
 			fi
 		fi
 	done
