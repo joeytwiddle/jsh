@@ -1,7 +1,17 @@
-ARGS="$*";
-if test "x$ARGS" = "x"; then
-  ARGS="*";
-fi
-du -x -sk $ARGS | sort -n -k 1
+(
+
+	ARGS="$*";
+	if test "x$ARGS" = "x"; then
+	  ARGS="*";
+	fi
+	du -x -sk $ARGS | sort -n -k 1
+
+) |
+
+# Pretty printing
+while read X Y; do
+	echo -e "$X\t"`ls -artFd --color "$Y"`
+done
+
 # files
 # du -sk *

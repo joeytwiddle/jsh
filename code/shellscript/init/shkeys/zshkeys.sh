@@ -3,7 +3,6 @@
 # bindkey -N mymap main # clear keymap
 # bindkey -v # viins keymap
 # bindkey -e # emacs keymap
-
 # Create custom keymap with viins
 # bindkey -N mymap viins
 

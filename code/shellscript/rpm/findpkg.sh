@@ -21,8 +21,11 @@ COM="env COLUMNS=184 $BIN -l $ARGS"
 
 # echo "$COM"
 
-$COM | if test ! "$1" = "-all"; then
+$COM |
+if test ! "$1" = "-all"; then
   grep -v "no description available"
+else
+  cat
 fi
 
 # dpkg -l "*$**" | egrep -v "^?n"
