@@ -6,17 +6,29 @@ encoding_thread () {
 }
 
 piping_thread () {
-	# cat "$ENCODED_FIFO" |
+	cat "$ENCODED_FIFO" |
 	# while true
 	for X in `seq -w 1 20`
 	do
 		FILE="/tmp/streamed.$X.avi"
-		echo "Now piping into $FILE"
+		echo "Now piping into $FILE" >&2
+
 		# verbosely dd if="$ENCODED_FIFO" count=1024 bs=1024 |
-		# tee -a "$PLAYER_FIFO" >> "$FILE"
-		verbosely dd if="$ENCODED_FIFO" count=1024 bs=1024 |
-		tee "$FILE" >> "$PLAYER_FIFO"
-	done 2>&1 |
+
+		verbosely dd count=1024 bs=1024 |
+
+		# verbosely tee -a "$PLAYER_FIFO" >> "$FILE"
+
+		verbosely tee "$FILE" |
+		# cat > "$PLAYER_FIFO"
+
+		# verbosely tee "$PLAYER_FIFO" |
+		# cat > "$FILE"
+
+		cat
+
+	done |
+	cat > "$PLAYER_FIFO" 2>&1 |
 	highlight -bold ".*" red
 }
 
@@ -24,16 +36,9 @@ playing_thread () {
 	verbosely mplayer "$PLAYER_FIFO" # | highlight ".*" green
 }
 
+## I don't know why but if you leave the ()s out it causes a nasty infloop!
 initialise () {
 
-	xterm -e fifovo inner_initialise "$@"
-	exit 1
-
-}
-
-inner_initialise {
-
-	shift
 	export STREAM_SOURCE="$1"
 	shift
 
@@ -44,26 +49,23 @@ inner_initialise {
 	mkfifo "$ENCODED_FIFO"
 	mkfifo "$PLAYER_FIFO"
 
-	encoding_thread "$STREAM_SOURCE" &
+	xterm -e "$0" encoding_thread "$STREAM_SOURCE" &
 	ENCODING_PID="$!"
 	echo "ENCODING_PID=$ENCODING_PID"
 
 	sleep 2
 
-	piping_thread &
+	xterm -e "$0" piping_thread &
 	PIPING_PID="$!"
 	echo "PIPING_PID=$PIPING_PID"
 
 	sleep 2
 
-	playing_thread &
+	xterm -e "$0" playing_thread &
 	PLAYER_PID="$!"
 	echo "PLAYER_PID=$PLAYER_PID"
 
 	wait
-
-	echo "Press a key."
-	read KEY
 
 	rm -f "$ENCODED_FIFO" "$PLAYER_FIFO"
 
@@ -81,14 +83,12 @@ case "$COMMAND" in
 	playing_thread)
 		playing_thread "$@"
 	;;
-	inner_initialise)
-		inner_initialise "$@"
-	;;
 	stream)
-		xterm -e fifovo inner_initialise "$@"
+		initialise "$@"
 	;;
 	*)
 		echo "Don't know command: $COMMAND"
+		echo "Try: fifovo stream http://some.url"
 		exit 1
 	;;
 esac
