@@ -8,6 +8,8 @@ then
 	echo "  will move <file> to <file>.N"
 	echo "  -max: will rotate to ensure no more than <num> + 1 logs."
 	echo "  never rotates <file>.0"
+	echo
+	echo "You may also wish to investigate savelog(8), part of debianutils."
 	exit 1
 fi
 
