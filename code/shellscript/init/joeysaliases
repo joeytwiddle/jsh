@@ -7,4 +7,6 @@ else
 	alias ls="ls -atrF"
 fi
 
-hist='history -100 | grep'
+alias l="ls -l"
+
+alias hist='history -100 | grep'

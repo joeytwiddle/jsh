@@ -10,7 +10,7 @@ source getmachineinfo
 source joeysaliases
 source cvsinit
 
-if endswith "$SHELL" = "/zsh"; then
+if endswith "$SHELL" "/zsh"; then
 	source zshkeys
 fi
 
