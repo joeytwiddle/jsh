@@ -87,12 +87,15 @@ then
 
 	pipeboth |
 
-	striptermchars >> "$CONFIGLIST"
+	## Maybe naughty:
+	# striptermchars >> "$CONFIGLIST"
+	# echo "  added to $CONFIGLIST"
+	# ls -l "$CONFIGLIST"
+	# echo "Removing duplicates..."
+	# cat "$CONFIGLIST" | removeduplicatelines | dog "$CONFIGLIST"
+	## Probably better, any reason why not?
+	striptermchars > "$CONFIGLIST"
 
-	echo "  added to $CONFIGLIST"
-	ls -l "$CONFIGLIST"
-	echo "Removing duplicates..."
-	cat "$CONFIGLIST" | removeduplicatelines | dog "$CONFIGLIST"
 	ls -l "$CONFIGLIST"
 
 elif [ "$1" = -check ]
@@ -107,7 +110,7 @@ then
 		then echo "Therefore it should be fine to: `cursecyan`mv '$NEWCONFIG' '$CONFIG'`cursenorm`"
 		elif grep "^$CONFIG mismatches" "$CONFIGLIST"
 		then echo "So you might want to: `cursecyan`vimdiff '$NEWCONFIG' '$CONFIG'`cursenorm`"
-		else echo "$CONFIG was not recognised."
+		else echo "$CONFIG was not recognised.  You may like to: `cursecyan`vimdiff '$NEWCONFIG' '$CONFIG'`cursenorm`"
 		fi
 		echo
 	done
@@ -145,7 +148,7 @@ else
 		echo
 		echo "  You need to do -scan before you emerge, because it needs to record the"
 		echo "  default for the old config file, in order to know whether it can be replaced"
-		echo "  by the new version."
+		echo "  by the new version.  Run --check after an emerge, before the next -scan."
 		echo
 		echo "  If this doc is confusing, just try it.  It's harmless; it only reports."
 	else	
