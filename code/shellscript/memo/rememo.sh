@@ -15,6 +15,12 @@ TMPFILE=`jgettmp tmprememo:$*`
 ## Now passes back appropriate exit code: =)
 eval "$@" > $TMPFILE
 EXITWAS="$?"
+if [ ! "$EXITWAS" = 0 ]
+then
+  error "memo: not caching since command gave exit code $EXITWAS: $*"
+  jdeltmp $TMPFILE
+  exit "$EXITWAS"
+fi
 mv $TMPFILE "$FILE"
 cat "$FILE"
 jdeltmp $TMPFILE

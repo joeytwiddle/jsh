@@ -52,32 +52,33 @@ then
 	exit 1
 fi
 
-## TODO: Consider allowing multiple checks by making each of below:
-##       REMEMOWHEN="$REMEMOWHEN || ( ... )"
-
 [ "$REMEMOWHEN" ] || REMEMOWHEN='false' ## or whatever we think the default should be
 while true
 do
   case "$1" in
     -t)
-      export TIME="$2"; shift; shift
-      REMEMOWHEN='
+      export TIME="$2"
+      shift; shift
+      REMEMOWHEN="$REMEMOWHEN"' || (
         TMPFILE=`jgettmp check_age`
         touch -d "$TIME ago" $TMPFILE
         sleep 60 && jdeltmp $TMPFILE &
         newer $TMPFILE "$FILE"
-      '
+      )'
     ;;
     -f)
-      export CHECKFILE="$2"; shift; shift
-      REMEMOWHEN='newer "$CHECKFILE" "$FILE"'
+      export CHECKFILE="$2"
+      shift; shift
+      REMEMOWHEN="$REMEMOWHEN"' || newer "$CHECKFILE" "$FILE"'
     ;;
     -d)
-      export CHECKDIR="$2"; shift; shift
-      REMEMOWHEN='find "$CHECKDIR" -newer "$FILE" | grep "^" > /dev/null'
+      export CHECKDIR="$2"
+      shift; shift
+      REMEMOWHEN="$REMEMOWHEN"' || ( find "$CHECKDIR" -newer "$FILE" | grep "^" > /dev/null ) '
     ;;
     -c)
-      REMEMOWHEN="$2"; shift; shift
+      REMEMOWHEN="$REMEMOWHEN || ( $2 )"
+      shift; shift
     ;;
     *)
       break
@@ -88,14 +89,18 @@ done
 REALPWD=`realpath "$PWD"`
 CKSUM=`echo "$*" | md5sum`
 NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(................................................................................\).*+\1+'`
-FILE="$MEMODIR/$NICECOM.memo"
+export FILE="$MEMODIR/$NICECOM.memo"
 
+# echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$FILE" ] || eval "$REMEMOWHEN"
-then rememo "$@"
+then
+  [ "$DEBUG" ] && echo "`cursemagenta;cursebold`memo: (re-)caching command $*`cursenorm`" >&2
+  rememo "$@"
 else cat "$FILE"
 fi
 
-if test "$MEMO_SHOW_INFO"; then
+if [ "$MEMO_SHOW_INFO" ]
+then
 
 	TMPF=`jgettmp`
 	touch "$TMPF"
