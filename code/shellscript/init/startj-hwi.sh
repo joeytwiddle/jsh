@@ -113,7 +113,7 @@ else
 		PATHBEFORE="$PATH"
 		export PATH="$JPATH/tools:$HOME/bin:$PATH"
 
-		if ALREADY=`jwhich jsh`
+		if ALREADY=`jwhich jsh` && [ -d `dirname \`jwhich jsh\``/tools ]
 		then
 
 			export PATH="$PATHBEFORE"

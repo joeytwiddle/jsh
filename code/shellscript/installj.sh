@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## TODO: make default /usr/local/jsh (if writable), otherwise ~/jsh preferable to ~/j ?!
+
 ## Quick install invocations (no argument passing):
 ## wget -O - http://hwi.ath.cx/installj | sh
 ## lynx -source http://hwi.ath.cx/installj | sh

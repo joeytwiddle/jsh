@@ -1,7 +1,8 @@
 killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
 
-# OPTS="-vo x11" # -stop_xscreensaver"
-OPTS="-vo xv" ## allows me to adjust contrast!
+# -stop_xscreensaver"
+# OPTS="-vo xv" ## my preference: allows me to adjust contrast!
+OPTS="-vo x11" ## for Morphix
 # OPTS="-vo xv"
 if test "$1" = "-turbo"
 then
@@ -9,6 +10,10 @@ then
 	OPTS="-vo sdl"
 fi
 OPTS="$OPTS -ao sdl -zoom -idx"
+
+if [ "$1" = -louder ]
+then OPTS="$OPTS -af volume=+10dB"; shift
+fi
 
 unj mplayer $OPTS "$@"
 
