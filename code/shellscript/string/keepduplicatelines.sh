@@ -1,3 +1,7 @@
+## TODO: docs
+## TODO: preserve order (add index at front, increment fields (create fields if none), extract dups, sort by index, and remove index)
+## TODO: use sort -n -k rather thank takecols then grep!
+
 # Does not preserve order (in fact orders with sort)
 # and unfortunately produces duplicate duplicates twice (etc.)!
 

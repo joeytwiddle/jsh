@@ -1,6 +1,8 @@
 if test ! "$1" = "-old"
 then
 
+	## TODO: Use lynx -stdin when "$*" = ""
+
 	## Oops leaves a 0 length file
 	TMPF=`jgettmp striphtml`
 	cat "$@" > "$TMPF".html

@@ -42,7 +42,8 @@ then
 			cursecyan
 			echo "cvscommit -m \"$INPUT\" \"$FILE\""
 			cursenorm
-			cvscommit -m "$INPUT" "$FILE"
+			cvscommit -m "$INPUT" "$FILE" ||
+      error "cvscommit failed!"
 		fi
 		echo
 	done

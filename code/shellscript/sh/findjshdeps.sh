@@ -13,6 +13,11 @@
 
 ## BUGS: Try it on remotediff or another script containing "...".  The "..." is treated as regexp.  :-(
 
+## First experiment selfmemoing =)
+# echo "before: >$0< >$1< >$2< >$3<" >&2
+. selfmemo -nodir - "-d $JPATH/code/shellscript" "$0" "$@"; shift
+# echo "after:  >$0< >$1< >$2< >$3<" >&2
+
 PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin"
 
 ## Ever-present programs which we don't want to observe dependencies on:
@@ -33,23 +38,33 @@ if test ! $BOTHER_JSH; then DISCRIMINATE_JSH=; fi
 
 
 
+function trimsmall () {
+  grep -v '^.$' |
+  grep -v '^..$'
+}
+
+
+
 ### Compile a list of programs which scripts could possibly depend on:
 
 LIST=`jgettmp possdepslist`
 
 (
-	## TODO: Haven't yet included $HOME/bin (could just use $PATH!)
-	find $PATHS_TO_SYSTEM_BINARIES -maxdepth 1 -type f
-	test $BOTHER_JSH && (
-		find $JPATH/tools -maxdepth 1 -type l |
-		( test $DISCRIMINATE_JSH && sed 's+$+ (jsh)+' || cat )
-	)
+## TODO: Haven't yet included $HOME/bin (could just use $PATH!)
+ find $PATHS_TO_SYSTEM_BINARIES -maxdepth 1 -type f | afterlast / | trimsmall
+ if [ $BOTHER_JSH ]
+ then
+   find $JPATH/tools -maxdepth 1 -type l | afterlast / | trimsmall |
+   if [ $DISCRIMINATE_JSH ]
+   then sed 's+$+ (jsh)+'
+   else cat
+   fi
+ fi
 ) |
-afterlast / |
 grep -v "$EVER_PRESENT" |
 cat > $LIST
 
-echo "There are `countlines $LIST` possible dependencies!" >&2
+# echo "There are `countlines $LIST` possible dependencies!" >&2
 
 
 
@@ -68,7 +83,7 @@ else
 	}
 fi
 
-if test "$*"
+if [ "$*" ]
 then
 
   for X
@@ -77,8 +92,10 @@ then
 
 else
 
-  cd $JPATH/code/shellscript
-  find . -type f -name "*.sh" -not -path "*/CVS/*"
+  ## Problem is, this cd doesn't get passed through the pipe!
+  # cd $JPATH/code/shellscript
+  # find . -type f -name "*.sh" -not -path "*/CVS/*"
+  find $JPATH/code/shellscript -type f -name "*.sh" -not -path "*/CVS/*"
 
 fi |
 
@@ -93,8 +110,11 @@ do
 		sed 's+#.*++' | ## Removes all comments from file (does get false-positives though)
 		extractregex '[A-Za-z0-9_\-.]+' | ## couldn\'t get \<...\> to work
 		removeduplicatelines |
+    ## Hack because grep doesn\'t handle long lists well, and we occasionally (accidentally) hit binaries!
+    head -500 |
+    ## Escape special chars for regexp (first '.', then "\[]")
+    sed 's#\.#\\\.#g;s#\(\\\|\[\|\]\)#\\\1#g' |
 		## Note: no need to remove shell builtin words because any which were in the proglist have been removed by EVER_PRESENT.
-		tee $TMPEXPR |
 		sed 's+$+\\\|+' |
 		tr -d '\n' |
 		sed 's+\\\|$++'
@@ -105,17 +125,12 @@ do
 
 	## TODO: why not just head -250 before the tee above?
 
-	## A fix because grep does not handle big regexps well!
-	NUMLINES=`cat $TMPEXPR | countlines`
-	if test $NUMLINES -lt 250
-	then
-		grep "$REGEXP" "$LIST" &&
-		echo "  is/are needed for $SCRIPT" ||
-		echo "$SCRIPT is pure sh (or its dependencies are not present)" >&2
-		echo
-	else
-		error "skipping $SCRIPT because it has $NUMLINES words in it!"
-	fi
+  # echo "$REGEXP" >&2
+
+  grep "$REGEXP" "$LIST" &&
+  echo "  is/are needed for $SCRIPT" ||
+  echo "$SCRIPT is pure sh (or its dependencies are not present)" >&2
+  echo
 
 done
 
