@@ -1,13 +1,16 @@
-echo "Changing to jsh root" &&
+echo "Changing to jsh root"
+cd "$JPATH/code/shellscript/" || exit 1
 
-cd "$JPATH/code/shellscript/" &&
+echo "Updating files from cvs"
+cvsupdate -AdP
 
-echo "Updating files from cvs" &&
+if test ! "$1" = "-quick"
+then
 
-cvsupdate -AdP &&
+	echo "Linking files into PATH (do not interrupt, disable with -quick)"
+	refreshtoollinks
 
-echo "Linking files into PATH" &&
+	echo "jsh is up to date =)"
 
-refreshtoollinks &&
+fi
 
-echo "jsh is up to date =)"
