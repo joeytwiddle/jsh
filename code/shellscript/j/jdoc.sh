@@ -49,12 +49,13 @@
     # grep $1 $JPATH/tools/* 2>/dev/null |
     TABCHAR=`echo -e "\011"`
     cd $JPATH/tools/
-    grep $1 * 2>/dev/null |
-      egrep -v "^Binary file .* matches$" |
-      sed "s|^|"`cursered``cursebold`"|;s|:|"`cursegrey`":$TABCHAR|" |
-      # sed "s|^|"`cursecyan`"|;s|:|:"`cursegrey`"|" |
-      # sed "s|$1|"`curseyellow`"$1"`cursegrey`"|g"
-      highlight "$1" yellow
+	 higrep "$1" -C2 *
+    # grep -1 "$1" * 2>/dev/null |
+      # egrep -v "^Binary file .* matches$" |
+      # sed "s|^|"`cursered``cursebold`"|;s|:|"`cursegrey`":$TABCHAR|" |
+      # # sed "s|^|"`cursecyan`"|;s|:|:"`cursegrey`"|" |
+      # # sed "s|$1|"`curseyellow`"$1"`cursegrey`"|g"
+      # highlight "$1" yellow
   fi
 
 ) # | more
