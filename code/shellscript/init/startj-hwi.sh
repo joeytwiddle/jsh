@@ -31,6 +31,7 @@ if test ! "$BAUD" = "0"; then
 	mesg y
 fi
 
+# Message on user login/out (zsh, tcsh, ...?)
 export WATCH=all
 
 if test "$HOST" = ""; then
@@ -55,10 +56,10 @@ case $TERM in
 				}
 				preexec () {
 					export LASTCMD="$*"
-					xttitle "$USER@$HOST: "`swd`" # $LASTCMD"
+					xttitle "$USER@$HOST:"`swd`"/# $LASTCMD"
 				}
 				precmd () {
-					xttitle "$USER@$HOST: "`swd`" % ($LASTCMD)"
+					xttitle "$USER@$HOST:"`swd`"/% ($LASTCMD)"
 				}
 			;;
 			# Doesn't work 'cos tcsh can't exec this far!
