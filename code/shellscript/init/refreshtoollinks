@@ -49,5 +49,6 @@ for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
 	fi
 done
 
-echo "Binaries"
-refreshbintoollinks
+# echo "Binaries"
+echo "Skipping binaries"
+# refreshbintoollinks

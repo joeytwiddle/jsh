@@ -3,27 +3,31 @@
 # Searches current cvs directory and looks for directories and files
 # which have not yet been added to the _local_ repository.
 
+echo "# Alternatively, try: cvs update 2>/dev/null | grep \?" >&2
+
 REPOS="$CVSROOT/"`cat CVS/Repository`
 
-COUNT=0
+COUNTFILES=0
 COUNTDIRS=0
-MISSING=0
+MISSINGDIRS=0
+MISSINGFILES=0
 
 find . | grep -v "/CVS" |
   while read SOMETHING; do
     if test -d "$SOMETHING"; then
       DIR="$SOMETHING"
+      COUNTDIRS=`expr $COUNTDIRS + 1`
       # if test ! -d "$CVSROOT/$CHKOUT/$DIR/CVS/"; then
       if test ! -d "$REPOS/$DIR"; then
-        echo 'cvs add "'$DIR'"'
-        COUNTDIRS=`expr $COUNTDIRS + 1`
+        echo 'cvs add "'$DIR'" # dir'
+        MISSINGDIRS=`expr $MISSINGDIRS + 1`
       fi
     else
       FILE="$SOMETHING"
-      COUNT=`expr $COUNT + 1`
+      COUNTFILES=`expr $COUNTFILES + 1`
       CVSFILE="$REPOS/$FILE,v"
       if test ! -f "$CVSFILE"; then
-        MISSING=`expr $MISSING + 1`
+        MISSINGFILES=`expr $MISSINGFILES + 1`
         echo 'cvs add "'$FILE'"'
       fi
     fi
@@ -38,10 +42,10 @@ find . | grep -v "/CVS" |
 # 
 # find . -type f | grep -v "/CVS/" |
   # while read FILE; do
-    # COUNT=`expr $COUNT + 1`
+    # COUNTFILES=`expr $COUNTFILES + 1`
     # CVSFILE="$CVSROOT/$CHKOUT/$FILE,v"
     # if test ! -f "$CVSFILE"; then
-      # MISSING=`expr $MISSING + 1`
+      # MISSINGFILES=`expr $MISSINGFILES + 1`
       # if test $DOADD; then
         # echo 'cvs add "'$FILE'"'
       # else
@@ -50,5 +54,4 @@ find . | grep -v "/CVS" |
     # fi
   # done
 
-echo "$MISSING / $COUNT files missing." >&2
-echo "  ( $COUNTDIRS directories. )" >&2
+echo "# $MISSINGFILES / $COUNTFILES files missing, $MISSINGDIRS / $COUNTDIRS directories." >&2

@@ -1,28 +1,25 @@
-#!/bin/sh
+#!/usr/local/bin/zsh
+
+# Problems without zsh - why?  `which $FILE` doesn't work in sh
+
 if test "$1x$2" = "x"; then
   echo 'runoneof "<executables>" "<args>"'
   echo '  Will find and run on the first working executable!'
 fi
 
 LIST=$1;
-# ARGS=`echo "$*" | afterfirst "$LIST"`;
-shift
-# ARGS="$@"
+ARGS="$2";
 
 # echo "l='$LIST' a='$ARGS'"
 
-for FILE in $LIST; do
+for FILE in `echo $LIST`; do
   # echo "file: $FILE"
-  # Problems on Solaris (which only builtin?)
   # TRY=`jwhich $FILE`
-  TRY=`jwhich inj "$FILE"`
-  # Uncomment this, disrupt $? next line
-  # echo 'Got: "'$TRY'"'
-  # if test "$?" = "0"; then
-  if test ! "$TRY" = "" -a -x "$TRY"; then
+  TRY=`which $FILE`
+  # Uncomment this, disrupt $? next line   echo 'Got: "'$TRY'"'
+  if test "$?" = "0"; then
     # echo "runoneof: trying $TRY"
-    $TRY "$@"
-		# $ARGS
+    $TRY $ARGS
     if test "$?" = "0"; then
       # echo "$TRY done good"
       # echo "runoneof: worked on $TRY"
@@ -31,10 +28,8 @@ for FILE in $LIST; do
       # echo "$TRY done bad"
       echo 'runoneof: Failure on "'$TRY'"'
     fi
-  else
-    echo "runoneof: $TRY not executable"
   fi
 done
 
-echo "runoneof: could not get any of $LIST to work"
+echo "runoneof: could not find working exe"
 exit 1
