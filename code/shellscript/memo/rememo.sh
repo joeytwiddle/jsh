@@ -35,6 +35,7 @@ then
 	cat "$FILE"
 else
   [ "$DEBUG" ] && debug "rememo: not caching since command gave exit code $EXITWAS: $*"
+	cat $TMPFILE
 fi
 jdeltmp $TMPFILE
 exit "$EXITWAS"
