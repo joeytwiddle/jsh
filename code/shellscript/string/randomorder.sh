@@ -1,5 +1,6 @@
-#!/usr/local/bin/zsh
-/usr/bin/nawk '
+# #!/usr/local/bin/zsh
+# /usr/bin/nawk '
+awk '
   BEGIN {
     FS="\n";
     srand('$$');

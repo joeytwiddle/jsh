@@ -41,7 +41,9 @@ if test "$COLOR" = ""; then
 
 	# echo ">$COLI< hvprel nan over"
 
-	# COLI=3
+	if test "$COLI" = ""; then
+		COLI=3
+	fi
 	if test "$COLI" = 1 || test "$COLI" = 4; then BOLDI=1; else BOLDI=0; fi
 	# BOLDI=1
 	HIGHCOL=`printf '\033[0'"$BOLDI"';3'"$COLI"'m'`
