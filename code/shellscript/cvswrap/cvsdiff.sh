@@ -8,6 +8,11 @@ if test "$CHKOUT" = "-add"; then
   CHKOUT=$2
 fi
 
+if test "$CHKOUT" = ""; then
+  echo "cvsdiff <repository>"
+  exit 1
+fi
+
 COUNT=0
 MISSING=0
 
@@ -24,8 +29,8 @@ find . -type d | grep -v "/CVS" |
 
 find . -type f | grep -v "/CVS/" |
   while read FILE; do
-    CVSFILE="$CVSROOT/$CHKOUT/$FILE,v"
     COUNT=`expr $COUNT + 1`
+    CVSFILE="$CVSROOT/$CHKOUT/$FILE,v"
     if test ! -f "$CVSFILE"; then
       MISSING=`expr $MISSING + 1`
       if test $DOADD; then
