@@ -1,3 +1,13 @@
+## DISABLED
+## We now simple add $HOME/bin to their path!
+
+exit 0
+
+## This means all $JPATH/bin should move to $HOME/bin ok?
+
+## WARNING:
+## If you re-enable it, the `jwhich jfc` check used by monitorpscompcom will fail
+
 cd "$JPATH/tools/"
 # "rm" *
 ln -sf ../bin/* .
