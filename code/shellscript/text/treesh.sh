@@ -1,4 +1,10 @@
-[ "$DEBUG" ] && . importshfn debug
+# [ "$DEBUG" ] && . importshfn debug
+
+## Scans folds in one forwards pass, so would not do well at:
+# 123
+# 12
+# 1
+## but would be happy with reverse.
 
 NL="
 "
@@ -22,36 +28,40 @@ commonstring () {
 	)
 }
 
+## An upside-down stack, with topmost line cached:
 COMMONSOFAR=""
 CURRENTCOMMON=""
+
+## Guarantees final stack popping.
+( cat && echo ) | (
 
 read FIRSTLINE
 
 while read SECONDLINE
 do
 
-	[ "$DEBUG" ] && debug
-	[ "$DEBUG" ] && debug "commonsofar:"
-	# echo "$COMMONSOFAR"
-	[ "$DEBUG" ] && debug "first         = $FIRSTLINE"
-	[ "$DEBUG" ] && debug "second        = $SECONDLINE"
+	# [ "$DEBUG" ] && debug
+	# [ "$DEBUG" ] && debug "commonsofar:"
+	# # echo "$COMMONSOFAR"
+	# [ "$DEBUG" ] && debug "first         = $FIRSTLINE"
+	# [ "$DEBUG" ] && debug "second        = $SECONDLINE"
 	COMMON=`commonstring "$FIRSTLINE" "$SECONDLINE"`
-	[ "$DEBUG" ] && debug "common        = $COMMON"
+	# [ "$DEBUG" ] && debug "common        = $COMMON"
 
 	NOTABOVE=`startswith "$COMMON" "$CURRENTCOMMON" && echo yes`
 	NOTBELOW=`startswith "$CURRENTCOMMON" "$COMMON" && echo yes`
 	SAME=`[ "$COMMON" = "$CURRENTCOMMON" ] && echo yes`
 
-	[ "$DEBUG" ] && debug "notabove      = $NOTABOVE"
-	[ "$DEBUG" ] && debug "notbelow      = $NOTBELOW"
-	[ "$DEBUG" ] && debug "same          = $SAME"
+	# [ "$DEBUG" ] && debug "notabove      = $NOTABOVE"
+	# [ "$DEBUG" ] && debug "notbelow      = $NOTBELOW"
+	# [ "$DEBUG" ] && debug "same          = $SAME"
 
 	if [ ! $SAME ] && [ $NOTABOVE ]
 	then
-		[ "$DEBUG" ] && debug ">>>>"
+		# [ "$DEBUG" ] && debug ">>>>"
 		COMMONSOFAR="$COMMONSOFAR$NL$COMMON"
 		CURRENTCOMMON="$COMMON"
-		echo "+ $CURRENTCOMMON {"
+		echo "+ $CURRENTCOMMON...{"
 	fi
 
 	echo ". $FIRSTLINE$APPEND"
@@ -60,11 +70,11 @@ do
 	then
 		while ! startswith "$SECONDLINE" "$CURRENTCOMMON"
 		do
-			[ "$DEBUG" ] && debug "<<<<"
-			echo "- $CURRENTCOMMON }"
+			# [ "$DEBUG" ] && debug "<<<<"
+			echo "- $CURRENTCOMMON...}"
 			COMMONSOFAR=`echo "$COMMONSOFAR" | chop 1`
 			CURRENTCOMMON=`echo "$COMMONSOFAR" | tail -1`
-			[ "$DEBUG" ] && debug "newcurrentcommon = $CURRENTCOMMON"
+			# [ "$DEBUG" ] && debug "newcurrentcommon = $CURRENTCOMMON"
 		done
 	fi
 
@@ -72,4 +82,13 @@ do
 
 done
 
-echo "Finally: $SECONDLINE"
+# echo "$SECONDLINE"
+# 
+# while [ ! "$COMMONSOFAR" = "" ]
+# do
+	# echo "- $CURRENTCOMMON...}"
+	# COMMONSOFAR=`echo "$COMMONSOFAR" | chop 1`
+	# CURRENTCOMMON=`echo "$COMMONSOFAR" | tail -1`
+# done
+
+)
