@@ -1,3 +1,5 @@
+#!/bin/sh
+
 UNAME=`uname`
 
 case "$UNAME" in
@@ -7,9 +9,11 @@ case "$UNAME" in
 		;;
 	"SunOS")
 		JM_DOES_COLOUR=true
+      ;;
 	"HP-UX")
 		JM_DOES_COLOUR=true
 		;;
 esac
 
-export JM_DOES_COLOR,JM_COLOURLS;
+export JM_DOES_COLOR;
+export JM_COLOURLS;

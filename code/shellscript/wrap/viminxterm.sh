@@ -57,8 +57,4 @@ TITLE=`absolutepath "$@"`" [vim]"
 
 XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 
-XTERM=`jwhich xterm`
-
-echo "Got xterm = $XTERM"
-
-$XTERM -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
+`jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"

@@ -16,8 +16,8 @@ ARGS="$2";
 # echo "l='$LIST' a='$ARGS'"
 
 for FILE in `echo $LIST`; do
-  echo "file: $FILE"
-  TRY=`jwhich $FILE`
+  # echo "file: $FILE"
+  TRY=`jwhich inj $FILE`
   # TRY=`which $FILE`
   # Uncomment this, disrupt $? next line   echo 'Got: "'$TRY'"'
   if test "$?" = "0"; then
@@ -29,8 +29,10 @@ for FILE in `echo $LIST`; do
       exit 0
     else
       # echo "$TRY done bad"
-      echo 'runoneof: Failure on "'$TRY'"'
+      echo 'runoneof: "'$TRY'" failed :-('
     fi
+  else
+    echo "runoneof: Did not find $FILE in path"
   fi
 done
 
