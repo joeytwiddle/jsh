@@ -13,5 +13,5 @@ cd projprof
 x pp
 cd ..
 
-cd ../gentestimg
+cd gentestimg
 x simgen

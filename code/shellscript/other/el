@@ -1,1 +1,1 @@
-edit $JPATH/joeylib/$1.c
+edit $JPATH/code/c/joeylib/$1.c
