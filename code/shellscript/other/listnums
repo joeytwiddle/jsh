@@ -1,4 +1,4 @@
-#!/usr/local/bin/zsh
+# Want to make this work for sh
 
 START=$1
 END=$2
