@@ -15,8 +15,10 @@ grep $GREPARGS "$@" 2>/dev/null |
 	# This if is meant to render cyan up to ':' only if searching multiple files, but does not check for -c mode etc.
 	# also catch '-' for context grep
 	if test `countargs "$@"` -gt 1; then
-		sed "s|^\([^:-]*\)\(:\)|"`cursecyan``cursebold`"\1\2"`cursenorm`"$TABCHAR|" |
-		sed "s|^\([^:-]*\)\(-\)|"`cursecyan`"\1\2"`cursenorm`"$TABCHAR|"
+		sed "s|^--$|`curseblue;cursereverse`--`cursenorm`|" | ## Don't understand why this one doesn't prevent later ^ regexps from failing!
+		sed "s|^\([^:-]*\)\(:\)|`cursecyan;cursebold`\1\2`cursenorm`$TABCHAR|" |
+		sed "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
+		cat
 	else
 		cat
 	fi |
