@@ -58,10 +58,10 @@ case $TERM in
 				}
 				preexec () {
 					export LASTCMD="$*"
-					xttitle "# $LASTCMD [$USER@$HOST:"`swd`"]"
+					xttitle "$LASTCMD # [$HOST:"`swd`"]"
 				}
 				precmd () {
-					xttitle "%% $LASTCMD ($USER@$HOST:"`swd`")"
+					xttitle "$HOST:"`swd`" %% ($LASTCMD)"
 				}
 			;;
 			# Doesn't work 'cos tcsh can't exec this far!
