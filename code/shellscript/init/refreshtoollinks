@@ -1,67 +1,73 @@
 # Symbolically link all relevant tools into $JPATH/tools/ directory
 # so that they may all be put in the path in one go!
 
-(
-find $JPATH/code/shellscript \
-     \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d
-test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
-) |
-/bin/grep -v "/.ignore/" |
-/bin/grep -v "/CVS/" |
-sed 's+\(.*\)/\([^\.]*\)\(\..*\|\)+ln -sf "\1/\2\3" "$JPATH/tools/\2"+' |
-# cat
-sh
+if test ! "$1" = "-old"
+then
 
-## Note: we haven't dealt with duplicates or dangling links
+	## Faster
 
-echo "Binaries"
-# echo "Skipping binaries"
-refreshbintoollinks
+	echo "Linking"
+	(
+	find $JPATH/code/shellscript \
+		  \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d
+	test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
+	) |
+	/bin/grep -v "/.ignore/" |
+	/bin/grep -v "/CVS/" |
+	sed 's+\(.*\)/\([^\.]*\)\(\..*\|\)+ln -sf "\1/\2\3" "$JPATH/tools/\2"+' |
+	# cat
+	sh
 
-exit
+	## Note: we haven't dealt with duplicates or dangling links
 
-#################################
-## The old one
+else
 
-echo "Removing existing links"
-"rm" -f $JPATH/tools/*
+	shift
 
-echo "Collecting"
-files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
-test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
-echo "Linking"
-ln -sf $files $JPATH/tools/
+	#################################
+	## The old one
 
-echo "Renaming"
-cd $JPATH/tools
+	echo "Removing existing links"
+	"rm" -f $JPATH/tools/*
 
-# Rename any of those with .sh or .hs extensions to not have it!
-for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
-  y=`echo $x | sed "s/\.sh$//;s/\.hs$//"`
-	if test -f "$y"; then
-		J="$JPATH/code/shellscript/file/justlinks.sh"
-		A=`$J "$x"`
-		B=`$J "$y"`
-		echo
-		echo "Error duplicates: $A $B"
-		echo
-		if cmp "$A" "$B"; then
-			echo "Identical."
+	echo "Collecting"
+	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
+	test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
+	echo "Linking"
+	ln -sf $files $JPATH/tools/
+
+	echo "Renaming"
+	cd $JPATH/tools
+
+	# Rename any of those with .sh or .hs extensions to not have it!
+	for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
+	  y=`echo $x | sed "s/\.sh$//;s/\.hs$//"`
+		if test -f "$y"; then
+			J="$JPATH/code/shellscript/file/justlinks.sh"
+			A=`$J "$x"`
+			B=`$J "$y"`
+			echo
+			echo "Error duplicates: $A $B"
+			echo
+			if cmp "$A" "$B"; then
+				echo "Identical."
+			else
+				$JPATH/code/shellscript/fake/jfcsh.sh "$A" "$B"
+			fi
+			echo
+			echo "Will you?"
+			echo "del \"$A\""
+			echo "or will you"
+			echo "del \"$B\""
+			echo "?"
+			echo
 		else
-			$JPATH/code/shellscript/fake/jfcsh.sh "$A" "$B"
+		# "rm" $y
+		  mv -f $x $y
 		fi
-		echo
-		echo "Will you?"
-		echo "del \"$A\""
-		echo "or will you"
-		echo "del \"$B\""
-		echo "?"
-		echo
-	else
-  	# "rm" $y
-	  mv -f $x $y
-	fi
-done
+	done
+
+fi
 
 echo "Binaries"
 # echo "Skipping binaries"
