@@ -1,5 +1,14 @@
 FAVOURITE_BROWSERS='konqueror mozilla netscape encompass nautilus amaya lynx'
 
-runoneof "$FAVOURITE_BROWSERS" "$@"
+ARGS="$*"
+if test "x$ARGS" = "x"; then
+	ARGS="$JPATH/org/jumpgate.html"
+fi
+
+if xisrunning; then
+	runoneof "$FAVOURITE_BROWSERS" "$ARGS" &
+else
+	runoneof "$FAVOURITE_BROWSERS" "$ARGS"
+fi
 
 # netscape "file://$PWD/$@" &
