@@ -1,3 +1,7 @@
+if [ "$1" = -foolproof ]
+then shift; FOOLPROOF=true
+fi
+
 # MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
 ## transcode: --export_fps 25,3 
@@ -10,6 +14,18 @@ RIGHT_WAY_UP=-z
 for VIDEOFILE
 do
 
+	echo
+	jshinfo "Doing: $VIDEOFILE"
+
+	if [ "$FOOLPROOF" ]
+	then
+
+		jshinfo "Doing simple re-encode to make the process more foolproof..."
+
+		reencode_video_simple "$VIDEOFILE" && VIDEOFILE="$VIDEOFILE"-simple.avi || jshwarn "Foolproof decode failed!"
+
+	fi
+
 	# ## Joey converged upon split:
 	# ## The -Q 3 graetly reduced size when converting from an ffmpeg divx, but there was quality reduction so comprimised with -Q 4
 	# ## -w <n> seems to have no effect
@@ -17,16 +33,16 @@ do
 	# # # ## Audio seemed better through vsound trplayer! ( -N 0x55 is mp3)
 	# transcode -i "$VIDEOFILE" -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav
 	# transcode -i "$VIDEOFILE" -N 0x1     -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
-	# transcode -i "$VIDEOFILE" -x ffmpeg    -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE || exit
-	transcode -i "$VIDEOFILE" -x mplayer -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || exit
+	# transcode -i "$VIDEOFILE" -x ffmpeg    -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE || continue
+	transcode -i "$VIDEOFILE" -x mplayer -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
 
-	transcode -i "$VIDEOFILE" -x mplayer -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP || exit
+	transcode -i "$VIDEOFILE" -x mplayer -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav $TC_CLIP || continue
 	## Haven't managed to get cinelerra reading mp3 (smaller files)
-	# transcode -i "$VIDEOFILE" -x mplayer -N 0x55 -o "$VIDEOFILE-audio" -y null,lame $TC_CLIP || exit
-	# transcode -i "$VIDEOFILE" -x mplayer -N 0x50 -o "$VIDEOFILE-audio" -y null,mp2enc $TC_CLIP || exit
+	# transcode -i "$VIDEOFILE" -x mplayer -N 0x55 -o "$VIDEOFILE-audio" -y null,lame $TC_CLIP || continue
+	# transcode -i "$VIDEOFILE" -x mplayer -N 0x50 -o "$VIDEOFILE-audio" -y null,mp2enc $TC_CLIP || continue
 
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE"-video.mpeg -oac raw -nosound -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || exit
-	# mencoder $VIDEOFILE" -dumpaudio "$VIDEOFILE"-audio.mp3 -o /dev/null -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || exit
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE"-video.mpeg -oac raw -nosound -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || continue
+	# mencoder $VIDEOFILE" -dumpaudio "$VIDEOFILE"-audio.mp3 -o /dev/null -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || continue
 
 	#### WIKI says:
 	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE.avi" -y divx4
@@ -53,11 +69,11 @@ do
 	## ffmpeg -sameq ORIGINAL.avi new_video.mpeg
 	# mencoder "$@" $CLIPOPTS -ovc libdv -oac pcm $MEET_STANDARD -o re_encoded.dv
 	## Nope none of the above work, and none of the below!
-	# mencoder "$@" $CLIPOPTS -o re_encoded.avi -ovc libdv $AUDIO $MEET_STANDARD || exit
+	# mencoder "$@" $CLIPOPTS -o re_encoded.avi -ovc libdv $AUDIO $MEET_STANDARD || continue
 	# transcode -i re_encoded.avi -x mplayer -o output.mpg -y yuv4mpeg
 	# dv2dv ./re_encoded.avi ./final_dv.avi
 
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".raw -ovc raw $AUDIO # $MEET_STANDARD || exit
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".raw -ovc raw $AUDIO # $MEET_STANDARD || continue
 	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE.avi" -y raw
 
 	# transcode -J modfps --export_fps 25,3 -i "$VIDEOFILE" -E 44100,8,2 -k -o ~/stage1 -y mpeg2enc,mp2enc -N 0x50 -F "3, -M 2"
@@ -81,11 +97,11 @@ do
 	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE.mov" -N 0x1 -y mov -F yv12 $NOT_SO_BLUE $RIGHT_WAY_UP
 	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE.mov" -N 0x1 -y mov -F yuv2 $NOT_SO_BLUE $RIGHT_WAY_UP
 
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".ljpg -oac pcm -ovc lavc -lavcopts vcodec=ljpeg $AUDIO # $MEET_STANDARD || exit
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg -oac pcm -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || exit
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".ljpg -oac pcm -ovc lavc -lavcopts vcodec=ljpeg $AUDIO # $MEET_STANDARD || continue
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg -oac pcm -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || continue
 
 	## Best so far has been:
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".avi -ovc lavc $AUDIO # $MEET_STANDARD || exit
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".avi -ovc lavc $AUDIO # $MEET_STANDARD || continue
 
 	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE.mpg" -N 0x1 -F 3 -y mpeg2enc,mp2enc $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE ## same as next!
 
@@ -99,14 +115,14 @@ do
 	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE.mov" -y mov,mp2enc -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
 
 	## Cinelerra reads these but they are not good when read!
-	# mencoder "$@" $CLIPOPTS -o re_encoded.avi -ovc libdv $AUDIO $MEET_STANDARD || exit
+	# mencoder "$@" $CLIPOPTS -o re_encoded.avi -ovc libdv $AUDIO $MEET_STANDARD || continue
 	# transcode -i re_encoded.avi -y dv -o re_encoded.dv
 	# transcode -i re_encoded.avi -y dvraw -o re_encoded.dvraw
 
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg -oac pcm -ovc lavc -lavcopts vcodec=mjpeg # $MEET_STANDARD || exit
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg.avi -of avi -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || exit
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg -of mpeg -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || exit
-	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".avi -of avi -oac pcm -ovc lavc -lavcopts vcodec=mpeg4 $MEET_STANDARD || exit
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg -oac pcm -ovc lavc -lavcopts vcodec=mjpeg # $MEET_STANDARD || continue
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg.avi -of avi -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || continue
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg -of mpeg -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || continue
+	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".avi -of avi -oac pcm -ovc lavc -lavcopts vcodec=mpeg4 $MEET_STANDARD || continue
 
 done
 
