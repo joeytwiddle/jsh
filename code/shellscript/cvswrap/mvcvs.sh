@@ -55,6 +55,10 @@ mvcvs1() {
 	if test -d "$LOCALSRC"
 	then
 
+		if test "$FILENAME" = CVS
+		then echo "# Skipping cvs directory: $LOCALSRC"; break
+		fi
+
 		## Moving a directory:
 
 		echo "TODO: Create new directory tree, and add to CVS"
