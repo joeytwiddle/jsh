@@ -51,10 +51,11 @@ bindkey "^r" expand-history
 
 # My preferred word movement and deletion.
 # It's purely left-handed and positioned to avoid the reserved keys qeaszc.
+# Oops d is reserved and I use it, but it works OK on Hwi.
 bindkey "^d" backward-word
 bindkey "^f" forward-word
 bindkey "^x" backward-kill-word
-bindkey "^v" backward-kill-word
+bindkey "^v" kill-word
 
 # trying to jump words with CTRL+arrows
 # bindkey "^[OC" backward-word
