@@ -15,8 +15,8 @@ if test -f "$FILE"; then
 	# MAXVOL=`expr 80 "*" 50`
 	MAXVOL=`expr 120 "*" 60`
 
-	LINES=`countlines $FILE`
-	LONGEST=`longestline $FILE`
+	LINES=`countlines "$FILE"`
+	LONGEST=`longestline "$FILE"`
 	LONGEST=`expr '(' $LONGEST '+' 2 ')' '*' 11 '/' 10`
 
 	# echo "LINES = $LINES"
