@@ -12,7 +12,7 @@ if test "$1" = "add"; then
 	# New entry
 	echo "Please enter your message then press Ctrl+D:"
 	echo "If you don't want to make a log entry, press Ctrl+C."
-	cat >> $TMPFILE || exit 0
+	cat >> $TMPFILE || ( rm $TMPFILE && exit 0 )
 	(
 		echo
 		cat $TMPFILE
