@@ -10,7 +10,7 @@
 
 if test "$1x" = "x"; then
   echo "del <files>"
-  echo "will move <files> to $DEST"
+  echo "will move <files> to $JPATH/trash/"
   exit 1
 fi
 

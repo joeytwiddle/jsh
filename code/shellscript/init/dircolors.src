@@ -121,6 +121,7 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 .it 01;35
 # Vector images (editable / not really)
 .fig 01;35
+.obj 01;35 # tfig
 .eps 01;35
 .ps 01;35 # maybe should be under docs?
 
