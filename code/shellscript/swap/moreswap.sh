@@ -7,10 +7,10 @@
 
 ## List partitions
 df | drop 1 |
+## Only consider those which are direct device mounts (avoid bound mounts and shm)
+grep "^/dev/" |
 ## Extract device available_kb, and mntpnt
 takecols 1 4 6 | sort -r -n -k 2 |
-## Remove known unwanted partitions
-grep -v "^tmpfs" |
 
 # pipeboth |
 
@@ -39,7 +39,7 @@ do
 					break
 				fi
 
-				## Proceed to next numbered swapfile
+				## Proceed to next numbered swapfile (continue loop)
 
 			else
 
@@ -48,8 +48,8 @@ do
 				## Oh it does. =)
 				## OK then: TODO: useful error reporting?
 				SWAPSIZE=`expr "$FREE_KB" / 2`
-				## Don't exceed 250Meg
-				[ "$SWAPSIZE" -gt 250000 ] && SWAPSIZE=250000
+				## Don't exceed 500Meg
+				[ "$SWAPSIZE" -gt 500000 ] && SWAPSIZE=500000
 				echo "Making swapfile size $SWAPSIZE at $SWAPFILE"
 				dd if=/dev/zero of="$SWAPFILE" bs=1024 count=$SWAPSIZE &&
 				mkswap "$SWAPFILE" &&
