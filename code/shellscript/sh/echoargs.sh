@@ -7,8 +7,9 @@ N=0
 
 for word
 do
+  # Works on Hwi.  What about Unix?
   N=$(($N+1));
   # echo "           $N:   >${word}<"
-  # # echo -n ">${word}< "
+  printf ">{$word}< "
 done
-echo "  $N"
+echo "(total $N)"

@@ -1,4 +1,4 @@
-for X in "$*"; do
+for X in "$@"; do
   DIR=`dirname "$X"`
   FILE=`filename "$X"`
   cd "$DIR"

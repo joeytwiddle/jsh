@@ -1,2 +1,2 @@
-explore $*
+explore "$@"
 #`jwhich netscape` "file://$PWD/$@" &

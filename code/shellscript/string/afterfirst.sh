@@ -1,7 +1,7 @@
 # Ugh
 # SPECIALSTR="nobodyWo0ldn6teverUsastwiunglikevish_unlessOfCourseTh3yw3r34<<355/|\|gthisFile!"
 SPECIALSTR="nbdW0d6eeUatinlkvs"
-sed "s|$*\(.*\)|$SPECIALSTR\1|" | sed "s|.*$SPECIALSTR||"
+sed "s|$@\(.*\)|$SPECIALSTR\1|" | sed "s|.*$SPECIALSTR||"
 
 # # Ugh
 # while read X; do

@@ -1,4 +1,4 @@
-if test "$*" = ""; then
+if test "$@" = ""; then
   echo "absolutepath <file>"
   echo "  or"
   echo "absolutepath <parentdir> <file>"

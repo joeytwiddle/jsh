@@ -1,9 +1,2 @@
-# if test "$JM_UNAME" = "linux"; then
-#   /usr/bin/X11/gv -antialias "$@" &
-# else
 LOCALgv=`jwhich gv`
 runoneof "ghostview $LOCALgv" "$*" &
-# fi
-
-# `jwhich ghostview` $* &
-# `jwhich gv` "$@" &

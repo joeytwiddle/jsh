@@ -11,7 +11,6 @@ if test "$1" = "-tree"; then
 	bigwin 'pstree -ap | grep -v "\-vi(" | vi -R - -c '"/$@"
 fi
 
-# echo "grep $*" 1>&2
 PID=$$
 # echo "-$PID"
 # Highlighting

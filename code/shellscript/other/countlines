@@ -7,7 +7,7 @@
 # fi
 
 # LINES=0;
-# cat $* |
+# cat "$@" |
 	# while read L; do
 		# LINES=$(($LINES+1));
 		# echo "$LINES"

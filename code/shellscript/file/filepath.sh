@@ -1,6 +1,6 @@
 # local path to file/dir
 
-FILE="$*"
+FILE="$@"
 
 # Remove trailing '/' if a directory
 FILE=`echo "$FILE" | sed 's+/$++'`

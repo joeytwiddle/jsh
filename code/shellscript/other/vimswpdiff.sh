@@ -1,2 +1,2 @@
-vi -r $* "+w tmp.txt" "+q"
-jfc $* tmp.txt
+vi -r "$@" "+w tmp.txt" "+q"
+jfc "$@" tmp.txt

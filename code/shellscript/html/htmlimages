@@ -1,6 +1,6 @@
 # echo "<html><body>" && ( find . -name "recover*" | while read X; do echo "<img src=\"$X\">"; done ) && echo "</body></html>"
 
-FILES="$*";
+FILES="$@";
 if test "$FILES" = ""; then
   FILES="*.[J:j][P:p]*[G:g] *.gif";
 fi

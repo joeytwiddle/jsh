@@ -1,4 +1,4 @@
-if test "x$*" = "x"; then
+if test "x$@" = "x"; then
   echo 'replaceline [ <file> ] "search string" "replacement line"'
   exit 1
 fi

@@ -30,8 +30,6 @@ fi
 	# echo "x=$x"
 	# N=$[$N+1];
 
-# for x in $*; do
-
 while test "$1"; do
 	x="$1"
 	shift

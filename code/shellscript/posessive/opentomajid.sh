@@ -1,1 +1,1 @@
-setfacl -f $HOME/wantedfacl $*
+setfacl -f $HOME/wantedfacl "$@"

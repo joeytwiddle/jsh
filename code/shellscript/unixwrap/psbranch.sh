@@ -1,1 +1,1 @@
-pstree -ap | grep -B 100000 $*
+pstree -ap | grep -B 100000 "$@"

@@ -26,7 +26,7 @@ echo "$TRYDIRS" | while read X; do
 				# exec $X/startj
 				# source $X/startj
 				. $X/startj
-				$*
+				"$@"
 				RES="$?"
 				export DONE="true";
 				exit "$RES"

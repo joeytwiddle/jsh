@@ -9,7 +9,7 @@ if test ! "$2" = ""; then
 	MULTIPLE=true
 fi
 
-for X in $*; do
+for X in "$@"; do
   if test $MULTIPLE; then
     printf "$X:	"
   fi

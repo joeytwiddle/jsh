@@ -11,5 +11,5 @@
 
 # Valid provided following string unique
 SEDHACKSTRING="<'\"34098)£~thisisjoeyssedhackstring>"
-sed "s|$*\(.*\)|$SEDHACKSTRING\1|" |
+sed "s|$@\(.*\)|$SEDHACKSTRING\1|" |
   sed "s|.*$SEDHACKSTRING||"

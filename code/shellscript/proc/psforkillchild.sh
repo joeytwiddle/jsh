@@ -1,1 +1,1 @@
-ps --no-headers -o ppid,pid,args $*
+ps --no-headers -o ppid,pid,args "$@"

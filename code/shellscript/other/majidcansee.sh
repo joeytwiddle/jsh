@@ -1,4 +1,4 @@
-for X in $*; do
+for X in "$@"; do
   if test -f $X; then
     setfacl -f $HOME/facl.file $X
   elif test -d $X; then

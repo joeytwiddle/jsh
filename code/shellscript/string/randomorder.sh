@@ -14,6 +14,6 @@ awk '
     printf($1);
     printf("\n");
   }
-' $* |
+' "$@" |
   sort -k 1 |
   afterfirstall " "

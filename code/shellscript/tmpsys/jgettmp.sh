@@ -1,5 +1,5 @@
 #!/bin/sh
-ARGS=`printf "$*" | tr -d "\n" | tr " /" "_-"`
+ARGS=`printf "$@" | tr -d "\n" | tr " /" "_-"`
 if test "x$ARGS" = "x"; then
   ARGS="$$"
 fi

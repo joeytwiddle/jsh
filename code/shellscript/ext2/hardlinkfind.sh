@@ -27,7 +27,7 @@ keepduplicatelines -gap 1
   # echo
 # done
 
-# case $* in
+# case "$@" in
 # 
   # check)
     # # Original can't handle spaces:

@@ -1,6 +1,6 @@
 MEMODIR="$JPATH/data/memo"
 REALPWD=`realpath "$PWD"`
-NICECOM=`echo "$REALPWD: $*" | tr " /" "_-"`
+NICECOM=`echo "$REALPWD: $@" | tr " /" "_-"`
 FILE="$MEMODIR/$NICECOM.memo"
 
 if test -f "$FILE"; then

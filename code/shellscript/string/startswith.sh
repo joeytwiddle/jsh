@@ -1,4 +1,4 @@
-if test "$*x" = "x"; then
+if test "$@x" = "x"; then
   echo "startswith <string> <searchstring>"
   echo "  return status 0 means true, 1 means false."
   exit 123

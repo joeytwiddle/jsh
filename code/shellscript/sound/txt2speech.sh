@@ -1,17 +1,17 @@
 # while true; do
 
-  # cat $* | tr -d "\":\t'" | tr "?[:upper:]" ".[:lower:]" | tr -d "\n" | sed "s+\.+\.N+g" | tr "N" "\n" | festival --tts
-          # cat $* | tr -d "\":\t'" | tr "?[:upper:]" ".[:lower:]" | tr "\n" " " | sed "s+\.+\.N+g" | tr "\t" " " | sed "s/^ //g" | sed "s/^ //g" | sed "s/^ //g" | tr "N" "\n" > tmp.txt
+  # cat "$@" | tr -d "\":\t'" | tr "?[:upper:]" ".[:lower:]" | tr -d "\n" | sed "s+\.+\.N+g" | tr "N" "\n" | festival --tts
+          # cat "$@" | tr -d "\":\t'" | tr "?[:upper:]" ".[:lower:]" | tr "\n" " " | sed "s+\.+\.N+g" | tr "\t" " " | sed "s/^ //g" | sed "s/^ //g" | sed "s/^ //g" | tr "N" "\n" > tmp.txt
           # festival --tts tmp.txt
   
   # (
           # echo '("'
-          # cat "$*" | sed "s/^ /\\
+          # cat "$@" | sed "s/^ /\\
    # /"
           # echo ')'
   # ) | festival --tts
   
-  cat $* > tmp.txt
+  cat "$@" > tmp.txt
   
   (
           echo '("'
@@ -37,15 +37,15 @@
   
   cat tmp2.txt | festival --tts
   
-  # festival --tts "$*"
+  # festival --tts "$@"
   
-  # if test "x$*" = "x"; then
+  # if test "x$@" = "x"; then
           # tr -d ":\".\t'" | festival --tts
           # # echo "txt2speech <file>"
           # # exit 1
   # # fi
   # else
-          # cat "$*" | festival --tts
+          # cat "$@" | festival --tts
   # fi
 
 # done

@@ -1,3 +1,3 @@
-/stuff/install/vmware/vmware $*
+/stuff/install/vmware/vmware "$@"
 # `jwhich vmware` "$@"
 

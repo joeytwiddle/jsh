@@ -1,1 +1,1 @@
-rpm -qa | grep $*
+rpm -qa | grep "$@"

@@ -1,6 +1,6 @@
 ( 
 
-  if test "$*" = ""; then
+  if test "$@" = ""; then
 
     echo "jdoc <command>"
     echo "  will show you the contents of $JPATH/tools/<command>"
@@ -8,20 +8,20 @@
 
   else
 
-    # find $JPATH/code/shellscript -name "$*" -o -name "$*.*" | grep -v "CVS"
+    # find $JPATH/code/shellscript -name "$@" -o -name "$@.*" | grep -v "CVS"
     LINKTOCOM="$JPATH/tools/$1"
 
     if test -f "$LINKTOCOM"; then
 
-      # echo "### "`justlinks "$*"`":"
+      # echo "### "`justlinks "$@"`":"
       # echo "::::::::::::::"
-      # echo `justlinks "$*"`
+      # echo `justlinks "$@"`
       # echo "::::::::::::::"
-      # more $*
+      # more "$@"
       (
         # echo "::::::::::::::"
         # echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
-        # echo "$1 -> "`justlinks "$*"`
+        # echo "$1 -> "`justlinks "$@"`
         echo `justlinks "$LINKTOCOM"`
         # echo "::::::::::::::"
         echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
@@ -32,8 +32,8 @@
 
     else
 
-      jman $*
-      info $*
+      jman "$@"
+      info "$@"
 
     fi
 

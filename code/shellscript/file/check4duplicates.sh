@@ -1,4 +1,4 @@
-if test "x$*" = "x"; then
+if test "x$@" = "x"; then
   echo "check4duplicates [remove] <other-dir>"
   exit 1
 fi

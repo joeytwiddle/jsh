@@ -1,1 +1,1 @@
-find . -name "*$**"
+find . -name "*$@*"

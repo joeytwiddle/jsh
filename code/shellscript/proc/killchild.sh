@@ -8,19 +8,19 @@ fi
 MYID=$$
 PID=$1
 # echo "PPID = $PPID =? given = $PID !=? mine = $MYID"
-ARGS=`echo -n $* | sed "s/^$1 //"`
+ARGS=`printf "$@" | sed "s/^$1 //"`
 # echo "Looking for $ARGS with PPID=$PID"
 LINE=`psforkillchild |
   grep "$PID " |
   grep "$ARGS" |
-  grep -v "$MYID .*killchild $*" |
+  grep -v "$MYID .*killchild $@" |
   grep -v "$MYID .*grep" |
   head -n 1`
 
 # psforkillchild |
   # grep "$PID " |
   # grep "$ARGS" |
-  # grep -v "$MYID .*killchild $*" |
+  # grep -v "$MYID .*killchild $@" |
   # grep -v "$MYID .*grep"
 
 # PARENTID=`echo $LINE | takecols 1`

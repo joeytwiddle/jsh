@@ -3,8 +3,8 @@ JLIB="$JPATH/code/java/jlib/*.java $JPATH/code/java/jlib/*/*.java"
 # Wrappers must be compiled separately
 # CTW="$JPATH/code/java/changetheworld/*.java"
 # jikes $CTW |more
-jikes $* *.java $JLIB # |more
-# jikes $* *.java
+jikes "$@" *.java $JLIB # |more
+# jikes "$@" *.java
 if [ "$?" = "0" ]; then
   echo "OK"
 fi

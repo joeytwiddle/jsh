@@ -1,2 +1,2 @@
-$* > $JPATH/tmp/tmp.txt
+"$@" > $JPATH/tmp/tmp.txt
 vim $JPATH/tmp/tmp.txt

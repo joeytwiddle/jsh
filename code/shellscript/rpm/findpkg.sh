@@ -42,5 +42,5 @@ else
   grep -v "no description available"
 fi | highlight "$SEARCH"
 
-# dpkg -l "*$**" | egrep -v "^?n"
-# dpkg -l "*$**" | grep "^[hi]"
+# dpkg -l "*$@*" | egrep -v "^?n"
+# dpkg -l "*$@*" | grep "^[hi]"

@@ -1,4 +1,4 @@
-if test "x$*" = "xcurrent"; then
+if test "x$@" = "xcurrent"; then
 	tail -n 2 $JPATH/tmp/xmms-output.txt | head -n 1
 else
 	tail -n 5 $JPATH/tmp/xmms-output.txt | head -n 1

@@ -1,1 +1,1 @@
-mount -o remount $*
+mount -o remount "$@"

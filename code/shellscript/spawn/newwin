@@ -2,7 +2,7 @@ xterm -e "$@"
 
 # FAVOURITE_XTERMS="xterm gnome-terminal konsole"
 # 
-# ARGS="$*";
+# ARGS="$@";
 # if test "x$ARGS" = "x"; then
 #   COM="";
 #   STARTCOM="";

@@ -1,1 +1,1 @@
-sendat sched early $*
+sendat sched early "$@"

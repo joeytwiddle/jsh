@@ -1,4 +1,4 @@
 export JDK_HOME=/usr/lib/j2sdk1.3/
-runide $* &
+runide "$@" &
 # forte4j -jdkhome /usr/local$JPATHdk1.2.2 &
 

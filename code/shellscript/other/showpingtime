@@ -1,6 +1,6 @@
-HOST=`url2host $*`
+HOST=`url2host "$@"`
 TIME=`pingtime $HOST`
 if [ "$TIME" = "" ]; then
   TIME="  inf"
 fi
-echo "$TIME  $*"
+echo "$TIME  $@"

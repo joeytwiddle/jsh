@@ -4,4 +4,4 @@ if test ! -x "$BIN"; then
   BIN=`jwhich dpkg`
 fi
 
-$BIN -S $*
+$BIN -S "$@"

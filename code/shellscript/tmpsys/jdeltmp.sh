@@ -1,4 +1,4 @@
-for X in $*; do
+for X in "$@"; do
   if startswith "$X" "$JPATH/tmp"; then
     mkdir -p $JPATH/trash/$JPATH/tmp
     mv "$X" $JPATH/trash/$X

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-randomorder $* | head -n 1
+randomorder "$@" | head -n 1
 
 # awk '
   # BEGIN {
