@@ -1,14 +1,22 @@
 COM="$@"
 
-if [ "$COM" = "" ]; then COM="zsh"; fi
+if [ "$COM" = "" ]; then COM="jsh"; fi
 
 TMPSH=`jgettmp "bigwin.sh"`
 (
 	echo "$COM"
 	echo 'echo "Press <Enter> key to quit"'
-	echo "waitforkeypress"
+	echo 'waitforkeypress'
 ) > "$TMPSH"
 chmod a+x "$TMPSH"
 
-# konsole -vt_sz 120x60 -nowelcome -caption "$1" -e sh "$TMPSH" &
-xterm -bg "#600000" -geometry 120x50 -e "$TMPSH" &
+## We bg garbage collection, in case the user Ctrl+C's the inline call
+(sleep 1m; jdeltmp "$TMPSH") &
+
+if xisrunning
+then
+	# konsole -vt_sz 120x60 -nowelcome -caption "$1" -e sh "$TMPSH" &
+	xterm -bg "#600000" -geometry 120x50 -e "$TMPSH" &
+else
+	"$TMPSH"
+fi

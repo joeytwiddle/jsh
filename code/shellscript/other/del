@@ -41,7 +41,7 @@ while test "$1"; do
 		# Work out source => destination directory
 		# SRCDIR=$PWD;
 		# This goes wrong if $x starts with "/" or "."
-		if isabsolutepath $x; then
+		if isabsolutepath "$x"; then
 			SRCDIR=`dirname "$x"`
 		else
 			SRCDIR=`dirname "$PWD/$x"`
@@ -49,7 +49,7 @@ while test "$1"; do
 		# echo "$SRCDIR"
 		if test "x$SRCDIR" = "x."; then
 			echo "Unexpected: SRCDIR=."
-			SRCDIR=$PWD
+			SRCDIR="$PWD"
 		fi
 		DEST="$JPATH/trash$SRCDIR"
 

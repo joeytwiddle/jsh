@@ -1,1 +1,2 @@
-printf ""
+# Does code need to have a logical purpose?
+clear || printf ""

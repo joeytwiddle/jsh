@@ -27,7 +27,9 @@ do
 		then
 			echo "ln -sf \""$CANDIDATES"\" \""$SYMLINK"\""
 		else
+			cursered
 			echo "## $CANDIDATESCNT possibilities for \"$SYMLINK\" -> \"$ORIGTARGET\":"
+			cursenorm
 			printf "$CANDIDATES" | sed "s+^+#  +"
 		fi
 		echo

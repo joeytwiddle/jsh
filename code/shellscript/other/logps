@@ -1,9 +1,16 @@
+(
+echo 1
 M=`$JPATH/tools/getminute`
 
+echo 2
 LOGFILE="$JPATH/tmp/ps.$M.txt"
 LOGFILE2="$JPATH/tmp/ps-simple.$M.txt"
 $JPATH/tools/myps -A > $LOGFILE
+echo 3
 $JPATH/tools/psforwatch -A > $LOGFILE2
+echo 4
 
 LOGFILE="$JPATH/tmp/$M.top"
 /usr/bin/top c n 1 b > $LOGFILE
+echo 5
+) >> $JPATH/logs/logging_logps_because_theywerent_exiting 2>&1

@@ -1,23 +1,15 @@
 if test "$1" = "--help"; then
-	echo "cksumall [ <directory> ] [ -exclude <files> ... ] ]"
+	echo "cksumall [ <directories> [ <find_options> ] ]"
 	exit 1
 fi
 
-if test ! "x$1" = "x"; then
-  cd "$1"
-  shift
-fi
-
-find . -type f |
-if test "$1" = "-exclude"; then
-	shift 
-	notindir "$@"
-else
-	cat
-fi |
+find "$@" -type f |
 while read X
 do
+  # ls -l "$X"
   cksum "$X"
-done | tr " " "\t"
-# | sort -k 3 ## filename
-# | sort -k 1,2 ## cksum ?
+done
+# | sed 's#\([^ ]*\)[ ]*\([^ ]*\)[ ]*#\1	\2	#'
+# tr " " "\t"
+# sort -k 3 ## filename
+# sort -k 1,2 ## cksum ?

@@ -6,8 +6,12 @@ shift
 FILE_A=`jgettmp "$DIR_A"`
 FILE_B=`jgettmp "$DIR_B"`
 
-cksumall "$DIR_A" "$@" > "$FILE_A"
-cksumall "$DIR_B" "$@" > "$FILE_B"
+( cd "$DIR_A"
+  cksumall . "$@"
+) > "$FILE_A"
+( cd "$DIR_B"
+  cksumall . "$@"
+) > "$FILE_B"
 
 # diff "$FILE_A" "$FILE_B"
 
