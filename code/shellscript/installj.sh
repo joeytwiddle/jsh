@@ -9,8 +9,8 @@
 ## TODO: ability to checkout (and update) in absence of local cvs exe
 
 ## Default setup
-export JPATH="$HOME/j"
-HWIUSER=anonymous
+[ "$JPATH"   ] || JPATH="$HOME/j"
+[ "$HWIUSER" ] || HWIUSER=anonymous
 
 ## Parsing user options
 while test "$1"
@@ -92,6 +92,7 @@ echo
 cd .. ## Important to return to orig position because JPATH provided may be relative to user's original PWD
 
 ## Set up environment
+export JPATH
 echo "Linking shellscripts into $JPATH/tools (may take a while)"
 "$JPATH"/code/shellscript/init/refreshtoollinks
 

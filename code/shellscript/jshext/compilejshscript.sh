@@ -1,7 +1,13 @@
-SCRIPTNAME="$1"
+MAINSCRIPT="$1"
 
 NL="
 "
+
+
+
+### Find dependencies:
+
+echo "`curseyellow`Finding dependencies...`cursenorm`" >&2
 
 JSHDEPS=""
 EXTDEPS=""
@@ -15,78 +21,106 @@ while [ "$TODO" ]
 do
 
   # echo "`cursered;cursebold`New run:" $TODO
+  ## Add todo scripts to the dependency list:
   JSHDEPS="$TODO$NL$JSHDEPS"
+
+  ## Loop through todo scripts:
   TODOLAST="$TODO"
   TODO=""
   for SCRIPT in $TODOLAST
   do
 
-    # JSHDEPS="$JSHDEPS$NL$SCRIPT"
-    # echo "Checking $SCRIPT ..."
-    # ADDJSH=`findjshdeps "$SCRIPT" 2>/dev/null | grep -v "^  " | grep -v "^$" | grep " (jsh)$" | sed 's+ (jsh)$++'`
-    # ADDEXT=`findjshdeps "$SCRIPT" 2>/dev/null | grep -v "^  " | grep -v "^$" | grep -v " (jsh)$"`
+    ## Find dependencies of script:
     ADDJSH=`jshdepwiz getjshdeps "$SCRIPT"`
-    ## TODO: This line should not be commented:!
-    # ADDEXT=`jshdepwiz getextdeps "$SCRIPT"`
+    ADDEXT=`jshdepwiz getextdeps "$SCRIPT"`
 
-    echo -n "`cursecyan`$SCRIPT`cursenorm`: " >&2
-    for NAME in $ADDJSH
-    do
-      if ! echo "$TODO$NL$JSHDEPS$NL$EXTDEPS" | grep "^$NAME$" > /dev/null
-      then
-          # echo "    depends: $NAME"
+    ## Add depdencies to todo list, if not already there:
+    if [ "$ADDJSH" ]
+    then
+      echo -n "`cursecyan`$SCRIPT`cursenorm`: " >&2
+      for NAME in $ADDJSH
+      do
+        if ! echo "$TODO$NL$JSHDEPS$NL$EXTDEPS" | grep "^$NAME$" > /dev/null
+        then
           TODO="$TODO$NL$NAME"
           echo -n "$NAME " >&2
-      # else echo "    skipping: $NAME $WHERE"
-      fi
-    done
-    echo >&2
+        else
+          echo -n "[$NAME] " >&2
+        fi
+      done
+      echo >&2
+    fi
 
-    for NAME in $ADDEXT
-    do
-      if ! echo "$TODO$NL$JSHDEPS$NL$EXTDEPS" | grep "^$NAME$" > /dev/null
-      then
-          # echo "    ext-depends: $NAME"
+    ## Add external depdencies to big ext list, if not already there:
+    if [ "$ADDEXT" ]
+    then
+      echo -n "`cursecyan`$SCRIPT ext`cursenorm`: " >&2
+      for NAME in $ADDEXT
+      do
+        if ! echo "$TODO$NL$JSHDEPS$NL$EXTDEPS" | grep "^$NAME$" > /dev/null
+        then
           EXTDEPS="$EXTDEPS$NL$NAME"
-      # else echo "  Already seen: $NAME $WHERE"
-      fi
-    done
+          echo -n "$NAME " >&2
+        else
+          echo -n "[$NAME] " >&2
+        fi
+      done
+      echo >&2
+    fi
 
-    # echo "New dependencies from `cursecyan`$SCRIPT`cursenorm`:	" $TODO
+    # echo "New dependencies from `cursecyan`$SCRIPT`cursenorm`:	" $TODO >&2
     # echo
 
   done
 
-  # echo "End run."
-  # echo "<todo>$NL$TODO$NL</todo>" | tr '\n' ' '; echo
+  # echo "End run." >&2
+  # echo "Still todo:" $TODO >&2
 
 done
 
-# echo "Results:"
-# echo "<jshscripts>$NL$JSHDEPS$NL</jshscripts>" | trimempty
-# echo "<extscripts>$NL$EXTDEPS$NL</extscripts>" | trimempty
+echo >&2
+echo "`curseyellow`All jsh dependencies:`cursenorm`" $JSHDEPS >&2
+echo "`curseyellow`All external dependencies:`cursenorm`" $EXTDEPS >&2
 
-echo "All dependencies:" $JSHDEPS >&2
 
-TMPFILE=`jgettmp compilejshscript $SCRIPTNAME`
 
+### Compile script by converting each dependent script into a function:
+
+echo >&2
+echo "`curseyellow`Compiling script...`cursenorm`" >&2
+
+TMPFILE=`jgettmp compilejshscript $MAINSCRIPT`
+
+## Cleanup: We cannot .|source functions, but I think they work the same when called directly anyway:
 FINALSED='s+^\([ 	]*\)\. ++'
+
+echo -n "Importing: " >&2
 for DEP in $JSHDEPS
 do
-  echo "## import of $DEP from jsh"
+  echo -n "`cursecyan`$DEP`cursenorm` " >&2
+  echo "### Start jsh import: $DEP"
   makeshfunction `which "$DEP"`
+  echo "### End jsh import: $DEP"
   echo
+  ## Cleanup: function names may not contain '-', so rename with '_'s instead:
   if contains "$DEP" -
   then
-    NEWDEP=`echo "$DEP" | tr '-' '_'`
+    NEWDEP=`echo "$DEP" | tr '\-' '_'`
     FINALSED="$FINALSED;s+\<$DEP\>+$NEWDEP+g"
   fi
 done > $TMPFILE
+## Note: original | cat > $TMPFILE left problems export FINALSED back out.
+echo >&2
 
+echo >&2
+
+export TMPFILE MAINSCRIPT
+## Perform cleanup, and add main call to main script's function:
 (
-  cat "/tmp/$SCRIPTNAME.tmp"
+  cat $TMPFILE
   echo
-  echo "$SCRIPTNAME \"\$@\""
+  echo "$MAINSCRIPT \"\$@\""
 ) |
 sed "$FINALSED"
 
+jdeltmp $TMPFILE

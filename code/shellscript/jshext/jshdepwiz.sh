@@ -17,7 +17,7 @@
 
 ## Note: instead of commenting out, the first two could be sourced and checked at runtime.
 
-export INTERACTIVE=true
+# export NON_INTERACTIVE=true
 # export VIGILANT=true
 export LAZY=true
 
@@ -62,7 +62,7 @@ function adddeptoscript () {
   ## Skip adding if dependency is already listed
   if ! echo "$DEPS" | grep "\<$DEP\>" > /dev/null
   then
-    ## Was working nicely but abandoned because of whitespacing altering shinanigans:
+    ## Was working nicely (doing both additions and adjustments, admittedly by accident) but abandoned because of whitespacing altering shinanigans:
     # (
       # cat "$REALSCRIPT" |
       # tostring "$FINDLINE"
@@ -162,7 +162,7 @@ case "$1" in
     fi
     for DEP in $NEW_JSH_DEPS
     do
-      if [ "$INTERACTIVE" ]
+      if [ ! "$NON_INTERACTIVE" ]
       then
         echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
         higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2

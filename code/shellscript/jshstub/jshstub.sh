@@ -61,9 +61,9 @@ then
 	else
 		PROCCHECK=$$
 		echo "[ jshstub: $SCRIPTFILE is not a symlink! ]" >&2
-		echo "[ jshstub: most likely cause is an unaliased source in bash which did not pass \$0 ]" >&2
+		echo "[ jshstub: \\ most likely cause is an unaliased source in bash which did not pass \$0 ]" >&2
 		# echo "[ jshstub: maybe you wanted to run `ps -o time,ppid,pid,user,comm | grep $PROCCHECK` ]" >&2
-		echo "[ jshstub: BASH_ENV=>$BASH_ENV< ]" >&2
+		echo "[ jshstub: \\ BASH_ENV=>$BASH_ENV< ]" >&2
 		alias . >&2
 		alias source >&2
 		OKTOGO=true
@@ -112,17 +112,17 @@ then
 
 		rm -f "$SCRIPTFILE"
 
-		echo "[ jshstub: Received call $SCRIPT_WAS_SOURCED$SCRIPTNAME ($*) ]" >&2
+		echo "[ jshstub: Received call: $SCRIPT_WAS_SOURCED$SCRIPTNAME $* ]" >&2
 		## When sourced in zsh, $WGETCOM was not being expanded as desired.
 		eval $WGETCOM -q "$JSH_STUB_NET_SOURCE/$SCRIPTNAME" > "$SCRIPTFILE"
 
 		if test "$?" = 0
 		then
-			echo "[ jshstub: Downloaded $SCRIPTNAME ok ]" >&2
+			echo "[ jshstub: \\ Downloaded $SCRIPTNAME ok ]" >&2
 			chmod a+x "$SCRIPTFILE"
 		else
-			echo "[ jshstub: Error: failed to retrieve http://hwi.ath.cx/jshstubtools/$SCRIPTNAME ]" >&2
-			echo "[ jshstub: Replacing removed symlink, and stopping with false. ]" >&2
+			echo "[ jshstub: ! Error: failed to retrieve http://hwi.ath.cx/jshstubtools/$SCRIPTNAME ]" >&2
+			echo "[ jshstub: ! Replacing removed symlink, and stopping with false. ]" >&2
 			rm -f "$SCRIPTFILE"
 			ln -s "$JPATH/tools/jshstub" "$SCRIPTFILE"
 			OKTOGO=
@@ -135,7 +135,7 @@ then
 	if test $OKTOGO && test ! "$DONTEXEC"
 	then
 
-		echo "[ jshstub: Calling . $SCRIPTFILE $* ]" >&2
+		echo "[ jshstub: \\ Calling . $SCRIPTFILE $* ]" >&2
 		# echo >&2
 
 		# set -x

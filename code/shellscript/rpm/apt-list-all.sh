@@ -1,5 +1,6 @@
 # jsh-depends-ignore: arguments pkgversions
 # jsh-depends: cursemagenta cursenorm memo removeduplicatelines takecols jdeltmp jgettmp drop error
+
 cd / # for memoing
 
 # if [ "$1" = -refresh ]
@@ -45,11 +46,11 @@ then
   echo
   echo "Usage:"
   echo
-  echo "  apt-list-all                   : list all available packages & sources"
-  echo "  apt-list-all sources           : list repositories which we draw from"
-  echo "  apt-list-all levels            : list stability levels"
-  echo "  apt-list-all in <source/level> : list packages in source or level"
-  echo "  apt-list-all pkg <package>     : list available versions of package"
+  echo "  apt-list-all                    : list all available packages & sources"
+  echo "  apt-list-all sources            : list repositories which we draw from"
+  echo "  apt-list-all status             : list stability status"
+  echo "  apt-list-all in <source/status> : list packages in source or status"
+  echo "  apt-list-all pkg <package>      : list available versions of package"
   echo "                                   (see also pkgversions)"
   echo
   echo "Options:"
@@ -89,7 +90,7 @@ then
 
   $MEMOCOM "apt-list-all $INSTALLED $SOURCE_LIST | takecols 4 | drop 1 | removeduplicatelines"
 
-elif [ "$1" = levels ]
+elif [ "$1" = status ]
 then
 
   $MEMOCOM "apt-list-all $INSTALLED $SOURCE_LIST | takecols 3 | drop 1 | removeduplicatelines"
@@ -103,9 +104,10 @@ then
     ## Used to build a big regexp for grep but it was too slow.
 
     LIST=`jgettmp apt-list-all`
+    export INSTALLED=
     apt-list-all $SOURCE_LIST | tr -s ' ' > $LIST
 
-    echo "`cursemagenta`apt-list-all: building installed cache from main cache, please be patient...`cursenorm`" >&2
+    echo "`cursemagenta`apt-list-all: building installed cache subset, you may start getting annoyed now...`cursenorm`" >&2
 
     ## TODO: this memo file is too large, and we only need cache the output
     # $DPKGMEMOCOM "env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5" |
