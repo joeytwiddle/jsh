@@ -8,7 +8,7 @@ echo 'Main = "'$MAIN'"'
 echo 'Rest = "'$REST'"'
 echo 'Bits = "'$BITS'"'
 
-echo '  <FORM ACTION="'$MAIN'" method="GET">'
+echo '  <FORM TARGET="blank" ACTION="'$MAIN'" method="GET">'
 
 for x in $BITS; do
   # echo "Doing $x"

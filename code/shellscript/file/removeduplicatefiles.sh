@@ -20,7 +20,11 @@ find . | while read X; do
   if test "x$CMPRES" = "x"; then
     if test "$CMPERR" = "0"; then
       # For the chop!
-      echo "del \"$X\"   # err=$CMPERR output=$CMPRES"
+      if cmp "$X" "$OTHERDIR/$X" 2>&1; then
+        echo "del \"$X\"   # err=$CMPERR output=$CMPRES"
+      else
+        echo "*** ERROR:  $X : failed on if cmp"
+      fi
     else
       echo "*** ERROR: $X : err > 0 but output: $CMPRES"
     fi

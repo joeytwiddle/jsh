@@ -34,9 +34,9 @@ for x in $*; do
     # SRCDIR=$PWD;
     # This goes wrong if $x starts with "/" or "."
     if isabsolutepath $x; then
-      SRCDIR=`dirname $x`
+      SRCDIR=`dirname "$x"`
     else
-      SRCDIR=`dirname $PWD/$x`
+      SRCDIR=`dirname "$PWD/$x"`
     fi
     # echo "$SRCDIR"
     if test "x$SRCDIR" = "x."; then
@@ -59,7 +59,7 @@ for x in $*; do
 
       # Work out destination filename
       # y=`echo $x | filename` # this also adds ' '!
-      y=`filename $x`   # or y=`echo $x | filename`
+      y=`filename "$x"`   # or y=`echo $x | filename`
       # echo ">$y<"
       
       # $x is as given, $SRCDIR/$y is absolute
