@@ -1,9 +1,11 @@
 FILE="$JPATH/trash/$PWD/$1"
 if test ! -f "$FILE"; then
-  echo "Sorry - $FILE does not exist."
-  echo "Try one of these ..."
-  find $JPATH/trash -name "$1"
-  exit 1
+  if test ! -d "$FILE"; then
+    echo "Sorry - $FILE is neither a file or directory."
+    echo "Try one of these ..."
+    find $JPATH/trash -name "$1"
+    exit 1
+  fi
 fi
 mv "$FILE" .
 echo "./$1 <- $FILE"

@@ -6,20 +6,26 @@ BDATA=`jgettmp seconddir`
 
 (
   cd "$1"
-	'ls' -l `find . -type f` | takecols 5 9 10 11 12
-)
+  find . -type f |
+    while read X; do
+      'ls' -l "$X" | takecols 5 9 10 11 12 13 14 15 16
+    done
+) > "$ADATA"
 
 (
-	cd "$2"
-	'ls' -l `find . -type f` | takecols 5 9 10 11 12 13 14 15 16
-)
+  cd "$2"
+  find . -type f |
+    while read X; do
+      'ls' -l "$X" | takecols 5 9 10 11 12 13 14 15 16
+    done
+) > "$BDATA"
 
 jfc "$ADATA" "$BDATA"
 
 jdeltmp "$ADATA" "$BDATA"
 
 # ( cd "$1"
-	# du -ab
+  # du -ab
 # # find . -type f | while read X; do
   # # echo "$X"
   # # filesize "$X"
@@ -27,7 +33,7 @@ jdeltmp "$ADATA" "$BDATA"
 # ) > firstdir.sz
 
 # ( cd "$2" # Must be absolute!
-	# du -ab
+  # du -ab
 # # for X in `find . -type f`; do
 # # find . -type f | while read X; do
 # #   filesize "$X"

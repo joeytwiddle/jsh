@@ -1,7 +1,9 @@
-if startswith "$*" "$JPATH/tmp"; then
-  mkdir -p $JPATH/trash/$JPATH/tmp
-  mv "$*" $JPATH/trash/$*
-  # del "$*"
-else
-  echo "jdeltmp: $* does not start with $JPATH/tmp"
-fi
+for X in $*; do
+  if startswith "$X" "$JPATH/tmp"; then
+    mkdir -p $JPATH/trash/$JPATH/tmp
+    mv "$X" $JPATH/trash/$X
+    # del "$X"
+  else
+    echo "jdeltmp: $X does not start with $JPATH/tmp"
+  fi
+done

@@ -19,8 +19,8 @@ rm -r /mnt/stig/backups/*
 # Joey's ~ directory (.* files and stuff...)
 # We get a weird error if the zip goes at the bottom, after the
 # slightly dodgy safetar etc ... !
-cd /home/joey/
-zip -q /mnt/stig/backups/twiddle `find $HOME -size 0 -o -size 1 -o -size 2 -o -size 3 -o -size 4 -o -size 5 -o -size 6 -o -size 7 -o -size 8 -o -size 9 -maxdepth 1`
+# cd /home/joey/
+zip -q /mnt/stig/backups/twiddle `find /home/joey -size 0 -o -size 1 -o -size 2 -o -size 3 -o -size 4 -o -size 5 -o -size 6 -o -size 7 -o -size 8 -o -size 9 -maxdepth 1`
 # zip -q /mnt/stig/backups/twiddle .* *
 
 # Joeylib, JLib, C, Java sources
