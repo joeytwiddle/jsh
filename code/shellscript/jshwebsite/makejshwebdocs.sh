@@ -130,14 +130,14 @@ do
 		then
 			export DEPWIZ_NON_INTERACTIVE=true
 			## Detailed version; re-enable when DHTML/Javascript "hide column" feature available
-			echo "Jsh dependencies: "
-			jshdepwiz getjshdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for"
+			echo "Jsh dependencies:<BR>"
+			jshdepwiz getjshdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
 			echo "<BR>"
-			echo "External dependencies: "
-			jshdepwiz getextdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for"
+			echo "External dependencies:<BR>"
+			jshdepwiz getextdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
 			echo "<BR>"
-			echo "Unchecked dependencies: <font color='red'><B><TT>"
-			jshdepwiz gendeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for"
+			echo "Unchecked dependencies:<BR><font color='red'><B><TT>"
+			jshdepwiz gendeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
 			# echo "<!-- to help the anchor tag: -->"
 			echo "</TT></B></font>"
 			echo "<BR>"
@@ -167,7 +167,7 @@ do
 		echo "</TD><TD align='center'>"
 		echo "(<A href=\"$SCRIPTPATH.html\">view</A>)"
 		# echo "</TD><TD align='center'>"
-		echo "(<A href=\"http://hwi.ath.cx/cgi-bin/joey/compilejshscript?script=$SCRIPT\">compile</A>)"
+		echo "(<A href=\"http://hwi.ath.cx/cgi-bin/joey/compilejshscript?script=$SCRIPT\">download</A>)"
 		if [ $DEPENDENCY_DEBUG -gt 1 ]
 		then
 			echo "</TD><TD align='center'>"

@@ -38,7 +38,7 @@ case "$COMMAND" in
 		shift
 		DESTFILE="$1"
 		echo "then"
-		echo "	logwrite \"$DESTFILE [geneximrule:$RULENAME]\""
+		echo "	logwrite \">>> $DESTFILE [geneximrule:$RULENAME]\""
 		echo "	save \"$DESTFILE\""
 		echo "	seen finish"
 		echo "endif"
