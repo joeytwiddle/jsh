@@ -2,6 +2,6 @@ ARGS="$*";
 if test "x$ARGS" = "x"; then
   ARGS="*";
 fi
-du -sk $ARGS | sort -n -k 1
+du -x -sk $ARGS | sort -n -k 1
 # files
 # du -sk *

@@ -17,10 +17,17 @@ cat $* > tmp.txt
 
 (
         echo '("'
-        cat tmp.txt | tr "-" " " | tr -s "\n" | sed "s/\%/ percent /g" | sed "s/\?/./g" | sed "s/^ /\\
+        cat tmp.txt |
+          tr "-" " " |
+          tr -s "\n" |
+          sed "s/\%/ percent /g" |
+          sed "s/\?/./g" | tee hello.txt |
+          sed 's|"\([^"]*\)\"| - quote - \1 - unquote - |g' |
+          sed 's|\"| - unmatched quote - |g' |
+          sed "s/^ /\\
  /"
         echo ')'
-) > tmp2.txt
+) | tee tmp2.txt
 
 cat tmp2.txt | festival --tts
 
