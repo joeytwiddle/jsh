@@ -1,8 +1,11 @@
+#!/bin/sh
 if test "$1" = ""; then
   echo "findpkg [-all] [-web] [-big] <part-of-package-name>"
   exit 1
 fi
 
+## Somehow the values set in the while loop get preserved by the variables, even with /bin/sh above.
+## So what's the problem with variables in while loops?  Mabe its only when piping?!
 SHOWALL=
 WEBSRCH=
 HEAD=

@@ -1,4 +1,8 @@
-xterm -title "$*" -e "$@"
+if xisrunning; then
+	xterm -title "$*" -e "$@"
+else
+	"$@"
+fi
 
 # FAVOURITE_XTERMS="xterm gnome-terminal konsole"
 # 
