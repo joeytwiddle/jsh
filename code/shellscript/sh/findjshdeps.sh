@@ -1,4 +1,4 @@
-## To find what external programs jsh scripts depend on, run this.
+## To find what external (and internal) programs a jsh script depends on, run this.  Without arguments, finds dependencies for all jsh scripts.  You need to do this to find reverse-dependencies (scripts which depend on a particular script).
 ## Note: you need to have all the programs on your system (!), otherwise add them to $LIST below.
 ## Hence, this script will eventually export the dependency info, so it can be useful on machines without those programs.
 ## (Eg. installj and updatejsh will remove scripts from $JPATH/tools if their dependencies are not met.)
@@ -19,6 +19,7 @@ EVER_PRESENT='^\('
 EVER_PRESENT="$EVER_PRESENT"'printf\|echo\|test\|clear\|cp\|mv\|ln\|rm\|ls\|kill\|'
 EVER_PRESENT="$EVER_PRESENT"'touch\|mkdir\|tr\|sh\|nice\|sleep\|date\|'
 EVER_PRESENT="$EVER_PRESENT"'chmod\|chgroup\|chown\|cat\|more\|head\|tail\|grep\|egrep\|du\|'
+EVER_PRESENT="$EVER_PRESENT"'true\|false\|'
 # EVER_PRESENT="$EVER_PRESENT"'mount\|sed\|cksum\|'
 EVER_PRESENT="$EVER_PRESENT"'\)$'
 
@@ -65,8 +66,19 @@ else
 	}
 fi
 
-cd $JPATH/code/shellscript
-find . -type f -name "*.sh" -not -path "*/CVS/*" |
+if test "$*"
+then
+
+  for X
+  do echo `realpath \`which "$X"\``
+  done
+
+else
+
+  cd $JPATH/code/shellscript
+  find . -type f -name "*.sh" -not -path "*/CVS/*"
+
+fi |
 
 while read SCRIPT
 do
@@ -102,3 +114,5 @@ do
 	fi
 
 done
+
+## TODO: Show reverse dependencies.

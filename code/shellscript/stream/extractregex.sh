@@ -2,4 +2,8 @@
 
 EXPR="$@"
 
-perl -n -e " /($EXPR)/g "' && print("$1\n"); '
+perl -n -e '
+  while ( /('"$EXPR"')/g ) {
+    print("$1\n");
+  }
+'

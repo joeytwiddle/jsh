@@ -75,7 +75,7 @@ do
     # Something used to go wrong if $FILENAME is a dir ending in "/"
 
     # Move it and report =)
-    echo "$FILE "`cursered``cursebold`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
+    echo "$FILE "`cursegreen`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
     mv -f "$FILE" "$DEST/$FILENAME"
 
     # Remove from CVS

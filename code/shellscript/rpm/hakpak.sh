@@ -12,6 +12,8 @@
 ## This retrial wizard is repeated functionality, which should be abstracted
 ## out in the code below.
 
+## TODO: make hakpak more wizardy and clever
+
 ## But anyway the update method is almost the new method (just an extra check needs update bit)
 ## So really update should be a non-interactive version of new.
 ## That way when bits fail, it can be run in partially-interactive mode, so developer can fix the relevant command.
@@ -27,21 +29,16 @@ hakpak manages updates for software which is not yet packaged for your distro.
 
 Usage:
 
-  hakpak list [<pattern>] : lists all available hakpak manages packages
-  ledit hakpak new <name> : interactive create a new hakpak package
-  hakpak update <name> : attempt to update to the latest version
+  hakpak list [<pattern>] : lists all available hakpak managed packages
+  hakpak new <name>       : interactive create a new hakpak package
+  hakpak update <name>    : attempt to update to the latest version
 
-  In future hakpak may support building of rpm's .deb's etc.
+In future hakpak may support building of rpm's .deb's etc.
 
 Note: hakpak is very experimental.
 
 !
 exit 1
-fi
-
-# set | striptermchars | grep -i ledit
-if ! echo "$LASTCMD" | grep ledit >/dev/null
-then echo "Suggest: ledit hakpak $@"
 fi
 
 function buildcommand () {
@@ -110,6 +107,14 @@ case "$1" in
 
   new)
 
+    if which ledit > /dev/null 2>&1 && [ ! "$2" = -ledited ]
+    then
+      ledit hakpak new -ledited "$@"
+      exit
+    fi
+    [ "$2" = -ledited ] && shift
+    shift
+
     NAME="$2"
 
     echo "Are we getting the package from CVS or from the WWW/FTP? [CW]"
@@ -144,21 +149,21 @@ case "$1" in
         echo "  <F>reshmeat"
         echo "  <S>ourceforge"
         ## TODO: Consider moving these searches to a constant variable or a dependent file."
-        
+
         while read URL
         do
           case "$URL" in
             G|g)
-              browse `googlesearch "$NAME"`
+              browse `googlesearch "$NAME"` &
             ;;
             L|l)
-              browse `googlesearch -lucky "$NAME"`
+              browse `googlesearch -lucky "$NAME"` &
             ;;
             F|f)
-              browse `freshmeatsearch "$NAME"`
+              browse `freshmeatsearch "$NAME"` &
             ;;
             S|s)
-              browse `sourceforgesearch "$NAME"`
+              browse `sourceforgesearch "$NAME"` &
             ;;
             http://*)
               break
@@ -176,6 +181,7 @@ case "$1" in
         wget "$URL" -O "$PAGE"
 
         echo "OK so now we need to extract the different versions available on the page."
+        echo "TODO: or just find the link if this page displays only the most up-to-date version."
 
         ## TODO...
         # EXTRACT_VERSION_LISTINGS=`buildcommand "produce a list of all the zip (or otherwise packaged) files on the page." "cat \'$PAGE\' | extractregex \'\\\"$NAME\.*zip\\\"\'"`
