@@ -1,5 +1,9 @@
 DEV=eth1
 
+function filter_port () {
+	/sbin/tc filter add dev "$DEV" parent 1:0 prio $3 protocol ip u32 match ip $1 $2 0xffff flowid 1:$3
+}
+
 case "$1" in
 
 		start-simple)
@@ -26,7 +30,6 @@ case "$1" in
 
 			## add default 4-band priority qdisc to "$DEV"
 			/sbin/tc qdisc add dev "$DEV" root handle 1: prio bands 4
-
 
 			## add a <128kbit rate limit (matches DSL upstream bandwidth) with a very deep buffer to the bulk band (#3)
 			## 99 kbit/s == 8 1500 byte packets/sec, so a latency of 5 sec means we will buffer up to 40 of these big
@@ -55,37 +58,36 @@ case "$1" in
 			## multicasts also go into band #1, since they are all inhouse (and we don't want to delay ntp packets and mess up time)
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dst 224.0.0.0/4 flowid 1:1
 
-			## ssh packets to the outside go to band #2 (this is harsh, but I can't tell scp from ssh so I can't filter them better)
-			## (actually I could tell ssh from scp; scp sets the IP diffserv flags to indicate bulk traffic)
-			## Joey moved ssh to band 1.  He hasn't a clue how to recognise whether diffserv is set or not.
-			# /sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match ip sport 22 0xffff flowid 1:2
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 22 0xffff flowid 1:1
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 22 0xffff flowid 1:1
+			### Critical:
 
-			## Joey made this one to give http higher priority than the rest of the traffic
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 80 0xffff flowid 1:1
-			## But I want to give this machine's webserver priority 2:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match ip sport 80 0xffff flowid 1:2
-
-			## Joey: and imap:
 			## Hwi's mail services:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 143 0xffff flowid 1:1
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 220 0xffff flowid 1:1
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 993 0xffff flowid 1:1
+			filter_port sport 143 1
+			filter_port sport 220 1
+			filter_port sport 993 1
 			## Remote mail:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 143 0xffff flowid 1:1
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 220 0xffff flowid 1:1
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 993 0xffff flowid 1:1
+			filter_port dport 143 1
+			filter_port dport 220 1
+			filter_port dport 993 1
 
-			## Joey: and peercast:
-			## Outgoing:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match ip sport 7144 0xffff flowid 1:2
-			## Incoming:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match ip dport 7144 0xffff flowid 1:2
+			## Peercast:
+			filter_port dport 7144 1
+			filter_port sport 7144 1
+
+			### Interactive:
+
+			## apparently, one "could tell ssh from scp; scp sets the IP diffserv flags to indicate bulk traffic"
+			## but i don't know how to do this.  And what about rsync?
+			filter_port sport 22 1
+			filter_port dport 22 1
+
+			## Fast websurfing:
+			filter_port dport 80 1
+			## Lower priority webserver:
+			filter_port sport 80 2
 
 			## CVS:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 2401 0xffff flowid 1:2
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 2401 0xffff flowid 1:2
+			filter_port dport 2401 2
+			filter_port sport 2401 2
 
 			## small IP packets go to band #2 (Joey: #3)
 			## by small I mean <128 bytes in the IP datagram, or in other words, the upper 9 bits of the iph.tot_len are 0
