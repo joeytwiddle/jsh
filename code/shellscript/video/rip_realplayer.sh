@@ -98,7 +98,8 @@ do
 
 	if [ "$?" = 0 ]
 	then
-		echo "Stream happily saved to $OUTFILE"
+		echo
+		jshinfo "Stream happily saved to $OUTFILE"
 		break
 	else
 		echo

@@ -63,7 +63,10 @@ do
 
 	URL=`cat "$LISTFILE" | grep "$RESULT$" | beforefirst '[	 ]'`
 
-	guifyscript rip_realplayer "$URL"
+	if [ "$DISPLAY" ]
+	then guifyscript rip_realplayer "$URL"
+	else rip_realplayer "$URL"
+	fi
 	# break
 
 done

@@ -1,6 +1,6 @@
 # jsh-ext-depends-ignore: clip
 # jsh-ext-depends: dirname mencoder
-VIDEOFILE="$1"
+VIDEOFILE="$1"; shift
 CLIPMARKERFILE=/tmp/clipmarkers.txt
 
 OUTPUTDIR=`dirname "$VIDEOFILE"`
@@ -36,7 +36,7 @@ do
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=4000"
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## Huge!
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
-	mencoder $COPY $CLIPOPTS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
+	mencoder "$@" $COPY $CLIPOPTS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
 
 	# prepare_for_editing "$VIDEOFILE"
 	# mv re_encoded.dv clip$CLIPNUM.dv
@@ -62,7 +62,7 @@ curseyellow
 echo "and then re-run:"
 cursenorm
 echo
-echo "    `basename "$0"` \"$1\""
+echo "    `basename "$0"` \"$VIDEOFILE\""
 echo
 curseyellow
 echo "to extract the adjusted clips."

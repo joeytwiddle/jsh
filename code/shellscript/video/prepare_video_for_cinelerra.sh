@@ -6,8 +6,8 @@ if [ "$1" = -foolproof ]
 then shift; FOOLPROOF=true
 fi
 
-# MP_MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
-# MP_MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
+# export MP_MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
+export MP_MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
 ## transcode: --export_fps 25,3 
 # TC_CLIP="-c 50-100"
 # TC_CLIP="-c 500-1200"

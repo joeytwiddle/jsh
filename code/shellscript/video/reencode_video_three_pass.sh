@@ -1,9 +1,14 @@
+## If you want a target size other than 700Mb, then you need to keep trying the script with different BITRATEs.
+## After the first audio pass, you can rerun with SKIP_FIRST_PASS=true.
+## After a couple of minutes the first video pass will give an approximation of the final size of the video.
+
 ## I wanted to make a script which would make it easy to reencode videos.
 ## I didn't really care to learn about mencoder's options and so on.
 ## Yet I now find myself typing: env PREVIEW="-ss 3:20 -endpos 0:10" SKIP_FIRST_PASS= BITRATE=4000 reencode_video_three_pass ./The\ Fog\ of\ War\ CD1.mpg
 
 # SKIP_FIRST_PASS=true
 # PREVIEW="-ss 0:00:00 -endpos 0:15"
+# PREVIEW="-ss 0:50:00 -endpos 0:20"
 # POSTPROC="-de"
 # POSTPROC="de/al"
 # POSTPROC="al" ## automatic brightness/contrast
@@ -21,29 +26,48 @@
 INPUT="$1"
 LANG=en
 
+# SIZELOG="/tmp/sizes.log"
+SIZELOG="sizes.log" # since frameno.avi and divx2pass.log appear in cwd anyway
+
 ## TODO: cleanup /if/ doing first pass
 
 ## First pass to generate audio/frameno file:
 if [ ! "$SKIP_FIRST_PASS" ]
 then
 	del frameno.avi divx2pass.log
-	echo "############################ Audio pass"
-	echo "## mencoder \"$INPUT\" $PREVIEW $AUDIODELAYFIX -ovc frameno -o frameno.avi -oac mp3lame -lameopts abr:br=128 -alang \"$LANG\""
-	mencoder "$INPUT" $PREVIEW $AUDIODELAYFIX -ovc frameno -o frameno.avi -oac mp3lame -lameopts abr:br=128 -alang "$LANG" | tee /tmp/sizes.log
-	echo
+	jshinfo "############################ Audio pass"
+	jshinfo "## mencoder \"$INPUT\" $PREVIEW $AUDIODELAYFIX -ovc frameno -o frameno.avi -oac mp3lame -lameopts abr:br=128 -alang \"$LANG\""
+	nice -15 mencoder "$INPUT" $PREVIEW $AUDIODELAYFIX -ovc frameno -o frameno.avi -oac mp3lame -lameopts abr:br=128 -alang "$LANG" | tee "$SIZELOG" || exit
+	jshinfo
 fi
 
 ## Obtain recommended bitrate:
 if [ "$BITRATE" ]
-then echo "Using user supplied bitrate $BITRATE"
+then jshinfo "Using user supplied bitrate $BITRATE"
 else
-	BITRATE=`tail -50 /tmp/sizes.log | grep "Recommended video bitrate for 700MB CD: " | afterlast ": "`
+	BITRATE=`tail -50 "$SIZELOG" | grep "Recommended video bitrate for 700MB CD: " | afterlast ": "`
+	if [ "$TARGETSIZE" ]
+	then
+		AUDIOSIZE=`filesize "frameno.avi"`
+		AUDIOSIZE=`expr "$AUDIOSIZE" / 1024 / 1024`
+		if [ "$AUDIOSIZE" -gt "$TARGETSIZE" ]
+		then jshwarn "Cannot generate file size $TARGETSIZE""M when audio stream is larger ($AUDIOSIZE""M)!  You might try reducing the audio bitrate."
+	  else
+			TARGETBITRATE=`expr '(' "$TARGETSIZE" - "$AUDIOSIZE" ')' '*' "$BITRATE" / '(' 700 - "$AUDIOSIZE" ')'`
+			if [ "$TARGETBITRATE" ]
+			then
+				jshinfo "Calculated from 700M bitrate $BITRATE that $TARGETSIZE""M requires bitrate $TARGETBITRATE"
+				BITRATE="$TARGETBITRATE"
+			else jshwarn "Calculation of required bitrate for target size $TARGETSIZE failed."
+			fi
+		fi
+	fi
 	if [ "$BITRATE" ] && [ "$BITRATE" -gt 2 ] && [ "$BITRATE" -lt 9999999 ]
-	then echo "Using recommended bitrate $BITRATE"
+	then jshinfo "Using recommended bitrate $BITRATE"
 	else
+		jshwarn "Using fallback bitrate $BITRATE (because the recommended bitrate \"$BITRATE\" was dodgy)"
 		# BITRATE=2616
 		BITRATE=1000
-		echo "Using fallback bitrate $BITRATE (because the recommended bitrate was dodgy)"
 	fi
 fi
 
@@ -59,7 +83,7 @@ fi
 # EXTRAOPTS="-aspect 352:264"
 # BITRATE=4000 ## For Step into Liquid
 
-echo "Using bitrate $BITRATE"
+jshinfo "Using bitrate $BITRATE"
 
 ## Second and third passes (preview or final):
 # Postprocessing: -vf pp=hb/vb/dr/al/lb   
@@ -78,11 +102,11 @@ do
 	# OUTPUT=preview.avi
 	# vqmin=2:vqmax=31:
 	ENCODING="-oac copy -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=$BITRATE:vhq:vpass=$PASS"
-	echo "############################ Pass $PASS / 2"
-	echo "## mencoder \"$INPUT\" -o \"$OUTPUT\" $ENCODING $PREVIEW $FILTERS $EXTRAOPTS"
+	jshinfo "############################ Pass $PASS / 2"
+	jshinfo "## mencoder \"$INPUT\" -o \"$OUTPUT\" $ENCODING $PREVIEW $FILTERS $EXTRAOPTS"
 	nice -15 mencoder "$INPUT" -o "$OUTPUT" $ENCODING $PREVIEW $AUDIODELAYFIX $FILTERS $EXTRAOPTS \
 		|| exit
-	echo
+	jshinfo
 done
 
 # jsh-ext-depends: tee mencoder

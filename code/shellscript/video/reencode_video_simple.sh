@@ -5,7 +5,7 @@
 
 # MP_MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 # MP_MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
-MP_MEET_STANDARD="-vf scale=360:286 -ofps 25" ## half (well quarter!) PAL
+# MP_MEET_STANDARD="-vf scale=360:286 -ofps 25" ## half (well quarter!) PAL
 
 ## Couldn't open codec mp2, br=224
 #	1) audio must be 16 bits per sample, so add -channels 2
@@ -19,8 +19,13 @@ do
 
   ## -ofps 24 needed for s11redux.wmv which "has 1000fps"!
   ## -srate 3200 needed for parliament_palestine_march.avi, which had pcm with bad sample rate
-	  mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
-	# mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6:acodec=mp2 $MP_CLIP || exit
+	# nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6:acodec=mp2 $MP_CLIP || exit
+
+	## Reasonable quality:
+  nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
+
+	## High quality (but large file!):
+  # nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=2 $MP_CLIP || exit
 
 done
 

@@ -2,6 +2,7 @@
 # jsh-ext-depends-ignore: script last from make file time clip play
 # jsh-depends-ignore: before mplayer
 # jsh-depends: cursecyan cursegreen curseyellow cursenorm afterfirst beforefirst beforelast rotate extract_marked_clips_from_video
+
 ## TODO: allow interactive labelling of marks -> filename, or optionally undo the last unwanted mark.
 
 CLIPMARKERFILE=/tmp/clipmarkers.txt
@@ -10,7 +11,7 @@ if [ ! "$1" ] || [ "$1" = --help ]
 then
 more << !
 
-extract_clips_from_video <video_file>
+extract_clips_from_video <video_file> [ <mplayer/mencoder_options> ]
 
   will play the video file in mplayer, and allow you to mark the positions of
   clips you want to extract.  This can be useful to get small clips out of a
@@ -35,6 +36,7 @@ exit 1
 fi
 
 VIDEOFILE="$1"
+shift
 
 ## Backup the marker file in case you realise u wanted an older one!
 [ -f "$CLIPMARKERFILE" ] && which rotate >/dev/null && rotate -nozip "$CLIPMARKERFILE"
@@ -53,7 +55,7 @@ LASTMARKERPOS=not_yet_set
 # MPLAYER=`which gmplayer`
 [ "$MPLAYER" ] || MPLAYER=`which mplayer`
 
-$MPLAYER -louder "$VIDEOFILE" 2>&1 |
+$MPLAYER "$@" "$VIDEOFILE" 2>&1 |
 
 # sed 's++'`echo`'+g' |
 
@@ -64,6 +66,8 @@ tr '' '\n' |
 
 while read LINE
 do
+
+	# printf "%s\r" "$LINE" >&2
 
 	## Ignore all lines until the user hits pause
 	if echo "$LINE" | grep "=====  PAUSE  =====" > /dev/null
@@ -110,7 +114,7 @@ echo
 [ ! "$DECISION" ] && DECISION=y
 case "$DECISION" in
 	y|Y)
-		extract_marked_clips_from_video "$VIDEOFILE"
+		extract_marked_clips_from_video "$VIDEOFILE" "$@"
 	;;
 esac
 
