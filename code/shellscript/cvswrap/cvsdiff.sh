@@ -22,7 +22,7 @@ fi
 
 find . -type d | grep -v "/CVS" |
   while read DIR; do
-    if test ! -d "$DIR/CVS/"; then
+    if test ! -d "$CVSROOT/$CHKOUT/$DIR/CVS/"; then
       echo 'cvs add "'$DIR'"'
     fi
   done

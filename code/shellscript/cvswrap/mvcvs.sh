@@ -3,11 +3,20 @@ if test ! "$3" = ""; then
   exit 1
 fi
 
-echo "% cp \"$1\" \"$2\""
-cp "$1" "$2"
-echo "% del \"$1\""
-del "$1"
-echo "% cvs add \"$2\""
-cvs add "$2"
+SRC="$1"
+DEST="$2"
+FNAME=`filename "$SRC"`
+if test -d "$DEST"; then
+  TOADD="$DEST/$FNAME"
+else
+  TOADD="$DEST"
+fi
 
-echo "Note: if your dest was a directory, then the dest file may not be added to the repository, even though the source is removed!"
+echo "% cp \"$SRC\" \"$DEST\""
+cp "$SRC" "$DEST"
+echo "% del \"$SRC\""
+del "$SRC"
+echo "% cvs add \"$TOADD\""
+cvs add "$TOADD"
+
+# echo "Warning: if your dest was a file, as opposed to a directory, it may not be added correctly."
