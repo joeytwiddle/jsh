@@ -27,8 +27,9 @@ function checkWebPageForRegexp () {
 
 function askPortExpect () {
 	doing "Connecting to $1:$2 sending \"$3\" hoping to get \"$4\" ..."
-	NC=`which nc 2>/dev/null`
-	[ ! "$NC" ] && echo "No netcat: using telnet" && NC=`which telnet`
+	# NC=`which nc 2>/dev/null`
+	NC=/usr/bin/nc
+	[ ! -x "$NC" ] && echo "No netcat: using telnet" && NC=`which telnet`
 	RESPONSE=`
 		( echo "$3" ; sleep 99 ) |
 		"$NC" "$1" "$2" & ncpid=$!
@@ -63,7 +64,7 @@ checkWebPageForRegexp "http://hwi.ath.cx/" "How to contact Joey"
 
 echo
 
-checkWebPageForRegexp "http://emailforever.net/cgi-bin/openwebmail/openwebmail.pl" "Open"
+checkWebPageForRegexp "https://emailforever.net/cgi-bin/openwebmail/openwebmail.pl" "Open"
 
 echo
 
@@ -71,8 +72,23 @@ checkWebPageForRegexp "http://generation-online.org/" "Generation"
 
 echo
 
-doing "Checking hwi's port 5432 (postgres) is firewalled."
-nmap -p 5432 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+# doing "Checking hwi's port 5432 (postgres) is firewalled."
+# nmap -p 5432 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+
+doing "Checking hwi's port 2049 (nfs) is firewalled."
+nmap -p 2049 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+
+doing "Checking hwi's port 139 (samba) is firewalled."
+nmap -p 139 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+
+doing "Checking hwi's port 445 (samba) is firewalled."
+nmap -p 445 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+
+doing "Checking hwi's port 6000 (X:0) is firewalled."
+nmap -p 6000 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+
+doing "Checking hwi's port 6001 (X:1) is firewalled."
+nmap -p 6001 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
 
 echo
 
