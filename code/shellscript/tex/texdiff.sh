@@ -33,9 +33,12 @@ echo
 curseyellow
 
 # Do the diff
+TEXSTART=" \\color{Red} \\itshape \\bfseries " # \\textbf "
+TEXEND=" \\color{Black} \\normalfont \\mdseries " # \\textmd"
 cd "$NEWTEX"
 for X in *.tex; do
-	jfc silent diff -ds " \\color{Red} " -dsf " \\color{Black} " "$OLDTEX/$X" "$X"
+	jfc silent diff -ds "$TEXSTART" -dsf "$TEXEND" "$OLDTEX/$X" "$X"
+	# jfc silent diff -ds "$TEXSTART" "$OLDTEX/$X" "$X"
 done
 
 # Move working copy to final destination, and partial cleanup
@@ -56,19 +59,26 @@ cd "$FINALDEST"
 for X in `beforeext diff`; do
 	mv "$X.diff" "$X"
 done
+# TEXEND2=" \\\\color{Black} \\\\normalfont \\\\mdseries " # \\textmd"
+# NL="\
+# "
+# for X in *.tex; do
+	# cat "$X" | sed "s/^$/$NL$TEXEND2$NL/" > "$X.diff"
+	# mv "$X.diff" "$X"
+# done
 # ... reformat document!
 ./dotex
-for X in `beforeext dvi`; do
-	cursecyan
-	echo
-	echo "To postscript..."
-	echo
-	curseyellow
-	dvips -f "$X.dvi" > "$X.ps"
-	# Show document
-	gv "$X.ps"
-done
-# xdvi *.dvi
+xdvi *.dvi
+# for X in `beforeext dvi`; do
+	# cursecyan
+	# echo
+	# echo "To postscript..."
+	# echo
+	# curseyellow
+	# dvips -f "$X.dvi" > "$X.ps"
+	# # Show document
+	# gv "$X.ps"
+# done
 
 # Final cleanup
 # cd
