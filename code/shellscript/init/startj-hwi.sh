@@ -14,9 +14,9 @@ source zshkeys
 
 # source dirhistorysetup.bash
 source dirhistorysetup.zsh
-if endswith "$SHELL" "/bash"
+if endswith "$SHELL" "/bash"; then
 	source hwipromptforbash
-elif endswith "$SHELL" = "/zsh"
+elif endswith "$SHELL" = "/zsh"; then
 	source hwipromptforzsh
 fi
 source javainit

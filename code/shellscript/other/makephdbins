@@ -1,20 +1,20 @@
 cd $JPATH/code/c/phd
 
 cd texture
-x jnn
-x blob
+xt jnn
+xt blob
 cd ..
 
 cd locthr
-x locthr
+xt locthr
 cd ..
 
 cd projprof
-x pp
+xt pp
 cd ..
 
 cd gentestimg
-x simgen
+xt simgen
 cd ..
 
 cd improc
