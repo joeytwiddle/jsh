@@ -1,10 +1,11 @@
 #!/bin/sh
 
-if [ "$1" = "" ]; then
-  echo "jwhich [ inj ] <file> [ quietly ]"
-  echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
-  echo "  quietly means it just checks and returns 1/0, but does not print anything."
-  exit 1
+if [ "$1" = "" ] || [ "$1" = --help ]
+then
+    echo "jwhich [ inj ] <file> [ quietly ]"
+    echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
+    echo "  quietly means it just checks and returns 1/0, but does not print anything."
+    exit 1
 fi
 
 ## Why not grep -v?  I guess we'd need to unj it wouldn't we!
@@ -13,15 +14,16 @@ fi
 ## This would be slow but would remove the occasional possible inf-loop problems.
 
 fakeungrep () {
-	sed "s|.*$*.*||"
+   sed "s|.*$*.*||"
 }
 
-if test "$1" = "inj"; then
-  PATHS=`echo "$PATH" | tr ":" "\n"`
-  shift
+if test "$1" = "inj"
+then
+    PATHS=`echo "$PATH" | tr ":" "\n"`
+    shift
 else
-  # Remove all references to JLib from the path
-  PATHS=`echo "$PATH" | tr ":" "\n" | fakeungrep "$JPATH"`;
+    # Remove all references to JLib from the path
+    PATHS=`echo "$PATH" | tr ":" "\n" | fakeungrep "$JPATH"`;
 fi
 FILE="$1"
 QUIETLY="$2"
@@ -30,14 +32,12 @@ QUIETLY="$2"
 # This is no good cos it spawns a new process, and the exit doesn't work.
 # echo "$PATHS" | while read dir; do
 # This seems to work better, although there may be problems with spaces in the PATH
-for dir in $PATHS; do
-  if test -f "$dir/$FILE"; then
-    test ! "$QUIETLY" && echo $dir/$FILE
-    exit 0      # Found!  :)
-  # else
-    # echo "$dir/$FILE does not exist"
-  # else
-	  # echo "$dir/$FILE is not a file"
+for dir in $PATHS
+do
+  if test -f "$dir/$FILE"
+  then
+      test ! "$QUIETLY" && echo $dir/$FILE
+      exit 0      # Found!  :)
   fi
 done
 

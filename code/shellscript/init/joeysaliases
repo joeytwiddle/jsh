@@ -34,6 +34,79 @@ then
 	myhist() {
 		history 1 | grep "$*"
 	}
+
+	### From Pawan zshrc:
+
+	# set command completions
+	compctl -a {,un}alias
+	compctl -/ {c,push,pop}d
+	compctl -c exec
+	compctl -c man
+	compctl -c {where,which}
+	compctl -o {,un}setopt
+	compctl -E {,un}setenv
+	compctl -E printenv
+	compctl -b bindkey
+	## shell's jobs:
+	compctl -j fg
+	# compctl -j kill
+	compctl -u chown
+	compctl -g '*.(ps|eps)' gv
+
+	# Autocomplete for current dir on filetypes
+	compctl -g '*.Z *.gz *.tgz' + -g '*' zcat gunzip
+	compctl -g '*.tar.Z *.tar.gz *.tgz *.tar.bz2 .*.tar.Z .*.tar.gz .*.tgz .*.tar.bz2' + -g '*' tar
+	compctl -g '*.zip *.ZIP' + -g '*' unzip zip
+	compctl -g '*.(mp3|MP3)' + -g '*(-/)'  mpg123 xmms
+
+	setopt extendedglob
+	setopt nohup
+	setopt pathdirs
+
+	case $TERM in 
+		linux)
+			bindkey "^[[2~" yank
+			bindkey "^[[3~" delete-char
+			bindkey "^[[5~" up-line-or-history ## PageUp
+			bindkey "^[[6~" down-line-or-history ## PageDown
+			bindkey "^[[1~" beginning-of-line
+			bindkey "^[[4~" end-of-line
+			bindkey "^[e" expand-cmd-path 
+			bindkey "^[[A" up-line-or-search ## up arrow for back-history-search
+			bindkey "^[[B" down-line-or-search ## down arrow for fwd-history-search
+			bindkey " " magic-space ## do history expansion on space
+		;;
+		*xterm*|rxvt|\(dt|k|E|a\)term)
+			bindkey "^[[2~" yank
+			bindkey "^[[3~" delete-char
+			bindkey "^[[5~" up-line-or-history ## PageUp
+			bindkey "^[[6~" down-line-or-history ## PageDown
+			bindkey "^[[7~" beginning-of-line
+			bindkey "^[[8~" end-of-line
+			bindkey "^[e" expand-cmd-path ## C-e for expanding path of typed command
+			bindkey "^[[A" up-line-or-search ## up arrow for back-history-search
+			bindkey "^[[B" down-line-or-search ## down arrow for fwd-history-search
+			bindkey " " magic-space ## do history expansion on space
+		;;
+	esac
+
+	# Setting HOME and END keys 
+	case $TERM in (xterm*|aterm|rxvt)
+		bindkey '\e[H' beginning-of-line
+		bindkey '\e[F' end-of-line ;;
+	esac
+
+	# Binding of the keys for command line editing
+	bindkey '^K' kill-region
+	bindkey '^A' beginning-of-line
+	bindkey '^E' end-of-line
+	bindkey '^W' complete-word
+	bindkey '^L' clear-screen
+	bindkey '\e[1~' beginning-of-line	
+	bindkey '\e[4~' end-of-line
+
+	### End Pawan zshrc
+
 elif test "$SHORTSHELL" = bash
 then
 	myhist() {
@@ -68,3 +141,6 @@ alias apropos=japropos
 alias dusk="rememo dusk"
 
 # alias wget='screen wget'
+
+
+

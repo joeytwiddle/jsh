@@ -22,7 +22,7 @@ else
 	test "$NAME" || NAME=screen
 	# if test "$NAME"
 	# then
-		screen -a "-e^k^l" -S "$NAME" -D -RR
+		screen -h 10000 -a "-e^k^l" -S "$NAME" -D -RR
 		# screen -a "-e^kk" -S "$NAME"
 		# ## If screen named exists
 		# if unj screen -list grep "$NAME"

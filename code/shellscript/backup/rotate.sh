@@ -1,4 +1,7 @@
-if test "$1" = ""
+## TODO: What's that oldMEGA business?  Is it kosha?
+## TODO: Instead of moving, or deleting, original file, sometimes it may be better to echo -n into it.  (inode business)
+
+if test "$1" = "" || test "$1" = --help
 then
 	echo "rotate [ -nozip ] [ -max <num> ] <file>"
 	echo "  will move <file> to <file>.N"
@@ -26,7 +29,7 @@ then
 elif test -f "$FILE"
 then
 	ZIPCOM="gzip"
-	FINALFILE="$FILE.gzip"
+	FINALFILE="$FILE.gz"
 elif test -d "$FILE"
 then
 	ZIPCOM="tar cfz $FILE.tgz"

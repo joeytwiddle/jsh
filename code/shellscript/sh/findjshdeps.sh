@@ -11,6 +11,8 @@
 ##       Will it be a code block or will it actually be a call that checks?!
 ## TODO: Somehow we want efficient lookup of which package binaries come from.
 
+## BUGS: Try it on remotediff or another script containing "...".  The "..." is treated as regexp.  :-(
+
 PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin"
 
 ## Ever-present programs which we don't want to observe dependencies on:
@@ -19,7 +21,7 @@ EVER_PRESENT='^\('
 EVER_PRESENT="$EVER_PRESENT"'printf\|echo\|test\|clear\|cp\|mv\|ln\|rm\|ls\|kill\|'
 EVER_PRESENT="$EVER_PRESENT"'touch\|mkdir\|tr\|sh\|nice\|sleep\|date\|'
 EVER_PRESENT="$EVER_PRESENT"'chmod\|chgroup\|chown\|cat\|more\|head\|tail\|grep\|egrep\|du\|'
-EVER_PRESENT="$EVER_PRESENT"'true\|false\|'
+EVER_PRESENT="$EVER_PRESENT"'true\|false\|which\|'
 # EVER_PRESENT="$EVER_PRESENT"'mount\|sed\|cksum\|'
 EVER_PRESENT="$EVER_PRESENT"'\)$'
 
@@ -47,7 +49,7 @@ afterlast / |
 grep -v "$EVER_PRESENT" |
 cat > $LIST
 
-echo "There are `countlines $LIST` possible dependencies!"
+echo "There are `countlines $LIST` possible dependencies!" >&2
 
 
 
@@ -70,7 +72,7 @@ if test "$*"
 then
 
   for X
-  do echo `realpath \`which "$X"\``
+  do [ -f "$X" ] && echo "$X" || echo `realpath \`which "$X"\``
   done
 
 else
@@ -101,13 +103,15 @@ do
 
 	## Use the RE to extract any progs from the proglist which this scripts refers to:
 
+	## TODO: why not just head -250 before the tee above?
+
 	## A fix because grep does not handle big regexps well!
 	NUMLINES=`cat $TMPEXPR | countlines`
-	if test $NUMLINES -lt 200
+	if test $NUMLINES -lt 250
 	then
 		grep "$REGEXP" "$LIST" &&
 		echo "  is/are needed for $SCRIPT" ||
-		echo "$SCRIPT is pure sh (or its dependencies are not present)"
+		echo "$SCRIPT is pure sh (or its dependencies are not present)" >&2
 		echo
 	else
 		error "skipping $SCRIPT because it has $NUMLINES words in it!"

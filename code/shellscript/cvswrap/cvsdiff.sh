@@ -79,6 +79,7 @@ grep "\(^cvs \(status\|server\):\|^File:\)" |
 	grep -v "Up-to-date" |
 	sed '
 		s+^\(.*Locally Modified.*\)$+cvs commit \1+
+		s+^\(.*Locally Added.*\)$+cvs commit \1+
 		s+^\(.*Needs Patch.*\)$+cvs update \1+
 	' |
 	if jwhich column quietly

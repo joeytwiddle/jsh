@@ -28,7 +28,7 @@ cursenorm
 # mkisofs -R -o cd_image2 -C $NEXT_TRACK -M /dev/scd5 private_collection/
 
 if test ! "$?" = 0
-then exit
+then exit 1
 fi
 
 
@@ -54,9 +54,13 @@ jfcsh -bothways $CDLDIR/newcd.qkcksum.sb $CDLDIR/newcd.qkcksum
 
 echo
 if cmp $CDLDIR/newcd.qkcksum.sb $CDLDIR/newcd.qkcksum
-then echo "CD written OK."
+then
+  echo "CD written OK."
+  echo
+  exit 0
 else
   echo "Oh dear: $CDLDIR/newcd.qkcksum.sb and $CDLDIR/newcd.qkcksum do not appear to match."
   echo "CD FAILED WRITE!"
+  echo
+  exit 1
 fi
-echo

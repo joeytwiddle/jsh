@@ -20,26 +20,26 @@ ALLOK=0
 for FILE
 do
 
-  MOUNTPNT=`wheremounted "$FILE"`
-  PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
-
-  ## Work out where to move the file to.
-  for TRASHDIR in "$MOUNTPNT/RECLAIM" "$JPATH/trash" "$HOME/.trash" NO_DIR_WRITEABLE
-  do
-    if test -w "$TRASHDIR" || test -w `basename "$TRASHDIR"`
-    then break
-    fi
-  done
-
-  if test "$TRASHDIR" = NO_DIR_WRITEABLE
-  then
-    error "No suitable trash directory found."
-    ALLOK=1
-    break ## continue
-  fi
-
   if test -f "$FILE" || test -d "$FILE"
   then
+
+    MOUNTPNT=`wheremounted "$FILE"`
+    PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
+
+    ## Work out where to move the file to.
+    for TRASHDIR in "$MOUNTPNT/RECLAIM" "$JPATH/trash" "$HOME/.trash" NO_DIR_WRITEABLE
+    do
+      if test -w "$TRASHDIR" || test -w `basename "$TRASHDIR"`
+      then break
+      fi
+    done
+
+    if test "$TRASHDIR" = NO_DIR_WRITEABLE
+    then
+      error "No suitable trash directory found."
+      ALLOK=1
+      break ## continue
+    fi
 
     ## If deleting to $MOUNTPNT/RECLAIM then move MOUNTPNT from parent dir to delete to (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
     if test "$TRASHDIR" = "$MOUNTPNT/RECLAIM"

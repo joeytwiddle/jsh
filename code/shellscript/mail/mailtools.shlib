@@ -20,12 +20,23 @@ then
 	fi
 fi
 
+## My mbox got truncated the last time I used it.
+## Admittedly I did do something a bit dodgy, but actually I suspect there may
+## have been access from exim crossing wired.  Lockfile?!  It was Mail version 8.1.2 01/15/2001.
+## Ah no, I suspect it was a while loop with a call to mail within it!!
+## I should be using exit instead of quit!
+if test ! "$MBOX" = /tmp/mbox
+then
+	cp "$MBOX" /tmp/mbox
+	MBOX="/tmp/mbox"
+fi
+
 maildo() {
 	echo "$1" | /usr/bin/mail -N -f "$MBOX"
 }
 
 mailcount() {
-	maildo "q" |
+	maildo "x" |
 	(
 		read HEADER
 		read FOLDER TOTAL messages NUMNEW new NUMUNREAD unread
@@ -34,9 +45,29 @@ mailcount() {
 	)
 }
 
+listmail() {
+	## Lists the given range of mails
+	maildo "f $1" |
+	# grep -v "^Mail version .*$" |
+	# grep -v "^.*messages.*unread$" |
+	awkdrop 2 |
+	cat
+}
+
 getmail() {
 	## Arguments are the index numbers of the emails in the mbox
-	maildo "$@"
+	if test "$1" = -dont-mark-read
+	then DONT_MARK_AS_READ=true; shift
+	fi
+	maildo "$@
+x"
+	test "$DONT_MARK_AS_READ" &&
+	maildo "unread $@"
+}
+
+stripheaders() {
+	# cat
+	fromstring ""
 }
 
 getaddresses() {
@@ -75,6 +106,7 @@ getaddresses() {
 
 }
 
-if test "$*"
-then "$@"
-fi
+## Need to change initial test ! "$MBOX" before this can be used:
+# if test "$*"
+# then "$@"
+# fi
