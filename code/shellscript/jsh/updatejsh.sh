@@ -7,7 +7,7 @@ cvsupdate -AdP
 if test ! "$1" = "-quick"
 then
 
-	echo "Linking files into PATH (do not interrupt, disable with -quick)"
+	echo "Linking files into PATH"
 	refreshtoollinks
 
 	echo "jsh is up to date =)"

@@ -1,3 +1,8 @@
+if test `jwhich jfc`
+then JFCCOM="jfc simple oneway"
+else JFCCOM="jfcsh"
+fi
+
 if test "$1" = "-ungrep"
 then UNGREP="$2"; shift; shift
 fi
@@ -7,7 +12,7 @@ FILEB="$2"
 shift
 shift
 
-OTHER=`jfc simple oneway "$FILEB" "$FILEA" | ungrep "$UNGREP"`
+OTHER=`$JFCCOM "$FILEB" "$FILEA" | ungrep "$UNGREP"`
 if ! test "$OTHER" = ""; then
   # echo
   # echo `cursered``cursebold`"<<< DIED:"
@@ -18,8 +23,5 @@ if ! test "$OTHER" = ""; then
   # echo
 fi
 # cursegreen # ;cursebold
-if test `jwhich jfc` = ""
-then jfcsh "$FILEA" "$FILEB"
-else jfc simple oneway "$FILEA" "$FILEB"
-fi | ungrep "$UNGREP"
+$JFCCOM "$FILEA" "$FILEB" | ungrep "$UNGREP"
 # cursenorm

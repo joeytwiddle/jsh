@@ -1,7 +1,8 @@
 #!/bin/sh
-# d: change directory and record for b and f shell tools
-# Works for bash too despite its name!
-# TODO:
+## d: change directory and record for b and f shell tools
+## Works for bash too despite its name!
+## Although when .-ed without an argument in bash, it remembers the $1 from the last call!  :-(
+## TODO:
 # Shouldn't we remember moved-into, not moved-out-of?
 # Sometimes NEWDIR="$@" breaks under ssh?
 # Investigate: echo "($LAST)"

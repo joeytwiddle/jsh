@@ -7,9 +7,9 @@ then
 
 else
 
+	echo "For help press: Ctrl+k then ?"
 	unj screen -list
-	echo "Special char is Ctrl+k, help is Ctrl+k then ?"
-	sleep 2
+	# sleep 1
 	unj screen "-e^kk" -a -D -RR "$@"
 
 fi
