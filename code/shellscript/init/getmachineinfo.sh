@@ -16,5 +16,6 @@ case "$UNAME" in
 		;;
 esac
 
-export JM_DOES_COLOR;
+export JM_DOES_COLOUR;
 export JM_COLOURLS;
+export JM_ADVANCED_DU;

@@ -30,7 +30,7 @@ while test "$1"; do
 	shift
 
   # if ! there $x ]; then
-  if test -f "$x"; then
+  if test -f "$x" -o -d "$x"; then
 
     # Work out source => destination directory
     # SRCDIR=$PWD;
@@ -96,7 +96,7 @@ while test "$1"; do
     fi
 
   else
-    echo "$x does not exist!"
+    echo "del: does not exist: $x"
   fi
 done
 

@@ -1,4 +1,4 @@
-xterm -e "$* && waitforkeypress"
+xterm -e "$@"
 
 # FAVOURITE_XTERMS="xterm gnome-terminal konsole"
 # 

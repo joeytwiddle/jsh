@@ -11,7 +11,8 @@ if test "$1x$2" = "x"; then
 fi
 
 LIST=$1;
-ARGS="$2";
+shift
+ARGS="$@";
 
 # echo "l='$LIST' a='$ARGS'"
 

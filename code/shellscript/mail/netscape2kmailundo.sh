@@ -1,16 +1,27 @@
 # Purges Kmail cache and links to ns folders
+
+purgelinks "$HOME/nsmail/"
+
+echo "recommend | sh" >> /dev/stderr
+
+exit 0
+
 find $HOME/nsmail -type d -name ".*.directory" -follow | while read X; do
+	# if test -d "$X"; then
 		( 
 			cd "$X"
-			find . -name "*.index" -or -name "*.index.sorted" -or -name "*.summary" | while read Y; do
-				if issymlink "$Y"; then
-					del "$Y"
-				else
-					echo "Skipping >$Y<"
-				fi
-			done
+			# echo "In $X:"
+			# ls -d .*.index* .*.summary*
+			# find . -name "*.index" -or -name "*.index.sorted" -or -name "*.summary" | while read Y; do
+				# if issymlink "$Y"; then
+					# del "$Y"
+				# else
+					# echo "Not a symlink: skipping >$Y<"
+				# fi
+			# done
 		)
 		del "$X"
+	# fi
 done
 if issymlink "$HOME/Mail/.nsmail.directory"; then
 	del "$HOME/Mail/.nsmail.directory"
