@@ -4,6 +4,10 @@
 ## Other dependencies locally: dd,sed,diff,cksum,sort,column,vi,ssh and jsh:jfcsh,cksum,vimdiff
 ## Remotely only a few are needed: sh, cat, dd, mkdir
 
+## About to introduce tar dependency.
+
+## TODO: fork remotediff and rsyncdiff, and rename the latter (sync/merga?)!
+
 ## TODO: we should sort by filename (column 2) on the default cksum diffing, rather than sorting by cksum.
 
 rsyncdiffdoc () {
