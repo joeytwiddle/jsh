@@ -33,8 +33,10 @@ strippunctuation () {
 	sed 's+^[ 	]*++;s+[ 	]*$++'
 }
 
-if [ "$1" = -skip ]
-then shift
+if [ "$1" = -use ]
+then
+	TMPDIR="$2"
+	shift; shift
 else
 
 	googlesearch -links "$@" "lyrics" |
@@ -50,7 +52,7 @@ else
 
 		echo "$N $LINK" >&2
 		# wget -O - "$LINK" |
-		lynx -dump "$LINK" > $TMPDIR/$N.lyrics
+		lynx -dump "$LINK" > $TMPDIR/$N.lyrics &
 
 	done
 
