@@ -27,10 +27,10 @@ makebackup [-efficient] <dir/file_to_backup> <storage_dir> [<storage_prefix>]
     and binary files.)
 
   Note: Although the backup files are pure, the diffs cannot contain symlinks,
-    so for recovery you must run contractsymlinks before you patch -p0, and
+    so for recovery you must run contractsymlinks before you patch -E -p0, and
     expandsymlinks afterwards.
 
-  Bugs: empty directories and empty files are left floating unless U patch -E,
+  Bugs: new but empty files and directories are not recorded in the diffs,
     and GNU diff/patch does not appear to support filenames with spaces!
     (The data is not lost, but the filename in the patch is interpreted badly.)
 
