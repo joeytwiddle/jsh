@@ -1,5 +1,6 @@
 #!/bin/sh
-ARGS=`printf "$@" | tr -d "\n" | tr " /" "_-"`
+# printf "$@" causes error if no args!
+ARGS=`printf "$*" | tr -d "\n" | tr " /" "_-"`
 if test "x$ARGS" = "x"; then
   ARGS="$$"
 fi
