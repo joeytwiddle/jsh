@@ -16,24 +16,26 @@ if [ "$NEWDIR" = "" ]; then
 elif test -d "$NEWDIR"; then
   'cd' "$NEWDIR"
 else
+	DIRNAME=`dirname "$NEWDIR"`
+	FILENAME=`filename "$NEWDIR"`
 	# If incomplete dir given, check if there is a
 	# unique directory they probably meant.
 	# Useful substitue when tab-completion unavailable,
 	# or with tab-completion which does not contextually exclude files.
-	NEWLIST=`'ls' -d "$NEWDIR"* |
+	# NEWLIST=`'ls' -d "$NEWDIR"* |
+	NEWLIST=`find "$DIRNAME" -name "$FILENAME"'*' -maxdepth 1 |
 		while read X; do
 			if test -d "$X"; then
 				echo "$X"
 			fi
 		 done`
 	if test "$NEWLIST" = ""; then
-		DIRABOVE=`dirname "$NEWDIR"`
-		echo "< $DIRABOVE"
-		'cd' "$DIRABOVE"
+		echo "< $DIRNAME"
+		'cd' "$DIRNAME"
 	elif test `echo "$NEWLIST" | countlines` = "1"; then
 		echo "> $NEWLIST"
 		'cd' "$NEWLIST"
-		DIRABOVE=`dirname "$NEWDIR"`
+		DIRNAME=`dirname "$NEWDIR"`
 	else
 		echo "$NEWLIST ?" | tr "\n" " "
 		echo
