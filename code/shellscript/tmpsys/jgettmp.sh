@@ -1,6 +1,12 @@
 #!/bin/sh
-## Gives you a temporary file you can use without quotes, eg. $TMPFILE
+## Gives you a temporary file you can use in your scripts.
+# eg: TMPFILE=`jgettmp`
+#     LOGFILE=`jgettmp my_log`
+## Can be used without quotes, eg. $TMPFILE (ie. guaranteed not to contain spaces.)
 ## Actually JPATH does not guarantee that (maybe should!)
+## NOTE: You should clear your temp files after use with: jdeltmp $TMPFILE
+## Automatic clearing has not yet been implemented.
+
 ### TODO: Policy questions:
 ## Should we put a default timeout on each file?
 ## Should we delete all files at jsh boot (what if another jsh is using same fs?)
@@ -18,7 +24,14 @@ TOPTMP="$JPATH/tmp"
 if test ! -w "$TOPTMP"
 then
 	TOPTMP="/tmp/jsh-tempdir-for-$USER"
-	mkdir -p $TOPTMP
+	## Mega-secure, if it exists but isn't writeable:
+	while test -e $TOPTMP && test ! -w $TOPTMP
+	do TOPTMP="$TOPTMP"_
+	done
+	if test ! -e $TOPTMP
+	then mkdir -p $TOPTMP
+	     echo "Created a temporary directory for you: $TOPTMP"
+	fi
 	chmod go-rwx $TOPTMP
 fi
 
