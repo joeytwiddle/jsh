@@ -1,7 +1,9 @@
-CLASSPATH=./;
+CLASSPATH=.:$CLASSPATH;
 
 # Java runtime environment:
-  # CLASSPATH=$CLASSPATH:/usr/local/jdk1.2.2/jre/lib/rt.jar;
+  CLASSPATH=$CLASSPATH:/usr/local/java/jre/lib/rt.jar;
+
+# Java runtime environment:
   CLASSPATH=$CLASSPATH:/usr/lib/j2re1.3/lib/rt.jar;
 
 # Java tools (doclets):
@@ -46,7 +48,18 @@ CLASSPATH=./;
   # CLASSPATH=$CLASSPATH:$JPATH/install/lang/java/jbeautifull/;
   # export CLASSPATH
 
+# Now strip all those entries that don't exist!
+CLASSPATH=`echo "$CLASSPATH" | tr ":" "\n" | while read X; do
+	if test -f "$X"; then
+		echo "$X"
+	elif test -d "$X"; then
+		echo "$X"
+	# else
+		# echo "Stripping $X from cp, since it doesn't exist." >> /dev/stderr
+	fi
+done | tr "\n" ":"`
 
 JIKESPATH=$CLASSPATH;
+
 export CLASSPATH;
 export JIKESPATH;
