@@ -1,26 +1,59 @@
 #!/bin/sh
 
-# Change this to whatever you desire ($HOME/.j is a good alternative!)
-# (actually with bash this does not quite work yet (your startup would need to be a two-liner until I write jsh...)
+## Default setup
 export JPATH="$HOME/j"
+HWIUSER=anonymous
+
+## Parsing user options
+while test "$1"
+do
+	case "$1" in
+		"-in")
+			shift
+			JPATH="$1"
+		;;
+		"-devel")
+			shift
+			HWIUSER="$1"
+		;;
+		"--help")
+			echo "$0 [ -in <directory> ] [ -devel <hwiusername> ]"
+			echo "  Default is:"
+			echo "    $0 \"\$HOME/j\" \"anonymous\""
+			echo "  Possible invocations:"
+			echo "    wget -O - http://hwi.ath.cx/installj | sh"
+			echo "    lynx --dump http://hwi.ath.cx/installj | sh"
+			exit 1
+		;;
+	esac
+	shift
+done
 
 test -d "$JPATH" &&
-	echo "$JPATH already exists, please remove before installing!" &&
+	echo "$JPATH already exists, please remove before installing here!" &&
 	exit 1
 
-echo "Will try to log you into Hwi's CVS as USER=$USER"
-export CVSROOT=":pserver:$USER@hwi.ath.cx:/stuff/cvsroot"
-cvs login ||
-	(
-		echo "OK giving you read-only access, please use password \"anonymouos\""
-		export CVSROOT=":pserver:$USER@hwi.ath.cx:/stuff/cvsroot"
-		cvs login
-	) || exit 1
+## This pause is only useful if this script has been piped through wget.
+sleep 1
+
+## Make initial CVS connection
+export CVSROOT=":pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
+# Test if password already exists.
+if ! grep "^$CVSROOT" "$HOME/.cvspass" > /dev/null 2>&1; then
+	echo "Initial login to Hwi as $HWIUSER, to obtain ~/.cvspass."
+	test "$HWIUSER" = "anonymous" && echo "Please use password: anonymous"
+	cvs login ||
+		exit 1
+fi
+
+## Create default tree
 
 mkdir -p "$JPATH" && cd "$JPATH" ||
 	exit 1
 
 mkdir bin code data logs tmp tools trash
+
+## Download code
 
 cd code
 echo "Checking out shellscripts"
@@ -35,21 +68,22 @@ cd ..
 echo "Done downloading."
 echo
 
+## Set up environment
 echo "Linking shellscripts into $JPATH/tools (may take a while)"
 "$JPATH"/code/shellscript/init/refreshtoollinks
 
-# Link a handy startup file
+## Finally, link the handy startup file
 STARTFILE="$JPATH"/startj
 ln -s "$JPATH"/tools/startj-hwi "$STARTFILE"
 
 echo "Done installing."
 echo
 
-echo "You should put the following in your ~/.<preferredshell>rc:"
+echo "You may now put the following line in your ~/.<preferredshell>rc:"
 echo "  source \"$STARTFILE\""
 echo "or just run it by hand to try out the environment."
-echo "If that doesn't work, try this first:"
+echo "If that doesn't work, try this beforehand:"
 echo "  export JPATH=\"$JPATH\""
 echo "(You may also want to run linkhome to use my .rc files)"
-echo "(Some other interesting scripts: higrep, cvsdiff, monitorps, del, et, b)"
+echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, et, b)"
 echo
