@@ -1,3 +1,4 @@
+# jsh-depends: startswith
 ## Returns you a long list of URLs from all your browsers,
 ## in the format: <url> <description>
 ## Currently implemented: Konqueror, Mozilla, Mozilla Firebird.
