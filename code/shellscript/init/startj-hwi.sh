@@ -32,33 +32,45 @@ fi
 # Message on user login/out (zsh, tcsh, ...?)
 export WATCH=all
 
+# What shell are we running?
+SHELLPS="$$"
+SHORTSHELL=`findjob "$SHELLPS" | grep 'sh$' | tail -1 | sed "s/.* \([^ ]*sh\)$/\1/"`
+echo "shell = $SHORTSHELL"
+# tcsh makes itself known by ${shell} envvar.
+# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
+# SHORTSHELL=`echo "$SHELL" | afterlast "/"`
+
+# Gather hostname and username
 SHOWHOST=$HOST
 # Fix 'cos sometimes HOSTNAME is set instead of HOST
 if test "$SHOWHOST" = ""; then
 	export SHOWHOST=`echo "$HOSTNAME" | beforefirst "\."`
 fi
 SHOWHOST="$SHOWHOST:"
-# Exception for user's "home machine"
+SHOWUSER="$USER@"
+
+# Exception: trim for user's "home machine"
 if test "$SHOWHOST" = "hwi:"; then
 	SHOWHOST=""
 fi
-SHOWUSER="$USER@"
 if test "$SHOWUSER" = "joey@"; then
 	SHOWUSER=""
 fi
-
-# tcsh makes itself known by ${shell} envvar.
-# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
-# SHORTSHELL=`echo "$SHELL" | afterlast "/"`
-SHELLPS="$$"
-SHORTSHELL=`findjob "$SHELLPS" | grep 'sh$' | tail -1 | sed "s/.* \([^ ]*sh\)$/\1/"`
-echo "shell = $SHORTSHELL"
 
 # xterm title change
 case $TERM in
 	*term*)
 		case $SHORTSHELL in
+
+			bash)
+				# For bash, get prompt to send xttitle escseq:
+				# export TITLEBAR=`xttitle "\u@\h:\w"`
+				export TITLEBAR="\[\033]0;\u@\h:\w\007\]"
+				export PS1="$TITLEBAR$PS1"
+			;;
+
 			zsh)
+				# For zsh, use preexec/cmd builtins
 				swd () {
 					# Dunno why doesn't work:
 					# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
@@ -76,10 +88,14 @@ case $TERM in
 					xttitle "$SHOWUSER$SHOWHOST"`swd`" %% ($LASTCMD)"
 				}
 			;;
-			# Doesn't work 'cos tcsh can't exec this far!
+
+			# For tcsh, use postcmd builtin:
+			# Doesn't actually appear 'cos tcsh can't exec this far!
+			# See .tcshrc for actual postcmd!
 			tcsh)
 				alias postcmd 'xttitle "${USER}@${HOST}:${PWD}%% \!#"'
 			;;
+
 		esac
 	;;
 esac

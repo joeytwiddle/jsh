@@ -119,8 +119,8 @@ bindkey "^ " vi-cmd-mode
 bindkey "^ " forward-char
 
 # and other Vi usefuls:
-bindkey "^p" vi-put-before
 bindkey "^p" vi-put-after
+bindkey "^p" vi-put-before
 bindkey "^h" expand-history
 bindkey "^u" vi-undo-change # now taken
 bindkey "^z" vi-undo-change # now taken

@@ -1,1 +1,1 @@
-echo "$@ "`'ls' -l "$@" | takecols 5`
+'ls' -l "$@" | takecols 5
