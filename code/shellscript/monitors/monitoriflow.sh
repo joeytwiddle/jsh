@@ -60,11 +60,21 @@ fi
 if [ "$1" ]
 then IFACE="$1"
 # else IFACE=ppp0
-else
-	IFACE=eth1
-	if ! /sbin/ifconfig $IFACE > /dev/null
-	then IFACE=eth0
-	fi
+else # IFACE=eth0
+	## guess desired interface for logging by choosing that with gretest # received packets
+	IFACE=`
+		GREATEST=-1
+		GREATEST_IFACE=none_found
+		/sbin/ifconfig |
+		grep "\(^[^ ]\|^[ ]*RX packets\)" |
+		sed 's+\( *RX[^:]*:[ ]*\|\)\(^[^ ]*\|[^ ]*\).*+\2+' |
+		while read DEV
+		do read NUMPKS
+			echo "$DEV   $NUMPKS"
+		done | sort -n -k 2 |
+		tail -1 | sed 's+ .*++'
+	`
+	jshinfo "Guessing (from numebr of packets received) you want interface: $IFACE"
 fi
 
 SLEEPFOR=1
