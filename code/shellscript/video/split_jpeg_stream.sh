@@ -51,12 +51,12 @@ do
 	# done |
 
 	## At time of writing, toline defaults to nullifying the rest of the stream, but we want it, so:
-	env TOLINE_LEAVE_REST=true \
-	toline "^--ThisRandomString$" |
+	# env TOLINE_LEAVE_REST=true \
+	# toline "^--ThisRandomString$" |
 	## An inline copy of toline:
-	# # AWKOPTS="-W interactive"
-	# PAT="^--ThisRandomString$"
-	# awk $AWKOPTS ' /'"$PAT"'/ { exit } { print $0'\n' } ' |
+	# AWKOPTS="-W interactive"
+	PAT="^--ThisRandomString$"
+	awk $AWKOPTS ' /'"$PAT"'/ { exit } { print $0'\n' } ' |
 
 	mimencode -q -u > "$FRAMEFILE"
 
