@@ -22,7 +22,7 @@ B=`jgettmp "$2"`
 cat "$1" | sort > "$A"
 cat "$2" | sort > "$B"
 
-test $BOTHWAYS && echo "vvvvvvvvvvvvvvvv Only in $A vvvvvvvvvvvvvvvv"
+test $BOTHWAYS && echo "vvvvvvvvvvvvvvvv Lines only in $A vvvvvvvvvvvvvvvv"
 
 diff "$A" "$B" |
 	grep "^< " | sed "s/^< //"
@@ -38,6 +38,6 @@ if test $BOTHWAYS; then
 	# diff "$A" "$B" |
 		# grep "^> " | sed "s/^> //"
 
-	echo "^^^^^^^^^^^^^^^^ Only in $B ^^^^^^^^^^^^^^^^"
+	echo "^^^^^^^^^^^^^^^^ Lines only in $B ^^^^^^^^^^^^^^^^"
 
 fi

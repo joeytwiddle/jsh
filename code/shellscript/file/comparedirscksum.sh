@@ -1,8 +1,13 @@
-FILE_A=`jgettmp "$1"`
-FILE_B=`jgettmp "$2"`
+DIR_A="$1"
+DIR_B="$2"
+shift
+shift
 
-cksumall "$1" > "$FILE_A"
-cksumall "$2" > "$FILE_B"
+FILE_A=`jgettmp "$DIR_A"`
+FILE_B=`jgettmp "$DIR_B"`
+
+cksumall "$DIR_A" "$@" > "$FILE_A"
+cksumall "$DIR_B" "$@" > "$FILE_B"
 
 # diff "$FILE_A" "$FILE_B"
 
