@@ -4,7 +4,9 @@ awk '
     srand();
   }
   {
-    printf(int(100001*rand())" "$1"\n");
+    printf(int(100001*rand())" ");
+		printf($1);
+		printf("\n");
   }
 ' $* |
   sort -k 1 |

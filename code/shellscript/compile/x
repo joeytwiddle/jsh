@@ -2,5 +2,5 @@ echo ""
 echo The compiler is your friend ----------------------------------------
 echo ""
 # -s = no symbols saved (not on debian!)   -g = debug data
-g++ $1.c -w -o $1 -fconserve-space -I $JPATH/joeylib $2 $3 $4 $5 $6 |more
+g++ -g $1.c -w -o $1 -fconserve-space -I $JPATH/joeylib $2 $3 $4 $5 $6 |more
 chmod g+x $1

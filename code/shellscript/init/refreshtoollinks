@@ -1,7 +1,7 @@
 # Symbolically link all relevant tools into $JPATH/tools/ directory
 # so that they may all be put in the path in one go!
 
-"rm" -f $JPATH/tools/**
+"rm" -f $JPATH/tools/*
 
 echo "Collecting"
 files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | grep -v "/.ignore/" | grep -v "CVS"`
@@ -28,7 +28,7 @@ for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
 		A=`$J "$x"`
 		B=`$J "$y"`
 		echo
-		echo "Error: $A $B"
+		echo "Error duplicates: $A $B"
 		echo
 		$JPATH/bin/jfc "$A" "$B"
 		echo

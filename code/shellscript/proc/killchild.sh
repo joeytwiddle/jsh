@@ -1,21 +1,25 @@
-if test "x$1" = "" -o "x$2" = ""; then
-  echo "Please invoke with killchild \$\$ <name (and args)>"
+# Sometimes processes start with PPID 1, hence this is irrelevant.
+
+if test "$1" = "" -o "$2" = ""; then
+  echo "Syntax: killchild \$\$ \"<name (and args)>\""
   exit 1
 fi
 
 MYID=$$
-# PID=$1
+PID=$1
 echo "PPID = $PPID =? given = $PID !=? mine = $MYID"
-ARGS=`echo $* | sed "s/^$1 //"`
+ARGS=`echo -n $* | sed "s/^$1 //"`
 echo "Looking for $ARGS with PPID=$PID"
 LINE=`psforkillchild |
-  grep "$ARGS" |
+  grep "$PID " |
+	grep "$ARGS" |
   grep -v "$MYID .*killchild $*" |
   grep -v "$MYID .*grep" |
   head -n 1`
 
 psforkillchild |
-  grep "$PID .* $ARGS" |
+  grep "$PID " |
+	grep "$ARGS" |
   grep -v "$MYID .*killchild $*" |
   grep -v "$MYID .*grep"
 
