@@ -16,8 +16,10 @@ n=0
 for w in $IMAGES; do
   echo "$n: $w"
   n=$[$n+1]
-  # convert $EXTRAS $w browsepics$n.Jpeg
-  echo "<image src=\"browsepics$n.Jpeg\"><br>$w<br><br>" >> $HTMLFILE
+  # SHOWPIC="browsepics$n.Jpeg"
+  # convert $EXTRAS $w "$SHOWPIC"
+  SHOWPIC=$w
+  echo "<image src=\"$SHOWPIC\"><br>$w<br><br>" >> $HTMLFILE
 done
 echo "</body></html>" >> $HTMLFILE
 

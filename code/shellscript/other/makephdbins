@@ -12,3 +12,6 @@ cd ..
 cd projprof
 x pp
 cd ..
+
+cd ../gentestimg
+x simgen
