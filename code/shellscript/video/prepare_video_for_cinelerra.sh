@@ -65,8 +65,8 @@ do
 	## Try: --video_max_bitrate 1200
 
 	rm -f stream.yuv ## If not cleaned up (eg. due to crash), mplayer input plugin will not work
-	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y mov,null -F mjpa -Q 2 $TC_CLIP $DOWNSAMPLE ||
-	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y mov,null -F mjpa -Q 2 $TC_CLIP $DOWNSAMPLE || continue
+	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
 
 	echo
 	jshinfo "Transcoding audio"

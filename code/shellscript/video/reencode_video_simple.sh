@@ -16,9 +16,9 @@ do
 
 	# mencoder "$@" -o re_encoded.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 || exit
 
-  ## -ofps 25 needed for s11redux.wmv which "has 1000fps"!
+  ## -ofps 24 needed for s11redux.wmv which "has 1000fps"!
   ## -srate 3200 needed for parliament_palestine_march.avi, which had pcm with bad sample rate
-	mencoder -srate 32000 -ofps 30 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
+	mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
 
 done
 
