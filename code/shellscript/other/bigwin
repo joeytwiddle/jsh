@@ -11,4 +11,4 @@ TMPSH=`jgettmp "bigwin.sh"`
 chmod a+x "$TMPSH"
 
 # konsole -vt_sz 120x60 -nowelcome -caption "$1" -e sh "$TMPSH" &
-xterm -geometry 120x50 -e "$TMPSH" &
+xterm -bg "#600000" -geometry 120x50 -e "$TMPSH" &
