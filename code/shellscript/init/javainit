@@ -17,6 +17,9 @@ CLASSPATH=$CLASSPATH:$JPATH/code/java/;
 
 # Java3D:
 # CLASSPATH=$CLASSPATH:/usr/local/jre1.2.2/jre/lib/ext/j3dutils.jar;
+for X in /usr/lib/j2re1.3/lib/ext/*.jar; do
+	CLASSPATH="$CLASSPATH:$X"
+done
 
 # Inspector
 # CLASSPATH=$CLASSPATH:$JPATH/install/lang/java/inspector/;
