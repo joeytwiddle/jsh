@@ -1,4 +1,6 @@
 #!/bin/sh
+# jsh-depends-ignore: after
+# jsh-depends: cursecyan cursenorm cvsvimdiff afterlast jdeltmp jgettmp jfcsh jwhich
 
 # . selfmemo -t 5minutes - "$0" "$@"; shift
 

@@ -25,9 +25,8 @@ then
 
 else
 
-	# # echo "`cursered;cursebold`selfmemo: failed to find -self-memoing-ok in \"$1\"`cursenorm`" >&2
-	# echo "`cursered;cursebold`selfmemo: memoing with: memo $MEMO_OPTS \"$COMMAND\" -self-memoing-ok \"$*\"`cursenorm`" >&2
-	[ "$DEBUG" ] && debug "selfmemo: `cursemagenta;cursebold`memo $MEMO_OPTS \"$COMMAND\" -self-memoing-ok \"$*\"`cursenorm`"
+	# [ "$DEBUG" ] && debug "selfmemo: `cursemagenta`memo$MEMO_OPTS \"$COMMAND\" -self-memoing-ok \"$*\"`cursenorm`"
+	[ "$DEBUG" ] && debug "selfmemo: `cursemagenta`$COMMAND $*`cursenorm`"
 	memo $MEMO_OPTS "$COMMAND" -self-memoing-ok "$@"
 	## Important, now that we have effectively performed the command, exit the caller to prevent calling it again!
 	exit

@@ -90,6 +90,8 @@ do
   esac
 done
 
+[ "$DEBUG" ] && debug "memo:     `cursemagenta`$*`cursenorm`"
+
 REALPWD=`realpath "$PWD"`
 CKSUM=`echo "$*" | md5sum`
 NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(................................................................................\).*+\1+'`
@@ -97,9 +99,7 @@ export FILE="$MEMODIR/$NICECOM.memo"
 
 # echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$FILE" ] || eval "$REMEMOWHEN"
-then
-  [ "$DEBUG" ] && debug "`cursemagenta;cursebold`memo: (re-)caching command $*`cursenorm`"
-  rememo "$@"
+then rememo "$@"
 else cat "$FILE"
 fi
 

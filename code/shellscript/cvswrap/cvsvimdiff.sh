@@ -1,3 +1,5 @@
+# jsh-depends-ignore: cvsdiff edit filename vimdiff
+# jsh-depends: cvscommit getnumber after editandwait jgettmp jfcsh jdiff jwhich
 # Lets you do a diff against a file in CVS with
 # vimdiff instead of diff.
 

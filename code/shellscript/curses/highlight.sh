@@ -1,4 +1,5 @@
 #!/bin/bash
+# jsh-depends: cursebold cursenorm getrandom
 # zsh would also do (just need $RANDOM param)
 
 if test "$1" = "" || test "$1" = --help

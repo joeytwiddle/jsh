@@ -1,3 +1,5 @@
+# jsh-depends-ignore: vimdiff
+# jsh-depends: cursebold cursecyan cursegreen curseyellow cursenorm cvsdiff cvsedit cvsvimdiff edit jdeltmp jgettmp jdiff newer error
 getfiles () {
 	cvsdiff "$@" |
 	grep "^cvs commit " |

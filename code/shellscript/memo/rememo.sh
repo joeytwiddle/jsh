@@ -2,7 +2,7 @@
 ## TODO: delete the memoed file if interrupted
 ##       (eg. (optionally delete it,) memo to elsewhere, then move into correct place if successful)
 
-[ "$DEBUG" ] && debug "rememo: $*"
+[ "$DEBUG" ] && debug "REMEMO:   `cursemagenta`$*`cursenorm`"
 
 . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
@@ -20,7 +20,7 @@ eval "$@" > $TMPFILE
 EXITWAS="$?"
 if [ ! "$EXITWAS" = 0 ]
 then
-  error "memo: not caching since command gave exit code $EXITWAS: $*"
+  error "rememo: not caching since command gave exit code $EXITWAS: $*"
   jdeltmp $TMPFILE
   exit "$EXITWAS"
 fi

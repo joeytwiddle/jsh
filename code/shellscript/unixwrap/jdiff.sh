@@ -1,3 +1,4 @@
+# jsh-depends: highlight bigwin xisrunning error
 ## BUGS: Sometimes highlighting matches "><|"s which are not actually diff--side-by-side's change description tags.
 ## TODO: Eliminate bug #1 by escaping characters, ignoring them during highlight, and unescaping them again for output.
 

@@ -1,3 +1,5 @@
+# jsh-depends-ignore: viinxterm viminxterm gvim
+# jsh-depends: runoneof xisrunning
 if xisrunning
 then FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim notepad"
 else FAVOURITE_EDITORS="vim vi ae pico jpico gvim notepad"

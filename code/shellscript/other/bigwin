@@ -1,3 +1,5 @@
+# jsh-depends-ignore: xterm
+# jsh-depends: waitforkeypress xisrunning jdeltmp jgettmp
 ## Based on xtermsh
 
 COM="$@"

@@ -1,3 +1,4 @@
+# jsh-depends: cursecyan centralise cursenorm jdeltmp jgettmp
 # Does a simple one-way jfc diff
 
 ## TODO: jfc / jfcsh bridge (has been tried somewhere...)

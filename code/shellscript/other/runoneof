@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: jwhich
 
 if test "$1x$2" = "x"; then
   echo 'runoneof [-notinj] "<executables>" <args...>'
