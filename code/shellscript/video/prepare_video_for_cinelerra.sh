@@ -175,10 +175,11 @@ do
 	then
 		if [ -f "$TO_CLEANUP" ]
 		then
-			if which del > /dev/null
-			then del "$TO_CLEANUP"
-			else rm "$TO_CLEANUP"
-			fi
+			# if which del > /dev/null
+			# then del "$TO_CLEANUP"
+			# else rm "$TO_CLEANUP"
+			# fi
+			rm -f "$TO_CLEANUP"
 		fi
 	fi
 

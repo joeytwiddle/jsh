@@ -1,5 +1,4 @@
 # SKIP_FIRST_PASS=true
-# PREVIEW="-ss 0:23:30 -endpos 0:15"
 # PREVIEW="-ss 0:00:00 -endpos 0:15"
 # POSTPROC="-de"
 # POSTPROC="de/al"
@@ -35,6 +34,11 @@ else
 	else BITRATE=1000
 	fi
 fi
+
+# BITRATE=`expr "$BITRATE" '*' 25 / 100`
+# BITRATE=`expr "$BITRATE" '*' 28 / 100`
+
+# PREVIEW="-ss 0:13:30 -endpos 0:15"
 
 # NEWSIZE="352:264" ## for Step into Water
 # BITRATE=`expr "$BITRATE" / 2` ## For BotB

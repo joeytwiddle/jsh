@@ -4,7 +4,7 @@
 
 # MP_MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 # MP_MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
-MP_MEET_STANDARD="-vf scale=360:286 -ofps 25" ## half PAL
+MP_MEET_STANDARD="-vf scale=360:286 -ofps 25" ## half (well quarter!) PAL
 
 ## Couldn't open codec mp2, br=224
 #	1) audio must be 16 bits per sample, so add -channels 2
