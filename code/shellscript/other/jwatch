@@ -1,46 +1,59 @@
-NEW=`jgettmp "new-$1"`
-OLD=`jgettmp "old-$1"`
+if test "$1" = "" || test "$1" = --help
+then
+	echo "jwatch [ -quiet ] [ -direct ] ... <command>"
+	echo "  Executes the given command every 5 seconds, and reports changes lines in output."
+	echo "  -quiet: does not do initial verbose command check" ## CONSIDER: alternatively, -verbose could be a recommended ish alias, and quiet the default
+	echo "  -direct: executes the command inline rather than piping to a new sh"
+	exit 1
+fi
+
+if test "$1" = -quiet
+then QUIET=true; shift
+fi
 
 if test "$1" = -direct
 then
 	shift
 	METHOD="$@"
 else
+	## We no longer bother with file method:
 	# EXECSH=`jgettmp jwatch-do-$1`
 	# echo "$@" > $EXECSH
 	## Better to preserve quotes:
 	EXECSTR=""
 	for X
-	# do EXECSTR="$EXECSTR\"$X\" "
+	# do EXECSTR="$EXECSTR\"$X\" " ## why?!
 	do EXECSTR="$EXECSTR$X "
 	done
 	# echo "$EXECSTR" > $EXECSH
 	# chmod a+x "$EXECSH"
+	## We default to pipe method:
 	METHOD='echo "$EXECSTR" | sh'
 fi
 
-## TODO:
-## Should really make this an option, so jwatch can be used by progs
-## Then force the option in interactive sh with an alias =)
-cursecyan
-echo "### Just to check: (no aliases since run in sh)"
-cursemagenta
-# $EXECSH
-# echo "$EXECSTR" | sh
-eval "$METHOD"
-cursecyan
-echo "### End check; starting watch. ----------------------------- "
-cursenorm
+NEW=`jgettmp "new-$1"`
+OLD=`jgettmp "old-$1"`
 
-# $EXECSH > $NEW
-# echo "$EXECSTR" | sh > $NEW
-eval "$METHOD" > $NEW
+## Optionally, display the results once (in case user assumed aliases would work!)
+if test ! "$QUIET"
+then
+	cursecyan
+	echo "### Just to check: (no aliases since run in sh)"
+	cursemagenta
+	# $EXECSH
+	# echo "$EXECSTR" | sh
+	eval "$METHOD"
+	cursecyan
+	echo "### End check; starting watch. ----------------------------- "
+	cursenorm
+fi
 
 if test "x$JWATCHCOMPCOM" = "x"; then
-  # JWATCHCOMPCOM="jfc simple oneway"
-  # JWATCHCOMPCOM="jfcsh"
+  # JWATCHCOMPCOM="monitorpscompcom -oneway"
   JWATCHCOMPCOM="monitorpscompcom"
 fi
+
+eval "$METHOD" > $NEW
 
 sleep 1
 
@@ -56,7 +69,9 @@ while [ true ]; do
 
 	sleep 5
 
-	`breakonctrlc`
+	## Not sure this really works:
+	# `breakonctrlc`
+	`breakonctrlc` || exit
 
 done
 
