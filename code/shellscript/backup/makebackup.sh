@@ -2,6 +2,8 @@
 ##       need to tar up files only and then diff extracted tars!
 ## TODO: Nope, we should tar up everything,
 ##       then untar current and previous, strip links, then diff.
+##       No, rather than strip them, we should turn them into a file which can be diffed, and from which they can be recreated.
+##       Would a plain tar do this?
 
 # Paranoid; sensible.
 set -e
