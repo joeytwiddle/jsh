@@ -12,17 +12,9 @@ set -e
 ## BUG: There is some situation whereby the -lt test complains: 100%: integer expression expected
 ##      Ah yes this is when a really long device (eg. a file) is used, and the numbers drop to the next line!
 ##      The solution would be to join each line containing no spaces to the next line.  Although this (in fact the script anyway) would have trouble if the filename/device contains spaces.
-##      Here is a dodgy hack:
-nicedf () {
-	df |
-	sed 's+^\([^ ]*\)[ ]*$+\1 JOIN_LINE+' |
-	escapenewlines |
-	# pipeboth |
-	sed 's+ JOIN_LINE\\n+ +g' |
-	unescapenewlines
-}
+##      Dodgy hack factored out to flatdf.
 
-nicedf | drop 1 |
+flatdf | drop 1 |
 
 takecols 1 4 6 |
 grep -v "/cdr" |

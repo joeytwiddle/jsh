@@ -1,12 +1,18 @@
 # jsh-depends: drop pipeboth takecols
-if [ "$3" = "" ] || [ "$1" = --help ]
+if [ "$2" = "" ] || [ "$1" = --help ]
 then
   echo
-  echo "Usage: warnlowspace [ -v ] \"<email_address(es)>...\" <min_size_k> <device_pattern>s..."
+  echo "warnlowspace [ -v ] \"<email_address(es)>...\" <min_size_k> [ <device_pattern>s... ]"
+	echo
+	echo "  sends a warning email if the free space on a drive falls below the threshold."
   echo
-  echo "  eg.: warnlowspace jim 10240 ^/dev/hd"
-  echo "       will mail jim if any of his partitions has less than 10M of free space."
-  echo
+  echo "  eg.: warnlowspace jim 102400 \"^/dev/hd\""
+  echo "       will mail jim if any of his partitions has less than 100M of free space."
+	echo
+	echo "  <device_pattern> is a regular expression."
+	# echo "  Another example is: \"/dev/hd((a|b)[123456]|c(2|3))\""
+	echo "  Another example is: \"/dev/hd(a[124]|b[12]\""
+	echo "  or: /dev/hda1 /dev/hda2 /dev/hda4 /dev/hdb1 /dev/hdb2"
   echo "  Option -v displays matching devices on stderr, to check your pattern works ok."
   echo
   echo "  To send multiple emails, quote and separate with spaces: \"firstname@host secondname@host\""
@@ -25,21 +31,21 @@ if [ ! "$HOST" ]
 then HOST=`hostname`  ## TODO: not on Solaris!
 fi
 
-## Parse device patterns, and build (...|...) regexp for grep
-DEVICES="\("
+## Parse device patterns, and build (...|...) regexp for egrep
+DEVICES="("
 while [ "$1" ]
 do
   DEVICES="$DEVICES$1"
   shift
-  [ "$1" ] && DEVICES="$DEVICES\|"
+  [ "$1" ] && DEVICES="$DEVICES|"
 done
-DEVICES="$DEVICES\)"
+DEVICES="$DEVICES)"
 
 ## Get disk usage data
 df | drop 1 | takecols 1 4 6 |
 
 ## Select only those matching pattern
-grep "$DEVICES" |
+egrep "$DEVICES" |
 
 if [ "$VERBOSE" ]
 then pipeboth
@@ -62,8 +68,10 @@ do
       echo "       on device: $DEVICE"
       echo "  at mount point: $MNTPNT"
       echo
-      echo "  [ Warning sent by script: warnlowspace, running as user #: $UID ]"
+			[ "$USER" ] || USER=$UID
+      echo "  [ Sent by \"warnlowspace\" running as $USER on $HOST at `date` ]"
       ## TODO: it would be nice to du -sk $MNTPNT/*, but only on fs'es which can do it without grinding!
+			##       also, remember that unlike df, du -sk will not show space taken by files this user cannot read.
     ) |
     mail -s "[$HOST] Warning low space on $MNTPNT ($SPACE"k")" $EMAIL
 
