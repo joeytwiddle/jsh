@@ -1,2 +1,3 @@
-mkdir -p javadocs
-javadoc -d javadocs `find . -name "*.java"`
+DESTDIR=javadoc
+mkdir -p $DESTDIR
+javadoc -d $DESTDIR `find . -name "*.java"`

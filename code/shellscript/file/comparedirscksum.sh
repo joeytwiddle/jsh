@@ -1,10 +1,13 @@
-cksumall "$1" > $JPATH/tmp/1.cksum
-cksumall "$2" > $JPATH/tmp/2.cksum
+FILE_A=$JPATH/tmp/first.cksum
+FILE_B=$JPATH/tmp/second.cksum
 
-# diff $JPATH/tmp/1.cksum $JPATH/tmp/2.cksum
+cksumall "$1" > "$FILE_A"
+cksumall "$2" > "$FILE_B"
+
+# diff "$FILE_A" "$FILE_B"
 
 echo "Files that are different:"
-jfc $JPATH/tmp/1.cksum $JPATH/tmp/2.cksum | sed "s+.*\.\/++"
+jfc "$FILE_A" "$FILE_B" | sed "s+.*\.\/++"
 echo
 # echo "Files that are the same:"
-# jfc common $JPATH/tmp/1.cksum $JPATH/tmp/2.cksum | sed "s+.*\.\/++"
+# jfc common "$FILE_A" "$FILE_B" | sed "s+.*\.\/++"
