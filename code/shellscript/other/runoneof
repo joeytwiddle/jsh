@@ -1,6 +1,8 @@
-#!/usr/local/bin/zsh
+#!/bin/sh
+# #!/usr/local/bin/zsh
 
 # Problems without zsh - why?  `which $FILE` doesn't work in sh
+# OK now changed back to using `which inj $FILE`
 
 if test "$1x$2" = "x"; then
   echo 'runoneof "<executables>" "<args>"'
@@ -14,8 +16,8 @@ ARGS="$2";
 
 for FILE in `echo $LIST`; do
   # echo "file: $FILE"
-  # TRY=`jwhich $FILE`
-  TRY=`which $FILE`
+  TRY=`jwhich $FILE`
+  # TRY=`which $FILE`
   # Uncomment this, disrupt $? next line   echo 'Got: "'$TRY'"'
   if test "$?" = "0"; then
     # echo "runoneof: trying $TRY"

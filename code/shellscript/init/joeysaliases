@@ -1,8 +1,9 @@
 if test $JM_COLOUR_LS; then
-echo "WRONG!!!"
 	XARGS='h --color'
-fi
 alias ls="ls -atrF$XARGS"
+else
+alias ls="fakels"
+fi
 
 hist='history -100 | grep'
 
