@@ -1,5 +1,6 @@
-#!/usr/local/bin/zsh
-# #!/bin/sh
+#!/bin/sh
+
+# #!/usr/local/bin/zsh
 
 # echo "jwhich: $@"
 
@@ -20,12 +21,13 @@ fi
 FILE="$1"
 QUIETLY="$2"
 
-echo "JPATH = $JPATH" > ~/tmp.txt
-echo "PATHS = $PATHS" >> ~/tmp.txt
-echo "file = $FILE" >> ~/tmp.txt
+# echo "JPATH = $JPATH" > ~/tmp.txt
+# echo "PATHS = $PATHS" >> ~/tmp.txt
+# echo "file = $FILE" >> ~/tmp.txt
 
 # for dir in $PATHS; do
-echo $PATHS | while read dir; do
+# Note the quotes around $PATHS here are important, otherwise unix converts into one line again!
+echo "$PATHS" | while read dir; do
   if [ -f "$dir/$FILE" ]; then
     if [ ! "$QUIETLY" = "quietly" ]; then
       echo $dir/$FILE
@@ -37,7 +39,8 @@ echo $PATHS | while read dir; do
 done
 
 if [ ! "$QUIETLY" = "quietly" ]; then
-  echo "Could not find $FILE in any of $PATHS"
+  echo "Could not find $FILE in any of"
+  echo "$PATHS"
 fi
 exit 1          # Not found  :(
 
