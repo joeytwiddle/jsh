@@ -16,7 +16,7 @@ do
 			shift
 			HWIUSER="$1"
 		;;
-		"--help")
+		*)
 			echo "$0 [ -in <directory> ] [ -devel <hwiusername> ]"
 			echo "  Default is:"
 			echo "    $0 \"\$HOME/j\" \"anonymous\""

@@ -1,5 +1,5 @@
 if test "$1" = "--help"; then
-	echo "cksumall [ <files> ... [ -exclude <files> ... ] ]"
+	echo "cksumall [ <directory> ] [ -exclude <files> ... ] ]"
 	exit 1
 fi
 
