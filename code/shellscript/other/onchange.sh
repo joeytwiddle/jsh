@@ -5,11 +5,14 @@
 #   newer "$file" "$COMPFILE"
 # }
 
-if test ! "$1" = "-nowinxterm" && xisrunning; then
-	xterm -e onchange -nowinxterm "$@" &
-	exit
+if test "$1" = "-nowinxterm"; then
+	shift
+else
+	if xisrunning; then
+		xterm -e onchange -nowinxterm "$@" &
+		exit
+	fi
 fi
-shift
 
 if test "$1" = "" -o "$2" = ""; then
 	echo 'onchange [-ignore] <files> [do] <command>'
@@ -24,6 +27,7 @@ if test "$1" = "-ignore"; then
 	shift
 fi
 
+if test "$COLUMNS" = ""; then export COLUMNS=80; fi
 FILES="$1"
 COMMANDONCHANGE="$2" # $3 $4 $5 $6 $7 $8 $9"
 if test "$2" = "do"; then
@@ -51,7 +55,10 @@ while true; do
 		for file in $FILES; do
 			if mynewer "$file" "$COMPFILE"; then
 				touch "$COMPFILE"
+				echo
+				for X in `seq 1 $COLUMNS`; do printf "-"; done; echo
 				echo "$file changed, running: $COMMANDONCHANGE"
+				echo
 				xttitle "> onchange running $COMMANDONCHANGE ($file changed)"
 				$COMMANDONCHANGE
 				echo "Done."

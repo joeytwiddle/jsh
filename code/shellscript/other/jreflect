@@ -1,4 +1,8 @@
-bigwin "java jlib.JReflect $@ | less"
+if xisrunning; then
+	bigwin "java jlib.JReflect $@ | less"
+else
+	java jlib.JReflect $@ | less
+fi
 # bigwin "java jlib.JReflect $@ |less"
 # konsole -vt_sz 160x60 -e sh -c "java jlib.JReflect $@ |less"
 # newwin "java jlib.JReflect $@ |more"
