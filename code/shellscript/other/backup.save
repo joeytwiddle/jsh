@@ -1,3 +1,0 @@
-makeport
-cp $JPATH/out/hwiport.tgz /mnt/stig/backups/
-

@@ -1,3 +1,4 @@
+#!/bin/zsh
 DESTIMGFILE=googlerip.jpg
 LEFTIMGFILE=googleripleft.jpg
 RIGHTIMGFILE=googleripright.jpg
