@@ -30,7 +30,7 @@ replace () {
 # SEDMID="s+$MATCHMID+$REPLACE+"
 REPLACE="$STARTCURSE"'\2'"$ENDCURSE"'\1'"$NORM"
 # REPLACE='\1'
-SEDSTR="s+\1+$REPLACE+"
+SEDSTR="s+\1+$REPLACE+g"
 
 cat "$DCFILE" |
 grep -v "^TERM" |

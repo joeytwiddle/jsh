@@ -4,7 +4,7 @@ fi
 
 for X in $@; do
   # echo $X
-  COM="convert $X -geom $SHRINKTO tmp.jpg"
+  COM="convert $X -geometry $SHRINKTO tmp.jpg"
   echo "$COM"
   $COM
   COM="convert tmp.jpg $X"

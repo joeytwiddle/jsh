@@ -49,4 +49,4 @@ wall Backup complete
 ( echo
 	date
 	cvsdiffs
-) >> $JPATH/logs/cvsdiffs.txt
+) > $JPATH/logs/cvsdiffs.txt

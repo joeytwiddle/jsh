@@ -28,7 +28,7 @@ echo "Getting image >$IMG<"
 wget "http://www.google.com/$IMG"
 IMGFILE=`echo $IMG | after /`
 echo "Got image=>$IMGFILE<"
-convert $IMGFILE -geom 60 -quality 100 $DESTIMGFILE
+convert $IMGFILE -geometry 60 -quality 100 $DESTIMGFILE
 IMGSIZE=`imagesize $DESTIMGFILE`
 # echo "Got image size=>$IMGSIZE<"
 IMGWIDTH=`echo $IMGSIZE | before "x"`
