@@ -26,23 +26,25 @@ TMPFILE=`jgettmp sedreplace$$`
 
 for FILE do
 	if test ! -w "$FILE"; then
-		echo "sedreplace: $FILE not writeable" >> /dev/stderr
+		## Apparently /dev/stderr is not always writeable
+		echo "sedreplace: $FILE not writeable" >&2
 		break
 	fi
 	cat "$FILE" | sed "s$FROM$TOg" > "$TMPFILE"
 	chmod --reference="$FILE" "$TMPFILE"
-	if cmp "$FILE" "$TMPFILE" > /dev/null; then
-		test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >> /dev/stderr
+	# Shouldn't I be checking for SHOWCHANGES here?
+	if cmp "$FILE" "$TMPFILE" >&2; then
+		test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >&2
 	else
 		if test $DOBACKUP; then
 			mv "$FILE" "$FILE.b4sr" ||
 			if test ! "$?" = 0; then
-				echo "sedreplace: problem moving \"$FILE\" to \"$FILE.b4sr\"" >> /dev/stderr
+				echo "sedreplace: problem moving \"$FILE\" to \"$FILE.b4sr\"" >&2
 				echo "Aborting!"
 				exit 1
 			fi
 		fi
 		mv "$TMPFILE" "$FILE" ||
-			echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >> /dev/stderr
+			echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >&2
 	fi
 done

@@ -28,5 +28,5 @@ touch "$TMPF"
 	echo "$@"
 	echo "as of "`datediff "$FILE" "$TMPF"`" ago."
 	cursenorm
-) >> /dev/stderr
+) >&2
 jdeltmp "$TMPF"
