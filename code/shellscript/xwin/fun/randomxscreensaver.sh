@@ -11,9 +11,11 @@
 
 XSCRBINS=/usr/lib/xscreensaver
 
-NUM=4
+[ "$DESIRED_NUMBER_OF_SWIRLIES" ] || DESIRED_NUMBER_OF_SWIRLIES=4
+[ "$CYCLE_DELAY" ] || CYCLE_DELAY=5
+
 if [ "$1" ]
-then NUM="$1"; shift
+then DESIRED_NUMBER_OF_SWIRLIES="$1"; shift
 fi
 
 NL='
@@ -38,7 +40,7 @@ getrunningpids () {
 echo "Copy this to your clipboard.  It is needed to stop the hacks when you break out."
 echo "  echo | mykill -x $XSCRBINS"
 
-for X in `seq 1 $NUM`
+for X in `seq 1 $DESIRED_NUMBER_OF_SWIRLIES`
 do
 	CHOSEN=`chooserandomxscreensaverhack`
 	echo "Starting $CHOSEN"
@@ -50,11 +52,11 @@ done
 while true
 do
 
-	sleep 2
-	NUMRUNNINGPIDS=`getrunningpids | countlines`
-	echo "$NUMRUNNINGPIDS / $NUM"
+	sleep "$CYCLE_DELAY"
+	COUNT_OF_RUNNING_SWIRLIES=`getrunningpids | countlines`
+	echo "$COUNT_OF_RUNNING_SWIRLIES / $DESIRED_NUMBER_OF_SWIRLIES"
 
-	if [ ! "$NUMRUNNINGPIDS" -lt "$NUM" ]
+	if [ ! "$COUNT_OF_RUNNING_SWIRLIES" -lt "$DESIRED_NUMBER_OF_SWIRLIES" ]
 	then
 		PIDTOKILL=`getrunningpids | head -n 1` ## Evenly rotate by killing oldest every time
 		echo "Killing $PIDTOKILL"
@@ -64,8 +66,8 @@ do
 
 	sleep 1
 
-	NUMRUNNINGPIDS=`getrunningpids | countlines`
-	if [ "$NUMRUNNINGPIDS" -lt "$NUM" ]
+	COUNT_OF_RUNNING_SWIRLIES=`getrunningpids | countlines`
+	if [ "$COUNT_OF_RUNNING_SWIRLIES" -lt "$DESIRED_NUMBER_OF_SWIRLIES" ]
 	then
 		CHOSEN=`chooserandomxscreensaverhack`
 		echo "Starting $CHOSEN"
