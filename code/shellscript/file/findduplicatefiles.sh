@@ -1,5 +1,8 @@
 ## WISHLIST:
-# - order duplicates by least number of /s to bring us closer to automatic removal choice
+## - instead of just deleting duplicates, also create a symlink in their place so they still function
+
+## DONE:
+## - order duplicates by least number of /s to bring us closer to automatic removal choice
 
 # readgroup () {
 	# while read LINE
