@@ -22,4 +22,4 @@ if test $BOLD; then
 fi
 
 printf "$NORMCOL"
-sed "s|$1|$HIGHCOL$1$NORMCOL|g"
+sed "s#$1#$HIGHCOL$1$NORMCOL#g"
