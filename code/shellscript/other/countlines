@@ -1,12 +1,22 @@
 #!/bin/sh
 
+## Policy: empty files get 0, files with no '\n' get 1, files with '\n' get count of '\n's plus 1 if there is a last line with no trailing '\n'.
+
 ## TODO: test that wc -l gives the same results as awk on, eg. streams with no \n at end, echo's etc.
 ## Laziest: put the test in the code, with an assert, innit!
 
 docountlines () {
-	## Must remove spaces for backward-compatibility, and for external programs, such as expr which cannot handle 1 - "  20".
-	cat "$@" | wc -l | tr -d ' '
-	# awk " END { print "' NR } ' "$@"
+
+	cat "$@" |
+
+	## Meets policy:
+	awk " END { print "' NR } '
+
+	## Does not meet policy; simply counts number of '\n's.
+	# wc -l |
+	## Remove spaces in output for backward-compatibility, and external programs, eg. expr doesn't like 1 - "  20"
+	# tr -d ' '
+
 }
 
 if [ ! "$2" ]

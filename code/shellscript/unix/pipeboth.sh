@@ -6,10 +6,17 @@
 
 # cat |
 
-cat "$@" | ## Could do this, if we don't want pipeboth to take options.  Could do that anyway!
+## This version is dodgy, but advantageous because it's line-buffered =)
+# cat "$@" | ## Could do this, if we don't want pipeboth to take options.  Could do that anyway!
+# 
+# while read X
+# do
+	# echo "$X"
+	# echo "$X" >&2
+# done
 
-while read X
-do
-	echo "$X"
-	echo "$X" >&2
-done
+TMPFILE=`jgettmp pipeboth`
+cat "$@" > $TMPFILE
+cat $TMPFILE >&2
+cat $TMPFILE
+jdeltmp $TMPFILE

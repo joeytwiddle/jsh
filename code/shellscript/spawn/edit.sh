@@ -5,7 +5,11 @@
 ## TODO: also, screen -X loses our shell env including PWD, which is bad for local filenames and external executions from the editor.  Set the WD!
 if [ "$STY" ]
 then
-	screen -X screen editandwait "$@"
+	## spawned shell may not have same PWD, so:
+	for X
+	do [ -f "$X" ] && realpath "$X" || echo "$X"
+	done |
+	withalldo screen -X screen editandwait
 
 elif xisrunning
 then

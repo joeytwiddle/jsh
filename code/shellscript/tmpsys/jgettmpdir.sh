@@ -9,7 +9,12 @@ then
 	if [ ! "$TOPTMP" ] || [ ! -w "$TOPTMP" ]
 	then
 
-		for TOPTMP in "$TMPDIR" "$JPATH/tmp" "/tmp/jsh-$USER" "$PWD/.tmp" NO_DIR_WRITEABLE
+		## Prevents second choice in list below from being /tmp in absence of JPATH, which can be bad if root chmod's it!
+		if [ ! "$JPATH" ]
+		then JPATH="/NOT/LIKELY"
+		fi
+
+		for TOPTMP in "$TMPDIR" "$JPATH/tmp" "/tmp/jsh-$USER" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
 		do
 
 			if [ "$TOPTMP" ]
@@ -28,6 +33,7 @@ then
 		done
 
 		## Could be moved up into dir creation code, if people want to open up their tmpdirs!
+		## This is safer for tmpdir data protection, but dangerous if user wanted TOPTMP to remain open (eg. /tmp if U R root!)
 		chmod go-rwx $TOPTMP
 		## Also, what's to say that we are neccessarily owner?!
 

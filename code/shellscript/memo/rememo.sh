@@ -18,7 +18,9 @@ TMPFILE=`jgettmp tmprememo`
 
 # "$@" | tee "$FILE"
 ## Now passes back appropriate exit code: =)
-eval "$@" > $TMPFILE
+# eval "$@" > $TMPFILE
+# eval caused problems when one of the args was a URL containing the '&' character
+"$@" > $TMPFILE
 EXITWAS="$?"
 if [ "$EXITWAS" = 0 ]
 then

@@ -6,6 +6,13 @@
 ## Also makes it easy to leave the J environment again!
 ## Alternatively can be used as a one-liner to run a command inside J env, then exit.
 
+## TODO: calls to exit are fatal if user (daftly) sources: . .../jsh
+##       so do not exit if $SHLVL == 1
+##       or do not exit at all, just use a flag or structure to skip to the end
+
+## OK I need to remove all the exits and use flow-control instead.
+## I can either a) use a load of nested if's, or b) use a variable, eg. CONTINUE.
+
 ## Shit my collection of shellscripts (and the method of using them) really
 ## needs a proper name.  What about JSE (joey's shell environment)?  Nah that's naff!
 ## Or nash: not actually a shell
@@ -14,6 +21,8 @@
 ## Fixed elsewhere (was todo):
 ## we ignores user's ~/.bashrc
 ## They might not want to run another shell!
+
+# env > /tmp/env-$$
 
 # set -x
 

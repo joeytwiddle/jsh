@@ -31,9 +31,9 @@ find . -maxdepth 2 |
 	
 	while read X
 	do
-		NICESOURCE="~/$X"
 		SOURCE="$JPATH/code/home/$X"
 		DEST="$HOME/$X"
+		NICEDEST="~/$X"
 		if [ ! -d "$DEST" ] && [ ! -f "$DEST" ]
 		then
 			echo "linking: ~/$X <- $SOURCE"
@@ -41,13 +41,16 @@ find . -maxdepth 2 |
 		else
 			if [ ! `realpath "$DEST"` = `realpath "$SOURCE"` ]
 			then
-				echo "problem: $NICESOURCE is in the way of $SOURCE"
+				echo "problem: $NICEDEST is in the way of $SOURCE"
+				if cmp "$DEST" "$SOURCE"
+				then echo "         but they are identical, so why not: del \"$NICEDEST\""
+				fi
 				if [ "$SHOWDIFFS" ] && [ -f "$DEST" ]
 				then
 					gvimdiff "$DEST" "$SOURCE"
 				fi
 			else
-				: # echo "ok: $NICESOURCE"
+				: # echo "ok: $NICEDEST"
 			fi
 		fi
 	done

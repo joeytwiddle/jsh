@@ -18,7 +18,7 @@ then
 	exit
 fi
 
-echo "Clearing jsh PATH ($JPATH/tools)"
+echo "Clearing"
 "rm" -f $JPATH/tools/*
 
 if test ! "$1" = "-old" ## It does seem to work now (a bit better than the original!) =) && test "ifonly" = "itworked"
@@ -26,7 +26,7 @@ then
 
 	## Faster
 
-	echo "Linking tools into jsh PATH ... ($JPATH/tools)"
+	echo "Linking ..."
 	(
 		find $JPATH/code/shellscript \
 			\( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) ! -type d

@@ -1,4 +1,4 @@
-if test "$1" = ""
+if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo "fixbrokenlinks <in_dir> <scope_dirs>..."
 	echo "fixbrokenlinks <in_dir> -list <scope_list_file>"
@@ -17,18 +17,16 @@ shift
 
 FILELIST=`jgettmp fixbrokenlinks_filelist`
 
-if test "$1" = "-list"
-then
-	cp "$2" "$FILELIST"
-else
-	find "$@" > $FILELIST
-fi
+if [ "$1" = "-list" ]
+then cat "$2"
+else find "$@" -type f
+fi > $FILELIST
 
 find "$INDIR" -type l |
 
 while read SYMLINK
 do
-	if test ! -e "$SYMLINK"
+	if [ ! -e "$SYMLINK" ]
 	then
 		ORIGTARGET=`justlinks "$SYMLINK"`
 		# echo "Missing: \"$SYMLINK\" -> \"$ORIGTARGET\""
@@ -40,14 +38,12 @@ do
 		CANDIDATES=`grep "/$SEEK\$" "$FILELIST"`
 		CANDIDATESCNT=`printf "%s" "$CANDIDATES" | countlines`
 		XTRA="# "
-		if test "$CANDIDATESCNT" = "1"
+		if [ "$CANDIDATESCNT" = "1" ]
 		then
 			XTRA=""
 		fi
-			cursered
-			echo "## $CANDIDATESCNT possibilities for \"$SYMLINK\" -> \"$ORIGTARGET\":"
-			cursenorm
-			printf "$CANDIDATES" | sed 's|\(.*\)|'"$XTRA"'ln -sf "\1" "'"$SYMLINK"'"|'
+		echo "## `curseblue`$CANDIDATESCNT possibilities for \"$SYMLINK\" -> \"$ORIGTARGET\":`cursenorm`"
+		printf "$CANDIDATES" | sed 's|\(.*\)|'"$XTRA"'ln -sf "\1" "'"$SYMLINK"'"|'
 		echo
 	fi
 done

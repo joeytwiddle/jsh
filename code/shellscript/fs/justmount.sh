@@ -5,16 +5,36 @@
 DEFAULT_FILE_MOUNT_DIR=/mnt/
 DEFAULT_SAMBA_MOUNT_DIR=~/smb/
 
+if [ "$1" = -u ]
+then
+	UNMOUNT=true
+	shift
+fi
+
 WHAT="$1"
 INNOCENT=`echo "$WHAT" | tr "/" "_"`
 
 if [ -f "$WHAT" ]
 then
 
-	mount -o loop "$WHAT" "$DEFAULT_FILE_MOUNT_DIR/$INNOCENT"
+	mkdir -p "$DEFAULT_FILE_MOUNT_DIR/$INNOCENT"
+
+	if [ "$UNMOUNT" ]
+	then
+		umount "$DEFAULT_FILE_MOUNT_DIR/$INNOCENT"
+		rmdir "$DEFAULT_FILE_MOUNT_DIR/$INNOCENT"
+	else mount -o loop "$WHAT" "$DEFAULT_FILE_MOUNT_DIR/$INNOCENT"
+	fi
 
 else
 
-	smbmount "$WHAT" "$DEFAULT_SAMBA_MOUNT_DIR/$INNOCENT"
+	mkdir -p "$DEFAULT_SAMBA_MOUNT_DIR/$INNOCENT"
+
+	if [ "$UNMOUNT" ]
+	then
+		smbumount "$DEFAULT_SAMBA_MOUNT_DIR/$INNOCENT" &&
+		rmdir "$DEFAULT_SAMBA_MOUNT_DIR/$INNOCENT"
+	else smbmount "$WHAT" "$DEFAULT_SAMBA_MOUNT_DIR/$INNOCENT"
+	fi
 
 fi

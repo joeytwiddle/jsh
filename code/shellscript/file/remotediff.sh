@@ -73,7 +73,7 @@ rsyncdiff () {
 	'
 
 	## Bring remote files and files for diffing
-	echo "[rsyncdiff] bringing riles from $RHOST" >&2
+	echo "[rsyncdiff] bringing files from $RHOST" >&2
 	(
 		cat "$EDITFILE" | grep "^bring " |
 		while read LOCATION DATETIME CKSUM LEN FILENAME

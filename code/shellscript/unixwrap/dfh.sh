@@ -7,7 +7,7 @@ else
   REALPATH=`realpath "$WHERE"`
 	REST=`echo "$REALPATH" | afterfirst "$MOUNTPNT"`
   grep "$MOUNTPNT$" |
-	sed "s+[ 	]$MOUNTPNT+ $MOUNTPNT`cursegreen`$REST`cursenorm`+g" |
+	sed "s|[ 	]$MOUNTPNT| $MOUNTPNT`cursegreen`$REST`cursenorm`|g" |
   if [ -d "$MOUNTPNT/RECLAIM" ]
   then
 		RECLAIMABLE=`dush "$MOUNTPNT/RECLAIM" | takecols 1`
