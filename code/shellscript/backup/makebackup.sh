@@ -5,17 +5,25 @@
 ##       No, rather than strip them, we should turn them into a file which can be diffed, and from which they can be recreated.
 ##       Would a plain tar do this?
 
+## Turns out I needed diff -r -u before patch -p0 would work.
+## But it still doesn't deal with binary files well, and missing files are just skipped!
+##                                                       ok dealt with using -N
+##                                                       alternatively -P is forward-only
+
+## Now has external dependency: contractsymlinks
+
 # Paranoid; sensible.
 set -e
 
 if test "$1" = ""; then
-	echo "makebackup <dir/file> <backup_dir> [ <backup_prefix> ]"
+	echo "makebackup <dir/file_to_backup> <backup_dir> [ <backup_prefix> ]"
 	exit 1
 fi
 
 TOBACKUP="$1"
 BACKUPDIR="$2"
-DIRNAME=`dirname "$TOBACKUP"`
+
+DIRNAME=`dirname "$TOBACKUP" | sed "s+^\([^/]\)+$PWD/\1+"`
 BASENAME=`basename "$TOBACKUP"`
 test "$3" &&
 BACKUPNAME="$3" ||
@@ -23,60 +31,64 @@ BACKUPNAME="$BASENAME"
 
 mkdir -p "$BACKUPDIR" || exit 1
 
-CREATEDIR=`jgettmpdir makebak-create`
+## Establish (from destination files) which version backup we are creating:
+VER=0
+while test -f "$BACKUPDIR/$BACKUPNAME-$VER.diff.gz" || test -f "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
+do VER=`expr $VER + 1`
+done
+
+OURTMPDIR=`jgettmpdir makebak`
+CREATEDIR="$OURTMPDIR/ver$VER"
+mkdir -p "$CREATEDIR"
 if test "$CREATEDIR" = ""; then echo "Problem with CREATEDIR = >$CREATEDIR<"; exit 1; fi
+echo "Copying $TOBACKUP to $CREATEDIR"
 cd "$DIRNAME"
 cp -a "$BASENAME" "$CREATEDIR"
 
 # Fix symlink problems by removing them!
 # but list them to a file so their changes may be seen.
+echo "Moving symlinks in $CREATEDIR into $BASENAME/.symlinks.list"
 cd "$CREATEDIR" &&
-if test `pwd` = "$CREATEDIR"; then
-	if test -d "$TOBACKUP"
+if test "`pwd`" = "$CREATEDIR"
+then
+	if test -d "$BASENAME"
 	then
-		find "$CREATEDIR" -type l |
-		sed "s+^$CREATEDIR+\.+" |
-		while read X
-		do
-			'ls' -ld "$X" # | sed 's/[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*//' | sed 's/ -> /	->	/'
-			### I AM A BIT SCARED OF THIS LINE
-			## (eg. it deleted some of my symlinks when jgettmpdir wasn't working properly => CREATEDIR=""!)
-			rm "$X"
-		done |
-		sed 's| -> |	->	|' |
-		sed 's|.* \([^ 	]*	->	.*\)|\1|' > "$BASENAME/.symlinks.list"
+		cd "$BASENAME"
+		contractsymlinks
 	fi
-else
-	echo "Problem: "`pwd`" != $CREATEDIR"
+else echo "Problem: `pwd` != $CREATEDIR"
 fi
 
-VER=0
-while test -f "$BACKUPDIR/$BACKUPNAME-$VER.diff.gz" || test -f "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz"; do
-	VER=`expr $VER + 1`
-done
+if test ! "$VER" = 0
+then
 
-if test ! "$VER" = 0; then
+	## We can no longer be paranoid, because expr and diff will often return 0!
+	set +e
+	PREVER=`expr $VER - 1` ## Exits with 0 if 
 
-	PREVER=`expr $VER - 1`
+	EXTRACTDIR="$OURTMPDIR/ver$PREVER"
+	mkdir -p "$EXTRACTDIR"
 
-	EXTRACTDIR=`jgettmpdir makebak-extract`
-
+	echo "Extracting previous copy into $EXTRACTDIR"
 	cd "$EXTRACTDIR"
 	tar xfz "$BACKUPDIR/$BACKUPNAME-$PREVER.tar.gz"
+	cd "$EXTRACTDIR/$BASENAME"
+	contractsymlinks
 
-	# Unparanoid, because we want diff to return 1!
-	set +e
-	diff -r "$EXTRACTDIR/$BASENAME" "$CREATEDIR/$BASENAME" > "$BACKUPDIR/$BACKUPNAME-$VER.diff"
+	echo "Comparing against previous copy, storing diff in $BACKUPDIR/$BACKUPNAME-$VER.diff"
+	cd "$EXTRACTDIR"
+	diff -r -u -N "$BASENAME" "../ver$VER/$BASENAME" > "$BACKUPDIR/$BACKUPNAME-$VER.diff"
 	gzip "$BACKUPDIR/$BACKUPNAME-$VER.diff"
 
 	# rm "$BACKUPDIR/$BACKUPNAME-$PREVER.tar.gz"
-	jdeltmp "$EXTRACTDIR"
 
 fi
 
-# tar cfz "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz" "$BASENAME"
-cd "$CREATEDIR"
+echo "Backing up $TOBACKUP into $BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
+cd "$DIRNAME"
+## Or to make a backup with the symlinks:
+# cd "$CREATEDIR"
 tar cfz "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz" "$BASENAME"
 
 cd /tmp # anywhere should do
-jdeltmp "$CREATEDIR"
+jdeltmp "$OURTMPDIR"
