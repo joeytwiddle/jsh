@@ -1,7 +1,8 @@
 #!/bin/bash
 # zsh would also do (just need $RANDOM param)
 
-if test "$1" = ""; then
+if test "$1" = "" || test "$1" = --help
+then
   echo "highlight [-bold] <string> [<color>]"
   echo "  Note: the search <string> will be fed into sed, so may be in sed format."
   exit 1

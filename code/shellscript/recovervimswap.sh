@@ -1,18 +1,21 @@
+NL="
+"
 for X
 do
   N=1
   while test -e "$X.recovered.$N"
   do N=`expr $N + 1`
   done
-  if vim +":w $X.recovered.$N
-$NL:q" -r "$1" &&
+  if vim +":w $X.recovered.$N$NL:q" -r "$1" &&
      test -f "$X.recovered.$N"
   then
-    echo "Successfully recovered in $X.recovered.$N"
+    echo "Successfully recovered to $X.recovered.$N"
     if cmp "$X" "$X.recovered.$N" > /dev/null
     then
-      echo "but identical, so removing."
+      echo "BUT IDENTICAL to original, so REMOVING."
       rm "$X.recovered.$N"
+      ## Now if we are really confident about this script, we could
+      ## delete the swapfile, or get vim to.
     else
       echo "Not identical."
       echo "If not empty then its pretty likely the swapfile is redundant =)"
