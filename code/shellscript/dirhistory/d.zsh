@@ -27,6 +27,7 @@ else
 			fi
 		 done`
 	if test "$NEWLIST" = ""; then
+		DIRABOVE=`dirname "$NEWDIR"`
 		echo "< $DIRABOVE"
 		'cd' "$DIRABOVE"
 	elif test `echo "$NEWLIST" | countlines` = "1"; then
