@@ -16,20 +16,28 @@ while true; do
 	shift
 done
 
-A=`jgettmp jfcsh`
-B=`jgettmp jfcsh`
+A=`jgettmp "$1"`
+B=`jgettmp "$2"`
 
 cat "$1" | sort > "$A"
 cat "$2" | sort > "$B"
+
+test $BOTHWAYS && echo "vvvvvvvvvvvvvvvv Only in $A vvvvvvvvvvvvvvvv"
 
 diff "$A" "$B" |
 	grep "^< " | sed "s/^< //"
 
 if test $BOTHWAYS; then
+
 	echo "--------------------------------------------------------------------------------"
+
 	diff "$B" "$A" |
 		grep "^< " | sed "s/^< //"
+
 	## Or:
 	# diff "$A" "$B" |
 		# grep "^> " | sed "s/^> //"
+
+	echo "^^^^^^^^^^^^^^^^ Only in $B ^^^^^^^^^^^^^^^^"
+
 fi
