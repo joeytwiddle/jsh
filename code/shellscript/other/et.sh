@@ -50,9 +50,13 @@ edit $FORCE "$TOOL" # now handles below
 #fi
 
 
-# Not on unix: whereis $1
-jwhere $1
-which $1
+# Neither on Unix:
+# whereis $1
+# which $1
+# jwhere $1
+jwhich $1 quietly
+jwhich inj $1 quietly
+
 
 
 

@@ -1,6 +1,9 @@
 # b: move back in directory history
 # Does processing, and then echos the correct cd command
 
+# Would like it to roll up one line ;)
+# echo -en "\006"
+
 ARGS="$@"
 
 if [ "$ARGS" = "" ]; then
