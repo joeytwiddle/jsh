@@ -2,21 +2,28 @@
 
 ## TODO: maybe we should add a buffer so that mencoder has more time to encode before mplayer plays; seems ok right now though (mplayer caches till it can play, then plays)
 
-# jsh-ext-depends: mencoder mkfifo mplayer seq tee
 # jsh-depends: guifyscript verbosely
+# jsh-ext-depends: mencoder mkfifo mplayer seq tee
 # jsh-depends-ignore: mplayer
+# jsh-ext-depends-ignore: from
 
 encoding_thread () {
-	## Not always nice:
-	# ENCODING_OPTIONS="-oac copy -ovc copy"
-	## Needs headers for playback (may have changed with -of mpeg):
+
+	## These ones DONT WORK:
+	## Has real trouble encoding video as mpeg4:
+	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg4:vqscale=6"
 	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vqscale=6"
-	## Streams back ok but no audio (blame -of avi and maybe try again):
-	# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=6"
-	# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
-	## Tried mjpeg msmpeg4 mpeg4, none of which replay!  Ah I needed -of mpeg below!
+	## Often nasty:
+	# ENCODING_OPTIONS="-oac copy -ovc copy"
+
 	## Audio and video playback ok provided -of mpeg below:
-	ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg2video:vqscale=6"
+	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg2video:vqscale=6"
+
+	## One time the video did not play on one clip:
+	ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=6"
+	## Seems ok but expensive for CPU:
+	# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
+
 	verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" \
 		$ENCODING_OPTIONS 2>&1 |
 	# highlight ".*" yellow
@@ -53,6 +60,24 @@ piping_thread () {
 			then
 				echo "There was a problem" >&2
 				return
+			fi
+
+			## This paragraph lets you send earlier/other streams to the player, eg.:
+			##   echo "/tmp/streamed.02.avi" > /tmp/replay.todo
+			## Warning this causes the encoding thread to block, but hopefully it won't hang permanently if the replay is short.  (It frequently does cause encode to break though :( .)
+			## mencoder complains: FAAD: error: Channel coupling not yet implemented, trying to resync!
+			## Maybe it happens because the encoder's output fifo blocks because the player is not reading quickly enough (it played something else for a while).
+			## We could either add a buffer, or maybe skip some of the real input, to keep the encoder's output buffer from filling.
+			if [ -f /tmp/replay.todo ]
+			then
+				TODO=`cat /tmp/replay.todo`
+				printf "" > /tmp/replay.todo
+				echo "$TODO" | grep -v "^$" |
+				while read TOREPLAY
+				do
+					echo "Replaying from $TOREPLAY" >&2
+					verbosely dd if="$TOREPLAY"
+				done
 			fi
 
 		done
