@@ -32,7 +32,6 @@ else
 
 	for FILE do
 		if test ! -w "$FILE"; then
-			## Apparently /dev/stderr is not always writeable
 			echo "sedreplace: $FILE not writeable" >&2
 			break
 		fi
@@ -41,6 +40,7 @@ else
 		# Shouldn't I be checking for SHOWCHANGES here?
 		if cmp "$FILE" "$TMPFILE" >&2; then
 			test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >&2
+			jdeltmp "$TMPFILE"
 		else
 			if test $DOBACKUP; then
 				mv "$FILE" "$FILE.b4sr" ||
