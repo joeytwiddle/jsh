@@ -74,8 +74,11 @@ do
 	# transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
 	# transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
 
-	echo
-	jshinfo "Transcoding audio"
+	## TODO: remove all these comments!
+	## TODO: remove -simple afterwards if foolproof was used.
+
+	# echo
+	# jshinfo "Transcoding audio"
 
 	# rm -f stream.yuv
 	# transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-audio.wav" -N 0x1 -y null,wav $TC_CLIP ||
