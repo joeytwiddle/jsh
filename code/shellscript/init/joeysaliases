@@ -34,3 +34,5 @@ myxv() {
 xv -perfect "$@" &
 }
 alias xv=myxv
+
+alias igrep='grep -i'

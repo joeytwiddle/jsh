@@ -22,14 +22,12 @@ if test -d "$NEWDIR"; then
 
 elif test "$NEWDIR" = ""; then
 
-	# I prefer the directory above my home if I have multiple ~ directories.
-
+	# If I own the directory above ~, I prefer 'cd' to take me there.
 	if test `filename "$HOME"` = "$USER"; then
 		'cd' "$HOME"
-	 else
+	else
 		'cd' "$HOME/.."
 	fi
-	# 'cd'
 
 elif test `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = "found"; then
 
@@ -60,24 +58,18 @@ else
 			fi
 		done
 	` 2> /dev/null
-	# echo ">$NEWLIST<"
 
 	if test "$NEWLIST" = ""; then
 		# No directory found
 		echo "X"`cursered;cursebold`" $LOOKIN/$LOOKFOR*"`cursenorm`
 	elif test `echo "$NEWLIST" | countlines` = "1"; then
 		# One unique dir =)
-		echo ">"`cursegreen`" $NEWLIST"`cursenorm`
+		echo ">"`curseyellow`" $NEWLIST"`cursenorm`
 		'cd' "$NEWLIST"
 	else
 		# A few possibilities, suggest them to the user.
-		# echo "? $NEWLIST" | tr "\n" " "
 		echo "$NEWLIST" |
-		sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`cursegreen`"\1"`curseyellow`"\2"`cursenorm`"+"
-		# sed 's+\(.*/\)\(.*\)+\? \1'`cursegreen`'\2/'`cursenorm`'+' |
-		# sed 's+/+'`cursegreen`'/'`cursenorm`"+g"
-		# echo -n "$NEWLIST" | tr "\n" " "
-		# echo " ?"
+		sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`curseyellow`"\1"`curseyellow`"\2"`cursenorm`"+"
 	fi
 
 fi > /dev/stderr

@@ -1,3 +1,4 @@
+## Oops maybe I could just use basename "$1" !
 if test "x$1" = "x"; then
   afterlast "/"
 else

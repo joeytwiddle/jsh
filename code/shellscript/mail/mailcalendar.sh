@@ -6,20 +6,9 @@
 MBOX="/tmp/mbox"
 MBOXOUT="$MBOX-done"
 
-## Interface to /usr/bin/mail =)
-maildo() {
-	echo "$1" | /usr/bin/mail -N -f "$MBOX"
-}
+. mailtools.shlib
 
-TOTAL=`
-maildo "q" |
-(
-	read HEADER
-	read FOLDER TOTAL messages NUMNEW new NUMUNREAD unread
-	cat > /dev/null
-	echo "$TOTAL"
-)
-`
+TOTAL=`mailcount`
 
 WEEKLIST="Monday Tuesday Wednesday Thursday Friday Saturday"
 MONTHLIST="January February March April May June July August September October November December"
@@ -31,13 +20,11 @@ echo ">>$WEEKLISTRE<<"
 NUMPOST="(st|nd|rd|th)"
 echo "$MONTHLISTRE"
 
-for X in `seq 1 $TOTAL`; do
-
-	# maildo "$X"
+for N in `seq 1 $TOTAL`; do
 
 	FOUND=`
 
-		maildo "$X" |
+		getmail "$N" |
 
 		fromstring "" | ## drops headers
 
@@ -62,15 +49,15 @@ for X in `seq 1 $TOTAL`; do
 	`
 
 	if test "$FOUND" = ""; then
-		echo "No dates found in $X!"
-		maildo "$X"
+		echo "No dates found in $N!"
+		getmail "$N"
 	else
-		echo "Dates found in $X:"
+		echo "Dates found in $N:"
 		echo "$FOUND"
 		### ## Move out of todo box
-		### maildo "s $X $MBOXOUR" > /dev/null
-		### maildo "d $X" > /dev/null
-		### X=`expr "$X" - 1` ## Doesn't work of course!
+		### maildo "s $N $MBOXOUR" > /dev/null
+		### maildo "d $N" > /dev/null
+		### N=`expr "$N" - 1` ## Doesn't work of course!
 	fi
 
 done

@@ -27,6 +27,7 @@ do
 		## TODO: construct a sed string to colour in those known path-parts of the original link
 		## hmm difficult if it means a string diff no
 		## or split the original and highlight any matches, yeah that'd do
+		## nah soddit why bother?!
 		CANDIDATES=`grep "/$SEEK\$" "$FILELIST"`
 		CANDIDATESCNT=`printf "%s" "$CANDIDATES" | countlines`
 		XTRA="# "

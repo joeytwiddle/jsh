@@ -5,6 +5,7 @@ SRCFILENAME=`"ls" -t "$SRCDIR" | head -n 1`
 FILENAME="$SRCFILENAME"
 echo "$FILENAME"
 
+mkdir -p "$DESTDIR"
 DESTFILE="$DESTDIR/$FILENAME"
 while [ -f "$DESTFILE" ]; do
   FILENAME="_$FILENAME"

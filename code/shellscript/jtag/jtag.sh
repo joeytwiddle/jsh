@@ -30,6 +30,7 @@ fi
 
 if test "$FILES" = ""
 then
+	## TODO: Construct an edit ... line to open all in one editor
 	for FILE
 	do
 		# FILE="$1"

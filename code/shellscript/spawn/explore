@@ -1,3 +1,5 @@
-nautilus "$@" ||
+## explore: given a path (or possible an ftp url), opens up the user's favourite file manager
+
 konqueror "$@" ||
+nautilus "$@" ||
 kfmclient openURL `tourl "$1"` &

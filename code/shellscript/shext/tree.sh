@@ -1,7 +1,11 @@
+## Calls my Haskell version
+## eg. find /var/lib/apt/lists/ | sort | tree
+
 # runhugs $JPATH/code/haskell/tools/treelist.hs "$@"
 TMPFILE=`jgettmp tree`
 cat "$@" > $TMPFILE
-$JPATH/code/haskell/tools/treelist.hs $TMPFILE |
+# $JPATH/code/haskell/tools/treelist.hs $TMPFILE |
+$JPATH/code/haskell/tools/treelist $TMPFILE |
 vi - -R +":so ~/.vim/joey/joeyfolding.vim"
 jdeltmp $TMPFILE
 

@@ -11,7 +11,39 @@ if test "$FILENAME" = ""; then
 	echo "  will check out a temporary revision(s) of <filename> and do a vimdiff..."
 	echo "  at present, no <revision#> means compare against the most recent repository version."
 	echo "  You may optionally set \$DIFFCOM to use a different diff program."
+	echo "cvsvimdiff -all"
+	echo "  Will vimdiff all uncommitted files, and commit those you :w (:qa) (uses cvsdiff)."
+	echo "  (Hence DIFFCOM must not bg itself.)"
 	exit 1
+fi
+
+if test "$FILENAME" = "-all"
+then
+	STARTTIME=`jgettmp cvsvimdiff-watchchange`
+	ORIGFILETIME=`jgettmp cvsvimdiff-watchchange`
+	touch "$STARTTIME"
+	FILES=`cvsdiff |
+	# drop 2 | chop 1 |
+	grep -v "^$" | grep -v "^#" |
+	sed 's/[ ]*#.*//'`
+	## Doesn't handle spaces
+	## But with previous while read vim complained input not from term (outside X)
+	for FILE in $FILES
+	do
+		touch -r "$FILE" "$ORIGFILETIME"
+		cvsvimdiff "$FILE" # doesn't work sometimes: > /dev/null 2>&1
+		if newer "$FILE" "$STARTTIME"
+		then
+			echo "Committing $FILE"
+			## Reset file's time to that which it had before cvsvimdiff
+			touch -r "$ORIGFILETIME" "$FILE"
+			cvscommit -m "" "$FILE"
+		else
+			echo "Not committing $FILE"
+		fi
+	done
+	jdeltmp $STARTTIME $ORIGFILETIME
+	exit 0
 fi
 
 # WHICHREV="Working"

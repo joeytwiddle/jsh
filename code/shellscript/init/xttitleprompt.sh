@@ -9,6 +9,7 @@ if test "$SHOWHOST" = ""; then
 fi
 SHOWHOST="$SHOWHOST:"
 SHOWUSER="$USER@"
+# could try using `logname`
 
 ## Exception: trim for user's "home machine"
 if test "$SHOWHOST" = "hwi:"; then

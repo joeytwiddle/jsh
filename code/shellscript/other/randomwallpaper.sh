@@ -1,5 +1,7 @@
 #!/bin/sh
 
+cd / # just for memoing
+
 REPEAT=once
 
 while test "$REPEAT"
@@ -25,8 +27,9 @@ do
 	then
 		UNGREPEXPR='^$'
 	else
+		## For greater efficiency: put this whole block in a fn, then memo a call to the fn
 		UNGREPEXPR=`
-			find $WALLPAPERDIRS -name "noshow" |
+			memo find $WALLPAPERDIRS -name "noshow" |
 			while read X
 			do echo '^'\`dirname "$X"\`'|'
 			done |
@@ -35,6 +38,7 @@ do
 		`
 	fi
 
+	## Ditto optimisation recommended above
 	FILE=`
 		echo "memo find $WALLPAPERDIRS $SEARCHARGS" | sh |
 		egrep -v "$UNGREPEXPR" |

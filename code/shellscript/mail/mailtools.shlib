@@ -1,0 +1,57 @@
+## Shellscript library offering simple mailbox interface via /usr/bin/mail =)
+
+## Requires: env var MBOX to be set before sourcing
+
+## TODO: there a move-to-another-mailbox method in mailcalendar.sh which should come here but it's not ideal
+
+if test ! "$MBOX"
+then
+	MBOX=/tmp/mbox
+	if test ! -f "$MBOX"
+	then
+		echo "No \$MBOX provided and nothing in /tmp/mbox"
+		## Rather too harsh at the com-line:!
+		# exit 1
+	fi
+fi
+
+maildo() {
+	echo "$1" | /usr/bin/mail -N -f "$MBOX"
+}
+
+mailcount() {
+	maildo "q" |
+	(
+		read HEADER
+		read FOLDER TOTAL messages NUMNEW new NUMUNREAD unread
+		cat > /dev/null
+		echo "$TOTAL"
+	)
+}
+
+getmail() {
+	## Arguments are the index numbers of the emails in the mbox
+	maildo "$@"
+}
+
+getaddresses() {
+	cat "$MBOX" |
+	# NUM=`mailcount`
+	# for N in `seq 1 $NUM`
+	# do
+		# # maildo $N | grep "^From:" | head -1 | dropcols 1
+		# # maildo $N | grep "^Date:" | head -1 | dropcols 1
+		# # EMAIL=`maildo $N | grep "^From:" | head -1 | dropcols 1 | after "<" | before ">"`
+		# # DATE=`maildo $N | grep "^Date:" | head -1 | dropcols 1 | after "Date: "`
+		# # echo "$EMAIL	$DATE"
+		# printf "$N/$NUM: "
+		# maildo $N | tostring "" |
+		grep "^From:" |
+		# head -1
+	# done |
+	# dropcols 1 |
+	after "<" | before ">" |
+	after "\[mailto:" | before "\]" |
+	after " " |
+	sort | uniq
+}

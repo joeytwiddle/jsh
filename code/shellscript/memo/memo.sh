@@ -17,7 +17,8 @@ if test "$1" = ""; then
 fi
 
 REALPWD=`realpath "$PWD"`
-NICECOM=`echo "$REALPWD: $@" | tr " /" "_-" | sed 's+\(........................................\).*+\1+'`
+CKSUM=`echo "$*" | md5sum`
+NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(................................................................................\).*+\1+'`
 FILE="$MEMODIR/$NICECOM.memo"
 
 if test -f "$FILE"; then

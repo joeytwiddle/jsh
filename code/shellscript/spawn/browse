@@ -1,6 +1,7 @@
 #!/bin/sh
+## browse: given a url (or possibly path), opens up the users favourite browser
 
-FAVOURITE_BROWSERS='galeon skipstone konqueror mozilla netscape encompass nautilus amaya lynx links w3m w3c jazilla'
+FAVOURITE_BROWSERS='konqueror galeon skipstone mozilla netscape encompass nautilus amaya lynx links w3m w3c jazilla'
 FAVOURITE_TERM_BROWSERS='lynx links w3c'
 
 ARGS="$@"

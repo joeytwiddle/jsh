@@ -20,7 +20,7 @@ else
 
   else
 
-    jman "$@"
+    jman "$@" &&
     info "$@"
 
   fi
