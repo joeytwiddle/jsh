@@ -103,14 +103,16 @@ ln -s code/c/joeylib .
 
 
 
-echo "export JPATH=$JTO" > $JTO/startj
-echo "export JWHICHOS=$WHICHOS" >> $JTO/startj
-echo "export PATH=\$JPATH/tools:\$PATH" >> $JTO/startj
-echo "export CLASSPATH=\$JPATH/code/java:\$CLASSPATH" >> $JTO/startj
-echo "# source \$JPATH/tools/jshellalias" >> $JTO/startj
-echo "# source \$JPATH/tools/jshellsetup" >> $JTO/startj
-echo 'if [ ! "$@" = "" ]; then $@; fi' >> $JTO/startj
-chmod a+x $JTO/startj
+# echo "export JPATH=$JTO" > $JTO/startj
+# # old
+# # echo "export JWHICHOS=$WHICHOS" >> $JTO/startj
+# echo "export PATH=\$JPATH/tools:\$PATH" >> $JTO/startj
+# echo "export CLASSPATH=\$JPATH/code/java:\$CLASSPATH" >> $JTO/startj
+# echo "# source \$JPATH/tools/jshellalias" >> $JTO/startj
+# echo "# source \$JPATH/tools/jshellsetup" >> $JTO/startj
+# echo 'if [ ! "$@" = "" ]; then $@; fi' >> $JTO/startj
+# chmod a+x $JTO/startj
+ln -s "$JPATH/code/shellscript/init/startj-hwi.sh" "$JTO/startj"
 
 echo "#define $WHICHOS" > $JTO/code/c/joeylib/whichos.c
 

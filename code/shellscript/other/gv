@@ -1,4 +1,4 @@
-# if test "$JWHICHOS" = "linux"; then
+# if test "$JM_UNAME" = "linux"; then
 #   /usr/bin/X11/gv -antialias "$@" &
 # else
 # LOCALgv=`jwhich gv`

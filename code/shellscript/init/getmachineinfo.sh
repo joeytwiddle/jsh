@@ -1,12 +1,12 @@
 #!/bin/sh
 
 export JM_DOES_COLOUR=;
-export JM_COLOURLS=;
+export JM_COLOUR_LS=;
 export JM_ADVANCED_DU=;
 
-UNAME=`uname`
+export JM_UNAME=`uname`
 
-case "$UNAME" in
+case "$JM_UNAME" in
 	"Linux")
 		JM_DOES_COLOUR=true
 		JM_COLOUR_LS=true
