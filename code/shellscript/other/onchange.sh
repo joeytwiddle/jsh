@@ -6,7 +6,7 @@
 # }
 
 if test ! "$1" = "-nowinxterm"; then
-	xterm -e onchange -nowinxterm "$@"
+	xterm -e onchange -nowinxterm "$@" &
 	exit
 fi
 shift

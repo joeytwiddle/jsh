@@ -18,7 +18,10 @@ alias dl='ls -ld'
 
 ### Note: it's rather important that aliases don't get passed
 ## down to child shells / processes, because this would likely
-## result in infinite loops!
+## result in infinite loops.
+### Er, I think that might be te default anyway!
+
+alias xterm='xtermbg'
 
 alias man='jman'
 

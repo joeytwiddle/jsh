@@ -17,7 +17,7 @@ if test "$DOMAIN" = `echo "$1" | afterfirst "\."`; then
 fi
 
 if xisrunning; then
-	xterm -title "$TITLE" -e $SSHCOM
+	xterm -title "$TITLE" -e $SSHCOM &
 else
 	xttitle "$TITLE"
 	$SSHCOM

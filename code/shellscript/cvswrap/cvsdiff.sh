@@ -120,6 +120,6 @@ fi
 
 echo
 
-jdeltmp $REPOSLIST $LOCALLIST
+# jdeltmp $REPOSLIST $LOCALLIST
 
 exit 0

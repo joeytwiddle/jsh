@@ -1,5 +1,5 @@
 if xisrunning; then
-	xterm -title "$*" -e "$@"
+	xterm -title "$*" -e "$@" &
 else
 	"$@"
 fi
