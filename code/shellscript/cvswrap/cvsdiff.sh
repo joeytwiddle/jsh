@@ -1,16 +1,14 @@
 # This should not be called cvsdiff, because it ain't like cvs diff:
 # it only finds what's missing, not what's been changed.
 
-echo '# Reasons for failing update:'
-echo '# cvs update 2>/dev/null | grep -v "^\? "'
-echo '# Files which are not the same as the repository versions.'
-echo '# or cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"'
-echo "# Rats, for some reason this doesn't work recursively."
+# echo '# Reasons for failing update:'
+# echo '# cvs update 2>/dev/null | grep -v "^\? "'
+# echo '# Files which are not the same as the repository versions.'
+# echo '# or cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"'
+# echo "# Rats, for some reason this doesn't work recursively."
 
-echo "Doing the latter first:"
-cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"
-
-echo "Now follow local files which are not even in the repository:"
+echo "# Try cvsdiff * to see which local files do not exist in repository."
+echo "# Sorry subdirs' files don't work 'cos status loses path."
 
 SHABLE=
 if test "$1" = "-nocol"; then
@@ -18,15 +16,67 @@ if test "$1" = "-nocol"; then
 	shift
 fi
 
-cvs status 2>&1 | grep -v "^cvs status: Examining " | grep "^\? " |
-	while read Q X; do
-		printf "cvs add "
+cvs status "$@" 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date" |
+	sed "s/^File: //;s/Status: /\\
+/" | while read X; do
+		read Y;
+		# echo "$X $Y"
 		if test $SHABLE; then
-			echo "$X"
+			PF="$X"
 		else
-			ls -d -F --color "$X"
+			PF=`ls -artFd --color "$X" | tr -d "\n"`
 		fi
+		echo "cvs add \"$X\" 	# $Y: $PF"
 	done
+
+
+# echo "Now find local files which are not even in the repository:"
+
+# ARGS="$@";
+# if test "$ARGS" = ""; then
+	# ARGS=`find . -type f | grep -v "/CVS/"`
+# fi
+
+# Godammit!
+
+# cvs status $ARGS 2>/dev/null | grep "^File:" | grep -v "Status: Up-to-date" |
+	# sed "s/^File: //;s/Status: /\\
+# /" | while read X; do
+		# read Y;
+		# echo "$X $Y"
+		# if test $SHABLE; then
+			# PF="$X"
+		# else
+			# PF=`ls -artFd --color "$X" | tr -d "\n"`
+		# fi
+		# echo "cvs add \"$X\" 	# $Y: $PF"
+	# done
+
+# Oh dear this does recursion, but the path is lost!
+
+# cvs status $ARGS 2>/dev/null | grep "^File:" | grep -v "Status: Up-to-date" |
+	# sed "s/^File: //;s/Status: /\\
+# /" | while read X; do
+		# read Y;
+		# echo "$X $Y"
+		# if test $SHABLE; then
+			# PF="$X"
+		# else
+			# PF=`ls -artFd --color "$X" | tr -d "\n"`
+		# fi
+		# echo "cvs add \"$X\" 	# $Y: $PF"
+	# done
+
+# cvs status $ARGS 2>&1 | grep -v "^cvs status: Examining " | grep "^\? " |
+	# while read Q X; do
+		# printf "cvs add "
+		# if test $SHABLE; then
+			# echo "$X"
+		# else
+			# ls -d -F --color "$X"
+		# fi
+	# done
+# 
 
 exit 0
 
