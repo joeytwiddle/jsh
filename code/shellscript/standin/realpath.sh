@@ -1,4 +1,4 @@
-RP=`jwhich realpath quietly`
+RP=`jwhich realpath 2> /dev/null`
 if test "$?" = "0"; then
 	$RP "$@"
 else

@@ -7,10 +7,11 @@ filetodiff () {
 		sed "s/.*char \([^,]*\), line 1/\1/"
 	`
 	# cmp /tmp/1 /tmp/2
-	echo "%%% >$CHARS<" > /dev/stderr
+	# echo ">>> %%% >$CHARS<" > /dev/stderr
 	if test "$CHARS" = ""; then
 		printf "0"
 	else
+		# Needed since cmp only seems to start at char 2!
 		CHARS=`expr "$CHARS" - 2`
 		cat /tmp/1 | sed "s/\(.\)/\1\\
 /g" | head -$CHARS | tr -d "\n"
@@ -19,43 +20,52 @@ filetodiff () {
 
 STACK=""
 CURRENT=""
-LASTLINE="-------- START --------"
+LASTLINE=""
 N=0
 
 while read LINE; do
-	echo
-	echo "!!! $N $CURRENT"
-	echo ">>> $LINE"
-	if ! startswith "$LINE" "$CURRENT"; then
-		echo "*** not inside current: >$LINE<"
+	echo ">>> "
+	echo ">>> !!! $N >$CURRENT<" > /dev/stderr
+	echo ">>> >>> $LINE"
+	TODROP=""
+	while ! startswith "$LINE" "$CURRENT"; do
+		echo ">>> *** not inside current"
 		N=`expr "$N" - 1`
 		CURRENT=`echo "$STACK" | tail -1`
 		STACK=`echo "SSTACK" | chop 1`
-		echo "### end"
-		echo "$LASTLINE }"
+		echo ">>> ### end"
+		TODROP="$TODROP
+}"
+	done
+	if test ! "$TODROP" = ""; then
+		echo "$LASTLINE $TODROP"
 	else
-		echo "*** inside current: >$LINE<"
-		echo "((( $LASTLINE"
+		echo ">>> *** inside current"
+		echo ">>> ((( $LASTLINE"
 		DIFF=`
 			filetodiff "$LASTLINE" "$LINE" |
 			sed "s^$CURRENT"
 		`
-		echo "@@@ $DIFF"
-		if test "$DIFF" = ""; then
-			echo "### normal"
+		EXTRACHARS=`echo "$DIFF" | awk ' { print length($0) } '`
+		echo ">>> @@@ $EXTRACHARS $DIFF"
+		if test "$DIFF" = "" || test "$EXTRACHARS" -lt 2; then
+			echo ">>> ### normal"
 			echo "$LASTLINE"
 		else
 			N=`expr "$N" + 1`
 			STACK="$STACK
 $CURRENT"
+			echo ">>> ### start $DIFF"
+			echo "{ + $DIFF"
+			echo "$LASTLINE"
 			CURRENT="$CURRENT$DIFF"
-			echo "### start $DIFF"
-			echo "$LASTLINE {"
 		fi
 	fi
 	LASTLINE="$LINE"
 done
 
 echo "$CURRENT"
-echo "} # for good measure"
-
+while test "$N" -gt "0"; do
+	N=`expr "$N" - 1`
+	echo "} # for good measure"
+done
