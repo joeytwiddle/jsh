@@ -48,6 +48,7 @@ do
 	then
 		# INPUT=`Xdialog --dselect "Changing directory" 24 80 "" "" "URL of resource" "http://.../something.ram" 2>&1`
 		INPUT=`Xdialog --dselect "$PWD" 24 80 2>&1`
+		## BUG TODO : doesn't work!!
 		cd "$INPUT"
 		continue
 	fi

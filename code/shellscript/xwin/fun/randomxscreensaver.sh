@@ -5,6 +5,10 @@
 #   but sometimes creation fails!
 #   recommend using mykillps or something to count instances and then kill or create to meet target.
 
+## TODO: optionally select only screensavers present and turned on in users ~/.xscreensaverrc (use grep)
+## TODO: optionally avoid all hacks which flush a screenbuffer ( => flicker )
+##       or other unsuitable / rubbish hacks
+
 XSCRBINS=/usr/lib/xscreensaver
 
 NUM=4
@@ -24,6 +28,10 @@ findchildprocs () {
 	psforkillchild | grep "6[ 	]*$1[ 	]"
 }
 
+getrunningpids () {
+	mykillps -x "$XSCRBINS" | takecols 1
+}
+
 echo "Copy this to your clipboard.  It is needed to stop the hacks when you break out."
 echo "  echo | mykill -x $XSCRBINS"
 
@@ -38,29 +46,30 @@ done
 
 while true
 do
+
 	sleep 2
-	RUNNINGPIDS=`mykillps -x "$XSCRBINS" | takecols 1`
-	NUMRUNNINGPIDS=`echo -n "$RUNNINGPIDS" | countlines`
+	NUMRUNNINGPIDS=`getrunningpids | countlines`
 	echo "$NUMRUNNINGPIDS / $NUM"
-	FAILED=
+
 	if [ ! "$NUMRUNNINGPIDS" -lt "$NUM" ]
 	then
-		PIDTOKILL=`echo "$RUNNINGPIDS" | head -n 1` ## Evenly rotate by killing oldest every time
+		PIDTOKILL=`getrunningpids | head -n 1` ## Evenly rotate by killing oldest every time
 		echo "Killing $PIDTOKILL"
 		# echo kill -KILL "$PIDTOKILL"
-		if ! kill -KILL "$PIDTOKILL"
-		then
-			echo "Kill FAILED!"
-			FAILED=true
-		fi
+		kill -KILL "$PIDTOKILL" || echo "kill -KILL $PIDTOKILL FAILED!"
 	fi
-	if [ ! "$FAILED" ]
+
+	sleep 1
+
+	NUMRUNNINGPIDS=`getrunningpids | countlines`
+	if [ "$NUMRUNNINGPIDS" -lt "$NUM" ]
 	then
-		sleep 1
 		CHOSEN=`chooserandomxscreensaverhack`
 		echo "Starting $CHOSEN"
 		NEWPID=`execgetpid nice -n 20 "$CHOSEN" -root`
+		[ "$NEWPID" ] || echo "Start failed!" ## not likely to happen
 	fi
+
 done
 
 echo "Killing all"
