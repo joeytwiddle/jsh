@@ -73,7 +73,7 @@ if test $CHECKALL; then
 	grep -v "/CVS" |
 	while read D; do
 		if test ! -d "$D/CVS"; then
-			echo "cvs add \"$D\""
+			echo "cvs add $D"
 		fi
 	done
 

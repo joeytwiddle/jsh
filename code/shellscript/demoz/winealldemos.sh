@@ -7,8 +7,7 @@ while read X; do
 
 	echo "$X"
 
-	cp ./wineone.sh /tmp
-	`jwhich xterm` -fg white -bg black -e /tmp/wineone.sh "$X"
-	# /tmp/wineone.sh "$X"
+	`jwhich xterm` -fg white -bg black -e wineonedemo "$X"
+	# wineonedemo "$X"
 
 done
