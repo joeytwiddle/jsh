@@ -8,20 +8,28 @@ REV="$2"
 REV2="$3"
 
 # if test "$FILENAME" = "" || test "$REV" = ""; then
-if test "$FILENAME" = ""; then
+if [ "$FILENAME" = "" ] || [ "$FILENAME" = --help ]
+then
+	echo
 	echo "cvsvimdiff <filename> [ <revision#> [ <another_revision#> ] ]"
+	echo
 	echo "  will check out a temporary revision(s) of <filename> and do a vimdiff..."
-	echo "  at present, no <revision#> means compare against the most recent repository version."
+	echo "  no <revision#> means compare against the most recent repository version."
 	echo "  You may optionally set \$DIFFCOM to use a different diff program."
+	echo
 	echo "cvsvimdiff -all"
-	echo "  Will vimdiff all uncommitted files, and commit those you :w (:qa) (uses cvsdiff)."
-	echo "  (Hence DIFFCOM must not bg itself.)"
+	echo
+	echo "  Will vimdiff all uncommitted files, and commit those you confirm with :w ."
+	echo "  (Hence \$DIFFCOM must not bg itself.)"
+	echo
+	echo "  See also: cvscommit -diff"
+	echo
 	exit 1
 fi
 
 ## I think this should be moved to cvscommit -vimdiff or somesuch
 ## "vim" should be removed from script names, since they are not really vim-specific
-if test "$FILENAME" = "-all"
+if [ "$FILENAME" = "-all" ]
 then
 	cvscommit -vimdiff
 	exit
@@ -29,7 +37,8 @@ fi
 
 # WHICHREV="Working"
 WHICHREV="Repository"
-if test "$REV" = ""; then
+if [ "$REV" = "" ]
+then
 	REV=`cvs status "$FILENAME" |
 			grep "$WHICHREV revision:" |
 			after "$WHICHREV revision:" |
@@ -43,7 +52,8 @@ fi
 CKOUT=`jgettmp "$FILENAME-ver-$REV"`
 cvs -q update -p -r "$REV" "$FILENAME" > "$CKOUT"
 
-if test ! "$REV2" = ""; then
+if [ ! "$REV2" = "" ]
+then
 	CKOUT2=`jgettmp "$FILENAME-ver-$REV2"`
 	# Check out the other revision requested
 	cvs -q update -p -r "$REV2" "$FILENAME" > "$CKOUT2"
@@ -52,12 +62,13 @@ if test ! "$REV2" = ""; then
 	CKOUT="$CKOUT2"
 fi
 
-if test "$DIFFCOM" = ""; then
+if [ "$DIFFCOM" = "" ]
+then
 	DIFFCOM="vimdiff"
 	# DIFFCOM="vimdiff -c"
 	# DIFFCOMARG=":syn off
 # :set wrap"
-	if test "`jwhich $DIFFCOM`" = ""
+	if [ "`jwhich $DIFFCOM`" = "" ]
 	then
 		export DIFFCOM=simplediff
 		simplediff () {
