@@ -1,6 +1,6 @@
 #!/bin/sh
 # Recommended usage:
-# higrep grepstring grepopts grepfiles
+# higrep <grepstring> [ <grepopts> ... ] [ <grepfiles> ... ]
 # -E to grep will not be passed to sed, but sed does regex (although there are some differences)
 
 if test "$*" = ""; then

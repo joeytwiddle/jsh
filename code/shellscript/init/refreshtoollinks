@@ -5,16 +5,8 @@ echo "Removing existing links"
 "rm" -f $JPATH/tools/*
 
 echo "Collecting"
-files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | grep -v "/.ignore/" | grep -v "/CVS/"`
-files="$files "`find $JPATH/code/java -name "*.sh" | grep -v "/CVS/"`
-# for x in $files; do
-  #y=`echo $x | sed "s/\.sh$//"`
-  #if [ ! -e $y ]; then
-  #  ln -sf $x $y
-  #fi
-#  echo -e "$x ... \n"
-#   ln -sf $x $JPATH/tools/
-# done
+files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
+files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
 echo "Linking"
 ln -sf $files $JPATH/tools/
 
