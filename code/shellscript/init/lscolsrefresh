@@ -1,8 +1,11 @@
-if test ! -f $HOME/.dircolors; then
-  echo "I am generating a default colour list in $HOME/.dircolors"
-  echo "Change it if you want funkier colours"
-  dircolors -p > $HOME/.dircolors
+FILE="$HOME/.dircolors"
+if test ! -f "$FILE"; then
+	if test -f "$JPATH/code/home/.dircolors"; then
+		FILE="$JPATH/code/home/.dircolors"
+	else
+		echo "I am generating a default colour list in $HOME/.dircolors"
+		echo "Change it if you want funkier colours"
+		dircolors -p > "$FILE"
+	fi
 fi
-dircolors $HOME/.dircolors > $HOME/.lscols
-. $HOME/.lscols
-export LS_COLORS
+dircolors "$FILE" > $HOME/.lscols

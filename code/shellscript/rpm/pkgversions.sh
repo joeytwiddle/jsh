@@ -1,4 +1,4 @@
-apt-cache showpkg "$1" |
+apt-cache showpkg "$1" 2>/dev/null |
 drop 2 |
 tostring "" |
 sed 's+^\(.*\)(/var/lib/dpkg/status)\(.*\)$+\1\2 '`cursecyan`'[Installed]+' |
