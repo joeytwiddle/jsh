@@ -2,11 +2,6 @@
 # but there is a nice new version with extension po which does
 # using sort...
 
-# FILE=`jgettmp remdups`
-
-# cat > "$FILE"
-
-# cat "$FILE" |
 cat "$@" |
     sort |
     while read X; do
@@ -15,33 +10,3 @@ cat "$@" |
             Y="$X"
         fi
     done
-
-# jdeltmp "$FILE"
-
-
-
-# Doesn't work
-
-# # LINESIN=`cat $* | awk ' { printf("\""$_"\"\n"); } '`
-# LINESIN=`cat "$@"`
-# echo "$LINESIN"
-# # exit 1
-# LINES=""
-# echo "$LINESIN" | while read LINE; do
-  # echo "$LINES" | while read X; do
-    # # echo 'Comparing "'$LINE'" "'$X'"'
-    # GOT=""
-    # if [ "$LINE" = "$X" ]; then
-      # GOT="true"
-      # # echo "************* ALREADY GOT"
-    # fi
-  # done
-  # if [ ! "$GOT" = "true" ]; then
-    # LINES="$LINES$LINE
-# "
-    # # echo "Adding $LINE"
-  # else
-    # # echo "Already got $LINE"
-  # fi
-# done
-# echo "$LINES"

@@ -10,9 +10,7 @@ cat "$@" |
       # Ugh these three lines are a hack/fix for keepduplicatelines's gap mode!
       if test "$LINE" = ""; then
         echo "$N "
-      elif
-      # if
-      test ! "$LINE" = "$LAST"; then
+      elif test ! "$LINE" = "$LAST"; then
         echo "$N $LINE"
         LAST="$LINE"
       fi

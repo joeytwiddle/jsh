@@ -3,4 +3,4 @@
 grep "$@" |
   # sed "s|^|"`cursecyan``cursebold`"|;s|:|"`cursegrey`":$TABCHAR|" |
   sed "s|^|"`cursecyan`"|;s|:|"`cursegrey`":$TABCHAR|" |
-  highlight $1
+  highlight "$1"

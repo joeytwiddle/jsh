@@ -22,6 +22,8 @@
 # Only problem now is with substring matches.
 # We can't do a ^...$ match because we might be taking columns.
 
+# OK now we fork depending on cols or not, so problem will only occur if using cols
+
 FILE=`jgettmp keepduplicatelines`
 
 export GAP=
@@ -56,12 +58,18 @@ cat > "$FILE"
       if test "$GAP"; then
         echo
         # echo "$X ------------------"
-        echo "$X"
-		  # Er what is this sed for
-        grep "$X" "$FILE" | sed "s+$X++"
-      else
-        grep "$X" "$FILE" # Yes this one!
-      fi
+        # echo "$X"
+		  # # Er what is this sed for?
+        # grep "$X" "$FILE" | sed "s+$X++"
+	  fi
+      # else
+			# Only do grep if previously stripped by columns
+			if test "x$@" = "x"; then
+				echo "$X"
+			else
+				grep "$X" "$FILE" # The dodgy grep
+			fi
+      # fi
     fi
   done |
   removeduplicatelinespo # These can occur if the kept column matches an irrelevent line (eg. subset or irrelevent column)
