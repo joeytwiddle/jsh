@@ -1,20 +1,32 @@
+## Functions:
+
+function doing () {
+	echo "`cursecyan`$*`cursenorm`"
+}	
+
+function good () {
+	echo "`cursegreen;cursebold`$*`cursenorm`"
+}
+
+function bad () {
+	echo "`cursered;cursebold`$*`cursenorm`" >&2
+	FAILED=true
+}
+
 function checkWebPageForRegexp () {
-	echo "`curseyellow`Checking URL $1 for string \"$2\" ...`cursenorm`"
+	doing "Checking URL $1 for string \"$2\" ..."
 	OUTPUT=`
 		wget -nv -O - "$1" & wgpid=$!
 		sleep 5 ; kill $wgpid 2>/dev/null
 	`
 	if echo "$OUTPUT" | grep "$2" > /dev/null
-	then
-		echo "`cursegreen;cursebold`OK: Found \"$2\" in \"$1\" ok.`cursenorm`"
-	else
-		echo "`cursered;cursebold`FAILED to find \"$2\" in \"$1\"!`cursenorm`" >&2
-		FAILED=true
+	then good "`cursegreen;cursebold`OK: Found \"$2\" in \"$1\" ok.`cursenorm`"
+	else bad "FAILED to find \"$2\" in \"$1\"!"
 	fi
 }
 
 function askPortExpect () {
-	echo "`curseyellow`Connecting to $1:$2 sending \"$3\" hoping to get \"$4\" ...`cursenorm`"
+	doing "Connecting to $1:$2 sending \"$3\" hoping to get \"$4\" ..."
 	NC=`which nc 2>/dev/null`
 	[ ! "$NC" ] && echo "No netcat: using telnet" && NC=`which telnet`
 	RESPONSE=`
@@ -23,13 +35,14 @@ function askPortExpect () {
 		sleep 5 ; kill $ncpid 2>/dev/null
 	`
 	if echo "$RESPONSE" | grep "$4"
-	then
-		echo "`cursegreen;cursebold`OK: Got response containing \"$4\" from $1:$2.`cursenorm`"
-	else
-		echo "`cursered;cursebold`FAILED to get \"$4\" from $1:$2!`cursenorm`" >&2
-		FAILED=true
+	then good "OK: Got response containing \"$4\" from $1:$2."
+	else bad "FAILED to get \"$4\" from $1:$2!" >&2
 	fi
 }
+
+
+
+## Perform tests:
 
 FAILED=false
 
@@ -41,9 +54,11 @@ askPortExpect hwi.ath.cx 22 whatever "OpenSSH"
 
 echo
 
-askPortExpect hwi.ath.cx 222 whatever "OpenSSH"
+## This one need only be tested if Hwi is runnign Gentoo, otherwise it's allowed to fail.
+# askPortExpect hwi.ath.cx 222 whatever "OpenSSH"
+# 
+# echo
 
-echo
 checkWebPageForRegexp "http://hwi.ath.cx/" "How to contact Joey"
 
 echo
@@ -54,4 +69,19 @@ echo
 
 checkWebPageForRegexp "http://generation-online.org/" "Generation"
 
-[ "$FAILED" = false ] || exit 99
+echo
+
+doing "Checking hwi's port 5432 (postgres) is firewalled."
+nmap -p 5432 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+
+echo
+
+## Report result:
+
+if [ "$FAILED" = false ]
+then
+	good "All tests passed.  =)"
+else
+	bad "There were failures.  Please fix or report.  (But first please run \"updatejsh\" to ensure you have the latest tests.)"
+	exit 99
+fi

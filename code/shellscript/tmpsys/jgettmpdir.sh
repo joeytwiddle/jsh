@@ -1,3 +1,4 @@
+# jsh-ext-depends: dirname
 # jsh-depends: jdeltmp jgettmp
 # jsh-depends-ignore: jsh
 

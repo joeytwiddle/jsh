@@ -1,4 +1,4 @@
-# jsh-depends: startswith
+# jsh-depends: startswith jshwarn
 TOPTMP="$JPATH/tmp"
 
 # if test $JTMPLOCAL && test -w .; then

@@ -1,3 +1,5 @@
+# jsh-ext-depends-ignore: find env from file update
+# jsh-ext-depends: sed apt-cache apt-get dpkg column
 ## TODO: rename apt-list
 ## TODO: make "apt-list" return help, and use "apt-list generate" to make the big list
 
