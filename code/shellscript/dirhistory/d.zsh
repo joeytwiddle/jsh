@@ -72,7 +72,7 @@ else
 		sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`curseyellow`"\1"`curseyellow`"\2"`cursenorm`"+"
 	fi
 
-fi > /dev/stderr
+fi >&2
 
 xttitle "$SHOWUSER$SHOWHOST$PWD %% "
 
