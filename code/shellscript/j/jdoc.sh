@@ -13,9 +13,9 @@ else
   	# more $*
   	( echo "::::::::::::::"
 	  	# echo "$1 -> "`justlinks "$*"`
-	  	echo `justlinks "$COM"`
+	  	echo `justlinks "$LINKTOCOM"`
 	  	echo "::::::::::::::"
-	  	cat $COM
+	  	cat $LINKTOCOM
 		) | more
 	else
 		jman $*

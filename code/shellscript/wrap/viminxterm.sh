@@ -1,4 +1,5 @@
-#!/usr/local/bin/zsh
+#!/bin/sh
+# #!/usr/local/bin/zsh
 
 jwhich inj vim > /dev/null
 if test ! "$?" = "0"; then
@@ -21,7 +22,10 @@ if test -f "$FILE"; then
   if test $LINES -lt $ROWS; then
     # ROWS=$[$LINES+2];
     # ROWS=$(($LINES+2));
-    ROWS=$((($LINES+2)*1.1));
+echo "A"
+    # ROWS=$(($(($LINES+2))*1.1));
+    ROWS=`eval $LINES+2`;
+echo "B $ROWS"
   fi
   
   # Determine optimal width
@@ -29,7 +33,7 @@ if test -f "$FILE"; then
   # echo "cols=$LONGEST"
   # LONGEST=$[$LONGEST+1]; # THIS DOESN'T WORK WITH sh ON Solaris!
   # LONGEST=$(($LONGEST+2));
-  LONGEST=$((($LONGEST+2)*1.1));
+  LONGEST=$(($(($LONGEST+2))*1.1));
   #echo "$LONGEST"
   
   # Determine optimal distribution
