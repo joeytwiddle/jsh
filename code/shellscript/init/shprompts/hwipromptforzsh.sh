@@ -37,7 +37,7 @@ case `hostname` in
 esac
 
 if test "$TERM" = screen
-then export PROMPT="[screen] $PROMPT"
+then export PROMPT="[screen$WINDOW] $PROMPT"
 fi
 
 ## for sh -x debugging

@@ -49,8 +49,8 @@ then
 fi
 
 if test "x$JWATCHCOMPCOM" = "x"; then
-  # JWATCHCOMPCOM="monitorpscompcom -oneway"
-  JWATCHCOMPCOM="monitorpscompcom"
+  # JWATCHCOMPCOM="jwatchcomp -oneway"
+  JWATCHCOMPCOM="jwatchcomp"
 fi
 
 eval "$METHOD" > $NEW

@@ -1,5 +1,7 @@
 ### remotediff and rsyncdiff are currently stand-alone =)
 
+## Other dependencies: dd,sed,diff,cksum,sort,column,vim,ssh and jsh:jfcsh,cksum,vimdiff
+
 rsyncdiffdoc () {
 cat << !
 rsyncdiff - a special diff command for remotediff which lets you edit a set of recommended file transfers and then performs them =)

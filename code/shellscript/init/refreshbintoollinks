@@ -6,7 +6,7 @@ exit 0
 ## This means all $JPATH/bin should move to $HOME/bin ok?
 
 ## WARNING:
-## If you re-enable it, the `jwhich jfc` check used by monitorpscompcom will fail
+## If you re-enable it, the `jwhich jfc` check used by jwatchcomp will fail
 
 cd "$JPATH/tools/"
 # "rm" *

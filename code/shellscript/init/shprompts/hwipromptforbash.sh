@@ -46,7 +46,7 @@ esac
 # PS1="(\h \t \u) \w/ "
 
 if test "$TERM" = screen
-then PS1="[screen] $PS1"
+then PS1="[screen$WINDOW] $PS1"
 fi
 
 export PS1

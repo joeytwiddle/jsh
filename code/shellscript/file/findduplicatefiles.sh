@@ -1,6 +1,14 @@
 ## WISHLIST:
 # - order duplicates by least number of /s to bring us closer to automatic removal choice
 
+readgroup () {
+	while read LINE
+	do
+		test ! $LINE && break
+		echo "$LINE" >&2
+	done
+}
+
 debug () {
 	# echo "$*" >&2
 	noop
@@ -51,7 +59,7 @@ then
 	## Faster, because initially extracts duplicated filenames
 	## If only two same-named files are grouped, they could be cmp-ed rather than hashed.
 	find $WHERE -type f |
-	sed "s+.*/++" |
+	afterlast '/' |
 	# sed "s+\(.*\)/\(.*\)+\2 \1/\2+" |  ## More similar to other method (wouldn't need the inner find =) but would have a problem with spaced filenames
 	keepduplicatelines |
 	while read X
@@ -72,9 +80,10 @@ else
 
 	## Whatever method we use (other than -samename), we first group by filesize.
 	## This is different from the -filesize option which matches on filesize!
+	## If we replace %s with <filename> then we can do -samename in one method =)
 	find $WHERE -type f -printf "%s %p\n" |
 	keepduplicatelines 1 |
-	afterfirst " " |
+	dropcols 1 |
 	while read X
 	do
 		debug "Hashing $X"
@@ -85,8 +94,15 @@ else
 fi |
 
 # sed 's/[a-zA-Z0-9]* [0-9]* \(.*\)/del "\1"/'
-dropcols 1 2 | sed 's+^.+del "+;s+.$+"+'
+# dropcols 1 2 | sed 's+^.+del "+;s+.$+"+'
 # cat
+
+while true
+do
+	readgroup
+	echo "GROUP:"
+	echo "$GROUP"
+done
 
 exit
 

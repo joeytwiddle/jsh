@@ -2,7 +2,7 @@ if test ! "$COLUMNS"
 then
 	COLUMNS=80
 	error "Please export COLUMNS."
-else COLUMNS=`expr $COLUMNS - 8`
+else COLUMNS=`expr $COLUMNS - 8` ## fix hack
 fi
 
 if test "$1" = "-infg"

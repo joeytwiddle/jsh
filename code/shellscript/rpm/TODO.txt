@@ -1,0 +1,3 @@
+this directory should be called pkg or something because it does debs, rpms and urpmi-confs
+also, it would be nice to expose a flavour-independent interface
+to package management

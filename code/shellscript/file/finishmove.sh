@@ -20,7 +20,7 @@ SRC=`absolutepath "$SRC"`
 DEST=`absolutepath "$DEST"`
 
 cd "$SRC"
-find . -type f |
+find . -not -type d |
 while read FILE
 do
 	DIR=`dirname "$FILE"`
@@ -38,6 +38,6 @@ do
 		fi
 	else
 		echo "Moving $FILE"
-		mv -i "$FILE" "$DESTFILE"
+		mv "$FILE" "$DESTFILE"
 	fi
 done

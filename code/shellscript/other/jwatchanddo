@@ -1,7 +1,7 @@
 WATCHCOMMAND="$1"
 DOCOMMAND="$2"
 
-export JWATCHCOMPCOM="monitorpscompcom -oneway"
+export JWATCHCOMPCOM="jwatchcomp -oneway"
 
 jwatch -quiet "$WATCHCOMMAND" |
 
