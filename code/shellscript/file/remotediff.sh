@@ -10,6 +10,8 @@
 
 ## TODO: we should sort by filename (column 2) on the default cksum diffing, rather than sorting by cksum.
 
+## TODO: add "ignore" command which will drop the filepath into the srcdir's .rsyncdiff.ignore file, and add approriate conditions to the find fn. when it is next run
+
 rsyncdiffdoc () {
 cat << !
 rsyncdiff - a special diff command for remotediff which lets you edit a set of recommended file transfers and then performs them =)
@@ -38,20 +40,28 @@ fi
 rsyncdiff () {
 
 	EDITFILE=`jgettmp remotediff.edit`
-	jfcsh "$1" "$2" > "$1.only"
+	jfcsh "$1" "$2" > "$1.only" # could factor in below if not used
 	jfcsh "$2" "$1" > "$2.only"
 	(
-		cat "$1.only" |
-		while read X; do grep "$X$" "$1.longer"; done | ## TODO: assert exactly one match per X
-		sed "s/^/send  /"
-		cat "$2.only" |
-		while read X; do grep "$X$" "$2.longer"; done |
-		sed "s/^/bring /"
-	) |
-	## Sort by date, then sort by path; so recent file should appear above the same older file:
-	## Took out -s "stabilise sort" from second sort for tao
-	sort -k 5 -k 2 |
-	column -t -s '   ' > "$EDITFILE"
+		echo "# This screen lists differences between the filestructure of the two directories."
+		echo "# Delete actions (press dd) you do not wish to be taken, or change actions to one of:"
+		echo "#   bring, send, diff, del, delremote, ignore"
+		echo "# Conflicting files are listed with the most recent first; one of the pair should be deleted."
+		## TODO: compress conflicts into one command defaulting either to diff, bringow, or sendow.
+		## TODO: if rsync remembers when it was last run, or even the file details of when it was last run, it can tell whether one of the two files in a conflict has been unmodified, and can therefore safely default to be overwritten.
+		(
+			cat "$1.only" |
+			while read X; do grep "$X$" "$1.longer"; done | ## TODO: assert exactly one match per X
+			sed "s/^/send  /"
+			cat "$2.only" |
+			while read X; do grep "$X$" "$2.longer"; done |
+			sed "s/^/bring /"
+		) |
+		## Sort by date, then sort by path; so recent file should appear above the same older file:
+		## Took out -s "stabilise sort" from second sort for tao
+		sort -k 5 -k 2 |
+		column -t -s '   '
+	) > "$EDITFILE"
 
 	vi "$EDITFILE"
 
@@ -62,20 +72,34 @@ rsyncdiff () {
 
 	echo "!!WARNING!! Last time I looked this list of files was completely not what I'd given it.  Hopefully it was just a screen error, but be sure to check the following list."
 
-	SENDCMD="
-    cd \"$LOCAL\"
-    tar cz "`
-        cat "$EDITFILE" | grep "^send  " |
-        sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD+\"+;s+$+\" +" |
-        tr -d '\n'
-    `" |
-    ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar xz\"
-	"
+	TOSEND=`
+		cat "$EDITFILE" | grep "^send  " |
+		sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD++"
+	`
 
-	echo "Hit <Enter> to send files with: $SENDCMD"
-	read OK
+	if [ ! "$TOSEND" ]
+	then
 
-	eval "$SENDCMD"
+		echo "No files to send."
+
+	else
+
+		SENDCMD="
+			cd \"$LOCAL\"
+			tar cz "`
+					echo "$TOSEND"
+					sed "s+^+\"+;s+$+\" +" |
+					tr -d '\n'
+			`" |
+			ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar xz\"
+		"
+
+		echo "Hit <Enter> to send files with: $SENDCMD"
+		read OK
+
+		eval "$SENDCMD"
+
+	fi
 
 	## Send local files
 	# echo "[rsyncdiff] sending files to $RHOST" >&2
@@ -96,29 +120,42 @@ rsyncdiff () {
 		# done
 	# '
 
-	EXTRACTDIR="`echo "$LOCAL" | sed 's+[/]*$++'`-incoming"
-	while [ -e "$EXTRACTDIR" ]
-	do EXTRACTDIR="$EXTRACTDIR"_
-	done
+	TOBRING=`
+		cat "$EDITFILE" | grep "^\(bring\|diff\) " |
+		sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD++" |
+	`
 
-	mkdir -p "$EXTRACTDIR" || exit 1
+	if [ ! "$TOBRING" ]
+	then
 
-	## TODO: factor out the cat $EDITFILE bit so we can check if its empty and skip if so (same for sending above)
+		echo "No files to bring."
 
-	BRINGCMD="
-    cd \"$EXTRACTDIR\"
-    ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar cz "`
-        cat "$EDITFILE" | grep "^\(bring\|diff\) " |
-        sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD+\\\\\\\\\"+;s+$+\\\\\\\\\" +" |
-        tr -d '\n'
-    `"\" |
-    tar xz
-	"
+	else
 
-	echo "Hit <Enter> to bring files with: $BRINGCMD"
-	read OK
+		EXTRACTDIR="`echo "$LOCAL" | sed 's+[/]*$++'`-incoming"
+		while [ -e "$EXTRACTDIR" ]
+		do EXTRACTDIR="$EXTRACTDIR"_
+		done
 
-	eval "$BRINGCMD"
+		mkdir -p "$EXTRACTDIR" || exit 1
+
+		## TODO: factor out the cat $EDITFILE bit so we can check if its empty and skip if so (same for sending above)
+
+		BRINGCMD="
+			cd \"$EXTRACTDIR\"
+			ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar cz "`
+					sed "s+^+\\\\\\\\\"+;s+$+\\\\\\\\\" +" |
+					tr -d '\n'
+			`"\" |
+			tar xz
+		"
+
+		echo "Hit <Enter> to bring files with: $BRINGCMD"
+		read OK
+
+		eval "$BRINGCMD"
+
+	fi
 
 	# ## Bring remote files and files for diffing
 	# echo "[rsyncdiff] bringing files from $RHOST" >&2
