@@ -7,25 +7,36 @@ then
 	exit 1
 fi
 
+if test "$1" = "-compare" ## Compares old and new methods
+then
+	cd $JPATH/tools
+	refreshtoollinks
+	'ls' -l | takecols 9 10 11 | sort > /tmp/BBB
+	refreshtoollinks -old
+	'ls' -l | takecols 9 10 11 | sort > /tmp/GGG
+	vimdiff /tmp/BBB /tmp/GGG
+	exit
+fi
+
 echo "Clearing existing links"
 "rm" -f $JPATH/tools/*
 
-if test ! "$1" = "-old" && test "ifonly" = "itworked"
+if test ! "$1" = "-old" ## It does seem to work now (a bit better than the original!) =) && test "ifonly" = "itworked"
 then
 
 	## Faster
 
-	## Main (only) problem is that d.zsh gets ln'ed to d not d.zsh
-
 	echo "Linking"
 	(
 	find $JPATH/code/shellscript \
-		  \( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" \) ! -type d
+		  \( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) ! -type d
 	test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	/bin/grep -v "/.ignore/" |
 	/bin/grep -v "/CVS/" |
-	sed 's+\(.*\)/\([^\.]*\)\(\..*\|\)+ln -sf "\1/\2\3" "$JPATH/tools/\2"+' |
+	## Problem with next is that d.zsh gets ln'ed to d not d.zsh
+	# sed 's+\(.*\)/\([^\.]*\)\(\..*\|\)+ln -sf "\1/\2\3" "$JPATH/tools/\2"+' |
+	sed 's+\(.*\)/\([^\.]*\)\(\(\.sh\|\.hs\)\|\(.*\)\)$+ln -s "\1/\2\4\5" "$JPATH/tools/\2\5"+' |
 	# cat
 	sh
 
