@@ -18,7 +18,10 @@ PID=$$
 # SEDSTR='s+\('"$@"'\)+'`curseyellow`"$@"`cursenorm`'+g'
 # --cols 65535 
 env COLUMNS=65535 myps -A |
-	grep -v "grep" | grep "$@" | grep -v " $PID " | grep -v "findjob" |
+	grep -v "grep" | grep "$@" |
+	## TODO: This and the PPID in myps hide valid other jobs belonging to this shell
+	grep -v " $PID " |
+	grep -v "findjob" |
 	# Highlighting and grep to hide it
 	highlight "$@" | egrep -v "sed s#.*$@"
 	# if test $JM_DOES_COLOUR; then

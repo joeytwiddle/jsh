@@ -1,3 +1,6 @@
+## For in files under working directory, compares to same file in path provided.
+## If files match, displays command to remove it.
+
 echo "# Dangers:"
 echo "# Are you sure the files you are comparing aren't symlinks to themselves?!"
 echo "# It could be a parent directory causing the problem of course."
@@ -35,17 +38,17 @@ find . -type f | while read X; do
           rm "$X"
         fi
       else
-        echo "# *** ERROR:  $X : failed on if cmp" >&2
+        echo "# `cursered;cursebold`*** ERROR:  $X : failed on if cmp`cursenorm`" >&2
       fi
     else
-      echo "# *** ERROR: $X : err > 0 but output: $CMPRES" >&2
+      echo "# `cursered;cursebold`*** ERROR: $X : err > 0 but output: $CMPRES`cursenorm`" >&2
     fi
   else
     if test "$CMPERR" = "0"; then
-      echo "# *** ERROR: $X : err=0 but got output: $CMPRES" >&2
+      echo "# `cursered;cursebold`*** ERROR: $X : err=0 but got output: $CMPRES`cursenorm`" >&2
     else
       NICECMPRES=`echo "$CMPRES" | tr "\n" "\\n" | after "$X"`
-      echo "# $X is unique ($NICECMPRES)"
+      echo "# `cursemagenta`$X is unique ($NICECMPRES)`cursenorm`"
     fi
   fi
 done
