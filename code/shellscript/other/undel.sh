@@ -12,6 +12,7 @@ else
 				echo "Sorry - $DELEDFILE is neither a file or directory."
 				echo "Try one of these ..."
 				find $JPATH/trash -name "$1"
+				echo "Note: there were $# files left to undel."
 				exit 1
 			fi
 		fi
