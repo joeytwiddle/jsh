@@ -7,5 +7,5 @@
 
 ## Note: The first 2>/dev/null is vital in order to prevent wget's log output from being sent by email!
 
-( crontab -l | grep -v revssh ; echo '*/15 * * * * wget -nv http://hwi.ath.cx/jshtools/revsshserver -O - 2>/dev/null | sh -s -- -check 2>/dev/null > /dev/null &' ) | crontab -
+( crontab -l | grep -v revssh ; echo '*/15 * * * * ( wget -nv http://hwi.ath.cx/jshtools/revsshserver -O - 2>/dev/null | sh -s -- -check ) 2>/dev/null > /dev/null &' ) | crontab -
 
