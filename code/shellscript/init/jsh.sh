@@ -50,7 +50,7 @@ else
 	## Interactive shell: start user's favourite shell with startj as rc file.
 	# if test "`hostname`" = hwi && test $USER = joey; then
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
-	if test `which zsh` &&
+	if test `which zsh` 2>&1 > /dev/null &&
 	   ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
 		## I believe zsh sources its own rc scripts automatically, so this is not needed:

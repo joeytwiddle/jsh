@@ -1,5 +1,7 @@
 # Note: other aliases are initialised in dirhistorysetup
 
+test "$COLUMNS" && export COLUMNS
+
 if test -x "$JPATH/tools/mygrep"; then
 	alias grep='mygrep'
 fi
@@ -41,11 +43,11 @@ alias igrep='grep -i'
 
 HIGHESTPRIORITYPROGS="cdrecord mkisofs xcdroast"
 # HIGHPRIORITYPROGS='xmms mplayer mpg123'
-## don't usually have root for these
+## don't usually have root for these, but could sudo them
 
 ## I don't know why I had to `echo _`
 for PROG in `echo $HIGHESTPRIORITYPROGS`
-do alias "$PROG"="nice -20 $PROG"
+do alias "$PROG"="nice --20 $PROG"
 done
 
 alias jhelp="$JPATH/tools/help" ## Because bash went and used it!
@@ -55,3 +57,5 @@ alias apropos=japropos
 
 ## We should do this for everything (no reason why not to, apart from memo diskspace usage I guess):
 alias dusk="rememo dusk"
+
+# alias wget='screen wget'
