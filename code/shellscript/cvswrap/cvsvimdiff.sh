@@ -38,7 +38,16 @@ if test ! "$REV2" = ""; then
 	CKOUT="$CKOUT2"
 fi
 
-vimdiff "$FILENAME" "$CKOUT"
+if test "$DIFFCOM" = ""; then
+	DIFFCOM="vimdiff"
+	# DIFFCOM="vimdiff -c"
+	# DIFFCOMARG=":syn off
+# :set wrap"
+fi
+
+$DIFFCOM "$FILENAME" "$CKOUT"
+# $DIFFCOM "$DIFFCOMARG" "$FILENAME" "$CKOUT"
+# -c ':syn off<Enter>:set wrap<Enter>'
 
 # jdeltmp "$CKOUT"
 # haven't handle'd second case, don't want to delete original file!!

@@ -1,1 +1,1 @@
-whitewin -geometry 80x50 -e info "$@"
+whitewin -geometry 80x50 -title "info $*" -e info "$@"

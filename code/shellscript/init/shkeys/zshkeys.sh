@@ -66,13 +66,26 @@ bindkey -s "^v" "^f^x"
 # bindkey "^v" kill-word
 
 # The lot, spanning zx sdfg vb
+# bindkey "^z" backward-kill-word
+# bindkey "^x" vi-backward-kill-word
+# bindkey "^s" backward-word
 # bindkey "^d" vi-backward-word
 # bindkey "^f" vi-forward-word
-# bindkey "^s" backward-word
 # bindkey "^g" forward-word
-# bindkey "^x" vi-backward-kill-word
 # bindkey "^v" vi-kill-word
-# bindkey "^z" backward-kill-word
 # bindkey "^b" kill-word
+
+# The lot, spanning er df zx vb (w instead of z?)
+bindkey "^d" backward-word
+bindkey "^f" forward-word
+bindkey "^e" vi-backward-word
+bindkey "^r" vi-forward-word
+bindkey "^x" backward-kill-word
+bindkey "^v" kill-word
+bindkey "^z" vi-backward-kill-word
+bindkey "^w" vi-backward-kill-word
+bindkey "^b" vi-kill-word
+# and since we replace e:
+bindkey "^g" end-of-line
 
 bindkey "^u" vi-undo-change

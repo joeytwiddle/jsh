@@ -1,4 +1,4 @@
-xterm -e "$@"
+xterm -title "$*" -e "$@"
 
 # FAVOURITE_XTERMS="xterm gnome-terminal konsole"
 # 

@@ -1,6 +1,7 @@
 #!/bin/sh
 
-cd $JPATH/wallpapers
+# cd $JPATH/wallpapers
+cd /stuff/wallpapers
 
 # find . -type f -and -not -name "*.html" > tmp.txt
 export INBADDIR=false
@@ -14,7 +15,8 @@ FILE=`find . -type f -and -not -name "*.html" | egrep -v "/tiles/|/small/" | egr
 # echo "$FILE"
 
 if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null; then
-  xv -root -rmode 5 -maxpect -quit "$FILE" &
+  echo "$PWD$FILE"
+  xv -root -rmode 5 -maxpect -quit "$FILE" 1>&2 &
   ln -sf "$PWD/$FILE" "$JPATH/background1.jpg" &
 else
   echo "Wallpaper $FILE does not exist or is not an image!"

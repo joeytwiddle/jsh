@@ -14,7 +14,7 @@ find . -type d | grep -v "/CVS/" | grep -v "/CVS$" |
 	while read DIR; do
 		cvs status "$DIR" 2>/dev/null > /dev/null
 		if test ! "$?" = 0; then
-			echo "# "`curseyellow`"Adding unknown directory $DIR/"`cursegrey`
+			# echo "# "`curseyellow`"Adding unknown directory $DIR/"`cursegrey`
 			echo "cvs add $DIR"
 		fi
 	done
@@ -30,7 +30,8 @@ while read FILE; do
 			else
 				ACTION="commit"
 			fi
-			echo "# "`curseyellow`"$ACTION""ing $FILE because "`cursered`"$STATUS"`cursegrey`
+			# echo "# "`curseyellow`"$ACTION""ing $FILE because "`cursemagenta`"$STATUS"`cursegrey`
+			echo "# "`cursemagenta`"$STATUS"`cursegrey`
 			echo "cvs add \"$FILE\""
 		fi
 	done
