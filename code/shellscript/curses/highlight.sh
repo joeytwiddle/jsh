@@ -1,5 +1,6 @@
 if test "$1" = ""; then
   echo "highlight [-bold] <string> [<color>]"
+  echo "  Note: the search <string> will be fed into sed, so may be in sed format."
   exit 1
 fi
 

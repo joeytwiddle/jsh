@@ -1,6 +1,7 @@
 #!/bin/zsh
 
-# Searches current cvs directory and looks for directories and files which have not yet been added to the local repository.
+# Searches current cvs directory and looks for directories and files
+# which have not yet been added to the _local_ repository.
 
 REPOS="$CVSROOT/"`cat CVS/Repository`
 

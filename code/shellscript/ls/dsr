@@ -1,1 +1,3 @@
-ls -hlrSF --color $@
+# Breaks on Unix
+# ls -hlrSF --color $@
+ls -lF "$@" | sort -n -k 5
