@@ -44,6 +44,7 @@ do
 			DIFFFILE=`jgettmp diffgraph___"$X"___"$Y"`
 			$DIFFCOM "$X" "$Y" > "$DIFFFILE"
 			RESULTSIZE=`filesize "$DIFFFILE"`
+			jdeltmp $DIFFFILE
 			## See if size beats or matches best so far:
 			test "$RESULTSIZE" = "$BESTFORXSIZE" &&
 			BESTFORX="$BESTFORX$NL$Y" ||
