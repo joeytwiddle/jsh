@@ -61,7 +61,8 @@ test -d "$JPATH" &&
 ## This pause is only useful if this script has been piped through wget.
 sleep 1
 
-export CVSROOT=":pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
+CVSROOT=":pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
+export CVSROOT
 
 ## Make initial CVS connection
 if [ "$HWIUSER" = anonymous ]
