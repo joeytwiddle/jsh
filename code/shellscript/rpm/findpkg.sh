@@ -1,21 +1,26 @@
 if test "$1" = ""; then
-  echo "findpkg [ -all ] [ -web ] <part-of-package-name>"
+  echo "findpkg [-all] [-web] [-big] <part-of-package-name>"
   exit 1
 fi
 
 SHOWALL=
 WEBSRCH=
+HEAD=
 while test ! "$2" = ""; do
 	case "$1" in
 		-all)
 			SHOWALL=true
-			;;
+		;;
 		-web)
 			WEBSRCH=true
-			;;
+		;;
+		-big)
+			HEAD="env COLUMNS=184"
+		;;
 		*)
 			echo "$1: invalid argument"
 			exit 1
+		;;
 	esac
 	shift
 done
@@ -35,7 +40,7 @@ if test ! -x "$BIN"; then
 fi
 
 # extend columns in order to show full package name and description
-env COLUMNS=184 $BIN -l "$SEARCHEXP" |
+$HEAD $BIN -l "$SEARCHEXP" |
 if test $SHOWALL; then
   cat
 else
