@@ -5,6 +5,12 @@
 ## BUGS: myps --forest somes does not show all the processes that myps does!
 ##       Not true!  The problem was COLUMNS was too low and forest pushes the process off the side of the screen into oblivion!
 
+if [ "$1" = -kidstoo ]
+then
+	KIDSTOO=true
+	shift
+fi
+
 if [ "$1" = -kill ]
 then
 	KILL=true
@@ -24,7 +30,7 @@ then
 fi
 
 findjob () {
-	env COLUMNS=65535 myps -A |
+	env COLUMNS=65535 myps -novars -A |
 		grep -v "\<grep\>" | grep "$@" |
 		## TODO: This and the PPID in myps hide valid other jobs belonging to this shell
 		##       Presumably that could be solved by starting new shell with #!/bin/sh
@@ -67,7 +73,22 @@ then
 fi
 
 
-findjob "$@" |
+if [ "$KIDSTOO" ]
+then
+
+	findjob "$@" |
+	## Use id of matching processes
+	takecols 3 |
+	while read X
+	do
+		## to search for itself and its children (matching parentid field)
+		sh findjob "\<$X\>"
+		echo
+	done
+else
+	findjob "$@"
+fi |
+
 # Highlighting and grep to hide it
 highlight "$@" | egrep -v "sed s#.*$@"
 

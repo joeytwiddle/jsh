@@ -44,7 +44,7 @@ then
 					highlight "\#\#.*" yellow | ## for comments
 					highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
 					highlight "	" blue | ## tabs
-					sed 's+	+|--+g' | ## tabs
+					# sed 's+	+|--+g' | ## tabs
 					cat
 					echo
 					barline

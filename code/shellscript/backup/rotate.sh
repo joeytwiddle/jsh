@@ -7,7 +7,7 @@
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-	echo "rotate [ -keep ] [ -nozip ] [ -max <num> ] <file>"
+	echo "rotate [ -keep ] [ -nozip ] [ -max <num> ] [ -nodups ] <file>"
 	echo "  will move <file> to <file>.N"
 	echo "  -keep:  will retain the file after rotation (via tmpfile <file>.keep)"
 	echo "  -nozip: will not gzip or tar-up the file or directory before rotation"
@@ -31,6 +31,11 @@ fi
 MAX=
 if [ "$1" = -max ]
 then shift; MAX="$1"; shift
+fi
+
+NODUPS=
+if [ "$1" = -nodups ]
+then NODUPS=true; shift
 fi
 
 FILE="$1"
@@ -65,11 +70,21 @@ fi
 N=0
 while [ -f "$FINALFILE.$N" ]
 do
+	LASTN="$N"
 	N=`expr "$N" + 1`
 done
 
-echo "rotate: mv \"$FINALFILE\" \"$FINALFILE.$N\""
-mv "$FINALFILE" "$FINALFILE.$N"
+if [ "$NODUPS" ] && [ "$LASTN" ] && cmp "$FINALFILE" "$FINALFILE.$LASTN"
+then
+	echo "rotate: skipping backup because files are identical"
+	del "$FINALFILE"
+	## To skip processing of latter section
+	# MAX=
+	N=$LASTN
+else
+	echo "rotate: mv \"$FINALFILE\" \"$FINALFILE.$N\""
+	mv "$FINALFILE" "$FINALFILE.$N"
+fi
 
 if [ "$KEEP" ]
 then mv "$FILE.keep" "$FILE"

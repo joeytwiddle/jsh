@@ -1,5 +1,6 @@
 killall xscreensaver
-OPTS="-vo x11" # -stop_xscreensaver"
+# OPTS="-vo x11" # -stop_xscreensaver"
+OPTS="-vo xv" ## allows me to adjust contrast!
 # OPTS="-vo xv"
 if test "$1" = "-turbo"
 then

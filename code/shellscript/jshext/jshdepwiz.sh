@@ -17,8 +17,11 @@
 
 ## Note: instead of commenting out, the first two could be sourced and checked at runtime.
 
+## Turn off default mode which asks user to resolve new dependencies:
 # export DEPWIZ_NON_INTERACTIVE=true
+## Makes getjshdeps and getextdeps less lazy: they will always check for ext links
 # export DEPWIZ_VIGILANT=true
+## Makes getjshdeps and getextdeps very lazy: they won't check even if the script has no dependency info of that type
 # export DEPWIZ_LAZY=true
 
 ## TODO: error exit if no line, but empty exit if empty line
@@ -109,11 +112,12 @@ function addnewdeps () {
 	do
 		if [ "$DEPWIZ_NON_INTERACTIVE" ]
 		then
-			echo "New dep $DEP not added to $SCRIPT because DEPWIZ_NON_INTERACTIVE." >&2
+			echo "$DEP? " >&2
+			# echo "New dep $DEP not added to $SCRIPT because DEPWIZ_NON_INTERACTIVE." >&2
 		else
 			echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
 			higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
-			echo -n "`curseyellow`jshdepwiz: Do you think this is a real dependency? [Yn] `cursenorm`" >&2
+			echo -n "`curseyellow`jshdepwiz: Do you think `cursered;cursebold`$DEP`curseyellow` is a real `cursemagenta`jsh-$TYPE`curseyellow`? [Yn] `cursenorm`" >&2
 			read USER_SAYS
 			case "$USER_SAYS" in
 				n|N|no|NO|No)

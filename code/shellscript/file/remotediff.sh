@@ -1,3 +1,7 @@
+# jsh-ext-depends-ignore: diff cksum host file time screen
+# jsh-ext-depends: sed tar find sort column ssh
+# jsh-depends: jfcsh debug cksum
+# jsh-depends-ignore: edit jdeltmp jgettmp jdiff screen vimdiff error
 ### remotediff and rsyncdiff are currently stand-alone =) (not true: they use jgettmp!)
 ## and rsyncdiff requires jfcsh locally!
 
@@ -54,7 +58,7 @@ rsyncdiff () {
 			while read X; do grep "$X$" "$1.longer"; done | ## TODO: assert exactly one match per X
 			sed "s/^/send  /"
 			cat "$2.only" |
-			while read X; do grep "$X$" "$2.longer"; done |
+			while read X; do grep "$X$" "$2.longer"; done | ## TODO: these "$X"s need to be escaped, eg. in case the filename contains '['
 			sed "s/^/bring /"
 		) |
 		## Sort by date, then sort by path; so recent file should appear above the same older file:
@@ -275,6 +279,7 @@ CKSUMCOM='
 	while read X; do
 		'"$CKSUMCOMEXT"'
 		cksum "$X"
+		# /home/joey/j/jsh filesize -likecksum "$X"
 		## TODO: fix for dos/unix fs, dont know why it doesnt work
 		# cat "$X" | dos2unix | cksum | tr -d '\n'
 		# echo " $X"

@@ -19,7 +19,7 @@ getreadcount () {
 	takecols 5
 }
 
-MAXDIFF=100
+MAXDIFF=30
 
 for HDN
 do

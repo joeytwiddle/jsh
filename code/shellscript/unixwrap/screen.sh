@@ -24,6 +24,7 @@ else
 	# sleep 1
 	# DEFNAME=`hostname | beforefirst "\."`
 	DEFNAME="$SHORTHOST"
+	[ "$DEFNAME" ] || DEFNAME="$HOST"
 	echo "Type session name to attach or start new (<Enter> defaults to \"$DEFNAME\")."
 	read NAME
 	test "$NAME" || NAME="$DEFNAME"

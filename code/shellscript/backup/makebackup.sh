@@ -12,7 +12,8 @@
 # Paranoid; sensible.
 set -e
 
-if test "$1" = "" || test "$1" = --help; then
+if [ "$1" = "" ] || [ "$1" = --help ]
+then
 cat << !
 
 makebackup [-efficient] <dir/file_to_backup> <storage_dir> [<storage_prefix>]

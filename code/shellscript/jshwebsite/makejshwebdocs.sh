@@ -1,3 +1,11 @@
+## TODO: move deps_todo info next to compile link, where it is relevant meta-context!
+
+DEPENDENCY_DEBUG=2
+## 1 = Shows dependency info in each script's view page
+## 2 = Shows Todo column in index page
+## 3 = Highlights unchecked dependencies in view page
+## 4 = Shows all dependency info in index page
+
 if [ "$1" = -onlydocumented ]
 then ONLYDOCUMENTED=true; shift
 fi
@@ -30,10 +38,21 @@ cat > "$INDEXFILE" << !
 <BODY>
 <TABLE cellpadding='4'>
 <TR bgcolor='#ffe0e0'>
-<TD><B>Script category / name</B></TD>
-<TD><B>Links</B></TD>
-<TD></TD>
-<TD><B>Brief documentation / description</B></TD>
+<TD width="20%"><B>Script category / name</B></TD>
+<!-- <TD><B>Links</B></TD> -->
+<TD><font color="#ffe0e0">(compile)</font></TD> <!-- makes konqueror happy -->
+<!-- <TD><font color="#ffe0e0">(compile)</font></TD> --> <!-- makes konqueror happy -->
+`
+[ $DEPENDENCY_DEBUG -gt 3 ] &&
+	echo "
+<TD width="8%"><B>Jsh</B></TD>
+<TD width="8%"><B>Ext</B></TD>
+<TD width="8%"><B>???</B></TD>
+" ||
+[ $DEPENDENCY_DEBUG -gt 1 ] &&
+	echo "<TD width="8%"><B>deps?</B></TD>"
+`
+<TD width="35%"><B>Documentation / description</B></TD>
 </TR>
 !
 
@@ -62,31 +81,76 @@ do
 	PAGEFILE="$OUTDIR/$SCRIPTPATH.html"
 	mkdir -p `dirname "$PAGEFILE"`
 
+	## Generate page for this script:
+
 	(
 
-		if jdoc -hasdoc "$SCRIPT"
+		# cat "$SCRIPT" | tohtml
+
+		# if jdoc -hasdoc "$SCRIPT"
+		if true
 		then
 
 			echo "<TT>"
-			jdoc showjshtooldoc "$SCRIPT" |
+			memo jdoc showjshtooldoc "$SCRIPT" |
 			striptermchars |
-			tohtml
+			tohtml |
+			sed 's+<P>+<BR>+g' ## <P> tags kill <TT>
 			echo "</TT>"
 
 			echo "<HR>"
 
-		fi
+		fi |
 
-		cat "$SCRIPT" | tohtml
+		(
+
+			if [ $DEPENDENCY_DEBUG -gt 2 ]
+			then
+				export DEPWIZ_NON_INTERACTIVE=true
+				UNRESOLVED=`jshdepwiz gendeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tr '\n' ' '`
+				if [ "$UNRESOLVED" ]
+				then
+					CHANGERE="\<\("`echo "$UNRESOLVED" | sed 's+\?[ ]*+\\\|+g' | sed 's+\\\\|$++'`"\)\>"
+					echo "$CHANGERE" >&2
+					sed "s+$CHANGERE+</TT><font color='red'><B><TT>\1</TT></B></font><TT>+g"
+				else
+					cat
+				fi
+			else
+				cat
+			fi
+
+		)
 
 		echo "<HR>"
 
-		# TODO: List scripts which depend on this one, and scripts which this one depends on.
+		echo "<A name="about">"
 
+		if [ $DEPENDENCY_DEBUG -gt 0 ]
+		then
+			export DEPWIZ_NON_INTERACTIVE=true
+			## Detailed version; re-enable when DHTML/Javascript "hide column" feature available
+			echo "Jsh dependencies: "
+			jshdepwiz getjshdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for"
+			echo "<BR>"
+			echo "External dependencies: "
+			jshdepwiz getextdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for"
+			echo "<BR>"
+			echo "Unchecked dependencies: <font color='red'><B><TT>"
+			jshdepwiz gendeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for"
+			# echo "<!-- to help the anchor tag: -->"
+			echo "</TT></B></font>"
+			echo "<BR>"
+			echo "&nbsp;"
+			echo "<BR>"
+			echo "&nbsp;"
+		fi
 
 	) |
 
 	htmlpagewrap "jsh script: $SCRIPTPATH" > "$PAGEFILE"
+
+	## Add this script to the index:
 
 	if [ $COLOR = 0 ]
 	then
@@ -98,18 +162,37 @@ do
 	fi
 
 	(
-		echo "$ROW<TD>"
+		echo "$ROW<TD align='left'>"
 		echo "$SCRIPTPATH"
-		echo "</TD><TD>"
+		echo "</TD><TD align='center'>"
 		echo "(<A href=\"$SCRIPTPATH.html\">view</A>)"
-		echo "</TD><TD>"
+		# echo "</TD><TD align='center'>"
 		echo "(<A href=\"http://hwi.ath.cx/cgi-bin/joey/compilejshscript?script=$SCRIPT\">compile</A>)"
+		if [ $DEPENDENCY_DEBUG -gt 1 ]
+		then
+			echo "</TD><TD align='center'>"
+			# export DEPWIZ_VIGILANT=true
+			export DEPWIZ_NON_INTERACTIVE=true
+			if [ $DEPENDENCY_DEBUG -gt 3 ]
+			then
+				## Detailed version; re-enable when DHTML/Javascript "hide column" feature available
+				jshdepwiz getjshdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
+				echo "</TD><TD align='center'>"
+				jshdepwiz getextdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
+				echo "</TD><TD align='center'>"
+				jshdepwiz gendeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
+			else
+				jshdepwiz gendeps "$SCRIPT" > /dev/null 2>&1 &&
+				echo "known" ||
+				echo "<A href=\"$SCRIPTPATH.html#about\">todo</A>"
+			fi
+		fi
 		echo "</TD><TD>"
 		if jdoc -hasdoc "$SCRIPT"
 		# then echo "(has docs)"
 		then
 			# jdoc showjshtooldoc "$SCRIPT" | drop 3 | striptermchars | trimempty | head -2 | tohtml
-			jdoc showjshtooldoc "$SCRIPT" | striptermchars |
+			memo jdoc showjshtooldoc "$SCRIPT" | striptermchars |
 			fromline -x "^::::::::" |
 			fromline -x "^::::::::" |
 			toline -x "^::::::::" |

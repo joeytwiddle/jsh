@@ -27,6 +27,7 @@ then
 fi
 
 # MOZBOOKMARKS="$HOME/.mozilla/*/*/bookmarks.html"
+# $HOME/.firebird $HOME/.firefox
 find $HOME/.mozilla $HOME/.phoenix -name bookmarks.html |
 while read MOZBOOKMARKS
 do
