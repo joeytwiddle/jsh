@@ -9,5 +9,5 @@ cksumall "$2" > "$FILE_B"
 echo "Files that are different:"
 jfc "$FILE_A" "$FILE_B" | sed "s+.*\.\/++"
 echo
-# echo "Files that are the same:"
-# jfc common "$FILE_A" "$FILE_B" | sed "s+.*\.\/++"
+echo "Files that are the same:"
+jfc common "$FILE_A" "$FILE_B" | sed "s+.*\.\/++"

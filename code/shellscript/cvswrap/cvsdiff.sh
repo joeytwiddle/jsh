@@ -1,46 +1,29 @@
 #!/bin/zsh
 
-# DOADD=
-DOADD=on # doesn't actually do - displays for copy-paste
-CHKOUT=$1
-if test "$CHKOUT" = "-add"; then
-  DOADD=on
-  CHKOUT=$2
-fi
+# Searches current cvs directory and looks for directories and files which have not yet been added to the local repository.
 
-if test "$CHKOUT" = ""; then
-  echo "cvsdiff <repository>"
-  exit 1
-fi
+REPOS="$CVSROOT/"`cat CVS/Repository`
 
 COUNT=0
 COUNTDIRS=0
 MISSING=0
-
-if test -d "$CHKOUT"; then
-  cd "$CHKOUT"
-fi
 
 find . | grep -v "/CVS" |
   while read SOMETHING; do
     if test -d "$SOMETHING"; then
       DIR="$SOMETHING"
       # if test ! -d "$CVSROOT/$CHKOUT/$DIR/CVS/"; then
-      if test ! -d "$CVSROOT/$CHKOUT/$DIR"; then
+      if test ! -d "$REPOS/$DIR"; then
         echo 'cvs add "'$DIR'"'
+        COUNTDIRS=`expr $COUNTDIRS + 1`
       fi
-      COUNTDIRS=`expr $COUNTDIRS + 1`
     else
       FILE="$SOMETHING"
       COUNT=`expr $COUNT + 1`
-      CVSFILE="$CVSROOT/$CHKOUT/$FILE,v"
+      CVSFILE="$REPOS/$FILE,v"
       if test ! -f "$CVSFILE"; then
         MISSING=`expr $MISSING + 1`
-        if test $DOADD; then
-          echo 'cvs add "'$FILE'"'
-        else
-          echo "$FILE"
-        fi
+        echo 'cvs add "'$FILE'"'
       fi
     fi
   done

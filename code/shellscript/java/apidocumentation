@@ -21,6 +21,7 @@ fi
 cd / # For memo
 POSSIBLE=`memo find /home/joey/j/code/java /stuff/software/doc/java/ -name "$CLASS.html" |
             ungrep "$JPATH/trash" |
+						ungrep "/CVS/" |
 #           ungrep "^/mnt/filfirin/stig/javadoc/jdk1.2.2/docs/" |
             ungrep "class-use"`
 
