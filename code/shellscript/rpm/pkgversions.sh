@@ -1,6 +1,6 @@
 for X in "$@"; do
-if test "$1" != "$*"; then
-	echo "$X:"
+if test "$1" != "$*"
+then echo "$X:"
 fi
 apt-cache showpkg "$X" 2>/dev/null |
 drop 2 |
@@ -12,4 +12,7 @@ sed 's+^\(.*\)(/var/lib/dpkg/status)\(.*\)$+\1\2 '`cursecyan`'[Installed]'`curse
 # Following two equivalent:
 sed 's+/var/lib/apt/lists/++g'
 # sed 's+([^)]*/\([^)]*\))+(\1)+g'
+if test "$1" != "$*"
+then echo
+fi
 done

@@ -1,1 +1,2 @@
+findjob $2
 echo renice $1 -p `findjob $2 | grep -v "renice" | awk ' { printf($3" ") } ' `

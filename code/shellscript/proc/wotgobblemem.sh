@@ -1,1 +1,1 @@
-myps -A | sort -n -k 6 | tail -16
+myps -A | sort -n -k 6 | tail "$@"

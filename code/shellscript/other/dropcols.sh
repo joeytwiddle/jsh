@@ -2,6 +2,8 @@
 ## dropcols takes a list of columns numbers to drop, eg. df | dropcols 2 3 5 6
 ## Could have generated arguments for takecols but instead generates a sedscript (no trailing spaces =)
 
+## *** Unix provides colrm.  It takes ranges rather than lots of numbers.
+
 ## TODO:
 ## Sometimes fields are delimited by single tabs, single spaces, or multiple spaces.  What's yours?
 

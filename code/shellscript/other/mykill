@@ -1,3 +1,12 @@
+mykillps "$@"
+echo "Press <Enter> to kill them."
+read INPUT
+if test ! "$INPUT" = ""
+then
+  echo "Aborted."
+  exit 1
+fi
+
 KILLCOM="kill -KILL"
 for x in `mykillps "$@" | takecols 1`; do
   echo $x

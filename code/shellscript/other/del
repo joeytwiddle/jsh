@@ -31,6 +31,8 @@ fi
 	# echo "x=$x"
 	# N=$[$N+1];
 
+ALLOK=0
+
 while test "$1"; do
 	x="$1"
 	shift
@@ -60,13 +62,16 @@ while test "$1"; do
 		done
 		mkdir -p "$DEST"
 		if test ! -d "$DEST"; then
+			(
 			cursered
 			cursebold
-			echo "del: problem creating destination directory $DEST"
-			echo "del: $x not moved to trash"
+			echo "del: problem creating destination directory: $DEST"
+			echo "del: not moved to trash: $x"
 			cursenorm
-			waitforkeypress
+			) >&2
+			# waitforkeypress
 			# exit 1
+			ALLOK=1
 		else
 
 			# Work out destination filename
@@ -113,6 +118,8 @@ while test "$1"; do
 		echo "del: does not exist: $x"
 	fi
 done
+
+exit $ALLOK
 
 # echo "mkdir -p $JPATH/trash/$PWD/"
 # mkdir -p $JPATH/trash/$PWD/

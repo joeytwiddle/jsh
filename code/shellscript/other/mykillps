@@ -3,7 +3,7 @@ if test "$1" = ""; then
 	echo "mykillps [-x] <searchstring>"
 	echo "  will kill all processes whose name contains <searchstring>"
 	echo "  -x will kill all processes with <searchstring> anywhere in the call!"
-	) > /dev/stderr
+	) >&2
 	exit 1
 fi
 FORMAT="pid,user,comm"
@@ -11,8 +11,13 @@ if test "$1" = "-x"; then
 	FORMAT="pid,user,args"
 	shift
 fi
-ps -A -o "$FORMAT" | grep "$*" |
-	# Hide this shell (with $@ passed as args!)
-	grep -v "^$$ " |
-	# Hide the first grep (with $@ passed as args!) and yourself
+ps -A -o "$FORMAT" |
+	## Pick out user's desired job:
+	grep "$*" |
+	## Now (for -x) we need to hide shells with "$*" as args:
+	## Hide this shell:
+	# grep -v "^$$ " | ## redundant due to next
+	## Hide a likely caller of this shell:
+	grep -v "\<mykill" |
+	## Hide the first grep:
 	grep -v "grep $*"

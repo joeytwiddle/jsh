@@ -42,7 +42,7 @@ fi
 # use dlocate if it's available
 BIN=`jwhich dlocate`
 SEARCHEXP="$SEARCH"
-if test ! -x "$BIN"; then
+if test "$USEDPKGOVERDLOCATE" || test ! -x "$BIN"; then
   BIN=`jwhich dpkg`
   SEARCHEXP="*$SEARCH*"
 fi

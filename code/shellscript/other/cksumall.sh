@@ -3,6 +3,7 @@ if test "$1" = "--help"; then
 	exit 1
 fi
 
+# 'ls' -R "$@" | ls-Rtofilelist |
 find "$@" -type f |
 while read X
 do
@@ -12,4 +13,4 @@ done
 # | sed 's#\([^ ]*\)[ ]*\([^ ]*\)[ ]*#\1	\2	#'
 # tr " " "\t"
 # sort -k 3 ## filename
-# sort -k 1,2 ## cksum ?
+# sort -k 1,2 ## cksum

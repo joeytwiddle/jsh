@@ -1,9 +1,15 @@
 if test "$2" = ""; then
-	echo "datediff <earlierdate> <laterdate>"
+	echo "datediff [-secs] <earlierdate> <laterdate>"
 	echo "           expressed in seconds since 1970"
-	echo "datediff -files <earlierfile> <laterfile>"
-	echo "TODO: option for format yyyymmddhhmmss"
+	echo "datediff [-secs] -files <earlierfile> <laterfile>"
+	echo "  Option -secs outputs difference in seconds rather than English."
+	echo "  TODO: option for format yyyymmddhhmmss"
 	exit 1
+fi
+
+INSECS=
+if test "$1" = "-secs"
+then INSECS=true; shift
 fi
 
 if test "$1" = "-files"
@@ -17,6 +23,12 @@ else
 fi
 
 DATEDIFF=`expr "$DATEB" - "$DATEA"`
+
+if test "$INSECS"
+then
+	echo "$DATEDIFF"
+	exit 0
+fi
 
 # year 12 month 30 day 24 hour 60 minute 60 second
 # second 60 minute 60 hour 24 day 30 month 12 year
@@ -36,7 +48,7 @@ MONTHS=`expr "$MONTHS" - "$YEARS" '*' 12`
 STARTED=
 if test $STARTED || test "$YEARS" -gt 0; then
 	printf "$YEARS year"
-	if test "$YEARS" -gt 1; then
+	if test ! "$YEARS" = 1; then
 		printf "s"
 	fi
 	printf ", "
@@ -44,7 +56,7 @@ if test $STARTED || test "$YEARS" -gt 0; then
 fi
 if test $STARTED || test "$MONTHS" -gt 0; then
 	printf "$MONTHS month"
-	if test "$MONTHS" -gt 1; then
+	if test ! "$MONTHS" = 1; then
 		printf "s"
 	fi
 	printf ", "
@@ -52,7 +64,7 @@ if test $STARTED || test "$MONTHS" -gt 0; then
 fi
 if test $STARTED || test "$DAYS" -gt 0; then
 	printf "$DAYS day"
-	if test "$DAYS" -gt 1; then
+	if test ! "$DAYS" = 1; then
 		printf "s"
 	fi
 	printf ", "
@@ -60,7 +72,7 @@ if test $STARTED || test "$DAYS" -gt 0; then
 fi
 if test $STARTED || test "$HOURS" -gt 0; then
 	printf "$HOURS hour"
-	if test "$HOURS" -gt 1; then
+	if test ! "$HOURS" = 1; then
 		printf "s"
 	fi
 	printf ", "
@@ -68,14 +80,14 @@ if test $STARTED || test "$HOURS" -gt 0; then
 fi
 if test $STARTED || test "$MINS" -gt 0; then
 	printf "$MINS minute"
-	if test "$MINS" -gt 1; then
+	if test ! "$MINS" = 1; then
 		printf "s"
 	fi
 	printf " and "
 	STARTED=true
 fi
 printf "$SECS second"
-if test "$SECS" -gt 1; then
+if test ! "$SECS" = 1; then
 	printf "s"
 fi
 echo
