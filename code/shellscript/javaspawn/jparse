@@ -1,1 +1,2 @@
-java -cp $CLASSPATH:$JPATH/code/java/tools/parser/ Parser $@
+# java -cp "$CLASSPATH:$JPATH/code/java/tools/parser/" Parser "$@"
+java tools.parser.Parser "$@"
