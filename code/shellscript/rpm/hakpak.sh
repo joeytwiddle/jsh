@@ -1,3 +1,7 @@
+## all vimscripts have the same version management system and can be acquired generically
+## all sourceforge packages have a similar query interface but different versioning + installs
+## if we are to cover specific popular services (as above) as well as the generic "i dunno" case, we should allow for these
+
 ## CONSIDER:
 ## - What if they don't provide CVS or zipped upped packages, but just an FTP source tree?
 ## - Should the web method try to get a page with all versions or a page witha regexp to the latest version?

@@ -11,8 +11,8 @@ wget -N www.google.com
 
 HREF=`
 	cat index.html |
-	grep "img src=" | head -1 |
-	grep "href=" |
+	grep -i "img" | grep -i "src=" | grep -i "href=" |
+	head -1 |
 	afterfirst "href=" |
 	between '\"' |
 	head -n 1
@@ -29,13 +29,17 @@ echo "Got href=>$HREF<"
 
 IMG=`
 	cat index.html |
-	grep img | head -1 |
-	afterfirst img | afterfirst src=| beforefirst " " |
+	grep -i img | head -1 |
+	afterfirst img | afterfirst IMG | afterfirst src= | beforefirst " " |
 	tr -d '"'
 `
-echo "Getting image >$IMG<"
-wget -N "http://www.google.com/$IMG"
-IMGFILE=`echo $IMG | after /`
+IMGURL="http://www.google.com/$IMG"
+IMGURL=`echo "$IMGURL" | tr -s '/' | sed 's+/+//+'`
+IMGFILE="www.google.com/$IMG"
+echo "Getting image >$IMGURL<"
+## Why do -x and -N options result in 404?!  What's different about http of former?!
+wget -N -x "$IMGURL"
+# IMGFILE=`echo "$IMG" | afterlast /`
 echo "Got image=>$IMGFILE<"
 
 convert $IMGFILE -geometry 60 -quality 100 $DESTIMGFILE

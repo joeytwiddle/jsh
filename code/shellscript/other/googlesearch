@@ -1,7 +1,37 @@
-if test "$1" = -lucky
-then EXTRA="&btnI=%23"; shift
+## TODO: See seeklyrics syntax.  We should surround each argument passed with ""s in the google query, or %whatevers.
+
+if [ "$1" = -links ]
+then
+NL="\\
+"
+	shift
+	lynx -source `googlesearch "$@"` |
+	sed "s+><+>$NL<+g" |
+	grep "^<a href=http://" |
+	afterfirst "href=" |
+	grep -v "^http://www.google.com" |
+	beforefirst ">"
+	exit
 fi
 
-CGI=`echo "$@" | sed "s/ /+/g"`
 
-echo "http://www.google.com/search?q=$CGI$EXTRA"
+if test "$1" = -lucky
+then EXTRA="&btnI=%22"; shift
+fi
+
+# CGI=`echo "$@" | sed "s/ /+/g"`
+
+## TODO: don't we have a cgiencode script somewhere?!
+
+CGI=""
+for X
+do
+	X=`echo "$X" | tr ' ' '+'`
+	CGI="$CGI%22$X%22+"
+done
+## TODO: strip last +
+
+# echo "googlesearch on: $CGI" >&2
+[ $DEBUG ] && debug "googlesearch on: $CGI"
+
+echo "http://www.google.com/search?q=$CGI$EXTRA&num=20"

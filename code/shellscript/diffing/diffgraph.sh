@@ -21,8 +21,11 @@ then
 	echo "diffgraph [ -diffcom <command> ] <files>..."
 	echo
 	echo "  constructs a graph showing which files are similar to each other."
+	echo
 	echo "  Each file is diffed against every other using the command provided (diff by"
 	echo "  default), and the closeness of two files is judged by the size of their diff."
+	echo
+	echo "  If read/plotted properly, this shows which files forked from which others."
 	echo
 	exit 1
 fi
@@ -49,19 +52,19 @@ NL="
 DIFFDIR=`jgettmpdir diffgraph`
 
 # printf "%s" "$FILES" |
-for X
+for X in "$@"
 do
 	BESTFORX="none_found"
 	BESTFORXSIZE="999999999"
 	# printf "%s" "$FILES" |
-	for Y
+	for Y in "$@"
 	do
 		if test ! "$X" = "$Y" ## output would be empty anyway
 		then
-			# echo "Testing: $X $Y"
+			# echo "Testing: $X $Y" >&2
 			## Diff the files, and find size of diff:
 			# DIFFFILE=$DIFFDIR/"$X"____"$Y" ## No good if $Y contains a '/' !
-			DIFFFILE=`jgettmp diffgraph___"$X"___"$Y"`
+			DIFFFILE=`jgettmp diffgraph..."$X"..."$Y"`
 			$DIFFCOM "$X" "$Y" > "$DIFFFILE"
 			RESULTSIZE=`filesize "$DIFFFILE"`
 			jdeltmp $DIFFFILE
@@ -78,7 +81,8 @@ do
 		fi
 	done
 	# echo "$X is closest to $BESTFORX (at $BESTFORXSIZE bytes)"
-	echo "$X" "<-($BESTFORXSIZE)" $BESTFORX
+	## what symbol for derivation?  <-   >-  <<<  ++--  
+	echo "$X" ">-($BESTFORXSIZE)	" $BESTFORX
 	# echo "$BESTFORX	($BESTFORXSIZE)->	$X"
 done |
 
