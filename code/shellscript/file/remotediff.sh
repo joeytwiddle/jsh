@@ -48,8 +48,9 @@ rsyncdiff () {
 		while read X; do grep "$X$" "$2.longer"; done |
 		sed "s/^/bring /"
 	) |
+	## Sort by date, then sort by path; so recent file should appear above the same older file:
 	## Took out -s "stabilise sort" from second sort for tao
-	sort -k 2 | sort -k 5 |
+	sort -k 5 -k 2 |
 	column -t -s '   ' > "$EDITFILE"
 
 	vi "$EDITFILE"
@@ -58,6 +59,8 @@ rsyncdiff () {
 	## eg. Could put exit 1 instead of echo "ERROR"
 
 	export AFIELD="[^ 	]*[ 	]*"
+
+	echo "!!WARNING!! Last time I looked this list of files was completely not what I'd given it.  Hopefully it was just a screen error, but be sure to check the following list."
 
 	SENDCMD="
     cd \"$LOCAL\"
@@ -99,6 +102,8 @@ rsyncdiff () {
 	done
 
 	mkdir -p "$EXTRACTDIR" || exit 1
+
+	## TODO: factor out the cat $EDITFILE bit so we can check if its empty and skip if so (same for sending above)
 
 	BRINGCMD="
     cd \"$EXTRACTDIR\"
@@ -231,16 +236,21 @@ echo "Find options: $FINDOPTS"
 
 CKSUMCOMEXT=""
 if test "$DIFFCOM" = "rsyncdiff"; then
+	## Note: this date is used for sorting later
 	CKSUMCOMEXT='
 		date "+%Y/%m/%d-%H:%M:%S" -r "$X" | tr -d "\n"
 		printf " "
 	'
 fi
 
+# cksum "$X"
 CKSUMCOM='
 	while read X; do
 		'"$CKSUMCOMEXT"'
 		cksum "$X"
+		## TODO: fix for dos/unix fs, dont know why it doesnt work
+		# cat "$X" | dos2unix | cksum | tr -d '\n'
+		# echo " $X"
 	done |
 	tr "\t" " " |
 	grep -v "/CVS/"
