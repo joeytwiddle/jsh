@@ -5,7 +5,7 @@ then
 	FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim notepad"
 else
 	FAVOURITE_EDITORS="vim vi ae pico jpico gvim notepad"
-	[ "$SCREENTITLE" ] || export SCREENTITLE="["`echo "$*" | afterlast / | cut -c -20`"]"
+	[ "$SCREENTITLE" ] || export SCREENTITLE="{"`echo "$*" | afterlast / | cut -c -20`"}"
 	screentitle "$SCREENTITLE"
 fi
 

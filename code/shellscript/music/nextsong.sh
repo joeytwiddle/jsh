@@ -17,9 +17,16 @@ case $PLAYER in
 		xmms -f
 	;;
 	mpg123)
-		killall mpg123 ## send it something softer
+		killall -sINT mpg123 ## send it something softer
+	;;
+	mplayer)
+		## No good, doesn't progress to next song.  Want to send it "<Enter>".
+		killall mplayer ## send it something softer
 	;;
 	*)
 		error "Don't know how to operate your media player: $PLAYER"
 	;;
 esac
+
+sleep 1
+whatsplaying

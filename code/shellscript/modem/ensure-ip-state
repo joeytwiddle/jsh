@@ -51,6 +51,8 @@ sleep 60
 
 cp /stuff/portablelinux/etc/resolv.conf /etc/resolv.conf
 
+# /etc/init.d/iptables restart
+
 echo "Updating IP"
 ppp-updateip
 

@@ -29,7 +29,7 @@ treesh [ -onlyat <delimeter> ] [ <file> ]
     find . -type f | notindir CVS | treesh -onlyat /
 
   The current navigation interface is vim with a custom folding plugin.
-  Use -=_+ to expand/contract branches or /*-+ on NumPad for levels.
+  Use -=_+ to expand/contract branches or NumPad's /* to change levels.
 
 EOF
 exit 1
@@ -37,6 +37,13 @@ fi
 
 NL="
 "
+
+regexpescape () {
+	## Escapes the special regexp chars in a plain string so it can appear as a plain string in a regexp expression.
+	sed '
+		s+\[+\\\\[+g
+	'
+}
 
 commonstring () {
   ## Returns the portion of the two input strings which is common to both. (eg. "hello", "hegelian" -> "he")
@@ -47,6 +54,7 @@ commonstring () {
 	echo "$FIRSTLINE" |
 	sed "s+.+\0\\$NL+g" |
 	grep -v "^$" |
+	regexpescape |
 	(
 	while read CHAR
 	do
@@ -56,7 +64,8 @@ commonstring () {
 	REGEXP="$REGEXPHEAD$REGEXPEND"
 	# debug "+$REGEXP+"
 	echo "$SECONDLINE" |
-	sed "s+$REGEXP.*+\1+"
+	sed "s$REGEXP.*\1" ||
+	error "regexping $FIRSTLINE"
 	)
 }
 
@@ -116,4 +125,11 @@ done
 
 # SECONDLINE is now the empty line we put there, so we ignore it.  =)
 
-) | treevim
+) |
+
+if [ "$DEBUG" ]
+then pipeboth
+else cat
+fi |
+
+treevim

@@ -144,7 +144,7 @@ else
 				if [ ! "$SHORTHOST" ]
 				then SHORTHOST=`hostname`
 				fi
-				SHORTHOST=`echo "$SHORTHOST" | beforefirst "\."`
+				export SHORTHOST=`echo "$SHORTHOST" | beforefirst "\."`
 
 				# mytime . getmachineinfo
 				. getmachineinfo

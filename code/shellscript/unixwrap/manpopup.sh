@@ -5,7 +5,7 @@ REALMAN=`jwhich man`
 
 ## If user is running in X, we pop up a separate window for them
 if [ "$STY" ]
-then screen -X screen $REALMAN -a "$@"
+then screen -X screen -t '"'"$1"'"' $REALMAN -a "$@"
 elif xisrunning
 then
 	# [ "$INJ" ] && whitewin -title "jdoc $1" -geometry 80x60 -e jdoc "$1"

@@ -1,4 +1,4 @@
-cvs -q update "$@" |
+cvs -z 9 -q update "$@" |
 	grep -v "^\? "
 # cvs update "$@" 2>&1 |
 	# grep -v "^? " |
