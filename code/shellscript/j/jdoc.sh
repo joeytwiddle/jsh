@@ -37,8 +37,11 @@ else
         barline
         cat "$LINKTOCOM" |
         ## Pretty print it (I'd like to use a dedicated program with syntax highlighting)
-        highlight "\#\#.*" | ## for comments
-        highlight "\# [QWERTYUIOPLKJHGFDSAZXCVBNM].*" ## for lines likely to be a sentence
+        highlight "\#\#.*" yellow | ## for comments
+        highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
+        highlight "	" blue | ## tabs
+        sed 's+	+|--+g' | ## tabs
+        cat
         echo
         barline
     ) | more
