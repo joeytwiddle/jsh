@@ -10,7 +10,7 @@ shift
 
 for FILE in $LIST; do
 
-  # echo "file: $FILE"
+  # echo "file: $FILE" >> /dev/stderr
 
   # which may not be present
   TRY=`jwhich inj "$FILE"`
@@ -18,27 +18,27 @@ for FILE in $LIST; do
   # WARNING: don't disrupt $? next line
   if test "$?" = "0"; then
 
-    # echo "runoneof: trying $TRY"
+    # echo "runoneof: trying $TRY" >> /dev/stderr
 
     $TRY "$@"
 
     # WARNING: don't disrupt $? next line
     if test "$?" = "0"; then
 
-      # echo "runoneof: worked on $TRY"
+      # echo "runoneof: worked on $TRY" >> /dev/stderr
       exit 0
 
     else
 
-      echo 'runoneof: failed on "'$TRY'" :-('
+      echo 'runoneof: failed on "'$TRY'" :-(' >> /dev/stderr
 
     fi
 
   else
-    echo "runoneof: Did not find $FILE in path"
+    echo "runoneof: Did not find $FILE in path" >> /dev/stderr
   fi
 
 done
 
-echo "runoneof: could not find working exe"
+echo "runoneof: could not find working exe" >> /dev/stderr
 exit 1

@@ -53,7 +53,7 @@ printf "Status of files compared to repository:"
 cursegrey
 printf "\n"
 
-cvs -q status "$@" | egrep "(^File:|Repository revision:)" |
+cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
 	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
 	sed "s+[	 ]*Repository revision:[^/]*$PRE\(.*\),v+\1+" |

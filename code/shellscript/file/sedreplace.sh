@@ -20,7 +20,8 @@ for FILE do
 	if test $DOBACKUP; then
 		cp "$FILE" "$FILE.b4sr"
 	fi
-	mv "$TMPFILE" "$FILE"
+	mv "$TMPFILE" "$FILE" ||
+		echo "sedreplace: error moving "$TMPFILE" over "$FILE" >> /dev/stderr
 	if cmp "$FILE" "$FILE.b4sr" > /dev/null; then
 		echo "sedreplace: no changes made to $FILE" >> /dev/stderr
 	fi

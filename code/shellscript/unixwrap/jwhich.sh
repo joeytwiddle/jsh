@@ -3,6 +3,7 @@
 if [ "$1" = "" ]; then
   echo "jwhich [ inj ] <file> [ quietly ]"
   echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
+  echo "  quietly means it just checks and returns 1/0, but does not print anything."
   exit 1
 fi
 
@@ -26,9 +27,7 @@ QUIETLY="$2"
 # This seems to work better, although there may be problems with spaces in the PATH
 for dir in $PATHS; do
   if test -f "$dir/$FILE"; then
-    if [ ! "$QUIETLY" = "quietly" ]; then
-      echo $dir/$FILE
-    fi
+    test ! $QUIETLY && echo $dir/$FILE
     exit 0      # Found!  :)
   # else
     # echo "$dir/$FILE does not exist"
@@ -37,8 +36,5 @@ for dir in $PATHS; do
   fi
 done
 
-if [ ! "$QUIETLY" = "quietly" ]; then
-  echo "Could not find $FILE in any of"
-  echo "$PATHS"
-fi >&2
+test ! $QUIETLY && echo "jwhich_error_could_not_find_$FILE"
 exit 1          # Not found  :(

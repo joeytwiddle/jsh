@@ -2,6 +2,7 @@
 # if user greps eg. * and has not specified how to deal with directories.
 
 # Hey dufus, this should be a shell alias!
+# Hey dufus, it can't be 'cos it adds to the end of the line!
 
 REALGREP=`jwhich grep`
 

@@ -1,4 +1,6 @@
-export JPATH=$HOME/j
+if test ! $JPATH; then
+	export JPATH=$HOME/j
+fi
 export PATH=$JPATH/tools:$PATH
 
 # Setup user bin, libs, man etc...
