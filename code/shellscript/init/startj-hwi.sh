@@ -63,7 +63,7 @@ export SHOWHOST # for d f b
 # SHORTSHELL=`echo "$SHELL" | afterlast "/"`
 SHELLPS="$$"
 SHORTSHELL=`findjob "$SHELLPS" | grep 'sh$' | tail -1 | sed "s/.* \([^ ]*sh\)$/\1/"`
-echo "shell = $SHORTSHELL"
+# echo "shell = $SHORTSHELL"
 
 # xterm title change
 case $TERM in
