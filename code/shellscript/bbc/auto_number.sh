@@ -1,8 +1,17 @@
+if [ "$1" = -numall ]
+then shift ; NUMBER_ALL=true
+fi
+
 LINENUM=10000
 
 cat "$@" |
 
-sed 's/^[ ]*[[:digit:]][[:digit:]]*\( \|\)/./' | ## Add .s to lines with line numbers
+if [ "$NUMBER_ALL" ]
+then
+	# sed 's+.*+. \0+' ## Add .s to all lines
+	sed 's/^\([ ]*[[:digit:]][[:digit:]]*\( \|\)\|^\)/./' ## Add .s to all lines, stripping line # from those which have it
+else sed 's/^[ ]*[[:digit:]][[:digit:]]*\( \|\)/./' ## Add .s to lines with line numbers (and drop line number)
+fi |
 
 while read LINE
 do
