@@ -58,9 +58,9 @@ printf "" > $REPOSLIST
 
 PARENT=.
 cvs -z 5 status "$@" 2>&1 |
-grep "\(^cvs status:\|^File:\)" |
+grep "\(^cvs \(status\|server\):\|^File:\)" |
 	sed "
-		s=^cvs status:[	 ]*Examining \(.*\)=PARENT \1=
+		s=^cvs \(status\|server\):[	 ]*Examining \(.*\)=PARENT \2=
 		s=^File:[	 ]*\(no file\|\)\(.*\)[ 	]*Status:[	 ]*\(.*\)=\2 \3=
 	" |
 	while read FNAME STATUS
