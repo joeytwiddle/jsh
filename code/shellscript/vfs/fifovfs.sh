@@ -4,7 +4,7 @@ if [ "$1" = "" ] || [ "$1" = --help ]
 then
 cat << !
 
-  fifovfs -ssh <user>@<hostname>:<path> <mountpoint>
+  fifovfsmount -ssh <user>@<hostname>:<path> <mountpoint>
 
 	  will create a fifo vfs under <mountpoint> of the remote directory.
     with the following limitations:
@@ -35,25 +35,32 @@ cat << !
     The server's dd does not exit until the file has finished being read.
     So the client can only read one file at a time.
 
+    Aside from this script's obvious inefficiencies, the fifos on my Linux
+    system seem to work slowly themselves (when there are only two cats running).
+
 !
 fi
 
 TARGET="$1"
+MOUNTPOINT=`realpath "$2"`
 TARGET_ACCOUNT=`echo "$TARGET" | sed 's+:.*++'`
 TARGET_DIR=`echo "$TARGET" | sed 's+.*:++'`
-# TARGET_ACCOUNT=joey@neuralyte.org
-# TARGET_ACCOUNT=joey@panic.cs.bris.ac.uk
-# TARGET_DIR=`realpath "$1"`
-# TARGET_DIR="$1"
-MOUNTPOINT=`realpath "$2"`
 
-FILELIST=/tmp/filelist.txt
-BEFOREMARKER=/tmp/beforemarker.time
-SENDING_STATE=/tmp/lastsend.time
+FILELIST=/tmp/filelist.$$.txt
+GO_AHEAD_MARKER=/tmp/goahead.$$.marker
+
+jshinfo () {
+  printf "\033[00;33m%s\033[00;00m\n" "$*"
+}
+
+jshhappy () {
+  printf "\033[00;32m%s\033[00;00m\n" "$*"
+}
 
 # ssh-agent ## Dunno if this makes later ssh's faster...?! nope!
 
-ssh "$TARGET_ACCOUNT" "cd '$TARGET_DIR' && find . -type f" > $FILELIST
+# ssh "$TARGET_ACCOUNT" "cd '$TARGET_DIR' && find . -type f" > $FILELIST
+ssh "$TARGET_ACCOUNT" "cd '$TARGET_DIR' && find . -not -type d" > $FILELIST
 
 cd "$MOUNTPOINT"
 cat $FILELIST |
@@ -61,7 +68,7 @@ while read FILE
 do
 	DIR=`dirname "$FILE"`
 	mkdir -p "$DIR"
-	echo "Virtualising $FILE" >&2
+	jshinfo "Virtualising $FILE" >&2
 	mkfifo "$FILE"
 done
 
@@ -84,13 +91,13 @@ notify_progress () {
 }
 
 another_notify_progress () {
-	CNT=1
+	CNT=1024
 	while true
 	do
 		dd bs=1 count=$CNT 2> /tmp/dd_inner.out
 		printf "." >&2
 		grep "^0" /tmp/dd_inner.out >/dev/null && break
-		CNT=`expr $CNT '*' 2`
+		# CNT=`expr $CNT '*' 2`
 	done
 }
 
@@ -98,117 +105,46 @@ send_needed_daemon () {
 	cd "$MOUNTPOINT"
 	while true
 	do
-		# cat $FILELIST |
-		# while read FILE
-		for FILE in `cat $FILELIST` ## No spaces in filenames allowed for the moment!
+    ## I wonder if we shouldn't use the fifos rather than the old list.
+		cat $FILELIST |
+		while read FILE
+		# for FILE in `cat $FILELIST` ## No spaces in filenames allowed for the moment!
 		do
-			jshinfo "[send] Trying: $FILE"
-			# touch $SENDING_STATE
-			# touch $BEFOREMARKER
-
-			# (
-				# cat "$TARGET_DIR"/"$FILE" |
-				# notify_progress $SENDING_STATE |
-				# cat > "$MOUNTPOINT"/"$FILE"
-				# jshinfo "Cats are over"
-			# ) &
-			# SENDPID="$!"
-			# while newer $SENDING_STATE $BEFOREMARKER
-			# while ps | grep "$SENDPID"
-			# do
-				# jshinfo "Sending ok!"
-				# sleep 5
-			# done
-
-			## Nope it blocks:
-			# BS=1
-			# while true
-			# do
-				# dd if="$TARGET_DIR"/"$FILE" of="$MOUNTPOINT"/"$FILE" bs=$BS count=0 > /tmp/dd.out
-				# if grep "^0+0 " /tmp/dd.out >/dev/null
-				# then
-					# jshinfo "dd exiting gracefully"
-					# break
-				# fi
-				# sleep 1
-				# BS=1024
-			# done
+			jshinfo "[READ] Trying: $FILE"
 
 			BS=99999999
-			# while true
-			# do
-				# dd if="$TARGET_DIR"/"$FILE" of="$MOUNTPOINT"/"$FILE" bs=$BS count=1 2> /tmp/dd.out &
-				# ssh $TARGET_ACCOUNT dd if="$TARGET_DIR"/"$FILE" bs=999999 count=999999 2>/dev/null |
-				rm -f /tmp/goahead
-				(
-          sleep 0.3
-          # jshinfo "Ooh looks like they want us to send it!"
-          [ -f /tmp/goahead ] &&
-          # ssh $TARGET_ACCOUNT "dd if='$TARGET_DIR/$FILE' bs=999999 count=999999 2>/dev/null"
-          ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
-          # jshinfo "ssh over"
-				) |
-				# another_notify_progress |
-				# (
-					# dd bs=1 count=1 2>/dev/null
-					# echo "++++++ First inner dd done" >&2
-					# dd bs=99999999 count=999999 2>/dev/null
-				# )|
-				dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
-				DDPID="$!"
-				sleep 0.1 ## This seems neccessary for the below:
-        ## Well how odd!  It appears that if the fifo is not being read, then this signal kills the dd, but if it is being read, the dd survives, and echos to stderr as it should =)
-				kill -USR1 "$DDPID" > /tmp/killsig.out 2> /tmp/killsig.err
-				## I don't quite understand, but it works!
-				# sleep 1
-				CONTENT=`cat /tmp/dd.out`
-				if [ ! "$CONTENT" ]
-				then
-					jshinfo "[send] dd has (probably) died; file not being read; continuing"
-          # findjob "\<dd\>"
-					# kill "$DDPID"
-					# break
-				# fi
-				# elif grep "^0+" /tmp/dd.out >/dev/null
-				# then
-					# jshinfo "nothing transfered, aborting"
-					# cat /tmp/dd.out >&2
-					# kill "$DDPID"
-					# break
-					# ####
-					# cat /tmp/dd.out >&2
-					# jshinfo "dd will continue..."
-					# dd
-					# if dd if="$TARGET_DIR/$FILE" of="$MOUNTPOINT/$FILE"
-					# # if [ "$?" = 0 ]
-					# then
-						# jshinfo "Finally dd exited gracefully."
-						# break
-					# else
-						# jshinfo "Second dd failed; so er continuing!"
-					# fi
-					# # kill "$DDPID"
-					# # break
-				else
-					touch /tmp/goahead
-					# jshinfo "waiting for $BS bytes"
-					jshinfo "`cursegreen`SENDING!`curseyellow` dd said it had done this:"
-					cat /tmp/dd.out >&2
-					jshinfo "`cursegreen`SENDING!`curseyellow` Waiting for dd to finish"
-					wait
-					jshinfo "dd finished"
-				fi
-				# sleep 1
-				BS=1024
-			# done # |
-			# dd of="$MOUNTPOINT"/"$FILE" 2>/tmp/dd-outer.out
-			# verbosely kill "$SENDPID"
-			# sleep 10
-      wait ## We don't have to wait for the ssh clause to finish, but if we don't it might get confused (picking up a goahead tag meant for a later file) but who cares anyway?!
+      rm -f $GO_AHEAD_MARKER
+      (
+        sleep 0.3
+        [ -f $GO_AHEAD_MARKER ] &&
+        ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
+      ) |
+      another_notify_progress |
+      dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
+      DDPID="$!"
+
+      sleep 0.1 ## This seems neccessary for the below:
+
+      ## Well how odd!  It appears that if the fifo is not being read, then this signal kills the dd, but if it is being read, the dd survives, and echos to stderr as it should =)
+      kill -USR1 "$DDPID" > /tmp/killsig.out 2> /tmp/killsig.err
+
+      CONTENT=`cat /tmp/dd.out`
+      if [ ! "$CONTENT" ]
+      then
+        jshinfo "[READ] dd has (probably) died => file not being read"
+      else
+        touch $GO_AHEAD_MARKER
+        jshhappy "[READ] PUSHING Waiting for dd to finish"
+        wait
+        jshinfo "[READ] PUSHED dd finished"
+      fi
+
+      wait ## We don't have to wait for the ssh clause to finish, but if we don't it might get confused (picking up a goahead/sending_state tag meant for a later file) but who cares anyway?!
       ## Oh it appears it is needed.  Without it the first send never finishes!
-		done # || break
+
+		done || break # this was good for user Ctrl+Cing
 		echo
-		jshinfo "[send] PASS (pausing)"
+		jshinfo "[READ] PAUSING after a full pass over the filelist"
 		echo
 		sleep 5
 	done
