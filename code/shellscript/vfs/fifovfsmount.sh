@@ -14,13 +14,13 @@ more << !
   fifovfsmount [ -rw ] -gzip <path_to_zips> <mountpoint>
   fifovfsmount [ -rw ] -zip <zipfile> <mountpoint>
 
-    will create a fifo vfs under <mountpoint> of the remote/zipped dir/file.
+    will create a fifo vfs under <mountpoint> of the remote/zipped dir/files,
     and start a transfer server, with the following limitations:
 
       -ssh needs ssh authentication to be setup to access the remote account.
 
       Average delay is proportional to the number of files, so do not choose
-      too large a tree under <path>.
+      a <path> with too leafy a tree (lots of files).
 
       The vfs will be read-only unless the -rw option is specified.
 
@@ -29,18 +29,19 @@ more << !
       Seeking into files will probably not work.
 
       It's not a proper filesystem; you can't add or delete files or directores.
+      (Actually you can get away with mkfifo in some modes (to make a new file).)
 
   How does it work?
 
     It creates a set of fifos under <mountpoint> corresponding to the tree under
-    <path>.
+    <path> or the zipfiles.
 
     It then watches these files for read access by attempting a dd into each one
     in turn (sourcing the stream, delayed, from the remote machine).  If, after
     one decisecond, dd is not happily writing to the fifo, then it stops the
     ssh sourcing stream, and hence dd, and tries the next file instead.
 
-    For write access, it just tried to cat from each file in turn.  If the cat
+    For write access, it just tries to cat from each file in turn.  If the cat
     has produced no bytes in 0.1 seconds, it is killed, otherwise its data is
     transferred into to the remote file.
 
@@ -57,9 +58,9 @@ more << !
     be being accessed at any time, but it refused.
 
   Some programs for which it works:
-    cat, vim (r+w!), mutt (ro), cp, grep, diff
+    cat, vim (r+w!), mutt (ro), cp, grep, diff, mplayer, mpg123
   And some for which it does not work:
-    konqueror, mozilla, convert, gqview, gimp
+    konqueror, mozilla, convert, gqview, gimp, mpg321, xmms
 
 !
 exit 1
@@ -100,6 +101,7 @@ then
 	COMMAND_TO_GET_FILELIST=zip_command_to_get_filelist
 	COMMAND_TO_READ=zip_command_to_read
 	COMMAND_TO_WRITE=zip_command_to_write
+  [ "$DO_WRITING" ] && echo "Sorry WRITING is NOT yet IMPLEMENTED for the ZIP method."
 else
   echo "-ssh -gzip and -zip are the only valid protocols at the moment."
   exit 1
@@ -303,7 +305,8 @@ iterative_transfer_daemon () {
 	do
 
     ## I wonder if we shouldn't use the fifos rather than the old list.  Beyond scope.
-		cat $FILELIST |
+		# cat $FILELIST |
+    find . -type p |
 		while read FILE
 		# for FILE in `cat $FILELIST` ## No spaces in filenames allowed with this method!
 		do
