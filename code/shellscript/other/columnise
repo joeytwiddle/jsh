@@ -1,2 +1,4 @@
-column -t -s '	 ' "$@"
+# column -t -s '	 ' "$@"
+# -x ?
+column -t -s ' ' "$@"
 # java -cp $CLASSPATH:$JPATH/code/java/tools/columnise/ Columnise $@

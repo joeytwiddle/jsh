@@ -2,33 +2,45 @@
 
 # grep "$1.*\.deb$" /var/lib/apt/lists/* 2> /dev/null |
 
-memo grep "^Filename: " /var/lib/apt/lists/* |
-grep "$1.*\.deb$" 2> /dev/null |
+if test "$1" = "-src"
+then 
 
-while read SRC SERVERPATH
-do
+	shift
 
-	echo
-	echo "SRC=$SRC" |
-	highlight stable green |
-	highlight testing yellow |
-	highlight -bold unstable red
-	echo "SERVERPATH=$SERVERPATH"
-	echo
+	## Until automatic memo garbage collection is implemented, these memo calls are bloating $JPATH/data !
+	memo grep "$1.*\.dsc" /var/lib/apt/lists/*Sources
 
-	SRC=`
-		echo "$SRC" |
-		/bin/sed '
-			s+_+/+g
-			s+/var/lib/apt/lists/++
-			s+/dists/.*++
-			# s+/debian/.*+/debian/+
-			s+:Filename:$++
-		'
-	`
+else 
 
-	URL="ftp://$SRC/$SERVERPATH"
+	memo grep "^Filename: " /var/lib/apt/lists/*Packages |
+	grep "$1.*\.deb$" 2> /dev/null |
 
-	echo "$URL"
+	while read SRC SERVERPATH
+	do
 
-done
+		echo
+		echo "SRC=$SRC" |
+		highlight stable green |
+		highlight testing yellow |
+		highlight -bold unstable red
+		echo "SERVERPATH=$SERVERPATH"
+		echo
+
+		SRC=`
+			echo "$SRC" |
+			/bin/sed '
+				s+_+/+g
+				s+/var/lib/apt/lists/++
+				s+/dists/.*++
+				# s+/debian/.*+/debian/+
+				s+:Filename:$++
+			'
+		`
+
+		URL="ftp://$SRC/$SERVERPATH"
+
+		echo "$URL"
+
+	done
+
+fi

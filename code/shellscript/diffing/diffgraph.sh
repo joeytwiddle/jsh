@@ -9,8 +9,16 @@
 #    printf "%s" "$FILES" | while read
 #  invokes a new sh and hence variables are forgotten.
 
+## Note:
+#  Sometimes we might need to go for say the n'th best in order to make the
+#  graph "complete" (all joined, no islands).
+
 NL="
 "
+
+if test "$DIFFCOM" = ""
+then DIFFCOM=diff
+fi
 
 # FILES=""
 # for X
@@ -31,8 +39,9 @@ do
 		then
 			# echo "Testing: $X $Y"
 			## Diff the files, and find size of diff:
-			DIFFFILE=$DIFFDIR/"$X"____"$Y"
-			diff "$X" "$Y" > "$DIFFFILE"
+			# DIFFFILE=$DIFFDIR/"$X"____"$Y" ## No good if $Y contains a '/' !
+			DIFFFILE=`jgettmp diffgraph___"$X"___"$Y"`
+			$DIFFCOM "$X" "$Y" > "$DIFFFILE"
 			RESULTSIZE=`filesize "$DIFFFILE"`
 			## See if size beats or matches best so far:
 			test "$RESULTSIZE" = "$BESTFORXSIZE" &&
