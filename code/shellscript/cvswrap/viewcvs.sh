@@ -1,2 +1,3 @@
 REPOSANDDIR=`cat CVS/Repository`
-browse "http://localhost/cgi-bin/viewcvs.cgi/$REPOSANDDIR?sortby=date#dirlist"
+HOSTNAME=`hostname -f`
+browse "http://$HOSTNAME/cgi-bin/viewcvs.cgi/$REPOSANDDIR?sortby=date#dirlist"

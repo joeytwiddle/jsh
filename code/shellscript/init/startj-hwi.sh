@@ -1,6 +1,9 @@
 export JPATH=$HOME/j
 export PATH=$JPATH/tools:$PATH
 
+# Setup user bin, libs, man etc...
+export PATH=$HOME/bin:$PATH
+
 source getmachineinfo
 
 source joeysaliases

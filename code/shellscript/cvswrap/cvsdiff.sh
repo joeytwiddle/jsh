@@ -38,6 +38,9 @@ if test "$1" = "-all"; then
 	shift
 fi
 
+REPOSLIST=`jgettmp in-repos`
+LOCALLIST=`jgettmp local`
+
 PRE=`cat CVS/Root | afterlast ":"`"/"`cat CVS/Repository`"/"
 
 echo
@@ -53,12 +56,12 @@ cvs -q status "$@" | egrep "(^File:|Repository revision:)" |
 		read Y;
 		echo "$Y	# "`curseyellow`"$X"`cursegrey`
 		echo "./$Y" >> /dev/stderr
-	done 2> /tmp/in-repos.txt |
+	done 2> $REPOSLIST |
 	grep -v "Up-to-date"
 
 if test $CHECKALL; then
 
-	# jfc nolines /tmp/local.txt /tmp/in-repos.txt |
+	# jfc nolines $LOCALLIST $REPOSLIST |
 		# sed "s+^./+cvs add ./+"
 
 	if test "$1" = ""; then
@@ -67,7 +70,7 @@ if test $CHECKALL; then
 		# originally just for X; but no good on Solaris
 		for X in "$@"; do echo "./$X"; done
 		# for X; do echo "./$X"; done
-	fi | grep -iv "/CVS/" > /tmp/local.txt
+	fi | grep -iv "/CVS/" > $LOCALLIST
 
 	echo
 	cursecyan
@@ -87,18 +90,20 @@ if test $CHECKALL; then
 	echo "Local files not in repository:"
 	cursegrey
 
-	jfcsh /tmp/local.txt /tmp/in-repos.txt |
+	jfcsh $LOCALLIST $REPOSLIST |
 		sed "s+^./+cvs add ./+"
 
 	echo
 	cursecyan
 	echo "Repository files missing locally:"
 	cursegrey
-	jfcsh /tmp/in-repos.txt /tmp/local.txt |
+	jfcsh $REPOSLIST $LOCALLIST |
 		sed "s+^./+cvs $SUGGEST ./+"
 
 fi
 
 echo
+
+jdeltmp $REPOSLIST $LOCALLIST
 
 exit 0
