@@ -59,7 +59,7 @@ case $TERM in
 					xttitle "$USER@$HOST:"`swd`"/# $LASTCMD"
 				}
 				precmd () {
-					xttitle "$USER@$HOST:"`swd`"/% ($LASTCMD)"
+					xttitle "$USER@$HOST:"`swd`"/%% $LASTCMD"
 				}
 			;;
 			# Doesn't work 'cos tcsh can't exec this far!
