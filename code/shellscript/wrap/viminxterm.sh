@@ -1,4 +1,5 @@
 #!/bin/sh
+## BUGS: Works badly on .gzipped files.  Either skip sizing or gunzip them!
 
 # jwhich inj vim > /dev/null
 jwhich vim > /dev/null
@@ -34,6 +35,10 @@ if test -f "$FILE" && test ! `filesize "$FILE"` = "0"; then
 	# but reduce to longest line if above.
 	if test $LONGEST -lt $COLS; then
 		COLS=$LONGEST;
+	fi
+	## But don't go too far!
+	if test $COLS -gt 180
+	then COLS=180
 	fi
 
 	# Ensure at least minimum size

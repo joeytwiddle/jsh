@@ -28,4 +28,4 @@ else
 	tar $TARCOM
 fi
 
-mv "$FILE" "$FILE.old"
+mv "$FILE" "$FILE.prev"

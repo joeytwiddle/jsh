@@ -18,6 +18,6 @@ ADDRESS=`
 # echo "Found: >$ADDRESS<"
 
 if xisrunning
-then xvncviewer "$ADDRESS"
-else svncviewer "$ADDRESS"
+then sleep 5; xvncviewer "$ADDRESS"
+else sleep 5; svncviewer "$ADDRESS"
 fi

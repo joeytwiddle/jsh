@@ -7,13 +7,15 @@
 ## NOTE: You should clear your temp files after use with: jdeltmp $TMPFILE
 ## Automatic clearing has not yet been implemented.
 
+## debianutils >= 1.6 provides tempfile
+
 ### TODO: Policy questions:
 ## Should we put a default timeout on each file?
 ## Should we delete all files at jsh boot (what if another jsh is using same fs?)
 ## Should jsh boot clear all tmp files older than 1 day?  <-- my favourite
 ## What if the computer's date is wrong?!
 
-TOPTMP="$JPATH/tmp"
+test "$TMPDIR" && TOPTMP="$TMPDIR" || TOPTMP="$JPATH/tmp"
 
 # if test ! -w $TOPTMP || ( test "$JTMPLOCAL" && test -w . )
 # then
