@@ -1,5 +1,5 @@
-if test ! -f "$@"; then
-	echo "$@ does not exist!"
+if test ! -f "$1"; then
+	echo "$1 does not exist!"
 	exit 1
 fi
 
@@ -15,4 +15,4 @@ else
   COM="$XDVI -nopostscript -bg white -fg black"
 fi
 
-$COM "$@" &
+$COM "$1" &

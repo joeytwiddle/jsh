@@ -1,7 +1,7 @@
-if test "x$@" = "x"; then
+if test "x$1" = "x"; then
   afterlast "/"
 else
-  FILENAME="$@"
+  FILENAME="$1"
   # lack on -n causes del to append ' '
   AFTERSLASH=`echo -n "$FILENAME" | afterlast '/'`
   if test "x$AFTERSLASH" = "x"; then # Was a directory

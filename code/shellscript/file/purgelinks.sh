@@ -1,7 +1,7 @@
 # Displays what needs to be done to remove all symlinks
 # in current / specified directory.
 
-if test "x$@" = "x"; then
+if test "x$1" = "x"; then
 	LOOK="."
 else
 	LOOK="$@"

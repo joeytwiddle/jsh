@@ -1,6 +1,6 @@
 ( 
 
-  if test "$@" = ""; then
+  if test "$1" = ""; then
 
     echo "jdoc <command>"
     echo "  will show you the contents of $JPATH/tools/<command>"

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# if test ! -e "$@"; then
+# if test ! -e "$1"; then
   # echo 0
 # else
   awk ' END { print NR } ' "$@"

@@ -1,3 +1,3 @@
-for X in `ftpsearch $@`; do
+for X in `ftpsearch "$@"`; do
   showpingtime "$X" &
 done

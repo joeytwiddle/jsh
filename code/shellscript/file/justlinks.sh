@@ -1,4 +1,4 @@
-if test "$@" = ""; then
+if test "$1" = ""; then
   echo "justlinks <symlinks>"
   echo "  or"
   echo "justlinks -absolute <symlink>"

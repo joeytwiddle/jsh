@@ -39,7 +39,7 @@
   
   # festival --tts "$@"
   
-  # if test "x$@" = "x"; then
+  # if test "x$1" = "x"; then
           # tr -d ":\".\t'" | festival --tts
           # # echo "txt2speech <file>"
           # # exit 1

@@ -1,5 +1,5 @@
 if test "$JM_UNAME" = "linux"; then
-  test -e "$@"
+  test -e "$1"
 else
-	exists "$@"
+	exists "$1"
 fi
