@@ -30,10 +30,10 @@ chmod a+x "$TMPSH"
 if xisrunning
 then
 	# konsole -vt_sz 120x60 -nowelcome -caption "$1" -e sh "$TMPSH" &
-	## Used to be: -bg "#600000"
+	## For a while (maybe for jreflect?) it was:-fg "#003000" -bg "#ffffe4" 
 	if [ "$FOREGROUND" ]
-	then xterm -title "bigwin: $*" -fg "#003000" -bg "#ffffe4" -geometry 120x50 -e "$TMPSH"
-	else xterm -title "bigwin: $*" -fg "#003000" -bg "#ffffe4" -geometry 120x50 -e "$TMPSH" &
+	then xterm -title "bigwin: $*" -bg "#600000" -fg white -geometry 120x50 -e "$TMPSH"
+	else xterm -title "bigwin: $*" -bg "#600000" -fg white -geometry 120x50 -e "$TMPSH" &
 	fi
 else
 	"$TMPSH"
