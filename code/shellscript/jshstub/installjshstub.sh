@@ -1,8 +1,8 @@
 ## Quick installation with: wget -nv "http://hwi.ath.cx/installjshstub" -O - | sh
 ## Although for some reason (on ghostpuppy) this dropped me out of zsh :-( (even using zsh instead of sh above)
 
-export JPATH=/tmp/jsh-$$
-export JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshstubtools/"
+JPATH=/tmp/jsh-$$
+JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshstubtools/"
 
 if which wget 2>&1 > /dev/null
 then WGETCOM="wget -nv -O -"
@@ -35,24 +35,44 @@ grep -v "\(jshstub\|joeybashsource\).*File exists"
 cd ..
 
 # ln -s tools/jsh .
-ln -s tools/startj-hwi ./startj ## Needed at least for jsh to start!
+## Needed for jsh to believe system is present!
+ln -s tools/startj-hwi ./startj
+## But we don't use it because jshstub needs $0 in tools directory.
 
 echo
-echo "### Stub jsh installed in $JPATH"
+echo "### Stub jshenv installed in $JPATH"
 echo
 
-echo "### If you have zsh, type the following:"
-echo "zsh"
-echo "export JPATH=$JPATH"
-echo "source \$JPATH/tools/startj-hwi"
-echo
-# echo "export JSH_STUB_NET_SOURCE=$JSH_STUB_NET_SOURCE"
+if which zsh 2>&1 > /dev/null
+then
+	echo "### To start jshenv in zsh, type the following:"
+	echo "zsh"
+	echo "export JPATH=$JPATH"
+	echo "source \$JPATH/tools/startj-hwi"
+	echo
+fi
 
-echo "### Or to help debug (broken) bash support type:"
-echo "bash"
-echo "export JPATH=$JPATH"
-echo "alias source=\"'.' \$JPATH/tools/joeybashsource\""
-echo "alias .=\"'.' \$JPATH/tools/joeybashsource\""
-echo "source \$JPATH/tools/startj-hwi"
-echo
+# echo "### Or for bash type:"
+# echo "bash"
+# echo "export JPATH=$JPATH"
+# echo "alias source=\"'.' \$JPATH/tools/joeybashsource\""
+# echo "alias .=\"'.' \$JPATH/tools/joeybashsource\""
+# echo "source \$JPATH/tools/startj-hwi"
+# echo
 
+cat > $JPATH/jsh << !
+bash --rcfile $JPATH/jshrc
+!
+chmod a+x $JPATH/jsh
+
+cat > $JPATH/jshrc << !
+export JPATH=$JPATH
+export JSH_STUB_NET_SOURCE=$JSH_STUB_NET_SOURCE
+alias source="'.' \$JPATH/tools/joeybashsource"
+alias .="'.' \$JPATH/tools/joeybashsource"
+source \$JPATH/tools/startj-hwi
+!
+
+echo "### To start jshenv in bash type:"
+echo "$JPATH/jsh"
+echo
