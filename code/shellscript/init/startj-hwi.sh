@@ -130,6 +130,21 @@ else
 				# mytime . getmachineinfo
 				. getmachineinfo
 
+				## Which flavour shell are we running?
+				if test $ZSH_NAME; then
+					SHORTSHELL="zsh"
+					. zshkeys
+					. hwipromptforzsh
+					## TODO: problem, this can leave nonomatch in $1 of sourced scripts (in the interactive sh)
+					setopt nonomatch
+				elif test "$BASH"; then
+					SHORTSHELL="bash"
+					. bashkeys
+					. hwipromptforbash
+					shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
+				fi
+				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt
+
 				. joeysaliases
 				. cvsinit
 
@@ -151,19 +166,6 @@ else
 
 				## Message on user login/out (zsh, tcsh, ...?)
 				export WATCH=all
-
-				## Which flavour shell are we running?
-				if test $ZSH_NAME; then
-					SHORTSHELL="zsh"
-					. zshkeys
-					. hwipromptforzsh
-				elif test "$BASH"; then
-					SHORTSHELL="bash"
-					. bashkeys
-					. hwipromptforbash
-					shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
-				fi
-				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt
 
 				. xttitleprompt
 

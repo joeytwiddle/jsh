@@ -2,7 +2,7 @@ if test "$1" = "" || test "$1" = "--help"; then
 
   echo "jdoc <command>"
   echo "  will show you the documentation for the command"
-  echo "  and if requested usage of / dependencies on that command in all shellscripts"
+  echo "  and if requested usage of / dependencies on that command in all jsh scripts"
 
 else
 
@@ -44,6 +44,7 @@ else
         cat
         echo
         barline
+      ## TODO: might the user want the man page as well as the script?
     ) | more
     }
 
@@ -52,15 +53,16 @@ else
 
   else
 
+    ## TODO/BUG: Should detach this from the shell, because Ctrl+C on the question following causes jman window to close.
     jman "$@" # &&
     # info "$@"
 
   fi
 
   echo
-  echo -n "Would you like to see uses of / dependencies on $1? [yN] "
+  echo -n "Would you like to see (uses of|dependencies on) $1 in jsh? [yN] "
   read KEY
-  # echo
+  echo
   case "$KEY" in y|Y)
     TABCHAR=`echo -e "\011"`
     cd $JPATH/tools/

@@ -7,6 +7,7 @@
 if test ! "$MBOX"
 then
 	MBOX="$1"
+	shift
 	if test ! "$MBOX"
 	then
 		MBOX=/tmp/mbox
@@ -39,7 +40,7 @@ getmail() {
 }
 
 getaddresses() {
-	cat "$MBOX" |
+
 	# NUM=`mailcount`
 	# for N in `seq 1 $NUM`
 	# do
@@ -50,12 +51,30 @@ getaddresses() {
 		# # echo "$EMAIL	$DATE"
 		# printf "$N/$NUM: "
 		# maildo $N | tostring "" |
-		grep "^From:" |
+		# grep "^From:" |
 		# head -1
 	# done |
 	# dropcols 1 |
-	after "<" | before ">" |
-	after "\[mailto:" | before "\]" |
-	after " " |
+
+	# cat "$MBOX" |
+	# grep "^From:" |
+	# after "<" | before ">" |
+	# after "\[mailto:" | before "\]" |
+	# after " " |
+
+	export COLUMNS=65535
+	NUM=`mailcount`
+	echo "$NUM emails"
+	echo "from "`seq 1 $NUM` | /usr/bin/mail -N -f "$MBOX" |
+	sed 's+......++' |
+	# echo maildo f `seq 1 20`
+	# maildo f `seq 1 $NUM` |
+	takecols 1 |
 	sort | uniq
+	# cat
+
 }
+
+if test "$*"
+then "$@"
+fi

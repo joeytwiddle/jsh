@@ -19,6 +19,7 @@ then
 		then error "skipping non-file: $FILE"; continue
 		fi
 		(
+			echo "File: `curseyellow``cursebold`$FILE`cursenorm`"
 			cvs status "$FILE"
 			# cvs diff "$FILE"
 			cvs -q update -p "$FILE" > $TMPFILE

@@ -5,6 +5,7 @@
 set -e
 
 df | drop 1 | takecols 1 4 6 |
+grep -v "/cdrom" |
 
 while read PARTITION SPACE POINT
 do

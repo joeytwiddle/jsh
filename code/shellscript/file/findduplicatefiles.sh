@@ -1,23 +1,24 @@
 ## WISHLIST:
 # - order duplicates by least number of /s to bring us closer to automatic removal choice
 
-readgroup () {
-	while read LINE
-	do
-		test ! "$LINE" && break
-		echo "$LINE" >&2
-	done
-}
+# readgroup () {
+	# while read LINE
+	# do
+		# test ! "$LINE" && break
+		# echo "$LINE" >&2
+	# done
+# }
 
 debug () {
-	# echo "$*" >&2
-	noop
+	echo "$*" >&2
+	# noop
 }
 
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
 	echo "findduplicatefiles [ -samename ] [ -qkck | -size ] <files/directories>..."
 	echo "  The search has three stages:  First files with the same size are grouped."
-	echo "    -samename : group only files with identical names (faster but incomplete)"
+	## echo "    -samename : group only files with identical names (faster but incomplete)"
+	echo "    -samename : do not check files which have a unique filename"
 	echo "  Second, similar files are hashed (cksum) to ensure they really are identical."
 	echo "    -qkck : use quick checksum, (only examine 16k at either end of file)"
 	echo "    -size : use file size instead of checksum (very fast but DANGEROUS)."
@@ -27,8 +28,8 @@ if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
 	exit 1
 fi
 
-echo "Note: these could be hard links, or possibly (to check) symlinks,"
-echo "so make sure you don't delete the target!"
+echo "# Note: these could be hard links, or possibly (to check) symlinks,"
+echo "# so make sure you don't delete the target!"
 echo
 
 SAMENAME=
@@ -95,8 +96,63 @@ fi |
 
 # sed 's/[a-zA-Z0-9]* [0-9]* \(.*\)/del "\1"/'
 # dropcols 1 2 | sed 's|^\(.\+\)|del "\1"|'
-sed 's|\([0-9]* [0-9]*\) \(.*\)|\1: del "\2"|'
+# sed 's|\([0-9]+[ 	]+[0-9]+\)[ 	]+\(.+\)|\1: del "\2"|'
 # cat
+
+## Sort each group by directory depth, so that lowest file is the one kept:
+(
+
+  read EMPTY
+  test "$EMPTY" = "" || error "Expected empty line; got \"$EMPTY\""
+  echo
+
+  while read LINE
+  do
+    (
+      echo "$LINE"
+      while read LINE
+      do
+        if test "$LINE"
+        then echo "$LINE"
+        else break
+        fi
+      done
+    ) |
+    sortbydirdepth
+    echo
+  done
+
+) |
+
+## Pretty print each group, suggesting deletion of all but the first file in each:
+(
+
+  read EMPTY
+  test "$EMPTY" = "" || error "Expected empty line; got \"$EMPTY\""
+
+  while read SUM SIZE FILE
+  do
+    if test "$SUM" = ""
+    then
+      error "## Unexpected empty line"
+      continue
+    fi
+    echo "## $SUM $SIZE :"
+    echo "# -- $FILE"
+    while read SUM2 SIZE2 FILE2
+    do
+      if test "$SUM2" = ""
+      then break
+      fi
+      if test "$SUM" = "$SUM2" && test "$SIZE" = "$SIZE2"
+      then echo "del \"$FILE2\""
+      else error "$SUM $SIZE for \"$FILE\" does not match $SUM2 $SIZE2 for \"$FILE2\""
+      fi
+    done
+    echo
+  done
+
+)
 
 # while readgroup
 # do

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash
+
 DOCVS=
 if test "$1" = "-cvs"
 then DOCVS=true; shift
@@ -22,12 +24,19 @@ do
   PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
 
   ## Work out where to move the file to.
-  for TRASHDIR in "$MOUNTPNT/RECLAIM" "$JPATH/trash" "$HOME/.trash"
+  for TRASHDIR in "$MOUNTPNT/RECLAIM" "$JPATH/trash" "$HOME/.trash" NO_DIR_WRITEABLE
   do
     if test -w "$TRASHDIR" || test -w `basename "$TRASHDIR"`
     then break
     fi
   done
+
+  if test "$TRASHDIR" = NO_DIR_WRITEABLE
+  then
+    error "No suitable trash directory found."
+    ALLOK=1
+    break ## continue
+  fi
 
   if test -f "$FILE" || test -d "$FILE"
   then
@@ -53,7 +62,7 @@ do
       # waitforkeypress
       # exit 1
       ALLOK=1
-      break
+      break ## continue
     fi
 
     FILENAME=`basename "$FILE"`
@@ -66,7 +75,7 @@ do
     # Something used to go wrong if $FILENAME is a dir ending in "/"
 
     # Move it and report =)
-    echo "$FILE "`cursegreen`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
+    echo "$FILE "`cursered``cursebold`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
     mv -f "$FILE" "$DEST/$FILENAME"
 
     # Remove from CVS
@@ -91,6 +100,7 @@ do
 
     error "del: does not exist: $FILE"
     ALLOK=1
+    # continue
 
   fi
 

@@ -1,3 +1,6 @@
+## TODO: delete the memoed file if interrupted
+##       (eg. could delete it, memo to elsewhere, then move into correct place if successful)
+
 . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
 REALPWD=`realpath "$PWD"`

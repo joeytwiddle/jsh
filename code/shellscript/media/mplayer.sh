@@ -1,4 +1,4 @@
-OPTS="-vo x11"
+OPTS="-vo x11 -stop_xscreensaver"
 # OPTS="-vo xv"
 if test "$1" = "-turbo"
 then

@@ -43,7 +43,8 @@ fi
 
 echo "Coming up"
 'rm' -f $JPATH/logs/packetdata.ppp
-/usr/sbin/pppd call provider
+## One of kdebug 0 | nolog prevents endless send rcvd logging
+/usr/sbin/pppd kdebug 0 nolog call provider
 # /usr/sbin/pppd record $JPATH/logs/packetdata.ppp call provider
 
 sleep 60

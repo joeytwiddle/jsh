@@ -28,7 +28,10 @@ else
 	# runhugs $JPATH/code/haskell/tools/treelist.hs $TMPFILE
 	# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
 	## Compiled with ghc =)
-	$JPATH/code/haskell/tools/treelist $TMPFILE
+	$JPATH/code/haskell/tools/treelist $TMPFILE |
+	cat
+	# highlight '\#' blue |
+	# highlight '@' red
 
 fi |
 

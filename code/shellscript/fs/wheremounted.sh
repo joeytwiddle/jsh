@@ -1,6 +1,8 @@
 DIR=`realpath "$1"`
 
-df | drop 1 | takecols 6 | sort |
+df | drop 1 | takecols 6 |
+
+sort |
 
 while read MOUNTPNT
 do

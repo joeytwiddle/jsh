@@ -27,59 +27,42 @@
 TMPFILE=`jgettmp keepduplicatelines`
 
 export GAP=
-while test "x$1" = "x-gap"; do
-  export GAP=true
-  shift
+while test "$1" = "-gap"
+do export GAP=true; shift
 done
 
-# ALL=`cat`
 cat > "$TMPFILE"
 
-# KEEP=`
-  Y=""
-  # echo "$ALL" |
-  cat "$TMPFILE" |
-  takecols "$@" |
-  sort |
-  while read X; do
-    if test "x$X" = "x$Y"; then
-      echo "$X"
-    fi
-    Y="$X"
-  done |
-  removeduplicatelines |
-  # removeduplicatelines`
+LAST=""
 
-# echo "$KEEP" |
-  while read X; do
-    if test ! "x$X" = "x"; then
-      # echo "$ALL" |
-      # grep "$X" # Yes this one!
-      if test "$GAP"; then
-        echo
-        # echo "$X ------------------"
-        # echo "$X"
-		  # # Er what is this sed for?
-        # grep "$X" "$TMPFILE" | sed "s+$X++"
-	  fi
-      # else
-			# Only do grep if previously stripped by columns
-			if test "x$1" = "x"; then
-				echo "$X"
-			else
-				grep "$X" "$TMPFILE" # The dodgy grep
-			fi
-      # fi
-    fi
-  done |
-  removeduplicatelinespo # These can occur if the kept column matches an irrelevent line (eg. subset or irrelevent column)
+cat "$TMPFILE" |
+takecols "$@" |
+sort |
 
-# Y=""
-# sort | while read X; do
-  # if test "$X" = "$Y"; then
-    # echo "$X"
-  # fi
-  # Y="$X"
-# done
+while read LINE
+do
+  if test "$LINE" = "$LAST"
+  then echo "$LINE"
+  fi
+  LAST="$LINE"
+done |
+
+removeduplicatelines |
+
+while read LINE; do
+  if test "$LINE"
+  then
+    if test "$GAP"
+    then echo
+    fi
+    if test ! "$1"
+    then echo "$LINE"
+    # else grep "$LINE" "$TMPFILE" # The dodgy grep
+    else grep "\(^\|[ 	]\)$LINE\([ 	]\|$\)" "$TMPFILE" # The dodgy grep
+    fi
+  fi
+done |
+
+removeduplicatelinespo # These can occur if the kept column matches an irrelevent line (eg. subset or irrelevent column)
 
 jdeltmp "$TMPFILE"

@@ -28,10 +28,18 @@ alias xterm='xtermbg'
 
 alias man='jman'
 
-myhist() {
-# history 1 | grep "$@" ## no 1 for bash!
-history | grep "$@"
-}
+## I guess we need this as an aliased function because a script would lost the history!
+if test "$SHORTSHELL" = zsh
+then
+	myhist() {
+		history 1 | grep "$*"
+	}
+elif test "$SHORTSHELL" = bash
+then
+	myhist() {
+		history | grep "$*"
+	}
+fi
 alias hist=myhist
 
 myxv() {
