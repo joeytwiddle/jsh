@@ -1,4 +1,38 @@
-DEV=eth1
+## traffic_shaping
+## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
+## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.
+
+## Sorry, this isn't adaptive, ie. it doesn't shrink the non-interactive pipe when you are using the net interactively, and then grow it when you are idle or away.
+## It puts a constant reduction on your non-priority traffic (PROPORTION_TO_ALLOW).
+## But since it works and can be used all the time, I find it means I can send more non-interactive traffic by leaving it running constantly through this form of shaping.
+## A dynamic size pipe would be good though...
+
+## On my cable modem: monitoriflow reports the largest outgoing bytes per second at about 22000
+##                    But for shaping, I tend to use two limited pipes of 40kbit (50kbit peak),
+##                    which tends to allow around 17000 of non-interactive traffic through.
+
+## The core of this script was ripped from a webpage somewhere I think.
+
+## NOTE: you can view the various pipes at work by running the traffic_shaping_monitor script.
+##       monitoriflow (or any network traffic monitor) on a busy network can also give a good indication of how the shaping rules are working.
+
+
+### >>>>>>>>>>>>>>>>>>>> Config
+
+## This is actually the max output bytes per second you can observe from monitoriflow running without shaping
+BANDWIDTH_OUT=22000
+
+## How much smaller than your overall bandwidth do you want the non-priority pipe to be?
+PROPORTION_TO_ALLOW="3 / 4"
+# PROPORTION_TO_ALLOW="1 / 2"
+
+# INTERFACE=ppp0
+# INTERFACE=eth0
+# INTERFACE=eth1
+
+INTERFACE=`/home/joey/j/jsh ifonline`
+
+
 
 ## Stats can be accessed with: /sbin/tc -s qdisc ls dev eth1
 ## In jsh I use: jwatchchanges /sbin/tc -s qdisc ls dev eth1 "|" trimempty
@@ -13,6 +47,8 @@ DEV=eth1
 
 ## OK finally realised that the disc #s are hex, so we can probably have max f of them, not 9!
 
+
+
 function filter_port () {
 	TYPE="$1"
 	PORTDIR="$2"
@@ -21,88 +57,120 @@ function filter_port () {
 	if [ "$DESTDISC" = 2 ]
 	then echo "!!! $1 $2 $3 $4"
 	fi
-	/sbin/tc filter add dev "$DEV" parent 1:0 prio $DESTDISC protocol ip u32 match ip $PORTDIR $PORT 0xffff flowid 1:$DESTDISC
+	/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio $DESTDISC protocol ip u32 match ip $PORTDIR $PORT 0xffff flowid 1:$DESTDISC
 }
 
 case "$1" in
 
 		start-simple)
-			# /sbin/tc qdisc add dev "$DEV" root tbf rate 0.5mbit burst 5kb latency 70ms peakrate 1mbit minburst 1540
+			# /sbin/tc qdisc add dev "$INTERFACE" root tbf rate 0.5mbit burst 5kb latency 70ms peakrate 1mbit minburst 1540
 			## From: http://lartc.org/lartc.html#AEN691
-			/sbin/tc qdisc add dev "$DEV" root tbf rate 99kbit burst 2000 latency 50ms
+			/sbin/tc qdisc add dev "$INTERFACE" root tbf rate 99kbit burst 2000 latency 50ms
 			## Note: if I change burst to 1000, ssh slows down dramatically, why?
 		;;
 
 		start)
 			echo -n "shaping: "
-			## configure "$DEV" so that there is a bandwidth cap on large packets going up the DSL line
+			## configure "$INTERFACE" so that there is a bandwidth cap on large packets going up the DSL line
 			## and then garp advertising the true gateway's IP, so that other hosts use us rather than it
+
+
+
+			## >>>>>>>>>>>>>>>>>>>> Initialisation
+
+			## This magically converts BANDWIDTH_OUT to MAXKBIT (which is what tc thinks is you max output per second!)
+			MAXKBIT=`expr "$BANDWIDTH_OUT" / 202`
+			MAXKBITPERPIPE=`expr "$MAXKBIT" / 2` ## Because we create two small pipes of the same size
+			KBITLIMITPERPIPE=`expr "$MAXKBITPERPIPE" '*' $PROPORTION_TO_ALLOW`
+			PEAKKBITLIMITPERPIPE=`expr "$KBITLIMITPERPIPE" '*' 5 / 4`
+
+			if [ "$KBITLIMITPERPIPE" -gt 5 ] && [ "$KBITLIMITPERPIPE" -lt 99999999999 ]
+			then :
+			else
+				jshwarn "[traffic_shaping] Don't trust kbit limit $KBITLIMITPERPIPE,"
+				KBITLIMITPERPIPE=44
+				PEAKKBITLIMITPERPIPE=55
+				jshwarn "[traffic_shaping] using $KBITLIMITPERPIPE instead."
+			fi
+
+			jshinfo "[traffic_shaping] Will create two pipes of size $KBITLIMITPERPIPE kbit/s (peak $PEAKKBITLIMITPERPIPE)"
+			# [ "$DEBUG" ] && debug "[traffic_shaping] Will create two pipes of size $KBITLIMITPERPIPE (peak $PEAKKBITLIMITPERPIPE)"
+
+
+
+			## >>>>>>>>>>>>>>>>>>>> Start IP forwarding rules (disabled here):
 
 			## enable ip forwarding
 			# echo 1 >/proc/sys/net/ipv4/ip_forward 
 
+			## Joey: I guess this should be commented out too!
 			## disable sending of icmp redirects (after all, we are deliberatly causing the hosts to use us instead of the true gateway)
-			echo 0 >/proc/sys/net/ipv4/conf/all/send_redirects
-			echo 0 >/proc/sys/net/ipv4/conf/"$DEV"/send_redirects
+			# echo 0 >/proc/sys/net/ipv4/conf/all/send_redirects
+			# echo 0 >/proc/sys/net/ipv4/conf/"$INTERFACE"/send_redirects
 
-			## clear whatever is attached to "$DEV"
+
+
+			## >>>>>>>>>>>>>>>>>>>> Add the shaping rules to the stack or wherever they go!
+
+			## clear whatever is attached to "$INTERFACE"
 			## this can fail if there is nothing attached, btw, but that is fine
-			/sbin/tc qdisc del dev "$DEV" root 2>/dev/null
+			/sbin/tc qdisc del dev "$INTERFACE" root 2>/dev/null
 
-			## add default 4-band priority qdisc to "$DEV"
-			/sbin/tc qdisc add dev "$DEV" root handle 1: prio bands 9
+			## add default 4-band priority qdisc to "$INTERFACE"
+			/sbin/tc qdisc add dev "$INTERFACE" root handle 1: prio bands 9
 
 			## add a <128kbit rate limit (matches DSL upstream bandwidth) with a very deep buffer to the bulk band (#3)
 			## 99 kbit/s == 8 1500 byte packets/sec, so a latency of 5 sec means we will buffer up to 40 of these big
 			## ones before dropping. a buffer of 1600 tokens means that at any time we are ready to burst one of
 			## these big ones (at the peakrate, 128kbit/s). the mtu of 1518 instead of 1514 is in case I ever start
 			## using vlan tagging, because if mtu is too low (like 1500) then all traffic blocks
-			# # /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
-			# # /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
-			# # /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 60kbit buffer 1600 peakrate 75kbit mtu 1518 mpu 64 latency 50ms
-			# /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 90kbit mtu 1518 mpu 64 latency 50ms
-			# # /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
-			# # # /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate "$KBITLIMITPERPIPE"kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:3 handle 13: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:3 handle 13: tbf rate 60kbit buffer 1600 peakrate 75kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 90kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
+			# # # /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
 			## Decided they should have equal weighting:
-			# /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 60kbit buffer 1600 peakrate 70kbit mtu 1518 mpu 64 latency 50ms
-			# /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 60kbit buffer 1600 peakrate 70kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
-			# /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			/sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 40kbit buffer 1600 peakrate 50kbit mtu 1518 mpu 64 latency 50ms
-			# /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
-			# /sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
+			/sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate "$KBITLIMITPERPIPE"kbit buffer 1600 peakrate "$PEAKKBITLIMITPERPIPE"kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
 			## For small packets:
-			# /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
-			# # /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
-			# # # /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
+			# # # /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
 			## Decided they should have equal weighting:
-			# /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 40kbit buffer 1600 peakrate 50kbit mtu 1518 mpu 64 latency 50ms
-			# /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate "$KBITLIMITPERPIPE"kbit buffer 1600 peakrate 50kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
-			# /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			/sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 40kbit buffer 1600 peakrate 50kbit mtu 1518 mpu 64 latency 50ms
-			# /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
-			# /sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
+			/sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate "$KBITLIMITPERPIPE"kbit buffer 1600 peakrate "$PEAKKBITLIMITPERPIPE"kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
 			## add fifos to the other bands so we can have some stats
 			for SUBDISC in `seq 7 -1 1`
 			do
 				# if [ "$SUBDISC" = 6 ]
 				# then
-					# /sbin/tc qdisc add dev "$DEV" parent 1:$SUBDISC handle 1$SUBDISC: tbf rate 240kbit buffer 1600 peakrate 280kbit mtu 1518 mpu 64 latency 50ms
+					# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SUBDISC handle 1$SUBDISC: tbf rate 240kbit buffer 1600 peakrate 280kbit mtu 1518 mpu 64 latency 50ms
 				# else
-					/sbin/tc qdisc add dev "$DEV" parent 1:$SUBDISC handle 1$SUBDISC: pfifo
+					/sbin/tc qdisc add dev "$INTERFACE" parent 1:$SUBDISC handle 1$SUBDISC: pfifo
 				# fi
 			done
 
 			## add a filter so DIP's within the house go to prio band #1 instead of being assigned by TOS
 			## thus traffic going to an inhouse location has top priority
-			# /sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.168.0/24 flowid 1:1
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dst 10.0.0.0/24 flowid 1:1
+			# /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.168.0/24 flowid 1:1
+			## Joey TODO: I guess this assumes your network is 10.0.0.*
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 10.0.0.0/24 flowid 1:1
 
 			## multicasts also go into band #1, since they are all inhouse (and we don't want to delay ntp packets and mess up time)
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dst 224.0.0.0/4 flowid 1:1
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 224.0.0.0/4 flowid 1:1
 
 			### Critical:
 
@@ -147,10 +215,14 @@ case "$1" in
 
 			### Interactive:
 
+			## ssh is not at highest because rsync, scp, and other things can run across it
 			## apparently, one "could tell ssh from scp; scp sets the IP diffserv flags to indicate bulk traffic"
-			## but i don't know how to do this.  And what about rsync?
+			## but i don't know how to do this.  And what about rsync?  Maybe we can deal with large packets differently.
 			filter_port ssh      sport 22   4
 			filter_port ssh      dport 22   4
+			## My friends sometimes port-forward on 220:
+			filter_port ssh      sport 220  4
+			filter_port ssh      dport 220  4
 
 			## Vnc-http, Vnc, and X
 			for VNCPORT in `seq 5800 5899` `seq 5900 5999` `seq 6000 6010`
@@ -166,6 +238,9 @@ case "$1" in
 			## Fast websurfing:
 			filter_port http   dport 80   5
 			filter_port https  dport 443  5
+			## You probably want your webserver to go reasonably fast (compared to file sharing networks for example).
+			## If you prefer to choke your webserver too, you can send it to band 8 or 9 instead.  (9 seems great but sometimes tails off!)
+			## Or I could set up a third sub-pipe for webserver throttling...
 			## Lower priority webserver:
 			filter_port http   sport 80   6
 			filter_port https  sport 443  6
@@ -187,13 +262,16 @@ case "$1" in
 				filter_port batch$PORT dport $PORT 7
 			done
 
+			## Joey says: for some reason the original author split small and large packets up,
+			## (presumably to ensure one class didn't swamp the other?), so I haven't changed it.
+
 			## small IP packets go to band #2 (Joey: #3)
 			## by small I mean <128 bytes in the IP datagram, or in other words, the upper 9 bits of the iph.tot_len are 0
 			## note: this completely fails to do the right thing with fragmented packets. However
 			## we happen to not have many (any? icmp maybe, but tcp?) fragmented packets going out the DSL line
-			# /sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:2
+			# /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 2 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:2
 			## Joey finds there are too many, at least when running multiple bittorrents.  CONSIDER: make abother tbf for the small packets?
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 8 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:8
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 8 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:8
 
 			## a final catch-all filter that redirects all remaining ip packets to band #4
 			## presumably all that is left are large packets headed out the DSL line, which are
@@ -201,20 +279,20 @@ case "$1" in
 			## DSL modem's uplink egress queue and keeping the shorter 'interactive' packets from
 			## getting through
 			## the dummy match is required to make the command parse
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 9 protocol ip u32 match u8 0 0 at 0 flowid 1:9
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 9 protocol ip u32 match u8 0 0 at 0 flowid 1:9
 
 			## have the rest of the house think we are the gateway
 			## the reason I use arpspoofing is that I want automatic failover to the real gateway
 			## should this machine go offline, and since the real gateway does not do vrrp, I hack
 			## the network and steal its arp address instead
 			## It takes 5-10 seconds for the failback to happen, but it works :-)
-			# /usr/sbin/arpspoof -i "$DEV" 192.168.168.1 >/dev/null 2>&1 &
+			# /usr/sbin/arpspoof -i "$INTERFACE" 192.168.168.1 >/dev/null 2>&1 &
 			# echo $! >/var/run/shapedsl.arpspoof.pid
 			echo "startified"
 		;;
 
 		stop)
-			/sbin/tc qdisc del dev "$DEV" root # 2>/dev/null
+			/sbin/tc qdisc del dev "$INTERFACE" root # 2>/dev/null
 			# if [ -r /var/run/shapedsl.arpspoof.pid ]
 			# then
 				# kill `cat /var/run/shapedsl.arpspoof.pid`
