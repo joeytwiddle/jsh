@@ -2,6 +2,9 @@
 # but there is a nice new version with extension po which does
 # using sort...
 
+# Apparently sed can do it like this: sed '$!N; /^\(.*\)\n\1$/!P; D'
+# and there is also "uniq"
+
 Y="what would be a non-existent string, if such a string was possible"
 cat "$@" |
     sort |

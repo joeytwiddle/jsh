@@ -1,7 +1,16 @@
 if test "$1" = "" -o "$2" = ""; then
-	echo "remotediff <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
+	echo "remotediff -diffcom <diff_command> <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
+	echo "Supported diff commands: (may be provided in \$DIFFCOM, otherwise chosen from)"
+	echo "  gvimdiff"
+	echo "  vimdiff"
+	echo "  jfc"
+	echo "  jdiff"
+	echo "  diff"
+	echo "  rsyncdiff - Lets you edit diff list then transports files."
 	exit 1
 fi
+
+### Read parameters
 
 LOCAL="$1"
 REMOTESTRING="$2"
@@ -16,12 +25,40 @@ TMPONE=`jgettmp local.cksum`
 TMPTWO=`jgettmp remote.cksum`
 TMPTHREE=`jgettmp difference.txt`
 
+### Choose an available diff command
+
+if test ! "$DIFFCOM"; then
+	## Note jfcsh not suitable because currently one-way only (no longer true - fixit!)
+	DIFFCOMS="gvimdiff vimdiff jfc jdiff diff"
+	for X in $DIFFCOMS; do
+		if test "$DIFFCOM" = "" && which "$X" > /dev/null 2>&1; then
+			DIFFCOM="$X"
+		fi
+	done
+	if test "$DIFFCOM" = ""; then
+		echo "Could not find any diffing program (tried $DIFFCOMS)."
+		echo "Files are in $TMPONE and $TMPTWO."
+		exit 1
+	fi
+	echo "Will use \"$DIFFCOM\" for diffing."
+fi
+# DIFFCOM="rsyncdiff"
+
+### Set up commands for cksum retrieval
+
 FINDOPTS="-type f $@"
+
+CKSUMCOMEXT=""
+if test "$DIFFCOM" = "rsyncdiff"; then
+	CKSUMCOMEXT='
+		date "+%Y/%m/%d-%H:%M:%S" -r "$X" | tr -d "\n"
+		printf " "
+	'
+fi
 
 CKSUMCOM='
 	while read X; do
-		date "+%Y/%m/%d-%H:%M:%S" -r "$X" | tr -d "\n"
-		printf " "
+		'"$CKSUMCOMEXT"'
 		cksum "$X"
 	done |
 	tr "\t" " " |
@@ -35,26 +72,45 @@ REMOTECOM='cd "'"$RDIR"'" && find . '"$FINDOPTS"' | '"$CKSUMCOM"
 
 
 
-# Try to use (g)vimdiff or jfc if available
-if test ! "$DIFFCOM"; then
-	## Note jfc not suitable because currently one-way only
-	DIFFCOMS="gvimdiff vimdiff jfc jdiff diff"
-	for X in $DIFFCOMS; do
-		if test "$DIFFCOM" = "" && which "$X" > /dev/null 2>&1; then
-			DIFFCOM="$X"
-		fi
-	done
-	if test "$DIFFCOM" = ""; then
-		echo "Could not find any diffing program (tried $DIFFCOMS)."
-		echo "Files are in $TMPONE and $TMPTWO."
-		exit 1
-	fi
+### Get the cksums
+
+echo "Getting cksums for remote $RHOST:$RDIR"
+ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
+
+echo "Getting cksums for local $LOCAL"
+cd "$LOCAL" && find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE.longer" && echo "Got local" &
+
+wait
+
+
+
+## Post-process results if required
+
+cat "$TMPONE.longer" | cut -d " " -f 2,3,4 > "$TMPONE"
+cat "$TMPTWO.longer" | cut -d " " -f 2,3,4 > "$TMPTWO"
+
+# Diff works badly if not sorted
+preparefordiff () {
+	sort -k 3 "$TMPONE" > "$TMPONE.sorted"
+	sort -k 3 "$TMPTWO" > "$TMPTWO.sorted"
+	TMPONE="$TMPONE.sorted"
+	TMPTWO="$TMPTWO.sorted";
+}
+
+if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff" -o "$DIFFCOM" = "jdiff"; then
+	preparefordiff
 fi
-# echo "Will use \"$DIFFCOM\" for diffing."
 
-DIFFCOM="myspecialdiff"
+# Removing cksum columns for the different diff-ers:
+# ( jfc "$TMPONE" "$TMPTWO" | ( takecols 5 || cat ) ) || ( diff "$TMPONE" "$TMPTWO" | ( takecols 1 4 || cat ) )
 
-myspecialdiff () {
+
+
+### Finally display the difference
+
+## rsyncdiff - a special diff command which lets you edit the diff and then
+## transfers the files for you =)
+rsyncdiff () {
 
 	EDITFILE=`jgettmp remotediff.edit`
 	jfcsh "$1" "$2" > "$1.only"
@@ -123,36 +179,6 @@ myspecialdiff () {
 	done
 
 }
-
-echo "Getting cksums for local $LOCAL"
-cd "$LOCAL" && find . $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE.longer" && echo "Got local" &
-
-echo "Getting cksums for remote $RHOST:$RDIR"
-ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
-
-wait
-
-
-
-cat "$TMPONE.longer" | cut -d " " -f 2,3,4 > "$TMPONE"
-cat "$TMPTWO.longer" | cut -d " " -f 2,3,4 > "$TMPTWO"
-
-# Diff works badly if not sorted
-preparefordiff () {
-	sort -k 3 "$TMPONE" > "$TMPONE.sorted"
-	sort -k 3 "$TMPTWO" > "$TMPTWO.sorted"
-	TMPONE="$TMPONE.sorted"
-	TMPTWO="$TMPTWO.sorted";
-}
-
-if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff" -o "$DIFFCOM" = "jdiff"; then
-	preparefordiff
-fi
-
-# Removing cksum columns for the different diff-ers:
-# ( jfc "$TMPONE" "$TMPTWO" | ( takecols 5 || cat ) ) || ( diff "$TMPONE" "$TMPTWO" | ( takecols 1 4 || cat ) )
-
-
 
 # echo "Comparing $LOCAL to $RHOST:$RDIR using $DIFFCOM ..."
 echo "Comparing local to remote using \"$DIFFCOM\" ..."

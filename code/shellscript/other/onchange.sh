@@ -1,4 +1,5 @@
 # Todo: Make it work on multiple files
+# er does work on multiple files but must be in quotes - fix?
 
 # This is OK on Linux but not Unix:
 # function littletest() {

@@ -7,24 +7,13 @@
 
 export FINDDIR="$HOME/evolution/local/"
 
-dofind() {
-	find "$FINDDIR" -name mbox |
-	while read X; do
-		ls -ld "$X"
-	done
-}
-
 TMPFILE=`jgettmp "evolution-b4-mutt"`
-dofind > "$TMPFILE" &
+touch "$TMPFILE" # probably already happened anyway
 
 `jwhich mutt` "$@"
 
-TMPFILE2=`jgettmp "evolution-b4-mutt"`
-
-dofind > "$TMPFILE2"
 MBSCHANGED=`
-jfcsh "$TMPFILE" "$TMPFILE2" |
-sed "s+^[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*++"
+find "$FINDDIR" -newer "$TMPFILE"
 `
 
 if test ! "$MBSCHANGED" = ""; then
