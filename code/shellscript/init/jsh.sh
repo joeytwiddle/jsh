@@ -79,7 +79,8 @@ else
 	# if test "`hostname`" = hwi && test $USER = joey; then
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
 	if [ `which zsh` > /dev/null 2>&1 ] &&
-	   grep '^\(source\|\.\) .*/startj$' $HOME/.zshrc > /dev/null 2>&1
+	   grep '^\(source\|\.\) .*/startj$' $HOME/.zshrc > /dev/null 2>&1 &&
+		[ ! "$USE_SHELL" = bash ]
 	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
 		## I believe zsh sources its own rc scripts automatically, so this is not needed:

@@ -124,8 +124,8 @@ else
 
 		else
 
-			test -f "$JPATH/global.conf" && . "$JPATH/global.conf"
-			test -f "$JPATH/local.conf" && . "$JPATH/local.conf"
+			[ -f "$JPATH/global.conf" ] && . "$JPATH/global.conf"
+			[ -f "$JPATH/local.conf" ] && . "$JPATH/local.conf"
 
 			## Setup user bin, libs, man etc...
 			# export PATH=$HOME/bin:$PATH
@@ -138,7 +138,8 @@ else
 
 			### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
 
-			if test ! "$1" = "simple"; then
+			if [ ! "$1" = "simple" ]
+			then
 
 				## TODO: Separate scripts which need to run to init stuff for runtime
 				##       from scripts which do stuff that isn't dependent for later.
@@ -155,6 +156,7 @@ else
 				# mytime . getmachineinfo
 				. getmachineinfo
 
+				### Keybindings and pretty prompts:
 				## Which flavour shell are we running?
 				if [ $ZSH_NAME ]
 				then
@@ -172,16 +174,26 @@ else
 				fi
 				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt
 
+				# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
+				## Nope better to have an alias source a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
+				. xttitleprompt
+
+				. lscolsinit
+
 				. joeysaliases
-				. cvsinit
 
 				# . dirhistorysetup.bash
 				. dirhistorysetup.zsh
-				. lscolsinit
+
+				. cvsinit
 
 				alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
 				alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
 				alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
+
+				[ "$BASH" ] && [ -f /etc/bash_completion ] && . /etc/bash_completion ||
+				[ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ] && . $HOME/.zsh_completion_rules ||
+				. autocomplete_from_man
 
 				export FIGNORE=".class"
 
@@ -193,10 +205,6 @@ else
 
 				## Message on user login/out (zsh, tcsh, ...?)
 				export WATCH=all
-
-				# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
-				## Nope better to have a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
-				. xttitleprompt
 
 				### Better solution in jsh.
 				# ## If user prefers zsh but has not sourced startj in their .zshrc,

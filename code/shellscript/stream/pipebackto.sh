@@ -10,6 +10,12 @@
 ##
 ## Could alternatively be called: catback, catlater, ...
 
+## So that if "$@" = "", then 'cat "$@" | ... | pipebackto "$@"' will work over stdin/out, as in eg. replaceline.
+## Note: this feature may not stay.  CONSIDER: what about cat - | ... | pipebackto - ?
+if [ ! "$*" ]
+then cat; exit
+fi
+
 if [ "$1" = -bak ]
 then
 	shift

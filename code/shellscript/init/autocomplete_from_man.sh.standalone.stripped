@@ -1,0 +1,45 @@
+## autocomplete_from_man: Adds to bash or zsh the ability to use tab-completion for the - and -- options of the current command (provided it has a man page installed).
+## eg.: source this script with ". ./autocomplete_from_man", then type: tar --<Tab>
+## Documented code available from http://hwi.ath.cx
+
+extractregex () {
+if [ "$1" = -atom ]
+then shift; EXPR="$@"
+else EXPR="(""$@"")"
+fi
+perl -n -e ' while ( /'"$EXPR"'/g ) { print("$1\n"); } '
+}
+
+extractpossoptsfrommanpage () {
+'man' "$@" 2> /dev/null | col -bx | extractregex -atom "[ 	]((-|--)[A-Za-z0-9-=]+)"
+}
+
+if [ "$BASH" ]
+then
+	function joeyComplete {
+		COMMAND="$1"
+		CURRENT=${COMP_WORDS[COMP_CWORD]}
+		WORDS="--help "` extractpossoptsfrommanpage "$COMMAND" `
+		complete -W "$WORDS" -a -b -c -d -f -g -j -k -s -u "$COMMAND"
+		COMPREPLY=(`compgen -W "$WORDS" -a -b -c -d -f -g -j -k -s -u -- "$CURRENT"`)
+	}
+	complete -F joeyComplete ` echo "$PATH" | tr ':' '\n' | while read DIR; do find "$DIR" -type f -maxdepth 1; done | sed 's+.*/++' `
+fi
+
+if [ "$ZSH_NAME" ]
+then
+	mkdir -p /tmp/completion_options
+	function joeyComplete {
+		read -c COMMAND ARGS
+		if [ ! "$ARGS" ]
+		then reply=
+		else
+			MEMOFILE=/tmp/completion_options/"$COMMAND".cached
+			if [ ! -f "$MEMOFILE" ] || [ "$REMEMO" ]
+			then extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
+			fi
+			reply=(--help `cat "$MEMOFILE"`)
+		fi
+	}
+	compctl -f -c -u -r -K joeyComplete -H 0 '' "*" -tn
+fi

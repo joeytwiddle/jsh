@@ -12,7 +12,7 @@ then
 	echo "  -keep:  will retain the file after rotation (via tmpfile <file>.keep)"
 	echo "  -nozip: will not gzip or tar-up the file or directory before rotation"
 	echo "  -max:   will rotate to ensure no more than <num> + 1 logs"
-	echo "  never rotates <file>.0"
+	echo "  never rotates <file>[.gz].0"
 	echo
 	echo "You may also wish to investigate savelog(8), part of debianutils."
 	exit 1

@@ -11,15 +11,19 @@ then
 
 	if [ "$MADPLAY_STANDIN_PLAYS_RANDOM_TUNE_TOO" ]
 	then
-		FILE=`cat $JPATH/music/list.m3u | chooserandomline`
+		FILE=`cat $JPATH/music/list.m3u | ungrep INCOMPLETE | chooserandomline`
 		echo
-		echo "`curseyellow`Also playing: `cursemagenta``cursebold`$FILE`cursenorm`"
+		echo "`curseyellow`Also playing: `cursered`del `cursemagenta``cursebold`\"$FILE\"`cursenorm`"
+		mp3duration "$FILE"
 		echo
-		echo "Also playing: $FILE" | txt2speech
+		NAME=`echo "$FILE" | afterlast /`
+		echo "Also playing: $NAME" | txt2speech
 		mplayer "$FILE"
 	fi
 
 	jdeltmp "$LOCKFILE"
+
+	sleep 5
 
 else
 
