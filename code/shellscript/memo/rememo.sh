@@ -21,6 +21,7 @@ TMPFILE=`jgettmp tmprememo`
 
 ## eval caused problems when one of the args was a URL containing the '&' character
 ## BUG: can't handle single bracket in filename eg. memo du -sk ./*
+## BUG: also can't handle 's in filenames
 eval "$@" > $TMPFILE
 
 EXITWAS="$?"

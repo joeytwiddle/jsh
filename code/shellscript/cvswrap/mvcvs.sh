@@ -89,7 +89,8 @@ mvcvs1() {
 
 		## We can copy the file in the CVS repository to create the new entry
 		echo "cp \"$CVSFILE\" \"$CVSDESTDIR/$DESTFILENAME,v\""
-		## I think somebody has to do this (and commit it, although nobody has to add mmm)
+		## To keep the client in sync, we remove the file and call "cvs remove", which will also remove it from the repository (when we commit later).
+		## Could be replaced with: rm -f "$LOCALSRC" ; cvs remove "$LOCALSRC"
 		echo "del -cvs \"$LOCALSRC\""
 
 	else

@@ -1,3 +1,5 @@
+## DONE: make links point to ../code/shellscript/$SCRIPTPATH rather than full path, to make jsh easier to move about!
+
 # Symbolically link all relevant tools into $JPATH/tools/ directory
 # so that they may all be put in the path in one go!
 
@@ -26,10 +28,11 @@ then
 
 	## Faster
 
+	cd $JPATH/tools
 	echo "Linking ..."
 	(
-		find $JPATH/code/shellscript \
-			\( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) ! -type d
+		find ../code/shellscript/ \
+			\( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) -not -type d
 		# test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	/bin/grep -v "/.ignore/" |

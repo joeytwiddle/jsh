@@ -16,11 +16,17 @@ grep $GREPARGS "$@" 2>/dev/null |
 	## This if is meant to render cyan up to ':' only if searching multiple files, but does not check for -c mode etc.
 	## also catch '-' for context grep
 	if test `countargs "$@"` -gt 1; then
+
+		## Um I'm not sure what this one is for:
 		sed "s|^--$|`curseblue`--`cursenorm`|" | ## Don't understand why this one doesn't prevent later ^ regexps from failing!
+
     ## Render lines beginning <filename>: and <filename>-
-    ## Too annoying so disabled, until we can establish multiple file input or -r
+    ## You might want to disable these if you find them Too annoying, or we could try to establish multiple file input or -r, and only enable them then...
+		## Highlight filenames (up to ':'):  KNOWN (UNFIXABLE) BUG: can be interrupted if filename matches seach expr
 		sed "s|^\([^:-]*\)\(:\)|`cursecyan;cursebold`\1\2`cursenorm`$TABCHAR|" |
+		## Highlight -A -B or -C filenames (up to '-'):  KNOWN (UNFIXABLE) BUG: higlight stops early if filename contains '-'!
 		sed "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
+
 		cat
 	else
 		cat

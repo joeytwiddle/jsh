@@ -6,6 +6,8 @@ MEMODIR=$TOPTMP/memo
 
 ## TODO:
 #  - Allow user to specify their own hash (essentially making memo a hashtable)
+
+## DONE:
 #  - Leaves an empty or partial memo file if interrupted
 #    We should memo to a temp file and move to memo file when complete
 #  - Allow user to specify timeout after which rememo occurs

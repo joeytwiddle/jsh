@@ -3,7 +3,7 @@
 ## Usage: monitoriflow [ <interface> ]
 ##   will display incoming, outcoming and total bytes per second travelling over the specified interface
 
-## TODO: deal with rollover of numbers which apparently happens as one woule expect
+## TODO: deal with rollover of numbers.  easily detectable (new < last), but how much do we add (~1213030)
 
 ## For floating point, we could use awk or perl, or bc as below.
 

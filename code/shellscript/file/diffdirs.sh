@@ -1,3 +1,4 @@
+## BUG: this doesn't work if u use terminal vim, because stdin terminal has already been stolen
 if [ "$1" = -showdiffswith ]
 then
 	SHOWDIFFSWITH="$2"
@@ -29,8 +30,8 @@ do
 	then
 		echo "Only in $DIRA: $FILE"
 	else
-		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
-		if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
+		if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
+		## This is no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
 		# if [ "`filesize \"$DIRA/$FILE\"`" = "`filesize \"$DIRB/$FILE\"`" ]
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		then noop # echo "Identical: $FILE"

@@ -36,7 +36,7 @@ then
 				## Show the script:
 					barline
 					cursecyan
-					echo `justlinks "$LINKTOCOM"`
+					echo `realpath "$LINKTOCOM"`
 					cursenorm
 					barline
 					cat "$LINKTOCOM" |
@@ -64,12 +64,13 @@ else
 	if [ -f "$LINKTOCOM" ]
 	then
 
-		if xisrunning
-		then
-			bigwin jdoc showjshtooldoc "$LINKTOCOM"
-		else
+		## I decided popping up was not desirable behaviour after all!
+		# if xisrunning
+		# then
+			# bigwin jdoc showjshtooldoc "$LINKTOCOM"
+		# else
 			jdoc showjshtooldoc "$LINKTOCOM"
-		fi
+		# fi
 
 	fi
 
