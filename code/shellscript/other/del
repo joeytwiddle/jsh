@@ -3,11 +3,11 @@
 ## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash
 
 DOCVS=
-if test "$1" = "-cvs"
+if [ "$1" = "-cvs" ]
 then DOCVS=true; shift
 fi
 
-if test ! "$1" || test "$1" = --help
+if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo 'del [-cvs] <files>'
 	echo 'will move <files> to the /RECLAIM directory of the partition, or to $JPATH/trash'
@@ -20,7 +20,7 @@ ALLOK=0
 for FILE
 do
 
-  if test -f "$FILE" || test -d "$FILE"
+  if [ -f "$FILE" ] || [ -d "$FILE" ]
   then
 
     MOUNTPNT=`wheremounted "$FILE"`
@@ -29,20 +29,20 @@ do
     ## Work out where to move the file to.
     for TRASHDIR in "$MOUNTPNT/RECLAIM" "$JPATH/trash" "$HOME/.trash" NO_DIR_WRITEABLE
     do
-      if test -w "$TRASHDIR" || test -w `basename "$TRASHDIR"`
+      if [ -w "$TRASHDIR" ] || [ -w `basename "$TRASHDIR"` ]
       then break
       fi
     done
 
-    if test "$TRASHDIR" = NO_DIR_WRITEABLE
+    if [ "$TRASHDIR" = NO_DIR_WRITEABLE ]
     then
-      error "No suitable trash directory found."
+      error "No suitable trash directory found.  Please export environment variable TRASHDIR."
       ALLOK=1
       break ## continue
     fi
 
     ## If deleting to $MOUNTPNT/RECLAIM then move MOUNTPNT from parent dir to delete to (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
-    if test "$TRASHDIR" = "$MOUNTPNT/RECLAIM"
+    if [ "$TRASHDIR" = "$MOUNTPNT/RECLAIM" ]
     then TODELPARENTDIR=`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
     else TODELPARENTDIR="$PARENTDIR"
     fi
@@ -50,13 +50,14 @@ do
     PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
 
     # Create destination directory
-    while test -f "$DEST"
+    while [ -f "$DEST" ]
     do
       echo "$DEST is a file - using $DEST.dir"
       DEST="$DEST.dir"
     done
     mkdir -p "$DEST"
-    if test ! -d "$DEST"; then
+    if [ ! -d "$DEST" ]
+    then
       error "del: problem creating destination directory: $DEST"
       error "del: not moved to trash: $FILE"
       # waitforkeypress
@@ -67,7 +68,7 @@ do
 
     FILENAME=`basename "$FILE"`
 
-    while test -f "$DEST/$FILENAME" -o -d "$DEST/$FILENAME"
+    while [ -f "$DEST/$FILENAME" ] || [ -d "$DEST/$FILENAME" ]
     do
       FILENAME="$FILENAME"_
     done
@@ -79,19 +80,14 @@ do
     mv -f "$FILE" "$DEST/$FILENAME"
 
     # Remove from CVS
-    if test $DOCVS
+    if [ $DOCVS ]
     then
-      if test -d "$PARENTDIR/CVS"
+      if [ -d "$PARENTDIR/CVS" ]
       then
         cvs remove $FILE > /dev/null 2>&1
-        if test "$?" = "0"
-        then
-          echo "Removed from CVS"
-        else
-          cursered
-          cursebold
-          echo "Error with CVS"
-          cursenorm
+        if [ "$?" = 0 ]
+        then echo "Removed from CVS"
+        else echo "`cursered;cursebold`Error with CVS`cursenorm`"
         fi
       fi
     fi
