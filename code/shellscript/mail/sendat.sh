@@ -1,7 +1,7 @@
 COM="$1"
 TIME="$2"
 TO="$3"
-DIR="$JPATH/mail/tosend-$TIME"
+DIR="$JPATH/data/mail/tosend-$TIME"
 SENDSCRIPT="$DIR/sendscript.sh"
 
 if test "$COM" = "sched"; then

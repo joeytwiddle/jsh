@@ -1,3 +1,5 @@
+#!/usr/local/bin/zsh
+
 START=$1
 END=$2
 INC="1";

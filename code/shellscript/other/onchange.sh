@@ -18,7 +18,7 @@ COMMANDONCHANGE="$2" # $3 $4 $5 $6 $7 $8 $9"
 if test "$2" = "do"; then
   COMMANDONCHANGE="$3" # $4 $5 $6 $7 $8 $9"
 fi
-COMPFILE="./onchange.tmp"
+COMPFILE=`jgettmp onchange`
 # COMPFILE="$JPATH/tmp/onchange.tmp"
 touch "$COMPFILE"
 while test "true" = "true"; do
@@ -36,3 +36,4 @@ while test "true" = "true"; do
   touch "$COMPFILE"
   $COMMANDONCHANGE
 done
+jdeltmp "$COMPFILE"
