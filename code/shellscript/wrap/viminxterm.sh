@@ -53,7 +53,7 @@ fi
 
 INTGEOM=`echo "$COLS"x"$ROWS" | sed 's|\..*x|x| ; s|\..*$||'`
 
-TITLE=`absolutepath "$@"`" [vim]"
+TITLE=`absolutepath "$@"`" [vim-never-shown]"
 
 XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 

@@ -21,10 +21,11 @@ del .gnome/session
 
 # Lets get some kind of window manager starting!
 # gnome-session
-# winman=`echo "wmaker sawmill" | tr " " "\n" | chooserandomline`
-winman="sawfish"
-# winman="sawmill"
-$winman || `jwhich xterm` -title "--- failed to start $winman wm ---" &
+# WinMan=`echo "wmaker sawmill" | tr " " "\n" | chooserandomline`
+# WinMan="sawfish"
+# WinMan="sawmill"
+WinMan="twm"
+$WinMan || `jwhich xterm` -title "--- failed to start $WinMan wm ---" &
 
 sleep 2
 # xsetroot -grey -bg darkgreen -fg black

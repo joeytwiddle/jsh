@@ -4,18 +4,20 @@ export JM_DOES_COLOUR=;
 export JM_COLOUR_LS=;
 export JM_ADVANCED_DU=;
 
-export JM_UNAME=`uname`
+# For portability:
+export JM_UNAME=`uname | tr "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz"`
+# export JM_UNAME=`uname | tolowercase`
 
 case "$JM_UNAME" in
-	"Linux")
+	"linux")
 		JM_DOES_COLOUR=true
 		JM_COLOUR_LS=true
 		JM_ADVANCED_DU=true
 		;;
-	"SunOS")
+	"sunos")
 		JM_DOES_COLOUR=true
       ;;
-	"HP-UX")
+	"hp-ux")
 		JM_DOES_COLOUR=true
 		;;
 esac

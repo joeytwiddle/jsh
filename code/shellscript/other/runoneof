@@ -12,7 +12,7 @@ fi
 
 LIST=$1;
 shift
-ARGS="$@";
+# ARGS="$@";
 
 # echo "l='$LIST' a='$ARGS'"
 
@@ -23,7 +23,7 @@ for FILE in $LIST; do
   # Uncomment this, disrupt $? next line   echo 'Got: "'$TRY'"'
   if test "$?" = "0"; then
     # echo "runoneof: trying $TRY"
-    $TRY $ARGS
+    $TRY "$@"
     if test "$?" = "0"; then
       # echo "$TRY done good"
       # echo "runoneof: worked on $TRY"

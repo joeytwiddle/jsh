@@ -5,6 +5,12 @@ echo '# Reasons for failing update:'
 echo '# cvs update 2>/dev/null | grep -v "^\? "'
 echo '# Files which are not the same as the repository versions.'
 echo '# or cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"'
+echo "# Rats, for some reason this doesn't work recursively."
+
+echo "Doing the latter first:"
+cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"
+
+echo "Now follow local files which are not even in the repository:"
 
 SHABLE=
 if test "$1" = "-nocol"; then
