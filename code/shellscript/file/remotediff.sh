@@ -72,6 +72,9 @@ myspecialdiff () {
 
 	vim "$EDITFILE"
 
+	## TODO: error handling!
+
+	## Send local files
 	cat "$EDITFILE" | grep "^local " |
 	while read LOCATION DATETIME CKSUM LEN FILENAME; do
 		echo "$LEN $RDIR/$FILENAME"
@@ -80,29 +83,44 @@ myspecialdiff () {
 	ssh -C $RUSER@$RHOST '
 		while read LEN FILENAME; do
 			printf "Writing $FILENAME..." >&2
-			dd bs=1 count=$LEN > "$FILENAME"
-			echo "done." >&2
+			mkdir -p `dirname "$FILENAME"`
+			dd bs=1 count=$LEN > "$FILENAME" &&
+			echo "done." >&2 ||
+			echo "ERROR." >&2
 		done
 	'
 
-	cat "$EDITFILE" | grep "^remote " |
-	while read LOCATION DATETIME CKSUM LEN FILENAME; do
-		echo "$LEN $FILENAME"
-	done |
-	ssh -C $RUSER@$RHOST '
+	## Bring remote files and files for diffing
+	(
+		cat "$EDITFILE" | grep "^remote " |
+		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			echo "$LEN $RDIR/$FILENAME"
+			echo "$LOCAL/$FILENAME"
+		done
+		cat "$EDITFILE" | grep "^diff " |
+		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			echo "$LEN $RDIR/$FILENAME"
+			echo "$LOCAL/$FILENAME.remote"
+		done
+	) |
+	ssh $RUSER@$RHOST '
 		while read LEN FILENAME; do
-			echo "$LEN $FILENAME"
-			cat "'"$RDIR"'/$FILENAME"
+			read GETFILENAME
+			echo "$LEN $GETFILENAME"
+			cat "$FILENAME"
 		done
 	' |
-	while read LEN FILENAME; do
-		printf "Reading $FILENAME..." >&2
-		dd bs=1 count=$LEN > "$LOCAL/$FILENAME"
+	while read LEN GETFILENAME; do
+		printf "Reading $GETFILENAME..." >&2
+		mkdir -p `dirname "$GETFILENAME"`
+		dd bs=1 count=$LEN > "$GETFILENAME" 2> /dev/null
 		echo "done." >&2
 	done
 
-	# echo "rsync -vv -P -r --exclude=\"*\" --include-from=tosend.list \"$LOCAL/\" \"$RUSER@$RHOST:$RDIR/\""
-	# echo "rsync -vv -P -r --exclude=\"*\" --include-from=tobring.list \"$RUSER@$RHOST:$RDIR/\" \"$LOCAL/\""
+	cat "$EDITFILE" | grep "^diff " |
+	while read LOCATION DATETIME CKSUM LEN FILENAME; do
+		vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.remote"
+	done
 
 }
 
@@ -140,3 +158,33 @@ fi
 echo "Comparing local to remote using \"$DIFFCOM\" ..."
 
 "$DIFFCOM" "$TMPONE" "$TMPTWO" | tee "$TMPTHREE"
+
+# # Commented not working
+# 
+# # This summary is a bit haphazard because jfc and diff act differently,
+# # and gvimdiff and vimdiff don't give any output!
+# 
+# # Works for diff:
+# # RESULT=`cat "$TMPTHREE"`
+# # if test "$RESULT"; then
+# # Works for jfc, don't know why not for diff (tried #!/bin/bash):
+# if test ! "$?" = "0"; then
+	# echo "There were differences. :-("
+	# echo "  Although if you are using vimdiff (as opposed to a com-line tool) this might not be true."
+	# exit 1
+# else
+	# NUMS1=`countlines "$TMPONE"`
+	# NUMS2=`countlines "$TMPTWO"`
+	# if test "$NUMS1" = "$NUMS2"; then
+		# echo "All $NUMS1 lines appear to be the same =)"
+		# echo "  Although if you are using vimdiff (as opposed to a com-line tool) this might not be true."
+		# exit 0
+	# else
+		# echo "Error: \"$DIFFCOM\" found them the same but linecount $NUMS1 != $NUMS2."
+		# echo "  Although if you are using vimdiff (as opposed to a com-line tool) this is probably not an error."
+		# exit 1
+	# fi
+# fi
+# 
+# exit 123
+
