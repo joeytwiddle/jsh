@@ -6,10 +6,15 @@ FILES="$3"
 
 if [ "$FILES" = "" ]; then
   # FILES="*.java"
-  FILES=`find . -name "*.java" | grep -v "/CVS/"`
+  FILES=`find . -name "*.java" |
+						grep -v "/CVS/" |
+						grep -v "notready/" |
+						grep -v "/old/" |
+						grep -v "/.ver"`
 fi
 
-echo "Making javadocs for $NAME in $DIR"
+echo "---------------------------------------------------------"
+echo "Making javadocs for $NAME in $DIR/javadoc/"
 mkdir -p javadoc
 $JAVADOC -d javadoc $FILES
 echo "<A HREF=\"$PWD/javadoc/index.html\">$1</A><br>" >> $DOCSUM
