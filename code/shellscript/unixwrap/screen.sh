@@ -20,13 +20,14 @@ else
 	echo "To reach deeper screens, press Ctrl+k then Ctrl+l's."
 	unj screen -list
 	# sleep 1
-	DEFNAME="`hostname`"
+	# DEFNAME=`hostname | beforefirst "\."`
+	DEFNAME="$HOST"
 	echo "Type session name to attach or start new (<Enter> defaults to \"$DEFNAME\")."
 	read NAME
 	test "$NAME" || NAME="$DEFNAME"
 	test "$NAME" || NAME=screen
 	export SCREENNAME="$NAME"
-	screentitle -remote "[$SHOWHOST:$SCREENNAME]"
+	screentitle -remote "[$HOST:$SCREENNAME]"
 	screen -h 10000 -a "-e^k^l" -S "$NAME" -D -RR
 
 fi

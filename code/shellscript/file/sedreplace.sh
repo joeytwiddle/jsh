@@ -19,10 +19,10 @@ else
 		shift
 		DOBACKUP=
 	fi
-	SHOWCHANGES=true
+	SHOWCHANGES=
 	if test "$1" = "-changes"; then
 		shift
-		SHOWCHANGES=
+		SHOWCHANGES=true
 	fi
 	FROM="$1"
 	TO="$2"

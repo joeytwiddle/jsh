@@ -82,6 +82,8 @@ do
 
 done
 
+# SECONDLINE is now the empty line we put there, so we ignore it.  =)
+
 # echo "$SECONDLINE"
 # 
 # while [ ! "$COMMONSOFAR" = "" ]

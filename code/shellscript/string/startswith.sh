@@ -1,8 +1,11 @@
-if test "$1" = "" && test "$2" = ""; then
+if [ "$1" = --help ]
+then
   echo "startswith <string> <searchstring>"
   echo "  return status 0 means true, 1 means false."
   exit 123
 fi
+
+[ "$2" = "" ] ||
 
 [ ! "${1#$2}" = "$1" ]
 
