@@ -1,3 +1,6 @@
+# Displays what needs to be done to remove all symlinks
+# in current / specified directory.
+
 if test "x$@" = "x"; then
 	LOOK="."
 else
