@@ -7,7 +7,7 @@ echo '# Files which are not the same as the repository versions.'
 echo '# or cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"'
 
 SHABLE=
-if test "$1" = "-sh"; then
+if test "$1" = "-nocol"; then
 	SHABLE=true
 	shift
 fi
@@ -18,7 +18,7 @@ cvs status 2>&1 | grep -v "^cvs status: Examining " | grep "^\? " |
 		if test $SHABLE; then
 			echo "$X"
 		else
-			ls -d "$X"
+			ls -d -F --color "$X"
 		fi
 	done
 
