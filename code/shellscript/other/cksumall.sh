@@ -3,12 +3,16 @@ if test "$1" = "--help"; then
 	exit 1
 fi
 
+if test ! "$CKSUMCOM"
+then CKSUMCOM="cksum"
+fi
+
 # 'ls' -R "$@" | ls-Rtofilelist |
 find "$@" -type f |
 while read X
 do
   # ls -l "$X"
-  cksum "$X"
+  "$CKSUMCOM" "$X"
 done
 # | sed 's#\([^ ]*\)[ ]*\([^ ]*\)[ ]*#\1	\2	#'
 # tr " " "\t"
