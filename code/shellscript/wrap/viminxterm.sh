@@ -4,14 +4,18 @@
 # jwhich inj vim > /dev/null
 jwhich vim > /dev/null
 
-if test ! "$?" = "0"; then
+if [ ! "$?" = "0" ]
+then
 	echo "viminxterm failing: vim not present"
 	exit 1
 fi
 
 FILE="$1";
 
-if test -f "$FILE" && test ! `filesize "$FILE"` = "0"; then
+if [ -f "$FILE" ] && [ ! `filesize "$FILE"` = "0" ]
+then
+
+	## TODO/BUG: Longest line calculations do not work on .gz files, but could with gunzip -c ...
 
 	# MAXVOL=`expr 80 "*" 50`
 	MAXVOL=`expr 120 "*" 60`
@@ -25,16 +29,16 @@ if test -f "$FILE" && test ! `filesize "$FILE"` = "0"; then
 
 	# Determine desired height
 	ROWS=`expr '(' $LINES '+' 2 ')' '*' 11 '/' 10`;
-	if test $ROWS -gt 50; then
-		ROWS=50
+	if [ $ROWS -gt 50 ]
+	then ROWS=50
 	fi
 
 	# Determine optimal distribution
 	# Actually choose width cols from maxvolume and rows
 	COLS=`expr $MAXVOL / $ROWS`
 	# but reduce to longest line if above.
-	if test $LONGEST -lt $COLS; then
-		COLS=$LONGEST;
+	if [ $LONGEST -lt $COLS ]
+	then COLS=$LONGEST;
 	fi
 	## But don't go too far!
 	if test $COLS -gt 180
@@ -42,11 +46,11 @@ if test -f "$FILE" && test ! `filesize "$FILE"` = "0"; then
 	fi
 
 	# Ensure at least minimum size
-	if test $COLS -lt 20; then
-		COLS=20
+	if [ $COLS -lt 20 ]
+	then COLS=20
 	fi
-	if test $ROWS -lt 5; then
-		ROWS=5
+	if [ $ROWS -lt 5 ]
+	then ROWS=5
 	fi
 
 else

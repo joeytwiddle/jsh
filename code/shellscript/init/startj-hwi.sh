@@ -42,6 +42,12 @@
 	# echo "$@"
 # }
 
+if [ ! $COUNT_STARTJ_RUN ]
+then COUNT_STARTJ_RUN=0
+fi
+COUNT_STARTJ_RUN=`expr "$COUNT_STARTJ_RUN" + 1`
+export COUNT_STARTJ_RUN
+
 if [ "$STARTJ_BLOCK" ]
 then echo "startj: Blocked ok (if ~/.bashrc sources startj, then jsh needn't start bash with startj as its rc script /and/ BASH_BASH set!)" >&2
 else

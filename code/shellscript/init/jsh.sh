@@ -21,6 +21,12 @@
 	# test "$JSH_DEBUG" && echo "$*" >&2
 # }
 
+if [ ! $COUNT_JSH_RUN ]
+then COUNT_JSH_RUN=0
+fi
+COUNT_JSH_RUN=`expr "$COUNT_JSH_RUN" + 1`
+export COUNT_JSH_RUN
+
 case "$1" in
 	-h|--help)
 		"$0" jhelp
@@ -30,7 +36,8 @@ esac
 
 if [ "$STARTJ_BLOCK" ]
 then
-	echo "jsh: Aborting because STARTJ_BLOCK is set." >&2
+	## Now part of normal operation for bash, so user can just set a call to jsh in their .bash_profile, but not have it infspawn!
+	# echo "jsh: Aborting because STARTJ_BLOCK is set." >&2
 	exit 0
 fi
 

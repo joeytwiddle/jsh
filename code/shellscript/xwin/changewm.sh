@@ -13,3 +13,6 @@ echo "$1" > "$NEXTWMFILE"
 
 CWM=`cat "$CURRENTWMFILE"`
 killall "$CWM"
+
+## For convenience (otherwise done by .xinitrc):
+echo "$1" > "$CURRENTWMFILE"
