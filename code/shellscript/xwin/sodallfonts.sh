@@ -50,4 +50,4 @@ cat << !
 </svg>
 !
 
-) > allfonts.sod
+) > allfonts.svg
