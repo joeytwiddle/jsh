@@ -55,14 +55,15 @@ then
 
 	# Autocomplete for current dir on filetypes
 	compctl -g '*.Z *.gz *.tgz' + -g '*' zcat gunzip
-	compctl -g '*.tar.Z *.tar.gz *.tgz *.tar.bz2 .*.tar.Z .*.tar.gz .*.tgz .*.tar.bz2' + -g '*' tar
+	# joey sez bollox compctl -g '*.tar.Z *.tar.gz *.tgz *.tar.bz2 .*.tar.Z .*.tar.gz .*.tgz .*.tar.bz2' + -g '*' tar
 	compctl -g '*.zip *.ZIP' + -g '*' unzip zip
-	compctl -g '*.(mp3|MP3)' + -g '*(-/)'  mpg123 xmms
+	compctl -g '*.(mp3|MP3|m3u)' + -g '*(-/)'  mpg123 xmms
 
 	setopt extendedglob
 	setopt nohup
 	setopt pathdirs
 
+	## Factor out identical calls (not all!)
 	case $TERM in 
 		linux)
 			bindkey "^[[2~" yank

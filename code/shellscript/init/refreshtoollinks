@@ -30,7 +30,7 @@ then
 	(
 		find $JPATH/code/shellscript \
 			\( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) ! -type d
-		test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
+		# test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	/bin/grep -v "/.ignore/" |
 	/bin/grep -v "/CVS/" |
@@ -51,7 +51,7 @@ else
 
 	echo "Collecting "
 	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
-	test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
+	# test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
 	echo "Linking"
 	ln -sf $files $JPATH/tools/
 

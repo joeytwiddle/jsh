@@ -26,7 +26,7 @@ else
 fi
 
 ## Always in terminal; looks for documentation within j project
-if test -x "$JPATH/tools/$1"
-then jdoc "$@"
-fi
+# if test -x "$JPATH/tools/$1"
+# then jdoc "$@"
+# fi
 
