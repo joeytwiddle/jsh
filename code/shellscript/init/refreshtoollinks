@@ -1,6 +1,7 @@
 # Symbolically link all relevant tools into $JPATH/tools/ directory
 # so that they may all be put in the path in one go!
 
+echo "Removing existing links"
 "rm" -f $JPATH/tools/*
 
 echo "Collecting"
