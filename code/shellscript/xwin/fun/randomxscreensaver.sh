@@ -1,13 +1,16 @@
+# jsh-ext-depends: find seq xscreensaver
+# jsh-depends: chooserandomline execgetpid mykill takecols psforkillchild mykillps
 ## Problems:
 #   ok so we don't create if kill fails
 #   but sometimes creation fails!
 #   recommend using mykillps or something to count instances and then kill or create to meet target.
 
+XSCRBINS=/usr/lib/xscreensaver
+
 NUM=4
 if [ "$1" ]
 then NUM="$1"; shift
 fi
-XSCRBINS=/usr/lib/xscreensaver
 
 NL='
 '

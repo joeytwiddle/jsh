@@ -1,13 +1,20 @@
 #!/bin/sh
+
 # jsh-depends: curseblue highlight cursenorm countargs
+
 ## Recommended usage:
 ## higrep <grepstring> [ <grepopts> ... ] [ <grepfiles> ... ]
 ## -E to grep will not be passed to sed, but sed does regex (although there are some differences)
 
-if test "$*" = ""; then
-	echo "higrep <search_expr> [ <grep_options> ] [ <files> ]"
-	echo "  Like normal grep, but highlights the located string (and files if shown)."
-	echo "  Note: highlight uses sed so <search_expr> should be grep and sed compatible."
+if [ ! "$*" ]
+then
+	echo
+	echo "higrep <regexp> [ <grep_options> ]* [ <files> ]*"
+	echo
+	echo "  Like normal grep, but highlights occurrences of the regexp in a random colour."
+	echo
+	echo "  Note: highlight uses sed so your <regexp> should be grep and sed compatible."
+	echo
 	exit 1
 fi
 

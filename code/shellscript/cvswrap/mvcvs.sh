@@ -1,7 +1,9 @@
 ## BUG: Now allows you rename files, but if there are multiple srcs it should check that dest is a dir!
 ## NEW: "Prototyped" ability to move whole directories (we could perform build a new tree and mvcvs every file)
 
-echo "TODO: check the file has been committed, otherwise it doesn't work!!!" >&2
+echo "## If the following looks ok to you, run mvcvs again with | sh -e -x"
+
+echo "## TODO: check the file has been committed, otherwise it doesn't work!!!" >&2
 
 # safe until you | sh
 
@@ -39,7 +41,7 @@ mvcvs1() {
 	then echo "$LOCALDESTDIR is not a cvs directory; aborting."; exit 1
 	fi
 
-	echo "# $REPOSFILEDIR/$FILENAME -> $REPOSDESTDIR"
+	echo "## $REPOSFILEDIR/$FILENAME -> $REPOSDESTDIR"
 
 	CVSDESTDIR="$CVSROOT/$REPOSDESTDIR"
 
@@ -58,7 +60,7 @@ mvcvs1() {
 	then
 
 		if test "$FILENAME" = CVS
-		then echo "# Skipping cvs directory: $LOCALSRC"; break
+		then echo "## Skipping cvs directory: $LOCALSRC"; break
 		fi
 
 		## Moving a directory:
@@ -126,14 +128,14 @@ do
 	mvcvs1 "$FILE" "$LOCALDEST"
 done
 
-## Move to top of repository
-REPOSPWDDIR=`cat "CVS/Repository"`
-printf "$REPOSPWDDIR" | sed 's+/+\
-+g' |
-while read X
-do
-	echo "cd .."
-done
+# ## Move to top of repository
+# REPOSPWDDIR=`cat "CVS/Repository"`
+# printf "$REPOSPWDDIR" | sed 's+/+\
+# +g' |
+# while read X
+# do
+	# echo "cd .."
+# done
 
 # FILE="$1"
 # DESTDIR="$2"

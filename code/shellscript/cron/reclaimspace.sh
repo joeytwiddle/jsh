@@ -38,7 +38,7 @@ do
 	## Ideally we wouldn't do this if we check before and space is ok.
 	[ -d "$POINT"/RECLAIM ] &&
 	cd "$POINT"/RECLAIM &&
-	find . -type f |
+	nice -n 20 find . -type f |
 	( randomorder && echo ) | ## need this end line otherwise read FILE on last entry ends the stream and hence the sh is killed.
 
 	( ## This sub-clause is needed so that the cat can send the rest of the randomorder stream somwhere, other bash under gentoo complains about a "Broken pipe"
