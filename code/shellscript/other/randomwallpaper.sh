@@ -1,5 +1,8 @@
 #!/bin/sh
 
+SPECIALISE="$1"
+# shift
+
 # cd $JPATH/wallpapers
 cd /stuff/wallpapers
 
@@ -11,7 +14,16 @@ done | tr -d "\n" | sed "s+|$++"`
 
 # FILE=`chooserandomline tmp.txt`
 
-FILE=`find . -type f -and -not -name "*.html" | egrep -v "/tiles/|/small/" | egrep -v "$UNGREPEXPR" | chooserandomline`
+FILE=`
+	find . -type f -and -not -name "*.html" |
+	egrep -v "$UNGREPEXPR" |
+	if test $SPECIALISE; then
+		grep "$SPECIALISE"
+	else
+		cat
+	fi |
+	chooserandomline
+`
 # echo "$FILE"
 
 if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null; then
