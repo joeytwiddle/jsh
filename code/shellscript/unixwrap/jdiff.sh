@@ -25,8 +25,8 @@ FILEB="$2"
 # cat "$FILEB" | tr '\t' ">" > $FILEBx
 
 echo "diff $@:"
-# diff -W $COLUMNS --side-by-side "$FILEAx" "$FILEBx" |
-diff -W $COLUMNS --side-by-side "$FILEA" "$FILEB" |
+# diff -W $COLUMNS -b --side-by-side "$FILEAx" "$FILEBx" |
+diff -W $COLUMNS -b --side-by-side "$FILEA" "$FILEB" |
 # tee /tmp/b4jdiff |
 ## These two break rarely:
 highlight -bold '^.* <$' red |

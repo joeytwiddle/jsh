@@ -6,9 +6,8 @@ else
   MOUNTPNT="`wheremounted \"$WHERE\"`"
   REALPATH=`realpath "$WHERE"`
 	REST=`echo "$REALPATH" | after "$MOUNTPNT"`
-  # higrep "$MOUNTPNT"
   grep "$MOUNTPNT$" |
-	sed "s+[ 	]$MOUNTPNT+ $MOUNTPNT/ $REST+g" |
+	sed "s+[ 	]$MOUNTPNT+ `cursegreen`$MOUNTPNT`cursenorm`$REST+g" |
   if [ -d "$MOUNTPNT/RECLAIM" ]
   then
 		RECLAIMABLE=`dush "$MOUNTPNT/RECLAIM" | takecols 1`
