@@ -58,13 +58,10 @@ printf "" > $REPOSLIST
 
 PARENT=.
 cvs -z 5 status "$@" 2>&1 |
-grep "\(^cvs status:\|^File:\|^[	 ]*Repository revision:\)" |
-	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
+grep "\(^cvs status:\|^File:\)" |
 	sed "
 		s=^cvs status:[	 ]*Examining \(.*\)=PARENT \1=
 		s=^File:[	 ]*\(no file\|\)\(.*\)[ 	]*Status:[	 ]*\(.*\)=\2 \3=
-		s=[	 ]*Repository revision: No revision control file=NO_FILE=
-		s=[	 ]*Repository revision:[^/]*$PRE\(.*\),v=\1=
 	" |
 	while read FNAME STATUS
 	do
@@ -75,17 +72,15 @@ grep "\(^cvs status:\|^File:\|^[	 ]*Repository revision:\)" |
 			read FNAME STATUS
 		fi
 		# echo "B `curseblue`$FNAME $STATUS`cursenorm`"
-		read FILE_FROM_REPOS
-		# echo "C `cursered`$Y`cursenorm`"
 		FILE="$PARENT/$FNAME"
 		echo "$FILE	# "`curseyellow`"$STATUS"`cursenorm`
-		echo "./$FILE" >> $REPOSLIST
+		echo "$FILE" | sed 's+^\.\/++' >> $REPOSLIST
 	done |
 	grep -v "Up-to-date" |
-	if jwhich column quietly; then
-		column -t -s "	"
-	else
-		cat
+	sed 's+^+cvs commit +' |
+	if jwhich column quietly
+	then column -t -s "	"
+	else cat
 	fi
 
 if test $CHECKALL
@@ -101,7 +96,7 @@ then
 		# originally just for X; but no good on Solaris
 		for X in "$@"; do echo "./$X"; done
 		# for X; do echo "./$X"; done
-	fi | grep -iv "/CVS/" > $LOCALLIST
+	fi | grep -iv "/CVS/" | sed 's+^\.\/++' > $LOCALLIST
 
 	echo
 	printf "# "
@@ -112,6 +107,7 @@ then
 
 	find . -type d |
 	grep -iv "/CVS" |
+	sed 's+^\.\/++' |
 	while read D
 	do
 		if test ! -d "$D/CVS"
@@ -128,7 +124,7 @@ then
 	printf "\n"
 
 	jfcsh $LOCALLIST $REPOSLIST |
-		sed "s+^./+cvs add ./+"
+		sed "s+^+cvs add +"
 
 	echo
 	printf "# "
@@ -137,7 +133,7 @@ then
 	cursenorm
 	printf "\n"
 	jfcsh $REPOSLIST $LOCALLIST |
-		sed "s+^./+cvs $SUGGEST ./+"
+		sed "s+^+cvs $SUGGEST +"
 
 fi
 

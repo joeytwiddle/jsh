@@ -1,8 +1,10 @@
 getfiles () {
 	cvsdiff "$@" |
+	grep "^cvs commit " |
+	sed 's+^cvs commit ++' |
+	sed 's+[	 ]*#.*++'
 	# drop 2 | chop 1 |
-	grep -v "^$" | grep -v "^#" |
-	sed 's/[ ]*#.*//'
+	# grep -v "^$" | grep -v "^#" |
 }
 
 export COLUMNS
