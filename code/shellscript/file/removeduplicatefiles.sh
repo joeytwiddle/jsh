@@ -1,3 +1,11 @@
+echo "# Dangers:"
+echo "# Are you sure the files you are comparing aren't symlinks to themselves?!"
+echo "# It could be a parent directory causing the problem of course."
+echo "# We could check this if we trust realpath to untangle the links."
+echo "# To execute once satisfied use | sh , not \`...\`"
+echo "# (or use -doit, which I implemented after neglecting to read this message!)"
+echo "#"
+
 OTHERDIR="$1"
 if test "x$OTHERDIR" = "x"; then
   echo "# Syntax: removeduplicatefiles [-doit] <other-dir>"
@@ -27,17 +35,17 @@ find . -type f | while read X; do
           rm "$X"
         fi
       else
-        echo "*** ERROR:  $X : failed on if cmp"
+        echo "# *** ERROR:  $X : failed on if cmp" >&2
       fi
     else
-      echo "*** ERROR: $X : err > 0 but output: $CMPRES"
+      echo "# *** ERROR: $X : err > 0 but output: $CMPRES" >&2
     fi
   else
     if test "$CMPERR" = "0"; then
-      echo "*** ERROR: $X : err=0 but got output: $CMPRES"
+      echo "# *** ERROR: $X : err=0 but got output: $CMPRES" >&2
     else
       NICECMPRES=`echo "$CMPRES" | tr "\n" "\\n" | after "$X"`
-      echo "# $X unique: $NICECMPRES"
+      echo "# $X is unique ($NICECMPRES)"
     fi
   fi
 done
@@ -45,5 +53,7 @@ done
 echo "#"
 echo "# Dangers:"
 echo "# Are you sure the files you are comparing aren't symlinks to themselves?!"
+echo "# It could be a parent directory causing the problem of course."
+echo "# We could check this if we trust realpath to untangle the links."
 echo "# To execute once satisfied use | sh , not \`...\`"
 echo "# (or use -doit, which I implemented after neglecting to read this message!)"

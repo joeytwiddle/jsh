@@ -17,6 +17,8 @@ if test "$FILENAME" = ""; then
 	exit 1
 fi
 
+## I think this should be moved to cvscommit -vimdiff or somesuch
+## "vim" should be removed from script names, since they are not really vim-specific
 if test "$FILENAME" = "-all"
 then
 	STARTTIME=`jgettmp cvsvimdiff-watchchange`
@@ -35,12 +37,16 @@ then
 		echo
 		if newer "$FILE" "$STARTTIME"
 		then
+			cursered; cursebold
 			echo "Committing $FILE"
+			cursenorm
 			## Reset file's time to that which it had before cvsvimdiff
 			touch -r "$ORIGFILETIME" "$FILE"
 			cvscommit -m "" "$FILE"
 		else
+			curseyellow
 			echo "Not committing $FILE"
+			cursenorm
 		fi
 		echo
 	done

@@ -1,6 +1,8 @@
 ## TODO: allow you to provide a new filename if sending just one
 ##       ability to move whole directories
 
+# safe until you | sh
+
 ## Function to move one file
 mvcvs2() {
 

@@ -7,10 +7,14 @@ do
 		-all)
 			CHECKALL=true
 			SUGGEST="update"
-			;;
+		;;
 		-del)
 			CHECKALL=true
 			SUGGEST="remove"
+		;;
+		-vimdiff)
+			cvsvimdiff -all "$@"
+			exit
 		;;
 		-h|--help)
 			echo "cvsdiff [ -all [ -del ] ] [<files>]"
@@ -19,6 +23,10 @@ do
 			echo "    It suggests you add local files which are not in the repository."
 			echo "    Without -del it suggests you update repository files you do not have."
 			echo "    With -del it suggests removal of repository files you do not have."
+			echo "  Note: I think cvsdiff only works properly after a cvs update."
+			echo "cvsdiff -vimdiff"
+			echo "  Performs a cvsvimdiff on each uncommited file."
+			echo "  If you write the file during its session, it will be committed."
 			exit 1
 		;;
 		*)

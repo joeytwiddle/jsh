@@ -1,5 +1,13 @@
 #!/bin/sh
 
+## For a fresh installation, do the following as root:
+# touch /var/logadmin.log
+# chgrp users /var/logadmin.log
+# chmod g+w /var/logadmin.log
+## And optionally:
+# chgrp users /etc/motd
+# chmod g+w /etc/motd
+
 LOGFILE="/var/logadmin.log"
 TMPFILE="/tmp/logentry.tmp"
 while test -e "$TMPFILE"; do
