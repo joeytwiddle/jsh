@@ -6,13 +6,16 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
+fakegrep-v () {
+	sed "s|.*$*.*||"
+}
+
 if test "$1" = "inj"; then
   PATHS=`echo "$PATH" | tr ":" "\n"`
   shift
 else
   # Remove all references to JLib from the path
-  PATHS=`echo "$PATH" | tr ":" "\n" | grep -v "$JPATH" | grep -v "^.\$"`;
-  # PATHS=`echo "$PATH" | tr ":" "\n" | grep -v "^$JPATH/tools" | grep -v "^.\$"`;
+  PATHS=`echo "$PATH" | tr ":" "\n" | fakegrep-v "$JPATH"`;
 fi
 FILE="$1"
 QUIETLY="$2"
@@ -39,15 +42,3 @@ if [ ! "$QUIETLY" = "quietly" ]; then
   echo "$PATHS"
 fi >&2
 exit 1          # Not found  :(
-
-# OLDPATH="$PATH";
-# NEWPATH=`echo "$PATH" | tr ":" "\n" | grep -v "$JPATH" | tr "\n" ":"`;
-# PATH="$NEWPATH.";
-# echo "$PATH"
-# COM=`which $1`;
-# if test "$COM" = ""; then
-#   echo "Could not find $1"
-# else
-#   echo "$COM"
-# fi
-# export PATH="$OLDPATH";
