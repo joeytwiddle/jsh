@@ -42,7 +42,16 @@
 
 ) |
 
-festival --tts
+if test "$1" = "-tomp3"
+then
 
 ## Output a wav (in a format suitable for bladeenc)
-# ./text2wave -F 48000 -otype riff -o /tmp/festival-out.wav
+text2wave -F 48000 -otype riff -o /tmp/festival-out.wav
+/mnt/pod8/joey/moreinstalls/cdrip/bladeenc -MONO -DELETE -QUIT /tmp/festival-out.wav
+mv /tmp/festival-out.mp3 /tmp/tts.mp3
+
+else
+
+festival --tts
+
+fi

@@ -1,7 +1,8 @@
 #!/bin/sh
 
 CHECKALL=
-while true; do
+while true
+do
 	case "$1" in
 		-all)
 			CHECKALL=true
@@ -41,13 +42,16 @@ printf "\n"
 
 ## TODO: When your local checkout is not recently updated,
 ##       we seem to get a shorter REPOSLIST than we should.
+## This is because "cvs status" exits with something like:
+## cvs [status aborted]: could not find desired version 1.5 in ...
 
 cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
 	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
 	sed "s+[	 ]*Repository revision:[^/]*$PRE\(.*\),v+\1+" |
-	while read X; do
-		read Y;
+	while read X
+	do
+		read Y
 		echo "$Y	# "`curseyellow`"$X"`cursenorm`
 		echo "./$Y" >> /dev/stderr
 	done 2> $REPOSLIST |
@@ -58,12 +62,14 @@ cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
 		cat
 	fi
 
-if test $CHECKALL; then
+if test $CHECKALL
+then
 
 	# jfc nolines $LOCALLIST $REPOSLIST |
 		# sed "s+^./+cvs add ./+"
 
-	if test "$1" = ""; then
+	if test "$1" = ""
+	then
 		find . -type f
 	else
 		# originally just for X; but no good on Solaris
@@ -79,9 +85,11 @@ if test $CHECKALL; then
 	printf "\n"
 
 	find . -type d |
-	grep -v "/CVS" |
-	while read D; do
-		if test ! -d "$D/CVS"; then
+	grep -iv "/CVS" |
+	while read D
+	do
+		if test ! -d "$D/CVS"
+		then
 			echo "cvs add $D"
 		fi
 	done
