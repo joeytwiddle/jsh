@@ -6,12 +6,26 @@ if test "$1" = ""; then
 	) >&2
 	exit 1
 fi
-FORMAT="pid,user,comm"
+
+PS_OPTS="-A -o pid,user,comm"
 if test "$1" = "-x"; then
-	FORMAT="pid,user,args"
+	PS_OPTS="-A -o pid,user,args"
 	shift
 fi
-ps -A -o "$FORMAT" |
+
+## Not exported.
+# if endswith "$MACHTYPE" "cygwin"
+if startswith `uname` "CYGWIN"
+then
+	PS_OPTS="-a -e -f"
+	ps $PS_OPTS | sed 's~^[ ]*\([^ ]*\)[ ]*\([^ ]*\)[ ]*\([^ ]*\)[ ]*\([^ ]*\)[ ]*\([^ ]*\)[ ]*\([^ ]*\)~\2 \1 \6~' # takecols 2 1 6
+else
+	ps $PS_OPTS
+fi |
+
+# echo "ps $PS_OPTS"
+
+# ps $PS_OPTS |
 	## Pick out user's desired job:
 	grep "$*" |
 	## Now (for -x) we need to hide shells with "$*" as args:
