@@ -5,7 +5,7 @@ SESSID="$1"
 if test ! "$SESSID"; then
 	echo "Choose which session to join:"
 	ls /tmp/revssh-client-input-*.txt |
-	sed "s+^/tmp/revssh-client-input++;s+\.txt$++"
+	sed "s+^/tmp/revssh-client-input-++;s+\.txt$++"
 	read SESSID
 fi
 

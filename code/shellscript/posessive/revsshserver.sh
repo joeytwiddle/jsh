@@ -1,7 +1,7 @@
 SERVER="hwi.ath.cx"
 URL="/cgi-bin/joey/revssh"
 
-SESSID="$HOST_$$"
+SESSID="$HOSTNAME""_$$"
 
 COM="wget -O -"
 # COM="lynx -dump"
