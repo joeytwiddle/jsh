@@ -55,6 +55,7 @@ fi
 DIFFCOM="myspecialdiff"
 
 myspecialdiff () {
+	EDITFILE=`jgettmp remotediff.edit`
 	jfcsh "$1" "$2" > "$1.only"
 	jfcsh "$2" "$1" > "$2.only"
 	(
@@ -66,27 +67,27 @@ myspecialdiff () {
 		sed "s/^/remote /"
 	) |
 	sort -k 2 | sort -s -k 5 |
-	column -t -s '   ' > remotediff.edit
+	column -t -s '   ' > "$EDITFILE"
 
-	vim remotediff.edit
+	vim "$EDITFILE"
 
 	TOGO=`
-		cat remotediff.edit | grep "^local " |
+		cat "$EDITFILE" | grep "^local " |
 		while read LOCATION DATETIME CKSUM LEN FILENAME; do
 			printf "\"$LOCAL/$FILENAME\" "
 		done
 	`
 	TOCOME=`
-		cat remotediff.edit | grep "^remote " |
+		cat "$EDITFILE" | grep "^remote " |
 		while read LOCATION DATETIME CKSUM LEN FILENAME; do
 			printf "\"$RUSER@$RHOST:$RDIR/$FILENAME\" "
 		done
 	`
 	echo
 	test ! "$TOGO" = "" &&
-		echo "scp $TOGO$RUSER@$RHOST:$RDIR/"
+		echo "scp -B $TOGO$RUSER@$RHOST:$RDIR/"
 	test ! "$TOCOME" = "" &&
-		echo "scp $TOCOME$LOCAL/"
+		echo "scp -B $TOCOME$LOCAL/"
 }
 
 echo "Getting cksums for remote $RHOST:$RDIR"
