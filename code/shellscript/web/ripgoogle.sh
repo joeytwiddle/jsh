@@ -33,7 +33,9 @@ LINE='                <td width="'$IMGWIDTHPLUS'" valign="middle" align="center"
 
 cp $JPATH/org/jumpgate.html jumpgate-orig.html
 replaceline jumpgate-orig.html "<\!-- #~googleimage~# -->" "<\!-- #~googleimage~# -->$LINE" > finaljumpgate.html
+
+# Move the final files over the originals
 mv finaljumpgate.html $JPATH/org/jumpgate.html
-# mv $DESTIMGFILE $JPATH/org/
 mv $LEFTIMGFILE $JPATH/org/
 mv $RIGHTIMGFILE $JPATH/org/
+# mv $DESTIMGFILE $JPATH/org/
