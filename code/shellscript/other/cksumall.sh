@@ -3,4 +3,4 @@ if test ! "x$*" = "x"; then
 fi
 find . -type f | while read X; do
   cksum "$X"
-done
+done | sort -k 3
