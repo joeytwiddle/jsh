@@ -75,6 +75,7 @@ then
 		do
 			# echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
 			# echo "`curseyellow`Type: comment or [.] to [C]ommit, <Enter> to [S]kip, [E]dit [V]imdiff [R]ediff." #  (.=\"\").`cursenorm`"
+			echo "`cursecyan`$FILE`cursenorm`"
 			echo "`cursecyan;cursebold`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
 			echo "Or [U]ndo changes (retrieve previous version)`cursenorm`"
 			read INPUT

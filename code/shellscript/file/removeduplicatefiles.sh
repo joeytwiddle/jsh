@@ -7,6 +7,7 @@ echo "# It could be a parent directory causing the problem of course."
 echo "# We could check this if we trust realpath to untangle the links."
 echo "# To execute once satisfied use | sh , not \`...\`"
 echo "# (or use -doit, which I implemented after neglecting to read this message!)"
+echo "# DO NOT run \"removeduplicatefiles .\" !!!"
 echo "#"
 
 OTHERDIR="$1"

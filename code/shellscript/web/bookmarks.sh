@@ -72,13 +72,13 @@ fi
 ### Mozilla and friends:
 
 # MOZBOOKMARKS="$HOME/.mozilla/*/*/bookmarks.html"
-# $HOME/.firebird $HOME/.firefox
-find $HOME/.mozilla $HOME/.phoenix -name bookmarks.html |
+# $HOME/.firebird
+find $HOME/.mozilla $HOME/.firefox $HOME/.phoenix -name bookmarks.html |
 while read MOZBOOKMARKS
 do
-	if echo "$MOZBOOKMARKS" | grep "\.phoenix" >/dev/null
-	then SOURCE=Firebird
-	else SOURCE=Mozilla
+	if echo "$MOZBOOKMARKS" | grep "\.mozilla" >/dev/null
+	then SOURCE=Mozilla
+	else SOURCE=Firebird
 	fi
 	cat "$MOZBOOKMARKS" |
 	grep "HREF=" |

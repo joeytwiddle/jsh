@@ -1,4 +1,7 @@
 ## This is much quicker than apt-get, but of course it doesn't resolve dependencies.
+## Try doing this: aptpkgurl <pkgname> | striptermchars | grep -A3 "_testing_" | grep "^http"
+## OK, so that gets us URLs to d/l from.
+## And maybe we can use apt-cache showpkg to quickly resolve dependencies...?  (It seems to match desired to installed if it exists =)
 
 ## TODO: offer alternative mode, which uses debian website's package search
 ##       and find URLs for package sources that way, without requiring local apt source cache.

@@ -24,6 +24,8 @@ then
 	echo
 	echo "  See also: cvscommit -diff"
 	echo
+	echo "  Example: env DIFFCOM=jdiff cvsvimdiff ./src/file.c"
+	echo
 	exit 1
 fi
 

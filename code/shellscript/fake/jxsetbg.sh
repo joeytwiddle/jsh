@@ -11,6 +11,11 @@ IMAGE="$1"
 	echo "Converting..." >&2
 	which convert > /dev/null && convert "$1" -geometry 1280x1024 /tmp/tmp.jpg && IMAGE=/tmp/tmp.jpg
 	unj xsetbg -fullscreen -onroot -fit -border black "$IMAGE"
+	# xview -fullscreen "$IMAGE" &
+	# XVIEWPID="$!"
+	# sleep 5
+	# kill "$XVIEWPID"
+	# true
 ) ||
 
 ## xsetroot is just pants

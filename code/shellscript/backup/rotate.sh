@@ -50,11 +50,21 @@ if [ "$1" = -nodups ]
 then NODUPS=true; shift
 fi
 
+function logfriendly_gzip () {
+	for FILE
+	do
+		cat "$FILE" | gzip -c > "$FILE".gz &
+		sleep 2
+		printf "" > "$FILE"
+		wait
+	done
+}
+
 for FILE
 do
 
 	if [ "$KEEP" ]
-	then cp "$FILE" "$FILE.keep"
+	then cp -a "$FILE" "$FILE.keep"
 	fi
 
 	if [ ! "$ZIP" ]
@@ -63,7 +73,7 @@ do
 		FINALFILE="$FILE"
 	elif [ -f "$FILE" ]
 	then
-		ZIPCOM="gzip"
+		ZIPCOM="logfriendly_gzip"
 		FINALFILE="$FILE.gz"
 	elif [ -d "$FILE" ]
 	then

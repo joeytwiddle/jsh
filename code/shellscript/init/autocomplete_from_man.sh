@@ -1,3 +1,8 @@
+## BIGGEST TODO: Some of the most obvious commands, eg. cd (which defaults to dirs only),
+##               should not perform autocomplete_from_man (which currently overrides defaults for all commands with the same COMPCTL_OPTS).
+##               Where can we get a list of ones to avoid doing this on, and go via some other defined default?
+##               Really autocomplete_from_man should only be for uncommon commands which don't already default completion rules.
+
 ## autocomplete_from_man: Adds to bash or zsh the ability to use tab-completion for the - and -- options of the current command (provided it has a man page installed).
 ## eg.: source this script with ". ./autocomplete_from_man", then type: tar --<Tab>
 
@@ -67,6 +72,7 @@ then
 		fi
 	}
 
+	# COMPCTL_OPTS="-f -c -u -r -K" ## I don't appear to be able to pass this variable as options.  Crazy builtin I guess. :-/
 	compctl -f -c -u -r -K joeyComplete "*" -tn
 	## History made directory /s not work and was in general quite annoying for me:
 	# -H 0 '' 

@@ -1,3 +1,8 @@
+## BUG: In the past I have sometimes had problems failing to rebuild the links.
+##      This can happen for example if $JPATH/tools is unattainable, or if refreshtoollinks (or some other vital script) has conflicts and will not run.
+## TODO: One fix might be to build the new set of links and check them before replacing the old links with the new set.
+##       Dunno what to do about cvs creating conflicts in required working scripts though...
+
 cd "$JPATH/code/shellscript/" || exit 1
 
 echo

@@ -1,3 +1,5 @@
+## See also: trickle
+
 ## Unfortunately it seems this script can still cause short blockages in the system, but it's certainly an improvement.
 ## Maybe if trickle didn't blast $SPEEDk and then sleep 1 second, but work a little more finely, this would improve?
 

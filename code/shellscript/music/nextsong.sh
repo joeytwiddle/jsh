@@ -18,7 +18,8 @@ restorevolume () {
 
 whichmediaplayer () {
 	# fuser -v /dev/dsp | drop 2 | head -n 1 | takecols 5
-	fuser -v /dev/dsp | grep "^/dev/dsp" | head -n 1 | takecols 5
+	## New fuser appears to output on stderr?
+	fuser -v /dev/dsp 2>&1 | grep "^/dev/dsp" | head -n 1 | takecols 5
 }
 
 PLAYER=`whichmediaplayer`

@@ -62,7 +62,7 @@ find . -maxdepth $DEPTH |
 					gvimdiff "$DEST" "$SOURCE"
 				fi
 			else
-				echo "ok: $NICEDEST"
+				echo "`cursegreen`ok:`cursenorm` $NICEDEST"
 			fi
 		fi
 	done
