@@ -1,16 +1,18 @@
-# This work of genius attempts to prevent error messages
-# if user greps eg. * and has not specified how to deal with directories.
+## Avoid "cannot grep directory" errors:
 
-if test "$JM_UNAME" = "sunos"; then
+if [ "$JM_UNAME" = "sunos" ]
+then
 
-	REALGREP=`jwhich grep`
-
-	# $REALGREP "$@" 1>&3 2>&1 | $REALGREP -v "^grep: .*: Is a directory$"
-	$REALGREP "$@" 2> /dev/null
+	function mygrep () {
+		REALGREP=`jwhich grep`
+		# $REALGREP "$@" 1>&3 2>&1 | $REALGREP -v "^grep: .*: Is a directory$"
+		$REALGREP "$@" 2> /dev/null
+	}
+	alias grep='mygrep'
 
 else
 
-	grep -d skip "$@"
-	# (other errors no longer redirected)
+	## Linux grep can aviod off directory errors:
+	alias grep='grep -d skip'
 
 fi
