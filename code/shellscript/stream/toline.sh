@@ -2,6 +2,9 @@
 ## TODO: awk doesn't handle /s well, need to \/ escape them
 ## Hides all lines after first occurrence of grep pattern (regexp) is met.
 
+## Might be useful to escape '/'s, '&'s, and '?'s:
+# sed 's+\(/\|\&\|\?\)+\\\\\1+g'
+
 if [ "$1" = -x ]
 then
 	shift
