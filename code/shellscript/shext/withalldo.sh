@@ -4,19 +4,38 @@
 
 ## Equivalent to:
 # tr "\n" "\000" | xargs -0 "$@"
+## Except (under gentoo kernel, debian bash) withalldo could cope when xargs complained "argument line too long".  =)
 
-COM=""
+## Changed it so that you can specify --- to put the arguments in the middle of the command you call.
+
+COMMANDLEFT=""
+COMMAND=""
 
 for ARG
-## Maybe better for backwards compatability:
-# for ARG; in "$@"
 do
-	COM="$COM\"$ARG\" "
+	if [ "$ARG" = --- ]
+	then
+		shift
+		if [ "$COMMANDLEFT" ]
+		then
+			error "withalldo can only accept one --- argument."
+			exit 1
+		fi
+		COMMANDLEFT="$COMMAND"
+		COMMAND=""
+	else
+		COMMAND="$COMMAND\"$ARG\" "
+	fi
 done
+if [ ! "$COMMANDLEFT" ]
+then
+	COMMANDLEFT="$COMMAND"
+	COMMAND=""
+fi
 
 while read LINE
 do
-	COM="$COM\"$LINE\" "
+	COMMANDLEFT="$COMMANDLEFT\"$LINE\" "
 done
 
-eval "$COM"
+eval "$COMMANDLEFT$COMMAND"
