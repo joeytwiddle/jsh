@@ -1,3 +1,5 @@
+## remoteedit <filename_in_local_directory> <user>@<remote_host>
+
 ## Shouldn't this be the other way around?
 ## Well yes there will soon be an editremote script.
 ## But this version is useful when:
@@ -45,7 +47,7 @@ REMOTE_PROG='
 	FILE="/tmp/$FILE"
 	mkdir `dirname "$FILE"`
 	dd bs=1 count=$SIZE of=$FILE
-	echo "You should now edit $FILE on $HOST|$HOSTNAME" >&2
+	echo "You should now edit $FILE on $HOST" >&2
 
 	WATCH=$FILE.watch
 
@@ -61,7 +63,6 @@ REMOTE_PROG='
 			echo "file_saved"
 			echo "$NEWSIZE"
 			cat "$FILE"
-			break
 		fi
 	done
 

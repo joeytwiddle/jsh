@@ -8,17 +8,26 @@ do
   FILE=`basename "$X"`
   # SWAPS=`countargs $DIR/.$FILE.sw?`
 	## TODO: The leading . is not necessary if file is a .file
-  SWAPS=` find "$DIR"/ -maxdepth 1 -name ".$FILE.sw?" | countlines `
+	LOOKFOR=`echo ".$FILE"'.sw?' | sed 's+^\.\.+.+'`
+
+  # SWAPS=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" | countlines `
+  SWAPFILES=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" `
+	SWAPS=`echo "$SWAPS" | countlines`
+	sleep 4
+
   if test $SWAPS -lt 1
   then echo "No swapfiles found for $X"
+
   elif test $SWAPS -gt 1
   then echo "More than one swapfile found for $X.  TODO: can recover by referring to swapfile directly."
+
   else
 
     N=1
     while test -e "$X.recovered.$N"
     do N=`expr $N + 1`
     done
+		## TODO: Could grep following for "^Recovery completed"
     if vim +":w $X.recovered.$N$NL:q" -r "$X" &&
        test -f "$X.recovered.$N"
     then
@@ -41,7 +50,9 @@ do
         echo "del $X.recovered.$N"
       fi
       # echo del $DIR/.$FILE.sw?
-      echo del $DIR/.$FILE.swp
+      # echo del "$DIR/.$FILE.swp"
+      # echo del "$DIR/$LOOKFOR"
+      echo del "$SWAPFILES"
       cursenorm
     else
       echo "Some problem recovering swap file (for) $X"

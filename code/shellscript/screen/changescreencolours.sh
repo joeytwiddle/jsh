@@ -30,12 +30,15 @@ then
 
 	SCREENBUILDYEAR=`screen --version | afterlast - | sed 's+\([[:digit:]]*\).*+\1+' | sed 's+^0++'` # 2100 incompliant
 	# echo "SCREENBUILDYEAR = >$SCREENBUILDYEAR<"
-	# if [ "$SCREENBUILDYEAR" -lt 3 ]
-	if [ x ]
+	if [ "$SCREENBUILDYEAR" -lt 3 ]
+	# if [ x ]
 	then
 		# WINLIST="%{$WINDOWBAR} %{$WINDOWHIGHLIGHT} %n %t %{kw} %{$WINDOWBAR} %W "
 		# WINLIST="%{$WINDOWBAR} %{$WINDOWHIGHLIGHT} %n %{$WINDOWBAR} %w "
 		## todo
+		## what's todo?!
+		## Wxtra bg colours:
+		WINDOWBAR=`chooserandomarg rw bw kw`
 		RIGHTJUST=""
 		DATEBIT="%d/%M %c"
 		SCREEN_CAPTION="%{$BORDER}$SHORTHOST:$SCREENNAME (%{$WINDOWBAR} %n %{$WINDOWHIGHLIGHT}) (%{$WINDOWBAR} %w $RIGHTJUST%{$WINDOWHIGHLIGHT}) $DATEBIT"

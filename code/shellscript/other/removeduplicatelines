@@ -6,6 +6,8 @@
 # Apparently sed can do it like this: sed '$!N; /^\(.*\)\n\1$/!P; D'
 # and there is also "uniq"
 
+## TODO: at some point check whether sort's -u option might make removeduplicatelines or keepduplicatelines or something else faster...
+
 if [ "$1" = "--help" ] || [ "$1" = "-h" ]
 then
 	echo "Use -adj to preserve order if you know duplicates will appear adjacent to each other anyway."

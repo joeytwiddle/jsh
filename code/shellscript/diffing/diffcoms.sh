@@ -27,8 +27,11 @@ done
 FILEX=`jgettmp "First com:  $1"`
 FILEY=`jgettmp "Second com: $2"`
 
-echo "$1" | sh > "$FILEX"
-echo "$2" | sh > "$FILEY"
+## Doesn't let you do pipes within the command:
+# echo "$1" | sh > "$FILEX"
+# echo "$2" | sh > "$FILEY"
+eval "$1" > "$FILEX"
+eval "$2" > "$FILEY"
 
 $DIFFCOM "$FILEX" "$FILEY"
 

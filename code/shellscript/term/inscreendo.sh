@@ -11,7 +11,8 @@ then
 
 	screen -S "$SCRSES" -X screen "$@"
 	screen -S "$SCRSES" -X title "==$*=="
-	screen -D -R "$SCRSES" -S "$SCRSES"
+	## Connect to the screen:
+	# screen -D -R "$SCRSES" -S "$SCRSES"
 
 else
 
