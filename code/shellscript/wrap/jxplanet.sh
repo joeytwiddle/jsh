@@ -14,41 +14,64 @@ XPID="/usr/share/xplanet/images/"
 CLIMG="clouds_2000.jpg"
 MAPGEOM="2000x1000"
 
-if test "$1" = "getclouds"; then
+case "$1" in
 
-  shift
-  # DATE=`date`
-  # echo "$DATE: getting clouds" >> $JPATH/logs/jxplanet.txt
+	"getclouds")
 
-  rm $CLIMG
-  # header supposed to stop corruption but still occurring:
-  wget --header 'Pragma: no-cache' http://xplanet.sourceforge.net/$CLIMG
-  touch $CLIMG
+		shift
+		# DATE=`date`
+		# echo "$DATE: getting clouds" >> $JPATH/logs/jxplanet.txt
 
-  # Overlay the clouds onto the planet image.
-  export DISPLAY="" # to get xplanet to ignore display geometry.
-  xplanet -image $FAVEARTHIMG -cloud_image $CLIMG -shade 100 -output day-clouds.jpg -geometry $MAPGEOM
-  xplanet -image $XPID/night.jpg -cloud_image $CLIMG -cloud_shade 30 -output night-clouds.jpg -geometry $MAPGEOM
+		rm $CLIMG
+		# header supposed to stop corruption but still occurring:
+		wget --header 'Pragma: no-cache' http://xplanet.sourceforge.net/$CLIMG
+		touch $CLIMG
 
-elif test "$1" = "render"; then
+		# Overlay the clouds onto the planet image.
+		export DISPLAY="" # to get xplanet to ignore display geometry.
+		xplanet -image $FAVEARTHIMG -cloud_image $CLIMG -shade 100 -output day-clouds.jpg -geometry $MAPGEOM
+		xplanet -image $XPID/night.jpg -cloud_image $CLIMG -cloud_shade 30 -output night-clouds.jpg -geometry $MAPGEOM
 
-  shift
-  if test ! "$JXPGEOM"; then
-    JXPGEOM="1280x1024"
-  fi
+	;;
 
-  ALLARGS="-label -fuzz 0 $@ -image day-clouds.jpg -night_image night-clouds.jpg -projection orthographic -blend -geometry $JXPGEOM -radius 45"
+	"render")
 
-  nice -n 2 env DISPLAY= xplanet -dayside $ALLARGS -output $JPATH/background1.jpg
-  xv -root -rmode 5 -maxpect -quit $JPATH/background1.jpg
-  sleep 300
-  nice -n 2 env DISPLAY= xplanet -nightside $ALLARGS -output $JPATH/background2.jpg
-  nice -n 2 env DISPLAY= xplanet -moonside $ALLARGS -output $JPATH/background3.jpg
-  nice -n 2 env DISPLAY= xplanet -random -markers $ALLARGS -output $JPATH/background4.jpg
+		shift
+		if test ! "$JXPGEOM"; then
+		JXPGEOM="1280x1024"
+		fi
 
-else
+		ALLARGS="-label -fuzz 20 $@ -image day-clouds.jpg -night_image night-clouds.jpg -projection orthographic -blend -geometry $JXPGEOM -radius 45"
 
-  echo "jxplanet getclouds | render"
-  exit 1
+		nice -n 2 env DISPLAY= xplanet -dayside $ALLARGS -output $JPATH/background1.jpg
+		xv -root -rmode 5 -maxpect -quit $JPATH/background1.jpg
+		sleep 300
+		nice -n 2 env DISPLAY= xplanet -nightside $ALLARGS -output $JPATH/background2.jpg
+		nice -n 2 env DISPLAY= xplanet -moonside $ALLARGS -output $JPATH/background3.jpg
+		nice -n 2 env DISPLAY= xplanet -random -markers $ALLARGS -output $JPATH/background4.jpg
 
-fi
+	;;
+
+	"makeicon")
+
+		shift
+		ICONFILE="$1"
+		if test "$ICONFILE" = ""; then
+			echo "Error: no output icon file specified."
+			exit 1
+		fi
+		# xplanet -background trans.png -projection orthographic -moonside -geometry 64x64 -output "$ICONFILE"
+		xplanet -projection orthographic -moonside -geometry 64x64 -output "$ICONFILE"
+
+	;;
+
+	*)
+
+		echo "jxplanet getclouds"
+		echo "jxplanet render"
+		echo "jxplanet makeicon <iconfile>"
+		exit 1
+
+	;;
+
+esac

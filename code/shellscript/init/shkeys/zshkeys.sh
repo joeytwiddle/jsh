@@ -1,5 +1,9 @@
 # Key bindings for zsh
 
+# Note already reserved:
+# CTRL+
+#	ae(move beg/end line) zc(suspend/kill job) l(refresh) i(tab)m(return)
+
 # bindkey -N mymap main # clear keymap
 # bindkey -v # viins keymap
 # bindkey -e # emacs keymap
@@ -33,9 +37,11 @@ bindkey "^ " vi-cmd-mode
 # bindkey "^w" forward-word
 # bindkey "^b" backward-word
 # bindkey "^x" kill-word
-# bindkey "^r" expand-history
-# # and of course the vim paste!
-# bindkey "^p" vi-put-after
+
+# and other Vi usefuls:
+bindkey "^p" vi-put-before
+bindkey "^r" expand-history
+bindkey "^u" vi-undo-change
 
 # My preferred word movement and deletion.
 # It's purely left-handed and positioned to avoid the reserved keys qeaszc.
@@ -76,16 +82,27 @@ bindkey -s "^v" "^f^x"
 # bindkey "^b" kill-word
 
 # The lot, spanning er df zx vb (w instead of z?)
+# bindkey "^d" backward-word
+# bindkey "^f" forward-word
+# bindkey "^e" vi-backward-word
+# bindkey "^r" vi-forward-word
+# bindkey "^x" backward-kill-word
+# bindkey "^v" kill-word
+# # bindkey "^z" vi-backward-kill-word
+# bindkey "^w" vi-backward-kill-word
+# bindkey "^b" vi-kill-word
+# # and since we replace e:
+# bindkey "^g" end-of-line
+
+# The lot, spanning df  hjkl yuo n,
 bindkey "^d" backward-word
 bindkey "^f" forward-word
-bindkey "^e" vi-backward-word
-bindkey "^r" vi-forward-word
-bindkey "^x" backward-kill-word
-bindkey "^v" kill-word
-bindkey "^z" vi-backward-kill-word
-bindkey "^w" vi-backward-kill-word
-bindkey "^b" vi-kill-word
-# and since we replace e:
-bindkey "^g" end-of-line
-
-bindkey "^u" vi-undo-change
+bindkey "^h" backward-word
+bindkey "^j" vi-backward-word
+bindkey "^k" vi-forward-word
+bindkey "^l" forward-word
+bindkey "^y" backward-kill-word
+bindkey "^u" vi-backward-kill-word
+bindkey "^o" kill-word
+bindkey "^n" backward-kill-line
+bindkey "^," kill-line

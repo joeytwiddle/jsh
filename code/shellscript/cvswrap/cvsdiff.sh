@@ -10,7 +10,13 @@
 echo "# Try cvsdiff .* * to see which local files do not exist in repository."
 echo "# Sorry subdirs' files don't work 'cos status loses path."
 
-find . -type d | grep -v "/CVS/" | grep -v "/CVS$" |
+MAXDEPTH="-maxdepth 1"
+if test "$1" = "-r"; then
+	MAXDEPTH=""
+fi
+
+echo "# "`cursemagenta`"Directories"`cursegrey`":"
+find . -type d $MAXDEPTH | grep -v "/CVS/" | grep -v "/CVS$" |
 	while read DIR; do
 		cvs status "$DIR" 2>/dev/null > /dev/null
 		if test ! "$?" = 0; then
@@ -19,7 +25,7 @@ find . -type d | grep -v "/CVS/" | grep -v "/CVS$" |
 		fi
 	done
 
-find . -type f | grep -v "/CVS/" |
+find . -type f $MAXDEPTH | grep -v "/CVS/" |
 while read FILE; do
 	cvs status "$FILE" 2>/dev/null |
 	grep "Status: " | sed "s/File: \([^ 	]*\).*Status: \(.*\)/\2/" |
@@ -32,7 +38,7 @@ while read FILE; do
 			fi
 			# echo "# "`curseyellow`"$ACTION""ing $FILE because "`cursemagenta`"$STATUS"`cursegrey`
 			echo "# "`cursemagenta`"$STATUS"`cursegrey`
-			echo "cvs add \"$FILE\""
+			echo "cvs $ACTION \"$FILE\""
 		fi
 	done
 done
