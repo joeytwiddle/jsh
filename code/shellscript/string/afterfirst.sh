@@ -5,6 +5,9 @@
 SPECIALSTR="nbdW0d6eeUatinlkvs"
 sed "s|$@\(.*\)|$SPECIALSTR\1|" | sed "s|.*$SPECIALSTR||"
 
+## Nope:
+# sed "s+.\($@.*\)+\1+g"
+
 # # Ugh
 # while read X; do
   # Y=`echo "$X" | sed "s|$*.*||"`

@@ -23,7 +23,7 @@ then
 	then export JPATH=`dirname "$0"`        ## absolute
 	else export JPATH="$PWD/"`dirname "$0"` ## relative
 	fi
-	if test ! -f "$JPATH/tools"
+	if test ! -d "$JPATH/tools"
 	then echo "Say what?"
 	     exit 1
 	fi
