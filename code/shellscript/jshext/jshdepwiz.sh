@@ -62,14 +62,6 @@ function adddeptoscript () {
   ## Skip adding if dependency is already listed
   if ! echo "$DEPS" | grep "\<$DEP\>" > /dev/null
   then
-    ## Was working nicely (doing both additions and adjustments, admittedly by accident) but abandoned because of whitespacing altering shinanigans:
-    # (
-      # cat "$REALSCRIPT" |
-      # tostring "$FINDLINE"
-      # echo "$LINESTART" $DEPS $DEP
-      # cat "$REALSCRIPT" |
-      # fromstring "$FINDLINE"
-    # ) > $NEWSCRIPT
     NEWSCRIPT=/tmp/newscript
     if [ "$NEW_ENTRY" ]
     then
