@@ -3,5 +3,7 @@
 # XTERME=`jwhich kterm`
 # if test "$XTERME" = ""; then
 XTERME=`jwhich xterm`
+[ ! "$XTERME" ] && XTERME=`jwhich konqueror`
+[ ! "$XTERME" ] && XTERME=`jwhich dtterm`
 # fi
 $XTERME `xtermopts` "$@"
