@@ -112,7 +112,7 @@ echo "`curseyellow`All external dependencies:`cursenorm`" $EXTDEPS >&2
 echo >&2
 echo "`curseyellow`Compiling script...`cursenorm`" >&2
 
-TMPFILE=`jgettmp compilejshscript $MAINSCRIPT`
+TMPFILE=`jgettmp compilejshscript "$MAINSCRIPT"`
 
 ## Cleanup: We cannot .|source functions, but I think they work the same when called directly anyway:
 FINALSED="s+^\([ 	]*\)\. +\1+"
@@ -123,9 +123,10 @@ echo -n "Importing: " >&2
 for DEP in $JSHDEPS
 do
   echo -n "`cursecyan`$DEP`cursenorm` " >&2
-  echo "### Start jsh import: $DEP"
+  # echo "### START IMPORT: $DEP"
+  echo "### IMPORT: $DEP"
   makeshfunction `which "$DEP"`
-  echo "### End jsh import: $DEP"
+  # echo "### END IMPORT: $DEP"
   echo
   ## Cleanup: function names may not contain '-', so rename with '_'s instead:
   if contains "$DEP" -
@@ -142,8 +143,14 @@ echo >&2
 export TMPFILE MAINSCRIPT
 ## Perform cleanup, and add main call to main script's function:
 (
+	# echo "## $MAINSCRIPT standalone compiled at `date +%s` by $USER@`hostname -f`."
+	echo "## $MAINSCRIPT [compiled on `date +'%Y/%m/%d.%H:%M'` by $USER@`hostname -f`]"
+	echo "## Copyright (c) Free Software Foundation, released under GNU Public Licence"
+	echo "## Homepage: http://hwi.ath.cx/twiki/bin/view/Neuralyte/ProjectJsh"
+	# echo "## This is silly - what does GPL mean for non-binarised software?!"
+	echo
   cat $TMPFILE
-  echo
+	echo "### MAIN CALL:"
   echo "$MAINSCRIPT \"\$@\""
 ) |
 sed "$FINALSED"

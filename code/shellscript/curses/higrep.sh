@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: curseblue highlight cursenorm countargs
 ## Recommended usage:
 ## higrep <grepstring> [ <grepopts> ... ] [ <grepfiles> ... ]
 ## -E to grep will not be passed to sed, but sed does regex (although there are some differences)

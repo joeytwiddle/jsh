@@ -4,7 +4,7 @@
 
 # Does not appear to speed up processing.  :-(
 
-# CHECKING=true
+# export CHECKING=true
 
 if [ ! "$1" ]
 then
@@ -23,40 +23,39 @@ do
 
 	SKIP=
 	if startswith "$FIRSTLINE" "#!"
-  then
+	then
 		if ! endswith "$FIRSTLINE" "sh"
-    then
+		then
 			error "Cannot import $FNAME function because: $FIRSTLINE"
 			SKIP=true
 		fi
 	fi
 
 	if [ ! $SKIP ]
-  then
+	then
 		# echo "function $FNAME () {"
 		# echo "$FNAME () {"
 		echo "$FNAME () {" #   # $FILE"
 		cat "$FILE" |
-    # Not recommended as default, because it can cause problems.
-    ## Eg. on lines with odd # '"'s: ^[^"]*"[^"]*$ or ^\([^"]*"[^"]*"\)*[^"]*"[^"]*$$
-    ##                      or '''s
-    ##                      and what else?
-    if [ "$EXPERIMENTAL_INDENT" ]
-    then sed 's+^+  +'
-    else cat
-    fi
-		echo # Needed for files with no trailing \n
+		# Not recommended as default, because it can cause problems.
+		## Eg. on lines with odd # '"'s: ^[^"]*"[^"]*$ or ^\([^"]*"[^"]*"\)*[^"]*"[^"]*$$
+		##                      or '''s
+		##                      and what else?
+		if [ "$EXPERIMENTAL_INDENT" ]
+		then sed 's+^+  +'
+		else cat
+		fi
+		# Needed for files with no trailing \n (TODO: would be nice to check if needed :)
+		echo
 		echo "}"
 	fi
 
-  if [ "$CHECKING" ]
-  then
-    # cat "$FILE" | grep " \. [a-zA-Z]"
-    ## TODO: I'm not sure this is even working:
-    cat "$FILE" | grep "[^ 	]exit " &&
-    echo "\\\\ calls to exit may cause problems!"
-  fi >&2
-
-	echo
+	if [ "$CHECKING" ]
+	then
+		# cat "$FILE" | grep " \. [a-zA-Z]"
+		## TODO: I'm not sure this is even working:
+		cat "$FILE" | grep "[^ 	]exit " &&
+		echo "\\\\ calls to exit may cause problems!"
+	fi >&2
 
 done
