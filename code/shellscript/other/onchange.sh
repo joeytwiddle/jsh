@@ -6,6 +6,10 @@
 #   newer "$file" "$COMPFILE"
 # }
 
+# Not sure what ignore does.
+# Difference appears to be all files in dir
+# as opposed to files provided in list
+
 if test "$1" = "-nowinxterm"; then
 	shift
 else
@@ -57,12 +61,16 @@ while true; do
 			if mynewer "$file" "$COMPFILE"; then
 				touch "$COMPFILE"
 				echo
+				cursecyan
 				for X in `seq 1 $COLUMNS`; do printf "-"; done; echo
 				echo "$file changed, running: $COMMANDONCHANGE"
+				cursenorm
 				echo
 				xttitle "> onchange running $COMMANDONCHANGE ($file changed)"
 				$COMMANDONCHANGE
+				cursecyan
 				echo "Done."
+				cursenorm
 				xttitle "# onchange watching $FILES ($file changed last)"
 				# break
 			fi

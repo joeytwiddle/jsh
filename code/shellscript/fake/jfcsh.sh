@@ -1,54 +1,71 @@
 # Does a simple one-way jfc diff
 
 if test "$1" = ""; then
-	echo "jfcsh [-bothways] <file_A> <file_B>"
+	echo "jfcsh [ -bothways | -common ] <file_A> <file_B>"
 	echo "  will show lines in file_A which are not in file_B."
 	exit 1
 fi
 
 BOTHWAYS=
+COMMON=
 while true; do
 	if test "$1" = "-bothways"; then
 		BOTHWAYS=true
+	elif test "$1" = "-common"; then
+		COMMON=true
 	else
 		break
 	fi
 	shift
 done
 
-A=`jgettmp "$1"`
-B=`jgettmp "$2"`
+if test $COMMON; then
 
-cat "$1" | sort > "$A"
-cat "$2" | sort > "$B"
+		cat "$1" |
+		while read X; do
+			grep "^$X$" "$2"
+		done
 
-test $BOTHWAYS && (
-	echo `cursecyan`
-	centralise -pad "v" " " "v" "Lines only in $A"
-	echo `cursenorm`
-)
+else
 
-diff "$A" "$B" |
-	grep "^< " | sed "s/^< //"
+	A=`jgettmp "$1"`
+	B=`jgettmp "$2"`
 
-test $BOTHWAYS && (
+	cat "$1" | sort > "$A"
+	cat "$2" | sort > "$B"
 
-	echo `cursecyan`
-	echo "--------------------------------------------------------------------------------"
-	echo `cursenorm`
+	test $BOTHWAYS && (
+		cursecyan
+		centralise -pad "v" " " "v" "Lines only in $A"
+		cursenorm
+		echo
+	)
 
-	diff "$B" "$A" |
+	diff "$A" "$B" |
 		grep "^< " | sed "s/^< //"
 
-	## Or:
-	# diff "$A" "$B" |
-		# grep "^> " | sed "s/^> //"
+	test $BOTHWAYS && (
 
-	echo `cursecyan`
-	centralise -pad "^" " " "^" "Lines only in $B"
-	echo `cursenorm`
+		cursecyan
+		centralise -pad "-" "-" "-" ""
+		cursenorm
+		echo
 
-)
+		diff "$B" "$A" |
+			grep "^< " | sed "s/^< //"
 
-jdeltmp $A
-jdeltmp $B
+		## Or:
+		# diff "$A" "$B" |
+			# grep "^> " | sed "s/^> //"
+
+		cursecyan
+		centralise -pad "^" " " "^" "Lines only in $B"
+		cursenorm
+		echo
+
+	)
+
+	jdeltmp $A
+	jdeltmp $B
+
+fi
