@@ -8,6 +8,12 @@
 # export BADFILE=`jgettmp qkcsum.bad`
 export LOGFILE=/tmp/qkcksum.log
 export BADFILE=/tmp/qkcksum.bad
+## Prevents problems with multiple user write permissions, but could cause infloop if /tmp is non-writeable!
+while [ ! -w "$LOGFILE" ] && [ ! -w "$BADFILE" ]
+do
+	LOGFILE=$LOGFILE"_"
+	BADFILE=$BADFILE"_"
+done
 
 for FILE
 do

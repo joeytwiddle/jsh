@@ -1,17 +1,20 @@
+## Still buggy, but in different ways.
+
 for X in *.zip; do
-	Y=`echo "$X" | sed 's/\.zip$//'`
+	X=`realpath "$X"`
+	Y="$X"_unpacked
 	mkdir "$Y"
 	cd "$Y"
-	unzip "../$X"
-	# And because it always segfaults first time round:
-	unzip "../$X"
+	unzip "$X" ||
+	# And because it sometimes segfaults first time round:
+	unzip "$X"
 	cd ..
 done
 
 for X in *.tar.gz *.tgz; do
-	Y=`echo "$X" | sed 's/\(\.tar.gz\|\.tgz\)$//'`
+	X=`realpath "$X"`
+	Y="$X"_unpacked
 	mkdir "$Y"
 	cd "$Y"
-	tar xfz "../$X"
-	cd ..
+	tar xfz "$X"
 done

@@ -5,20 +5,11 @@ then
 	echo "  will show you the documentation for the command"
 	echo "  and if requested usage of / dependencies on that command in all jsh scripts"
 
-else
+elif [ "$1" = showjshtooldoc ]
+then
 
-	## First pop up the manpage if it exists:
-	## TODO/BUG: Should detach this from the shell, because Ctrl+C on the question following causes manpopup window to close.
-	## Forget it: now handled by jman alias.
-	# manpopup "$@" # &&
-	# info "$@"
+		LINKTOCOM="$2"
 
-	LINKTOCOM="$JPATH/tools/$1"
-
-	if [ -f "$LINKTOCOM" ]
-	then
-
-		dothis() {
 			(
 				barline() {
 					echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
@@ -53,10 +44,26 @@ else
 					barline
 				## TODO: might the user want the man page as well as the script?
 			) | more
-		}
 
-		## I really want to dothis in a bigwin (if X is running)
-		dothis
+else
+
+	## First pop up the manpage if it exists:
+	## TODO/BUG: Should detach this from the shell, because Ctrl+C on the question following causes manpopup window to close.
+	## Forget it: now handled by jman alias.
+	# manpopup "$@" # &&
+	# info "$@"
+
+	LINKTOCOM="$JPATH/tools/$1"
+
+	if [ -f "$LINKTOCOM" ]
+	then
+
+		if xisrunning
+		then
+			bigwin jdoc showjshtooldoc "$LINKTOCOM"
+		else
+			jdoc showjshtooldoc "$LINKTOCOM"
+		fi
 
 	fi
 

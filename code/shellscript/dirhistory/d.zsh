@@ -7,6 +7,9 @@
 # Sometimes NEWDIR="$@" breaks under ssh?
 # Investigate: echo "($LAST)"
 
+## TODO: this script is sourced by user's shell so NEWDIR etc. are overwritten then left around.
+##       it might be handy to leave the user with a $LASTDIR env var (maybe bash always has one anyway, but zsh doesn't appear to, at least not with that name)
+
 # NEWDIR="`expandthreedots "$*"`" ||
 NEWDIR="$*"
 

@@ -1,6 +1,7 @@
-findjob $2 | grep -v "renice"
-echo renice $1 -p `
-	findjob $2 |
-	grep -v "renice" |
-	awk ' { printf($3" ") } '
-`
+findjob $2 | grep -v renice |
+sed 's+^+# +'
+
+echo -n "renice $1 -p"
+findjob $2 | grep -v renice |
+awk ' { printf($3" ") } '
+echo

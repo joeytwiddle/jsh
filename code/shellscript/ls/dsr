@@ -1,3 +1,5 @@
-# Breaks on Unix
-# ls -hlrSF --color $@
-ls $JM_LS_OPTS -al "$@" | sort -n -k 5
+## For Linux:
+ls -hlrSF --color $@
+
+## For other ixes:
+# ls $JM_LS_OPTS -al "$@" | sort -n -k 5

@@ -63,20 +63,23 @@ export CVSROOT=":pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
 
 ## Make initial CVS connection
 ## OK this isn't needed now that anonymous has password ""
-## Test if password already exists:
-# if ! grep "^$CVSROOT" "$HOME/.cvspass" > /dev/null 2>&1
-# then
-	# # echo "Initial login to Hwi as $HWIUSER, to obtain ~/.cvspass."
-	# echo "First we need to login to Hwi's cvs as $HWIUSER,"
-	# echo "to obtain ~/.cvspass."
-	# test "$HWIUSER" = anonymous &&
-		# echo "Please use the password \"anonymous\""
-	## Touch is important otherwise first time cvs(1.11.1p1debian-8.1)
-	## labels server as null!  :-P
-	# touch $HOME/.cvspass
-	# cvs login ||
-		# exit 1
-# fi
+if [ ! "$HWIUSER" = anonymous ]
+then
+	## Test if password already exists:
+	if ! grep "^$CVSROOT" "$HOME/.cvspass" > /dev/null 2>&1
+	then
+		# echo "Initial login to Hwi as $HWIUSER, to obtain ~/.cvspass."
+		echo "First we need to login to Hwi's cvs as $HWIUSER,"
+		echo "to obtain ~/.cvspass."
+		test "$HWIUSER" = anonymous &&
+			echo "Please use the password \"anonymous\""
+		## Touch is important otherwise first time cvs(1.11.1p1debian-8.1)
+		## labels server as null!  :-P
+		touch $HOME/.cvspass
+		cvs login ||
+			exit 1
+	fi
+fi
 
 echo "WARNING: this software comes with no warranty; \
 you use it at your own risk; the authors accept no responsilibity."

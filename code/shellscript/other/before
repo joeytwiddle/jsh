@@ -1,2 +1,3 @@
+## Since neither beforefirst or beforelast, could carry the assertion that only one instance of the search pattern exists.
 sed "s+$@.*$++"
 # awk ' BEGIN { FS="'$1'" } { printf($1"\n") } '

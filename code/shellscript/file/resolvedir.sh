@@ -1,30 +1,32 @@
+## An implementation of realpath(1,3) in sh.
+## Finds absolute path of given filename (by following all symlinks in path, from leaf to root).
+
+## Differences from realpath:
+##   Does not error + fail if file does not exist.
+##   Does not deal with ".."s, just leaves them.
+
 # jsh-depends: absolutepath isabsolutepath justlinks filename
-# Basically an implementation of realpath(1,3) in sh.
 
-## TODO: make it identical to realpath?  Would require error + fail if file does not exist.
-##       also realpath deals with ..'s properly
+## X is todo, Y is done
 
-# Apparently dodgy?
-# But certainly works better than former!
-# Oh this was probably marked dodgy because var Y changed
-# inside while loop is needed outside it.
-# but it's ok cos it's not a | while
+X=`absolutepath "$1"`
+Y=""
 
-X=$1;
-Y="";
-X=`absolutepath "$X"`
-while test ! "$X" = "/" && test ! "$X" = "."
+while [ ! "$X" = "/" ] && [ ! "$X" = "." ]
 do
-	C=`filename "$X"`
-	L=`justlinks "$X"` # 2> /dev/null
+	C=`basename "$X"`
+	L=`justlinks "$X"`
 	X=`dirname "$X"`
-	if test "$L"
+	if [ "$L" ] ## link exists
 	then
+		## expand it
 		if isabsolutepath "$L"
-		then X="$L"
-		else X="$X/$L"
+		then X="$L" ## absolute link
+		else X="$X/$L" ## relative link
 		fi
-	else Y="/$C$Y"
+	else
+		Y="/$C$Y" ## continue
 	fi
 done
+
 echo "$Y"

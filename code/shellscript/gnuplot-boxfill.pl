@@ -1,4 +1,4 @@
-#!/usr/bin/perl -w
+#!perl -w
 
 # Copyright 2001, Felix Ritter (Felix.Ritter@gmx.de)
 #

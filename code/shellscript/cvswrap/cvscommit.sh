@@ -1,20 +1,6 @@
 # jsh-depends-ignore: vimdiff
 # jsh-depends: cursebold cursecyan cursegreen curseyellow cursenorm cvsdiff cvsedit cvsvimdiff edit jdeltmp jgettmp jdiff newer error
 
-if [ ! "$DONT_USE_FIGLET" ]
-then
-	if jwhich figlet quietly
-	then
-		for FIGLET_FONT in straight stampatello italic mini short ogre
-		do
-			FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -1`
-			if [ "$FIGLET_FONT_FILE" ]
-			then break
-			fi
-		done
-	fi
-fi
-
 getfiles () {
 	## This is very slow, could try: cvs diff 2>/dev/null | grep "^Index:"
 	cvsdiff "$@" |
@@ -30,6 +16,23 @@ getfiles () {
 
 if [ "$1" = "-diff" ]
 then
+
+	## Pretty-prints diffs between your checkout and the repository, and allows you to comment and commit changes.
+
+	## First, choose a figlet font:
+	if [ ! "$DONT_USE_FIGLET" ]
+	then
+		if jwhich figlet quietly
+		then
+			for FIGLET_FONT in straight stampatello italic mini short ogre
+			do
+				FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -1`
+				if [ "$FIGLET_FONT_FILE" ]
+				then break
+				fi
+			done
+		fi
+	fi
 
 	## TODO: if a file needs /updating/ then just print a message saying so.  =)
 
@@ -114,6 +117,8 @@ then
 elif test "$1" = "-vimdiff"
 then
 
+	## Vimdiffs each file which differs from its copy in the repository.  If user writes file (changes date), then file is committed.
+
 	shift
 	FILES=`getfiles "$@"`
 	STARTTIME=`jgettmp cvsvimdiff-watchchange`
@@ -153,6 +158,8 @@ then
 	jdeltmp $STARTTIME $ORIGFILETIME
 
 else
+
+	## Default: just commit quietly, and cvsedit to make files writeable.
 
 	cvs -q commit "$@"
 	# | grep -v "^? "

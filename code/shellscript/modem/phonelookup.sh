@@ -13,7 +13,7 @@ do
 
 done # | extractregex "$REGEXP"
 
-NUMBER=`echo "$LINE" | extractregex "[[:digit:]]+"`
+NUMBER=`echo "$LINE" | extractregex "[[:digit:] ]+"`
 
 if [ $CHECK ]
 then

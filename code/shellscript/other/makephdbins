@@ -1,4 +1,7 @@
-echo "You should also ensure that $JPATH/images exists, and $JPATH/code/c/phd/images links to it!"
+# echo "You should also ensure that $JPATH/images exists, and $JPATH/code/c/phd/images links to it!"
+echo "Input images go in phd/images/ and output should appear in phd/results/"
+
+xct forall
 
 cd $JPATH/code/c/phd
 

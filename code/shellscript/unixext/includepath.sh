@@ -1,5 +1,7 @@
 # Usage: . includepath <root-prefix>
 
+## TODO: absoluteise "$1" in case user is being lazy?
+
 if test "$1" = -after
 then
 	NEWROOT="$2"
