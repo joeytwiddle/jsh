@@ -1,3 +1,4 @@
+# jsh-depends: afterfirst beforefirst lynx debug
 ## TODO: See seeklyrics syntax.  We should surround each argument passed with ""s in the google query, or %whatevers.
 
 if [ "$1" = -links ]
@@ -34,4 +35,6 @@ done
 # echo "googlesearch on: $CGI" >&2
 [ $DEBUG ] && debug "googlesearch on: $CGI"
 
-echo "http://www.google.com/search?q=$CGI$EXTRA&num=20"
+# EXTRA="$EXTRA&num=20"
+
+echo "http://www.google.com/search?q=$CGI$EXTRA"

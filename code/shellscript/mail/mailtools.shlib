@@ -4,21 +4,24 @@
 
 ## TODO: there is a move-to-another-mailbox method in mailcalendar.sh which should come here but it may not be ideal (how is its error handling?)
 
-if test ! "$MBOX"
+if [ ! -f "$MBOX" ]
 then
-	MBOX="$1"
-	shift
-	if test ! "$MBOX"
+	if [ -f "$1" ]
 	then
+		MBOX="$1"
+		shift
+	else
 		MBOX=/tmp/mbox
-		if test ! -f "$MBOX"
+		if [ ! -f "$MBOX" ]
 		then
-			echo "No \$MBOX provided and nothing in /tmp/mbox"
+			echo "No \$MBOX provided and nothing in /tmp/mbox" >&2
 			## Rather too harsh at the com-line:!
 			# exit 1
 		fi
 	fi
 fi
+
+echo "Mailtools will use $MBOX" >&2
 
 ## My mbox got truncated the last time I used it.
 ## Admittedly I did do something a bit dodgy, but actually I suspect there may
@@ -56,13 +59,17 @@ listmail() {
 
 getmail() {
 	## Arguments are the index numbers of the emails in the mbox
-	if test "$1" = -dont-mark-read
-	then DONT_MARK_AS_READ=true; shift
-	fi
-	maildo "$@
-x"
-	test "$DONT_MARK_AS_READ" &&
-	maildo "unread $@"
+	(
+		if test "$1" = -dont-mark-read
+		then DONT_MARK_AS_READ=true; shift
+		fi
+		maildo "$@
+	x"
+		test "$DONT_MARK_AS_READ" &&
+		maildo "unread $@"
+	) |
+	drop 3
+	## TODO: Assert that top line starts "From "
 }
 
 stripheaders() {

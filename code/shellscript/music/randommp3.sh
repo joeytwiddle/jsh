@@ -3,7 +3,7 @@
 
 SEARCH="$1"
 
-if which mp3gain > /dev/null 2>&1
+if which mp3gain > /dev/null 2>&1 && [ ! "$DONT_USE_MP3GAIN" ]
 then
 	USE_MP3GAIN=true
 	NORMALISEDTRACK="/tmp/randommp3-gainchange.mp3"

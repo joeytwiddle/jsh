@@ -1,5 +1,5 @@
 if `jwhich wget -quietly`
-then wget -O - "$@"
+then wget -nv -O - "$@"
 elif `jwhich lynx -quietly`
 then lynx -source "$@"
 else

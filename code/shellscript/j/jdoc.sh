@@ -67,6 +67,10 @@ else
     TABCHAR=`echo -e "\011"`
     cd $JPATH/tools/
     higrep "\<$1\>" -C2 *
+    # BEGIN=`printf "\r"`
+    # UP=`printf "\005"`
+    # higrep "\<$1\>" -C2 * |
+    # sed "s+^+$BEGIN$UP+"
 
     echo
     echo -n "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "
@@ -74,12 +78,14 @@ else
     case "$KEY" in y|Y)
       echo "Warning: experimental; target should be unique!  Won't rename script file.  Ctrl+C to skip."
       echo "In fact: doesn't work, because changed scripts end up in $JPATH/tools not /shellscript."
+      echo "         (depending on your sedreplace implementation)"
       echo -n "Replace `cursecyan`$1`cursenorm` with what? `cursecyan`"
       read REPLACEMENT
       cursenorm
       cd $JPATH/code/shellscript
       find . -type f | notindir CVS |
       foreachdo sedreplace "\<$1\>" "$REPLACEMENT"
+      echo "If there is a script named $1, it should be renamed on the CVS server with: mvcvs .../$1 .../$REPLACEMENT"
     esac
 
   esac

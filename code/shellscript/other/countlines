@@ -4,7 +4,8 @@
 ## Laziest: put the test in the code, with an assert, innit!
 
 docountlines () {
-	cat "$@" | wc -l
+	## Must remove spaces for backward-compatibility, and for external programs, such as expr which cannot handle 1 - "  20".
+	cat "$@" | wc -l | tr -d ' '
 	# awk " END { print "' NR } ' "$@"
 }
 

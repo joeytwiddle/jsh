@@ -1,3 +1,5 @@
+## TODO: use of TMPDIR is dodgy!  (to save dependency hugeness?)
+
 # jsh-depends: cursered cursenorm filesize diffgraph googlesearch takecols reverse grouplinesbyoccurrence jgettmpdir lynx pipeboth
 ## "mel and kim" "respectable" came back badly!
 
@@ -13,17 +15,17 @@ then
 	echo '  Either of the latter two help in narrowing down on the particular song, and'
 	echo '  avoiding song listings.  =)'
 	echo
+	echo '  Options: -oldmethod / -use <old_dir>'
+	echo
 	exit 1
 fi
 
 ## would be nice to name filenames simialr to the url (just strip '/'s "http::" and "www.".
 
 # TMPDIR=`jgettmpdir seeklyrics "$@"`
-TMPDIR=`jgettmpdir seeklyrics`
+TMPDIR=`jgettmpdir seeklyrics "$@"`
 
 # rm $TMPDIR/*.lyrics*
-
-N=0
 
 ## or "normalise"?
 strippunctuation () {
@@ -32,6 +34,35 @@ strippunctuation () {
 	sed 's+\[[^]]*\]++g' |
 	sed 's+^[ 	]*++;s+[ 	]*$++'
 }
+
+showLinesCoverage () {
+
+	PAGE="$1"
+	shift
+
+	cat "$PAGE" |
+
+	while read LINE
+	do
+
+		# echo grep -c "^$LINE$" "$@"
+		grep -c "^$LINE$" "$@" | grep -v ":0$" |
+		countlines | tr -d '\n'
+
+		# echo "	$LINE"
+		printf "\t%s\n" "$LINE" # ?
+
+	done
+
+}
+
+N=0
+
+if [ "$1" = -oldmethod ]
+then
+	OLDMETHOD=true
+	shift
+fi
 
 if [ "$1" = -use ]
 then
@@ -47,7 +78,6 @@ else
 		# | pipeboth
 	`
 
-
 	## TODO: should strip duplicate hostnames
 
 	for LINK in $LINKS
@@ -55,8 +85,8 @@ else
 
 		N=$[$N+1]
 
-		memo lynx -dump "$LINK" |
-		# downloadurl "$LINK" 2>/dev/null | striphtml |
+		# memo lynx -dump "$LINK" |
+		memo downloadurl "$LINK" 2>/dev/null | striphtml |
 		cat > $TMPDIR/$N.lyrics &&
 		echo "$N $LINK" >&2 &
 
@@ -65,6 +95,8 @@ else
 	wait
 
 fi
+
+echo "$N"
 
 for N in `seq 1 20`
 do
@@ -81,58 +113,86 @@ do
 
 done
 
-# echo "$TMPDIR"
-# diffgraph $TMPDIR/*.lyrics.nopun | sed "s+$TMPDIR++g"
-# diffgraph -diffcom worddiff $TMPDIR/*.lyrics.nopun
-# diffgraph -diffcom proportionaldiff $TMPDIR/*.lyrics.nopun
 
-diffgraph $TMPDIR/*.lyrics.nopun |
 
-pipeboth |
+if [ "$OLDMETHOD" ]
+then
 
-tee $TMPDIR/diffgraph.out |
+	## Old method
 
-takecols 3 | grouplinesbyoccurrence | sort -n -k 1 | reverse |
+	# echo "$TMPDIR"
+	# diffgraph $TMPDIR/*.lyrics.nopun | sed "s+$TMPDIR++g"
+	# diffgraph -diffcom worddiff $TMPDIR/*.lyrics.nopun
+	# diffgraph -diffcom proportionaldiff $TMPDIR/*.lyrics.nopun
 
-pipeboth |
+	diffgraph $TMPDIR/*.lyrics.nopun |
 
-head -1 |
+	pipeboth |
 
-while read SCORE PAGE
-do
+	tee $TMPDIR/diffgraph.out |
 
-	showLinesCoverage () {
+	takecols 3 | grouplinesbyoccurrence | sort -n -k 1 | reverse |
 
-		PAGE="$1"
-		shift
+	pipeboth |
 
-		cat "$PAGE" |
+	head -1 |
 
-		while read LINE
-		do
+	while read SCORE PAGE
+	do
 
-			# echo grep -c "^$LINE$" "$@"
-			grep -c "^$LINE$" "$@" | grep -v ":0$" |
-			countlines | tr -d '\n'
+		CHILDREN=`
+			cat $TMPDIR/diffgraph.out | takecols 1 3 |
+			grep "$PAGE$" |
+			# pipeboth |
+			takecols 1
+		`
 
-			echo "	$LINE"
+		# more "$PAGE"
+		echo "`curseyellow`Showing line coverage of $PAGE against:" $CHILDREN"`cursenorm`"
+		showLinesCoverage "$PAGE" $CHILDREN
 
-		done
+	done
 
-	}
-		
 
-	CHILDREN=`
-		cat $TMPDIR/diffgraph.out | takecols 1 3 |
-		grep "$PAGE$" |
-		# pipeboth |
-		takecols 1
-	`
+else
 
-	# more "$PAGE"
-	echo "`curseyellow`Showing line coverage of $PAGE against:" $CHILDREN"`cursenorm`"
-	showLinesCoverage "$PAGE" $CHILDREN
+	## New method
 
-done
+	cd $TMPDIR
+	for N in `seq 1 20`
+	do
+		if [ -f $N.lyrics.nopun ]
+		then
+
+			REST=""
+			for M in `seq 1 20`
+			do [ ! "$M" = "$N" ] && [ -f $M.lyrics.nopun ] && REST="$REST $M.lyrics.nopun"
+			done
+
+			SCORE=`
+				showLinesCoverage $N.lyrics.nopun $REST |
+
+				grep -v "	\(References\|lyrics\|\)$" |
+
+				removeduplicatelinespo |
+
+				grep -v "^0	" |
+				# grep -v "^[012]	" |
+				sort -n -k 1 | reverse |
+				pipeboth |
+
+				takecols 1 |
+				awksum
+			`
+			echo "SCORE $SCORE FOR	$N.lyrics.nopun"
+			echo
+
+		fi
+	done
+
+fi
+
+
 
 # jdeltmp $TMPDIR
+

@@ -1,3 +1,10 @@
+if [ "$1" = -on ]
+then
+	ON="$2"
+	shift; shift
+else
+	ON=" 	"
+fi
 
 ## Unsupported as yet, but should prevent alignment of columns beyond # $UPTO
 if [ "$1" = -upto ]
@@ -9,5 +16,5 @@ fi
 # column -t -s '	 ' "$@"
 # -x ?
 # column -t -s ' ' "$@"
-column -t -s ' 	' "$@"
+column -t -s "$ON" "$@"
 # java -cp $CLASSPATH:$JPATH/code/java/tools/columnise/ Columnise $@

@@ -1,6 +1,22 @@
+## TODO: don't allow overburning
+
+if [ "$1" = -announce ]
+then
+	for TRACK
+	do
+		FILENAME=`basename "$TRACK"`
+		echo "$FILENAME"
+		mp3info "$FILENAME"
+		## ...
+	done
+	exit
+fi
+
 if test "$1" = -fix
 then FIX=true; shift
-else FIX=
+else
+	FIX=
+	echo "`cursered``cursebold`Don't forget to -fix on (or after) the last write!`cursenorm`"
 fi
 
 CDRECORD_OPTS="minbuf=90"

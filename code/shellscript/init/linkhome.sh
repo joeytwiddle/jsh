@@ -1,5 +1,4 @@
-## TODO: make an unlinkhome script
-## Ideally it would be a link to this script, which would poll $0, hence keeping all the code together, but jsh deploy doesn't yet support symlinks.
+## TODO: move unlinkhome into this script, keeping code in one place.
 
 if test "$1" = "-diff"; then
 	shift
@@ -19,7 +18,7 @@ find . -maxdepth 2 |
 			ln -sf "$SOURCE" "$DEST"
 		else
 			if test ! `realpath "$DEST"` = `realpath "$SOURCE"`; then
-				echo "problem: $NICESOURCE is in the way of $DEST"
+				echo "problem: $NICESOURCE is in the way of $SOURCE"
 				if test ! -d "$SOURCE" && test $SHOWDIFFS; then
 					gvimdiff "$DEST" "$SOURCE"
 				fi

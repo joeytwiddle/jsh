@@ -13,7 +13,7 @@ getfiles () {
 ## If we can leave it out, it lets us resize during run:
 # export COLUMNS
 
-if test "$1" = "-diff"
+if [ "$1" = "-diff" ]
 then
 
 	shift
@@ -21,7 +21,7 @@ then
 	TMPFILE=`jgettmp "repository_version"`
 	for FILE in $FILES
 	do
-		if test ! -f "$FILE"
+		if [ ! -f "$FILE" ]
 		then error "skipping non-file: $FILE"; continue
 		fi
 		(
@@ -96,7 +96,7 @@ then
 	for FILE in $FILES
 	do
 		echo
-		if test ! -f "$FILE"
+		if [ ! -f "$FILE" ]
 		then error "skipping non-file: $FILE"; continue
 		fi
 		touch -r "$FILE" "$ORIGFILETIME"
