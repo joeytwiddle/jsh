@@ -13,15 +13,16 @@ then
 	# fi
 
 	## Gather hostname and username
-	SHOWHOST=$HOST ## cache it?
-	## Fix 'cos sometimes HOSTNAME is set instead of HOST
-	if [ ! "$SHOWHOST" ]
-	then SHOWHOST="$HOSTNAME"
+	## This is used by lots of other jsh processes!  (Mainly screen/prompt related.)
+	## But it strips all but the first part, which might be naughty.
+	## If change var name, eg. to JSH_SHORT_HOSTNAME, be sure to propogate throughout jsh.
+	if [ ! "$HOST" ]
+	then HOST="$HOSTNAME"
 	fi
-	if [ ! "$SHOWHOST" ]
-	then SHOWHOST=`hostname`
+	if [ ! "$HOST" ]
+	then HOST=`hostname`
 	fi
-	SHOWHOST=`echo "$SHOWHOST" | beforefirst "\."`
+	HOST=`echo "$HOST" | beforefirst "\."`
 
 	## If we are in a screen, but not on the local machine, we must have ssh'ed somewhere from within screen.
 	SCRHEAD=""
@@ -29,13 +30,13 @@ then
 	   # ! contains "$SCREENTITLE" "$SHOWHOST"
 	then
 		## If we want to display the machine name, and what it's up to, we should use screentitle -remote below.
-		SCRHEAD="($SHOWHOST)"
+		SCRHEAD="($HOST)"
 		screentitle -remote "$SCRHEAD"
 	fi
 
 	## However, if we are in a local screen, ...
 
-	SHOWHOST="$SHOWHOST:"
+	SHOWHOST="$HOST:"
 	SHOWUSER="$USER@"
 	# could try using `logname`
 
@@ -49,6 +50,8 @@ then
 	export SHOWUSER # for d f b
 	export SHOWHOST
 	## Needed by others?
+
+	HEAD="$HEAD$SHOWHOST$SHOWUSER"
 
 	# if xisrunning; then
 

@@ -5,6 +5,11 @@ if test "$1" = "-java"
 then TREEJAVA=true; shift
 fi
 
+TREESH=
+if [ "$1" = "-sh" ]
+then TREESH=true; shift
+fi
+
 if test "$1" = "-cat" || test "$1" = "-novim"
 then CAT=true; shift
 fi
@@ -20,7 +25,12 @@ cat "$@" > $TMPFILE
 if test "$TREEJAVA"
 then
 
-	java tools.tree.Tree "$TMPFILE"
+	java tools.tree.Tree $TMPFILE
+
+elif [ $TREESH ]
+then
+
+	cat $TMPFILE | treesh | pipeboth
 
 else
 

@@ -1,4 +1,5 @@
-if test "$*" = ""; then
+if [ "$*" = "" ] || [ "$1" = --help ]
+then
 	echo 'sedreplace [ <options> ] "search_string" "replace_string" [ <filename>... ]'
 	echo "  where <options> ="
 	echo "    -nobackup : do not create backup in <filename>.b4sr"
