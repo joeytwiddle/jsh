@@ -1,6 +1,6 @@
 DIR=`realpath "$1"`
 
-FOUNDTMP=`jgettmp wheremounted`
+FOUND=`
 
 df | drop 1 | takecols 6 | sort |
 
@@ -8,12 +8,14 @@ while read MOUNTPNT
 do
 
   if echo "$DIR" | grep "^$MOUNTPNT" > /dev/null
-  then echo "$MOUNTPNT" > "$FOUNDTMP"
+  then echo "$MOUNTPNT"
   fi
 
-done
+done |
 
-FOUND=`cat "$FOUNDTMP"`
+tail -1
+
+`
 
 test "$FOUND" &&
 echo "$FOUND" ||
