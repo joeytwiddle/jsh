@@ -1,8 +1,10 @@
+## Based on xtermsh
+
 COM="$@"
 
 if [ "$COM" = "" ]; then COM="jsh"; fi
 
-TMPSH=`jgettmp "bigwin.sh"`
+TMPSH=`jgettmp "bigwin: $*"`
 (
 	echo "$COM"
 	echo 'echo "Press <Enter> key to quit"'
@@ -16,7 +18,7 @@ chmod a+x "$TMPSH"
 if xisrunning
 then
 	# konsole -vt_sz 120x60 -nowelcome -caption "$1" -e sh "$TMPSH" &
-	xterm -bg "#600000" -geometry 120x50 -e "$TMPSH" &
+	xterm -title "bigwin: $*" -bg "#600000" -geometry 120x50 -e "$TMPSH" &
 else
 	"$TMPSH"
 fi

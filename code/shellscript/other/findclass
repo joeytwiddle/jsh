@@ -1,3 +1,4 @@
+## Should be findclassinjars, which calls findfileinzips
 echo "----- in JServ:"
 jar tf /home/httpd/classes/servlet-2.0.jar | grep $1
 echo "----- in Joey's code:"

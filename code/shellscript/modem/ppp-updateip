@@ -1,9 +1,13 @@
-## This bit is a check to ensure we didn't already do an update for this IP
-## Ideally we would like other puters on the net to tell us when our ip is wrong.  (By connecting to them and asking them presumably.)
+## TODO: could allow option to force override of the 15min check
+##       No, it's dangerous if cron runs < 15mins and it's not difficult to allow file access (/tmp!)
+
+LAST=/tmp/ppp-updateip.last
 
 IP=`ppp-getip`
 
-LAST=/tmp/ppp-updateip.last
+## This bit is a check to ensure we didn't already do an update with this IP
+## Note: If an update fails, the IP address is not recorded as update =) but if you add an update and re-run it will skip.
+## Ideally we would like other puters on the net to tell us when our ip is wrong.  (By connecting to them and asking them presumably.)
 
 LASTIP=`cat "$LAST"`
 if test "$LASTIP" = "$IP"
@@ -39,7 +43,9 @@ then
 
 fi
 
-## Repeated at bottom =)
+## OK so let's do the update
+
+## Make the "lock".  Repeated at bottom =)
 if ! touch "$LAST"
 then echo "$0: Couldn't touch $LAST.  Not trying to update ip." ; exit 2
 fi
@@ -48,8 +54,11 @@ FAIL=false
 
 ######## BEGIN ACTUAL UPDATE
 
-# dyndhs.org update (using hwi.ath.cx):
+# dyndns.org update (using hwi.ath.cx):
 /root/ipcheck/doipcheck || FAIL=true
+
+# dyndns.org update (using hwi.ath.cx):
+/root/ipcheck_emailforever.net/doipcheck_emailforever.net.sh || FAIL=true
 
 ( sleep 10m ; killall noip ) &
 # no-ip.org update (for a domain probably better left unmentioned!):

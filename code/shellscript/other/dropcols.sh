@@ -4,6 +4,7 @@
 ## (*): eg. by catting to file, then finding max # cols, then providing inverse args to takecols on file
 
 ## *** Unix provides colrm.  It takes ranges rather than lots of numbers.
+##     Oh I think it only does chars not fields.
 
 ## TODO:
 ## Sometimes fields are delimited by single tabs, single spaces, or multiple spaces.  What's yours?

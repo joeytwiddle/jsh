@@ -5,8 +5,16 @@ OLD=`jgettmp "old-$1"`
 echo "$@" > $EXECSH
 chmod a+x "$EXECSH"
 
-echo "Just to check: (no aliases since run in sh)"
+## TODO:
+## Should really make this an option, so jwatch can be used by progs
+## Then force the option in interactive sh with an alias =)
+cursecyan
+echo "### Just to check: (no aliases since run in sh)"
+cursemagenta
 $EXECSH
+cursecyan
+echo "### End check; starting watch. ----------------------------- "
+cursenorm
 
 $EXECSH > $NEW
 
