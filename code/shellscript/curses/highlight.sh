@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # zsh would also do (just need $RANDOM param)
 
 if test "$1" = ""; then
@@ -16,13 +16,14 @@ fi
 COLOR="$2"
 if test "$COLOR" = ""; then
 
-	COLI=` expr 1 '+' '(' $RANDOM '%' 5 ')' `
+	# COLI=` expr 1 '+' '(' $RANDOM '%' 5 ')' `
+	RAND=`getrandom`
+	COLI=` expr 1 '+' '(' $RAND '%' 5 ')' `
 
 	if test "$COLI" = ""; then
 		COLI=3
 	fi
 	if test "$COLI" = 1 || test "$COLI" = 4; then BOLDI=1; else BOLDI=0; fi
-	# BOLDI=1
 	HIGHCOL=`printf '\033[0'"$BOLDI"';3'"$COLI"'m'`
 
 else

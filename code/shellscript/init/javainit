@@ -26,18 +26,20 @@ CLASSPATH=$CLASSPATH:$JPATH/code/java/;
 # export CLASSPATH
 
 # Now strip all those entries that don't exist!
-if ! startswith `uname` "CYGWIN"; then
-		  CLASSPATH=`
-			  echo "$CLASSPATH" | tr ":" "\n" | while read X; do
-				  if test -f "$X"; then
-					  echo "$X"
-				  elif test -d "$X"; then
-					  echo "$X"
-				  # else
-					  # echo "Stripping $X from cp, since it doesn't exist." >> /dev/stderr
-				  fi
-			  done | tr "\n" ":"
-		  `
+if startswith `uname` "CYGWIN"; then
+	noop
+else
+	CLASSPATH=`
+		echo "$CLASSPATH" | tr ":" "\n" | while read X; do
+			if test -f "$X"; then
+				echo "$X"
+			elif test -d "$X"; then
+				echo "$X"
+			# else
+				# echo "Stripping $X from cp, since it doesn't exist." >> /dev/stderr
+			fi
+		done | tr "\n" ":"
+	`
 fi
 
 JIKESPATH=$CLASSPATH;

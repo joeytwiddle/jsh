@@ -1,4 +1,7 @@
 #!/bin/sh
+# /bin/sh on Solaris says: test argument expected
+# but Maxx doesn't have bash and zsh is in /usr/bin, so I fixed the:
+# test ! $QUIETLY to test ! "$QUIETLY" and now it works!
 
 if [ "$1" = "" ]; then
   echo "jwhich [ inj ] <file> [ quietly ]"
@@ -27,7 +30,7 @@ QUIETLY="$2"
 # This seems to work better, although there may be problems with spaces in the PATH
 for dir in $PATHS; do
   if test -f "$dir/$FILE"; then
-    test ! $QUIETLY && echo $dir/$FILE
+    test ! "$QUIETLY" && echo $dir/$FILE
     exit 0      # Found!  :)
   # else
     # echo "$dir/$FILE does not exist"
