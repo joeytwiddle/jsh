@@ -1,0 +1,57 @@
+# xvidtune&
+
+# Keyboard
+xmodmap /stuff/portablelinux/etc/X11/Xmodmap.hwiDeb &
+
+# `jwhich xterm`  +sb -sl 5000 -vb -si -sk -bg black -fg white -font '-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-iso646.1991-irv' -geometry 80x25+0+500 $* &
+xterm &
+
+# inwheel --wheel-fifo
+
+# Grab colours before someone else does!
+# xterm -e vim -R $JPATH/code/java/net/email/SMTPprotocol.java & # > ~/nedit.startup.txt &
+# ( sleep 9 &&
+#   killchild $$ "\"xterm -e vim\"" ) &
+# asmix &
+# ( sleep 20 &&
+  # killchild $$ asmix ) &
+
+# This file likes to cause me problems
+del .gnome/session
+
+# Lets get some kind of window manager starting!
+# gnome-session
+# winman=`echo "wmaker sawmill" | tr " " "\n" | chooserandomline`
+winman="sawfish"
+# winman="sawmill"
+$winman || `jwhich xterm` -title "--- failed to start $winman wm ---" &
+
+# Background
+# randomwallpaper &
+# ( env DISPLAY= xplanet -output $JPATH/background.jpg -projection orthographic -body Earth -blend -geometry 1024x768 &&
+#   xv -root -rmode 5 -maxpect -quit $JPATH/background.jpg )
+( 
+	sleep 10
+  nice -n 10 jxplanet render
+) &
+
+xhost +
+
+if test ""`findjob panel`; then
+	`jwhich xterm` -title "--- master - panel already running ---"
+else
+	# `jwhich xterm` -title "--- run panel! ---"
+	# If you don't trust its stability, catch it:
+	( panel || `jwhich xterm` -title "--- panel died ---" )
+	# panel
+	# xterm -title "--- panel closed ---"
+	# `jwhich xterm` -e panel
+fi
+# I used to have the xterm on the line below, but using the || means
+# we only catch with the xterm if panel failed.
+# If panel returns 0, we just exit the session =)
+echo "X session ended."
+
+# Disable bell
+xset -b
+# ( sleep 10s; xset fp+ unix/:7101 ) &

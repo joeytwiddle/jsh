@@ -1,0 +1,204 @@
+# Configuration file for dircolors, a utility to help you set the
+# LS_COLORS environment variable used by GNU ls with the --color option.
+
+# The keywords COLOR, OPTIONS, and EIGHTBIT (honored by the
+# slackware version of dircolors) are recognized but ignored.
+
+# Below, there should be one TERM entry for each termtype that is colorizable
+TERM linux
+TERM console
+TERM con132x25
+TERM con132x30
+TERM con132x43
+TERM con132x60
+TERM con80x25
+TERM con80x28
+TERM con80x30
+TERM con80x43
+TERM con80x50
+TERM con80x60
+TERM xterm
+TERM vt100
+# Debian:
+TERM linux-c
+TERM mach-color
+TERM xterm-debian
+TERM rxvt
+TERM screen
+TERM screen-w
+
+# Below are the color init strings for the basic file types. A color init
+# string consists of one or more of the following numeric codes:
+# Attribute codes:
+# 00=none 01=bold 04=underscore 05=blink 07=reverse 08=concealed
+# Text color codes:
+# 30=black 31=red 32=green 33=yellow 34=blue 35=magenta 36=cyan 37=white
+# Background color codes:
+# 40=black 41=red 42=green 43=yellow 44=blue 45=magenta 46=cyan 47=white
+NORMAL 00       # global default, although everything should be something.
+FILE 01;34      # normal file unclassed below (blue)
+DIR 00;32       # directory (green)
+LINK 01;32      # symbolic link (green)
+FIFO 40;33      # pipe
+SOCK 01;35      # socket
+BLK 40;33;01    # block device driver
+CHR 40;33;01    # character device driver
+ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
+
+
+# List any file extensions like '.gz' or '.tar' that you would like ls
+# to colorize below. Put the extension, a space, and the color init string.
+# (and any comments you want to add after a '#')
+
+# If you use DOS-style suffixes, you may want to uncomment the following:
+#.cmd 01;32 # executables (bright green)
+#.exe 01;32
+#.com 01;32
+#.btm 01;32
+#.bat 01;32
+
+# document / image / audio / video
+# zip
+# executable / directory / link
+
+# red, bold?
+# Needs attention
+.sync 00;31;40
+
+# brown
+# archive/package/compressed
+.tar 00;33
+.tgz 00;33
+.bz2 00;33
+.arj 00;33
+.taz 00;33
+.lzh 00;33
+.zip 00;33
+.z   00;33
+.Z   00;33
+.gz  00;33
+.deb 00;33
+.jar 00;33
+.rpm 00;33
+.rar 00;33
+
+# magenta
+# Images
+.jpg 01;35
+.Jpeg 01;35
+.jpeg 01;35
+.JPG 01;35
+.JPEG 01;35
+.gif 01;35
+.GIF 01;35
+.bmp 01;35
+.BMP 01;35
+.pcx 01;35
+.PCX 01;35
+.lbm 01;35
+.ppm 01;35
+.png 01;35
+.pgm 01;35
+.tga 01;35
+.xbm 01;35
+.xpm 01;35
+.tif 01;35
+.gf 01;35
+# Video
+.ram 01;35
+.rm 01;35
+.mpg 01;35
+.mpeg 01;35
+.avi 01;35
+# Audio
+.ra 01;35
+.mp3 01;35
+.pls 01;35
+.wav 01;35
+.raw 01;35
+.au 01;35
+.mod 01;35
+.it 01;35
+# Vector images (editable / not really)
+.fig 01;35
+.eps 01;35
+.ps 01;35 # maybe should be under docs?
+
+# ?
+.gl 01;37
+.dl 01;37
+
+# yellow
+# Documents for reading (and editing)
+.diff 01;33
+.sync 01;33
+.txt 01;33
+.TXT 01;33
+.doc 01;33
+.DOC 01;33
+.man 01;33
+.html 01;33
+.HTML 01;33
+.htm 01;33
+.HTM 01;33
+.dvi 01;33
+.pdf 01;33
+.sdw 01;33 # StarOffice
+.sda 01;33
+*readme 01;33
+*README 01;33
+*INSTALL 01;33
+*FAQ 01;33
+*HELP 01;33
+.nfo 01;33
+.NFO 01;33
+
+# cyan
+# Code
+.c 01;36
+.h 01;36
+.cc 01;36
+.cpp 01;36
+.C 01;36
+.s 01;36 # Assembler don't you know
+.java 01;36
+.jav 01;36
+.JAVA 01;36
+.JAV 01;36
+.hs 01;36
+.HS 01;36
+*Makefile 01;36
+.bas 01;36
+.BAS 01;36
+.grm 01;36 # Joey's grammar
+.vim 01;36 # Vim
+.tex 01;36 # Tex
+.lyx 01;36
+.bib 01;36
+.sty 01;36
+.cls 01;36
+# Strictly data
+.dat 01;36
+.xml 01;36
+
+# Don't work:
+#*tmp* 01;31
+
+# white
+# Redundant files
+*tmp 00;37
+*core 00;37
+*.ini 00;37
+*.bat 00;37
+*.com 00;37
+*.exe 00;37
+*.sys 00;37
+*.pif 00;37
+.bak 00;37
+.BAK 00;37
+
+# red
+# This is for files with execute permission:
+EXEC 01;31
+.class 01;31
+.CLASS 01;31
