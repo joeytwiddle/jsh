@@ -10,6 +10,12 @@
 # echo "# Try cvsdiff .* * to see which local files do not exist in repository."
 # echo "# Sorry subdirs' files don't work 'cos status loses path."
 
+CHECKALL=
+if test "$1" = "-all"; then
+	CHECKALL=true
+	shift
+fi
+
 PRE=`cat CVS/Root | afterlast ":"`"/"`cat CVS/Repository`"/"
 
 echo "Status of files compared to repository:"
@@ -24,12 +30,14 @@ cvs -q status | egrep "(^File:|Repository revision:)" |
 	done 2> /tmp/in-repos.txt |
 	grep -v "Up-to-date"
 
-echo
-echo "Local files not in repository:"
+if test $CHECKALL; then
+	echo
+	echo "Local files not in repository:"
 
-find . -type f | grep -v "/CVS/" > /tmp/local.txt
-jfc nolines /tmp/local.txt /tmp/in-repos.txt |
-	sed "s+^./+cvs add ./+"
+	find . -type f | grep -v "/CVS/" > /tmp/local.txt
+	jfc nolines /tmp/local.txt /tmp/in-repos.txt |
+		sed "s+^./+cvs add ./+"
+fi
 
 exit 0
 
