@@ -2,8 +2,10 @@
 ## On my sys, this means it must run as www-data.
 
 ## Monitor output from remote shell (passed to us by CGI script)
-touch /tmp/revssh-client-output.txt
-chown www-data:www-data /tmp/revssh-client-output.txt
+touch /tmp/revssh-client-output.txt /tmp/revssh-client-input.txt
+# chgrp www-data /tmp/revssh-client-output.txt /tmp/revssh-client-input.txt
+chmod ugo+w /tmp/revssh-client-output.txt
+chmod ugo+rw /tmp/revssh-client-input.txt
 # tail -f /tmp/revssh-client-output.txt &
 tail -f /tmp/revssh-client-output.txt |
 while read X; do
@@ -17,7 +19,6 @@ done &
 cat |
 while read LINE; do
 	echo "$LINE" >> /tmp/revssh-client-input.txt
-	chown www-data:www-data /tmp/revssh-client-input.txt
 	sleep 1
 done
 
