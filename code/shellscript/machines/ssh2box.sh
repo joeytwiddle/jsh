@@ -10,7 +10,7 @@ TITLE="$*"
 
 # Problem: Unix hostname does not allow this!
 SHORTHOSTNAME=`hostname`
-DOMAIN=`host "$SHORTHOSTNAME" | before "[\.] " | afterfirst "\."`
+DOMAIN=`host "$SHORTHOSTNAME" | sed "s/[^\.]*\.//;s/ .*//"`
 if test "$DOMAIN" = `echo "$1" | afterfirst "\."`; then
 	echo "Both on $DOMAIN: forwarding X session."
 	SSHCOM="$SSHCOM -X"
