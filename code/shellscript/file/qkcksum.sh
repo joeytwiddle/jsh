@@ -19,9 +19,9 @@ do
 		  cursenorm ) >&2
 		continue
 	fi
-	SIZE=`filesize "$FILE"`
-	if test $SIZE -lt $BUFFSIZE; then BUFFSIZE=$SIZE; fi
-	SEEK=`expr $SIZE - $BUFFSIZE`
+	FILESIZE=`filesize "$FILE"`
+	if test $FILESIZE -lt $BUFFSIZE; then BUFFSIZE=$FILESIZE; fi
+	SEEK=`expr $FILESIZE - $BUFFSIZE`
 	CKSUM=`
 		(
 			dd if="$FILE" bs=1 count=$BUFFSIZE 2> $LOGFILE &&
@@ -39,7 +39,7 @@ do
 	`
 	if test -e $BADFILE
 	then rm -f $BADFILE
-	else echo "$CKSUM $SIZE $FILE"
+	else echo "$CKSUM $FILESIZE $FILE"
 	fi
 done
 
