@@ -89,8 +89,8 @@ do
 done
 
 REALPWD=`realpath "$PWD"`
-CKSUM=`echo "$*" | md5sum`
-NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_+" | sed 's+\(................................................................................\).*+\1+'`
+CKSUM=`echo "$REALPWD/$*" | md5sum`
+NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
 FILE="$MEMODIR/$NICECOM.memo"
 TMPFILE=`jgettmp check_age`
 export CHECKDIR CHECKFILE REMEMOWHEN FILE TMPFILE
@@ -100,10 +100,11 @@ export CHECKDIR CHECKFILE REMEMOWHEN FILE TMPFILE
 # echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$FILE" ] || eval "$REMEMOWHEN"
 then
+	# [ "$DEBUG" ] && debug "rememo:   `cursemagenta`$NICECOM`cursenorm`"
 	# eval "$REMEMOWHEN" && [ "$DEBUG" ] && debug "memo:     `cursemagenta`Refresh needed with com: $REMEMOWHEN`cursenorm`"
 	rememo "$@"
 else
-	[ "$DEBUG" ] && debug "memo:     `cursemagenta`$*`cursenorm`"
+	[ "$DEBUG" ] && debug "memo:     `cursemagenta`$NICECOM`cursenorm`"
 	cat "$FILE"
 fi
 

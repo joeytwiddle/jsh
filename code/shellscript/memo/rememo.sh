@@ -2,15 +2,17 @@
 ## TODO: delete the memoed file if interrupted
 ##       (eg. (optionally delete it,) memo to elsewhere, then move into correct place if successful)
 
-[ "$DEBUG" ] && debug "REMEMO:   `cursemagenta`$*`cursenorm`"
+# [ "$DEBUG" ] && debug "REMEMO:   `cursemagenta`$*`cursenorm`"
 
 . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
 REALPWD=`realpath "$PWD"`
-CKSUM=`echo "$*" | md5sum`
-NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_+" | sed 's+\(................................................................................\).*+\1+'`
+CKSUM=`echo "$REALPWD/$*" | md5sum`
+NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
 FILE="$MEMODIR/$NICECOM.memo"
 mkdir -p "$MEMODIR"
+
+[ "$DEBUG" ] && debug "REMEMO:   `cursemagenta`$NICECOM`cursenorm`"
 
 TMPFILE=`jgettmp tmprememo`
 
@@ -20,7 +22,7 @@ eval "$@" > $TMPFILE
 EXITWAS="$?"
 if [ "$EXITWAS" = 0 ]
 then
-	mv $TMPFILE "$FILE"
+	mv -f $TMPFILE "$FILE"
 	cat "$FILE"
 else
   [ "$DEBUG" ] && debug "rememo: not caching since command gave exit code $EXITWAS: $*"
