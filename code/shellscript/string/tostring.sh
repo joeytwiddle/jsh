@@ -1,0 +1,1 @@
+fromstring -tostring "$@"
