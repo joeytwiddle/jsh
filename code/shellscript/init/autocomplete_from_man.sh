@@ -9,47 +9,61 @@
 
 
 
-## Method 1: pre-generate rules for selected commands
-
-## TODO: obtain more commands from shell-history
-COMMANDS="ls man tar ssh rsync mplayer btdownloadcurses grep diff cvs svn dpkg apt-get rpm"
-if [ "$ZSH_NAME" ] ## TODO: convert the bash string to a zsh array!
-then COMMANDS=(ls man tar ssh rsync mplayer btdownloadcurses grep diff cvs svn dpkg apt-get rpm)
-fi
-
-for COMMAND in $COMMANDS
-do
-
-	echo -n "$COMMAND " >&2
-
-	MANOPTS="--help "`memo extractpossoptsfrommanpage "$COMMAND" 2>/dev/null | tr '\n' ' '`
-
-	if [ "$ZSH_NAME" ]
-	then
-		compctl -f -c -u -r -k "($MANOPTS)" $COMMAND -tn ## -f files -c commands -u users -r running jobs -k man_options
-	elif [ "$BASH" ]
-	then
-		complete -W "$MANOPTS" $COMMAND
-	fi
-
-done
-
-echo >&2
+# ## Method 1: pre-generate rules for selected commands
+# 
+# ## TODO: obtain more commands from shell-history
+# COMMANDS="ls man tar ssh rsync mplayer btdownloadcurses grep diff cvs svn dpkg apt-get rpm wget lynx java jar $*"
+# if [ "$ZSH_NAME" ] ## TODO: convert the bash string to a zsh array!
+# then COMMANDS=(ls man tar ssh rsync mplayer btdownloadcurses grep diff cvs svn dpkg apt-get rpm wget lynx java jar $*)
+# fi
+# 
+# for COMMAND in $COMMANDS
+# do
+# 
+	# echo -n "$COMMAND " >&2
+# 
+	# MANOPTS="--help "`memo extractpossoptsfrommanpage "$COMMAND" 2>/dev/null | tr '\n' ' '`
+# 
+	# if [ "$ZSH_NAME" ]
+	# then
+		# compctl -tn -f -c -u -r -k "($MANOPTS)" -H 0 '' $COMMAND ## -f files -c commands -u users -r running jobs +-H last_resort_history -k man_options
+	# elif [ "$BASH" ]
+	# then
+		# complete -W "$MANOPTS" $COMMAND
+	# fi
+# 
+# done
+# 
+# echo >&2
 
 
 
 ## Method 2: generate for any command on the fly
 
-## zsh version disabled: slows down completion because I cannot prevent the function call even when a compctl's has already matched, despite -tn's and definition before others
-if [ "$ZSH_NAME" ] && [ bill_gates = a_good_bloke ]
+## zsh version: works on any command on the fly.  Jsh memoing was too slow, and I could not get non-glob matches with -tn to avoid this glob search.
+## So instead I added an heuristic and simple caching inline to make it fast.
+if [ "$ZSH_NAME" ]
 then
+
+	mkdir /tmp/completion_options
 
 	function joeyComplete {
 		read -c COMMAND ARGS
-		reply=(--help `memo extractpossoptsfrommanpage "$COMMAND" 2>/dev/null | tr '\n' ' '`)
+		## Heuristic:
+		if [ ! "$ARGS" ]
+		then
+			reply=""
+		else
+			## Cache:
+			MEMOFILE=/tmp/completion_options/"$COMMAND".cached
+			if [ ! -f "$MEMOFILE" ] || [ "$REMEMO" ]
+			then extractpossoptsfrommanpage "$COMMAND" 2>/dev/null | tr '\n' ' ' > "$MEMOFILE"
+			fi
+			reply=(--help `cat "$MEMOFILE"`)
+		fi
 	}
 
-	compctl -K joeyComplete "*" -tn
+	compctl -f -c -u -r -K joeyComplete -H 0 '' "*" -tn
 
 fi
 
