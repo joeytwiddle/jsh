@@ -40,7 +40,7 @@ then
 	shift; shift
 fi
 if [ ! "$DIFFCOM" ]
-then DIFFCOM=diff
+then DIFFCOM="diff -a" ## -a accepts binary files for diffing
 # then DIFFCOM=worddiff
 fi
 
