@@ -6,7 +6,7 @@ if [ ! "$1" ] || [ "$1" = --help ]
 then
 more << !
 
-generate_clip_markers <video_file>
+extract_clips_from_video <video_file>
 
   will play the video file in mplayer, and allow you to mark the positions of
   clips you want to extract.  This can be useful to get small clips out of a
@@ -38,7 +38,7 @@ VIDEOFILE="$1"
 echo "# Clip_start	Clip_end (seconds)" > "$CLIPMARKERFILE"
 
 echo
-echo "OK kid you gotta hit PAUSE to mark in and out points."
+echo "OK now hit PAUSE to mark in and out points."
 echo
 curseyellow
 

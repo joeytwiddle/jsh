@@ -1,6 +1,11 @@
 VIDEOFILE="$1"
 CLIPMARKERFILE=/tmp/clipmarkers.txt
 
+OUTPUTDIR=`dirname "$VIDEOFILE"`
+if [ ! -w "$OUTPUTDIR" ]
+then OUTPUTDIR=/tmp
+fi
+
 CLIPNUM=1
 
 cat "$CLIPMARKERFILE" |
@@ -20,7 +25,7 @@ do
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=4000"
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## Huge!
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
-	mencoder $COPY $CLIPOPTS "$VIDEOFILE" -o clip$CLIPNUM.avi
+	mencoder $COPY $CLIPOPTS "$VIDEOFILE" -o "$OUTPUTDIR"/clip$CLIPNUM.avi
 
 	# prepare_for_editing "$VIDEOFILE"
 	# mv re_encoded.dv clip$CLIPNUM.dv
@@ -33,3 +38,6 @@ do
 	echo
 
 done
+
+echo "Clips were saved in: $OUTPUTDIR"
+echo

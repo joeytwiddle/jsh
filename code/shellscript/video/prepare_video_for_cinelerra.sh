@@ -5,7 +5,7 @@ fi
 # MP_MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 # MP_MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
 ## transcode: --export_fps 25,3 
-TC_CLIP="-c 50-100"
+# TC_CLIP="-c 50-100"
 # TC_CLIP="-c 500-1200"
 
 NOT_SO_BLUE=-k
@@ -15,6 +15,7 @@ for VIDEOFILE
 do
 	
 	OVIDEOFILE="$VIDEOFILE"
+	TO_CLEANUP=
 
 	echo
 	jshinfo "Doing: $VIDEOFILE"
@@ -27,6 +28,7 @@ do
 		echo
 		jshinfo "Doing simple re-encode with mplayer to make the process more foolproof..."
 
+		TO_CLEANUP="$VIDEOFILE"-simple.avi
 		if reencode_video_simple "$VIDEOFILE"
 		then
 			VIDEOFILE="$VIDEOFILE"-simple.avi
@@ -52,12 +54,13 @@ do
 
 	# ## Joey converged upon split:
 	# ## The -Q 3 graetly reduced size when converting from an ffmpeg divx, but there was quality reduction so comprimised with -Q 4
+	# ## But some files need -Q 2 !
 	# ## -w <n> seems to have no effect
-	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
+	# transcode -i "$VIDEOFILE" -o "$VIDEOFILE-cinelerra.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
 	# # # ## Audio seemed better through vsound trplayer! ( -N 0x55 is mp3)
 	# transcode -i "$VIDEOFILE" -N 0x1 -o "$VIDEOFILE-audio.wav" -y null,wav
-	# transcode -i "$VIDEOFILE" -N 0x1     -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
-	# transcode -i "$VIDEOFILE" -x ffmpeg    -o "$VIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE || continue
+	# transcode -i "$VIDEOFILE" -N 0x1     -o "$VIDEOFILE-cinelerra.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE
+	# transcode -i "$VIDEOFILE" -x ffmpeg    -o "$VIDEOFILE-cinelerra.mov" -y mov,null -F mjpa -Q 4 $NOT_SO_BLUE $RIGHT_WAY_UP $DOWNSAMPLE || continue
 
 	echo
 	jshinfo "Transcoding video"
@@ -65,17 +68,15 @@ do
 	## Try: --video_max_bitrate 1200
 
 	rm -f stream.yuv ## If not cleaned up (eg. due to crash), mplayer input plugin will not work
-	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y mov,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
-	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y mov,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-cinelerra.mov" -y mov,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-cinelerra.mov" -y mov,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
 	## Try without audio:
 	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y mov,null -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
 	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y mov,null -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
 	## Try without video: (TODO: get this to work better!)
-	# transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
-	# transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
-
-	## TODO: remove all these comments!
-	## TODO: remove -simple afterwards if foolproof was used.
+	# transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-audio.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	# transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-audio.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
+	( error "Failed on: $VIDEOFILE" ; continue )
 
 	# echo
 	# jshinfo "Transcoding audio"
@@ -169,6 +170,17 @@ do
 	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg.avi -of avi -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || continue
 	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".mpeg -of mpeg -oac mp3lame -ovc lavc -lavcopts vcodec=mpeg4 # $MEET_STANDARD || continue
 	# mencoder "$VIDEOFILE" -o "$VIDEOFILE".avi -of avi -oac pcm -ovc lavc -lavcopts vcodec=mpeg4 $MEET_STANDARD || continue
+
+	if [ "$TO_CLEANUP" ]
+	then
+		if [ -f "$TO_CLEANUP" ]
+		then
+			if which del > /dev/null
+			then del "$TO_CLEANUP"
+			else rm "$TO_CLEANUP"
+			fi
+		fi
+	fi
 
 done
 
