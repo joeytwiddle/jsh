@@ -2,19 +2,19 @@
 ## eg. find /var/lib/apt/lists/ | sort | tree
 
 if test "$1" = "-java"
-then TREEJAVA=true; shift
+then export TREEJAVA=true; shift
 fi
 
 TREESH=
 if [ "$1" = "-sh" ]
-then TREESH=true; shift
+then export TREESH=true; shift
 fi
 
 if test "$1" = "-cat" || test "$1" = "-novim"
-then CAT=true; shift
+then export CAT=true; shift
 fi
 
-TMPFILE=`jgettmp tree`
+export TMPFILE=`jgettmp tree`
 cat "$@" > $TMPFILE
 
 if [ $TREESH ]

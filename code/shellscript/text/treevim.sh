@@ -1,3 +1,4 @@
+# jsh-depends-ignore: highlight
 ## This is one method of viewing the output of tree.sh and tree.hs
 ## It folds up branches in the tree using a vim plugin, and sets
 ## colours and useful keymaps for opening/closing the folds.
@@ -9,7 +10,7 @@ VIMPLUGIN=/tmp/treefolding.vim
 if [ ! -f "$VIMPLUGIN" ]
 then
 
-mkdir -p `basename "$VIMPLUGIN"`
+mkdir -p `dirname "$VIMPLUGIN"`
 cat > "$VIMPLUGIN" << EOF
 " Keybindings
 :map - zc

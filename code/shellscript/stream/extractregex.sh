@@ -1,5 +1,5 @@
-## Each occurrence (non-overlapping?) of the Perl RE in the stream is printed on an individual line.
-## Option -atom specifies that only the first atom matches should be echoed.
+## Each (non-overlapping?) occurrence in the stream of the Perl RE is printed on an individual line.
+## Option -atom specifies that only the first bracketed atom matched should be echoed.
 
 ## FAQ:
 ##   Q) Why am I getting error "unmatched ( marked at HERE" when my brackets are matched?

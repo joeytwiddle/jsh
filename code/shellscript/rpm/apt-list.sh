@@ -1,3 +1,6 @@
+## TODO: rename apt-list
+## TODO: make "apt-list" return help, and use "apt-list generate" to make the big list
+
 # jsh-depends-ignore: arguments pkgversions
 # jsh-depends: cursemagenta cursenorm memo removeduplicatelines takecols jdeltmp jgettmp drop error
 

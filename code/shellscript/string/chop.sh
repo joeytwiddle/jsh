@@ -1,3 +1,4 @@
+# jsh-depends: countlines jgettmp
 # Skips N lines from the end of a stream
 
 TF=`jgettmp $$`

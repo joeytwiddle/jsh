@@ -1,4 +1,4 @@
-if test ! "$1" = "-old"
+if test ! "$1" = "-old" || ! jwhich lynx -quietly
 then
 
 	## TODO: Use lynx -stdin when "$*" = ""
@@ -6,7 +6,8 @@ then
 	## Oops leaves a 0 length file
 	TMPF=`jgettmp striphtml`
 	cat "$@" > "$TMPF".html
-	lynx -dump "$TMPF".html
+	lynx -dump "$TMPF".html |
+	tostring -x "References"
 	jdeltmp "$TMPF" "$TMPF".html
 	exit
 

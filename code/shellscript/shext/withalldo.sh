@@ -1,3 +1,5 @@
+## One day we are going to hit too-many-arguments, and we'll need to get withalldo to do it it chunks.  Or does that change functionality too much?
+
 ## Equivalent to:
 # tr "\n" "\000" | xargs -0 "$@"
 

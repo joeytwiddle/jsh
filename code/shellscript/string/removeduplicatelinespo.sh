@@ -1,10 +1,10 @@
 LAST=""
 cat "$@" |
 awk ' {
-        printf(NR);
-        printf(" ");
-        printf($0);
-        printf("\n");
+        printf("%s",NR);
+        printf("%s"," ");
+        printf("%s",$0);
+        printf("%s","\n");
       }
     ' |
 sort -k 2 |

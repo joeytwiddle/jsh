@@ -24,6 +24,8 @@ FILEB="$2"
 # cat "$FILEA" | tr '\t' ">" > $FILEAx
 # cat "$FILEB" | tr '\t' ">" > $FILEBx
 
+WSC="[	 ]"
+
 echo "diff $@:"
 # diff -W $COLUMNS -b --side-by-side "$FILEAx" "$FILEBx" |
 diff -W $COLUMNS -b --side-by-side "$FILEA" "$FILEB" |
@@ -33,6 +35,9 @@ highlight -bold '^.* <$' red |
 highlight -bold '^[ 	][ 	]*>\(.*\| .*\|	.*\|\)$' green | ## eh?!
 ## I see no way of fixing this which breaks often, even by matching ~ COLUMNS/2 chars because diff -sbs outputs TABS!
 ## We could demand only one '|' on the entire line (or maybe an odd number!), which would drop all false positives (many), but also a few (fewer) true positives.
-highlight -bold '^.* |\(	.*\|\)$' yellow |
+## i have changed following since writing above:
+highlight -bold "^.*$WSC$WSC|$WSC$WSC.*$" yellow |
+highlight "^.*$WSC|$WSC.*$" yellow |
+  ##                \\ should we have 1 or 2 spaces here?  1 matches lots of false +ves in files, but 2 fails to match changed lines which are so long they leave no space.  :-(
 # highlight -bold '.*[ 	][ 	][ 	]*|\(	.*\|$\)' yellow | ## now forces 2+ tabs/spaces.  Oh dear that's not the case for wide files
 more

@@ -34,10 +34,11 @@ fi
 
 if test "$COLUMNS" = ""; then export COLUMNS=80; fi
 FILES="$1"
-COMMANDONCHANGE="$2" # $3 $4 $5 $6 $7 $8 $9"
-if test "$2" = "do"; then
-	COMMANDONCHANGE="$3" # $4 $5 $6 $7 $8 $9"
+shift
+if [ "$1" = "do" ]
+then shift
 fi
+COMMANDONCHANGE="$*"
 COMPFILE=`jgettmp onchange`
 # COMPFILE="$JPATH/tmp/onchange.tmp"
 touch "$COMPFILE"

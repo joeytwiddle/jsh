@@ -51,14 +51,16 @@ else
 		else
 			## TODO: sometimes we move it sometimes we don't!
 			if test $DOBACKUP; then
-				mv "$FILE" "$FILE.b4sr" ||
+				cp "$FILE" "$FILE.b4sr" ||
 				if test ! "$?" = 0; then
 					echo "sedreplace: problem moving \"$FILE\" to \"$FILE.b4sr\"" >&2
 					echo "Aborting!"
 					exit 1
 				fi
 			fi
-			mv "$TMPFILE" "$FILE" ||
+			## Maybe this'll do better at preserving permissions (links?!)?
+			cat "$TMPFILE" > "$FILE" ||
+			# mv "$TMPFILE" "$FILE" ||
 				echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >&2
 		fi
 	done

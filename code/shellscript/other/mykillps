@@ -9,6 +9,7 @@ fi
 
 PS_OPTS="-A -o pid,user,comm"
 if test "$1" = "-x"; then
+	export COLUMNS=65535
 	PS_OPTS="-A -o pid,user,args"
 	shift
 fi
