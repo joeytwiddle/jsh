@@ -176,16 +176,16 @@ bindkey "^x" vi-backward-kill-word
 # bindkey "^x" backward-kill-word
 # bindkey "^d" backward-word
 # bindkey "^f" forward-word
-bindkey "^z" backward-kill-word
-bindkey "^x" vi-backward-kill-word
+bindkey "^z" vi-backward-kill-word
+bindkey "^x" backward-kill-word
 bindkey "^d" vi-backward-word
 bindkey "^f" vi-forward-word
+bindkey "^v" kill-word
 # there is no vi-kill-word so we fake it
 # approximation
-bindkey -s "^v" "^f^x"
+bindkey -s "^b" "^f^x"
 # no good:
 # bindkey -s "^v" "^f^x ^[[D"
-bindkey "^b" kill-word
 #
 bindkey "^n" vi-backward-kill-word
 bindkey "^h" backward-word
