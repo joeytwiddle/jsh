@@ -18,7 +18,7 @@ then
 	exit
 fi
 
-echo "Clearing existing links"
+echo "Clearing jsh PATH ($JPATH/tools)"
 "rm" -f $JPATH/tools/*
 
 if test ! "$1" = "-old" ## It does seem to work now (a bit better than the original!) =) && test "ifonly" = "itworked"
@@ -26,11 +26,11 @@ then
 
 	## Faster
 
-	echo "Linking"
+	echo "Linking tools into jsh PATH ($JPATH/tools)"
 	(
-	find $JPATH/code/shellscript \
-		  \( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) ! -type d
-	test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
+		find $JPATH/code/shellscript \
+			\( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" -o -name "*.zsh" -o -name "*.bash" -o -name "*.shlib" \) ! -type d
+		test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	/bin/grep -v "/.ignore/" |
 	/bin/grep -v "/CVS/" |
@@ -49,7 +49,7 @@ else
 	#################################
 	## The old one
 
-	echo "Collecting"
+	echo "Collecting "
 	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
 	test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
 	echo "Linking"
@@ -88,6 +88,5 @@ else
 
 fi
 
-echo "Binaries"
 # echo "Skipping binaries"
 refreshbintoollinks
