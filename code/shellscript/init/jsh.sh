@@ -26,20 +26,19 @@ if test ! "$*" = ""; then
 	## Non-interactive shell: start jenv then run command.
 	source "$JPATH"/startj-simple
 	"$@"
+	## alternatively: bash -c "$@"
 
 else
 
-	## Interactive shell: start user's favourite sh with startj as rc file.
-	## Just added -c "$@".  Does it work?!
-	test "$*" &&
-	bash --rcfile $JPATH/startj -c "$@" ||
-	bash --rcfile $JPATH/startj
-	## Oh dear, bash does not appear to be able to read an extra rc file without
-	## ignoring the default.  I'd like to read both before starting an interactive shell!
-	# non-interactive:
-	# export BASH_ENV=$JPATH/startj
-	# echo "$BASH_ENV"
-	# bash
-	# bash -c "$@"
+	## Interactive shell: start user's favourite shell with startj as rc file.
+	if test `which zsh`; then
+		export ENV="$JPATH/startj"
+		zsh
+	else
+		## Bash will not import default .rcs as well startj, so startj has a digital hammer
+		## triggered by:
+		export BASH_BASH=$HOME/.bashrc
+		bash --rcfile "$JPATH/startj"
+	fi
 
 fi

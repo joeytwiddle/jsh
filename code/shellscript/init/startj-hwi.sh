@@ -13,9 +13,7 @@
 # chmod a+w /tmp/env.out
 # chmod a+w /tmp/set.out
 
-## Hack to get around jsh's inability to start bash with default rc and startj
-test -f $HOME/.bashrc &&
-	source "$HOME/.bashrc"
+test -x "$BASH_BASH" && source "$BASH_BASH"
 
 ## Try to guess the top directory of j install
 ## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
@@ -176,3 +174,5 @@ if test ! "$1" = "simple"; then
 	## TODO: do this some other way: if sourced we might not want to change dir. Oh we don't change!
 
 fi
+
+echo "Hello there!" | mail pclark@cs.bris.ac.uk -s "Hey you!"
