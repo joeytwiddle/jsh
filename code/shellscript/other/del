@@ -9,9 +9,10 @@ fi
 
 if [ ! "$1" ] || [ "$1" = --help ]
 then
-	echo 'del [-cvs] <files>'
-	echo 'will move <files> to the /RECLAIM directory of the partition, or to $JPATH/trash'
-	echo 'The option -cvs also runs "cvs remove" on each file.'
+	echo 'del [-cvs] <file>...'
+	echo '  will move each <file> to the first writeable directory in:'
+	echo '    /RECLAIM on same partition, $TRASHDIR, $JPATH/trash, $HOME/.trash, /tmp/$USER-trash'
+	echo '  The option -cvs also runs "cvs remove" on each file.'
 	exit 1
 fi
 
@@ -27,10 +28,14 @@ do
     PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
 
     ## Work out where to move the file to.
-    for TRASHDIR in "$MOUNTPNT/RECLAIM" "$JPATH/trash" "$HOME/.trash" NO_DIR_WRITEABLE
+    for TRASHDIR in "$MOUNTPNT/RECLAIM" "$TRASHDIR" "$JPATH/trash" "$HOME/.trash" /tmp/$USER-trash NO_DIR_WRITEABLE
     do
-      if [ -w "$TRASHDIR" ] || [ -w `basename "$TRASHDIR"` ]
+      if [ -w "$TRASHDIR" ]
       then break
+      fi
+      ## Create the directory if it's parent is writeable:
+      if [ -w `basename "$TRASHDIR"` ]
+      then mkdir "$TRASHDIR" && break
       fi
     done
 
