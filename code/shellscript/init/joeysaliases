@@ -53,6 +53,10 @@ then
 	compctl -u chown
 	compctl -g '*.(ps|eps)' gv
 
+	## TODO: get zsh_compctl_from_man to cache and then source it here
+
+	## TODO: generate following rules from mimetypes?!
+
 	# Autocomplete for current dir on filetypes
 	compctl -g '*.Z *.gz *.tgz' + -g '*' zcat gunzip
 	# joey sez bollox compctl -g '*.tar.Z *.tar.gz *.tgz *.tar.bz2 .*.tar.Z .*.tar.gz .*.tgz .*.tar.bz2' + -g '*' tar
