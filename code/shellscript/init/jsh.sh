@@ -42,7 +42,7 @@ then
 	then export JPATH=`dirname "$0"`        ## absolute
 	else export JPATH="$PWD/"`dirname "$0"` ## relative
 	fi
-	if [ -d "$JPATH/tools" ]
+	if [ ! -d "$JPATH/tools" ]
 	then
 		echo "jsh: Could not find JPATH with subdir tools :-(" >&2
 		exit 1

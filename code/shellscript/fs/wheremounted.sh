@@ -1,7 +1,7 @@
 # jsh-depends: takecols drop realpath
 DIR=`realpath "$1"`
 
-df | drop 1 | takecols 6 |
+df 2>/dev/null | drop 1 | takecols 6 |
 
 sort |
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 # jsh-depends: randomorder
 
-randomorder "$@" | head -n 1
+randomorder "$@" | ( head -n 1; cat > /dev/null)
 
 # awk '
   # BEGIN {

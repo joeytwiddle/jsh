@@ -1,7 +1,11 @@
 #!/bin/sh
 
+## TODO: test that wc -l gives the same results as awk on, eg. streams with no \n at end, echo's etc.
+## Easiest: put the test in the code, with an assert, innit!
+
 docountlines () {
-	awk " END { print $AWKPRINT "' NR } ' "$@"
+	wc -l
+	# awk " END { print $AWKPRINT "' NR } ' "$@"
 }
 
 # If only one file, print just the number of lines counted

@@ -15,13 +15,31 @@
 #  Sometimes we might need to go for say the n'th best in order to make the
 #  graph "complete" (all joined, no islands).
 
-NL="
-"
+if [ ! "$1" ] || [ "$1" = --help ]
+then
+	echo
+	echo "diffgraph [ -diffcom <command> ] <files>..."
+	echo
+	echo "  constructs a graph showing which files are similar to each other."
+	echo "  Each file is diffed against every other using the command provided (diff by"
+	echo "  default), and the closeness of two files is judged by the size of their diff."
+	echo
+	exit 1
+fi
 
-if test "$DIFFCOM" = ""
+## TODO: jsh should have policy for whether envvar or -option takes priority in presence of both.
+if [ "$1" = -diffcom ]
+then
+	DIFFCOM="$2"
+	shift; shift
+fi
+if [ ! "$DIFFCOM" ]
 then DIFFCOM=diff
 # then DIFFCOM=worddiff
 fi
+
+NL="
+"
 
 # FILES=""
 # for X
@@ -56,11 +74,15 @@ do
 				BESTFORXSIZE="$RESULTSIZE"
 				# echo "Improvement: $X and $Y differ by $RESULTSIZE"
 			fi
+			debug "Got $RESULTSIZE Diffing $X against $Y."
 		fi
 	done
 	# echo "$X is closest to $BESTFORX (at $BESTFORXSIZE bytes)"
 	echo "$X" "<-($BESTFORXSIZE)" $BESTFORX
 	# echo "$BESTFORX	($BESTFORXSIZE)->	$X"
-done | columnise
+done |
+
+cat
+# columnise
 
 jdeltmp $DIFFDIR

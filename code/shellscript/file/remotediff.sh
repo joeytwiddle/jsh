@@ -193,6 +193,7 @@ REMOTECOM='cd "'"$RDIR"'" && find . '"$FINDOPTS"' | '"$CKSUMCOM"
 ### Get the cksums:
 
 echo "Getting cksums for remote $RHOST:$RDIR"
+debug ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" '>' "T$MPTWO.longer" && echo "Got remote"
 ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
 
 echo "Getting cksums for local $LOCAL"
