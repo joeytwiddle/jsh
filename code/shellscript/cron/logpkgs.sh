@@ -1,6 +1,6 @@
 DATE=`date | sed 's/[^ ]* \([^ ]*\) \([^ ]*\) [^ ]* [^ ]* \([^ ]\)/\2-\1-\3/'`
 
 export COLUMNS=250
-dpkg -l "$@" > $JPATH/logs/debpkgs-$DATE.list.log
+dpkg -l "$@" > $JPATH/logs/debpkgs-list-$DATE.log
 
-dpkgsizes | sort -n -k 1 > $JPATH/logs/debpkgs-$DATE.sizes.log
+dpkgsizes | sort -n -k 1 > $JPATH/logs/debpkgs-sizes-$DATE.log
