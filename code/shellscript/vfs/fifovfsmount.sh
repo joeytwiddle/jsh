@@ -4,21 +4,25 @@
 ## trying to read from or to.  But unfortunately, entries in my lsof do not appear
 ## until the fifo has be joined at both ends!
 
+## This script is dedicated to Ellis, born today!
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 more << !
 
   fifovfsmount [ -rw ] -ssh <user>@<hostname>:<path> <mountpoint>
+  fifovfsmount [ -rw ] -gzip <path_to_zips> <mountpoint>
+  fifovfsmount [ -rw ] -zip <zipfile> <mountpoint>
 
-    will create a fifo vfs under <mountpoint> of the remote directory.
+    will create a fifo vfs under <mountpoint> of the remote/zipped dir/file.
     and start a transfer server, with the following limitations:
 
-      You must have ssh authentication setup to access the remote account.
+      -ssh needs ssh authentication to be setup to access the remote account.
 
       Average delay is proportional to the number of files, so do not choose
       too large a tree under <path>.
 
-      The vfs will be read only unless the -rw option is specified.
+      The vfs will be read-only unless the -rw option is specified.
 
       The fifos will not display any file permissions, dates or size.
 
@@ -52,6 +56,11 @@ more << !
     instances of the server!  I tried to get lsof to tell us which fifo might
     be being accessed at any time, but it refused.
 
+  Some programs for which it works:
+    cat, vim (r+w!), mutt (ro), cp, grep, diff
+  And some for which it does not work:
+    konqueror, mozilla, convert, gqview, gimp
+
 !
 exit 1
 fi
@@ -66,15 +75,36 @@ if [ "$1" = -rw ]
 then DO_WRITING=true; shift
 fi
 if [ "$1" = -ssh ]
-then shift
+then
+	shift
+	TARGET="$1"
+	shift
+	TARGET_ACCOUNT=`echo "$TARGET" | sed 's+:.*++'`
+	TARGET_DIR=`echo "$TARGET" | sed 's+.*:++'`
+	COMMAND_TO_GET_FILELIST=ssh_command_to_get_filelist
+	COMMAND_TO_READ=ssh_command_to_read
+	COMMAND_TO_WRITE=ssh_command_to_write
+elif [ "$1" = -gzip ]
+then
+	shift
+	TARGET_DIR=`realpath "$1"`
+	shift
+	COMMAND_TO_GET_FILELIST=gzip_command_to_get_filelist
+	COMMAND_TO_READ=gzip_command_to_read
+	COMMAND_TO_WRITE=gzip_command_to_write
+elif [ "$1" = -zip ]
+then
+	shift
+	ZIPFILE=`realpath "$1"`
+	shift
+	COMMAND_TO_GET_FILELIST=zip_command_to_get_filelist
+	COMMAND_TO_READ=zip_command_to_read
+	COMMAND_TO_WRITE=zip_command_to_write
 else
-  echo "-ssh is the only valid protocol at the moment."
+  echo "-ssh -gzip and -zip are the only valid protocols at the moment."
   exit 1
 fi
-TARGET="$1"
-MOUNTPOINT=`realpath "$2"`
-TARGET_ACCOUNT=`echo "$TARGET" | sed 's+:.*++'`
-TARGET_DIR=`echo "$TARGET" | sed 's+.*:++'`
+MOUNTPOINT=`realpath "$1"`
 
 jshinfo () {
   printf "\033[00;33m%s\033[00;00m\n" "$*" >&2
@@ -84,10 +114,86 @@ jshhappy () {
   printf "\033[00;32m%s\033[00;00m\n" "$*" >&2
 }
 
+ssh_command_to_get_filelist () {
+	# ssh "$TARGET_ACCOUNT" "cd '$TARGET_DIR' && find . -type f" > $FILELIST
+	ssh "$TARGET_ACCOUNT" "cd '$TARGET_DIR' && find . -not -type d"
+}
+ssh_command_to_read () {
+  ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
+}
+ssh_command_to_write () {
+  ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'"
+}
+
+# gzip_command_to_get_filelist () {
+	# cd "$TARGET_DIR" &&
+	# find . -name "*.gz" | sed 's+\.gz$++'
+# }
+# gzip_command_to_read () {
+	# gunzip -c "$TARGET_DIR/$FILE.gz"
+# }
+# gzip_command_to_write () {
+	# gzip -c > "$TARGET_DIR/$FILE.gz"
+# }
+
+## These don't yet strip the ".tar" off (if it was added)
+gzip_command_to_get_filelist () {
+	cd "$TARGET_DIR" &&
+	find . -name "*.gz" | sed 's+\.gz$++'
+	find . -name "*.bz2" | sed 's+\.bz2$++'
+	find . -name "*.tgz" | sed 's+\.tgz$+.tar+'
+}
+gzip_command_to_read () {
+	if [ -f "$TARGET_DIR/$FILE.gz" ]
+	then gunzip -c "$TARGET_DIR/$FILE.gz"
+	elif [ -f "$TARGET_DIR/$FILE.bz2" ]
+	then bunzip -c "$TARGET_DIR/$FILE.bz2"
+	elif echo "$FILE" | grep "\.tar$"
+	then
+		TGZFILE=`echo "$FILE" | sed 's+\.tar$+.tgz'`
+		gunzip -c "$TARGET_DIR/$TGZFILE"
+	else
+		echo "Ain't nothing there." >&2
+		return 1
+	fi
+}
+gzip_command_to_write () {
+	if echo "$FILE" | grep "\.tar$"
+	then
+		TGZFILE=`echo "$FILE" | sed 's+\.tar$+.tgz'`
+		gzip -c > "$TARGET_DIR/$TGZFILE"
+	elif [ -f "$TARGET_DIR/$FILE.bz2" ]
+	then bzip -c > "$TARGET_DIR/$FILE.bz2"
+	else gzip -c > "$TARGET_DIR/$FILE.gz"
+	fi
+}
+
+zip_command_to_get_filelist () {
+	unzip -v "$ZIPFILE" |
+	(
+		read LABEL ARCHIVENAME
+		read FIELDHEADERS
+		read BAR
+		while read LENGTH METHOD SIZE RATIO DATE TIME CRC32 NAME
+		do
+			[ "$LENGTH" = "--------" ] && break
+			echo "$NAME"
+		done
+	)
+}
+zip_command_to_read () {
+	unzip -p "$ZIPFILE" "$FILE"
+}
+zip_command_to_write () {
+	cat > /dev/null
+	echo "Writing not yet enabled for zip files." >&2
+	echo "(I think I would have to recreate its path... which is easy but I'm lazy.  Not too lazy to write this though.)" >&2
+	return 1
+}
+
 # ssh-agent ## Dunno if this makes later ssh's faster...?! nope!
 
-# ssh "$TARGET_ACCOUNT" "cd '$TARGET_DIR' && find . -type f" > $FILELIST
-ssh "$TARGET_ACCOUNT" "cd '$TARGET_DIR' && find . -not -type d" > $FILELIST
+$COMMAND_TO_GET_FILELIST > $FILELIST
 
 cd "$MOUNTPOINT"
 cat $FILELIST |
@@ -125,7 +231,7 @@ do_reading () {
   (
     sleep 0.3
     [ -f $GO_AHEAD_MARKER ] &&
-    ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
+		$COMMAND_TO_READ
   ) |
   notify_progress "<" |
   dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
@@ -175,7 +281,8 @@ do_writing () {
     wait
     jshhappy '[WRITE] Sending file to remote filesystem...'
     # cat $TMPFILE | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
-    cat $TMPFILE | notify_progress ">" | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
+    # cat $TMPFILE | notify_progress ">" | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
+    cat $TMPFILE | notify_progress ">" | $COMMAND_TO_WRITE &&
     jshhappy "[WRITE] File sent OK" ||
     jshinfo '[WRITE] ERROR sending file!'
     sleep 5
@@ -226,7 +333,7 @@ iterative_transfer_daemon () {
 		echo
 		jshinfo "[PAUSE] Pausing after a full pass over the filelist"
 		echo
-		sleep 5
+		sleep 2 || break
 
 	done
 
