@@ -6,11 +6,11 @@
 
 SEARCHDIR="$1"
 
-if [ "$SEARCHDIR" = "" ]; then
-	LAST=`tail -1 $HOME/.dirhistory`
-else
-	LAST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -1`
-fi
+LIST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -5`
+
+echo "$LIST"
+
+LAST=`echo "$LIST" | tail -1`
 
 # echo "\"$@\""
 # echo "last=$LAST"

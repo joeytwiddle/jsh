@@ -1,6 +1,13 @@
-CNT=`countlines $HOME/.dirhistory`
-echo "Last 15/$CNT visited directories, and next 5:"
-tail -15 $HOME/.dirhistory
+SEARCHDIR="$1"
+
+TMPF=`jgettmp`
+
+grep "$1" $HOME/.dirhistory > $TMPF
+
+(
+tail -4 $TMPF
 echo "$PWD/  "`cursecyan``cursebold`"<-- You are here"`cursegrey`
-# echo "Next 3 directories:"
-head -5 $HOME/.dirhistory
+head -4 $TMPF
+) |
+highlight "$1" |
+sed "s+/+"`cursegreen`"/"`cursegrey`"+g"
