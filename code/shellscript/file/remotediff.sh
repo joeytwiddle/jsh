@@ -71,23 +71,36 @@ myspecialdiff () {
 
 	vim "$EDITFILE"
 
-	TOGO=`
 		cat "$EDITFILE" | grep "^local " |
 		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			printf "\"$LOCAL/$FILENAME\" "
-		done
-	`
-	TOCOME=`
+			echo "$FILENAME"
+		done | sed 's+\./++' > tosend.list
+
 		cat "$EDITFILE" | grep "^remote " |
 		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			printf "\"$RUSER@$RHOST:$RDIR/$FILENAME\" "
-		done
-	`
-	echo
-	test ! "$TOGO" = "" &&
-		echo "scp -B $TOGO$RUSER@$RHOST:$RDIR/"
-	test ! "$TOCOME" = "" &&
-		echo "scp -B $TOCOME$LOCAL/"
+			echo "$FILENAME"
+		done | sed 's+\./++' > tobring.list
+
+	echo "rsync -vv -P -r --exclude=\"*\" --include-from=tosend.list \"$LOCAL/\" \"$RUSER@$RHOST:$RDIR/\""
+	echo "rsync -vv -P -r --exclude=\"*\" --include-from=tobring.list \"$RUSER@$RHOST:$RDIR/\" \"$LOCAL/\""
+	
+	# TOGO=`
+		# cat "$EDITFILE" | grep "^local " |
+		# while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			# printf "\"$LOCAL/$FILENAME\" "
+		# done
+	# `
+	# TOCOME=`
+		# cat "$EDITFILE" | grep "^remote " |
+		# while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			# printf "\"$RUSER@$RHOST:$RDIR/$FILENAME\" "
+		# done
+	# `
+	# echo
+	# test ! "$TOGO" = "" &&
+		# echo "scp -B $TOGO$RUSER@$RHOST:$RDIR/"
+	# test ! "$TOCOME" = "" &&
+		# echo "scp -B $TOCOME$LOCAL/"
 }
 
 echo "Getting cksums for remote $RHOST:$RDIR"
