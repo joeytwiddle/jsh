@@ -26,8 +26,7 @@ else
 		echo "> $NEWLIST"
 		'cd' "$NEWLIST"
   else
-		echo -n "? "
-		echo "$NEWLIST" | tr "\n" " "
+		echo "$NEWLIST ?" | tr "\n" " "
 		echo
 		# echo -n "$NEWLIST" | tr "\n" " "
 		# echo " ?"
