@@ -1,64 +1,101 @@
-## Try this version when grep improves its memory handling!  (was locally apt-built version 2.4.2-3)
+## To find what external programs jsh scripts depend on, run this.
+## Note: you need to have all the programs on your system (!), otherwise add them to $LIST below.
+## Hence, this script will eventually export the dependency info, so it can be useful on machines without those programs.
+## (Eg. installj and updatejsh will remove scripts from $JPATH/tools if their dependencies are not met.)
+## (Or: a . checkdependencies call will be added at the to of each script.)
 
-if test ! trynew ### PROBLEM: grep requests LOADS of memory to check this long regexp
-then
+## Note: We only examine .sh scripts for good reason.  TODO: I need to rename those .sh's which do not yet have an extension!
 
-	LIST=`
-		## Disabled to make it less dangerous:
-		find /bin /usr/bin /sbin -maxdepth 1 -type f | afterlast /
-		find $JPATH/tools -maxdepth 1 -type l | afterlast /
-	`
+## TODO: Once dependencies for a script are found, allow insertion of dependency meta-info block in script.
+##       Will it be a code block or will it actually be a call that checks?!
+## TODO: Somehow we want efficient lookup of which package binaries come from.
+
+## Ever-present programs which we don't want to observe dependencies on:
+## TODO: turn this into a line-delimited list, and check which packages the progs belong to.
+EVER_PRESENT='^\('
+EVER_PRESENT="$EVER_PRESENT"'printf\|echo\|test\|clear\|cp\|mv\|ln\|rm\|ls\|kill\|'
+EVER_PRESENT="$EVER_PRESENT"'touch\|mkdir\|tr\|sh\|nice\|sleep\|date\|'
+EVER_PRESENT="$EVER_PRESENT"'chmod\|chgroup\|chown\|cat\|more\|head\|tail\|grep\|egrep\|du\|'
+# EVER_PRESENT="$EVER_PRESENT"'mount\|sed\|cksum\|'
+EVER_PRESENT="$EVER_PRESENT"'\)$'
+
+## Will show up jsh programs as well as /bin ones.  (Faster without; even faster if specialised out!)
+## Note: sometimes you will get duplicates, eg. 'lynx' and 'lynx (jsh)' in which case we have to decide whether on not the jsh one is really a dependency.
+BOTHER_JSH=true
+DISCRIMINATE_JSH=true
+if test ! $BOTHER_JSH; then DISCRIMINATE_JSH=; fi
+
+
+
+### Compile a list of programs which scripts could possibly depend on:
+
+LIST=`jgettmp possdepslist`
+
+(
+	## TODO: Haven't yet included $HOME/bin (could just use $PATH!)
+	find /bin /usr/bin /sbin -maxdepth 1 -type f
+	test $BOTHER_JSH && (
+		find $JPATH/tools -maxdepth 1 -type l |
+		( test $DISCRIMINATE_JSH && sed 's+$+ (jsh)+' || cat )
+	)
+) |
+afterlast / |
+grep -v "$EVER_PRESENT" |
+cat > $LIST
+
+echo "There are `countlines $LIST` possible dependencies!"
+
+
+
+### For each script, extract its words, and grep the proglist for the words:
+
+TMPEXPR=`jgettmp findjshdeps_expr_partway`
+
+if $DISCRIMINATE_JSH
+then 
+	endregexp () {
+		printf '\\)\( \|$\)'
+	}
+else
+	endregexp () {
+		printf '\\)$'
+	}
+fi
+
+cd $JPATH/code/shellscript
+find . -type f -name "*.sh" -not -path "*/CVS/*" |
+
+while read SCRIPT
+do
+	
+	## Extract all words in the script, and create a regexp from them:
 
 	REGEXP=`
-		printf '\\<\\('
-		echo "$LIST" |
-		sort | ## doesn\'t help
+		printf '^\\('
+		cat "$SCRIPT" |
+		sed 's+#.*++' | ## Removes all comments from file (does get false-positives though)
+		extractregex '[A-Za-z0-9_\-.]+' | ## couldn\'t get \<...\> to work
+		removeduplicatelines |
+		## Note: no need to remove shell builtin words because any which were in the proglist have been removed by EVER_PRESENT.
+		tee $TMPEXPR |
 		sed 's+$+\\\|+' |
 		tr -d '\n' |
 		sed 's+\\\|$++'
-		printf '\\)\\>'
+		endregexp
 	`
 
-	echo "$REGEXP"
-	find $JPATH/code/shellscript -type f -not -path "*/CVS/*" |
+	## Use the RE to extract any progs from the proglist which this scripts refers to:
 
-	while read SCRIPT
-	do
-		echo "Trying $SCRIPT"
-		grep "$REGEXP" "$SCRIPT" &&
-		echo "  are dependencies in $SCRIPT" && echo
-	done
+	## A fix because grep does not handle big regexps well!
+	NUMLINES=`cat $TMPEXPR | countlines`
+	if test $NUMLINES -lt 200
+	then
+		grep "$REGEXP" "$LIST" &&
+		echo "  is/are needed for $SCRIPT" ||
+		echo "$SCRIPT is pure sh (or its dependencies are not present)"
+		echo
+	else
+		error "skipping $SCRIPT because it has $NUMLINES words in it!"
+	fi
 
-	exit
-
-fi
-
-
-
-TMPTREE="$JPATH/tmp/jshdeps"
-
-rm -rf "$TMPTREE"
-mkdir -p "$TMPTREE"
-
-cd "$JPATH/tools"
-
-ALLSCRIPTS=` 'ls' * `
-
-echo "$ALLSCRIPTS" |
-while read SCRIPT
-do
-	echo "Finding dependencies on $SCRIPT"
-	FILE="$TMPTREE/$SCRIPT.usedby"
-	grep -l "\<$SCRIPT\>" * >> "$FILE"
-done
-
-cd "$TMPTREE"
-
-echo "$ALLSCRIPTS" |
-while read SCRIPT
-do
-	echo "Finding dependencies for $SCRIPT"
-	FILE="$TMPTREE/$SCRIPT.uses"
-	grep -l "^$SCRIPT$" *.usedby |
-	beforelast "\.usedby" >> "$FILE"
 done
