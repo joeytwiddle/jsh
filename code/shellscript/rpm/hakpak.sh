@@ -1,3 +1,10 @@
+## I want hakpak to be able to:
+##   Keep a particular non-rpm'ed package up-to-date by re-performing install tasks when new version appears on website
+##   Keep a particular patch applied when the next version is installed.
+
+## Isn't hakpak a set of shellscript I write which keeps my installs up-to-date, which I then refactor and release to others?
+## Start somewhere - start small.
+
 ## all vimscripts have the same version management system and can be acquired generically
 ## all sourceforge packages have a similar query interface but different versioning + installs
 ## if we are to cover specific popular services (as above) as well as the generic "i dunno" case, we should allow for these

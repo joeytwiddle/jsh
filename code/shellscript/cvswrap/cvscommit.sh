@@ -1,5 +1,20 @@
 # jsh-depends-ignore: vimdiff
 # jsh-depends: cursebold cursecyan cursegreen curseyellow cursenorm cvsdiff cvsedit cvsvimdiff edit jdeltmp jgettmp jdiff newer error
+
+if [ ! "$DONT_USE_FIGLET" ]
+then
+	if jwhich figlet quietly
+	then
+		for FIGLET_FONT in straight stampatello italic mini short ogre
+		do
+			FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -1`
+			if [ "$FIGLET_FONT_FILE" ]
+			then break
+			fi
+		done
+	fi
+fi
+
 getfiles () {
 	## This is very slow, could try: cvs diff 2>/dev/null | grep "^Index:"
 	cvsdiff "$@" |
@@ -25,10 +40,21 @@ then
 		then error "skipping non-file: $FILE"; continue
 		fi
 		(
-			echo "File: `curseyellow``cursebold`$FILE`cursenorm`"
+			## TODO: optionally use figlet with font here!
+			(
+			curseblue
 			cvs status "$FILE"
 			# cvs diff "$FILE"
-			cvs -q update -p "$FILE" > $TMPFILE
+			cvs -q update -p "$FILE" > $TMPFILE 2>/dev/null
+			if [ "$FIGLET_FONT_FILE" ]
+			then
+				cursecyan
+				figlet -w "$COLUMNS" -f "$FIGLET_FONT_FILE" "$FILE"
+				cursenorm
+			else
+				echo "File: `cursecyan``cursebold`$FILE`cursenorm`"
+			fi
+			) | trimempty
 			# jdiff "$TMPFILE" $FILE
 		# )
 			jdiff -infg $TMPFILE "$FILE"
@@ -38,8 +64,8 @@ then
 		do
 			# echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
 			# echo "`curseyellow`Type: comment or [.] to [C]ommit, <Enter> to [S]kip, [E]dit [V]imdiff [R]ediff." #  (.=\"\").`cursenorm`"
-			echo "`curseyellow`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
-			echo "`curseyellow`Or [U]ndo changes (retrieve previous version)"
+			echo "`cursecyan;cursebold`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
+			echo "`cursecyan;cursebold`Or [U]ndo changes (retrieve previous version)"
 			read INPUT
 			[ "$INPUT" = "" ] && INPUT=s
 			case "$INPUT" in
