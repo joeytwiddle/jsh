@@ -39,6 +39,33 @@ piping_thread () {
 
 		for X in `seq -w 1 20`
 		do
+
+			## This paragraph lets you send earlier/other streams to the player, eg.:
+			##   echo "/tmp/streamed.02.avi" > /tmp/replay.todo
+			## Warning this causes the encoding thread to block, but hopefully it won't hang permanently if the replay is short.  (It frequently does cause encode to break though :( .)
+			## mencoder complains: FAAD: error: Channel coupling not yet implemented, trying to resync!
+			## Maybe it happens because the encoder's output fifo blocks because the player is not reading quickly enough (it played something else for a while).
+			## We could either add a buffer, or maybe skip some of the real input, to keep the encoder's output buffer from filling.
+			## OK this new method drops some of the input stream from the toplay.fifo
+			## Of course, viewing a fixed size replay and skipping a fixed size from encoder, does not neccessarily take the same amount of time for each process
+			## So, the encoder's output stream might become a little more blocked,
+			## or the player will play the replay quickly, and then have to wait for the encoder.
+			## Could avoid that by fixing bitrate.
+			## Can avoid former by dropping all input from encoder, which would probably cause latter to happen.
+			## So, what about... dropping all but a fixed amount?!
+			TODO=
+			if [ -f /tmp/replay.todo ]
+			then
+				TODO=`cat /tmp/replay.todo`
+				printf "" > /tmp/replay.todo
+				echo "$TODO" | grep -v "^$" |
+				while read TOREPLAY
+				do
+					echo "Replaying from $TOREPLAY" >&2
+					verbosely dd if="$TOREPLAY" &
+				done
+			fi
+
 			FILE="/tmp/streamed.$X.avi"
 			echo "Now piping into $FILE (as well as $PLAYER_FIFO)" >&2
 
@@ -54,30 +81,17 @@ piping_thread () {
 			# verbosely tee "$PLAYER_FIFO" |
 			# cat > "$FILE"
 
-			cat
+			if [ "$TODO" ]
+			then cat > /dev/null
+			else cat
+			fi
+
+			wait ## For replay dd to finish
 
 			if [ ! "$?" = 0 ]
 			then
 				echo "There was a problem" >&2
 				return
-			fi
-
-			## This paragraph lets you send earlier/other streams to the player, eg.:
-			##   echo "/tmp/streamed.02.avi" > /tmp/replay.todo
-			## Warning this causes the encoding thread to block, but hopefully it won't hang permanently if the replay is short.  (It frequently does cause encode to break though :( .)
-			## mencoder complains: FAAD: error: Channel coupling not yet implemented, trying to resync!
-			## Maybe it happens because the encoder's output fifo blocks because the player is not reading quickly enough (it played something else for a while).
-			## We could either add a buffer, or maybe skip some of the real input, to keep the encoder's output buffer from filling.
-			if [ -f /tmp/replay.todo ]
-			then
-				TODO=`cat /tmp/replay.todo`
-				printf "" > /tmp/replay.todo
-				echo "$TODO" | grep -v "^$" |
-				while read TOREPLAY
-				do
-					echo "Replaying from $TOREPLAY" >&2
-					verbosely dd if="$TOREPLAY"
-				done
 			fi
 
 		done
