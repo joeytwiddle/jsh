@@ -24,7 +24,7 @@
 
 # OK now we fork depending on cols or not, so problem will only occur if using cols
 
-FILE=`jgettmp keepduplicatelines`
+TMPFILE=`jgettmp keepduplicatelines`
 
 export GAP=
 while test "x$1" = "x-gap"; do
@@ -33,12 +33,12 @@ while test "x$1" = "x-gap"; do
 done
 
 # ALL=`cat`
-cat > "$FILE"
+cat > "$TMPFILE"
 
 # KEEP=`
   Y=""
   # echo "$ALL" |
-  cat "$FILE" |
+  cat "$TMPFILE" |
   takecols "$@" |
   sort |
   while read X; do
@@ -60,14 +60,14 @@ cat > "$FILE"
         # echo "$X ------------------"
         # echo "$X"
 		  # # Er what is this sed for?
-        # grep "$X" "$FILE" | sed "s+$X++"
+        # grep "$X" "$TMPFILE" | sed "s+$X++"
 	  fi
       # else
 			# Only do grep if previously stripped by columns
 			if test "x$1" = "x"; then
 				echo "$X"
 			else
-				grep "$X" "$FILE" # The dodgy grep
+				grep "$X" "$TMPFILE" # The dodgy grep
 			fi
       # fi
     fi
@@ -82,4 +82,4 @@ cat > "$FILE"
   # Y="$X"
 # done
 
-jdeltmp keepduplicatelines
+jdeltmp "$TMPFILE"

@@ -1,3 +1,12 @@
+## Oops leaves a 0 length file
+TMPF=`jgettmp striphtml`.html
+cat "$@" > "$TMPF"
+lynx -dump "$TMPF"
+jdeltmp "$TMPF"
+exit
+
+#################################################
+
 # P_L not working!!
 PRESERVE_LINKS=
 if test "$1" = "-keeplinks"; then
@@ -9,8 +18,10 @@ sed 's+^[	 ]*++' |
 tr "\n" " " |
 # Too greedy!
 # sed 's+<!--.*-->++g' |
-sed 's+<\(BR\|br\)[^>]*>+\
+sed 's+<\(BR\|br\|DT\|dt\)[^>]*>+\
 +g' |
+
+## WE HAVE PROBLEMS EVEN BEFORE HERE!
 
 test "$PRESERVE_LINKS" || (
 	sed 's+<\(A\|a\)[^>]*>+'`curseblue;cursebold`'+g' |
