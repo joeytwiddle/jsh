@@ -18,5 +18,8 @@ if ! test "$OTHER" = ""; then
   # echo
 fi
 # cursegreen # ;cursebold
-jfc simple oneway "$FILEA" "$FILEB" | ungrep "$UNGREP"
+if test `jwhich jfc` = ""
+then jfcsh "$FILEA" "$FILEB"
+else jfc simple oneway "$FILEA" "$FILEB"
+fi | ungrep "$UNGREP"
 # cursenorm
