@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## Should now also consider /RECLAIM directory of partition, to reflect new del.
+
 TRASHDIR="$JPATH/trash"
 if test ! -w "$JPATH/trash"
 then TRASHDIR=`dirname "\`jgettmp\`"`/trash

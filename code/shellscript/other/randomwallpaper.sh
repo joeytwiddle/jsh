@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## TODO: skip images below a certain size (pixelswise or bytewise)
+
 cd / # just for memoing
 
 REPEAT=once

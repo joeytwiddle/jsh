@@ -47,7 +47,7 @@ then
 	cursemagenta
 	# $EXECSH
 	# echo "$EXECSTR" | sh
-	eval "$METHOD"
+	eval "$METHOD" | head -20
 	cursecyan
 	echo "### End check; starting watch. ----------------------------- "
 	cursenorm
