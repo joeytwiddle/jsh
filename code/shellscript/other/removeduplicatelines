@@ -1,3 +1,6 @@
+# jsh-ext-depends-ignore: from save
+# jsh-ext-depends: sort
+# jsh-depends-ignore: before removeduplicatelinespo
 ## Does not preserve order, which makes it a "set" function, whereas removeduplicatelinespo is the corresponding (slower) "list" fn.  Could rephrase / rename scripts to convey this concept.
 # jsh-depends: bounce
 # but there is a nice new version with extension po which does

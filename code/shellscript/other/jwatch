@@ -60,7 +60,7 @@ OLD=`jgettmp "old-$1"`
 if test ! "$QUIET"
 then
 	cursecyan
-	echo "### Just to check: (no aliases since run in sh)"
+	echo "### Check this is what you wanted to watch: ('|'s etc. should be escaped; no aliases or fns)"
 	cursemagenta
 	# $EXECSH
 	# echo "$EXECSTR" | sh

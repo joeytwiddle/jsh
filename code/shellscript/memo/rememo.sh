@@ -1,4 +1,6 @@
-# jsh-depends: memo jdeltmp jgettmpdir jgettmp realpath md5sum error
+# jsh-ext-depends: sed md5sum tty realpath
+# jsh-depends-ignore: cursemagenta cursenorm debug
+# jsh-depends: memo jdeltmp jgettmpdir jgettmp realpath md5sum error jshwarn
 ## TODO: delete the memoed file if interrupted
 ##       (eg. (optionally delete it,) memo to elsewhere, then move into correct place if successful)
 

@@ -72,7 +72,7 @@ else # IFACE=eth0
 		do read NUMPKS
 			echo "$DEV   $NUMPKS"
 		done | sort -n -k 2 |
-		tail -1 | sed 's+ .*++'
+		tail -n 1 | sed 's+ .*++'
 	`
 	jshinfo "Guessing (from numebr of packets received) you want interface: $IFACE"
 fi
@@ -99,6 +99,12 @@ do
 	# NEWTIME=`date +"%s.%N"`
 	NEWTIME=`date +"%s.%N" | sed 's+\(.*\....\).*+\1+'`
 	# echo "$NEWTIME $NEWIN $NEWOUT"
+
+	if [ ! "$NEWIN" ] || [ ! "$NEWOUT" ]
+	then
+		echo "Problem with device" >&2
+		continue
+	fi
 
 	if [ $FIRSTRUN ]
 	then FIRSTRUN=
