@@ -14,6 +14,9 @@ fi
 
 ## This bit is a check to ensure we didn't update already in the last 15 minutes.
 
+## If the file ain't there, we assume we haven't updated for 15minutes.
+## Maybe instead we should assume it has.  If we touch LAST and exit, the update could then occur in 15mins time.
+## A bit annoying for a fresh boot though.  Alternatively we could keep the file somewhere outside /tmp.
 if test -f "$LAST"
 then
 

@@ -4,7 +4,7 @@
 ##         As well as making dependent shellscripts safe, it will provide some indication to coders as to what inputs a script takes.
 ##       Further development on dependencies: find dependencies on binaries (=> packages) in PATH too, so that checks may be performed to ensure local sys meets the requirements of each shellscript.  Provide a dselect-like subset chooser.  (". requiresscripts <scriptname>...", ". requiresbins <command>...", ". requirespkgs <package>..." ?)
 
-## Conclusive (?) proof that bash provides _nothing_ to tell us where this script is when it is called with source.
+## Conclusive (?) proof that bash provides nothing to tell us where this script is when it is called with source.
 ## $_ comes out as previous command (the one called before source!)
 # echo "\$\_ = >$_<"
 # echo "\$\0 = >$0<"
@@ -21,8 +21,11 @@
 test -f "$BASH_BASH" &&
 ! grep "\<jsh\>" "$BASH_BASH" > /dev/null &&
 ! grep "\<startj\>" "$BASH_BASH" > /dev/null &&
-source "$BASH_BASH"
+. "$BASH_BASH"
 ## Well maybe we should start sourcing startj again!
+## Even the above checks do not avoid possible inf loops.
+## But anything we do (eg. export NO_MORE_JSHS=true) would prevent the user
+## from recursively running jsh.  (Not that I do that _that_ much!)
 
 ## Try to guess the top directory of j install
 ## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
@@ -41,8 +44,8 @@ if test ! $JPATH; then
 fi
 export PATH=$JPATH/tools:$PATH
 
-test -f "$JPATH/global.conf" && source "$JPATH/global.conf"
-test -f "$JPATH/local.conf" && source "$JPATH/local.conf"
+test -f "$JPATH/global.conf" && . "$JPATH/global.conf"
+test -f "$JPATH/local.conf" && . "$JPATH/local.conf"
 
 ## Setup user bin, libs, man etc...
 export PATH=$HOME/bin:$PATH
@@ -50,23 +53,23 @@ export PATH=$HOME/bin:$PATH
 
 # zsh on Solaris gives errors on . so I use source
 
-source javainit
-source hugsinit
+. javainit
+. hugsinit
 
 ### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
 
 if test ! "$1" = "simple"; then
 
-	source getmachineinfo
+	. getmachineinfo
 
-	source joeysaliases
-	source cvsinit
+	. joeysaliases
+	. cvsinit
 
-	# source dirhistorysetup.bash
-	source dirhistorysetup.zsh
-	source hwipromptforbash
-	source hwipromptforzsh
-	source lscolsinit
+	# . dirhistorysetup.bash
+	. dirhistorysetup.zsh
+	. hwipromptforbash
+	. hwipromptforzsh
+	. lscolsinit
 
 	alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
 	alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
@@ -107,13 +110,13 @@ if test ! "$1" = "simple"; then
 	## Which flavour shell are we running?
 	if test $ZSH_NAME; then
 		SHORTSHELL="zsh"
-		source zshkeys
+		. zshkeys
 	elif test "$BASH"; then
 		SHORTSHELL="bash"
-		source bashkeys
+		. bashkeys
 		shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
 	fi
 
-	source xttitleprompt
+	. xttitleprompt
 
 fi

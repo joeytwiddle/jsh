@@ -47,3 +47,6 @@ esac
 # PS1="(\h \t \u) \w/ "
 
 export PS1
+
+## for sh -x debugging
+export PS4="% "

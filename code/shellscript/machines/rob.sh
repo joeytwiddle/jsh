@@ -1,1 +1,1 @@
-ssh2box joey@bristoldev.dyndns.org
+ssh2box joey@bristolimc.dyndns.org

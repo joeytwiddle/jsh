@@ -7,10 +7,10 @@ runnable () {
 }
 
 if runnable d.zsh && runnable b.zsh && runnable f.zsh; then
-	alias cd='source $JPATH/tools/d.zsh'
-	alias d='source $JPATH/tools/d.zsh'
-	alias f='source $JPATH/tools/f.zsh'
-	alias b='source $JPATH/tools/b.zsh'
+	alias cd='. $JPATH/tools/d.zsh'
+	alias d='. $JPATH/tools/d.zsh'
+	alias f='. $JPATH/tools/f.zsh'
+	alias b='. $JPATH/tools/b.zsh'
 else
 	echo "Error with dirhistory: could not find d.zsh b.zsh f.zsh in path." > /dev/stderr
 fi

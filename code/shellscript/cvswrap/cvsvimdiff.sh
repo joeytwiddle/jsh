@@ -34,7 +34,7 @@ if test "$REV" = ""; then
 			tr "\t" " " | sed 's/^\( \)//g' |
 			getnumber`
 			# Note the sed tab does not work on Unix, hence tr
-	echo "Diffing local against current $WHICHREV revision $REV"
+	echo "Diffing $FILENAME against $WHICHREV revision $REV"
 fi
 
 # Check out the specific revision requested

@@ -25,5 +25,5 @@ case `hostname` in
 
 esac
 
-## for bash -x debugging
+## for sh -x debugging
 export PS4="%{[00;35m%}[%{[00;31m%}%N[00;35m%}]%{[00;33m%}%_%{%{[00m%}%% "
