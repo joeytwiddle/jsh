@@ -55,6 +55,7 @@ fi
 DIFFCOM="myspecialdiff"
 
 myspecialdiff () {
+
 	EDITFILE=`jgettmp remotediff.edit`
 	jfcsh "$1" "$2" > "$1.only"
 	jfcsh "$2" "$1" > "$2.only"
@@ -71,56 +72,35 @@ myspecialdiff () {
 
 	vim "$EDITFILE"
 
-		## Nice try but I think it cats everything at the first opportunity :-(
-		cat "$EDITFILE" | grep "^local " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			echo "$LEN $RDIR/$FILENAME"
-			cat "$LOCAL/$FILENAME"
-		done |
-		ssh $RUSER@$RHOST '
-			while read LEN FILENAME; do
-				printf "Writing $FILENAME..." > &2
-				dd bs=1 count=$LEN > "$FILENAME" 2> /dev/null
-				echo "done." > &2
-			done
-		'
-
-		cat "$EDITFILE" | grep "^remote " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			echo "$LEN $FILENAME"
-		done |
-		ssh $RUSER@$RHOST '
-			while read LEN FILENAME; do
-				echo "$LEN $FILENAME"
-				cat "'"$RDIR"'/$FILENAME"
-			done
-		' |
+	cat "$EDITFILE" | grep "^local " |
+	while read LOCATION DATETIME CKSUM LEN FILENAME; do
+		echo "$LEN $RDIR/$FILENAME"
+		cat "$LOCAL/$FILENAME"
+	done |
+	ssh $RUSER@$RHOST '
 		while read LEN FILENAME; do
-			printf "Reading $FILENAME..." > &2
-			dd bs=1 count=$LEN > "$LOCAL/$FILENAME" 2> /dev/null
-			echo "done." > &2
+			printf "Writing $FILENAME..." >&2
+			dd bs=1 count=$LEN > "$FILENAME" 2> /dev/null
+			echo "done." >&2
 		done
+	'
 
-	echo "rsync -vv -P -r --exclude=\"*\" --include-from=tosend.list \"$LOCAL/\" \"$RUSER@$RHOST:$RDIR/\""
-	echo "rsync -vv -P -r --exclude=\"*\" --include-from=tobring.list \"$RUSER@$RHOST:$RDIR/\" \"$LOCAL/\""
-	
-	# TOGO=`
-		# cat "$EDITFILE" | grep "^local " |
-		# while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			# printf "\"$LOCAL/$FILENAME\" "
-		# done
-	# `
-	# TOCOME=`
-		# cat "$EDITFILE" | grep "^remote " |
-		# while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			# printf "\"$RUSER@$RHOST:$RDIR/$FILENAME\" "
-		# done
-	# `
-	# echo
-	# test ! "$TOGO" = "" &&
-		# echo "scp -B $TOGO$RUSER@$RHOST:$RDIR/"
-	# test ! "$TOCOME" = "" &&
-		# echo "scp -B $TOCOME$LOCAL/"
+	cat "$EDITFILE" | grep "^remote " |
+	while read LOCATION DATETIME CKSUM LEN FILENAME; do
+		echo "$LEN $FILENAME"
+	done |
+	ssh $RUSER@$RHOST '
+		while read LEN FILENAME; do
+			echo "$LEN $FILENAME"
+			cat "'"$RDIR"'/$FILENAME"
+		done
+	' |
+	while read LEN FILENAME; do
+		printf "Reading $FILENAME..." >&2
+		dd bs=1 count=$LEN > "$LOCAL/$FILENAME" 2> /dev/null
+		echo "done." >&2
+	done
+
 }
 
 echo "Getting cksums for local $LOCAL"
