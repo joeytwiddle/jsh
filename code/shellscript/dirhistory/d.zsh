@@ -7,7 +7,8 @@
 # Sometimes NEWDIR="$@" breaks under ssh?
 # Investigate: echo "($LAST)"
 
-NEWDIR="$@"
+# NEWDIR="`expandthreedots "$*"`" ||
+NEWDIR="$*"
 
 # Record where we are for b and f sh tools
 echo "$PWD" >> $HOME/.dirhistory
@@ -31,8 +32,10 @@ elif test `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = "found"; then
 
 	# The user asked for: cd ..... (...)
 
-	cd `echo "$NEWDIR" | sed 's+^\.++;s+\.+../+g'`
-	# Todo: allow user to say: cd foo/..../ba/......./bo
+	# Allows user to say: cd foo/..../ba/......./bo where ...s become ../..
+	# NOTE: Not for use by scripts, since if directory ... actually exists, case 1 above will execute instead of this
+	NEWDIR="`expandthreedots "$NEWDIR"`"
+	'cd' "$NEWDIR"
 
 else
 	
