@@ -1,15 +1,7 @@
-# More like toline
+STRING="$*"
 
-# fromstring -tostring "$@"
-
-## Now implemented more efficiently:
-
-while read LINE
-do
-	if test "$LINE" = "$*"
-	then
-		exit 0
-		## sh should drop the stream rather than cat the rest (could be bad if long)
-	fi
-	echo "$LINE"
+while read LINE && [ ! "$LINE" = "$STRING" ]
+do echo "$LINE"
 done
+
+cat > /dev/null
