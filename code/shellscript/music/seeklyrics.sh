@@ -35,24 +35,30 @@ strippunctuation () {
 
 if [ "$1" = -use ]
 then
+
+	## Re-use previous retrieval
 	TMPDIR="$2"
 	shift; shift
+
 else
 
-	googlesearch -links "$@" "lyrics" |
+	LINKS=`
+		memo googlesearch -links "$@" "lyrics"
+		# | pipeboth
+	`
 
-	# pipeboth |
 
 	## TODO: should strip duplicate hostnames
 
-	while read LINK
+	for LINK in $LINKS
 	do
 
 		N=$[$N+1]
 
-		echo "$N $LINK" >&2
-		# wget -O - "$LINK" |
-		lynx -dump "$LINK" > $TMPDIR/$N.lyrics &
+		memo lynx -dump "$LINK" |
+		# downloadurl "$LINK" 2>/dev/null | striphtml |
+		cat > $TMPDIR/$N.lyrics &&
+		echo "$N $LINK" >&2 &
 
 	done
 
@@ -84,6 +90,8 @@ diffgraph $TMPDIR/*.lyrics.nopun |
 
 pipeboth |
 
+tee $TMPDIR/diffgraph.out |
+
 takecols 3 | grouplinesbyoccurrence | sort -n -k 1 | reverse |
 
 pipeboth |
@@ -93,7 +101,37 @@ head -1 |
 while read SCORE PAGE
 do
 
-	more "$PAGE"
+	showLinesCoverage () {
+
+		PAGE="$1"
+		shift
+
+		cat "$PAGE" |
+
+		while read LINE
+		do
+
+			# echo grep -c "^$LINE$" "$@"
+			grep -c "^$LINE$" "$@" | grep -v ":0$" |
+			countlines | tr -d '\n'
+
+			echo "	$LINE"
+
+		done
+
+	}
+		
+
+	CHILDREN=`
+		cat $TMPDIR/diffgraph.out | takecols 1 3 |
+		grep "$PAGE$" |
+		# pipeboth |
+		takecols 1
+	`
+
+	# more "$PAGE"
+	echo "`curseyellow`Showing line coverage of $PAGE against:" $CHILDREN"`cursenorm`"
+	showLinesCoverage "$PAGE" $CHILDREN
 
 done
 
