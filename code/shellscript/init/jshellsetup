@@ -90,9 +90,3 @@ PGDATA=/home/postgres
 export PGLIB PGDATA
 
 # xscreensaver &
-
-HUGSFLAGS='-P/usr/local/share/hugs/lib/:$JPATH/install/hugs98/lib:$JPATH/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:$JPATH/code/hugs -E"pico +%d %s" +s';
-export HUGSFLAGS
-HUGSPATH='/usr/local/share/hugs/lib/:$JPATH/install/hugs98/lib:$JPATH/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:$JPATH/code/hugs';
-export HUGSPATH
-
