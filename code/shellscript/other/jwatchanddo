@@ -1,9 +1,10 @@
-WATCHCOMMAND="$1"
-DOCOMMAND="$2"
+DOCOMMAND=`jgettmp jwatchanddo`
+vi "$DOCOMMAND" &&
+chmod a+x "$DOCOMMAND" || exit 1
 
 export JWATCHCOMPCOM="jwatchcomp -oneway"
 
-jwatch -quiet "$WATCHCOMMAND" |
+jwatch -quiet "$@" |
 
 while read X
 do
