@@ -8,7 +8,7 @@ do
   FILE=`basename "$X"`
   # SWAPS=`countargs $DIR/.$FILE.sw?`
 	## TODO: The leading . is not necessary if file is a .file
-  SWAPS=` find "$DIR" -maxdepth 1 -name ".$FILE.sw?" | countlines `
+  SWAPS=` find "$DIR"/ -maxdepth 1 -name ".$FILE.sw?" | countlines `
   if test $SWAPS -lt 1
   then echo "No swapfiles found for $X"
   elif test $SWAPS -gt 1
