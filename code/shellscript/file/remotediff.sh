@@ -45,7 +45,7 @@ rsyncdiff () {
 	(
 		echo "# This screen lists differences between the filestructure of the two directories."
 		echo "# Delete actions (press dd) you do not wish to be taken, or change actions to one of:"
-		echo "#   bring, send, diff, del, delremote, ignore"
+		echo "#   bring, send, diff,     ## TODO: del, delremote, ignore"
 		echo "# Conflicting files are listed with the most recent first; one of the pair should be deleted."
 		## TODO: compress conflicts into one command defaulting either to diff, bringow, or sendow.
 		## TODO: if rsync remembers when it was last run, or even the file details of when it was last run, it can tell whether one of the two files in a conflict has been unmodified, and can therefore safely default to be overwritten.
@@ -65,12 +65,19 @@ rsyncdiff () {
 
 	vi "$EDITFILE"
 
+	# DELCMD="del" # "rm -f"
+# 
+	# ATREMOTE=`
+		# cat "$EDITFILE" | grep "^delremote " |
+		# sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD++" | ## TODO: factor out this call
+		# sed "s+^+$DELCMD \"+;s+$+\"+"
+	# `
+
 	## TODO: error handling!
 	## eg. Could put exit 1 instead of echo "ERROR"
+	## better now
 
 	export AFIELD="[^ 	]*[ 	]*"
-
-	echo "!!WARNING!! Last time I looked this list of files was completely not what I'd given it.  Hopefully it was just a screen error, but be sure to check the following list."
 
 	TOSEND=`
 		cat "$EDITFILE" | grep "^send  " |
@@ -87,42 +94,31 @@ rsyncdiff () {
 		SENDCMD="
 			cd \"$LOCAL\"
 			tar cz "`
-					echo "$TOSEND"
+					echo "$TOSEND" |
 					sed "s+^+\"+;s+$+\" +" |
 					tr -d '\n'
 			`" |
 			ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar xz\"
 		"
 
-		echo "Hit <Enter> to send files with: $SENDCMD"
+		echo "Hit <Enter> to send files with:"
+		cursecyan
+		echo "$SENDCMD" | sed 's+^[ 	]*++'
+		cursenorm
 		read OK
 
 		eval "$SENDCMD"
 
 	fi
 
-	## Send local files
-	# echo "[rsyncdiff] sending files to $RHOST" >&2
-	# cat "$EDITFILE" | grep "^send  " |
-	# while read ACTION DATETIME CKSUM LEN FILENAME
-	# do
-		# echo "$LEN $RDIR/$FILENAME"
-		# cat "$LOCAL/$FILENAME"
-	# done |
-	# ssh -C $RUSER@$RHOST '
-		# while read LEN FILENAME
-		# do
-			# printf "Writing $FILENAME..." >&2
-			# mkdir -p `dirname "$FILENAME"`
-			# dd bs=1 count=$LEN > "$FILENAME" &&
-			# echo "done." >&2 ||
-			# echo "ERROR." >&2
-		# done
-	# '
-
 	TOBRING=`
 		cat "$EDITFILE" | grep "^\(bring\|diff\) " |
-		sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD++" |
+		sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD++"
+	`
+
+	TOBRINGNODIFF=`
+		cat "$EDITFILE" | grep "^bring" |
+		sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD++"
 	`
 
 	if [ ! "$TOBRING" ]
@@ -144,59 +140,53 @@ rsyncdiff () {
 		BRINGCMD="
 			cd \"$EXTRACTDIR\"
 			ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar cz "`
+					echo "$TOBRING" |
 					sed "s+^+\\\\\\\\\"+;s+$+\\\\\\\\\" +" |
 					tr -d '\n'
 			`"\" |
 			tar xz
+			`
+				echo "$TOBRINGNODIFF" |
+				while read FILE
+				do echo "mv \\\"$EXTRACTDIR/$FILE\\\" \\\"$LOCAL/\`dirname "$FILE"\`\\\""
+				done
+			`
 		"
 
-		echo "Hit <Enter> to bring files with: $BRINGCMD"
+		echo "Hit <Enter> to bring files with:"
+		cursecyan
+		echo "$BRINGCMD" | sed 's+^[ 	]*++'
+		cursenorm
 		read OK
 
 		eval "$BRINGCMD"
 
 	fi
 
-	# ## Bring remote files and files for diffing
-	# echo "[rsyncdiff] bringing files from $RHOST" >&2
-	# (
-		# cat "$EDITFILE" | grep "^bring " |
-		# while read ACTION DATETIME CKSUM LEN FILENAME
-		# do
-			# echo "$LEN $RDIR/$FILENAME"
-			# echo "$LOCAL/$FILENAME"
-		# done
-		# cat "$EDITFILE" | grep "^diff " |
-		# while read ACTION DATETIME CKSUM LEN FILENAME
-		# do
-			# echo "$LEN $RDIR/$FILENAME"
-			# echo "$LOCAL/$FILENAME.from-$RHOST"
-		# done
-	# ) |
-	# ssh $RUSER@$RHOST '
-		# while read LEN FILENAME
-		# do
-			# read GETFILENAME
-			# echo "$LEN $GETFILENAME"
-			# cat "$FILENAME"
-		# done
-	# ' |
-	# while read LEN GETFILENAME
-	# do
-		# printf "Reading $GETFILENAME..." >&2
-		# mkdir -p `dirname "$GETFILENAME"`
-		# dd bs=1 count=$LEN > "$GETFILENAME" 2> /dev/null
-		# echo "done." >&2
-	# done
+	DIFFSTODO=`
+		cat "$EDITFILE" | grep "^diff " |
+		while read ACTION DATETIME CKSUM LEN FILENAME
+		# do echo "vimdiff \"$LOCAL/$FILENAME" "$LOCAL/$FILENAME.from-$RHOST"
+		do echo "vimdiff \"$LOCAL/$FILENAME\" \"$EXTRACTDIR/$FILENAME\""
+		done
+	`
 
-	## BUG TODO: vimdiff doesn't work because it's inside a pipe!
-	# Could try running it inside a new bash?
-	# or reading files=`...`
+	if [ ! "$DIFFSTODO" ]
+	then
 
-	cat "$EDITFILE" | grep "^diff " |
-	while read ACTION DATETIME CKSUM LEN FILENAME
-	do vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.from-$RHOST"
-	done
+		echo "No diffs to do."
+
+	else
+
+		echo "Hit <Enter> to diff files with:"
+		cursecyan
+		echo "$DIFFSTODO" | sed 's+^[ 	]*++'
+		cursenorm
+		read OK
+
+		eval "$DIFFSTODO"
+
+	fi
 
 }
 
