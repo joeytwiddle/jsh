@@ -191,9 +191,17 @@ else
 				alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
 				alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
 
-				[ "$BASH" ] && [ -f /etc/bash_completion ] && . /etc/bash_completion ||
-				[ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ] && . $HOME/.zsh_completion_rules ||
-				. autocomplete_from_man
+				BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | afterfirst ': ' | beforelast '\.'`
+
+				if [ "$BOGOMIPS" ] && [ "$BOGOMIPS" -gt 500 ]
+				then
+					if [ "$BASH" ] && [ -f /etc/bash_completion ]
+					then . /etc/bash_completion
+					elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
+					then . $HOME/.zsh_completion_rules
+					else . autocomplete_from_man
+					fi
+				fi
 
 				export FIGNORE=".class"
 

@@ -2,7 +2,7 @@
 
 test "$COLUMNS" && export COLUMNS
 
-. mygrep
+. preventgreperrs
 
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'

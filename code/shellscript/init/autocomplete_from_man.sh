@@ -43,8 +43,6 @@ fi
 if [ "$ZSH_NAME" ]
 then
 
-	mkdir -p /tmp/completion_options
-
 	function joeyComplete {
 		read -c COMMAND ARGS
 		## Heuristic:
@@ -55,7 +53,9 @@ then
 			## Cache:
 			MEMOFILE=/tmp/completion_options/"$COMMAND".cached
 			if [ ! -f "$MEMOFILE" ] || [ "$REMEMO" ]
-			then extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
+			then
+				mkdir -p `dirname "$MEMOFILE"` ## This works even if COMMAND is an alias with '/'s in path.
+				extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
 			fi
 			reply=(--help `cat "$MEMOFILE"`)
 			## Ne marche pas: compctl -f -c -u -r -k "($reply)" -H 0 '' "$COMMAND" -tn
