@@ -24,6 +24,7 @@ do
 			if test ! `echo "$JPATH" | sed "s+^/.*$+ yep +"` = " yep "; then
 				JPATH="$PWD/$JPATH"
 			fi
+			continue
 		;;
 		"-dev")
 			HWIUSER="$2"
@@ -31,6 +32,7 @@ do
 			shift
 			# echo "Note: if the machine you are installing on is not trusted, you should not enter you password here, but instead login to hwi using a trusted connection, cvs login there, and copy your .cvspass from hwi to this box."
 			# Nah soddit, .cvspass is a security risk anyway!
+			continue
 		;;
 		*)
 			echo "Usage:"
@@ -38,6 +40,7 @@ do
 			echo "Defaults:"
 			echo "  $0 -in \"\$HOME/j\" -dev anonymous"
 			# echo "  $0 -in "$JPATH" -dev $HWIUSER"
+			test "$*" && echo "Unparsed: $*"
 			exit 1
 		;;
 	esac
