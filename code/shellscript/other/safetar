@@ -1,3 +1,0 @@
-cd $1
-echo "Compressing \"$1\" into \"$2\""
-/bin/tar cfz /mnt/stig/backups/$2.tgz *

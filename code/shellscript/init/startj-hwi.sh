@@ -4,6 +4,9 @@
 ##         As well as making dependent shellscripts safe, it will provide some indication to coders as to what inputs a script takes.
 ##       Further development on dependencies: find dependencies on binaries (=> packages) in PATH too, so that checks may be performed to ensure local sys meets the requirements of each shellscript.  Provide a dselect-like subset chooser.  (". requiresscripts <scriptname>...", ". requiresbins <command>...", ". requirespkgs <package>..." ?)
 
+## Are exits too harsh for a script which is likely to be sourced?
+## Do we think it's OK because startj is run by jsh these days?
+
 ## Conclusive (?) proof that bash provides nothing to tell us where this script is when it is called with source.
 ## $_ comes out as previous command (the one called before source!)
 # echo "\$\_ = >$_<"
@@ -43,6 +46,12 @@ if test ! $JPATH; then
 	fi
 fi
 export PATH=$JPATH/tools:$PATH
+
+if jwhich jwhich
+then
+	echo "Warning: it looks like you have a different jsh in your path, could be very dangerous (script recursion)."
+	exit 1
+fi
 
 test -f "$JPATH/global.conf" && . "$JPATH/global.conf"
 test -f "$JPATH/local.conf" && . "$JPATH/local.conf"

@@ -1,4 +1,5 @@
-DATE=`date | sed 's/[^ ]*[ ]*\([^ ]*\)[ ]*\([^ ]*\)[ ]*[^ ]*[ ]*[^ ]*[ ]*\([^ ]\)/\2-\1-\3/'`
+# DATE=`date | sed 's/[^ ]*[ ]*\([^ ]*\)[ ]*\([^ ]*\)[ ]*[^ ]*[ ]*[^ ]*[ ]*\([^ ]\)/\2-\1-\3/'`
+DATE=today
 
 export COLUMNS=250
 dpkg -l "$@" > $JPATH/logs/debpkgs-list-$DATE.log
