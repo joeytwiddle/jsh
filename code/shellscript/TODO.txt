@@ -1,0 +1,11 @@
+jsh needs to be broken into sensible modules
+it is bloated because it loads everything and repeats other things
+need to think about:
+- which scripts need what sort of config?
+- are they run a lot (should their config be loaded into user shell env, or
+  should the scripts load it at runtime?)
+
+Desired features:
+- User can choose which scripts to install / use / ignore.
+- Dependencies are checked (for other scripts or system packages, or something in the PATH at least)
+- Configuration happens in the correct place, and user knows how to alter it.
