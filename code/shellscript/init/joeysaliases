@@ -2,9 +2,7 @@
 
 test "$COLUMNS" && export COLUMNS
 
-if test -x "$JPATH/tools/mygrep"; then
-	alias grep='mygrep'
-fi
+. mygrep
 
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'
