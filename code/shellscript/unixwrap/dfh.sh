@@ -3,10 +3,17 @@ df -h |
 if test ! "$WHERE"
 then cat
 else
-  realpath "$WHERE"
   MOUNTPNT="`wheremounted \"$WHERE\"`"
-  higrep "$MOUNTPNT"
-  if test -d "$MOUNTPNT/RECLAIM"
-  then dush "$MOUNTPNT/RECLAIM"
+  REALPATH=`realpath "$WHERE"`
+	REST=`echo "$REALPATH" | after "$MOUNTPNT"`
+  # higrep "$MOUNTPNT"
+  grep "$MOUNTPNT$" |
+	sed "s+[ 	]$MOUNTPNT+ $MOUNTPNT/ $REST+g" |
+  if [ -d "$MOUNTPNT/RECLAIM" ]
+  then
+		RECLAIMABLE=`dush "$MOUNTPNT/RECLAIM" | takecols 1`
+		sed 's|\([	 ]*[[:digit:]]*%\)| + '"$RECLAIMABLE"'\1|'
+	else
+		cat
   fi
 fi
