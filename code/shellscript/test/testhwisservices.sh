@@ -15,9 +15,11 @@ function checkWebPageForRegexp () {
 
 function askPortExpect () {
 	echo "`curseyellow`Connecting to $1:$2 sending \"$3\" hoping to get \"$4\" ...`cursenorm`"
+	NC=`which nc`
+	[ ! "$NC" ] && NC=`which telnet`
 	RESPONSE=`
 		( echo "$3" ; sleep 99 ) |
-		nc "$1" "$2" & ncpid=$!
+		"$NC" "$1" "$2" & ncpid=$!
 		sleep 5 ; kill $ncpid 2>/dev/null
 	`
 	if echo "$RESPONSE" | grep "$4"
