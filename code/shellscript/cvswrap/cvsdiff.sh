@@ -1,19 +1,5 @@
 #!/bin/sh
 
-# This should not be called cvsdiff, because it ain't like cvs diff:
-# it only finds what's missing, not what's been changed.
-
-# echo '# Reasons for failing update:'
-# echo '# cvs update 2>/dev/null | grep -v "^\? "'
-# echo '# Files which are not the same as the repository versions.'
-# echo '# or cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"'
-# echo "# Rats, for some reason this doesn't work recursively."
-
-# echo "# Try cvsdiff .* * to see which local files do not exist in repository."
-# echo "# Sorry subdirs' files don't work 'cos status loses path."
-
-# TODO: when a new file (not yet in repos) is found, if the dir is also new, the dir should be "cvs add"ed too.
-
 CHECKALL=
 while true; do
 	case "$1" in
