@@ -1,2 +1,2 @@
-before $*
-# tr "\n" " " | sed "s|$*.*|
+SRCH="$*"
+sed ";s+\(.*\)$SRCH.*+\1+;"

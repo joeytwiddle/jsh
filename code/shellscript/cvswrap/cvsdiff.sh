@@ -14,6 +14,7 @@ if test "$CHKOUT" = ""; then
 fi
 
 COUNT=0
+COUNTDIRS=0
 MISSING=0
 
 if test -d "$CHKOUT"; then
@@ -24,9 +25,11 @@ find . | grep -v "/CVS" |
   while read SOMETHING; do
     if test -d "$SOMETHING"; then
       DIR="$SOMETHING"
-      if test ! -d "$CVSROOT/$CHKOUT/$DIR/CVS/"; then
+      # if test ! -d "$CVSROOT/$CHKOUT/$DIR/CVS/"; then
+      if test ! -d "$CVSROOT/$CHKOUT/$DIR"; then
         echo 'cvs add "'$DIR'"'
       fi
+      COUNTDIRS=`expr $COUNTDIRS + 1`
     else
       FILE="$SOMETHING"
       COUNT=`expr $COUNT + 1`
@@ -64,3 +67,4 @@ find . | grep -v "/CVS" |
   # done
 
 echo "$MISSING / $COUNT files missing." >&2
+echo "  ( $COUNTDIRS directories. )" >&2
