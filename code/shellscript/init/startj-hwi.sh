@@ -31,7 +31,7 @@ if test ! "$1" = "simple"; then
 	. hwipromptforzsh
 	. lscolsinit
 
-	alias hwicvs='cvs -d :pserver:joey@hwi.dyn.dhs.org:/stuff/cvsroot'
+	alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
 	alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
 	alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
 
