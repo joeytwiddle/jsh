@@ -1,3 +1,6 @@
+# Intended as supplement to find:
+# eg. find . <-condition>.. | notindir <dir>..
+
 . importshfn notindir
 
 if test ! "$*" = ""; then

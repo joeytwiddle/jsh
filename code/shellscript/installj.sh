@@ -48,9 +48,8 @@ echo
 echo "You should put the following in your ~/.<preferredshell>rc:"
 echo "  source \"$STARTFILE\""
 echo "or just run it by hand to try out the environment."
-# echo "If that scares you too much, try just:"
-# echo "  export JPATH=\"$JPATH\""
-# echo "  export PATH=\$JPATH/tools:\$PATH"
+echo "If that doesn't work, try this first:"
+echo "  export JPATH=\"$JPATH\""
 echo "(You may also want to run linkhome to use my .rc files)"
-echo "(Some other interesting scripts: higrep, cvsdiff, monitorps, del, et)"
+echo "(Some other interesting scripts: higrep, cvsdiff, monitorps, del, et, b)"
 echo

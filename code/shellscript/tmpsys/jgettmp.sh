@@ -1,11 +1,11 @@
 #!/bin/sh
+## Gives you a temporary file you can use without quotes, eg. $TMPFILE
+## Actually JPATH does not guarantee that (maybe should!)
 
 TOPTMP="$JPATH/tmp"
 if test $JTMPLOCAL && test -w .; then
-	# Note cos not use $PWD because might break * below
-	test -w . && TOPTMP="." || TOPTMP="/tmp"
-	echo "jgettmp: Using $TOPTMP as temp dir" >> /dev/stderr
-	echo "         because $JPATH/tmp is not writeable." >> /dev/stderr
+	# Note we don't use $PWD because might break * below
+	TOPTMP="/tmp"
 fi
 
 # Neaten arguments (to string not needings ""s *)
@@ -23,4 +23,5 @@ while test -f "$TOPTMP/$ARGS.$X.tmp"; do
 done
 
 touch "$TOPTMP/$ARGS.$X.tmp"
+chmod go-rwx "$TOPTMP/$ARGS.$X.tmp"
 echo "$TOPTMP/$ARGS.$X.tmp"
