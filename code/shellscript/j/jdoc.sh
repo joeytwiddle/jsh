@@ -1,9 +1,16 @@
 if [ "$1" = "" ] || [ "$1" = "--help" ]
 then
 
+	echo
 	echo "jdoc <command>"
-	echo "  will show you the documentation for the command"
-	echo "  and if requested usage of / dependencies on that command in all jsh scripts"
+	echo
+	echo "  will show you the documentation for the command, be it unix or jsh,"
+	echo "  and, if requested, will show uses of that command in all jsh scripts."
+	echo
+	echo "  You can find a list of jsh scripts in \$JPATH/tools/"
+	echo
+	echo "  jdoc also has a feature which helps you to refactor (rename) jsh scripts."
+	echo
 
 elif [ "$1" = -hasdoc ]
 then
