@@ -1,7 +1,7 @@
 ## Generically handles before / after.
 ## But doesn't handle both at the same time!
 ## Could also generically use grep or [ = ]
-## But current implementation wastes much processing!
+## But current implementation wastes much processing!  (Not true!)
 ## The search string is not printed (it's excluded).
 
 ECHOBEFORE=
@@ -23,9 +23,7 @@ then cat
 else cat > /dev/null
 fi
 
-while read LINE
-do echo "$LINE"
-done |
+cat |
 if [ $ECHOAFTER ]
 then cat
 else cat > /dev/null
