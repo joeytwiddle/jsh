@@ -11,7 +11,9 @@ fi
 COUNT=0
 MISSING=0
 
-cd "$CHKOUT"
+if test -d "$CHKOUT"; then
+  cd "$CHKOUT"
+fi
 
 find . -type d | grep -v "/CVS" |
   while read DIR; do

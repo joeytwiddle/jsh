@@ -2,21 +2,25 @@ export JAVADOC=`jwhich javadoc` # "/usr/local/jdk1.2.2/bin/javadoc"
 export DOCSUM="/stuff/docs/javadocs.html"
 export LOGFILE="$JPATH/logs/makealljavadocs.txt"
 
+(
+
 echo Making all javadocs >> $JPATH/logs/cron.txt
 date >> $JPATH/logs/cron.txt
 
-echo Making all javadocs >> $LOGFILE
+echo Making all javadocs
 date >> $LOGFILE
 
 echo "<html><body>" > $DOCSUM
 
 # jlib
-dojavadoc "JLib" "$JPATH/code/java/jlib" "*.java" >> $LOGFILE
+dojavadoc "JLib" "$JPATH/code/java/jlib" # "*.java"
 
 # changetheworld
-dojavadoc "CTW" "$JPATH/code/java/servlets" "*.java */*.java" >> $LOGFILE
+dojavadoc "CTW" "$JPATH/code/java/servlets" # "*.java */*.java"
 
 # tools
-dojavadoc "Tools" "$JPATH/code/java/tools" "*/*.java" >> $LOGFILE
+dojavadoc "Tools" "$JPATH/code/java/tools" # "*/*.java"
 
 echo "</html></body>" >> $DOCSUM
+
+)

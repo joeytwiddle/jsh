@@ -1,11 +1,15 @@
 NAME="$1"
 DIR="$2"
 FILES="$3"
-if [ "$FILES" = "" ]; then
-  FILES="*.java"
-fi
 
 "cd" "$DIR"
+
+if [ "$FILES" = "" ]; then
+  # FILES="*.java"
+  FILES=`find . -name "*.java" | grep -v "/CVS/"`
+fi
+
+echo "Making javadocs for $NAME in $DIR"
 mkdir -p javadoc
 $JAVADOC -d javadoc $FILES
 echo "<A HREF=\"$PWD/javadoc/index.html\">$1</A><br>" >> $DOCSUM
