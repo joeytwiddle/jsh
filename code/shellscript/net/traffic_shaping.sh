@@ -1,7 +1,20 @@
 DEV=eth1
 
+export COUNT=0
+export DEBUG_MODE=true
+
 function filter_port () {
-	/sbin/tc filter add dev "$DEV" parent 1:0 prio $3 protocol ip u32 match ip $1 $2 0xffff flowid 1:$3
+	if [ "$DEBUG_MODE" ]
+	then
+		if [ "$COUNT" -lt 6 ]
+		then
+			COUNT=`expr "$COUNT" + 1`
+			/sbin/tc qdisc add dev "$DEV" parent 1:$COUNT handle 1$COUNT: pfifo
+		fi
+		DEST="$COUNT"
+	else DEST="$4"
+	fi
+	/sbin/tc filter add dev "$DEV" parent 1:0 prio $DEST protocol ip u32 match ip $2 $3 0xffff flowid 1:$DEST
 }
 
 case "$1" in
@@ -29,7 +42,7 @@ case "$1" in
 			/sbin/tc qdisc del dev "$DEV" root 2>/dev/null
 
 			## add default 4-band priority qdisc to "$DEV"
-			/sbin/tc qdisc add dev "$DEV" root handle 1: prio bands 4
+			/sbin/tc qdisc add dev "$DEV" root handle 1: prio bands 9
 
 			## add a <128kbit rate limit (matches DSL upstream bandwidth) with a very deep buffer to the bulk band (#3)
 			## 99 kbit/s == 8 1500 byte packets/sec, so a latency of 5 sec means we will buffer up to 40 of these big
@@ -39,14 +52,14 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 60kbit buffer 1600 peakrate 75kbit mtu 1518 mpu 64 latency 50ms
-			/sbin/tc qdisc add dev "$DEV" parent 1:4 handle 14: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
+			/sbin/tc qdisc add dev "$DEV" parent 1:9 handle 19: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
 
 			## For small packets:
-			/sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
+			/sbin/tc qdisc add dev "$DEV" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 
 			## add fifos to the other two bands so we can have some stats
-			/sbin/tc qdisc add dev "$DEV" parent 1:2 handle 12: pfifo
-			/sbin/tc qdisc add dev "$DEV" parent 1:1 handle 11: pfifo
+			# /sbin/tc qdisc add dev "$DEV" parent 1:2 handle 12: pfifo
+			# /sbin/tc qdisc add dev "$DEV" parent 1:1 handle 11: pfifo
 			## Joey sez: anyone know where we can access these stats/fifos?!
 			## Joey answers: tc -s qdisc ls dev eth1
 
@@ -61,33 +74,33 @@ case "$1" in
 			### Critical:
 
 			## Hwi's mail services:
-			filter_port sport 143 1
-			filter_port sport 220 1
-			filter_port sport 993 1
+			filter_port imap sport 143 1
+			filter_port imap3 sport 220 1
+			filter_port imaps sport 993 1
 			## Remote mail:
-			filter_port dport 143 1
-			filter_port dport 220 1
-			filter_port dport 993 1
+			filter_port imap dport 143 1
+			filter_port imap3 dport 220 1
+			filter_port imaps dport 993 1
 
 			## Peercast:
-			filter_port dport 7144 1
-			filter_port sport 7144 1
+			filter_port peercast dport 7144 1
+			filter_port peercast sport 7144 1
 
 			### Interactive:
 
 			## apparently, one "could tell ssh from scp; scp sets the IP diffserv flags to indicate bulk traffic"
 			## but i don't know how to do this.  And what about rsync?
-			filter_port sport 22 1
-			filter_port dport 22 1
+			filter_port ssh sport 22 1
+			filter_port ssh dport 22 1
 
 			## Fast websurfing:
-			filter_port dport 80 1
+			filter_port http dport 80 1
 			## Lower priority webserver:
-			filter_port sport 80 2
+			filter_port http sport 80 2
 
 			## CVS:
-			filter_port dport 2401 2
-			filter_port sport 2401 2
+			filter_port cvs dport 2401 2
+			filter_port cvs sport 2401 2
 
 			## small IP packets go to band #2 (Joey: #3)
 			## by small I mean <128 bytes in the IP datagram, or in other words, the upper 9 bits of the iph.tot_len are 0
@@ -95,7 +108,7 @@ case "$1" in
 			## we happen to not have many (any? icmp maybe, but tcp?) fragmented packets going out the DSL line
 			# /sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:2
 			## Joey finds there are too many, at least when running multiple bittorrents.  CONSIDER: make abother tbf for the small packets?
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:3
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 8 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:9
 
 			## a final catch-all filter that redirects all remaining ip packets to band #4
 			## presumably all that is left are large packets headed out the DSL line, which are
@@ -103,7 +116,7 @@ case "$1" in
 			## DSL modem's uplink egress queue and keeping the shorter 'interactive' packets from
 			## getting through
 			## the dummy match is required to make the command parse
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 4 protocol ip u32 match u8 0 0 at 0 flowid 1:4
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 9 protocol ip u32 match u8 0 0 at 0 flowid 1:10
 
 			## have the rest of the house think we are the gateway
 			## the reason I use arpspoofing is that I want automatic failover to the real gateway
