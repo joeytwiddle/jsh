@@ -1,17 +1,15 @@
 # unj decodeslashn "$@"
 
+## In fact, for decoding a newline-escaped stream, tr -d '\n' should never be harmful, so the -x option needn't really be specified, it could be assumed.
+
 CONTRACT_WORDS=
-if test "$1" = "-words"
-then shift; CONTRACT_WORDS=basic
-elif test "$1" = "-xwords"
-then shift; CONTRACT_WORDS=super
+if test "$1" = -x
+then shift; CONTRACT_WORDS=true
 fi
 
 cat "$@" |
 
-if test "$CONTRACT_WORDS" = basic
-then tr '\n' ' '
-elif test "$CONTRACT_WORDS" = super
+if test "$CONTRACT_WORDS"
 then tr -d '\n'
 else cat
 fi |
