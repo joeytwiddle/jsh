@@ -1,7 +1,8 @@
 ## TODO: What's that oldMEGA business?  Is it kosha?
 ## TODO: Instead of moving, or deleting, original file, sometimes it may be better to echo -n into it.  (inode business)
+## TODO: auto -nozip for all zip files!  (or files which compress badly, ie. compressed in any way, eg. au, vid)
 
-if test "$1" = "" || test "$1" = --help
+if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo "rotate [ -nozip ] [ -max <num> ] <file>"
 	echo "  will move <file> to <file>.N"
@@ -11,26 +12,26 @@ then
 fi
 
 ZIP=true
-if test "$1" = "-nozip"
+if [ "$1" = -nozip ]
 then ZIP=; shift
 fi
 
 MAX=
-if test "$1" = "-max"
+if [ "$1" = -max ]
 then shift; MAX="$1"; shift
 fi
 
 FILE="$1"
 
-if test ! "$ZIP"
+if [ ! "$ZIP" ]
 then
 	ZIPCOM=""
 	FINALFILE="$FILE"
-elif test -f "$FILE"
+elif [ -f "$FILE" ]
 then
 	ZIPCOM="gzip"
 	FINALFILE="$FILE.gz"
-elif test -d "$FILE"
+elif [ -d "$FILE" ]
 then
 	ZIPCOM="tar cfz $FILE.tgz"
 	FINALFILE="$FILE.tgz"
@@ -39,14 +40,14 @@ else
 	exit 1
 fi
 
-if test "$ZIPCOM"
+if [ "$ZIPCOM" ]
 then
 	echo "rotate: $ZIPCOM \"$FILE\""
 	$ZIPCOM "$FILE" || exit 1
 fi
 
 N=0
-while test -f "$FINALFILE.$N"
+while [ -f "$FINALFILE.$N" ]
 do
 	N=`expr "$N" + 1`
 done
@@ -54,9 +55,9 @@ done
 echo "rotate: mv \"$FINALFILE\" \"$FINALFILE.$N\""
 mv "$FINALFILE" "$FINALFILE.$N"
 
-if test "$MAX"
+if [ "$MAX" ]
 then
-	if test "$N" -gt "$MAX"
+	if [ "$N" -gt "$MAX" ]
 	then
 		echo "Rotating the files..."
 		## Start at 1 so 0 is not rotated.

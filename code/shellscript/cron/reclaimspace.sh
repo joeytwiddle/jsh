@@ -1,5 +1,5 @@
 ## Rare danger of infinite loop if somehow rm -f repeatedly succeeds but does not reduce disk usage, or the number of files in RECLAIM/ .
-## TODO: so that reclaimspace may be run regularly from cron, put in a max loop threshold to catch that condition.
+## DONE: so that reclaimspace may be run regularly from cron, put in a max loop threshold to catch that condition.
 
 ## This didn't work when if test -f "$FILE" hadn't quotes on a spaced file.
 set -e
@@ -10,47 +10,48 @@ grep -v "/cdrom" |
 while read PARTITION SPACE POINT
 do
 
-  GOAGAIN=true
-  ATTEMPTSMADE=0
+	GOAGAIN=true
+	ATTEMPTSMADE=0
 
-  ## I can't get set -e to work on these tests; because they are in while loop?
-  while test "$SPACE" -lt 10240 && test "$GOAGAIN"
-  do
+	## I can't get set -e to work on these tests; because they are in while loop?
+	while test "$SPACE" -lt 10240 && test "$GOAGAIN"
+	do
 
-    ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
-    if test "$ATTEMPTSMADE" -gt 50
-    then
-      error "Stopping on $ATTEMPTSMADE"st" reclamation attempt, assuming problem!"
-      exit 12
-    fi
+		ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
+		if test "$ATTEMPTSMADE" -gt 50
+		then
+			error "Stopping on $ATTEMPTSMADE"st" reclamation attempt, assuming problem!"
+			exit 12
+		fi
 
-    GOAGAIN=
+		GOAGAIN=
 
-    echo "Partition $PARTITION mounted at $POINT has $SPACE"k" < 10M of space."
+		echo "Partition $PARTITION mounted at $POINT has $SPACE"k" < 10M of space."
 
-    if test -d "$POINT"/RECLAIM
-    then
+		if test -d "$POINT"/RECLAIM
+		then
 
-      FILE=`
-        cd "$POINT"/RECLAIM &&
-        find . -type f |
-        chooserandomline
-      `
-      if test -f "$POINT"/RECLAIM/"$FILE"
-      then
-        echo "Reclaiming: $POINT"/RECLAIM/"$FILE"
-        rm -f "$POINT"/RECLAIM/"$FILE" &&
-        GOAGAIN=true
-      fi
+			FILE=`
+				cd "$POINT"/RECLAIM &&
+				find . -type f |
+				chooserandomline
+			`
+			if test -f "$POINT"/RECLAIM/"$FILE"
+			then
+				echo "Reclaiming: rm -f $POINT"/RECLAIM/"$FILE"
+				rm -f "$POINT"/RECLAIM/"$FILE" &&
+				GOAGAIN=true
+			else echo "But there is nothing in $POINT/RECLAIM to reclaim."
+			fi
 
-    fi
+		else
 
-    if test ! "$GOAGAIN"
-    then echo "But there was nothing in $POINT/RECLAIM to reclaim."
-    fi
+			echo "But there is no $POINT/RECLAIM directory to reclaim from."
 
-    SPACE=`df | grep "^$PARTITION" | takecols 4`
+		fi
 
-  done
+		SPACE=`df | grep "^$PARTITION" | takecols 4`
+
+	done
 
 done
