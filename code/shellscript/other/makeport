@@ -2,6 +2,7 @@
 
 # DESTDIR="$JPATH/port";
 DESTDIR="/mnt/stig/backups/port";
+mkdir -p "$DESTDIR"
 
 # This is used in calls to portget
 export PORTMP="/tmp/portmp";
@@ -39,7 +40,6 @@ forall -stealth -dirsonly c/tools/* do portget %w
 
 cd $PORTMP
 #chmod a-x * -R
-mkdir -p "$DESTDIR"
 tar cfzh $DESTDIR/hwiport.tgz *
 
 cd $JPATH

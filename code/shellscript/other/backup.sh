@@ -25,7 +25,7 @@ zip -q /mnt/stig/backups/twiddle `find $HOME -size 0 -o -size 1 -o -size 2 -o -s
 
 # Joeylib, JLib, C, Java sources
 makeport
-cp /home/joey/j/out/hwiport.tgz /mnt/stig/backups/
+# cp /home/joey/j/out/hwiport.tgz /mnt/stig/backups/
 
 # Website
 safetar /stuff/portablelinux/var/www hwihtml
