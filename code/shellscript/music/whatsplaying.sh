@@ -3,7 +3,9 @@
 # tail -n 1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
 
 PROGNAME=`
-	( fuser -v /dev/dsp ; fuser -v /dev/sound/dsp ) |
+	for DEV in /dev/dsp /dev/sound/dsp
+	do [ -e $DEV ] && fuser -v $DEV 2>/dev/null
+	done |
 	drop 2 | head -n 1 | takecols 5
 `
 
@@ -13,6 +15,7 @@ then
 	exit 1
 fi
 
+FILES=`
 /usr/sbin/lsof -c "$PROGNAME" |
 
 	## Negative match: (could be confirmed later eg. by file)
@@ -26,4 +29,13 @@ fi
 
 	dropcols 1 2 3 4 5 6 7 8 |
 	removeduplicatelines
+`
+
+## For compatibility with randommp3 script:
+if ( [ "$FILES" = /tmp/randommp3-gainchange.mp3 ] || [ "$FILES" = /tmp/randommp3-gainchange-2.mp3 ] ) && [ -e "$FILES.whatsplaying" ]
+then
+	jshinfo "[whatsplaying] Got back "$FILES" so reading $FILES.whatsplaying instead:"
+	ls -l "$FILES.whatsplaying" | dropcols 1 2 3 4 5 6 7 8 9 10
+else echo "$FILES"
+fi
 
