@@ -13,7 +13,7 @@ do
   ATTEMPTSMADE=0
 
   ## I can't get set -e to work on these tests; because they are in while loop?
-  while test "$SPACE" -lt 102400 && test "$GOAGAIN"
+  while test "$SPACE" -lt 10240 && test "$GOAGAIN"
   do
 
     ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
