@@ -64,7 +64,7 @@ while test "$1"; do
 			cursebold
 			echo "del: problem creating destination directory $DEST"
 			echo "del: $x not moved to trash"
-			cursegrey
+			cursenorm
 			waitforkeypress
 			# exit 1
 		else
@@ -89,7 +89,7 @@ while test "$1"; do
 
 			# Move it and report =)
 			# mv -f "$y" "$DEST"   # (see above)
-			echo "$x "`cursegreen`"->"`cursegrey`" $DEST/$y"
+			echo "$x "`cursegreen`"->"`cursenorm`" $DEST/$y"
 			mv -f "$x" "$DEST/$y"
 
 			# Remove from CVS
@@ -102,7 +102,7 @@ while test "$1"; do
 						cursered
 						cursebold
 						echo "Error with CVS"
-						cursegrey
+						cursenorm
 					fi
 				fi
 			fi

@@ -3,6 +3,7 @@
 
 # Hey dufus, this should be a shell alias!
 # Hey dufus, it can't be 'cos it adds to the end of the line!
+# Hey dufus, I think there is an argument you can provide, so why not fix it already?
 
 REALGREP=`jwhich grep`
 

@@ -3,9 +3,17 @@ echo "or possibly (to check) symlinks, so don't delete the target!"
 echo
 
 if test "$1" = "--help"; then
-	echo "findduplicatefiles [ -samename ]"
-	echo "  -samename option expects identical filenames but is faster."
+	echo "findduplicatefiles [ -size ] [ -samename ]"
+	echo "  -size     : use file size instead of checksum (faster)."
+	echo "  -samename : expect identical filenames (faster)."
 	exit 1
+fi
+
+HASH="cksum"
+if test "$1" = "-size"; then
+	shift
+	HASH="filesize -likecksum"
+	echo "Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done" >> /dev/stderr
 fi
 
 if "$1" = "-samename"; then
@@ -15,7 +23,7 @@ if "$1" = "-samename"; then
 	# Faster, but assumes filenames are the same
 	find . -type f | sed "s+.*/++" | keepduplicatelines |
 	while read X; do
-		find . -name "$X" | while read Y; do cksum "$Y"; done
+		find . -name "$X" | while read Y; do $HASH "$Y"; done
 	done |
 	keepduplicatelines -gap 1 2 |
 	sed 's/[0123456789]* [0123456789]* \(.*\)/rm "\1"/'
@@ -26,25 +34,8 @@ else
 	keepduplicatelines 1 |
 	afterfirst " " |
 	while read X; do
-	  cksum "$X"
+	  $HASH "$X"
 	done |
 	keepduplicatelines -gap 1 2
 
 fi
-
-# find . -type f |
-# while read X; do
-  # cksum "$X"
-# done |
-# keepduplicatelines -gap 1 2
-
-# CKSUMS=`find . -type f | while read X; do
-    # cksum "$X"
-  # done`
-# 
-# FINDDUPS=`echo "$CKSUMS" | keepduplicatelines 1 2`
-# 
-# echo "$FINDDUPS" | while read X; do
-  # echo "$CKSUMS" | grep "^$X"
-  # echo
-# done

@@ -4,4 +4,4 @@ if test ! -x "$BIN"; then
   BIN=`jwhich dpkg`
 fi
 
-$BIN -S "$@" | sed "s/^/"`cursecyan`"/;s/:/"`cursegrey`":/"
+$BIN -S "$@" | sed "s/^/"`cursecyan`"/;s/:/"`cursenorm`":/"

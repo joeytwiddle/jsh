@@ -34,7 +34,7 @@ else
 
 fi
 
-NORMCOL=`cursegrey`
+NORMCOL=`cursenorm`
 
 printf "$NORMCOL"
 # sed "s#$1#$HIGHCOL$1$NORMCOL#g"

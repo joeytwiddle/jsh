@@ -46,6 +46,9 @@ if ! grep "^$CVSROOT" "$HOME/.cvspass" > /dev/null 2>&1; then
 		exit 1
 fi
 
+echo "WARNING: this software comes with no warranty; you use it at your own risk; the authors accept no responsilibity."
+echo "Now installing files to $JPATH."
+
 ## Create default tree
 
 mkdir -p "$JPATH" && cd "$JPATH" ||
@@ -75,6 +78,7 @@ echo "Linking shellscripts into $JPATH/tools (may take a while)"
 ## Finally, link the handy startup file
 STARTFILE="$JPATH"/startj
 ln -s "$JPATH"/tools/startj-hwi "$STARTFILE"
+ln -s "$JPATH"/tools/startj-simple "$STARTFILE"-simple
 
 echo "Done installing."
 echo
@@ -85,5 +89,5 @@ echo "or just run it by hand to try out the environment."
 echo "If that doesn't work, try this beforehand:"
 echo "  export JPATH=\"$JPATH\""
 echo "(You may also want to run linkhome to use my .rc files)"
-echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, et, b)"
+echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, memo, findduplicatefiles, undelext2, b, et)"
 echo

@@ -1,8 +1,12 @@
-IP="ip=`ppp-getip`"
+# IP="ip=`ppp-getip`"
 
 # dyndhs.org update (using hwi.ath.cx):
-
 /root/ipcheck/doipcheck
+
+# no-ip.org update (using freenet.redirectme.net):
+/root/noip_updater_v1.6/noip -c ./no-ip.conf
+
+( sleep 180 ; killall noip ) &
 
 # # dhs.org for hwi.dyn.dhs.org:
 # HOST="hwi"
@@ -25,4 +29,4 @@ IP="ip=`ppp-getip`"
 # echo "UPDATING IP!"
 # env TERM=vt100 lynx -auth=$USER:$PASS -dump "$WHOLEURL"
 
-echo "$IP" >> /home/joey/j/logs/iphistory.txt
+( date && ppp-getip ) >> /home/joey/j/logs/iphistory.txt

@@ -1,18 +1,28 @@
 #!/bin/sh
 
-SPECIALISE="$1"
-# shift
-
 # cd $JPATH/wallpapers
 cd /stuff/wallpapers
 
 # find . -type f -and -not -name "*.html" > tmp.txt
-export INBADDIR=false
-UNGREPEXPR=`find . -name "noshow" | while read X; do
-  echo "^"\`dirname "$X"\`"|"
-done | tr -d "\n" | sed "s+|$++"`
-
 # FILE=`chooserandomline tmp.txt`
+
+SPECIALISE="$1"
+if test "$SPECIALISE"; then
+	shift
+fi
+
+if test "$1" = "-all"; then
+	UNGREPEXPR='^$'
+else
+	UNGREPEXPR=`
+		find . -name "noshow" |
+		while read X; do
+		echo '^'\`dirname "$X"\`'|'
+		done |
+		tr -d '\n' |
+		sed 's+|$++'
+	`
+fi
 
 FILE=`
 	find . -type f -and -not -name "*.html" |

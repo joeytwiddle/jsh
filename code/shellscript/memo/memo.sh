@@ -11,8 +11,11 @@ fi
 
 TMPF=`jgettmp`
 touch "$TMPF"
-cursecyan
-# echo "as of "`date -r "$FILE"`
-echo "as of "`datediff "$FILE" "$TMPF"`" ago."
-cursegrey
+(
+	cursecyan
+	# echo "as of "`date -r "$FILE"`
+	echo "$@"
+	echo "as of "`datediff "$FILE" "$TMPF"`" ago."
+	cursenorm
+) >> /dev/stderr
 jdeltmp "$TMPF"

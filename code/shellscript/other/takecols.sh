@@ -12,5 +12,5 @@ else
     fi
     THECOLS="$THECOLS\$$x"
   done
-  awk ' { printf('"$THECOLS"'"\n"); } '
+  awk ' { print '"$THECOLS"' ; } '
 fi

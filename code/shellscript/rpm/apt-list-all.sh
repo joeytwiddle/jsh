@@ -6,7 +6,7 @@
 (
 	echo "PACKAGE	VERSION	STATUS	SOURCE"
 	(
-		memo apt-cache dump |
+		apt-cache dump |
 		grep "^\(Package\| Version\|[ ]*File\): " |
 		# This sed fails for non-traditional archives (lacking dist/ dir):
 		sed "s|File: .*/\([^_]*\).*dists_\([^_]*\).*|File: \1 \2|" |

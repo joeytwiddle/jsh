@@ -10,6 +10,6 @@ echo `cursecyan``cursebold`"You are here:"`cursegreen`" $PWD"
 seq 1 4 | tr " " "\n" | sed "s/\(.*\)/"`cursegreen`"\f\1 /" | splicewith head -4 $TMPF
 ) |
 if test "$1" = ""; then cat; else highlight "$1"; fi |
-sed "s+/+"`cursegreen`"/"`cursegrey`"+g"
+sed "s+/+"`cursegreen`"/"`cursenorm`"+g"
 
 jdeltmp $TMPF

@@ -1,26 +1,28 @@
-# Try to guess the top directory of j install
-# If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
+## Try to guess the top directory of j install
+## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
 if test ! $JPATH; then
 	if test -d "$HOME/j"; then
 		export JPATH=$HOME/j
-	# This doesn't work: bash cannot see it unless we call startj direct (no source)
+	## This doesn't work: bash cannot see it unless we call startj direct (no source)
 	elif test -d `dirname "$0"`; then
 		export JPATH=`dirname "$0"`
 		echo "startj: guessed JPATH=$JPATH"
 	else
 		echo "startj: Could not find JPATH. Not starting."
-		env > /tmp/env.out
+		# env > /tmp/env.out
 		exit 0
 	fi
 fi
 export PATH=$JPATH/tools:$PATH
 
-# Setup user bin, libs, man etc...
+## Setup user bin, libs, man etc...
 export PATH=$HOME/bin:$PATH
-# not yet finished, should be option - refer too setuppath in pclark/pubbin
+## not yet finished, should be option - refer to setuppath in pclark/pubbin
 
 . javainit
 . hugsinit
+
+### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
 
 if test ! "$1" = "simple"; then
 
@@ -41,18 +43,18 @@ if test ! "$1" = "simple"; then
 
 	export FIGNORE=".class"
 
-	# Avoid error if not on a tty
-	# Nice try Joey but doesn't work on kimo.
+	## Avoid error if not on a tty
+	## Nice try Joey but doesn't work on kimo.
 	# if test ! "$BAUD" = "0"; then
 		mesg y
 	# fi
 
-	# Message on user login/out (zsh, tcsh, ...?)
+	## Message on user login/out (zsh, tcsh, ...?)
 	export WATCH=all
 
-	# What shell are we running?
-	# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
-	# $0 does OK for bash (at least when in .bash_profile!)
+	## What shell are we running?
+	## This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
+	## $0 does OK for bash (at least when in .bash_profile!)
 	SHELLPS="$$"
 	SHORTSHELL=`
 		findjob "$SHELLPS" |
@@ -62,9 +64,14 @@ if test ! "$1" = "simple"; then
 		sed "s/^-//"
 	`
 	# echo "shell = $SHORTSHELL"
-	# tcsh makes itself known by ${shell} envvar.
-	# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
+	## tcsh makes itself known by ${shell} envvar.
+	## This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
 	# SHORTSHELL=`echo "$SHELL" | afterlast "/"`
+
+	## for bash, base="bash"
+	## for zsh, base="startj" !
+	# base=${0##*/}
+	# echo "base = >$base<"
 
 	if test $ZSH_NAME; then
 		. zshkeys
@@ -75,16 +82,16 @@ if test ! "$1" = "simple"; then
 
 	### xterm title change
 
-	# Gather hostname and username
+	## Gather hostname and username
 	SHOWHOST=$HOST
-	# Fix 'cos sometimes HOSTNAME is set instead of HOST
+	## Fix 'cos sometimes HOSTNAME is set instead of HOST
 	if test "$SHOWHOST" = ""; then
 		export SHOWHOST=`echo "$HOSTNAME" | beforefirst "\."`
 	fi
 	SHOWHOST="$SHOWHOST:"
 	SHOWUSER="$USER@"
 
-	# Exception: trim for user's "home machine"
+	## Exception: trim for user's "home machine"
 	if test "$SHOWHOST" = "hwi:"; then
 		SHOWHOST=""
 	fi
@@ -95,7 +102,7 @@ if test ! "$1" = "simple"; then
 	export SHOWHOST
 
 	if test "$0" = "bash"; then
-		# For bash, get prompt to send xttitle escseq:
+		## For bash, get prompt to send xttitle escseq:
 		# export TITLEBAR=`xttitle "\u@\h:\w"`
 		export TITLEBAR="\[\033]0;\u@\h:\w\007\]"
 		export PS1="$TITLEBAR$PS1"
@@ -105,20 +112,21 @@ if test ! "$1" = "simple"; then
 			case $SHORTSHELL in
 
 				zsh)
-					# These two should go outside TERM case but only zsh!
+					## These two should go outside TERM case but only zsh!
 					export HISTSIZE=10000
 					export EXTENDED_HISTORY=true
-					# For zsh, use preexec/cmd builtins
+					## For zsh, use preexec/cmd builtins
 					swd () {
-						# Dunno why doesn't work:
+						## Dunno why doesn't work:
 						# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
 						# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
 						# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
 						echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|_/\1|;s|^$HOME|~|"
 					}
 					preexec () {
-						# $* repeats on magenta under zsh :-(
-						export LASTCMD="$*"
+						## $* repeats under zsh4 :-(
+						## $1 before alias expansion, $2 and $3 after
+						export LASTCMD="$1"
 						xttitle "# $LASTCMD [$SHOWUSER$SHOWHOST"`swd`"]"
 					}
 					precmd () {
@@ -127,9 +135,9 @@ if test ! "$1" = "simple"; then
 					}
 				;;
 
-				# For tcsh, use postcmd builtin:
-				# Doesn't actually appear 'cos tcsh can't exec this far!
-				# See .tcshrc for actual postcmd!
+				## For tcsh, use postcmd builtin:
+				## Doesn't actually appear 'cos tcsh can't exec this far!
+				## See .tcshrc for actual postcmd!
 				tcsh)
 					alias postcmd 'xttitle "${USER}@${HOST}:${PWD}%% \!#"'
 				;;
@@ -138,6 +146,7 @@ if test ! "$1" = "simple"; then
 		;;
 	esac
 
-	cd . # to do the initial titling
+	cd . ## to do the initial titling
+	## TODO: do this some other way: if sourced we might not want to change dir
 
 fi

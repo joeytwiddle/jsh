@@ -2,7 +2,7 @@ curseyellow
 echo
 echo "==== UNZIPPING $1 ===="
 echo
-cursegrey
+cursenorm
 
 rm -rf /tmp/demotmp
 mkdir -p /tmp/demotmp
@@ -21,14 +21,14 @@ while read X; do
 	echo
 	echo "==== KILLING WINE ===="
 	echo
-	cursegrey
+	cursenorm
 
 	(
 	curseblue
 		killall wine.bin
 		killall wineserver
 		rm -rf $HOME/.wine/wineserver-*
-	cursegrey
+	cursenorm
 	) > /dev/null
 	# Check it has been killed!
 	# sleep 1
@@ -41,7 +41,7 @@ while read X; do
 	echo
 	echo "==== RUNNING $X ===="
 	echo
-	cursegrey
+	cursenorm
 
 	# To test for gl/non-gl progs:
 	# -dll opengl32=s,n 

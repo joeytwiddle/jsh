@@ -4,7 +4,7 @@ else
 	DCFILE="$HOME/.dircolors"
 fi
 
-NORM=`cursegrey`
+NORM=`cursenorm`
 STARTCURSE=`printf "\033["`
 ENDCURSE=`printf "m"`
 

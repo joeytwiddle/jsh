@@ -50,7 +50,7 @@ echo
 printf "# "
 cursecyan
 printf "Status of files compared to repository:"
-cursegrey
+cursenorm
 printf "\n"
 
 cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
@@ -59,7 +59,7 @@ cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
 	sed "s+[	 ]*Repository revision:[^/]*$PRE\(.*\),v+\1+" |
 	while read X; do
 		read Y;
-		echo "$Y	# "`curseyellow`"$X"`cursegrey`
+		echo "$Y	# "`curseyellow`"$X"`cursenorm`
 		echo "./$Y" >> /dev/stderr
 	done 2> $REPOSLIST |
 	grep -v "Up-to-date" |
@@ -82,7 +82,7 @@ if test $CHECKALL; then
 	printf "# "
 	cursecyan
 	printf "Local directories not in repository:"
-	cursegrey
+	cursenorm
 	printf "\n"
 
 	find . -type d |
@@ -97,7 +97,7 @@ if test $CHECKALL; then
 	printf "# "
 	cursecyan
 	printf "Local files not in repository:"
-	cursegrey
+	cursenorm
 	printf "\n"
 
 	jfcsh $LOCALLIST $REPOSLIST |
@@ -107,7 +107,7 @@ if test $CHECKALL; then
 	printf "# "
 	cursecyan
 	printf "Repository files missing locally:"
-	cursegrey
+	cursenorm
 	printf "\n"
 	jfcsh $REPOSLIST $LOCALLIST |
 		sed "s+^./+cvs $SUGGEST ./+"

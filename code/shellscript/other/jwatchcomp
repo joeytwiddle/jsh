@@ -4,6 +4,6 @@ if ! test "x$OTHER" = "x"; then
   echo
   echo `cursered``cursebold`"<<< DIED:"
   echo "$OTHER"
-  echo ">>>"`cursegrey`
+  echo ">>>"`cursenorm`
   echo
 fi

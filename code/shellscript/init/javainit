@@ -1,52 +1,29 @@
 CLASSPATH=.:$CLASSPATH;
 
 # Java runtime environment:
-  CLASSPATH=$CLASSPATH:/usr/local/java/jre/lib/rt.jar;
+CLASSPATH=$CLASSPATH:/usr/local/java/jre/lib/rt.jar;
 
 # Java runtime environment:
-  CLASSPATH=$CLASSPATH:/usr/lib/j2re1.3/lib/rt.jar;
+CLASSPATH=$CLASSPATH:/usr/lib/j2re1.3/lib/rt.jar;
 
-# Java tools (doclets):
-  # CLASSPATH=$CLASSPATH:/usr/local/jdk1.2.2/lib/tools.jar;
+# Debian:
+CLASSPATH=$CLASSPATH:/usr/share/java/servlet-2.0.jar;
 
-# PostGreSQL:
-
-  # Old Hwi
-  # CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc6.5-1.1.jar;
-  # CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc6.5-1.2.jar;
-  # CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc7.0-1.1.jar;
-  # CLASSPATH=$CLASSPATH:/usr/lib/pgsql/jdbc7.0-1.2.jar;
-
-  # Default Debian - does not work with Blackdown1.3
-  # CLASSPATH=$CLASSPATH:/usr/share/java/postgresql.jar
-
-  # From http://jdbc.postgresql.org/download/
-  # CLASSPATH=$CLASSPATH:/home/joey/jdbc7.0-1.1.jar
-  # CLASSPATH=$CLASSPATH:/home/joey/jdbc7.0-1.2.jar
-
-# Apache JServ:
-  # Redhat:
-  # CLASSPATH=$CLASSPATH:/home/httpd/classes/servlet-2.0.jar;
-  # CLASSPATH=$CLASSPATH:/home/httpd/servlets/;
-
-  # Debian:
-  CLASSPATH=$CLASSPATH:/usr/share/java/servlet-2.0.jar;
-
-  # It is useful to have servlets in . as within jserv
-  CLASSPATH=$CLASSPATH:$JPATH/code/java/servlets/
+# It is useful to have servlets in . as within jserv
+CLASSPATH=$CLASSPATH:$JPATH/code/java/servlets/
 
 # My code (jlib etc.):
-  CLASSPATH=$CLASSPATH:$JPATH/code/java/;
+CLASSPATH=$CLASSPATH:$JPATH/code/java/;
 
 # Java3D:
-  # CLASSPATH=$CLASSPATH:/usr/local/jre1.2.2/jre/lib/ext/j3dutils.jar;
+# CLASSPATH=$CLASSPATH:/usr/local/jre1.2.2/jre/lib/ext/j3dutils.jar;
 
 # Inspector
-  # CLASSPATH=$CLASSPATH:$JPATH/install/lang/java/inspector/;
+# CLASSPATH=$CLASSPATH:$JPATH/install/lang/java/inspector/;
 
 # JBeautifier
-  # CLASSPATH=$CLASSPATH:$JPATH/install/lang/java/jbeautifull/;
-  # export CLASSPATH
+# CLASSPATH=$CLASSPATH:$JPATH/install/lang/java/jbeautifull/;
+# export CLASSPATH
 
 # Now strip all those entries that don't exist!
 if ! startswith `uname` "CYGWIN"; then

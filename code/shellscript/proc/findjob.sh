@@ -14,7 +14,7 @@ fi
 PID=$$
 # echo "-$PID"
 # Highlighting
-# SEDSTR='s+\('"$@"'\)+'`curseyellow`"$@"`cursegrey`'+g'
+# SEDSTR='s+\('"$@"'\)+'`curseyellow`"$@"`cursenorm`'+g'
 # --cols 65535 
 env COLUMNS=65535 myps -A |
 	grep -v "grep" | grep "$@" | grep -v " $PID " | grep -v "findjob" |

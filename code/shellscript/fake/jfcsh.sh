@@ -25,7 +25,7 @@ cat "$2" | sort > "$B"
 test $BOTHWAYS && (
 	cursecyan
 	centralise -pad "v" " " "v" "Lines only in $A"
-	cursegrey
+	cursenorm
 )
 
 diff "$A" "$B" |
@@ -36,8 +36,8 @@ test $BOTHWAYS && (
 	# echo `cursecyan`
 	cursecyan
 	echo "--------------------------------------------------------------------------------"
-	# echo `cursegrey`
-	cursegrey
+	# echo `cursenorm`
+	cursenorm
 
 	diff "$B" "$A" |
 		grep "^< " | sed "s/^< //"
@@ -48,6 +48,6 @@ test $BOTHWAYS && (
 
 	cursecyan
 	centralise -pad "^" " " "^" "Lines only in $B"
-	cursegrey
+	cursenorm
 
 )

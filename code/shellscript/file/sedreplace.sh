@@ -1,5 +1,9 @@
 if test "$3" = ""; then
-	echo "sedreplace [-nobackup] [-changes] <from_string> <to_string> <files>"
+	echo 'sedreplace <options> "search_string" "replace_string" <filename>...'
+	echo "  where <options> ="
+	echo "    -nobackup : do not create backup in <filename>.b4sr"
+	# currently doesn't actually show # of changes
+	echo "    -changes : shows files for which no changes were made."
 	exit 1
 fi
 
@@ -25,14 +29,15 @@ for FILE do
 		echo "sedreplace: $FILE not writeable" >> /dev/stderr
 		break
 	fi
-	cat "$FILE" | sed "s|$FROM|$TO|g" > "$TMPFILE"
-	chmod --reference="$FILE" "$TMPFILE"
 	if test $DOBACKUP; then
 		mv "$FILE" "$FILE.b4sr"
 	fi
-	mv "$TMPFILE" "$FILE" ||
-		echo "sedreplace: error moving \"$TMPFILE\" over \"$FILE\"" >> /dev/stderr
-	if test $SHOWCHANGES && cmp "$FILE" "$FILE.b4sr" > /dev/null; then
-		echo "sedreplace: no changes made to $FILE" >> /dev/stderr
+	cat "$FILE" | sed "s|$FROM|$TO|g" > "$TMPFILE"
+	chmod --reference="$FILE" "$TMPFILE"
+	if cmp "$FILE" "$TMPFILE" > /dev/null; then
+		test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >> /dev/stderr
+	else
+		mv "$TMPFILE" "$FILE" ||
+			echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >> /dev/stderr
 	fi
 done

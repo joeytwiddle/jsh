@@ -13,24 +13,27 @@ NEWDIR="$@"
 # Record where we are for b and f sh tools
 echo "$PWD" >> $HOME/.dirhistory
 
-if test "$NEWDIR" = ""; then
-
-	# I prefer the directory above my home if I have multiple ~ directories.
-	if test `filename "$HOME"` = "$USER"; then
-		"cd" "$HOME"
-	 else
-		"cd" "$HOME/.."
-	fi
-	# "cd"
-
-elif test -d "$NEWDIR"; then
+if test -d "$NEWDIR"; then
 
 	# The user specified a directory, plain and simple.
+
 	'cd' "$NEWDIR"
+
+elif test "$NEWDIR" = ""; then
+
+	# I prefer the directory above my home if I have multiple ~ directories.
+
+	if test `filename "$HOME"` = "$USER"; then
+		'cd' "$HOME"
+	 else
+		'cd' "$HOME/.."
+	fi
+	# 'cd'
 
 elif test `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = "found"; then
 
 	# The user asked for: cd ..... (...)
+
 	cd `echo "$NEWDIR" | sed 's+^\.++;s+\.+../+g'`
 	# Todo: allow user to say: cd foo/..../ba/......./bo
 
@@ -55,7 +58,7 @@ else
 				echo "$X"
 			fi
 		done
-	`
+	` 2> /dev/null
 	# echo ">$NEWLIST<"
 
 	if test "$NEWLIST" = ""; then
@@ -68,11 +71,15 @@ else
 	else
 		# A few possibilities, suggest them to the user.
 		# echo "? $NEWLIST" | tr "\n" " "
-		echo "$NEWLIST" | sed 's+\(.*/\)\(.*\)+\? \1'`cursegreen`'\2/'`cursegrey`'+;s+/+'`cursegreen`'/'`cursegrey`"+g"
+		echo "$NEWLIST" |
+		sed "s+\($NEWDIR\)\(.*\)$+? \1"`cursegreen`"\2"`cursenorm`"+"
+		# sed 's+\(.*/\)\(.*\)+\? \1'`cursegreen`'\2/'`cursenorm`'+' |
+		# sed 's+/+'`cursegreen`'/'`cursenorm`"+g"
 		# echo -n "$NEWLIST" | tr "\n" " "
 		# echo " ?"
 	fi
-fi
+
+fi > /dev/stderr
 
 xttitle "$SHOWUSER$SHOWHOST$PWD %% "
 
