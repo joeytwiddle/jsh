@@ -1,5 +1,11 @@
-# Conclusive proof that bash provides nothing to tell us where this script is when it is called with source.
-# $_ is previous command (the one called before source!)
+### B # l # o # a # t # e # d # ! #
+## Todo: Offer config.global and config.local config files to ease customization and speed up startup
+##       Create ". requiresenv <varname>..." script for checking for existence of neccessary shell environment variables, or exit with error.
+##         As well as making dependent shellscripts safe, it will provide some indication to coders as to what inputs a script takes.
+##       Further development on dependencies: find dependencies on binaries (=> packages) in PATH too, so that checks may be performed to ensure local sys meets the requirements of each shellscript.  Provide a dselect-like subset chooser.  (". requiresscripts <scriptname>...", ". requiresbins <command>...", ". requirespkgs <package>..." ?)
+
+## Conclusive (?) proof that bash provides _nothing_ to tell us where this script is when it is called with source.
+## $_ comes out as previous command (the one called before source!)
 # echo "\$\_ = >$_<"
 # echo "\$\0 = >$0<"
 # env > /tmp/env.out
@@ -22,6 +28,9 @@ if test ! $JPATH; then
 	fi
 fi
 export PATH=$JPATH/tools:$PATH
+
+test -f "$JPATH/global.conf" && source "$JPATH/global.conf"
+test -f "$JPATH/local.conf" && source "$JPATH/local.conf"
 
 ## Setup user bin, libs, man etc...
 export PATH=$HOME/bin:$PATH

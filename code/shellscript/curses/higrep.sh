@@ -4,17 +4,10 @@
 # -E to grep will not be passed to sed, but sed does regex (although there are some differences)
 
 if test "$*" = ""; then
-	echo "higrep [ -c ] <search_expr> [ <grep_options> ] [ <files> ]"
+	echo "higrep <search_expr> [ <grep_options> ] [ <files> ]"
 	echo "  Like normal grep, but highlights the located string (and files if shown)."
 	echo "  Note: highlight uses sed so <search_expr> should be grep and sed compatible."
-	echo "  The -c option provides 2 lines of context before and after the locating pattern."
 	exit 1
-fi
-
-GREPARGS=
-if test "$1" = "-c"; then
-	shift
-	GREPARGS="-B 2 -A 2"
 fi
 
 # The stderr pipe is optional, but grep * always give annoying directory errors

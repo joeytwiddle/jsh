@@ -1,5 +1,9 @@
 #!/bin/sh
 
+## Quick install invocations (no argument passing):
+## wget -O - http://hwi.ath.cx/installj | sh
+## lynx --source http://hwi.ath.cx/installj | sh
+
 ## Default setup
 export JPATH="$HOME/j"
 HWIUSER=anonymous
@@ -11,18 +15,20 @@ do
 		"-in")
 			shift
 			JPATH="$1"
+			## Ensure JPATH is _absolute_
+			if test ! `echo "$JPATH" | sed "s+^/.*$+ yep +"` = " yep "; then
+				JPATH="$PWD/$JPATH"
+			fi
 		;;
 		"-devel")
 			shift
 			HWIUSER="$1"
+			echo "Note: if the machine you are installing on is not trusted, you should not enter you password here, but instead login to hwi using a trusted connection, cvs login there, and copy your .cvspass from hwi to this box."
 		;;
 		*)
 			echo "$0 [ -in <directory> ] [ -devel <hwiusername> ]"
 			echo "  Default is:"
 			echo "    $0 \"\$HOME/j\" \"anonymous\""
-			echo "  Possible invocations:"
-			echo "    wget -O - http://hwi.ath.cx/installj | sh"
-			echo "    lynx --source http://hwi.ath.cx/installj | sh"
 			exit 1
 		;;
 	esac
@@ -70,6 +76,7 @@ cvs checkout home | grep -v "^U "
 cd ..
 echo "Done downloading."
 echo
+cd .. ## Important to return to orig position because JPATH provided may be relative to user's original PWD
 
 ## Set up environment
 echo "Linking shellscripts into $JPATH/tools (may take a while)"
@@ -78,16 +85,16 @@ echo "Linking shellscripts into $JPATH/tools (may take a while)"
 ## Finally, link the handy startup file
 STARTFILE="$JPATH"/startj
 ln -s "$JPATH"/tools/startj-hwi "$STARTFILE"
-ln -s "$JPATH"/tools/startj-simple "$STARTFILE"-simple
+ln -s "$JPATH"/tools/startj-simple "$JPATH"
+ln -s "$JPATH"/tools/jsh "$JPATH"
 
 echo "Done installing."
 echo
 
-echo "You may now put the following line in your ~/.<preferredshell>rc:"
+echo "To always start the environment, you should put the following lines in your ~/.<preferredshell>rc:"
+echo "  export JPATH=\"$JPATH\"   ## this line is optional for zsh or if JPATH=$HOME/j"
 echo "  source \"$STARTFILE\""
-echo "or just run it by hand to try out the environment."
-echo "If that doesn't work, try this beforehand:"
-echo "  export JPATH=\"$JPATH\""
+echo "or you can just run $JPATH/jsh by hand."
 echo "(You may also want to run linkhome to use my .rc files)"
 echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, memo, findduplicatefiles, undelext2, b, et)"
 echo

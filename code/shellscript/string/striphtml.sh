@@ -1,3 +1,9 @@
+# P_L not working!!
+PRESERVE_LINKS=
+if test "$1" = "-keeplinks"; then
+	PRESERVE_LINKS="[^Aa]";
+fi
+
 sed 's+&quot;+"+g' |
 sed 's+^[	 ]*++' |
 tr "\n" " " |
@@ -5,8 +11,12 @@ tr "\n" " " |
 # sed 's+<!--.*-->++g' |
 sed 's+<\(BR\|br\)[^>]*>+\
 +g' |
-sed 's+<\(A\|a\)[^>]*>+'`curseblue;cursebold`'+g' |
-sed 's+</\(A\|a\)[^>]*>+'`cursenorm`'+g' |
+
+test "$PRESERVE_LINKS" || (
+	sed 's+<\(A\|a\)[^>]*>+'`curseblue;cursebold`'+g' |
+	sed 's+</\(A\|a\)[^>]*>+'`cursenorm`'+g'
+) |
+
 sed 's+<\(H\|h\).[^>]*>+\
 +g' |
 sed 's+</\(H\|h\).[^>]*>+\
@@ -18,7 +28,9 @@ sed 's+<\(p\|P\)[^>]*>+\
 sed 's+</\(BLOCKQUOTE\|blockquote\)[^>]*>+\
 \
 +g' |
-sed 's+<[^>]*>++g' |
+
+sed "s+<$PRESERVE_LINKS[^>]*>++g" |
+
 sed '
 	s+&gt;+>+g
 	s+&lt;+<+g
