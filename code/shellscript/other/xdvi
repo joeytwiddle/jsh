@@ -1,7 +1,7 @@
-if test ! -f "$1"; then
-	echo "$1 does not exist!"
-	exit 1
-fi
+# if test ! -f "$1"; then
+	# echo "$1 does not exist!"
+	# exit 1
+# fi
 
 XDVI=`jwhich xdvi`
 XDVIVERINFO=`$XDVI -version | head -1 | after "version "`
@@ -21,4 +21,4 @@ else
   COM="$XDVI -nopostscript -bg white -fg black"
 fi
 
-$COM "$1" &
+$COM "$@" &

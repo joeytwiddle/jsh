@@ -51,3 +51,6 @@ test $BOTHWAYS && (
 	cursenorm
 
 )
+
+jdeltmp $A
+jdeltmp $B

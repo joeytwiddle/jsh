@@ -9,6 +9,8 @@ if test "$1" = ""; then
 	echo "  Therefore in each case below only one email will remain in your mailboxes:"
 	echo "    a mail you sent to a list, received from the list, and CCed to yourself"
 	echo "    a mail sent to two of your lists (one will get removed!)"
+	echo "  (Warning: message IDs (cksums) are not guaranteed to be unique, so if"
+	echo "   you are really unlucky it is possible that this will delete non-duplicates!)"
 	exit 0
 fi
 
@@ -30,25 +32,18 @@ do
 	if test ! -f "$X"; then
 		echo "removeduplicatemails: \"$X\" does not exist!"
 	else
-		mv "$X" "$X-old"
-		formail -D 10000000 "$CACHEFILE" -s < "$X-old" > "$X"
-		OLDSZ=`ls -l "$X-old" | takecols 5`
+
+		OLDSZ=`ls -l "$X" | takecols 5`
+
+		formail -D 10000000 "$CACHEFILE" -s < "$X" > "$X-new" &&
+		mv "$X-new" "$X" ||
+		echo "removeduplicatemails: Error processing $X"
+
 		SZ=`ls -l "$X" | takecols 5`
-		test ! "$OLDSZ" = "0" &&
-		COMPRESSION=` expr "(" "$OLDSZ" - "$SZ" ")" "*" "100" "/" "$OLDSZ" ` ||
-		COMPRESSION="0"
+		test "$OLDSZ" = "0" && COMPRESSION="0" ||
+		COMPRESSION=` expr "(" "$OLDSZ" - "$SZ" ")" "*" "100" "/" "$OLDSZ" `
 		echo "Shrunk by $COMPRESSION%: $X (from $OLDSZ to $SZ)"
-		if test ! "$COMPRESSION" = 0 && ! cmp "$X" "$X-old" > /dev/null 2>&1 ; then
-			REFRESH="$X".*
-			if test ! "$REFRESH" = "$X.*"; then
-				del "$X.ibex" "$X.ev-summary" > /dev/null 2>&1
-				REFRESH="$X".*
-				if test ! "$REFRESH" = "$X"; then
-					echo "You probably need to delete index (generated) files: " "$X".*
-				fi
-			fi
-		elif test "$COMPRESSION" = 0 && cmp "$X" "$X-old" > /dev/null 2>&1 ; then
-			rm -f "$X-old"
-		fi
+		# echo "You should delete" mbox.* 2> /dev/null
+
 	fi
 done

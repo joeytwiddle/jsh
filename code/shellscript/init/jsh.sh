@@ -9,7 +9,7 @@
 ## Shit my collection of shellscripts (and the method of using them) really
 ## needs a proper name.  What about JSE (joey's shell environment)?  Nah that's naff!
 ## Or nash: not actually a shell
-## exsh?  shext?  jshl?
+## exsh?  shext?  jshl?  nsh (neuralyte)?
 
 ## TODO:
 ## we ignores user's ~/.bashrc
@@ -30,6 +30,14 @@ if test ! "$*" = ""; then
 else
 
 	## Interactive shell: start user's favourite sh with startj as rc file.
-	bash --rcfile $JPATH/startj
+	## Just added -c "$@".  Does it work?!
+	# bash --rcfile $JPATH/startj -c "$@"
+	## Oh dear, bash does not appear to be able to read an extra rc file without
+	## ignoring the default.  I'd like to read both before starting an interactive shell!
+	# non-interactive:
+	# export BASH_ENV=$JPATH/startj
+	# echo "$BASH_ENV"
+	bash
+	# bash -c "$@"
 
 fi

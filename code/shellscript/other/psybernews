@@ -11,4 +11,5 @@
 # 
 # slrn --nntp -h psybertech.hn.org -f $NEWSRCFILE $ARGS
 
-slrn --nntp -h localhost
+# slrn --nntp -h localhost
+tin -g localhost

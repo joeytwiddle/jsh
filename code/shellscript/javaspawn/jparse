@@ -1,2 +1,4 @@
 # java -cp "$CLASSPATH:$JPATH/code/java/tools/parser/" Parser "$@"
-java tools.parser.Parser "$@"
+# java tools.parser.Parser "$@"
+# java -Xdebug -Xrunjdwp:transport=dt_socket,address=8123,server=y,suspend=n tools.parser.Parser "$@"
+ledit jdb tools.parser.Parser "$@"

@@ -2,7 +2,7 @@ echo "Note: these may be hard links,"
 echo "or possibly (to check) symlinks, so don't delete the target!"
 echo
 
-if test "$1" = "--help"; then
+if test "$1" = "--help" || test "$1" = "-h"; then
 	echo "findduplicatefiles [ -size ] [ -samename ]"
 	echo "  -size     : use file size instead of checksum (faster)."
 	echo "  -samename : expect identical filenames (faster)."
@@ -13,10 +13,10 @@ HASH="cksum"
 if test "$1" = "-size"; then
 	shift
 	HASH="filesize -likecksum"
-	echo "Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done" >> /dev/stderr
+	echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done' >> /dev/stderr
 fi
 
-if "$1" = "-samename"; then
+if test "$1" = "-samename"; then
 
 	shift
 

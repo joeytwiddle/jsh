@@ -96,5 +96,5 @@ echo "  export JPATH=\"$JPATH\"   ## this line is optional for zsh or if JPATH=$
 echo "  source \"$STARTFILE\""
 echo "or you can just run $JPATH/jsh by hand."
 echo "(You may also want to run linkhome to use my .rc files)"
-echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, memo, findduplicatefiles, undelext2, b, et)"
+echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, memo, onchange, findduplicatefiles, undelext2, b, et)"
 echo

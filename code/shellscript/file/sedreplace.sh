@@ -29,7 +29,7 @@ for FILE do
 		echo "sedreplace: $FILE not writeable" >> /dev/stderr
 		break
 	fi
-	cat "$FILE" | sed "s|$FROM|$TO|g" > "$TMPFILE"
+	cat "$FILE" | sed "s$FROM$TOg" > "$TMPFILE"
 	chmod --reference="$FILE" "$TMPFILE"
 	if cmp "$FILE" "$TMPFILE" > /dev/null; then
 		test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >> /dev/stderr

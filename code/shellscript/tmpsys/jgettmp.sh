@@ -17,11 +17,13 @@ fi
 
 # If already exists, choose a larger ver number!
 X=0;
-while test -f "$TOPTMP/$ARGS.$X.tmp"; do
+TMPFILE="$TOPTMP/$ARGS.tmp"
+while test -f "$TMPFILE"; do
   # X=$(($X+1));
   X=`expr "$X" + 1`;
+  TMPFILE="$TOPTMP/$ARGS.$X.tmp"
 done
 
-touch "$TOPTMP/$ARGS.$X.tmp"
-chmod go-rwx "$TOPTMP/$ARGS.$X.tmp"
-echo "$TOPTMP/$ARGS.$X.tmp"
+touch "$TMPFILE" &&
+chmod go-rwx "$TMPFILE" || exit 1
+echo "$TMPFILE"

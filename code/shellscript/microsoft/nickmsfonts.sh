@@ -1,3 +1,6 @@
+## BBLUG suggests:
+## Make static fonts with ttfmkdir OR serve fonts with xfstt
+
 rm -rf /tmp/nickmsfonts
 mkdir -p /tmp/nickmsfonts
 cd /tmp/nickmsfonts

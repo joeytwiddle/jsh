@@ -3,3 +3,22 @@ for x in `mykillps "$@" | takecols 1`; do
   echo $x
   $KILLCOM $x
 done
+
+# export S1="$PPID"
+# export S2="$$"
+# echo "=$S1="
+# echo "=$S2="
+# KILLCOM="kill -KILL"
+# mykillps "$@" | takecols 1 | 
+# while read x
+# do
+	# echo "=$$="
+	# test "$x" = "$S2" ||
+	# test "$x" = "$S1" ||
+	# test "$x" = "$$" ||
+	# (
+		# echo ">$x<"
+		# findjob "$x"
+		# $KILLCOM $x
+	# )
+# done

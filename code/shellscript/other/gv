@@ -1,2 +1,5 @@
 LOCALgv=`jwhich gv 2>/dev/null`
-runoneof "ghostview $LOCALgv" "$@" &
+for X
+do
+runoneof "ghostview $LOCALgv" "$X" &
+done
