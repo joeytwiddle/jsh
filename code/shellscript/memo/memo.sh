@@ -1,5 +1,9 @@
 MEMODIR="$JPATH/data/memo"
 
+## TODO:
+## - Allow user to specify timeout after which rememo occurs
+## - Allow user to specify quick command which returns non-0 if rememo needed
+
 if test "$1" = "-info"; then
 	MEMO_SHOW_INFO=true
 	shift
@@ -21,10 +25,10 @@ CKSUM=`echo "$*" | md5sum`
 NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(................................................................................\).*+\1+'`
 FILE="$MEMODIR/$NICECOM.memo"
 
-if test -f "$FILE"; then
-  cat "$FILE"
-else
-  rememo "$@"
+## (MEMOING and REMEMO vars should be combined)
+if test -f "$FILE" && test ! "$REMEMO" && test ! "$MEMOING" = "off"
+then cat "$FILE"
+else rememo "$@"
 fi
 
 if test "$MEMO_SHOW_INFO"; then
@@ -35,7 +39,8 @@ if test "$MEMO_SHOW_INFO"; then
 		cursecyan
 		# echo "as of "`date -r "$FILE"`
 		echo "$@"
-		echo "as of "`datediff "$FILE" "$TMPF"`" ago."
+		TIMEAGO=`datediff -files "$FILE" "$TMPF"`
+		echo "as of $TIMEAGO ago."
 		cursenorm
 	) >&2
 	jdeltmp "$TMPF"

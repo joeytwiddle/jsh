@@ -1,16 +1,34 @@
 ## Calls my Haskell version
 ## eg. find /var/lib/apt/lists/ | sort | tree
 
-# runhugs $JPATH/code/haskell/tools/treelist.hs "$@"
+if test "$1" = "-java"
+then TREEJAVA=true; shift
+fi
+
 TMPFILE=`jgettmp tree`
 cat "$@" > $TMPFILE
-# $JPATH/code/haskell/tools/treelist.hs $TMPFILE |
-$JPATH/code/haskell/tools/treelist $TMPFILE |
-vi - -R +":so ~/.vim/joey/joeyfolding.vim"
+
+if test "$TREEJAVA"
+then
+
+	java tools.tree.Tree "$TMPFILE"
+
+else
+
+	# runhugs $JPATH/code/haskell/tools/treelist.hs "$@"
+	## Hugs interpreter is not efficient:
+	# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
+	## Compiled with ghc =)
+	$JPATH/code/haskell/tools/treelist $TMPFILE
+
+fi |
+
+vi - -R +":so ~/.vim/joey/joeyfolding.vim" $VIMOPTS
+
 jdeltmp $TMPFILE
 
-################# OLD STUFF (is it worth anything or should it be chucked?)
-exit 0
+################# OLD STUFF (shellscript attempt - is it worth anything or should it be chucked?)
+exit
 #################
 
 filetodiff () {

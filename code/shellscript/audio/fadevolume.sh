@@ -17,7 +17,8 @@ while test ! $DONE; do
   fi
 done
 
-xmms -t &
-sleep 3
+# killall mpg123; mykill "music"; killall mp3blaster
+# xmms -t &
+# sleep 3
 ## Doesn't work with music(2|)
 # aumix -v 50

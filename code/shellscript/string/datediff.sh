@@ -1,13 +1,20 @@
 if test "$2" = ""; then
-	echo "datediff <earlierfile> <laterfile>"
+	echo "datediff <earlierdate> <laterdate>"
+	echo "           expressed in seconds since 1970"
+	echo "datediff -files <earlierfile> <laterfile>"
+	echo "TODO: option for format yyyymmddhhmmss"
 	exit 1
 fi
 
-# date -r "$1"
-# date -r "$2"
-
-DATEA=`date -r "$1" "+%s"`
-DATEB=`date -r "$2" "+%s"`
+if test "$1" = "-files"
+then
+	shift
+	DATEA=`date -r "$1" "+%s"`
+	DATEB=`date -r "$2" "+%s"`
+else
+	DATEA="$1"
+	DATEB="$2"
+fi
 
 DATEDIFF=`expr "$DATEB" - "$DATEA"`
 
@@ -64,10 +71,11 @@ if test $STARTED || test "$MINS" -gt 0; then
 	if test "$MINS" -gt 1; then
 		printf "s"
 	fi
-	printf ", "
+	printf " and "
 	STARTED=true
 fi
 printf "$SECS second"
 if test "$SECS" -gt 1; then
 	printf "s"
 fi
+echo

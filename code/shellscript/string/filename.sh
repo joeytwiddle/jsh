@@ -1,4 +1,9 @@
+basename "$1"
+exit
+
+## Deprecated until needed (and fixed $1="" ... :-/ )
 ## Oops maybe I could just use basename "$1" !
+## Indeed, filename "" is locking!
 if test "x$1" = "x"; then
   afterlast "/"
 else

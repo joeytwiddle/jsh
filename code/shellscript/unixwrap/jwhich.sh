@@ -39,5 +39,6 @@ for dir in $PATHS; do
   fi
 done
 
-test ! $QUIETLY && echo "jwhich_error_could_not_find_$FILE"
-exit 1          # Not found  :(
+## I think these are for DEBUG only:
+# test ! $QUIETLY && echo "jwhich_error_could_not_find_$FILE"
+# exit 1          # Not found  :(
