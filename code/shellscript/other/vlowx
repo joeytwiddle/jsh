@@ -1,4 +1,0 @@
-newback
-cp /etc/X11/LowResConfig /etc/X11/XF86Config
-# startx
-xinit $JPATH/tools/kde.xinit
