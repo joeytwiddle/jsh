@@ -19,23 +19,37 @@ CKSUMCOM='while read X; do cksum "$X"; done'
 
 REMOTECOM='find "'"$RDIR"'" '"$FINDOPTS"' | '"$CKSUMCOM"
 
+# Diff works badly if not sorted
+preparefordiff () {
+	sort -k 3 "$TMPONE" > "$TMPONE.sorted"
+	sort -k 3 "$TMPTWO" > "$TMPTWO.sorted"
+	TMPONE="$TMPONE.sorted"
+	TMPTWO="$TMPTWO.sorted";
+}
+
 ssh -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO"
 
 find "$LOCAL" $FINDOPTS | sh -c "$CKSUMCOM" > "$TMPONE"
 
-# Try to use jfc if available
-if jfc -h > /dev/null; then
+# Try to use (g)vimdiff or jfc if available
+if which gvimdiff > /dev/null; then
+	DIFFCOM=gvimdiff
+	preparefordiff
+elif which vimdiff > /dev/null; then
+	DIFFCOM=vimdiff
+	preparefordiff
+elif which jfc > /dev/null; then
 	DIFFCOM=jfc
-else
+elif which diff > /dev/null; then
 	DIFFCOM=diff
-	# Diff works badly if not sorted
-	sort "$TMPONE" > "$TMPONE.sorted"
-	sort "$TMPTWO" > "$TMPTWO.sorted"
-	TMPONE="$TMPONE.sorted"
-	TMPTWO="$TMPTWO.sorted"
+	preparefordiff
+else
+	echo "Couldn't find vimdiff, jfc or diff!"
+	echo "Files are in $TMPONE and $TMPTWO."
+	exit 1
 fi
 
 # Removing cksum columns for the different diff-ers:
-# ( jfc "$TMPONE" "$TMPTWO" | ( takecols 3 || cat ) ) || ( diff "$TMPONE" "$TMPTWO" | ( takecols 1 4 || cat ) )
+# ( jfc "$TMPONE" "$TMPTWO" | ( takecols 5 || cat ) ) || ( diff "$TMPONE" "$TMPTWO" | ( takecols 1 4 || cat ) )
 
 "$DIFFCOM" "$TMPONE" "$TMPTWO"
