@@ -1,5 +1,8 @@
 # This is pretty nice (although it gets itself sometimes :-/ )
 
+## BUGS: myps --forest somes does not show all the processes that myps does!
+##       Not true!  The problem was COLUMNS was too low and forest pushes the process off the side of the screen into oblivion!
+
 if test "$1" = ""; then
 	echo "findjob [-tree] <cmd/arg_search_string>"
 	exit 1
@@ -9,7 +12,7 @@ if test "$1" = "-tree"; then
 	shift
 	# pstree -ap | grep -v "\-gvim(" | gvim -R - -c "/$@"
 	# bigwin 'pstree -ap | grep -v "\-vi(" | vi -R - -c '"/$@"
-	bigwin 'myps -A --forest | grep -v "vim -R - -c" | vim -R - -c '"/$@"
+	bigwin 'env COLUMNS=65535 myps -A --forest | grep -v "vim -R - -c" | vim -R - -c '"/$@"
 fi
 
 PID=$$
