@@ -4,8 +4,6 @@
 # ( env DISPLAY= xplanet -output $JPATH/background.jpg -projection orthographic -body Earth -blend -geometry 1024x768 &&
 #   xv -root -rmode 5 -maxpect -quit $JPATH/background.jpg )
 
-cd $HOME/.jxplanetimgs
-
 # Local images for the planet
 FAVEARTHIMG="/usr/share/celestia/textures/earth.jpg"
 XPID="/usr/share/xplanet/images/"
@@ -13,6 +11,9 @@ XPID="/usr/share/xplanet/images/"
 # The cloud image to get from the web
 CLIMG="clouds_2000.jpg"
 MAPGEOM="2000x1000"
+
+mkdir -p "$HOME/.jxplanetimgs"
+cd "$HOME/.jxplanetimgs"
 
 case "$1" in
 
@@ -41,7 +42,7 @@ case "$1" in
 		JXPGEOM="1280x1024"
 		fi
 
-		ALLARGS="-label -fuzz 20 $@ -image day-clouds.jpg -night_image night-clouds.jpg -projection orthographic -blend -geometry $JXPGEOM -radius 45"
+		ALLARGS="-label -fuzz 20 -image day-clouds.jpg -night_image night-clouds.jpg -projection orthographic -blend -geometry $JXPGEOM -radius 45"
 
 		nice -n 2 env DISPLAY= xplanet -dayside $ALLARGS -output $JPATH/background1.jpg
 		xv -root -rmode 5 -maxpect -quit $JPATH/background1.jpg
@@ -60,8 +61,14 @@ case "$1" in
 			echo "Error: no output icon file specified."
 			exit 1
 		fi
-		# xplanet -background trans.png -projection orthographic -moonside -geometry 64x64 -output "$ICONFILE"
-		xplanet -projection orthographic -moonside -geometry 64x64 -output "$ICONFILE"
+		# xplanet -projection orthographic -moonside -geometry 64x64 -output "$ICONFILE"
+		# To make transparent, we use magenta, and gif/ppms's to retain bytes.
+		export DISPLAY="" # to get xplanet to ignore display colormodel.
+		ALLARGS="-fuzz 20 -image day-clouds.jpg -night_image night-clouds.jpg -blend -radius 45"
+		xplanet -background magenta.ppm -projection orthographic -dayside $ALLARGS -geometry 118x118 -output tmp.ppm
+		# convert tmp.ppm -mattecolor "#ff00ff" -frame 10x10+0+0 tmp2.ppm
+		convert tmp.ppm -transparency "#ff00ff" "$ICONFILE"
+		# Gnome didn't like the ppms (neither did display!) so I ended up writing to a gif.
 
 	;;
 

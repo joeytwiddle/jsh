@@ -5,11 +5,10 @@
 
 # The stderr pipe is optional, but grep * always give annoying directory errors
 grep "$@" 2>/dev/null |
-  # sed "s|^|"`cursecyan``cursebold`"|;s|:|"`cursegrey`":$TABCHAR|" |
-  sed "s|^|"`cursecyan`"|;s|:|"`cursegrey`":$TABCHAR|" |
-  # sed "s#$1#$CURSEON$1$CURSEOFF#g"
-  highlight "$1"
-# Not using highlight whilst developing clever color, but color code should go there
-
-# drop 1 "$CNT" > "$CNT.tmp"
-# mv "$CNT.tmp" "$CNT"
+	# This if is meant to render cyan up to ':' only if searching multiple files, but does not count for -c mode etc.
+	if test `countargs "$@"` -gt 1; then
+		sed "s|^|"`cursecyan`"|;s|:|"`cursegrey`":$TABCHAR|"
+	else
+		cat
+	fi |
+	highlight "$1"

@@ -10,6 +10,17 @@
 echo "# Try cvsdiff .* * to see which local files do not exist in repository."
 echo "# Sorry subdirs' files don't work 'cos status loses path."
 
+cvs -q status | egrep "(^File:|Repository revision:)" |
+	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
+	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
+	sed "s+[	 ]*Repository revision:[^/]*\(.*\)+\1+" |
+	while read X; do read Y; echo "$Y:$X"; done |
+	grep -v "Up-to-date"
+
+exit 0
+
+# Not bad but slow
+
 MAXDEPTH="-maxdepth 1"
 if test "$1" = "-r"; then
 	MAXDEPTH=""

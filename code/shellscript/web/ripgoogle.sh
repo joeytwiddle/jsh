@@ -10,12 +10,16 @@ cd $HOME/.ripgoogle
 wget -N www.google.com
 
 HREF=`cat index.html |
-                grep "img src=" | head -1 |
+				grep "img src=" | head -1 |
 				grep "href=" |
 				afterfirst "href=" |
 				between '\"' |
 				head -n 1`
 HREF=`tourl "$HREF" "www.google.com"`
+if test ! "$?" = 0; then
+	echo "Failed to find link from main image."
+	HREF=""
+fi
 echo "Got href=>$HREF<"
 
 # IMG="original.gif"
@@ -25,7 +29,7 @@ IMG=`cat index.html |
 			afterfirst img | afterfirst src= | beforefirst " " |
 			tr -d '"'`
 echo "Getting image >$IMG<"
-wget "http://www.google.com/$IMG"
+wget -N "http://www.google.com/$IMG"
 IMGFILE=`echo $IMG | after /`
 echo "Got image=>$IMGFILE<"
 convert $IMGFILE -geometry 60 -quality 100 $DESTIMGFILE

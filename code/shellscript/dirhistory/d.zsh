@@ -29,6 +29,7 @@ else
 	LOOKIN=`dirname "$NEWDIR"`
 	LOOKFOR=`filename "$NEWDIR"`
 	NEWLIST=`
+		# maxdepth does not work for Unix find!
 		find "$LOOKIN" -maxdepth 1 -name "$LOOKFOR*" |
 		while read X; do
 			if test -d "$X"; then
@@ -49,7 +50,7 @@ else
 	# A few possibilities, suggest them to the user.
 	else
 		# echo "? $NEWLIST" | tr "\n" " "
-		echo "$NEWLIST" | sed "s+^+\? +"
+		echo "$NEWLIST" | sed 's+\(.*/\)\(.*\)+\? \1'`cursegreen`'\2/'`cursegrey`'+;s+/+'`cursegreen`'/'`cursegrey`"+g"
 		# echo -n "$NEWLIST" | tr "\n" " "
 		# echo " ?"
 	fi
