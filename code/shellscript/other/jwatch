@@ -22,7 +22,7 @@ while [ true ]; do
 
 	$JWATCHCOMPCOM $NEW $OLD
 
-	sleep 1
+	sleep 5
 
 	`breakonctrlc`
 

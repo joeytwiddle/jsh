@@ -32,3 +32,5 @@ if test ! "$MBSCHANGED" = ""; then
 		# sed 's+^+rm \"+;s=$=\"='
 	done
 fi
+
+jdeltmp $TMPFILE

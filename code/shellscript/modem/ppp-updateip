@@ -5,8 +5,7 @@
 
 # no-ip.org update (for a domain probably better left unmentioned!):
 /root/noip_updater_v1.6/noip -c /root/noip_updater_v1.6/no-ip.conf
-
-# wtf is this doing here?  well i've changed it from 180 to 10m
+# since it likes to detach, and daemon itself, I kill it =)
 ( sleep 10m ; killall noip ) &
 
 # # dhs.org for hwi.dyn.dhs.org:
