@@ -1,13 +1,19 @@
+# Note: other aliases are initialised in dirhistorysetup
+
+if test -x "$JPATH/tools/mygrep"; then
+	alias grep='mygrep'
+fi
+
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'
 	alias ls="ls -atrF$XARGS"
 elif test $JM_DOES_COLOUR; then
-	alias ls="fakels"
+	alias ls='fakels'
 else
-	alias ls="ls -atrF"
+	alias ls='ls -atrF'
 fi
 
-alias l="ls -l"
-alias dl="ls -ld"
+alias l='ls -l'
+alias dl='ls -ld'
 
 alias hist='history -100 | grep'
