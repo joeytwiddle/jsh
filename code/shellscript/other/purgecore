@@ -1,4 +1,4 @@
-rm `locate core | grep "/core$"`
+rm `locate --existing core | grep "/core$" | grep -v "/dev/core$"`
 
 # locate core | grep "/core$" > ~/purge.tmp
 # forall -shell in ~/purge.tmp do "/bin/rm" %w

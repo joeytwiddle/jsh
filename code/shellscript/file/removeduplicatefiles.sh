@@ -1,19 +1,19 @@
-echo "# Dangers:"
-echo "# Are you sure the files you are comparing aren't symlinks to themselves?!"
-echo "# To execute once satisfied use | sh , not \`...\`"
-echo "#"
-
 OTHERDIR="$1"
 if test "x$OTHERDIR" = "x"; then
-  echo "removeduplicatefiles <other-dir>"
+  echo "# Syntax: removeduplicatefiles [-doit] <other-dir>"
   exit 1
+fi
+DOIT=false
+if test "$OTHERDIR" = "-doit"; then
+  DOIT=true
+  OTHERDIR="$2"
 fi
 # WHAT="$2"
 # if test "x$WHAT" = "x"; then
 #   WHAT="*";
 # fi
 
-find . | while read X; do
+find . -type f | while read X; do
 # for X in $WHAT; do
   CMPRES=`cmp "$X" "$OTHERDIR/$X" 2>&1`
   CMPERR="$?"
@@ -21,7 +21,11 @@ find . | while read X; do
     if test "$CMPERR" = "0"; then
       # For the chop!
       if cmp "$X" "$OTHERDIR/$X" 2>&1; then
-        echo "del \"$X\"   # err=$CMPERR output=$CMPRES"
+        if test "$DOIT" = "false"; then
+          echo "del \"$X\"" # "    # err=$CMPERR output=$CMPRES"
+        else
+          del "$X"
+        fi
       else
         echo "*** ERROR:  $X : failed on if cmp"
       fi
@@ -37,3 +41,9 @@ find . | while read X; do
     fi
   fi
 done
+
+echo "#"
+echo "# Dangers:"
+echo "# Are you sure the files you are comparing aren't symlinks to themselves?!"
+echo "# To execute once satisfied use | sh , not \`...\`"
+echo "# (or use -doit, which I implemented after neglecting to read this message!)"

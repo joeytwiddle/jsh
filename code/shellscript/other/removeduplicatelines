@@ -1,12 +1,13 @@
 # Doesn't work
 
-LINESIN=`cat $* | awk ' { printf("\""$_"\"\n"); } '`
+# LINESIN=`cat $* | awk ' { printf("\""$_"\"\n"); } '`
+LINESIN=`cat "$@"`
 echo "$LINESIN"
-exit 1
+# exit 1
 LINES=""
-for LINE in $LINESIN; do
-  for X in $LINES; do
-    echo 'Comparing "'$LINE'" "'$X'"'
+echo "$LINESIN" | while read LINE; do
+  echo "$LINES" | while read X; do
+    # echo 'Comparing "'$LINE'" "'$X'"'
     GOT=""
     if [ "$LINE" = "$X" ]; then
       GOT="true"
@@ -18,7 +19,7 @@ for LINE in $LINESIN; do
 "
     # echo "Adding $LINE"
   else
-    echo "Already got $LINE"
+    # echo "Already got $LINE"
   fi
 done
 echo "$LINES"

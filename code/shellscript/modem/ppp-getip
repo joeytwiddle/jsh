@@ -1,2 +1,2 @@
-IP=`/sbin/ifconfig | grep inet | head -2 | tail -1 | afterfirst : | takecols 1 | tr -d " "`
+IP=`/sbin/ifconfig | grep P-t-P | afterfirst : | takecols 1 | tr -d " "`
 echo "$IP"

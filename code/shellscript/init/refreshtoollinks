@@ -31,7 +31,11 @@ for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
 		echo
 		echo "Error duplicates: $A $B"
 		echo
-		$JPATH/bin/jfc "$A" "$B"
+		if cmp "$A" "$B"; then
+			echo "Identical."
+		else
+			$JPATH/bin/jfc "$A" "$B"
+		fi
 		echo
 		echo "Will you?"
 		echo "del \"$A\""

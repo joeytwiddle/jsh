@@ -41,13 +41,28 @@ bindkey "^p" vi-put-after
 # It's purely left-handed and positioned to avoid the reserved keys qeaszc.
 # Oops d is reserved and I use it, but it works OK on Hwi.
 # Movement in big jumps
-bindkey "^d" vi-backward-word
-bindkey "^f" vi-forward-word
+bindkey "^d" backward-word
+bindkey "^f" forward-word
+# bindkey "^d" vi-backward-word
+# bindkey "^f" vi-forward-word
 # Deletion in small chunks
 bindkey "^x" vi-backward-kill-word
-# bindkey "^v" kill-word # no vi-kill-forward! (or was I spelling forword?!)
+# bindkey "^v" kill-word # no vi-kill-forward!
+# approximation
 bindkey -s "^v" "^f^x"
-# bindkey -s "^v" "^f^x"
-# bindkey "^v" "kill-word" # too large
+# no good:
+# bindkey -s "^v" "^f^x ^[[D"
+
+# Alternative funky attempt, not diagonalised
+bindkey "^d" vi-backward-word
+bindkey "^f" forward-word
+bindkey "^x" vi-backward-kill-word
+bindkey "^v" kill-word
+
+# Alternative funky attempt, diagonalised as it were
+bindkey "^d" backward-word
+bindkey "^f" vi-forward-word
+bindkey "^x" vi-backward-kill-word
+bindkey "^v" kill-word
 
 bindkey "^u" vi-undo-change

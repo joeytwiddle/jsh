@@ -23,7 +23,11 @@ fi
 	# echo "x=$x"
 	# N=$[$N+1];
 
-for x in $*; do
+# for x in $*; do
+
+while test $1; do
+	x="$1"
+	shift
 
   # if ! there $x ]; then
   if test ! -e $x; then
@@ -54,7 +58,7 @@ for x in $*; do
     if test ! -d "$DEST"; then
       echo "del: problem creating destination directory $DEST"
       echo "del: $x not moved to trash"
-      exit 1
+      # exit 1
     else
 
       # Work out destination filename

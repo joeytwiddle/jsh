@@ -6,19 +6,28 @@ mkdir -p $HOME/.ripgoogle
 cd $HOME/.ripgoogle
 # Loses original.gif: 'rm' -rf *
 
-wget www.google.com
+# rm -f index.html
+wget -N www.google.com
 
-HREF=`cat index.html | afterfirst "href=" | beforefirst ">" | between '\"' | head -n 1`
+HREF=`cat index.html |
+                grep "img=" | head -1 |
+				grep "href=" |
+				afterfirst "href=" |
+				between '\"' |
+				head -n 1`
 HREF=`tourl "$HREF" "www.google.com"`
 echo "Got href=>$HREF<"
 
-# IMG=`cat index.html | afterfirst 'img' | afterfirst 'src=' | tr "\n" " " | sed "s/\ .*//g"`
-# echo "Getting image >$IMG<"
-# wget "http://www.google.com/$IMG"
-# IMGFILE=`echo $IMG | after /`
-# echo "Got image=>$IMGFILE<"
-IMG="original.gif"
-IMGFILE="original.gif"
+# IMG="original.gif"
+# IMGFILE="original.gif"
+IMG=`cat index.html |
+			grep img | head -1 |
+			afterfirst img | afterfirst src= | beforefirst " " |
+			tr -d '"'`
+echo "Getting image >$IMG<"
+wget "http://www.google.com/$IMG"
+IMGFILE=`echo $IMG | after /`
+echo "Got image=>$IMGFILE<"
 convert $IMGFILE -geom 60 -quality 100 $DESTIMGFILE
 IMGSIZE=`imagesize $DESTIMGFILE`
 # echo "Got image size=>$IMGSIZE<"
@@ -39,7 +48,7 @@ cp $JPATH/org/jumpgate.html jumpgate-orig.html
 replaceline jumpgate-orig.html "<\!-- #~googleimage~# -->" "<\!-- #~googleimage~# -->$LINE" > finaljumpgate.html
 
 # Move the final files over the originals
-mv finaljumpgate.html $JPATH/org/jumpgate.html
-mv $LEFTIMGFILE $JPATH/org/
-mv $RIGHTIMGFILE $JPATH/org/
+cp finaljumpgate.html $JPATH/org/jumpgate.html
+cp $LEFTIMGFILE $JPATH/org/
+cp $RIGHTIMGFILE $JPATH/org/
 # mv $DESTIMGFILE $JPATH/org/

@@ -5,6 +5,7 @@ if test "$1x$2" = "x"; then
 fi
 
 LIST=$1;
+shift
 ARGS=`echo "$*" | afterfirst "$LIST"`;
 
 # echo "l='$LIST' a='$ARGS'"
@@ -17,7 +18,8 @@ for FILE in $LIST; do
   # if test "$?" = "0"; then
   if test ! "x$TRY" = "x" -a -x "$TRY"; then
     # echo "runoneof: trying $TRY"
-    $TRY $ARGS
+    $TRY "$@"
+		# $ARGS
     if test "$?" = "0"; then
       # echo "$TRY done good"
       # echo "runoneof: worked on $TRY"

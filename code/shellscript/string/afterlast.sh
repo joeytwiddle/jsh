@@ -2,7 +2,13 @@
 # sed "s+.*$1++" |
 # sed "s+\\n+
 
-tr "\n" " " | sed "s+.*$1++"
+# No longer defined as multi-line
+# now works like sed on each line separately
+# (and removes need for afterlastall?)
+
+sed "s+.*$1++"
+
+# tr "\n" " " | sed "s+.*$1++"
 
 # tr "\n" " " | 
 # if test "x$2" = "x"; then

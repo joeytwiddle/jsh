@@ -6,6 +6,7 @@ COM="$*";
 NICECOM=`echo "$PWD: $COM" | tr " /" "_-"`
 FILE="$MEMODIR/$NICECOM.memo"
 
-$COM > "$FILE"
-cat "$FILE"
+$COM | tee "$FILE"
+# $COM > "$FILE"
+# cat "$FILE"
 exit 0

@@ -7,9 +7,9 @@ fi
 
 MYID=$$
 PID=$1
-echo "PPID = $PPID =? given = $PID !=? mine = $MYID"
+# echo "PPID = $PPID =? given = $PID !=? mine = $MYID"
 ARGS=`echo -n $* | sed "s/^$1 //"`
-echo "Looking for $ARGS with PPID=$PID"
+# echo "Looking for $ARGS with PPID=$PID"
 LINE=`psforkillchild |
   grep "$PID " |
   grep "$ARGS" |
@@ -17,11 +17,11 @@ LINE=`psforkillchild |
   grep -v "$MYID .*grep" |
   head -n 1`
 
-psforkillchild |
-  grep "$PID " |
-  grep "$ARGS" |
-  grep -v "$MYID .*killchild $*" |
-  grep -v "$MYID .*grep"
+# psforkillchild |
+  # grep "$PID " |
+  # grep "$ARGS" |
+  # grep -v "$MYID .*killchild $*" |
+  # grep -v "$MYID .*grep"
 
 # PARENTID=`echo $LINE | takecols 1`
 CHILDID=`echo $LINE | takecols 2`
@@ -31,8 +31,8 @@ CHILDID=`echo $LINE | takecols 2`
 # exit 1
 #else
 # if test "x$PARENTID" = "x$PID"; then
-    echo "Killing $CHILDID"
-    kill -KILL $CHILDID
+    # echo "Killing $CHILDID"
+    kill -KILL $CHILDID >/dev/null 2>&1
 # else
 #   echo "Did not work"
 #   exit 1

@@ -1,7 +1,7 @@
 # xvidtune&
 
 # Keyboard
-xmodmap /stuff/portablelinux/etc/X11/Xmodmap.hwiDeb &
+# xmodmap /stuff/portablelinux/etc/X11/Xmodmap.hwiDeb &
 
 # `jwhich xterm`  +sb -sl 5000 -vb -si -sk -bg black -fg white -font '-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-iso646.1991-irv' -geometry 80x25+0+500 $* &
 xterm &
@@ -26,16 +26,38 @@ winman="sawfish"
 # winman="sawmill"
 $winman || `jwhich xterm` -title "--- failed to start $winman wm ---" &
 
+sleep 2
+# xsetroot -grey -bg darkgreen -fg black
+# xsetroot -mod 16 16 -fg darkgreen -bg black
+for X in `seq -w 0 1 80`; do Y=$((80-$X)); xsetroot -mod 16 16 -fg "#$Y"80"$Y" -bg "#"$Y$Y$Y; done
+
 # Background
 # randomwallpaper &
 # ( env DISPLAY= xplanet -output $JPATH/background.jpg -projection orthographic -body Earth -blend -geometry 1024x768 &&
 #   xv -root -rmode 5 -maxpect -quit $JPATH/background.jpg )
 ( 
-	sleep 10
+	sleep 4
   nice -n 10 jxplanet render
 ) &
 
-xhost +
+# xhost +
+
+# Disable bell
+xset -b
+# ( sleep 10s; xset fp+ unix/:7101 ) &
+
+aumix -v 40
+
+
+
+kfmclient openProfile startbrowsing &
+
+netscape -messenger &
+
+
+
+# Start the panel.
+# On logout from the panel, the X session will quit.
 
 if test ""`findjob panel`; then
 	`jwhich xterm` -title "--- master - panel already running ---"
@@ -51,7 +73,3 @@ fi
 # we only catch with the xterm if panel failed.
 # If panel returns 0, we just exit the session =)
 echo "X session ended."
-
-# Disable bell
-xset -b
-# ( sleep 10s; xset fp+ unix/:7101 ) &
