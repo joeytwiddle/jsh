@@ -61,7 +61,7 @@ do
 		# [ "$DEBUG" ] && debug ">>>>"
 		COMMONSOFAR="$COMMONSOFAR$NL$COMMON"
 		CURRENTCOMMON="$COMMON"
-		echo "+ $CURRENTCOMMON...{"
+		echo "+ $CURRENTCOMMON {"
 	fi
 
 	echo ". $FIRSTLINE$APPEND"
@@ -71,7 +71,7 @@ do
 		while ! startswith "$SECONDLINE" "$CURRENTCOMMON"
 		do
 			# [ "$DEBUG" ] && debug "<<<<"
-			echo "- $CURRENTCOMMON...}"
+			echo "- $CURRENTCOMMON }"
 			COMMONSOFAR=`echo "$COMMONSOFAR" | chop 1`
 			CURRENTCOMMON=`echo "$COMMONSOFAR" | tail -1`
 			# [ "$DEBUG" ] && debug "newcurrentcommon = $CURRENTCOMMON"
@@ -93,4 +93,4 @@ done
 	# CURRENTCOMMON=`echo "$COMMONSOFAR" | tail -1`
 # done
 
-)
+) | treevim

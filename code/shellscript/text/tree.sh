@@ -22,32 +22,36 @@ fi
 TMPFILE=`jgettmp tree`
 cat "$@" > $TMPFILE
 
-if test "$TREEJAVA"
+if [ $TREESH ]
 then
 
-	java tools.tree.Tree $TMPFILE
-
-elif [ $TREESH ]
-then
-
-	cat $TMPFILE | treesh | pipeboth
+	cat $TMPFILE | treesh
 
 else
 
-	## Hugs interpreter is not efficient:
-	# runhugs $JPATH/code/haskell/tools/treelist.hs $TMPFILE
-	# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
-	## Compiled with ghc =)
-	$JPATH/code/haskell/tools/treelist $TMPFILE |
-	cat
-	# highlight '\#' blue |
-	# highlight '@' red
+	if test "$TREEJAVA"
+	then
 
-fi |
+		java tools.tree.Tree $TMPFILE
 
-if test "$CAT"
-then cat
-else vi - -R $VIMOPTS
+	else
+
+		## Hugs interpreter is not efficient:
+		# runhugs $JPATH/code/haskell/tools/treelist.hs $TMPFILE
+		# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
+		## Compiled with ghc =)
+		$JPATH/code/haskell/tools/treelist $TMPFILE |
+		cat
+		# highlight '\#' blue |
+		# highlight '@' red
+
+	fi |
+
+	if test "$CAT"
+	then cat
+	else vi - -R $VIMOPTS
+	fi
+
 fi
 
 jdeltmp $TMPFILE
