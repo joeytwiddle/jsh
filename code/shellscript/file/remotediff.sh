@@ -159,7 +159,9 @@ rsyncdiff () {
 				then
 					echo "$TOBRINGNODIFF" |
 					while read FILE
-					do echo "mv \\\"$EXTRACTDIR/$FILE\\\" \\\"$LOCAL/\`dirname "$FILE"\`\\\""
+					do
+						echo "mkdir -p \\\"$LOCAL/\`dirname "$FILE"\`\\\""
+						echo "mv \\\"$EXTRACTDIR/$FILE\\\" \\\"$LOCAL/\`dirname "$FILE"\`\\\""
 					done
 				fi
 			`
@@ -240,6 +242,7 @@ then
 fi
 
 LOCAL="$1"
+LOCAL=`realpath "$LOCAL"` ## To deal with rsyncdiff bringing problems
 REMOTESTRING="$2"
 shift
 shift

@@ -1,4 +1,9 @@
 #!/bin/sh
+
+## Deletes a file or files in a recoverable way (by moving them to a "RECLAIM" directory).
+## If reclaimspace is setup (in cron), it will remove some of the "deleted" files when more disk space it needed.
+## WARNING: This setup /can/ cause problems if you write large files to disk very quickly, and cron isn't called in time to reclaim the space necessary to finish writing the file.  Easily solved by deleting files from RECLAIM directory when you know you need space now/soon.  (Or you could call "reclaimspace 1000000" to ensure ~1Gig is reclaimed).
+
 # jsh-ext-depends-ignore: from file cvs
 # jsh-ext-depends: sed basename dirname realpath
 # jsh-depends-ignore: reclaimspace

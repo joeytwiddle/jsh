@@ -1,3 +1,6 @@
+## TODO: Allow user to specify two thresholds: one to try to clear past, another at which to warn user.
+## TODO: What about prioritising which files are removed first?  What about allowing user to offer non-default reclaim directories?
+
 # jsh-ext-depends: find
 # jsh-depends-ignore: there
 # jsh-depends: flatdf takecols randomorder drop error

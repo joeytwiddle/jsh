@@ -10,6 +10,18 @@ then ## Actually for low-res desktops; we could guess this from xdpyinfo?
 	# FONT='-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-iso646.1991-irv'
 	FONT='-schumacher-clean-medium-r-normal-*-12-*-*-*-c-*-iso646.1991-irv'
 # elif test "$JM_UNAME" = "linux" && ! startswith `hostname` "qanir"
+elif [ "$HOSTNAME" = "ganymede" ]
+then
+	if grep -i "SuSE" /etc/issue > /dev/null
+	then FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1'
+	elif grep -i "Debian" /etc/issue > /dev/null
+	then FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
+	else FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1'
+	fi
+elif test "$JM_UNAME" = "linux" && ! endswith `hostname` cs.bris.ac.uk
+then
+	FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
+	ARGS="$ARGS -rightbar"
 elif [ "$JM_UNAME" = "cygwin" ]
 then
 	FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-12-*-*-m-*-iso8859-1'

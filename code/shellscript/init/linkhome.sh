@@ -42,7 +42,7 @@ find . -maxdepth 2 |
 			if [ ! `realpath "$DEST"` = `realpath "$SOURCE"` ]
 			then
 				echo "problem: $NICEDEST is in the way of $SOURCE"
-				if cmp "$DEST" "$SOURCE"
+				if [ -f "$DEST" ] && [ -f "$SOURCE" ] && cmp "$DEST" "$SOURCE"
 				then echo "         but they are identical, so why not: del \"$NICEDEST\""
 				fi
 				if [ "$SHOWDIFFS" ] && [ -f "$DEST" ]

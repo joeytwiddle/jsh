@@ -1,6 +1,8 @@
 # set -e
 # set -x
 
+## TODO: does not appear to clear bash history!!!
+
 xhost
 xhost - || error "Clearing xhost permissions failed."
 echo "NOTE: xhost permissions cleared, you will have to restore them manually"

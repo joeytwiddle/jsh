@@ -1,3 +1,6 @@
+## DONE: Problems under Gentoo because memo is not caching because man returns non-zero exit code.
+##       OK added fix to rememo, so it cats the cache whether the command succeeded or not.  (Seems appropriate!)
+
 REALMAN=`jwhich man`
 # INJ=`jwhich inj $1`
 
@@ -12,7 +15,7 @@ then
 	## man will try to fit page within COLUMNS>=80plz, and then we will fit to whatever man outputs
 	export COLUMNS=120
 	## First, check a manual page actually exists: (man will print error for us if not)
-	if rememo $REALMAN -a "$@" > /dev/null
+	if [ `memo $REALMAN -a "$@" | wc -l` -gt 0 ]
 	then
 		## Need to format output to find widest line
 		WIDTH=`memo $REALMAN -a "$@" | col -bx | longestline`

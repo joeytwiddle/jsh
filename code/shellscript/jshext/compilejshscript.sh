@@ -1,20 +1,20 @@
 # jsh-depends-ignore: jsh
 # jsh-depends: cursecyan curseyellow cursenorm makeshfunction contains jdeltmp jgettmp
+
+## CONSIDER: Is there a better word than "compile"?
+## CONSIDER: Can I make the copyright date `date`?
+
 ## Notes on cleanup:
 ##   If a script sources another using . <script>, then this should be at the start of a line, not hidden in a pipe.
 ##   If a script exits explicily with "exit", then this should be at the start of a line, not hidden in a pipe.
 
-
-
 ## Problem: unj and jwhich don't work for functions (or do they!), so cksum might act recursively!
-
-
 
 ## TODO: In non-interactive mode, consider including jsh-depends-tocheck too, since they may well be needed, and it won't hurt (too much) if they aren't.
 
 
 
-## For jshdepwiz:
+## Options for jshdepwiz:
 # export DEPWIZ_NON_INTERACTIVE=true
 # export DEPWIZ_VIGILANT=true
 # export DEPWIZ_LAZY=true
@@ -154,9 +154,11 @@ export TMPFILE MAINSCRIPT
 ## Perform cleanup, and add main call to main script's function:
 (
 	echo "## $MAINSCRIPT [compiled on `date +'%Y/%m/%d-%H:%M'` by $USER@`hostname -f`]"
+	echo "## From the Jsh library: http://hwi.ath.cx/twiki/bin/view/Neuralyte/ProjectJsh"
 	echo "## Copyright 2003 Free Software Foundation, released under GNU Public Licence"
-	echo "## This is silly - what does GPL mean for non-binarised software?!"
-	echo "## Homepage: http://hwi.ath.cx/twiki/bin/view/Neuralyte/ProjectJsh"
+	## Although scripts are not compiled, the GPL can be still be applied to the distribution of the scripts as source.
+	## See: http://groups.google.com/groups?hl=en&lr=&ie=UTF-8&threadm=9p1W2.178%24jw4.18662%40burlma1-snr2&rnum=1&prev=/groups%3Fq%3Dgpl%2520shell%2520script%2520OR%2520scripts%2520binary%2520OR%2520compiled%2520distribute%2520OR%2520distribution%26num%3D20%26hl%3Den%26lr%3D%26ie%3DUTF-8%26sa%3DN%26tab%3Dwg
+	## (which was top of the GoogleGroups query: "gpl shell script OR scripts binary OR compiled distribute OR distribution")
 	echo
   cat $TMPFILE
 	echo "### MAIN CALL:"

@@ -1,11 +1,20 @@
 ## Pass -f to mkisofs to follow symlinks
 
+DEVICE="0,0,0"
+CDMNTPNT=/mnt/cdrw
+# DEVICE="ATAPI:/dev/ide/host0/bus1/target1/lun0/cd"
+# CDMNTPNT=/mnt/cdrom
+
+## INCOMING: /usr/bin/cdrecord -v gracetime=2 dev=ATAPI:/dev/ide/host0/bus1/target1/lun0/cd speed=4 -dao -dummy driveropts=burnfree -eject -data -tsize=357971s -
+## Oh and:   /usr/bin/mkisofs -gui -graft-points -volid HHG1of2 -volset  -appid K3B THE CD KREATOR VERSION 0.11.12 (C) 2003 SEBASTIAN TRUEG AND THE K3B TEAM -publisher  -preparer K3b - Version 0.11.12 -sysid LINUX -volset-size 1 -volset-seqno 1 -sort /tmp/kde-joey/k3bHvuBrc.tmp -rational-rock -hide-list /tmp/kde-joey/k3bbyYHec.tmp -full-iso9660-filenames -iso-level 2 -path-list /tmp/kde-joey/k3bPgqNfa.tmp
+## from k3b
+
 if test "$1" = "-multi"
 then
 	shift
 	MULTICDRECORD="-multi -nofix -data"
-	MULTIMKISOFS="-M 0,0,0"
-	NEXT_TRACK=`cdrecord -msinfo dev=0,0,0 2>/dev/null`
+	MULTIMKISOFS="-M $DEVICE"
+	NEXT_TRACK=`cdrecord -msinfo dev="$DEVICE" 2>/dev/null`
 	if test "$NEXT_TRACK" = ""
 	then echo "Looks like a new disk to me."
 	else MULTIMKISOFS="$MULTIMKISOFS -C $NEXT_TRACK"
@@ -15,16 +24,16 @@ then
 fi
 
 CDRECORD_OPTS="minbuf=90"
-
-## Removed inaccurate tsize=359232s (means 700, but did work!), may need to use mkisofs -print-size
 ## -eject
 ## -dummy 
+
+## Removed inaccurate tsize=359232s (means 700, but did work!), may need to use mkisofs -print-size
 cursegreen
-echo "nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |"
-echo "nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=31M -v speed=8 -pad $MULTICDRECORD -overburn -"
+echo "nice -n -20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |"
+echo "nice -n -20 cdrecord $CDRECORD_OPTS dev=$DEVICE fs=31M -v speed=8 -pad $MULTICDRECORD -overburn -"
 cursenorm
-      nice --20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |
-      nice --20 cdrecord $CDRECORD_OPTS dev=0,0,0 fs=31M -v speed=8 -pad $MULTICDRECORD -overburn -
+      nice -n -20 mkisofs -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$1" $MULTIMKISOFS |
+      nice -n -20 cdrecord $CDRECORD_OPTS dev=$DEVICE fs=31M -v speed=8 -pad $MULTICDRECORD -overburn -
 
 ## From HOWTO (does multi)
 # mkisofs -R -o cd_image2 -C $NEXT_TRACK -M /dev/scd5 private_collection/
@@ -54,10 +63,10 @@ tee $CDLDIR/newcd.qkcksum.sb
 
 centralise "Checksumming cdrw"
   ## Dunno why but my drive sometimes needs this sorta hard reset:
-  eject /mnt/cdrw
-  uneject /mnt/cdrw
-mount /mnt/cdrw
-cd /mnt/cdrw
+  eject $CDMNTPNT
+  uneject $CDMNTPNT
+mount $CDMNTPNT
+cd $CDMNTPNT
 $CDLDIR/findaz.sh | tee $CDLDIR/newcd.qkcksum
 # find . -type f | sed 's+^\./++' | foreachdo cksum | tee $CDLDIR/newcd.cksum
 
