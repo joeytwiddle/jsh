@@ -1,7 +1,9 @@
 MEMODIR="$JPATH/data/memo"
-REALPWD=`realpath "$PWD"`
-NICECOM=`echo "$REALPWD: $@" | tr " /" "_-"`
-FILE="$MEMODIR/$NICECOM.memo"
+
+if test "$1" = "-info"; then
+	MEMO_SHOW_INFO=true
+	shift
+fi
 
 if test "$1" = ""; then
 	echo "memo <command>..."
@@ -14,19 +16,27 @@ if test "$1" = ""; then
 	exit 1
 fi
 
+REALPWD=`realpath "$PWD"`
+NICECOM=`echo "$REALPWD: $@" | tr " /" "_-"`
+FILE="$MEMODIR/$NICECOM.memo"
+
 if test -f "$FILE"; then
   cat "$FILE"
 else
   rememo "$@"
 fi
 
-TMPF=`jgettmp`
-touch "$TMPF"
-(
-	cursecyan
-	# echo "as of "`date -r "$FILE"`
-	echo "$@"
-	echo "as of "`datediff "$FILE" "$TMPF"`" ago."
-	cursenorm
-) >&2
-jdeltmp "$TMPF"
+if test "$MEMO_SHOW_INFO"; then
+
+	TMPF=`jgettmp`
+	touch "$TMPF"
+	(
+		cursecyan
+		# echo "as of "`date -r "$FILE"`
+		echo "$@"
+		echo "as of "`datediff "$FILE" "$TMPF"`" ago."
+		cursenorm
+	) >&2
+	jdeltmp "$TMPF"
+
+fi

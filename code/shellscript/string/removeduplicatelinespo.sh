@@ -1,3 +1,4 @@
+LAST=""
 cat "$@" |
 awk ' {
         printf(NR);

@@ -2,6 +2,7 @@
 # but there is a nice new version with extension po which does
 # using sort...
 
+Y="what would be a non-existent string, if such a string was possible"
 cat "$@" |
     sort |
     while read X; do

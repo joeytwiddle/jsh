@@ -31,13 +31,15 @@ else
 
 	## Interactive shell: start user's favourite sh with startj as rc file.
 	## Just added -c "$@".  Does it work?!
-	# bash --rcfile $JPATH/startj -c "$@"
+	test "$*" &&
+	bash --rcfile $JPATH/startj -c "$@" ||
+	bash --rcfile $JPATH/startj
 	## Oh dear, bash does not appear to be able to read an extra rc file without
 	## ignoring the default.  I'd like to read both before starting an interactive shell!
 	# non-interactive:
 	# export BASH_ENV=$JPATH/startj
 	# echo "$BASH_ENV"
-	bash
+	# bash
 	# bash -c "$@"
 
 fi

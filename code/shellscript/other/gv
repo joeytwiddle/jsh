@@ -1,5 +1,4 @@
-LOCALgv=`jwhich gv 2>/dev/null`
 for X
 do
-runoneof "ghostview $LOCALgv" "$X" &
+runoneof -notinj "gv ghostview" "$X" &
 done

@@ -1,8 +1,14 @@
 #!/bin/sh
 
 if test "$1x$2" = "x"; then
-  echo 'runoneof "<executables>" <args...>'
+  echo 'runoneof [-notinj] "<executables>" <args...>'
   echo '  Will find and run on the first working executable!'
+fi
+
+INJOPT="inj"
+if test "$1" = "-notinj"; then
+	shift
+	INJOPT=""
 fi
 
 LIST=$1;
@@ -13,7 +19,7 @@ for FILE in $LIST; do
   # echo "file: $FILE" >> /dev/stderr
 
   # which may not be present
-  TRY=`jwhich inj "$FILE"`
+  TRY=`jwhich $INJOPT "$FILE"`
 
   # WARNING: don't disrupt $? next line
   if test "$?" = "0"; then

@@ -9,7 +9,8 @@ IRCUSERS=`
 cat "$1" |
 grep "<[^>]*>" |
 sed "s|<\([^>]*\)>.*|\1|" |
-keepduplicatelines
+# keepduplicatelines ## for verbose users (made more than one statement!)
+removeduplicatelines ## for all users
 `
 
 echo "$IRCUSERS"

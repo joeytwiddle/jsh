@@ -3,6 +3,9 @@
 if test "$1" = ""; then
   cat
 else
+  ## Untested alternative:
+  # CUTSTR=`echo "$@" | tr " " ","`
+  # cut -d ' ' -f "$CUTSTR"
   FS=" "
   THECOLS=""
   FIRST="$1"

@@ -23,7 +23,8 @@ do
 		"-devel")
 			shift
 			HWIUSER="$1"
-			echo "Note: if the machine you are installing on is not trusted, you should not enter you password here, but instead login to hwi using a trusted connection, cvs login there, and copy your .cvspass from hwi to this box."
+			# echo "Note: if the machine you are installing on is not trusted, you should not enter you password here, but instead login to hwi using a trusted connection, cvs login there, and copy your .cvspass from hwi to this box."
+			# Nah soddit, .cvspass is a security risk anyway!
 		;;
 		*)
 			echo "$0 [ -in <directory> ] [ -devel <hwiusername> ]"

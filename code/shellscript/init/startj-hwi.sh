@@ -13,6 +13,10 @@
 # chmod a+w /tmp/env.out
 # chmod a+w /tmp/set.out
 
+## Hack to get around jsh's inability to start bash with default rc and startj
+test -f $HOME/.bashrc &&
+	source "$HOME/.bashrc"
+
 ## Try to guess the top directory of j install
 ## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
 if test ! $JPATH; then
@@ -121,50 +125,52 @@ if test ! "$1" = "simple"; then
 	export SHOWUSER # for d f b
 	export SHOWHOST
 
-	if test "$0" = "bash"; then
-		## For bash, get prompt to send xttitle escseq:
-		# export TITLEBAR=`xttitle "\u@\h:\w"`
-		export TITLEBAR="\[\033]0;\u@\h:\w\007\]"
-		export PS1="$TITLEBAR$PS1"
+	if xisrunning; then
+		if test "$0" = "bash"; then
+			## For bash, get prompt to send xttitle escseq:
+			# export TITLEBAR=`xttitle "\u@\h:\w"`
+			export TITLEBAR="\[\033]0;\u@\h:\w\007\]"
+			export PS1="$TITLEBAR$PS1"
+		fi
+		case $TERM in
+			*term*)
+				case $SHORTSHELL in
+
+					zsh)
+						## These two should go outside TERM case but only zsh!
+						export HISTSIZE=10000
+						export EXTENDED_HISTORY=true
+						## For zsh, use preexec/cmd builtins
+						swd () {
+							## Dunno why doesn't work:
+							# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
+							# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
+							# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
+							echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|_/\1|;s|^$HOME|~|"
+						}
+						preexec () {
+							## $* repeats under zsh4 :-(
+							## $1 before alias expansion, $2 and $3 after
+							export LASTCMD="$1"
+							xttitle "# $LASTCMD [$SHOWUSER$SHOWHOST"`swd`"]"
+						}
+						precmd () {
+							# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
+							xttitle "$SHOWUSER$SHOWHOST"`swd`" % ($LASTCMD)"
+						}
+					;;
+
+					## For tcsh, use postcmd builtin:
+					## Doesn't actually appear 'cos tcsh can't exec this far!
+					## See .tcshrc for actual postcmd!
+					tcsh)
+						alias postcmd 'xttitle "${USER}@${HOST}:${PWD}%% \!#"'
+					;;
+
+				esac
+			;;
+		esac
 	fi
-	case $TERM in
-		*term*)
-			case $SHORTSHELL in
-
-				zsh)
-					## These two should go outside TERM case but only zsh!
-					export HISTSIZE=10000
-					export EXTENDED_HISTORY=true
-					## For zsh, use preexec/cmd builtins
-					swd () {
-						## Dunno why doesn't work:
-						# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
-						# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
-						# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
-						echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|_/\1|;s|^$HOME|~|"
-					}
-					preexec () {
-						## $* repeats under zsh4 :-(
-						## $1 before alias expansion, $2 and $3 after
-						export LASTCMD="$1"
-						xttitle "# $LASTCMD [$SHOWUSER$SHOWHOST"`swd`"]"
-					}
-					precmd () {
-						# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
-						xttitle "$SHOWUSER$SHOWHOST"`swd`" % ($LASTCMD)"
-					}
-				;;
-
-				## For tcsh, use postcmd builtin:
-				## Doesn't actually appear 'cos tcsh can't exec this far!
-				## See .tcshrc for actual postcmd!
-				tcsh)
-					alias postcmd 'xttitle "${USER}@${HOST}:${PWD}%% \!#"'
-				;;
-
-			esac
-		;;
-	esac
 
 	cd . ## to do the initial titling
 	## TODO: do this some other way: if sourced we might not want to change dir. Oh we don't change!
