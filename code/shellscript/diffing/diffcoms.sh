@@ -4,5 +4,5 @@ FILEY=`jgettmp "Second com: $2"`
 # $2 > "$FILEY"
 echo "$1" | sh > "$FILEX"
 echo "$2" | sh > "$FILEY"
-jfc "$FILEX" "$FILEY"
+jfcsh -bothways "$FILEX" "$FILEY"
 jdeltmp "$FILEX" "$FILEY"
