@@ -4,7 +4,7 @@
 ## Other dependencies locally: dd,sed,diff,cksum,sort,column,vi,ssh and jsh:jfcsh,cksum,vimdiff
 ## Remotely only a few are needed: sh, cat, dd, mkdir
 
-## About to introduce tar dependency.
+## About to introduce tar dependency.  But it will bring less buggy transfer and preservation of times/perms.
 
 ## TODO: fork remotediff and rsyncdiff, and rename the latter (sync/merga?)!
 
@@ -57,63 +57,102 @@ rsyncdiff () {
 	## TODO: error handling!
 	## eg. Could put exit 1 instead of echo "ERROR"
 
-	## Send local files
-	echo "[rsyncdiff] sending files to $RHOST" >&2
-	cat "$EDITFILE" | grep "^send  " |
-	while read LOCATION DATETIME CKSUM LEN FILENAME
-	do
-		echo "$LEN $RDIR/$FILENAME"
-		cat "$LOCAL/$FILENAME"
-	done |
-	ssh -C $RUSER@$RHOST '
-		while read LEN FILENAME
-		do
-			printf "Writing $FILENAME..." >&2
-			mkdir -p `dirname "$FILENAME"`
-			dd bs=1 count=$LEN > "$FILENAME" &&
-			echo "done." >&2 ||
-			echo "ERROR." >&2
-		done
-	'
+	export AFIELD="[^ 	]*[ 	]*"
 
-	## Bring remote files and files for diffing
-	echo "[rsyncdiff] bringing files from $RHOST" >&2
-	(
-		cat "$EDITFILE" | grep "^bring " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME
-		do
-			echo "$LEN $RDIR/$FILENAME"
-			echo "$LOCAL/$FILENAME"
-		done
-		cat "$EDITFILE" | grep "^diff " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME
-		do
-			echo "$LEN $RDIR/$FILENAME"
-			echo "$LOCAL/$FILENAME.from-$RHOST"
-		done
-	) |
-	ssh $RUSER@$RHOST '
-		while read LEN FILENAME
-		do
-			read GETFILENAME
-			echo "$LEN $GETFILENAME"
-			cat "$FILENAME"
-		done
-	' |
-	while read LEN GETFILENAME
-	do
-		printf "Reading $GETFILENAME..." >&2
-		mkdir -p `dirname "$GETFILENAME"`
-		dd bs=1 count=$LEN > "$GETFILENAME" 2> /dev/null
-		echo "done." >&2
+	SENDCMD="
+    cd \"$LOCAL\"
+    tar cz "`
+        cat "$EDITFILE" | grep "^send  " |
+        sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD+\"+;s+$+\" +" |
+        tr -d '\n'
+    `" |
+    ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar xz\"
+	"
+
+	echo "Hit <Enter> to send files with: $SENDCMD"
+	read OK
+
+	eval "$SENDCMD"
+
+	## Send local files
+	# echo "[rsyncdiff] sending files to $RHOST" >&2
+	# cat "$EDITFILE" | grep "^send  " |
+	# while read ACTION DATETIME CKSUM LEN FILENAME
+	# do
+		# echo "$LEN $RDIR/$FILENAME"
+		# cat "$LOCAL/$FILENAME"
+	# done |
+	# ssh -C $RUSER@$RHOST '
+		# while read LEN FILENAME
+		# do
+			# printf "Writing $FILENAME..." >&2
+			# mkdir -p `dirname "$FILENAME"`
+			# dd bs=1 count=$LEN > "$FILENAME" &&
+			# echo "done." >&2 ||
+			# echo "ERROR." >&2
+		# done
+	# '
+
+	EXTRACTDIR="`echo "$LOCAL" | sed 's+[/]*$++'`-incoming"
+	while [ -e "$EXTRACTDIR" ]
+	do EXTRACTDIR="$EXTRACTDIR"_
 	done
+
+	mkdir -p "$EXTRACTDIR" || exit 1
+
+	BRINGCMD="
+    cd \"$EXTRACTDIR\"
+    ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar cz "`
+        cat "$EDITFILE" | grep "^\(bring\|diff\) " |
+        sed "s+^$AFIELD$AFIELD$AFIELD$AFIELD+\\\\\\\\\"+;s+$+\\\\\\\\\" +" |
+        tr -d '\n'
+    `"\" |
+    tar xz
+	"
+
+	echo "Hit <Enter> to bring files with: $BRINGCMD"
+	read OK
+
+	eval "$BRINGCMD"
+
+	# ## Bring remote files and files for diffing
+	# echo "[rsyncdiff] bringing files from $RHOST" >&2
+	# (
+		# cat "$EDITFILE" | grep "^bring " |
+		# while read ACTION DATETIME CKSUM LEN FILENAME
+		# do
+			# echo "$LEN $RDIR/$FILENAME"
+			# echo "$LOCAL/$FILENAME"
+		# done
+		# cat "$EDITFILE" | grep "^diff " |
+		# while read ACTION DATETIME CKSUM LEN FILENAME
+		# do
+			# echo "$LEN $RDIR/$FILENAME"
+			# echo "$LOCAL/$FILENAME.from-$RHOST"
+		# done
+	# ) |
+	# ssh $RUSER@$RHOST '
+		# while read LEN FILENAME
+		# do
+			# read GETFILENAME
+			# echo "$LEN $GETFILENAME"
+			# cat "$FILENAME"
+		# done
+	# ' |
+	# while read LEN GETFILENAME
+	# do
+		# printf "Reading $GETFILENAME..." >&2
+		# mkdir -p `dirname "$GETFILENAME"`
+		# dd bs=1 count=$LEN > "$GETFILENAME" 2> /dev/null
+		# echo "done." >&2
+	# done
 
 	## BUG TODO: vimdiff doesn't work because it's inside a pipe!
 	# Could try running it inside a new bash?
 	# or reading files=`...`
 
 	cat "$EDITFILE" | grep "^diff " |
-	while read LOCATION DATETIME CKSUM LEN FILENAME
+	while read ACTION DATETIME CKSUM LEN FILENAME
 	do vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.from-$RHOST"
 	done
 
