@@ -9,7 +9,7 @@ NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(..................
 FILE="$MEMODIR/$NICECOM.memo"
 mkdir -p "$MEMODIR"
 
-TMPFILE=`jgettmp memo $*`
+TMPFILE=`jgettmp tmprememo:$*`
 
 # "$@" | tee "$FILE"
 ## Now passes back appropriate exit code: =)
