@@ -1,3 +1,5 @@
+## Try this version when grep improves its memory handling!  (was locally apt-built version 2.4.2-3)
+
 if test ! trynew ### PROBLEM: grep requests LOADS of memory to check this long regexp
 then
 
