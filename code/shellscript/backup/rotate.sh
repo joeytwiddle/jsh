@@ -6,7 +6,7 @@ if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo "rotate [ -nozip ] [ -max <num> ] <file>"
 	echo "  will move <file> to <file>.N"
-	echo "  will rotate to ensure no more than <num> + 1 logs."
+	echo "  -max: will rotate to ensure no more than <num> + 1 logs."
 	echo "  never rotates <file>.0"
 	exit 1
 fi

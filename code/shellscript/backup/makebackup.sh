@@ -43,7 +43,7 @@ exit 1
 fi
 
 EFFICIENT=
-if test "$1" = -efficient
+if [ "$1" = -efficient ]
 then EFFICIENT=true; shift
 fi
 
@@ -52,25 +52,28 @@ BACKUPDIR="$2"
 
 DIRNAME=`dirname "$TOBACKUP" | sed "s+^\([^/]\)+$PWD/\1+"`
 BASENAME=`basename "$TOBACKUP"`
-test "$3" &&
-BACKUPNAME="$3" ||
-BACKUPNAME="$BASENAME"
+if [ "$3" ]
+then BACKUPNAME="$3"
+else BACKUPNAME="$BASENAME"
+fi
 
 mkdir -p "$BACKUPDIR" || exit 1
 
 ## Establish (from destination files) which version backup we are creating:
 VER=0
-while test -f "$BACKUPDIR/$BACKUPNAME-$VER.diff.gz" || test -f "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
+while [ -f "$BACKUPDIR/$BACKUPNAME-$VER.diff.gz" ] || [ -f "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz" ]
 do VER=`expr $VER + 1`
 done
 
 DOPUREBACKUP=true
 
-if test ! "$VER" = 0
+if [ ! "$VER" = 0 ]
 then
 
 	OURTMPDIR=`jgettmpdir makebak`
-	if test "$OURTMPDIR" = "" || test ! -w "$OURTMPDIR"; then echo "Problem with OURTMPDIR = >$OURTMPDIR<"; exit 1; fi
+	if [ "$OURTMPDIR" = "" ] || [ ! -w "$OURTMPDIR" ]
+	then echo "Problem with OURTMPDIR = >$OURTMPDIR<"; exit 1
+	fi
 
 	THISVERSION="$OURTMPDIR/ver$VER"
 	## Note: confidence in contractsymlinks now allows us to do this to the dir directly (provided we expandsymlinks again afterwards).
@@ -83,7 +86,7 @@ then
 	# Fix symlink problems by removing them!
 	# but list them to a file so their changes may be seen.
 	cd "$THISVERSION"
-	if test -d "$BASENAME"
+	if [ -d "$BASENAME" ]
 	then
 		echo "Contracting symlinks into .symlinks.list"
 		cd "$BASENAME"
@@ -101,7 +104,7 @@ then
 	echo "Extracting previous version into tempdir for comparison"
 	cd "$LASTVERSION"
 	tar xfz "$BACKUPDIR/$BACKUPNAME-$PREVER.tar.gz"
-	if test -d "$BASENAME"
+	if [ -d "$BASENAME" ]
 	then
 		echo "Contracting symlinks into .symlinks.list"
 		cd "$BASENAME"
@@ -113,7 +116,7 @@ then
 	cd "$LASTVERSION"
 	set +e
 	diff -r -u -N -a "$BASENAME" "../ver$VER/$BASENAME" > "$DIFF_FILE"
-	if test "$?" = 0 && test "$EFFICIENT" && test `filesize "$DIFF_FILE"` = 0
+	if [ "$?" = 0 ] && [ "$EFFICIENT" ] && [ `filesize "$DIFF_FILE"` = 0 ]
 	then
 		set -e
 		echo "No different from previous version!"
@@ -131,7 +134,7 @@ then
 
 fi
 
-if test $DOPUREBACKUP
+if [ $DOPUREBACKUP ]
 then
 	echo "Backing up $TOBACKUP into $BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
 	cd "$DIRNAME"
