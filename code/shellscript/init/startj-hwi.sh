@@ -40,6 +40,10 @@ SHORTSHELL=`echo "$SHELL" | afterlast "/"`
 
 echo "shell = $SHORTSHELL"
 
+if test "$HOST" = ""; then
+	export HOST=`echo "$HOSTNAME" | beforefirst "."`
+fi
+
 # xterm title change
 case $TERM in
 	xterm*)
