@@ -1,0 +1,37 @@
+#!/bin/sh
+
+echo -n "$1 "
+# echo portget: getting directory "$1"
+
+if [ ! -d "$1" ]; then
+  echo -n "* $1 is not a directory * "
+  exit 1
+fi
+
+mkdir -p "$PORTMP/$1"
+
+#cd $1
+# forall -stealth $1/*.bat do ln -s $PWD/$1/%s $PWD/$1/%f $JPATH/portmp/$1
+# forall -stealth $1/*.bat do cp $PWD/$1/%s $PWD/$1/%f $JPATH/portmp/$1
+# forall -stealth $1/*.c $1/*.h $1/*.java $1/*.hs $1/*.grm do ln -s $PWD/%w $JPATH/portmp/$1
+
+# Get useful files by extension
+forall -stealth $1/*.c $1/*.h $1/*.java $1/*.hs $1/*.grm do cp "\"$PWD/%w\"" "\"$PORTMP/$1\""
+
+# Get shell files (no .extension, small size)
+find $1 -size 1 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" > $PORTMP/tmp.portget
+find $1 -size 2 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp.portget
+find $1 -size 3 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp.portget
+find $1 -size 4 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp.portget
+find $1 -size 5 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp.portget
+find $1 -size 6 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp.portget
+find $1 -size 7 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp.portget
+# Gets directories even though it shouldn't
+# find $1 -size 8 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" | ungrep "^$1$" >> $PORTMP/tmp.portget
+forall -stealth in $JPATH/portmp/tmp.portget -filesonly do cp "\"%w\"" "\"$PORTMP/$1\""
+
+# Get subdirs (off)
+# The grep skip this dir $1, and all .* dirs $1/.* and CVS dir
+find "$1" -type d -maxdepth 1 | ungrep "^$1$" | ungrep "^$1/\." | ungrep "CVS" > $JPATH/tmp/portmp1.txt
+# more $JPATH/tmp/portmp1.txt
+forall -stealth -dirsonly in $JPATH/tmp/portmp1.txt do portget "\"%w\"" $2 $PWD

@@ -17,4 +17,4 @@ echo "</body></html>" >> $HTMLFILE
 browse $HTMLFILE
 
 echo "browsepics* will be deleted in 300 seconds"
-(sleep 300 ; rm browsepics*) &
+(sleep 300 ; rm browsepics*.Jpeg $HTMLFILE) &

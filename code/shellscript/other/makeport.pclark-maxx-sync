@@ -1,0 +1,52 @@
+#!/bin/sh
+
+DESTDIR="$JPATH/port";
+
+# This is used in calls to portget
+export PORTMP="$JPATH/portmp";
+
+alias rm='/bin/rm -f'
+
+#rm hwiport.*
+rm -r -f $PORTMP
+
+mkdir $PORTMP
+mkdir $PORTMP/c
+mkdir $PORTMP/java
+
+cd $JPATH/code
+
+# Joeylib
+portget c/joeylib $JPATH/code
+
+# PhD work
+portget c/phd $JPATH/code
+# forall -stealth -dirsonly c/phd/* do portget %w $JPATH/code
+
+# Java code, and JLib
+portget java $JPATH/code
+# forall -stealth java/* -dirsonly do portget %w $JPATH/code
+
+portget shellscript $JPATH/code
+
+# Haskell code
+portget hugs $JPATH/code
+forall -stealth hugs/* -dirsonly do portget %w
+
+portget c/tools $JPATH/code
+forall -stealth -dirsonly c/tools/* do portget %w
+# forall -stealth * do mkdir $PORTMP/c/tools/%f : cp %f/*.c $PORTMP/c/tools/%f
+
+cd $PORTMP
+#chmod a-x * -R
+tar cfzh $JPATH/hwiport.tgz *
+
+cd $JPATH
+rm -f -r $PORTMP
+
+mkdir -p "$DESTDIR"
+mv -f hwiport.tgz "$DESTDIR"
+cp -f $JPATH/code/shellscript/installj.sh "$DESTDIR"
+echo
+echo Port created in $DESTDIR
+

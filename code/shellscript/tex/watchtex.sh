@@ -1,0 +1,1 @@
+onchange "*.tex" do dotex
