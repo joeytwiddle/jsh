@@ -51,3 +51,6 @@ alias jhelp="$JPATH/tools/help" ## Because bash went and used it!
 
 ## Because it's nice for the user, but overriding is bad for scripts:
 alias apropos=japropos
+
+## We should do this for everything (no reason why not to, apart from memo diskspace usage I guess):
+alias dusk="rememo dusk"
