@@ -6,8 +6,7 @@ then
 
 fi
 
-# updatemusiclist
-music2
+updatemusiclist
 
 ## Renice this sh to give child mpg123 priority
 TOMOD=$$

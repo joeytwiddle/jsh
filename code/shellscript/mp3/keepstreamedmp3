@@ -11,6 +11,6 @@ while [ -f "$DESTFILE" ]; do
   FILENAME="_$FILENAME"
   DESTFILE="$DESTDIR/$FILENAME";
 done
-echo "$DESTFILE"
+echo "$DESTFILE <- $SRCDIR"
 
 cp "$SRCDIR/$SRCFILENAME" "$DESTFILE"
