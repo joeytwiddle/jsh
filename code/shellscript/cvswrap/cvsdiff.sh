@@ -57,7 +57,8 @@ cvs -q status "$@" | egrep "(^File:|Repository revision:)" |
 		echo "$Y	# "`curseyellow`"$X"`cursegrey`
 		echo "./$Y" >> /dev/stderr
 	done 2> $REPOSLIST |
-	grep -v "Up-to-date"
+	grep -v "Up-to-date" |
+	column -t
 
 if test $CHECKALL; then
 

@@ -25,7 +25,9 @@ echo "$TRYDIRS" | while read X; do
 			if test -x "$X/startj"; then
 				# exec $X/startj
 				# source $X/startj
-				. $X/startj
+				# . $X/startj
+				. $X/code/shellscript/init/startj-hwi.sh
+				set > /home/joey/j/tmp/jrun.env
 				"$@"
 				RES="$?"
 				export DONE="true";
