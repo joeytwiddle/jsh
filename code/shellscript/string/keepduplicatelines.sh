@@ -15,18 +15,26 @@
 # OK that's all done by keeping the streams and reading them back :-P not scalable
 # Only "bug" now is that clipped columns must be adjacent for final grep to work.
 
-GAP=
+# Isn't the KEEP=`...` broken if sort doesn't keep them numerical according to requested columns?!
+
+# Gap mode now separates the (adjacent) columns from the other data on the matched lines
+
+FILE=`jgettmp keepduplicatelines`
+
+export GAP=
 while test "$1" = "-gap"; do
-  GAP=true
+  export GAP=true
   shift
 done
 
-ALL=`cat`
+# ALL=`cat`
+cat > "$FILE"
 
-KEEP=`
+# KEEP=`
   Y=""
-  echo "$ALL" |
-  takecols $* |
+  # echo "$ALL" |
+  cat "$FILE" |
+  takecols "$@" |
   sort |
   while read X; do
     if test "$X" = "$Y"; then
@@ -34,16 +42,25 @@ KEEP=`
     fi
     Y="$X"
   done |
-removeduplicatelines` # Should pipe through remdups!
+  removeduplicatelines |
+  # removeduplicatelines`
 
-  echo "$KEEP" |
+# echo "$KEEP" |
   while read X; do
-    echo "$ALL" |
-    grep "$X"
-    if test "$GAP"; then
-      echo
+    if test ! "$X" = ""; then
+      # echo "$ALL" |
+      # grep "$X" # Yes this one!
+      if test "$GAP"; then
+        echo
+        # echo "$X ------------------"
+        echo "$X"
+        grep "$X" "$FILE" | sed "s+$X++"
+      else
+        grep "$X" "$FILE" # Yes this one!
+      fi
     fi
-  done
+  done |
+  removeduplicatelinespo # These can occur if the kept column matches an irrelevent line (eg. subset or irrelevent column)
 
 # Y=""
 # sort | while read X; do

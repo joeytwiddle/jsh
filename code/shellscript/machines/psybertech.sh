@@ -1,1 +1,1 @@
-ssh -X -l joey psybertech.hn.org
+ssh -l joey psybertech.hn.org

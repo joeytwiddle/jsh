@@ -8,13 +8,9 @@ echo
 # done |
 # keepduplicatelines -gap 1
 
-find . -type f |
-while read X; do
-  'ls' -l "$X" | takecols 5 9 10 11 12 13 14 15 16 17
-done |
+find . -type f -printf "%s %p\n" |
 keepduplicatelines 1 |
-takecols 2 3 4 5 6 7 8 9 10 |
-
+afterfirst " " |
 while read X; do
   cksum "$X"
 done |

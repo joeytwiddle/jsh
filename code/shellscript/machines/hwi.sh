@@ -1,1 +1,1 @@
-ssh -X -l joey hwi.dyn.dhs.org
+ssh -l joey hwi.dyn.dhs.org

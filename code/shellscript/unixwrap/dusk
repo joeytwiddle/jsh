@@ -1,15 +1,29 @@
 (
 
-	ARGS="$*";
+	ARGS="$@";
 	if test "x$ARGS" = "x"; then
-	  ARGS="*";
+	  # ARGS="* .*";
+	  # Yuk we need to strip out . and ..!
+	  ARGS=""
+	  for X in * .*; do
+			if test ! "$X" = ".."; then
+				# Uncomment this next if to keep this dir . (total)
+				if test ! "$X" = "."; then
+					echo "$X"
+				fi
+			fi
+		done | while read X; do
+			du -x -sk "$X"
+		done
+	else
+		du -x -sk "$@"
 	fi
-	du -x -sk $ARGS | sort -n -k 1
 
-) |
+) | sort -n -k 1 |
 
 # Pretty printing
 while read X Y; do
+	# echo ">>$Y<<"
 	echo -e "$X\t"`ls -artFd --color "$Y"`
 done
 

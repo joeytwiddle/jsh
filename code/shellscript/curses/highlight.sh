@@ -20,5 +20,5 @@ if test $BOLD; then
   HIGHCOL="$HIGHCOL"`cursebold`
 fi
 
-echo "$NORMCOL"
+echo -n "$NORMCOL"
 sed "s|$1|$HIGHCOL$1$NORMCOL|g"

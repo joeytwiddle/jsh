@@ -1,1 +1,1 @@
-ssh -X -l pclark maxx
+ssh -l pclark maxx

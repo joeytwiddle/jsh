@@ -4,16 +4,20 @@
 
 NEWDIR="$@"
 
+# Record where we are for b and f sh tools
 echo "$PWD" >> $HOME/.dirhistory
 
-# echo "Doing cd $NEWDIR"
-# I think "cd" prevents aliasing
 if [ "$NEWDIR" = "" ]; then
+  # I prefer the directory above my home!
   "cd" $HOME/..
   # "cd"
 elif test -d "$NEWDIR"; then
   'cd' "$NEWDIR"
 else
+	# If incomplete dir given, check if there is a
+	# unique directory they probably meant.
+	# Useful substitue when tab-completion unavailable,
+	# or with tab-completion which does not contextually exclude files.
 	LIST=`'ls' -d "$NEWDIR"*`
 	NEWLIST=`echo "$LIST" | 
 		while read X; do

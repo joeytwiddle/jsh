@@ -8,7 +8,7 @@
 
 # FILES="$@"
 
-if test "_$*" = "_"; then
+if test "$*" = ""; then
   echo "del <files>"
   echo "will move <files> to $DEST"
   exit 1
@@ -25,12 +25,12 @@ fi
 
 # for x in $*; do
 
-while test $1; do
+while test "$1"; do
 	x="$1"
 	shift
 
   # if ! there $x ]; then
-  if test ! -e $x; then
+  if test ! -e "$x"; then
     echo "$x does not exist!"
   else
 

@@ -1,1 +1,1 @@
-ssh -X -l mike bristol.indymedia.org
+ssh -l mike bristol.indymedia.org

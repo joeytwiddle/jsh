@@ -5,18 +5,21 @@ if test "$1x$2" = "x"; then
 fi
 
 LIST=$1;
+# ARGS=`echo "$*" | afterfirst "$LIST"`;
 shift
-ARGS=`echo "$*" | afterfirst "$LIST"`;
+# ARGS="$@"
 
 # echo "l='$LIST' a='$ARGS'"
 
 for FILE in $LIST; do
   # echo "file: $FILE"
+  # Problems on Solaris (which only builtin?)
   # TRY=`jwhich $FILE`
-  TRY=`which $FILE`
-  # Uncomment this, disrupt $? next line   echo 'Got: "'$TRY'"'
+  TRY=`jwhich inj "$FILE"`
+  # Uncomment this, disrupt $? next line
+  # echo 'Got: "'$TRY'"'
   # if test "$?" = "0"; then
-  if test ! "x$TRY" = "x" -a -x "$TRY"; then
+  if test ! "$TRY" = "" -a -x "$TRY"; then
     # echo "runoneof: trying $TRY"
     $TRY "$@"
 		# $ARGS
@@ -28,6 +31,8 @@ for FILE in $LIST; do
       # echo "$TRY done bad"
       echo 'runoneof: Failure on "'$TRY'"'
     fi
+  else
+    echo "runoneof: $TRY not executable"
   fi
 done
 

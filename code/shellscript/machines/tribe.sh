@@ -1,1 +1,1 @@
-ssh -X -l joey tribe.hn.org
+ssh -l joey tribe.hn.org

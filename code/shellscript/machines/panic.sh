@@ -1,1 +1,1 @@
-ssh -X -l joey panic.cs.bris.ac.uk
+ssh -l joey panic.cs.bris.ac.uk

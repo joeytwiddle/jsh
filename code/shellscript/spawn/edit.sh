@@ -1,7 +1,7 @@
 if xisrunning; then
-	editandwait $* &
+	editandwait "$@" &
 else
-	editandwait $*
+	editandwait "$@"
 fi
 
 # FILE="$1"

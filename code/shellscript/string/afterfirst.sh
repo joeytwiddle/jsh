@@ -1,12 +1,16 @@
-# sed "s|$*\(.*\)|\2|"
+# Ugh
+# SPECIALSTR="nobodyWo0ldn6teverUsastwiunglikevish_unlessOfCourseTh3yw3r34<<355/|\|gthisFile!"
+SPECIALSTR="nbdW0d6eeUatinlkvs"
+sed "s|$*\(.*\)|$SPECIALSTR\1|" | sed "s|.*$SPECIALSTR||"
+
+# # Ugh
+# while read X; do
+  # Y=`echo "$X" | sed "s|$*.*||"`
+  # # echo "y=$Y"
+  # echo "$X" | sed "s|^$Y$*||"
+# done
 
 # This is actually afterfirstall !
-
-while read X; do
-  Y=`echo "$X" | sed "s|$*.*||"`
-  # echo "y=$Y"
-  echo "$X" | sed "s|^$Y$*||"
-done
 
 # Problem is sed doesn't do non-greedy matching
 # need context, but at this level of abstraction we need to ensure

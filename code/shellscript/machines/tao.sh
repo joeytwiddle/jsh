@@ -1,1 +1,1 @@
-ssh -X -l pclark tao.cs.bris.ac.uk
+ssh -l pclark tao.cs.bris.ac.uk

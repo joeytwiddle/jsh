@@ -1,1 +1,1 @@
-ssh -X -l pclark qanir
+ssh -l pclark qanir

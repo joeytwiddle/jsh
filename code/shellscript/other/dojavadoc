@@ -10,6 +10,7 @@ if [ "$FILES" = "" ]; then
 						grep -v "/CVS/" |
 						grep -v "notready/" |
 						grep -v "/old/" |
+						grep -v "/data/" |
 						grep -v "/.ver"`
 fi
 

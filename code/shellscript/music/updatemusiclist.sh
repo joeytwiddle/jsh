@@ -23,7 +23,14 @@
 
 # cd /stuff/mp3s
 # The extra slash on mp3s/ ensures find follow the link (if not use -follow)
-find /stuff/mp3s/ -iname "*.mp3" | grep -v /horrid | grep -v /dontplay/ > $JPATH/music/list.m3u
+find /stuff/mp3s/ -iname "*.mp3" |
+	grep -v /horrid |
+	grep -v /dontplay/ |
+	grep -v /_dontplay/ > $JPATH/music/list.m3u
+
+# echo "PID= $$"
+# requestsudo "source $JPATH/startj
+# myrenice -15 '-E (esd| grep -v /dontplay/ > $JPATH/music/list.m3u
 
 # echo "PID= $$"
 # requestsudo "source $JPATH/startj
