@@ -278,7 +278,7 @@ initialise () {
 	export STREAM_SOURCE="$1"
 	shift
 
-	export TOTAL_BUFFER_SIZE_MEG=20
+	[ "$TOTAL_BUFFER_SIZE_MEG" ] || export TOTAL_BUFFER_SIZE_MEG=20
 	## With my machine (and now that we are reading and writing from files), I really needed to save the ringbuffer in memory (aka ramfs):
 	## (Ah that is now no longer necessary, since I increased VQSCALE.)
 	# export STREAM_DATA_DIR=/dev/shm/joey/
