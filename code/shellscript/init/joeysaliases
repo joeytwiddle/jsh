@@ -1,13 +1,10 @@
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'
-alias ls="ls -atrF$XARGS"
+	alias ls="ls -atrF$XARGS"
+elif test $JM_DOES_COLOUR; then
+	alias ls="fakels"
 else
-alias ls="fakels"
+	alias ls="ls -atrF"
 fi
 
 hist='history -100 | grep'
-
-# del puts deleted files in trash
-# alias rm='echo "Deprecated, please use: del <files>"'
-#alias rm='echo "Deprecated, please use: del <files>" && $JPATH/tools/del'
-# alias rm='$JPATH/tools/del'
