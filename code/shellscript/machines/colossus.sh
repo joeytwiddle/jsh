@@ -1,1 +1,1 @@
-ssh -l pclark colossus.cs.bris.ac.uk
+ssh2box pclark@colossus.cs.bris.ac.uk

@@ -1,1 +1,1 @@
-ssh -l joey tribe.hn.org
+ssh2box joey@tribe.hn.org

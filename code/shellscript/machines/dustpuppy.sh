@@ -1,1 +1,1 @@
-ssh -l joey ss0557.resnet.bris.ac.uk
+ssh2box joey@ss0557.resnet.bris.ac.uk

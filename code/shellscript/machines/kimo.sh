@@ -1,1 +1,1 @@
-ssh -l pclark kimo.cs.bris.ac.uk
+ssh2box pclark@kimo.cs.bris.ac.uk

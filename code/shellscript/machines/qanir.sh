@@ -1,1 +1,1 @@
-ssh -l pclark qanir
+ssh2box pclark@qanir.cs.bris.ac.uk

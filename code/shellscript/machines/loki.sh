@@ -1,1 +1,1 @@
-ssh -l joey psybertech.hn.org
+ssh2box joey@psybertech.hn.org

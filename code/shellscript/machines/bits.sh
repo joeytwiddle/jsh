@@ -1,1 +1,1 @@
-ssh -l joey bits.bris.ac.uk
+ssh2box joey@bits.bris.ac.uk

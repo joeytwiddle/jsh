@@ -1,1 +1,1 @@
-ssh -l mike bristol.indymedia.org
+ssh2box mike@bristol.indymedia.org

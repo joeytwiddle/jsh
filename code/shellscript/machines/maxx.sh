@@ -1,1 +1,1 @@
-ssh -l pclark maxx
+sshbox pclark@maxx.cs.bris.ac.uk

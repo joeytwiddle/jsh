@@ -1,1 +1,1 @@
-ssh -X -l joey lawelawe.cs.bris.ac.uk
+ssh2box joey@lawelawe.cs.bris.ac.uk

@@ -1,1 +1,1 @@
-ssh -l joey neuralyte.org
+ssh2box joey@neuralyte.org
