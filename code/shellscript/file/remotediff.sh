@@ -1,10 +1,12 @@
 if test "$1" = "" -o "$2" = ""; then
-	echo "remotediff <local-dir> <user>@<host>:<remote-dir>"
+	echo "remotediff <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
 	exit 1
 fi
 
 LOCAL="$1"
 REMOTESTRING="$2"
+shift
+shift
 
 RUSER=`echo "$REMOTESTRING" | sed "s/@.*//"`
 RHOST=`echo "$REMOTESTRING" | sed "s/.*@//" | sed "s/:.*//"`
@@ -14,7 +16,7 @@ TMPONE="/tmp/local.cksum"
 TMPTWO="/tmp/remote.cksum"
 TMPTHREE="/tmp/difference.txt"
 
-FINDOPTS="-type f"
+FINDOPTS="-type f $@"
 
 CKSUMCOM='while read X; do cksum "$X"; done | tr "\t" " " | grep -v "/CVS/"'
 
@@ -59,7 +61,7 @@ preparefordiff () {
 	TMPTWO="$TMPTWO.sorted";
 }
 
-if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "bimdiff" -o "$DIFFCOM" = "gvimdiff"; then
+if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff"; then
 	preparefordiff
 fi
 

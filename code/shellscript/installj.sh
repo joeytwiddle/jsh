@@ -22,7 +22,7 @@ do
 			echo "    $0 \"\$HOME/j\" \"anonymous\""
 			echo "  Possible invocations:"
 			echo "    wget -O - http://hwi.ath.cx/installj | sh"
-			echo "    lynx --dump http://hwi.ath.cx/installj | sh"
+			echo "    lynx --source http://hwi.ath.cx/installj | sh"
 			exit 1
 		;;
 	esac

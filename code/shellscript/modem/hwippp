@@ -3,6 +3,8 @@
 case $1 in
   up)
     touch /var/hwi/orders/ensure-ip-up
+	 # chmod a+rw /var/hwi/orders/ensure-ip-up
+	 chown joey:joey /var/hwi/orders/ensure-ip-up
     ;;
   down)
     /bin/rm -f /var/hwi/orders/ensure-ip-up

@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # #!/bin/bash
+# Works for bash too despite its name!
 
 # d: change directory and record for b and f shell tools
 
@@ -63,16 +64,16 @@ else
 
 	if test "$NEWLIST" = ""; then
 		# No directory found
-		echo "X $LOOKIN/$LOOKFOR*"
+		echo "X"`cursered;cursebold`" $LOOKIN/$LOOKFOR*"`cursenorm`
 	elif test `echo "$NEWLIST" | countlines` = "1"; then
 		# One unique dir =)
-		echo "> $NEWLIST"
+		echo ">"`cursegreen`" $NEWLIST"`cursenorm`
 		'cd' "$NEWLIST"
 	else
 		# A few possibilities, suggest them to the user.
 		# echo "? $NEWLIST" | tr "\n" " "
 		echo "$NEWLIST" |
-		sed "s+\($NEWDIR\)\(.*\)$+? \1"`cursegreen`"\2"`cursenorm`"+"
+		sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`cursegreen`"\1"`curseyellow`"\2"`cursenorm`"+"
 		# sed 's+\(.*/\)\(.*\)+\? \1'`cursegreen`'\2/'`cursenorm`'+' |
 		# sed 's+/+'`cursegreen`'/'`cursenorm`"+g"
 		# echo -n "$NEWLIST" | tr "\n" " "

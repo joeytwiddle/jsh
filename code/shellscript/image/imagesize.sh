@@ -13,7 +13,8 @@ for X in "$@"; do
   if test $MULTIPLE; then
     printf "$X:	"
   fi
-  imageinfo "$X" | head -n 1 | after "$X " | beforefirst ' ' | beforefirst "+"
+  imageinfo "$X" 2>&1 | grep -v "^$X=>" | head -1 | sed 's+.* \([1234567890]*x[1234567890]*\) .*+\1+'
+  # imageinfo "$X" | head -n 1 | after "$X " | beforefirst ' ' | beforefirst "+"
   # | tail -n 1 | beforefirst ' '
   # | takecols 2
 done

@@ -29,14 +29,19 @@ for FILE do
 		echo "sedreplace: $FILE not writeable" >> /dev/stderr
 		break
 	fi
-	if test $DOBACKUP; then
-		mv "$FILE" "$FILE.b4sr"
-	fi
 	cat "$FILE" | sed "s|$FROM|$TO|g" > "$TMPFILE"
 	chmod --reference="$FILE" "$TMPFILE"
 	if cmp "$FILE" "$TMPFILE" > /dev/null; then
 		test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >> /dev/stderr
 	else
+		if test $DOBACKUP; then
+			mv "$FILE" "$FILE.b4sr" ||
+			if test ! "$?" = 0; then
+				echo "sedreplace: problem moving \"$FILE\" to \"$FILE.b4sr\"" >> /dev/stderr
+				echo "Aborting!"
+				exit 1
+			fi
+		fi
 		mv "$TMPFILE" "$FILE" ||
 			echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >> /dev/stderr
 	fi

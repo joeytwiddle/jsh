@@ -30,11 +30,12 @@ done
 SEARCH="$1"
 
 if test $WEBSRCH; then
-	# browse "http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all" &
+	PAGE="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all"
 	if xisrunning; then
-	newwin lynx "http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all" &
+		browse "$PAGE"
+		# newwin lynx "$PAGE"
 	else
-	lynx "http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all" &
+		lynx "$PAGE" &
 	fi
 fi
 

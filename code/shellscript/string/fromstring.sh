@@ -1,3 +1,5 @@
+# More like fromline
+
 ECHOBEFORE=
 ECHOAFTER=true
 if test "$1" = "-tostring"; then

@@ -19,25 +19,25 @@ $HOME/j
 
 export DONE="false" # this is for #!/bin/sh but not working yet
 
-set > /home/joey/j/tmp/jrun.envb4
+# set > /home/joey/j/tmp/jrun.envb4
 
 echo "$TRYDIRS" | while read X; do
-	echo "Trying >$X< $DONE"
+	# echo "Trying >$X< $DONE"
 	if test "$DONE" = "false"; then
 		if test -d "$X"; then
 			if test -x "$X/startj"; then
-				echo "Going for >$X<" >> /home/joey/j/tmp/jrun.log
+				# echo "Going for >$X<" >> /home/joey/j/tmp/jrun.log
 				# exec $X/startj
 				# source $X/startj
 				# . $X/startj
-				echo A
+				# echo A
 				. $X/code/shellscript/init/startj-hwi.sh simple
-				echo B
-				set > /home/joey/j/tmp/jrun.env
+				# echo B
+				# set > /home/joey/j/tmp/jrun.env
 				"$@"
 				RES="$?"
 				export DONE="true";
-				echo "Exiting with $RES"
+				# echo "Exiting with $RES"
 				exit "$RES"
 			fi
 		fi

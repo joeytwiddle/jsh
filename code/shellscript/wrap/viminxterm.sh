@@ -10,7 +10,7 @@ fi
 
 FILE="$1";
 
-if test -f "$FILE"; then
+if test -f "$FILE" && test ! `filesize "$FILE"` = "0"; then
 
 	# MAXVOL=`expr 80 "*" 50`
 	MAXVOL=`expr 120 "*" 60`
@@ -47,7 +47,7 @@ if test -f "$FILE"; then
 else
 
 	# Default size for new file
-	COLS=40
+	COLS=50
 	ROWS=20
 
 fi
