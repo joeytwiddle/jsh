@@ -4,7 +4,7 @@ STRING="$*"
 
 while read LINE &&
       [ ! "$LINE" = "$STRING" ]
-do noop
+do [ nothing ]
 done
 
 cat
