@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## Hooray!  By aliasing . and source to joeybashsource, we can intercept sources and deal with them approriately
+
 ## TODO: locking of jshstub's if another jshstub is already trying to retrieve the link
 
 ## TODO: if we identify that this call was a source, shouldn't we source the target?
@@ -7,7 +9,7 @@
 ## Goddammit I have that classic problem when bash sources us!
 
 ## For bash: hmmm still working on it
-echo "[[ jshstub: $SCRIPTNAME ( $_ | $0 | $# | $* | $FUNCNAME ) =$TOSOURCE= ]]" >&2
+# echo "[[ jshstub: $SCRIPTNAME ( $_ | $0 | $# | $* | $FUNCNAME ) =$TOSOURCE= ]]" >&2
 # echo "\$\_ = >$_<" >&2
 # echo "\$\0 = >$0<" >&2
 # echo "\$\# = >$#<" >&2
@@ -31,7 +33,7 @@ SCRIPTNAME=`basename "$SCRIPTFILE"`
 # if test "$SCRIPTNAME" = bash && test "$TOSOURCE"
 if test "$TOSOURCE"
 then
-	echo "[ jshstub: Noticed joeybashource = $TOSOURCE ok ]" >&2
+	# echo "[ jshstub: Noticed joeybashource = $TOSOURCE ok ]" >&2
 	if test ! "${TOSOURCE##/*}"
 	then SCRIPTFILE="$TOSOURCE"
 	else SCRIPTFILE="$JPATH/tools/$TOSOURCE"
@@ -117,31 +119,31 @@ then
 
 		rm -f "$SCRIPTFILE"
 
-		echo "[ jshstub: Retrieving $SCRIPT_WAS_SOURCED\"$SCRIPTNAME\" args=$* ]" >&2
+		echo "[ jshstub: Got request for $SCRIPT_WAS_SOURCED$SCRIPTNAME $* ]" >&2
 		## When sourced in zsh, $WGETCOM was not being expanded as desired.
 		eval $WGETCOM -q "$JSH_STUB_NET_SOURCE/$SCRIPTNAME" > "$SCRIPTFILE"
 
-		if test ! "$?" = 0
+		if test "$?" = 0
 		then
+			echo "[ jshstub: Downloaded $SCRIPTNAME ok. ]" >&2
+			chmod a+x "$SCRIPTFILE"
+		else
 			echo "[ jshstub: Error: failed to retrieve http://hwi.ath.cx/jshstubtools/$SCRIPTNAME ]" >&2
-			echo "[ jshstub: Replacing removed symlink ]" >&2
+			echo "[ jshstub: Replacing removed symlink, and stopping with false. ]" >&2
 			rm -f "$SCRIPTFILE"
 			ln -s "$JPATH/tools/jshstub" "$SCRIPTFILE"
 			OKTOGO=
 		fi
 
-		chmod a+x "$SCRIPTFILE"
-
 		rm -f "$LOCKFILE"
-
-		echo "[ jshstub: Got script \"$SCRIPTNAME\" ok, running: $SCRIPTFILE $* ]" >&2
-		echo >&2
 
 	fi
 
-	if test $OKTOGO && test ! "$DONTEXEC"
+	if test $OKTOGO # && test ! "$DONTEXEC"
 	then
 
+		echo "[ jshstub: Running: $SCRIPTFILE $* ]" >&2
+		echo >&2
 		## For bash experiment (doesn't work!):
 		hash -r
 
@@ -159,14 +161,8 @@ then
 			# "$SCRIPTFILE" "$@"
 		# fi
 
-	else
-
-		test $OKTOGO ## false
-
+	else false
 	fi
 
-else
-
-	test $OKTOGO ## false
-
+else false
 fi
