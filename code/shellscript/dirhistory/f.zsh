@@ -19,3 +19,4 @@ export PWD='$NEXT';
 # alias cd='cd'
 "cd" "$NEXT"
 
+xttitle "$USER@$HOST:$PWD"

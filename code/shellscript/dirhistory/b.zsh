@@ -4,12 +4,14 @@
 # Would like it to roll up one line ;)
 # echo -en "\006"
 
-ARGS="$@"
+SEARCHDIR="$1"
 
-if [ "$ARGS" = "" ]; then
+if [ "$SEARCHDIR" = "" ]; then
   LAST=`tail -1 $HOME/.dirhistory`
 else
-  LAST=`grep "$@" $HOME/.dirhistory | tail -1`
+  # LAST=`grep "$SEARCHDIR" $HOME/.dirhistory | tail -1`
+  # Exact:
+  LAST=`grep "$SEARCHDIR/$" $HOME/.dirhistory | tail -1`
 fi
 
 # echo "\"$@\""
@@ -22,3 +24,5 @@ mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 # export PWD='$LAST';
 # alias cd='cd'
 "cd" "$LAST"
+
+xttitle "$USER@$HOST:$PWD"

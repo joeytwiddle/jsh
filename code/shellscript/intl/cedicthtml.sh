@@ -9,6 +9,7 @@ TMPHTML=`jgettmp tmphtml`
 
 cat "$1" |
 findchinesecharacters |
+# java tools.intl.CEDict "$1" |
 removeduplicatelines > "$ALLCHARS"
 
 cedictbatchlookup "$ALLCHARS" | tee tmp.txt |

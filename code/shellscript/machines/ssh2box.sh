@@ -6,6 +6,7 @@ if test "$1" = ""; then
 fi
 
 SSHCOM="ssh -C $@"
+TITLE="$*"
 
 # Problem: Unix hostname does not allow this!
 SHORTHOSTNAME=`hostname`
@@ -16,7 +17,8 @@ if test "$DOMAIN" = `echo "$1" | afterfirst "\."`; then
 fi
 
 if xisrunning; then
-	xterm -title "$@" -e $SSHCOM
+	xterm -title "$TITLE" -e $SSHCOM
 else
+	xttitle "$TITLE"
 	$SSHCOM
 fi
