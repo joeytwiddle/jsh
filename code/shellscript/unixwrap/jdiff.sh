@@ -2,6 +2,7 @@ if test ! "$COLUMNS"
 then
 	COLUMNS=80
 	error "Please export COLUMNS."
+else COLUMNS=`expr $COLUMNS - 8`
 fi
 
 if test "$1" = "-infg"
@@ -10,8 +11,18 @@ elif xisrunning
 then bigwin "jdiff -infg $@ | more" && exit
 fi
 
+FILEA="$1"
+FILEB="$2"
+
+## I thought tabs were causing jdiff output formatting problems, but it wasn't them!
+# FILEAx=`jgettmp "$FILEA"`
+# FILEBx=`jgettmp "$FILEB"`
+# cat "$FILEA" | tr '\t' ">" > $FILEAx
+# cat "$FILEB" | tr '\t' ">" > $FILEBx
+
 echo "diff $@:"
-diff -W $COLUMNS --side-by-side $@ |
+# diff -W $COLUMNS --side-by-side "$FILEAx" "$FILEBx" |
+diff -W $COLUMNS --side-by-side "$FILEA" "$FILEB" |
 # tee /tmp/b4jdiff |
 ## These two break rarely:
 highlight -bold '^.* <$' red |
