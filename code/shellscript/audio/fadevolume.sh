@@ -18,3 +18,5 @@ while test ! $DONE; do
 done
 
 xmms -t &
+sleep 3
+aumix -v 50

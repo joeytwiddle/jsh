@@ -2,11 +2,13 @@
 
 ## Quick install invocations (no argument passing):
 ## wget -O - http://hwi.ath.cx/installj | sh
-## lynx --source http://hwi.ath.cx/installj | sh
+## lynx -source http://hwi.ath.cx/installj | sh
 
 ## Default setup
 export JPATH="$HOME/j"
 HWIUSER=anonymous
+
+## TODO: Rather than requesting arguments, should ask user.
 
 ## Parsing user options
 while test "$1"

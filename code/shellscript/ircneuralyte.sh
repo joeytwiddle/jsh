@@ -6,3 +6,4 @@
 bitchx joeybot irc.freenode.net -c "#neuralyte"
 
 # bitchx joey irc.indymedia.org -c "#meeting"
+# bitchx joey irc.indymedia.org -c "#bristoltech"

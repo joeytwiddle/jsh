@@ -19,10 +19,10 @@
 ## $JPATH/jsh
 ## Since jsh is not sourced, "$0" should contain said call
 
-if echo "$0" | grep "^/"; then
-	export JPATH="$PWD/"`dirname "$0"`
-else
+if echo "$0" | grep "^/" > /dev/null; then
 	export JPATH=`dirname "$0"`
+else
+	export JPATH="$PWD/"`dirname "$0"`
 fi
 
 if test ! "$*" = ""; then
@@ -35,7 +35,9 @@ if test ! "$*" = ""; then
 else
 
 	## Interactive shell: start user's favourite shell with startj as rc file.
-	if test `which zsh`; then
+	# if test `which zsh`; then
+	## TODO: problems with zsh running startj on orion
+	if test `hostname -s` = "hwi"; then
 		export ENV="$JPATH/startj"
 		zsh
 	else

@@ -49,7 +49,7 @@ PRE=`cat CVS/Root | afterlast ":"`"/"`cat CVS/Repository`"/"
 echo
 printf "# "
 cursecyan
-printf "Status of files compared to repository:"
+printf "Status of local files compared to repository:"
 cursenorm
 printf "\n"
 

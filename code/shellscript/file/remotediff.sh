@@ -27,7 +27,8 @@ REMOTECOM='cd "'"$RDIR"'" && find . '"$FINDOPTS"' | '"$CKSUMCOM"
 
 # Try to use (g)vimdiff or jfc if available
 if test ! "$DIFFCOM"; then
-	DIFFCOMS="gvimdiff vimdiff jfc diff"
+	## Note jfc not suitable because currently one-way only
+	DIFFCOMS="gvimdiff vimdiff jfc jdiff diff"
 	for X in $DIFFCOMS; do
 		if test "$DIFFCOM" = "" && which "$X" > /dev/null; then
 			DIFFCOM="$X"
@@ -61,7 +62,7 @@ preparefordiff () {
 	TMPTWO="$TMPTWO.sorted";
 }
 
-if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff"; then
+if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff" -o "$DIFFCOM" = "jdiff"; then
 	preparefordiff
 fi
 
