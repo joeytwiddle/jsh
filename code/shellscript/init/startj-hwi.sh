@@ -25,13 +25,6 @@ if test ! "$1" = "simple"; then
 	. joeysaliases
 	. cvsinit
 
-	if test $ZSH_NAME; then
-		. zshkeys
-	fi
-	if test "$0" = "bash"; then
-		. bashkeys
-	fi
-
 	# . dirhistorysetup.bash
 	. dirhistorysetup.zsh
 	. hwipromptforbash
@@ -57,11 +50,24 @@ if test ! "$1" = "simple"; then
 	# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
 	# $0 does OK for bash (at least when in .bash_profile!)
 	SHELLPS="$$"
-	SHORTSHELL=`findjob "$SHELLPS" | grep 'sh$' | tail -1 | sed "s/.* \([^ ]*sh\)$/\1/"`
+	SHORTSHELL=`
+		findjob "$SHELLPS" |
+		grep 'sh$' |
+		tail -1 |
+		sed "s/.* \([^ ]*sh\)$/\1/" |
+		sed "s/^-//"
+	`
 	# echo "shell = $SHORTSHELL"
 	# tcsh makes itself known by ${shell} envvar.
 	# This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
 	# SHORTSHELL=`echo "$SHELL" | afterlast "/"`
+
+	if test $ZSH_NAME; then
+		. zshkeys
+	fi
+	if test "$SHORTSHELL" = "bash"; then
+		. bashkeys
+	fi
 
 	### xterm title change
 
