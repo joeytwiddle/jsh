@@ -7,4 +7,11 @@ else
 	LOOK="$@"
 fi
 
-find "$LOOK" -type l | sed 's/^/rm "/;s/$/"/'
+find "$LOOK" -type l |
+	# I trust it:
+	# sed 's/^/rm "/;s/$/"/'
+	# But here's an ultra-confidence version:
+	while read X; do
+		echo "#   "`ls -dF --color "$X"`
+		echo "rm '$X'"
+	done

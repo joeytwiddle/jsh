@@ -3,7 +3,12 @@
 # Searches current cvs directory and looks for directories and files
 # which have not yet been added to the _local_ repository.
 
-echo "# Alternatively, try: cvs update 2>/dev/null | grep \?" >&2
+echo '# Alternatively, try: cvs update 2>/dev/null | grep -v "^\? "' >&2
+echo '# or cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"' >&2
+
+# To highlight lines from cvs diff -c :
+# cvs diff -r 1.27 simgen.c | sed "s/^\!/"`curseyellow`"\!/;s/$/"`cursegrey`"/"
+# (need to do > and < too)
 
 REPOS="$CVSROOT/"`cat CVS/Repository`
 
