@@ -53,7 +53,7 @@ fi |
 tee $CDLDIR/newcd.qkcksum.sb
 
 centralise "Checksumming cdrw"
-  ## Dunno why but my drive sometimes needs this sorta hard reset!
+  ## Dunno why but my drive sometimes needs this sorta hard reset:
   eject /mnt/cdrw
   uneject /mnt/cdrw
 mount /mnt/cdrw
