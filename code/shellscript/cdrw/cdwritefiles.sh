@@ -55,6 +55,12 @@ cursecyan
 
 CDLDIR=/stuff/cdlistings
 
+## Dunno why but my drive sometimes needs this as a sort of reset (it is done in parralel with directory checksum):
+(
+	eject $CDMNTPNT
+	uneject $CDMNTPNT
+) &
+
 centralise "Checksumming directory"
 if [ -f "$1" ]
 then
@@ -67,10 +73,9 @@ else
 fi |
 tee $CDLDIR/newcd.qkcksum.sb
 
+wait ## For the eject, uneject above.
+
 centralise "Checksumming cdrw"
-  ## Dunno why but my drive sometimes needs this sorta hard reset:
-  eject $CDMNTPNT
-  uneject $CDMNTPNT
 mount $CDMNTPNT
 cd $CDMNTPNT
 $CDLDIR/findaz.sh | tee $CDLDIR/newcd.qkcksum
