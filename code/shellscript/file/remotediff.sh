@@ -1,16 +1,112 @@
-if test "$1" = "" -o "$2" = ""; then
+### remotediff and rsyncdiff are currently stand-alone =)
+
+rsyncdiffdoc () {
+cat << !
+rsyncdiff - a special diff command for remotediff which lets you edit a set of recommended file transfers and then performs them =)
+  The remote machine must have find and cksum but doesn\'t need anything else.
+  rsyncdiff presents a list of files, with the words send / bring / diff beside them.
+  Delete the lines for actions you do not wish to perform, or edit them, then save and exit and the transfers will take place.
+  Files for diffing will be brought locally, and the extension .from-<host> will be added.  That is all.
+  You then need to type your password twice more for the transfers.  (TODO: these could be merged into one, but I wonder if we could keep the earlier ssh session open and reattach to it... )
+  TODO: We never actually create any diff lines, although the user can change the command.
+        diff could be recommended for files present on both machines.
+!
+}
+
+rsyncdiff () {
+
+	EDITFILE=`jgettmp remotediff.edit`
+	jfcsh "$1" "$2" > "$1.only"
+	jfcsh "$2" "$1" > "$2.only"
+	(
+		cat "$1.only" |
+		while read X; do grep "$X$" "$1.longer"; done |
+		sed "s/^/send  /"
+		cat "$2.only" |
+		while read X; do grep "$X$" "$2.longer"; done |
+		sed "s/^/bring /"
+	) |
+	## Took out -s "stabilise sort" from second sort for tao
+	sort -k 2 | sort -k 5 |
+	column -t -s '   ' > "$EDITFILE"
+
+	vim "$EDITFILE"
+
+	## TODO: error handling!
+	## eg. Could put exit 1 instead of echo "ERROR"
+
+	## Send local files
+	cat "$EDITFILE" | grep "^send  " |
+	while read LOCATION DATETIME CKSUM LEN FILENAME; do
+		echo "$LEN $RDIR/$FILENAME"
+		cat "$LOCAL/$FILENAME"
+	done |
+	ssh -C $RUSER@$RHOST '
+		while read LEN FILENAME; do
+			printf "Writing $FILENAME..." >&2
+			mkdir -p `dirname "$FILENAME"`
+			dd bs=1 count=$LEN > "$FILENAME" &&
+			echo "done." >&2 ||
+			echo "ERROR." >&2
+		done
+	'
+
+	## Bring remote files and files for diffing
+	(
+		cat "$EDITFILE" | grep "^bring " |
+		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			echo "$LEN $RDIR/$FILENAME"
+			echo "$LOCAL/$FILENAME"
+		done
+		cat "$EDITFILE" | grep "^diff " |
+		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+			echo "$LEN $RDIR/$FILENAME"
+			echo "$LOCAL/$FILENAME.from-$RHOST"
+		done
+	) |
+	ssh $RUSER@$RHOST '
+		while read LEN FILENAME; do
+			read GETFILENAME
+			echo "$LEN $GETFILENAME"
+			cat "$FILENAME"
+		done
+	' |
+	while read LEN GETFILENAME; do
+		printf "Reading $GETFILENAME..." >&2
+		mkdir -p `dirname "$GETFILENAME"`
+		dd bs=1 count=$LEN > "$GETFILENAME" 2> /dev/null
+		echo "done." >&2
+	done
+
+	cat "$EDITFILE" | grep "^diff " |
+	while read LOCATION DATETIME CKSUM LEN FILENAME; do
+		vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.remote"
+	done
+
+}
+
+
+
+### remotediff - compare local and remote drectories
+
+## User help:
+
+if test ! $2 # --help
+then
 	echo "remotediff -diffcom <diff_command> <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
-	echo "Supported diff commands: (may be provided in \$DIFFCOM, otherwise chosen from)"
+	echo "Supported diff commands: (may alternatively be provided in \$DIFFCOM)"
 	echo "  gvimdiff"
 	echo "  vimdiff"
 	echo "  jfc"
 	echo "  jdiff"
 	echo "  diff"
 	echo "  rsyncdiff - Lets you edit diff list then transports files."
+	# echo
+	# rsyncdiffdoc
 	exit 1
 fi
 
-### Read parameters
+### Read parameters:
 
 if test "$1" = -diffcom
 then
@@ -31,7 +127,7 @@ TMPONE=`jgettmp local.cksum`
 TMPTWO=`jgettmp remote.cksum`
 TMPTHREE=`jgettmp difference.txt`
 
-### Choose an available diff command
+### Choose an available diff command:
 
 if test ! "$DIFFCOM"; then
 	## Note jfcsh not suitable because currently one-way only (no longer true - fixit!)
@@ -50,7 +146,7 @@ if test ! "$DIFFCOM"; then
 fi
 # DIFFCOM="rsyncdiff"
 
-### Set up commands for cksum retrieval
+### Set up commands for cksum retrieval:
 
 FINDOPTS="-type f $@"
 
@@ -78,7 +174,7 @@ REMOTECOM='cd "'"$RDIR"'" && find . '"$FINDOPTS"' | '"$CKSUMCOM"
 
 
 
-### Get the cksums
+### Get the cksums:
 
 echo "Getting cksums for remote $RHOST:$RDIR"
 ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
@@ -90,17 +186,18 @@ wait
 
 
 
-## Post-process results if required
+## Post-process results if required:
 
 cat "$TMPONE.longer" | cut -d " " -f 2,3,4 > "$TMPONE"
 cat "$TMPTWO.longer" | cut -d " " -f 2,3,4 > "$TMPTWO"
 
-# Diff works badly if not sorted
+# Some diffs work badly if not sorted:
 preparefordiff () {
 	sort -k 3 "$TMPONE" > "$TMPONE.sorted"
 	sort -k 3 "$TMPTWO" > "$TMPTWO.sorted"
+	## Wow these vars gets exported up to main flow:
 	TMPONE="$TMPONE.sorted"
-	TMPTWO="$TMPTWO.sorted";
+	TMPTWO="$TMPTWO.sorted"
 }
 
 if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff" -o "$DIFFCOM" = "jdiff"; then
@@ -112,81 +209,7 @@ fi
 
 
 
-### Finally display the difference
-
-## rsyncdiff - a special diff command which lets you edit the diff and then
-## transfers the files for you =)
-rsyncdiff () {
-
-	EDITFILE=`jgettmp remotediff.edit`
-	jfcsh "$1" "$2" > "$1.only"
-	jfcsh "$2" "$1" > "$2.only"
-	(
-		cat "$1.only" |
-		while read X; do grep "$X$" "$1.longer"; done |
-		sed "s/^/local /"
-		cat "$2.only" |
-		while read X; do grep "$X$" "$2.longer"; done |
-		sed "s/^/remote /"
-	) |
-	## Took out -s "stabilise sort" from second sort for tao
-	sort -k 2 | sort -k 5 |
-	column -t -s '   ' > "$EDITFILE"
-
-	vim "$EDITFILE"
-
-	## TODO: error handling!
-	## eg. Could put exit 1 instead of echo "ERROR"
-
-	## Send local files
-	cat "$EDITFILE" | grep "^local " |
-	while read LOCATION DATETIME CKSUM LEN FILENAME; do
-		echo "$LEN $RDIR/$FILENAME"
-		cat "$LOCAL/$FILENAME"
-	done |
-	ssh -C $RUSER@$RHOST '
-		while read LEN FILENAME; do
-			printf "Writing $FILENAME..." >&2
-			mkdir -p `dirname "$FILENAME"`
-			dd bs=1 count=$LEN > "$FILENAME" &&
-			echo "done." >&2 ||
-			echo "ERROR." >&2
-		done
-	'
-
-	## Bring remote files and files for diffing
-	(
-		cat "$EDITFILE" | grep "^remote " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			echo "$LEN $RDIR/$FILENAME"
-			echo "$LOCAL/$FILENAME"
-		done
-		cat "$EDITFILE" | grep "^diff " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME; do
-			echo "$LEN $RDIR/$FILENAME"
-			echo "$LOCAL/$FILENAME.remote"
-		done
-	) |
-	ssh $RUSER@$RHOST '
-		while read LEN FILENAME; do
-			read GETFILENAME
-			echo "$LEN $GETFILENAME"
-			cat "$FILENAME"
-		done
-	' |
-	while read LEN GETFILENAME; do
-		printf "Reading $GETFILENAME..." >&2
-		mkdir -p `dirname "$GETFILENAME"`
-		dd bs=1 count=$LEN > "$GETFILENAME" 2> /dev/null
-		echo "done." >&2
-	done
-
-	cat "$EDITFILE" | grep "^diff " |
-	while read LOCATION DATETIME CKSUM LEN FILENAME; do
-		vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.remote"
-	done
-
-}
+### Finally display the differences or start rsyncdiff:
 
 # echo "Comparing $LOCAL to $RHOST:$RDIR using $DIFFCOM ..."
 echo "Comparing local to remote using \"$DIFFCOM\" ..."

@@ -1,9 +1,16 @@
 #!/bin/sh
+
+TRASHDIR="$JPATH/trash"
+if test ! -w "$JPATH/trash"
+then TRASHDIR=`dirname "\`jgettmp\`"`/trash
+fi
+
 if test "$1" = ""; then
-	ls -F $JPATH/trash/$PWD
+	echo "Deleted files in `#cursegreen`$TRASHDIR/$PWD/`#cursenorm`:"
+	ls -ArtFh --color $TRASHDIR/$PWD
 else
 	while test ! "$1" = ""; do
-		DELEDFILE="$JPATH/trash/$PWD/$1"
+		DELEDFILE="$TRASHDIR/$PWD/$1"
 		# Problem is: may be a broken symlink that will fix on undeletion
 		# # May not be compatible with Unix:
 		# if test ! -e "$DELEDFILE"; then
@@ -11,7 +18,7 @@ else
 			if test ! -d "$DELEDFILE"; then
 				echo "Sorry - $DELEDFILE is neither a file or directory."
 				echo "Try one of these ..."
-				find $JPATH/trash -name "$1"
+				find $TRASHDIR -name "$1"
 				echo "Note: there were $# files left to undel."
 				exit 1
 			fi

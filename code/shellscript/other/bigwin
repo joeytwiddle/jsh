@@ -7,8 +7,11 @@ if [ "$COM" = "" ]; then COM="jsh"; fi
 TMPSH=`jgettmp "bigwin: $*"`
 (
 	echo "$COM"
-	echo 'echo "Press <Enter> key to quit"'
-	echo 'waitforkeypress'
+	if xisrunning
+	then
+		echo 'echo "Press <Enter> key to quit"'
+		echo 'waitforkeypress'
+	fi
 ) > "$TMPSH"
 chmod a+x "$TMPSH"
 

@@ -15,9 +15,10 @@ then unj mutt "$@"
 else unj mutt -f "$HOME/Mail/incoming"
 fi
 
-MBSCHANGED=`
-find "$FINDDIR" -newer "$TMPFILE"
-`
+if test -d "$FINDDIR"
+then
+	MBSCHANGED=` find "$FINDDIR" -newer "$TMPFILE" `
+fi
 
 jdeltmp $TMPFILE
 

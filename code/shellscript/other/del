@@ -9,9 +9,14 @@
 
 # FILES="$@"
 
+TRASHDIR="$JPATH/trash"
+if test ! -w "$JPATH/trash"
+then TRASHDIR=`dirname "\`jgettmp\`"`/trash
+fi
+
 if test "$1x" = "x"; then
 	echo "del [-cvs] <files>"
-	echo "will move <files> to $JPATH/trash/"
+	echo "will move <files> to $TRASHDIR/"
 	echo "and optionally (-cvs) remove them from CVS too."
 	exit 1
 fi
@@ -53,7 +58,7 @@ while test "$1"; do
 			echo "Unexpected: SRCDIR=."
 			SRCDIR="$PWD"
 		fi
-		DEST="$JPATH/trash$SRCDIR"
+		DEST="$TRASHDIR$SRCDIR"
 
 		# Create destination directory
 		while test -f "$DEST"; do
@@ -121,7 +126,7 @@ done
 
 exit $ALLOK
 
-# echo "mkdir -p $JPATH/trash/$PWD/"
-# mkdir -p $JPATH/trash/$PWD/
-# echo "mv -f $@ $JPATH/trash/$PWD/"
-# mv -f $@ $JPATH/trash/$PWD/
+# echo "mkdir -p $TRASHDIR/$PWD/"
+# mkdir -p $TRASHDIR/$PWD/
+# echo "mv -f $@ $TRASHDIR/$PWD/"
+# mv -f $@ $TRASHDIR/$PWD/

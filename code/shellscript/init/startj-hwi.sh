@@ -71,7 +71,7 @@ else
 			echo "startj: Could not find JPATH. Not starting."
 			OKTOSTART=
 		fi
-		test "$OKTOSTART" && echo "startj: found JPATH=$JPATH"
+		# test "$OKTOSTART" && echo "startj: found JPATH=$JPATH"
 	fi
 
 	if test $OKTOSTART

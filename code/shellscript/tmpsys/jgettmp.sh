@@ -26,13 +26,13 @@ test "$TMPDIR" && TOPTMP="$TMPDIR" || TOPTMP="$JPATH/tmp"
 if test ! -w "$TOPTMP"
 then
 	TOPTMP="/tmp/jsh-tempdir-for-$USER"
-	## Mega-secure, if it exists but isn't writeable:
+	## If it exists but isn't writeable:
 	while test -e $TOPTMP && test ! -w $TOPTMP
 	do TOPTMP="$TOPTMP"_
 	done
 	if test ! -e $TOPTMP
 	then mkdir -p $TOPTMP
-	     echo "Created a temporary directory for you: $TOPTMP"
+		echo "Created a temporary directory for you: $TOPTMP" >&2
 	fi
 	chmod go-rwx $TOPTMP
 fi
