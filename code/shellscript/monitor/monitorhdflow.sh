@@ -34,7 +34,9 @@ done |
 			# echo MAJOR MINOR BLOCKS NAME RIO RMERGE RSECT RUSE WIO WMERGE WSECT WUSE RUNNING USE AVEQ
 			# echo $MAJOR $MINOR $BLOCKS $NAME $RIO $RMERGE $RSECT $RUSE $WIO $WMERGE $WSECT $WUSE $RUNNING $USE $AVEQ
 
-			NEWVAL="$USE"
+			# NEWVAL="$USE"
+			NEWVAL=`expr "$RIO" + "$WIO"`
+			# echo -n -e "$RIO in\t$WIO out\t"
 			# echo "newval = $NEWVAL"
 			NEWTIME=`date +"%s.%N" | sed 's+\(.*\....\).*+\1+'`
 

@@ -72,14 +72,14 @@ then
 	exit 1
 fi
 
-[ "$REMEMOWHEN" ] || REMEMOWHEN='false' ## or whatever we think the default should be
+[ "$REMEMOWHEN" ] || REMEMOWHEN='false' ## or whatever we think the default should be: 1min, 5mins or 1hour; guess from files in arguments?!
 while true
 do
   case "$1" in
     -t)
       export TIME="$2"
       shift; shift
-			AGEFILE=`jgettmp check_age`
+      AGEFILE=`jgettmp check_age`
       REMEMOWHEN="$REMEMOWHEN"' || (
         touch -d "$TIME ago" $AGEFILE
         newer $AGEFILE "$FILE"
