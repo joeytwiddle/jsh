@@ -40,8 +40,7 @@ FILE=`
 if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null; then
   echo "del \"$FILE\""
   ln -sf "$FILE" "$JPATH/background1.jpg"
-  xv -root -rmode 5 -maxpect -quit "$FILE" 1>&2 ||
-  xsetroot -bitmap "$FILE" 1>&2 &
+  xsetbg "$FILE"
 else
   echo "Wallpaper $FILE does not exist or is not an image!"
   # Dangerous!

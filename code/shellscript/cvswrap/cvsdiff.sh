@@ -39,6 +39,9 @@ printf "Status of local files compared to repository:"
 cursenorm
 printf "\n"
 
+## TODO: When your local checkout is not recently updated,
+##       we seem to get a shorter REPOSLIST than we should.
+
 cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
 	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
