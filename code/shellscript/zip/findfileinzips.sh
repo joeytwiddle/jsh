@@ -1,3 +1,11 @@
+if [ "$1" = "" ]
+then
+	echo
+	echo "findfileinzips <file_pattern> <zip/jar/tgz_file>s..."
+	echo
+	exit 1
+fi
+
 FILEPAT="$1"
 shift
 for ZIPFILE
