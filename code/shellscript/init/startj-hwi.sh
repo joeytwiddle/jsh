@@ -1,7 +1,5 @@
 export JPATH=$HOME/j
-# export JWHICHOS=unix
 export PATH=$JPATH/tools:$PATH
-# export PATH=$JPATH/tools:$PATH:.
 
 # Don't know why Debian lost this pathdir:
 export PATH=$PATH:/usr/X11R6/bin/
