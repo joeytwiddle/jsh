@@ -1,0 +1,28 @@
+IP="ip=`ppp-getip`"
+
+# dyndhs.org update (using hwi.ath.cx):
+
+/root/ipcheck/doipcheck
+
+# # dhs.org for hwi.dyn.dhs.org:
+# HOST="hwi"
+# USER="joey0"
+# PASS="changeme"
+# 
+# URL="http://members.dhs.org/nic/hosts"
+# HOSTCMD="hostscmd=edit&hostscmdstage=2"
+# TYPES="type=4&updatetype=Online"
+# CLOAK="cloak=Y&cloak_title=cloak+title"
+# REST="mx=psybertech.yi.org&offline_url=&submit=Update&domain=dyn.dhs.org&hostname=$HOST"
+# 
+# WHOLEURL="$URL?$HOSTCMD&$TYPES&$IP&$REST&$CLOAK"
+# 
+# echo "Updating IP to $IP"
+# echo "Using following URL: $WHOLEURL"
+# 
+# # echo "Lynx can't handle terminal $TERM"
+# # echo "NOT UPDATING IP!"
+# echo "UPDATING IP!"
+# env TERM=vt100 lynx -auth=$USER:$PASS -dump "$WHOLEURL"
+
+echo "$IP" >> /home/joey/j/logs/iphistory.txt
