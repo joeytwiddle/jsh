@@ -2,6 +2,11 @@
 # jsh-ext-depends: gzip tar cmp
 # jsh-depends: del
 # jsh-depends-ignore: after before
+
+## TODO: For the case when some program is writing to the file and does not let go whilst we are rolling it:
+##       Instead of moving file / inode (bad), I think we should printf "" > "$FILE" to ensure it is emptied, and to ensure the software continues to write to the live file.
+##       (We can cp or cat | gzip the file to create the newest rotated.)
+
 ## TODO: What's that oldMEGA business?  Is it kosha?
 ## TODO: Instead of moving, or deleting, original file, sometimes it may be better to echo -n into it.  (inode business)
 ## TODO: auto -nozip for all zip files!  (or files which compress badly, ie. compressed in any way, eg. au, vid)
