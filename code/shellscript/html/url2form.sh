@@ -4,9 +4,9 @@ MAIN=`echo "$URL" | before "?"`
 REST=`echo "$URL" | afterfirst "?"`
 BITS=`echo "$REST" | betweenthe "&"`
 
-echo 'Main = "'$MAIN'"'
-echo 'Rest = "'$REST'"'
-echo 'Bits = "'$BITS'"'
+echo 'Main = "'$MAIN'"' > /dev/stderr
+echo 'Rest = "'$REST'"' > /dev/stderr
+echo 'Bits = "'$BITS'"' > /dev/stderr
 
 echo '  <FORM TARGET="blank" ACTION="'$MAIN'" method="GET">'
 
