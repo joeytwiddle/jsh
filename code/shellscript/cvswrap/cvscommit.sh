@@ -28,7 +28,7 @@ then
 		) | more
 		curseyellow
 		echo
-		echo "Provide a comment with which to commit $FILE, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
+		echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
 		cursenorm
 		read INPUT
 		if test "$INPUT"
