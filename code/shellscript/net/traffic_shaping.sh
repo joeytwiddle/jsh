@@ -25,16 +25,21 @@ case "$1" in
 			/sbin/tc qdisc del dev "$DEV" root 2>/dev/null
 
 			## add default 4-band priority qdisc to "$DEV"
-			/sbin/tc qdisc add dev "$DEV" root handle 1: prio
+			/sbin/tc qdisc add dev "$DEV" root handle 1: prio bands 4
+
 
 			## add a <128kbit rate limit (matches DSL upstream bandwidth) with a very deep buffer to the bulk band (#3)
 			## 99 kbit/s == 8 1500 byte packets/sec, so a latency of 5 sec means we will buffer up to 40 of these big
 			## ones before dropping. a buffer of 1600 tokens means that at any time we are ready to burst one of
 			## these big ones (at the peakrate, 128kbit/s). the mtu of 1518 instead of 1514 is in case I ever start
 			## using vlan tagging, because if mtu is too low (like 1500) then all traffic blocks
-			/sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 99kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 60kbit buffer 1600 peakrate 75kbit mtu 1518 mpu 64 latency 50ms
+			/sbin/tc qdisc add dev "$DEV" parent 1:4 handle 14: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
+
+			## For small packets:
+			/sbin/tc qdisc add dev "$DEV" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 
 			## add fifos to the other two bands so we can have some stats
 			/sbin/tc qdisc add dev "$DEV" parent 1:2 handle 12: pfifo
@@ -57,13 +62,6 @@ case "$1" in
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 22 0xffff flowid 1:1
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 22 0xffff flowid 1:1
 
-			## small IP packets go to band #2
-			## by small I mean <128 bytes in the IP datagram, or in other words, the upper 9 bits of the iph.tot_len are 0
-			## note: this completely fails to do the right thing with fragmented packets. However
-			## we happen to not have many (any? icmp maybe, but tcp?) fragmented packets going out the DSL line
-			# /sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:2
-			## Joey finds there are too many, at least when running multiple bittorrents.  CONSIDER: make abother tbf for the small packets?
-
 			## Joey made this one to give http higher priority than the rest of the traffic
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 80 0xffff flowid 1:1
 			## But I want to give this machine's webserver priority 2:
@@ -71,13 +69,13 @@ case "$1" in
 
 			## Joey: and imap:
 			## Hwi's mail services:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 143 0xffff flowid 1:2
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 220 0xffff flowid 1:2
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 993 0xffff flowid 1:2
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 143 0xffff flowid 1:1
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 220 0xffff flowid 1:1
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 993 0xffff flowid 1:1
 			## Remote mail:
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 143 0xffff flowid 1:2
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 220 0xffff flowid 1:2
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 993 0xffff flowid 1:2
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 143 0xffff flowid 1:1
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 220 0xffff flowid 1:1
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 993 0xffff flowid 1:1
 
 			## Joey: and peercast:
 			## Outgoing:
@@ -89,13 +87,21 @@ case "$1" in
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip sport 2401 0xffff flowid 1:2
 			/sbin/tc filter add dev "$DEV" parent 1:0 prio 1 protocol ip u32 match ip dport 2401 0xffff flowid 1:2
 
+			## small IP packets go to band #2 (Joey: #3)
+			## by small I mean <128 bytes in the IP datagram, or in other words, the upper 9 bits of the iph.tot_len are 0
+			## note: this completely fails to do the right thing with fragmented packets. However
+			## we happen to not have many (any? icmp maybe, but tcp?) fragmented packets going out the DSL line
+			# /sbin/tc filter add dev "$DEV" parent 1:0 prio 2 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:2
+			## Joey finds there are too many, at least when running multiple bittorrents.  CONSIDER: make abother tbf for the small packets?
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:3
+
 			## a final catch-all filter that redirects all remaining ip packets to band #4
 			## presumably all that is left are large packets headed out the DSL line, which are
 			## precisly those we wish to rate limit in order to keep them from filling the
 			## DSL modem's uplink egress queue and keeping the shorter 'interactive' packets from
 			## getting through
 			## the dummy match is required to make the command parse
-			/sbin/tc filter add dev "$DEV" parent 1:0 prio 3 protocol ip u32 match u8 0 0 at 0 flowid 1:3
+			/sbin/tc filter add dev "$DEV" parent 1:0 prio 4 protocol ip u32 match u8 0 0 at 0 flowid 1:4
 
 			## have the rest of the house think we are the gateway
 			## the reason I use arpspoofing is that I want automatic failover to the real gateway
