@@ -4,8 +4,16 @@
 #    - Need to kill discography listings!
 #    - There are also quite a few pages containing lyrics for a group of songs
 
-## usage: seeklyrics "<artist>" "<part of song title>" [ "<tiny part of song>" ] [ "-<other song titles>" ]
-## either of the latter two help in narrowing down on the particular song, and avoiding song listings =)
+if [ ! "$*" ]
+then
+	echo
+	echo 'seeklyrics "<artist>" "<song title>" [ "<part of song>" ] [ "-<other title>" ]*'
+	echo
+	echo '  Either of the latter two help in narrowing down on the particular song, and'
+	echo '  avoiding song listings.  =)'
+	echo
+	exit 1
+fi
 
 ## would be nice to name filenames simialr to the url (just strip '/'s "http::" and "www.".
 
@@ -65,6 +73,8 @@ do
 		cat $TMPDIR/$N.lyrics |
 		strippunctuation |
 		cat > $TMPDIR/$N.lyrics.nopun
+	else
+		echo "`cursered`$TMPDIR/$N.lyrics not found or <1k so skipping.`cursenorm`"
 	fi
 
 done
