@@ -1,3 +1,5 @@
+## I think UNGREP is no longer needed.
+
 if test `jwhich jfc`
 then JFCCOM="jfc simple oneway"
 else JFCCOM="jfcsh"
