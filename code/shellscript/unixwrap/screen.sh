@@ -1,3 +1,7 @@
+## screen (this script) with no args should only be interactive when run
+## by user directly from shell, so make interactivity an option, and make
+## an alias for it.
+
 # export SCREEN_RUNNING=true
 export DISPLAY=
 
@@ -12,7 +16,8 @@ then
 
 else
 
-	# echo "Once attached, press Ctrl+k then ? for help."
+	echo "Once attached, press Ctrl+k then ? for help."
+	echo "To reach deeper screens, press Ctrl+k then Ctrl+l's."
 	unj screen -list
 	# sleep 1
 	DEFNAME="`hostname`"
@@ -22,6 +27,7 @@ else
 	test "$NAME" || NAME=screen
 	# if test "$NAME"
 	# then
+		export SCREENNAME="$NAME"
 		screen -h 10000 -a "-e^k^l" -S "$NAME" -D -RR
 		# screen -a "-e^kk" -S "$NAME"
 		# ## If screen named exists

@@ -1,6 +1,8 @@
 REALMAN=`jwhich man`
 # INJ=`jwhich inj $1`
 
+## If screen is running, could pop up in an extra window.  Could make this X/screen window popup functionality generic
+
 ## If user is running in X, we pop up a separate window for them
 if xisrunning
 then

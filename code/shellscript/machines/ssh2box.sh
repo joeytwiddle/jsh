@@ -25,6 +25,7 @@ then
 	while [ "$2" ]; do shift; done
 	# SCRNAME="$1"
 	SCRNAME="sshs"
+	export SCREENNAME="$SCRNAME"
 	SCRSES=`screen -list | grep "$1" | head -1 | takecols 1`
 	if [ "$SCRSES" ]
 	then
