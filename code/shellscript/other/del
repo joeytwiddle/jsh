@@ -30,7 +30,7 @@ while test "$1"; do
 	shift
 
   # if ! there $x ]; then
-  if test -f "$x" -o -d "$x"; then
+  if test -f "$x" || test -d "$x"; then
 
     # Work out source => destination directory
     # SRCDIR=$PWD;
