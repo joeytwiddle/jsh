@@ -1,4 +1,5 @@
 ## BUGS: TODO: SERIOUS problem: ignores my speed=1 request and writes speeded-up audio !
+## Ah, maybe this is because I was using mpg321 instead of mpg123.
 
 ## TODO: don't allow overburning (could try using mp3duration)
 ## TODO: what about oggs?!
@@ -30,6 +31,7 @@ CDRECORD_OPTS="$CDRECORD_OPTS driveropts=burnfree"
 for I in "$@"
 do
 	nice --20 mpg123 --cdr - "$I" |
+	## TODO: shouldn't we specify -tao ?
 	nice --20 cdrecord $CDRECORD_OPTS -dev=0,0,0 -audio -pad -nofix - || exit 1
 done
 

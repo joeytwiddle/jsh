@@ -17,6 +17,7 @@ do
   if test $SWAPS -lt 1
   then echo "No swapfiles found for $X"
 
+  ## This didn't get caught one time when I thought it should have.  The file might have been a .file
   elif test $SWAPS -gt 1
   then echo "More than one swapfile found for $X.  TODO: can recover by referring to swapfile directly."
 

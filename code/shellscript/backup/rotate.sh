@@ -3,6 +3,9 @@
 # jsh-depends: del
 # jsh-depends-ignore: after before
 
+## TODO: inconsistency: rotating a file removes it, but rotating a folder leaves it intact!
+## NOTE: beware that some of my scripts to rotate logs and mailboxes require that the file is either emptied or removed.  Note that printf "" > might be better than rm, because anything writing to the file might still get some done!
+
 ## TODO: For the case when some program is writing to the file and does not let go whilst we are rolling it:
 ##       Instead of moving file / inode (bad), I think we should printf "" > "$FILE" to ensure it is emptied, and to ensure the software continues to write to the live file.
 ##       (We can cp or cat | gzip the file to create the newest rotated.)
