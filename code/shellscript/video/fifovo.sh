@@ -102,6 +102,8 @@ saving_thread () {
 		FILE="$STREAM_DATA_DIR/streamed.$WRITING_BLOCK.mpeg"
 
 		verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
+		# dd count=$BLOCK_SIZE bs=1 of="$FILE"
+
 		## Bad:
 		# verbosely dd count=1 bs=$BLOCK_SIZE of="$FILE"
 
@@ -112,6 +114,7 @@ saving_thread () {
 
 		# verbosely dd count=$BLOCK_SIZE bs=1 | cat > "$FILE"
 
+		## TODO: None of the above create the desired error exit code if no bytes were read.
 		if [ ! "$?" = 0 ]
 		then
 			jshinfo "There was a problem"
@@ -145,7 +148,7 @@ restreaming_thread () {
 		if [ -f "$FIFOVO_MESSAGE_DIR"/rewind ]
 		then
 			DISTANCE=`cat "$FIFOVO_MESSAGE_DIR"/rewind`
-			jshinfo "Rewinding $DISTANCE blocks ($BLOCK_SIZE bytes each)"
+			jshinfo "Rewinding $DISTANCE by blocks ($BLOCK_SIZE bytes each)"
 			LAST_CURRENT_STREAMING_BLOCK="$CURRENT_STREAMING_BLOCK"
 			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - $DISTANCE`
 			if [ ! "$CURRENT_STREAMING_BLOCK" ]
@@ -157,6 +160,7 @@ restreaming_thread () {
 			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + "$BUFFER_SIZE"`
 			fi
 			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
+			jshwarn "Due to mplayers cache you may need to wait a moment for the change..."
 			rm -f "$FIFOVO_MESSAGE_DIR"/rewind
 		fi
 
@@ -164,7 +168,7 @@ restreaming_thread () {
 		if [ -f "$FIFOVO_MESSAGE_DIR"/fastforward ]
 		then
 			DISTANCE=`cat "$FIFOVO_MESSAGE_DIR"/fastforward`
-			jshinfo "Fast-forwarding $DISTANCE blocks ($BLOCK_SIZE bytes each)"
+			jshinfo "Fast-forwarding $DISTANCE by blocks ($BLOCK_SIZE bytes each)"
 			LAST_CURRENT_STREAMING_BLOCK="$CURRENT_STREAMING_BLOCK"
 			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + $DISTANCE`
 			if [ ! "$CURRENT_STREAMING_BLOCK" ]
@@ -176,6 +180,7 @@ restreaming_thread () {
 			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - "$BUFFER_SIZE"`
 			fi
 			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
+			jshwarn "Due to mplayers cache you may need to wait a moment for the change..."
 			rm -f "$FIFOVO_MESSAGE_DIR"/fastforward
 		fi
 
@@ -349,6 +354,9 @@ initialise () {
 	rm -f "$ENCODED_FIFO" "$PLAYER_FIFO"
 	rm -f "$FIFOVO_MESSAGE_DIR"/stop_everything
 
+	## Cleanup any leftover nasties:
+	echo | mykill -x saving_thread > /dev/null
+
 }
 
 fifovohelp () {
@@ -358,19 +366,20 @@ fifovohelp () {
 	echo "  echo 10 > $FIFOVO_MESSAGE_DIR/fastforward"
 	echo "  touch $FIFOVO_MESSAGE_DIR/start_recording"
 	echo "    or        (NOTE: due to mplayer's cache, you should start recording early!)"
-	echo "  echo /tmp/yummy_vid.mpeg > $FIFOVO_MESSAGE_DIR/start_recording"
+	echo "  echo \$HOME/save_recording_here.mpeg > $FIFOVO_MESSAGE_DIR/start_recording"
 	echo "  touch $FIFOVO_MESSAGE_DIR/stop_recording"
 	echo
 	echo "To stop fifovo:"
 	echo "  Press 'q' on the mplayer window, and wait for the other threads to stop."
 	# echo "  and press Ctrl+C on the saving window."
-	echo "  If they don't, then press Ctrl+C here to close all remaining windows."
+	# echo "  If they don't, then press Ctrl+C here to close all remaining windows."
 	# echo
-	echo "Hopefully you no longer need these:"
+	# echo "Hopefully you no longer need these:"
+	echo "If that doesn't work, press Ctrl+C once on each spawned window.  You could also:"
 	# echo "  kill -KILL $ENCODING_PID $SAVING_PID $RESTREAMING_PID $PLAYER_PID"
 	echo "  killall -KILL mencoder mplayer"
 	# echo "  killall \"$0\""
-	echo "  mykill -x saving_thread"
+	# echo "  mykill -x saving_thread"
 	echo
 	echo "For better/faster encoding, export VQSCALE=<something less/more than $VQSCALE> ."
 	echo
