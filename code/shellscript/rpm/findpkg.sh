@@ -3,20 +3,25 @@ if test "$1" = ""; then
   exit 1
 fi
 
+if test "$1" = "-all"; then
+  ARGS="$2"
+else
+  ARGS="$1" # Could | grep -v "no description available"
+fi
+
 # use dlocate if it's available
 BIN=`jwhich dlocate`
 if test ! -x "$BIN"; then
   BIN=`jwhich dpkg`
+  ARGS="*$ARGS*"
 fi
 
 # extend columns in order to show full package name and description
-COM="env COLUMNS=184 $BIN -l"
+COM="env COLUMNS=184 $BIN -l $ARGS"
 
-if test "$1" = "-all"; then
-  $COM "*$2*"
-else
-  $COM "*$1*" # | grep -v "no description available"
-fi
+# echo "$COM"
+
+$COM
+
 # dpkg -l "*$**" | egrep -v "^?n"
 # dpkg -l "*$**" | grep "^[hi]"
-
