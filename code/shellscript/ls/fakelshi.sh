@@ -1,3 +1,9 @@
+if test ! "$1" = ""; then
+	DCFILE="$1"
+else
+	DCFILE="$HOME/.dircolors"
+fi
+
 NORM=`cursegrey`
 STARTCURSE=`printf "\033["`
 ENDCURSE=`printf "m"`
@@ -23,7 +29,7 @@ SEDSTR="$SEDSTR;s+$MATCHSTART +$REPLACE +g"
 SEDSTR="$SEDSTR;s+$MATCHSTART$+$REPLACE+"
 SEDMID="s+$MATCHMID+$REPLACE+"
 
-cat ~/.dircolors |
+cat "$DCFILE" |
 grep -v "^TERM" |
 sed "s/#.*//" |
 tr -s " " |

@@ -7,7 +7,7 @@ find . |
 		SOURCE="$JPATH/code/home/$X"
 		DEST="$HOME/$X"
 		if test ! -d "$DEST" && test ! -f "$DEST"; then
-			echo "~/$X -> $NICESOURCE"
+			echo "~/$X <- $SOURCE"
 			ln -sf "$SOURCE" "$DEST"
 		else
 			if test ! `realpath "$DEST"` = `realpath "$SOURCE"`; then
