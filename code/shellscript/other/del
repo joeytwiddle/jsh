@@ -1,132 +1,102 @@
 #!/bin/sh
-# del <files> : moves files to trash directory
-# It tries to keep the directory structure in the trash dir
-# but because it's not very clever, it uses your current dir
-# which might be different from the parent dir of a file you
-# are deleting.
-# If you want to preserve directory structure, always use del
-# in the directory the files are in.
 
-# FILES="$@"
+## BUGS: It appears to remove the PARENTPATH entirely when moving to $JPATH/trash !
 
-TRASHDIR="$JPATH/trash"
-if test ! -w "$JPATH/trash"
-then TRASHDIR=`dirname "\`jgettmp\`"`/trash
+DOCVS=
+if test "$1" = "-cvs"
+then DOCVS=true; shift
 fi
 
-if test "$1x" = "x"; then
-	echo "del [-cvs] <files>"
-	echo "will move <files> to $TRASHDIR/"
-	echo "and optionally (-cvs) remove them from CVS too."
+if test ! "$1" || test "$1" = --help
+then
+	echo 'del [-cvs] <files>'
+	echo 'will move <files> to the /RECLAIM directory of the partition, or to $JPATH/trash'
+	echo 'The option -cvs also runs "cvs remove" on each file.'
 	exit 1
 fi
 
-DOCVS=
-if test "$1" = "-cvs"; then
-	DOCVS=true
-	shift
-fi
-
-# N=1;
-# while test ! "x$[$N]" = "x"; do
-	# GET="x=$[$N]"
-	# $GET
-	# x=[$N];
-	# x=$(N);
-	# echo "x=$x"
-	# N=$[$N+1];
-
 ALLOK=0
 
-while test "$1"; do
-	x="$1"
-	shift
+for FILE
+do
 
-	# if ! there $x ]; then
-	if test -f "$x" || test -d "$x"; then
+  MOUNTPNT=`wheremounted "$FILE"`
+  PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
 
-		# Work out source => destination directory
-		# SRCDIR=$PWD;
-		# This goes wrong if $x starts with "/" or "."
-		if isabsolutepath "$x"; then
-			SRCDIR=`dirname "$x"`
-		else
-			SRCDIR=`dirname "$PWD/$x"`
-		fi
-		# echo "$SRCDIR"
-		if test "x$SRCDIR" = "x."; then
-			echo "Unexpected: SRCDIR=."
-			SRCDIR="$PWD"
-		fi
-		DEST="$TRASHDIR$SRCDIR"
+  ## Work out where to move the file to.
+  for TRASHDIR in "$MOUNTPNT/RECLAIM" "$JPATH/trash" "$HOME/.trash"
+  do
+    if test -w "$TRASHDIR" || test -w `basename "$TRASHDIR"`
+    then break
+    fi
+  done
 
-		# Create destination directory
-		while test -f "$DEST"; do
-			echo "$DEST is a file - using $DEST.dir"
-			DEST="$DEST.dir"
-		done
-		mkdir -p "$DEST"
-		if test ! -d "$DEST"; then
-			(
-			cursered
-			cursebold
-			echo "del: problem creating destination directory: $DEST"
-			echo "del: not moved to trash: $x"
-			cursenorm
-			) >&2
-			# waitforkeypress
-			# exit 1
-			ALLOK=1
-		else
+  if test -f "$FILE" || test -d "$FILE"
+  then
 
-			# Work out destination filename
-			# y=`echo $x | filename` # this also adds ' '!
-			y=`filename "$x"`   # or y=`echo $x | filename`
-			# echo ">$y<"
-			
-			# $x is as given, $SRCDIR/$y is absolute
-			# if test ! "_$SRCDIR/$y" = "_$x"; then
-			#   echo "Warning: $SRCDIR/$y != $x"
-			#   exit 1
-			# fi
-			
-			# This used to go wrong if $y is a dir ending in "/"
-			while test -f "$DEST/$y" -o -d "$DEST/$y"; do
-				# echo "$y already in trash - writing $y.new"
-				# mv "$y" "$y.new"   # required with $y $DEST below:   # now broken - needs $SRCDIR ?
-				# y="$y.new"
-				y="$y"_
-			done
+    DELTOPARENTDIR=`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
+    DEST="$TRASHDIR/$TODELPARENTDIR"
+    PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
 
-			# Move it and report =)
-			# mv -f "$y" "$DEST"   # (see above)
-			echo "$x "`cursegreen`"->"`cursenorm`" $DEST/$y"
-			mv -f "$x" "$DEST/$y"
+    # Create destination directory
+    while test -f "$DEST"
+    do
+      echo "$DEST is a file - using $DEST.dir"
+      DEST="$DEST.dir"
+    done
+    mkdir -p "$DEST"
+    if test ! -d "$DEST"; then
+      error "del: problem creating destination directory: $DEST"
+      error "del: not moved to trash: $FILE"
+      # waitforkeypress
+      # exit 1
+      ALLOK=1
+      break
+    fi
 
-			# Remove from CVS
-			if test $DOCVS; then
-				if test -d "$SRCDIR/CVS"; then
-					cvs remove $x > /dev/null 2>&1
-					if test "$?" = "0"; then
-						echo "Removed from CVS"
-					else
-						cursered
-						cursebold
-						echo "Error with CVS"
-						cursenorm
-					fi
-				fi
-			fi
+    FILENAME=`basename "$FILE"`
 
-		fi
+    while test -f "$DEST/$FILENAME" -o -d "$DEST/$FILENAME"
+    do
+      FILENAME="$FILENAME"_
+    done
 
-	else
-		echo "del: does not exist: $x"
-	fi
+    # Something used to go wrong if $FILENAME is a dir ending in "/"
+
+    # Move it and report =)
+    echo "$FILE "`cursegreen`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
+    mv -f "$FILE" "$DEST/$FILENAME"
+
+    # Remove from CVS
+    if test $DOCVS
+    then
+      if test -d "$PARENTDIR/CVS"
+      then
+        cvs remove $FILE > /dev/null 2>&1
+        if test "$?" = "0"
+        then
+          echo "Removed from CVS"
+        else
+          cursered
+          cursebold
+          echo "Error with CVS"
+          cursenorm
+        fi
+      fi
+    fi
+
+  else
+
+    error "del: does not exist: $FILE"
+    ALLOK=1
+
+  fi
+
 done
 
 exit $ALLOK
 
+## The beautiful original:
 # echo "mkdir -p $TRASHDIR/$PWD/"
 # mkdir -p $TRASHDIR/$PWD/
 # echo "mv -f $@ $TRASHDIR/$PWD/"
