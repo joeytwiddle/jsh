@@ -105,6 +105,8 @@ else
 		# test "$OKTOSTART" && echo "startj: found JPATH=$JPATH" >&2
 	fi
 
+	[ -e "$HOME"/disable_jsh ] && OKTOSTART=
+
 	if [ $OKTOSTART ]
 	then
 
