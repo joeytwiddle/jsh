@@ -1,16 +1,26 @@
-if xisrunning; then # test "x$DISPLAY" = "x"; then
-  FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim notepad"
-else
-  FAVOURITE_EDITORS="vim vi ae pico jpico gvim notepad"
+if xisrunning
+then FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim notepad"
+else FAVOURITE_EDITORS="vim vi ae pico jpico gvim notepad"
+fi
+
+if test "$1" = -keepdate
+then shift; KEEPDATE=true
+fi
+
+if test "$KEEPDATE"
+then
+	for X in "$@"
+	do touch -r "$X" "$X".keepdate
+	done
 fi
 
 runoneof "$FAVOURITE_EDITORS" "$@"
 
-# case $TERM in
-#   xterm)
-#     kwrite $1 $2 $3 $4 $5 $6 $7 $8 $9
-#     ;;
-#   *)
-#     pico $1 $2 $3 $4 $5 $6 $7 $8 $9
-#     ;;
-# esac
+if test "$KEEPDATE"
+then
+	for X in "$@"
+	do
+		touch -r "$X".keepdate "$X"
+		rm -f "$X".keepdate
+	done
+fi
