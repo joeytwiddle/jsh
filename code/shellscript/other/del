@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted
 
 ## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash
 
@@ -10,8 +11,9 @@ fi
 if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo 'del [-cvs] <file>...'
-	echo '  will move each <file> to the first writeable directory in:'
-	echo '    /RECLAIM on same partition, $TRASHDIR, $JPATH/trash, $HOME/.trash, /tmp/$USER-trash'
+	echo '  will move each <file> to the first writeable directory out of:'
+	echo '    /RECLAIM on same partition, $TRASHDIR, $JPATH/trash, $HOME/.trash,'
+	echo '    or /tmp/$USER-trash'
 	echo '  The option -cvs also runs "cvs remove" on each file.'
 	exit 1
 fi
@@ -21,89 +23,94 @@ ALLOK=0
 for FILE
 do
 
-  if [ -f "$FILE" ] || [ -d "$FILE" ]
-  then
+	if [ -f "$FILE" ] || [ -d "$FILE" ]
+	then
 
-    MOUNTPNT=`wheremounted "$FILE"`
-    PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
+		MOUNTPNT=`wheremounted "$FILE"`
+		PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
 
-    ## Work out where to move the file to.
-    for TRASHDIR in "$MOUNTPNT/RECLAIM" "$TRASHDIR" "$JPATH/trash" "$HOME/.trash" /tmp/$USER-trash NO_DIR_WRITEABLE
-    do
-      if [ -w "$TRASHDIR" ]
-      then break
-      fi
-      ## Create the directory if it's parent is writeable:
-      if [ -w `basename "$TRASHDIR"` ]
-      then mkdir "$TRASHDIR" && break
-      fi
-    done
+		## Work out where to move the file to.
+		for TRASHDIR in "$MOUNTPNT/RECLAIM" "$TRASHDIR" "$JPATH/trash" "$HOME/.trash" /tmp/$USER-trash NO_DIR_WRITEABLE
+		do
+			if [ "$TRASHDIR" ]
+			then
+				if [ -w "$TRASHDIR" ]
+				then break
+				# else echo "not writeable: $TRASHDIR" >&2
+				fi
+				## Create the directory if its parent is writeable:
+				if [ -w "`dirname \"$TRASHDIR\"`" ]
+				then mkdir "$TRASHDIR" && break
+				# else echo "not writeable: `dirname \"$TRASHDIR\"`" >&2
+				fi
+			fi
+		done
 
-    if [ "$TRASHDIR" = NO_DIR_WRITEABLE ]
-    then
-      error "No suitable trash directory found.  Please export environment variable TRASHDIR."
-      ALLOK=1
-      break ## continue
-    fi
+		if [ "$TRASHDIR" = NO_DIR_WRITEABLE ]
+		then
+			error "No suitable trash directory found.  Please export environment variable TRASHDIR."
+			ALLOK=1
+			break ## continue
+		fi
 
-    ## If deleting to $MOUNTPNT/RECLAIM then move MOUNTPNT from parent dir to delete to (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
-    if [ "$TRASHDIR" = "$MOUNTPNT/RECLAIM" ]
-    then TODELPARENTDIR=`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
-    else TODELPARENTDIR="$PARENTDIR"
-    fi
-    DEST="$TRASHDIR/$TODELPARENTDIR"
-    PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
+		## If deleting to $MOUNTPNT/RECLAIM then move MOUNTPNT from parent dir to delete to (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
+		if [ "$TRASHDIR" = "$MOUNTPNT/RECLAIM" ]
+		then TODELPARENTDIR=`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
+		else TODELPARENTDIR="$PARENTDIR"
+		fi
+		DEST="$TRASHDIR/$TODELPARENTDIR"
+		PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
 
-    # Create destination directory
-    while [ -f "$DEST" ]
-    do
-      echo "$DEST is a file - using $DEST.dir"
-      DEST="$DEST.dir"
-    done
-    mkdir -p "$DEST"
-    if [ ! -d "$DEST" ]
-    then
-      error "del: problem creating destination directory: $DEST"
-      error "del: not moved to trash: $FILE"
-      # waitforkeypress
-      # exit 1
-      ALLOK=1
-      break ## continue
-    fi
+		# Create destination directory
+		while [ -f "$DEST" ]
+		do
+			echo "$DEST is a file - using $DEST.dir"
+			DEST="$DEST.dir"
+		done
+		mkdir -p "$DEST"
+		if [ ! -d "$DEST" ]
+		then
+			error "del: problem creating destination directory: $DEST"
+			error "del: not moved to trash: $FILE"
+			# waitforkeypress
+			# exit 1
+			ALLOK=1
+			break ## continue
+		fi
 
-    FILENAME=`basename "$FILE"`
+		FILENAME=`basename "$FILE"`
 
-    while [ -f "$DEST/$FILENAME" ] || [ -d "$DEST/$FILENAME" ]
-    do
-      FILENAME="$FILENAME"_
-    done
+		while [ -f "$DEST/$FILENAME" ] || [ -d "$DEST/$FILENAME" ]
+		do
+			FILENAME="$FILENAME"_
+		done
 
-    # Something used to go wrong if $FILENAME is a dir ending in "/"
+		# Something used to go wrong if $FILENAME is a dir ending in "/"
 
-    # Move it and report =)
-    echo "$FILE "`cursegreen`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
-    mv -f "$FILE" "$DEST/$FILENAME"
+		# Move it and report =)
+		echo "$FILE "`cursegreen`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
+		mv -f "$FILE" "$DEST/$FILENAME"
 
-    # Remove from CVS
-    if [ $DOCVS ]
-    then
-      if [ -d "$PARENTDIR/CVS" ]
-      then
-        cvs remove $FILE > /dev/null 2>&1
-        if [ "$?" = 0 ]
-        then echo "Removed from CVS"
-        else echo "`cursered;cursebold`Error with CVS`cursenorm`"
-        fi
-      fi
-    fi
+		# Remove from CVS
+		if [ $DOCVS ]
+		then
+			if [ -d "$PARENTDIR/CVS" ]
+			then
+				cvs remove $FILE > /dev/null 2>&1
+				if [ "$?" = 0 ]
+				then echo "Removed from CVS"
+				else echo "`cursered;cursebold`Error with CVS`cursenorm`"
+				fi
+			fi
+		fi
 
-  else
+	else
 
-    error "del: does not exist: $FILE"
-    ALLOK=1
-    # continue
+		error "del: does not exist: $FILE"
+		ALLOK=1
+		# continue
 
-  fi
+	fi
 
 done
 

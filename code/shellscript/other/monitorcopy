@@ -2,4 +2,8 @@ SIZE=`du -sk $1 | awk ' { printf($1) } '`
 SOFAR=`du -sk $2 | awk ' { printf($1) } '`
 echo "So far, $SOFAR out of $SIZE has been copied"
 echo "Now showing proportion:"
-jrep du -sk $2 | awk ' { printf("\r"$1/'$SIZE'" ") } '
+OPTIONS=
+if awk -W version 2>&1 | grep "^mawk" > /dev/null
+then OPTIONS="-W interactive"
+fi
+jrep du -sk $2 | awk $OPTIONS ' { printf("\r"$1/'$SIZE'" ") } ' >&2

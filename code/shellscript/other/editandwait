@@ -20,7 +20,7 @@ runoneof "$FAVOURITE_EDITORS" "$@"
 
 if test "$KEEPDATE"
 then
-	for X in "$@"
+	for X
 	do
 		touch -r "$X".keepdate "$X"
 		rm -f "$X".keepdate

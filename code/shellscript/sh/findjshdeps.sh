@@ -51,7 +51,7 @@ LIST=`jgettmp possdepslist`
 
 (
 ## TODO: Haven't yet included $HOME/bin (could just use $PATH!)
- find $PATHS_TO_SYSTEM_BINARIES -maxdepth 1 -type f | afterlast / | trimsmall
+ find $PATHS_TO_SYSTEM_BINARIES -maxdepth 1 -type f | notindir CVS | afterlast / | trimsmall
  if [ $BOTHER_JSH ]
  then
    find $JPATH/tools -maxdepth 1 -type l | afterlast / | trimsmall |

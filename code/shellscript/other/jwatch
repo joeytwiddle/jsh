@@ -1,3 +1,5 @@
+# jsh-depends-ignore: check new
+# jsh-depends: cursecyan cursemagenta cursenorm jwatchcomp breakonctrlc jdeltmp jgettmp
 if test "$1" = "" || test "$1" = --help
 then
 	echo "jwatch [ -oneway ] [ -quiet ] [ -direct ] ... <command>"

@@ -1,3 +1,4 @@
+# jsh-depends: takecols drop realpath
 DIR=`realpath "$1"`
 
 df | drop 1 | takecols 6 |

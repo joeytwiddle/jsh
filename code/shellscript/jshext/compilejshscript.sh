@@ -1,6 +1,12 @@
+# jsh-depends-ignore: jsh
+# jsh-depends: cursecyan curseyellow cursenorm makeshfunction contains jdeltmp jgettmp
 ## Notes on cleanup:
 ##   If a script sources another using . <script>, then this should be at the start of a line, not hidden in a pipe.
 ##   If a script exits explicily with "exit", then this should be at the start of a line, not hidden in a pipe.
+
+
+
+## Problem: unj and jwhich don't work for functions (or do they!), so cksum might act recursively!
 
 
 
@@ -13,6 +19,10 @@
 # export DEPWIZ_VIGILANT=true
 # export DEPWIZ_LAZY=true
 
+
+if [ "$1" = -vigilant ]
+then export DEPWIZ_VIGILANT=true; shift
+fi
 
 
 MAINSCRIPT="$1"
@@ -143,11 +153,10 @@ echo >&2
 export TMPFILE MAINSCRIPT
 ## Perform cleanup, and add main call to main script's function:
 (
-	# echo "## $MAINSCRIPT standalone compiled at `date +%s` by $USER@`hostname -f`."
 	echo "## $MAINSCRIPT [compiled on `date +'%Y/%m/%d.%H:%M'` by $USER@`hostname -f`]"
-	echo "## Copyright (c) Free Software Foundation, released under GNU Public Licence"
+	echo "## Copyright 2003 Free Software Foundation, released under GNU Public Licence"
+	echo "## This is silly - what does GPL mean for non-binarised software?!"
 	echo "## Homepage: http://hwi.ath.cx/twiki/bin/view/Neuralyte/ProjectJsh"
-	# echo "## This is silly - what does GPL mean for non-binarised software?!"
 	echo
   cat $TMPFILE
 	echo "### MAIN CALL:"

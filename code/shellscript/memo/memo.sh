@@ -64,9 +64,7 @@ do
       export TIME="$2"
       shift; shift
       REMEMOWHEN="$REMEMOWHEN"' || (
-        TMPFILE=`jgettmp check_age`
         touch -d "$TIME ago" $TMPFILE
-        sleep 60 && jdeltmp $TMPFILE &
         newer $TMPFILE "$FILE"
       )'
     ;;
@@ -90,18 +88,26 @@ do
   esac
 done
 
-[ "$DEBUG" ] && debug "memo:     `cursemagenta`$*`cursenorm`"
-
 REALPWD=`realpath "$PWD"`
 CKSUM=`echo "$*" | md5sum`
-NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(................................................................................\).*+\1+'`
-export FILE="$MEMODIR/$NICECOM.memo"
+NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_+" | sed 's+\(................................................................................\).*+\1+'`
+FILE="$MEMODIR/$NICECOM.memo"
+TMPFILE=`jgettmp check_age`
+export CHECKDIR CHECKFILE REMEMOWHEN FILE TMPFILE
+
+# [ "$DEBUG" ] && debug "memo:     `cursemagenta`checking: $REMEMOWHEN (FILE=$FILE)`cursenorm`"
 
 # echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$FILE" ] || eval "$REMEMOWHEN"
-then rememo "$@"
-else cat "$FILE"
+then
+	# eval "$REMEMOWHEN" && [ "$DEBUG" ] && debug "memo:     `cursemagenta`Refresh needed with com: $REMEMOWHEN`cursenorm`"
+	rememo "$@"
+else
+	[ "$DEBUG" ] && debug "memo:     `cursemagenta`$*`cursenorm`"
+	cat "$FILE"
 fi
+
+jdeltmp $TMPFILE
 
 if [ "$MEMO_SHOW_INFO" ]
 then

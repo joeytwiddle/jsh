@@ -60,7 +60,7 @@ else
   fi
 
   echo
-  echo -n "Would you like to see (uses of|dependencies on) $1 in jsh? [yN] "
+  echo -n "Would you like to see (uses of|dependencies on) `cursecyan`$1`cursenorm` in jsh? [yN] "
   read KEY
   echo
   case "$KEY" in y|Y)

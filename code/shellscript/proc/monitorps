@@ -1,3 +1,4 @@
+# jsh-depends: jwatch psforwatch jwatchcomp
 ## Watches ps output for processes starting/stopping
 ## Quite useful, but note that very fast processes are
 ## not noticed if they start and stop inbetween two

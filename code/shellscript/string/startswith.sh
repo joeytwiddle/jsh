@@ -4,11 +4,13 @@ if test "$1" = "" && test "$2" = ""; then
   exit 123
 fi
 
-RESULT=`echo "$1" | grep "^$2"`
-if test "$RESULT" = ""; then
-  # echo "no"
-  exit 1
-else
-  # echo "yes"
-  exit 0
-fi
+[ ! "${1#$2}" = "$1" ]
+
+# RESULT=`echo "$1" | grep "^$2"`
+# if test "$RESULT" = ""; then
+  # # echo "no"
+  # exit 1
+# else
+  # # echo "yes"
+  # exit 0
+# fi

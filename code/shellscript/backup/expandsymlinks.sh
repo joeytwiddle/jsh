@@ -1,3 +1,4 @@
+# jsh-depends: del jdeltmp jgettmp
 ## Undoes contractsymlinks.
 ## Loses the dates on the symlinks, but I don't know how to set the symlink
 ## dates even if I had stored them.

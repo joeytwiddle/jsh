@@ -8,7 +8,7 @@
 MEMODIR=$TOPTMP/memo
 REALPWD=`realpath "$PWD"`
 CKSUM=`echo "$*" | md5sum`
-NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(................................................................................\).*+\1+'`
+NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_+" | sed 's+\(................................................................................\).*+\1+'`
 FILE="$MEMODIR/$NICECOM.memo"
 mkdir -p "$MEMODIR"
 
@@ -18,13 +18,12 @@ TMPFILE=`jgettmp tmprememo`
 ## Now passes back appropriate exit code: =)
 eval "$@" > $TMPFILE
 EXITWAS="$?"
-if [ ! "$EXITWAS" = 0 ]
+if [ "$EXITWAS" = 0 ]
 then
-  error "rememo: not caching since command gave exit code $EXITWAS: $*"
-  jdeltmp $TMPFILE
-  exit "$EXITWAS"
+	mv $TMPFILE "$FILE"
+	cat "$FILE"
+else
+  [ "$DEBUG" ] && debug "rememo: not caching since command gave exit code $EXITWAS: $*"
 fi
-mv $TMPFILE "$FILE"
-cat "$FILE"
 jdeltmp $TMPFILE
 exit "$EXITWAS"

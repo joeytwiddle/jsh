@@ -1,3 +1,5 @@
+# jsh-depends-ignore: before new filename
+# jsh-depends: filesize jdeltmp jgettmpdir contractsymlinks expandsymlinks
 ## Example recovery:
 ## mkdir /tmp/recover; cd /tmp/recover
 ## tar xfz /mnt/stig/makebaks/etc-0.tar.gz

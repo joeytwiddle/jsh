@@ -1,3 +1,4 @@
+# jsh-depends: cursebold cursered cursenorm jfcsh
 ## Default behaviour is to display dropped lines in red, and new lines in white
 ## The option -oneway means dropped lines will not be reported.
 

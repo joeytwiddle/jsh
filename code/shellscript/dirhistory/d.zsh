@@ -15,32 +15,28 @@ echo "$PWD" >> $HOME/.dirhistory
 
 if [ -d "$NEWDIR" ]
 then
-
-	# The user specified a directory, plain and simple.
+	# The user specified a directory, plain and simple:
 	'cd' "$NEWDIR"
 
 elif [ "$NEWDIR" = "" ]
 then
-
+	# The user wants their homedir:
 	# If I own the directory above ~, I prefer 'cd' to take me there.
 	if [ `filename "$HOME"` = "$USER" ]
-	then
-		'cd' "$HOME"
-	else
-		'cd' "$HOME/.."
+	then 'cd' "$HOME"
+	else 'cd' "$HOME/.."
 	fi
 
 elif [ `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = found ]
 then
-
-	# The user asked for: cd ..... (...)
-
+	# The user asked for: cd ..... (...):
 	# Allows user to say: cd foo/..../ba/......./bo where ...s become ../..
 	# NOTE: Not for use by scripts, since if directory ... actually exists, case 1 above will execute instead of this
 	NEWDIR="`expandthreedots "$NEWDIR"`"
 	'cd' "$NEWDIR"
 
 else
+	## Directory does not exist, is not empty, and cannot be resolved with '...'s, so...
 	
 	# If incomplete dir given, check if there is a
 	# unique directory which the user probably meant.
@@ -55,26 +51,26 @@ else
 	NEWLIST=`
 		'ls' -d "$LOOKIN/$LOOKFOR"* |
 		while read X
-		do
-			if [ -d "$X" ]
-			then echo "$X"
-			fi
+		do [ -d "$X" ] && echo "$X"
 		done
 	` 2> /dev/null
 
 	if [ "$NEWLIST" = "" ]
 	then
-		# No directory found
+		# No directory found:
 		echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" # beep
+
 	elif [ `echo "$NEWLIST" | countlines` = 1 ]
 	then
-		# One unique dir =)
+		# One unique directory found  :)
 		echo ">"`curseyellow`" $NEWLIST"`cursenorm`
 		'cd' "$NEWLIST"
+
 	else
-		# A few possibilities, suggest them to the user.
+		# Multiple possibilities, suggest them to the user.
 		echo "$NEWLIST" |
 		sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`curseyellow`"\1"`curseyellow`"\2"`cursenorm`"+"
+
 	fi
 
 fi >&2

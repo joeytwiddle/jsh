@@ -1,3 +1,4 @@
+# jsh-depends: takecols
 if test "$1" = "-likecksum"; then
 	shift
 	'ls' -l "$@" |
