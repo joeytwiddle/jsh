@@ -65,7 +65,7 @@ case "$SHORTHOST" in
 			G2P=" $"
 			G2DIRCOLOR="\[\033[01;34m\]"
 		fi
-		EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\][>\[\033[01;33m\]$?\[\033[01;31m\]<] "`'
+		EXITERR='`[ "$?" = 0 ] || echo "\[\033[00;37m\][\[\033[01;31m\]>\[\033[01;31m\]$?\[\033[01;31m\]<\[\033[00;37m\]] "`'
 		if [ "$RUNNING_GENTOO" = 1 ]
 		then
 			PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$G2COL$G2P \[\033[00m\]"

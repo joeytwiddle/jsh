@@ -58,5 +58,5 @@ export PS4="%{[00;35m%}[%{[00;31m%}%N[00;35m%}]%{[00;33m%}%_%{%{[00m%}%% "
 ## So for now I'm defaulting to a bash-compatible PS4:
 # export PS4="\[\033[01;31m\]=$$=\[\033[00m\]"
 # export PS4='\['"`cursered`"'\]'"=="'\['"`cursenorm`"'\]'"
-export PS4="[bash] "
+export PS4="[[[[sh]]]] "
 
