@@ -4,16 +4,21 @@ if test "$*" = ""; then
 	echo "  if you are lucky there might be some documentation in comments"
 else
 	# find $JPATH/code/shellscript -name "$*" -o -name "$*.*" | grep -v "CVS"
-  cd $JPATH/tools
-  # echo "### "`justlinks "$*"`":"
-  # echo "::::::::::::::"
-	# echo `justlinks "$*"`
-  # echo "::::::::::::::"
-  # more $*
-  ( echo "::::::::::::::"
-	  # echo "$1 -> "`justlinks "$*"`
-	  echo `justlinks "$*"`
-	  echo "::::::::::::::"
-	  cat $*
-	) | more
+  LINKTOCOM="$JPATH/tools/$*"
+	if test -f "$LINKTOCOM"; then
+  	# echo "### "`justlinks "$*"`":"
+		# echo "::::::::::::::"
+		# echo `justlinks "$*"`
+		# echo "::::::::::::::"
+  	# more $*
+  	( echo "::::::::::::::"
+	  	# echo "$1 -> "`justlinks "$*"`
+	  	echo `justlinks "$*"`
+	  	echo "::::::::::::::"
+	  	cat $*
+		) | more
+	else
+		jman $*
+		jinfo $*
+	fi
 fi
