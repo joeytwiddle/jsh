@@ -4,6 +4,8 @@
 ## Other dependencies locally: dd,sed,diff,cksum,sort,column,vi,ssh and jsh:jfcsh,cksum,vimdiff
 ## Remotely only a few are needed: sh, cat, dd, mkdir
 
+## TODO: we should sort by filename (column 2) on the default cksum diffing, rather than sorting by cksum.
+
 rsyncdiffdoc () {
 cat << !
 rsyncdiff - a special diff command for remotediff which lets you edit a set of recommended file transfers and then performs them =)

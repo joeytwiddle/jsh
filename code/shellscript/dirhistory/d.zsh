@@ -92,7 +92,9 @@ then
 	else
 		echo -n "You can see `cursenorm`"
 		find . -type f -maxdepth 1 |
+		head -50 |
 		foreachdo file |
+		grep -v "Permission denied" |
 		afterfirst : | beforefirst , |
 		sed 's+\<ASCII ++' |
 		sort | removeduplicatelines | randomorder |
