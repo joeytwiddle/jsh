@@ -14,8 +14,7 @@ case `hostname -s` in
 		# magenta style, panic colors PS1="\[\033[00;33m\]\!\[\033[01;31m\]\$ \[\033[00;35m\]\u\[\033[00m\]\\\\\[\033[00;34m\]\t\[\033[00m\]/\[\033[01;35m\]\h \[\033[00;32m\]\w/\[\033[00m\] "
 	;;
 
-	magenta)
-	# if test `hostname` = "colossus" || test "$USER" = "pru"; then
+	magenta|colossus)
 	  # panic style, magenta colors PS1='\['`cursegreen`'\]\$\['`cursecyan`'\]\!\['`cursenorm`'\]/\['`curseblue`'\]\u\['`cursenorm`'\]\\\['`cursemagenta`'\]\t\['`cursenorm`'\]/\['`curseblue`'\]\h\['`cursenorm`'\]\\\\\['`cursecyan`'\]\w/\['`cursenorm`'\] '
 	  PS1="\[\033[00;32m\]\$\[\033[00;36m\]\! \[\033[01;34m\]\u\[\033[00m\]\\\\\[\033[00;35m\]\t\[\033[00m\]/\[\033[01;34m\]\h \[\033[01;36m\]\w\\\\\[\033[00m\] "
 	  # Gnome?
@@ -35,7 +34,7 @@ case `hostname -s` in
 
 	*)
 		if test "$HOME" = "/root"; then # Note: cld use UID=0 but not USER=root!
-			PS1="\[\033[01;32m\]\!\[\033[01;33m\]\$ \[\033[00m\](\[\033[01;31m\]\\h \[\033[00;36m\]\t\[\033[01;31m\] \u\[\033[00m\]) \[\033[00;33m\]\w/\[\033[00m\] "
+			PS1="\[\033[01;31m\]\!\[\033[01;33m\]\$ \[\033[00m\](\[\033[01;31m\]\\h \[\033[00;36m\]\t\[\033[01;31m\] \u\[\033[00m\]) \[\033[00;36m\]\w/\[\033[00m\] "
 		else
 			PS1="\[\033[00;33m\]\!\[\033[01;31m\]\$ \[\033[00m\](\[\033[00;36m\]\\h \[\033[00m\]\t\[\033[00;36m\] \u\[\033[00m\]) \[\033[00;32m\]\w/\[\033[00m\] "
 		fi
