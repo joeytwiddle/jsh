@@ -123,7 +123,8 @@ rsyncdiff () {
 		while read X; do grep "$X$" "$2.longer"; done |
 		sed "s/^/remote /"
 	) |
-	sort -k 2 | sort -s -k 5 |
+	## Took out -s "stabilise sort" from second sort for tao
+	sort -k 2 | sort -k 5 |
 	column -t -s '   ' > "$EDITFILE"
 
 	vim "$EDITFILE"
