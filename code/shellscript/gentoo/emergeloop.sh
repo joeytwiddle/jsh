@@ -3,25 +3,19 @@ LOGNUM=0
 while true
 do
 
-	(
-
-		nice -n 20 emerge $EXTRAARGS "$@" 2>&1
-
-		if [ "$?" = 0 ]
-		then
-			echo
-			echo ">>>>>> Successful exit code.  Stopping."
-			echo
-			break
-		fi
-
+	if nice -n 20 emerge $EXTRAARGS "$@" 2>&1 # Can't fit this in without breaking the exit: | tee /tmp/emerge-$LOGNUM.log
+	then
 		echo
-		echo ">>>>>> Failure!  Resuming after 10 seconds..."
+		echo ">>>>>> [emergeloop] Successful exit code.  Stopping."
 		echo
-		sleep 10
+		break
+	else
+		echo
+		echo ">>>>>> [emergeloop] Failure!  Resuming after 10 seconds..."
+		echo
+	fi
 
-	) | tee /tmp/emerge-$LOGNUM.log
-
+	sleep 10
 	EXTRAARGS="--resume --skipfirst"
 	LOGNUM=` expr "$LOGNUM" + 1 `
 
