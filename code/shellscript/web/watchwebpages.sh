@@ -1,5 +1,7 @@
 ## watchwebpages could watch whole website, but it would have to use -mirror or something (really only html wanted)
 
+## TODO: If we perform two immediately successive queries, and compare the result, then the script can make a quick estimate as to the default # changes chars / words caused by eg. advert banners and other non-static elements of the page.
+
 ### Configuration and command-line argument parsing
 
 ## TODO: introduce a measure of difference so user can specify for each page a minimal difference before it is reported (to deal with known continual changes to pages which we don't care about, such as differing adverts, or a display of the webserver's time.)
@@ -73,7 +75,7 @@ do
 	then mv "$NEWFILE" "$OLDFILE"
 	fi
 
-	wget -nv "$URL" -O "$NEWFILE"
+	wget -nv "$URL" -O "$NEWFILE" 2>/dev/null ## hide stderr to avoid cron reports
 	echo
 
 	if [ ! -f "$OLDFILE" ]
@@ -159,7 +161,8 @@ do
 					) |
 
 					## -F "" to avoid config file, which avoids user preferences, eg. save outgoing mail to sent-mail mailbox.
-					mutt -F "" -a "$DESTINATION" -s "[wwc] Changes found to $URL" "$REPORTTO"
+					## Nope it doesn't work!!
+					mutt -F "" -a "$DESTINATION" -s "[wwp] Changes found to $URL" "$REPORTTO"
 
 					# del "$DESTINATION"
 
