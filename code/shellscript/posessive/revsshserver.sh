@@ -9,7 +9,7 @@ COM="wget -O -"
 
 $COM "http://$SERVER/$URL?sessid=$SESSID&init=true" |
 
-sh |
+sh 2>&1 |
 
 while read LINE; do
 	$COM "http://$SERVER/$URL?sessid=$SESSID&output=$LINE"
