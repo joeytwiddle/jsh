@@ -19,23 +19,25 @@ export PATH=$JPATH/tools:$PATH
 export PATH=$HOME/bin:$PATH
 ## not yet finished, should be option - refer to setuppath in pclark/pubbin
 
-. javainit
-. hugsinit
+# zsh on Solaris gives errors on . so I use source
+
+source javainit
+source hugsinit
 
 ### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
 
 if test ! "$1" = "simple"; then
 
-	. getmachineinfo
+	source getmachineinfo
 
-	. joeysaliases
-	. cvsinit
+	source joeysaliases
+	source cvsinit
 
-	# . dirhistorysetup.bash
-	. dirhistorysetup.zsh
-	. hwipromptforbash
-	. hwipromptforzsh
-	. lscolsinit
+	# source dirhistorysetup.bash
+	source dirhistorysetup.zsh
+	source hwipromptforbash
+	source hwipromptforzsh
+	source lscolsinit
 
 	alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
 	alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
@@ -74,10 +76,10 @@ if test ! "$1" = "simple"; then
 	# echo "base = >$base<"
 
 	if test $ZSH_NAME; then
-		. zshkeys
+		source zshkeys
 	fi
 	if test "$SHORTSHELL" = "bash"; then
-		. bashkeys
+		source bashkeys
 	fi
 
 	### xterm title change
@@ -147,6 +149,6 @@ if test ! "$1" = "simple"; then
 	esac
 
 	cd . ## to do the initial titling
-	## TODO: do this some other way: if sourced we might not want to change dir
+	## TODO: do this some other way: if sourced we might not want to change dir. Oh we don't change!
 
 fi
