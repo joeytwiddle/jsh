@@ -2,7 +2,9 @@
 # jsh-ext-depends: sed tar find sort column ssh
 # jsh-depends: jfcsh debug cksum
 # jsh-depends-ignore: edit jdeltmp jgettmp jdiff screen vimdiff error
-### remotediff and rsyncdiff are currently stand-alone =) (not true: they use jgettmp!)
+
+### What started as "can i do it in three lines?" grew a bit larger...!
+### remotediff and rsyncdiff used to be stand-alone (but this is no longer true: they use jgettmp at least!)
 ## and rsyncdiff requires jfcsh locally!
 
 ## Other dependencies locally: dd,sed,diff,cksum,sort,column,vi,ssh and jsh:jfcsh,cksum,vimdiff
@@ -292,11 +294,12 @@ fi
 CKSUMCOM='
 	while read X; do
 		'"$CKSUMCOMEXT"'
+		## STILL TODO: get dos2unix invariability working (i dunno why ganymede/hwi differ so!  maybe it is svn not sending irrelevant whitespace.  could be)
 		cksum "$X"
 		# /home/joey/j/jsh filesize -likecksum "$X"
 		## TODO: fix for dos/unix fs, dont know why it doesnt work
-		# cat "$X" | dos2unix | cksum | tr -d '\n'
-		# echo " $X"
+		cat "$X" | dos2unix | cksum - | tr -d '\n' && echo " $X"
+		## Dunno why I thought it didn't work, or disabled it.  Test a bit more, then cleanup!
 	done |
 	tr "\t" " " |
 	grep -v "/CVS/"
