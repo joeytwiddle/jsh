@@ -1,2 +1,2 @@
 # access time
-ls -aultr $JM_LS_OPTS $@
+ls -aultr $JM_LS_OPTS "$@"

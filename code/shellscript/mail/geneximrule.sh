@@ -1,5 +1,7 @@
 COMMAND="$1"
 
+## BUG: can't handle really long lists of email addresses.  Needs fixing!  See below.
+
 ## TODO: factor out so that list of addresses may be saved to or read from a file
 ##       allow a list to be built up over time even if msgs are deleted
 
@@ -38,7 +40,7 @@ case "$COMMAND" in
 		shift
 		DESTFILE="$1"
 		echo "then"
-		echo "	logwrite \">>> $DESTFILE [geneximrule:$RULENAME]\""
+		echo "	logwrite \">>> $DESTFILE [geneximrule:$RULENAME] [sender_address=\$sender_address]\""
 		echo "	save \"$DESTFILE\""
 		echo "	seen finish"
 		echo "endif"
@@ -63,6 +65,10 @@ case "$COMMAND" in
 		# echo "New line is: $LINE"
 		## TODO: This is the unhappy sed; it can't handle parsing the large files which it handled creating!
 		replaceline "$REPLACE_STRING" "$LINE" "$FILTERFILE"
+		## TODO: Yeah the sed is slow, but worse than that, replaceline/sed can't handle the really huge lines I want to give it.
+		## TODO: Fortunately somehow, it just leaves the "this is false" condition so the filter file doesn't break.
+		## TODO: It has taken out my blacklist and will take out other lists as they grow, or until I fix it.
+		## /home/joey/linux/j/tools/geneximrule: line 65: /home/joey/linux/j/tools/replaceline: Argument list too long
 	;;
 
 	*)

@@ -35,6 +35,8 @@ do
 
 done
 
+## TODO: make cdrom part of the /etc/fstab parse too!
+
 cat > $HOME/Desktop/"CD-Rom Drive" << !
 [Desktop Action Eject]
 Exec=kdeeject %v

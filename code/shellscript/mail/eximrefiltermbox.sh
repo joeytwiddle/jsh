@@ -13,22 +13,65 @@ then
 	exit 1
 fi
 
+DO=
+if [ "$1" = -do ]
+then DO="-do"; shift
+fi
+
 TEST=
 if [ "$1" = -test ]
-then TEST=true; shift
+then TEST="-test"; shift
 fi
+
+# TEST=true
+ TEST=-test
 
 MBOX="$1"
 cp "$1" /tmp/mbox
 
-if [ "$TEST" ]
-then COMMAND="/usr/sbin/exim -bf $HOME/.forward"
-else COMMAND="/usr/sbin/exim -bm $USER"
+if [ "$DO" ]
+then
+
+	# debug "$*"
+
+	if [ "$TEST" ]
+	then COMMAND="/usr/sbin/exim -bf $HOME/.forward"
+	else COMMAND="echo /usr/sbin/exim -bm $USER"
+	fi
+	
+	TMPFILE=`jgettmp email`
+
+	# debug precat
+
+	cat > "$TMPFILE"
+
+	# debug postcat
+	# set -x
+
+	# debug "$COMMAND"
+	
+	DEST=`cat "$TMPFILE" | $COMMAND`
+	# | grep "^Save message to: .*" | sed 's/[^:]*: //'`
+
+	# debug postdest
+
+	if [ "$DEST" ]
+	then
+		echo "Will add to $DEST"
+		echo "eg. ( cat \"$DEST\" ; cat \"$TMPFILE\" ) | dog \"$DEST\""
+		## ...
+	fi
+
+	jdeltmp "$TMPFILE"
+
+else
+
+	cat /tmp/mbox | formail -s eximrefiltermbox -do $TEST "$MBOX"
+	
+	# |
+	# highlight "^Save message to: .*"
+
 fi
-
-cat /tmp/mbox | formail -s $COMMAND |
-
-highlight "^Save message to: .*"
 
 # ## I was worried it would add more headers, making the mails get long if repeated.
 # ## But this dodgy method actually makes the headers shorter!

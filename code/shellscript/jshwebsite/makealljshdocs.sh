@@ -1,4 +1,5 @@
-OUTDIR=/var/www/jsh/
+OUTDIR=/var/www/jsh-generated-docs
+mkdir -p "$OUTDIR"
 
 COUNT=200
 
@@ -37,8 +38,9 @@ makejshwebdocs -onlydocumented $OUTDIR/list-documented
 		echo "<TT>"
 		[ "$DEBUG" ] && debug "SED: s$SCRIPT\$<A href=\"$PAGE\">$SCRIPT</A>"
 		'ls' -l -L "$SCRIPT" |
+		dropcols 1 2 3 4 5 |
+			# s+^.................................++
 		sed "
-			s+^....................................++
 			s+ +\&nbsp;+g
 			s$SCRIPT\$<A href=\"$PAGE\">$SCRIPT</A>
 		"
