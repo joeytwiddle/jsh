@@ -27,7 +27,7 @@
 FILE=`jgettmp keepduplicatelines`
 
 export GAP=
-while test "$1" = "-gap"; do
+while test "x$1" = "x-gap"; do
   export GAP=true
   shift
 done
@@ -42,7 +42,7 @@ cat > "$FILE"
   takecols "$@" |
   sort |
   while read X; do
-    if test "$X" = "$Y"; then
+    if test "x$X" = "x$Y"; then
       echo "$X"
     fi
     Y="$X"
@@ -52,7 +52,7 @@ cat > "$FILE"
 
 # echo "$KEEP" |
   while read X; do
-    if test ! "$X" = ""; then
+    if test ! "x$X" = "x"; then
       # echo "$ALL" |
       # grep "$X" # Yes this one!
       if test "$GAP"; then
@@ -64,7 +64,7 @@ cat > "$FILE"
 	  fi
       # else
 			# Only do grep if previously stripped by columns
-			if test "x$@" = "x"; then
+			if test "x$1" = "x"; then
 				echo "$X"
 			else
 				grep "$X" "$FILE" # The dodgy grep

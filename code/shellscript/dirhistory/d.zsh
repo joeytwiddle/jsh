@@ -10,11 +10,15 @@ NEWDIR="$@"
 echo "$PWD" >> $HOME/.dirhistory
 
 if [ "$NEWDIR" = "" ]; then
-  # I prefer the directory above my home!
-  "cd" $HOME/..
-  # "cd"
+	if test `filename "$HOME"` = "$USER"; then
+		"cd" "$HOME"
+	 else
+		# I prefer the directory above my home!
+		"cd" "$HOME/.."
+	fi
+	# "cd"
 elif test -d "$NEWDIR"; then
-  'cd' "$NEWDIR"
+	'cd' "$NEWDIR"
 else
 	# If incomplete dir given, check if there is a
 	# unique directory which the user probably meant.

@@ -22,9 +22,9 @@ find . -type f | while read X; do
       # For the chop!
       if cmp "$X" "$OTHERDIR/$X" 2>&1; then
         if test "$DOIT" = "false"; then
-          echo "del \"$X\"" # "    # err=$CMPERR output=$CMPRES"
+          echo "rm \"$X\"" # "    # err=$CMPERR output=$CMPRES"
         else
-          del "$X"
+          rm "$X"
         fi
       else
         echo "*** ERROR:  $X : failed on if cmp"
