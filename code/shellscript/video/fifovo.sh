@@ -1,10 +1,20 @@
 ## fifovo: Plays a streaming video, saving it in rotating files,
 ##         and accepts messages to rewind, fast-forward, or record the stream.
 
+## TODO: Time Management
+##       Either: Loop dd-ing until 10seconds is up, then progress, gettings blocks of ~10secs.
+##       Or: Record time taken to save each block, to get length-meta for each block.
+##       Note: Don't obtain timing relatively in the shell with sleep; that's dodgy.
+##             Instead use date relative to some absolute.
+##       Either is nicer than Or cos it sorta guarantees buffer duration (altho not size!).
+
 ## TODO: If playing stream has paused at block 10 (or is just being slow to playback than encode),
 ##       when saving stream reaches 9, it should start creating new files rather than overtaking / overwriting the playing thread / stream.
 ## TODO: Yes, there is no management for overlap (either when rewind/fast-forwarding, or when paused or even just when streaming at different speeds).
 ##       It is never really desirable to pause the encoding thread, so in circumstances of unavoidable overlap, we should create more files (increase buffer size _globally_).
+
+## TODO: how about implementing those messaging scripts eh?
+##       if saving and restreaming threads both message their positions, we can create maxforward and maxback :)
 
 ## BUG: Doesn't currently work for rtsp because for mencoder to encode rtsp, it requires output formats that do not suit our fifo trick
 
@@ -36,49 +46,130 @@ export FIFOVO_MESSAGE_DIR=/tmp/fifovo
 
 encoding_thread () {
 
-	## These ones DONT WORK:
-	## Has real trouble encoding video as mpeg4:
-	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg4:vqscale=6"
-	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vqscale=6"
-	## Often nasty:
-	# ENCODING_OPTIONS="-oac copy -ovc copy"
-	## This successfully encodes RTSP, but doesn't create a stream playable from a fifo or even a file :(  In fact it is probably encoding into fifo that failed.
-	# ENCODING_OPTIONS="-oac pcm -ovc lavc -lavcopts vqscale=6"
+	# ENCODING_NUM=0
 
-	## Audio and video playback OK provided -of mpeg below:
-	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg2video:vqscale=6"
+	while [ ! -f "$FIFOVO_MESSAGE_DIR"/stop_everything ]
+	do
 
-	## Seems OK but expensive for CPU unless we increase vqscale:
-	# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
-	## One time the video did not play on one clip:
-	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=2"
-	ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=$VQSCALE"
+		## CODE_TO_CHANGE_FIFO wasn't needed once we "while true; cat fifo; done"d because now fifo closes and reopens at both ends properly.
+		# # verbosely rm -f "$ENCODED_FIFO"
+		# ENCODING_NUM=`expr "$ENCODING_NUM" + 1`
+		# ENCODED_FIFO=/tmp/encoded.$ENCODING_NUM.fifo
+		# rm -f "$ENCODED_FIFO"
+		# mkfifo "$ENCODED_FIFO"
+		# echo "$ENCODED_FIFO" > "$FIFOVO_MESSAGE_DIR"/newfifo
+		# jshinfo "Sending output to new fifo: $ENCODED_FIFO"
 
-	# verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
-	# verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS
-	verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS &
-	echo "$!" > "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid
-	fg
-	wait
-	## Try to make reencoder use less CPU by running gentoo version:!
-	# export LD_LIBRARY_PATH="/lib:/usr/lib:/mnt/gentoo/lib:/mnt/gentoo/usr/lib"
-	# verbosely /mnt/gentoo/usr/bin/mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
+		## These ones DONT WORK:
+		## Has real trouble encoding video as mpeg4:
+		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg4:vqscale=6"
+		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vqscale=6"
+		## Often nasty:
+		# ENCODING_OPTIONS="-oac copy -ovc copy"
+		## This successfully encodes RTSP, but doesn't create a stream playable from a fifo or even a file :(  In fact it is probably encoding into fifo that failed.
+		# ENCODING_OPTIONS="-oac pcm -ovc lavc -lavcopts vqscale=6"
 
-	## The following try to get a stream out of mplayer directly, without mencoder.
-	## In these cases, you need to change ENCODED_FIFO in init to whatever mplayer outputs to.
+		## Audio and video playback OK provided -of mpeg below:
+		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg2video:vqscale=6"
 
-	## mpegpes:
-	## Won't work for me cos I have no /dev/dvb/adapter0/video0+audio0
-	# verbosely mplayer "$STREAM_SOURCE" -vo mpegpes 2>&1 |
+		## Seems OK but expensive for CPU unless we increase vqscale:
+		# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
+		## One time the video did not play on one clip:
+		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=2"
+		ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=$VQSCALE"
 
-	## yuv4mpeg:
-	## This one works but it separates audio/video:
-	# verbosely mplayer "$STREAM_SOURCE" -vo yuv4mpeg -ao pcm 2>&1 |
+		# ## WORKING METHOD:
+		# # verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
+		# # verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS
+		# verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS &
+		# echo "$!" > "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid
+		# wait
+		# ## Try to make reencoder use less CPU by running gentoo version:!
+		# # export LD_LIBRARY_PATH="/lib:/usr/lib:/mnt/gentoo/lib:/mnt/gentoo/usr/lib"
+		# # verbosely /mnt/gentoo/usr/bin/mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
 
-	# highlight ".*" yellow
-	# cat
+		## EXPERIMENTING:
+		## Safe as sausages.  Toline now detects when mencoder has lost sync with the stream,
+		## and instead of waiting for ages for mencoder to finally give up, it kills it nice and quickly.
+		## Oh it appears that the kill is unneccessary?  The toline ending kills the mencoder.
+		## Ah but now it won't exit when the user wants to quit!
+		## Alright, now if either mencoder or toline stop, they kill the other, by killing the parent pipe.
+		(
+			verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 # &
+			MENCODER_PID="$!"
+			jshinfo "FYI MENCODER_PID was $MENCODER_PID"
+			# echo "$MENCODER_PID" > "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid
+			# jshinfo "Started mencoder with pid $MENCODER_PID"
+			# wait
+			jshinfo "Mencoder has stopped."
+			TOLINE_PID=`cat "$FIFOVO_MESSAGE_DIR"/toline.pid`
+			[ "$TOLINE_PID" ] && verbosely kill "$TOLINE_PID"
+			# MENCODER_PID=`cat "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid`
+			# [ "$MENCODER_PID" ] && verbosely kill -KILL "$MENCODER_PID"
+		# ) | (
+			# export TOLINE_LEAVE_REST=true
+			# tr '' '\n' | cat | toline ".*trying to resync.*" &
+			# TOLINE_PID="$!"
+			# echo "$TOLINE_PID" > "$FIFOVO_MESSAGE_DIR"/toline.pid
+			# wait
+			# if [ "$?" = 0 ]
+			# then jshinfo "Detected sync loss."
+			# else jshwarn "Don't know why mencoder stopped."
+			# fi
+		) | (
+			# toline "^Writing.*" ## Strangly if we do this it works, but the following doesn't show.
+			export TOLINE_LEAVE_REST=true
+			tr '' '\n' | cat | toline ".*trying to resync.*" # | tr '\n' ''
+			# tr '' '\n' | cat |
+			# pipeboth --line-buffered |
+			# grep "trying to resync" |
+			# while read ERRORLINE
+			# do
+				# jshinfo "Detected sync loss; killing mencoder..."
+				# MENCODER_PID=`cat "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid`
+				# [ "$MENCODER_PID" ] && verbosely kill -KILL "$MENCODER_PID"
+				# jshinfo "Detected sync loss; killing encoding thread..."
+				# TOLINE_PID=`cat "$FIFOVO_MESSAGE_DIR"/toline.pid`
+				# [ "$TOLINE_PID" ] && verbosely kill "$TOLINE_PID"
+				# break
+				jshinfo "Detected sync loss; exiting encoding thread..."
+			# done
+		) &
+		TOLINE_PID="$!"
+		echo "$TOLINE_PID" > "$FIFOVO_MESSAGE_DIR"/toline.pid
+		# MENCODER_PID="$!"
+		# echo "$MENCODER_PID" > "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid
+		wait
 
-	# wget "$STREAM_SOURCE" -O - > "$ENCODED_FIFO"
+		# mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
+		# cat |
+		# toline -x ".*trying to resync.*"
+
+		## The following try to get a stream out of mplayer directly, without mencoder.
+		## In these cases, you need to change ENCODED_FIFO in init to whatever mplayer outputs to.
+
+		## mpegpes:
+		## Won't work for me cos I have no /dev/dvb/adapter0/video0+audio0
+		# verbosely mplayer "$STREAM_SOURCE" -vo mpegpes 2>&1 |
+
+		## yuv4mpeg:
+		## This one works but it separates audio/video:
+		# verbosely mplayer "$STREAM_SOURCE" -vo yuv4mpeg -ao pcm 2>&1 |
+
+		# highlight ".*" yellow
+		# cat
+
+		# wget "$STREAM_SOURCE" -O - > "$ENCODED_FIFO"
+
+		VQSCALE=`expr "$VQSCALE" + 2`
+		jshwarn "Encoding stopped.  Increasing VQSCALE to $VQSCALE and re-running..."
+
+		# ( cat /dev/zero > "$ENCODED_FIFO" ) &
+		# ( cat /dev/zero > "$ENCODED_FIFO" ) &
+
+		findjob mencoder
+
+	done
 
 }
 
@@ -91,7 +182,30 @@ saving_thread () {
 	## Eg. here we could:
 	##   while true; cat "$ENCODED_FIFO"; get_new_fifo || break; done |
 
-	cat "$ENCODED_FIFO" |
+	while [ ! -f "$FIFOVO_MESSAGE_DIR"/stop_everything ]
+	do
+
+		## CODE_TO_CHANGE_FIFO
+		# while [ ! -f "$FIFOVO_MESSAGE_DIR"/newfifo ]
+		# do sleep 5
+		# done
+		# if [ -f "$FIFOVO_MESSAGE_DIR"/newfifo ]
+		# then
+			# ENCODED_FIFO=`cat "$FIFOVO_MESSAGE_DIR"/newfifo`
+			# rm -f "$FIFOVO_MESSAGE_DIR"/newfifo
+			# jshinfo "Switching to read from new fifo: $ENCODED_FIFO"
+		# fi
+		## Well now it assumes that mplayer has dies and will restart,
+		## so it just opens the same fifo.
+		## But it might be neat to make it wait for a new fifo to be
+		## defined by mencoder.
+
+		# verbosely dd if="$ENCODED_FIFO" count=1024 bs=1000
+		verbosely cat "$ENCODED_FIFO"
+
+	done |
+
+	# cat "$ENCODED_FIFO" |
 
 	while true
 	do
@@ -100,6 +214,8 @@ saving_thread () {
 		echo "$WRITING_BLOCK" > "$CURRENT_WRITING_BLOCK_INFO_FILE"
 		WRITING_BLOCK=`printf "%04i" "$WRITING_BLOCK"`
 		FILE="$STREAM_DATA_DIR/streamed.$WRITING_BLOCK.mpeg"
+
+		sleep 0.2 &
 
 		verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
 		# dd count=$BLOCK_SIZE bs=1 of="$FILE"
@@ -117,9 +233,11 @@ saving_thread () {
 		## TODO: None of the above create the desired error exit code if no bytes were read.
 		if [ ! "$?" = 0 ]
 		then
-			jshinfo "There was a problem"
+			jshinfo "There was a problem reading from encoder; exiting..."
 			return
 		fi
+
+		wait
 
 		WRITING_BLOCK=`expr "$WRITING_BLOCK" + 1`
 		if [ "$WRITING_BLOCK" -gt "$BUFFER_SIZE" ]
@@ -205,6 +323,7 @@ restreaming_thread () {
 			##       because these are before CURRENT_STREAMING_BLOCK but haven't yet played for the user.
 			##       I'm not sure how to determine what size that is.  We _could_ make mplayer's buffer 0 (no it won't go below 32)!
 			##       When they stop recording, they will have already got more saved than they have seen!
+			jshwarn "Please note that you will get none of the stream currently in MPlayer's buffer."
 		fi
 
 		if [ -f "$FIFOVO_MESSAGE_DIR"/stop_recording ]
@@ -220,9 +339,10 @@ restreaming_thread () {
 			then break ## If the saving_thread has finished but was on the same block as the playing_thread is waiting for, then only this can break it out!
 			fi
 			# CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - 1`
-			jshwarn "Waiting for block $CURRENT_STREAMING_BLOCK to finish writing (letting encoder get ahead)..."
+			jshwarn "Waiting for block $CURRENT_STREAMING_BLOCK to finish writing (and letting encoder get ahead)..."
 			jshwarn "MPlayer may temporarily block; consider pausing for a moment, or rewind!"
 			jshwarn "(The alternative is to wait longer before initially starting the player.)"
+			jshwarn "Free up CPU to hasten the encoding (increase VQSCALE); or check network."
 			verbosely sleep 15
 		done
 
@@ -239,7 +359,7 @@ restreaming_thread () {
 
 		if [ ! "$?" = 0 ]
 		then
-			jshinfo "There was a problem"
+			jshinfo "There was a problem sending to player; breaking out."
 			break
 		fi
 
@@ -266,8 +386,8 @@ playing_thread () {
 	## Might not be needed:
 	# jshinfo "Giving saving_thread and restreaming_thread time to die."
 	# verbosely sleep 5
-	ENCODER_PID=`cat "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid`
-	[ "$ENCODER_PID" ] && kill "$ENCODER_PID"
+	# ENCODER_PID=`cat "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid`
+	# [ "$ENCODER_PID" ] && verbosely kill -KILL "$ENCODER_PID"
 	# kill "$ENCODING_PID"
 	true
 }
@@ -308,7 +428,7 @@ initialise () {
 	## Cleanup any previous nasties:
 	echo | mykill -x saving_thread > /dev/null
 
-	export GUIFYSCRIPT_TIMEOUT=2
+	export GUIFYSCRIPT_TIMEOUT=5
 	export XTERM_OPTS="-geometry 80x12"
 
 	# export XTERM_OPTS=
@@ -317,7 +437,7 @@ initialise () {
 	echo "ENCODING_PID=$ENCODING_PID"
 
 	# verbosely sleep 2
-	sleep 1
+	sleep 0.5
 
 	# export XTERM_OPTS="-geometry 80x10"
 	verbosely guifyscript sh "$0" -invokefunction saving_thread &
@@ -326,7 +446,7 @@ initialise () {
 
 	# jshinfo "Giving the encoder a head-start before starting the player..."
 	# verbosely sleep 5
-	sleep 1
+	sleep 0.5
 
 	# export XTERM_OPTS="-geometry 80x10"
 	verbosely guifyscript sh "$0" -invokefunction restreaming_thread &
@@ -336,7 +456,7 @@ initialise () {
 	echo "RESTREAMING_PID=$RESTREAMING_PID"
 
 	# verbosely sleep 5
-	sleep 1
+	sleep 0.5
 
 	# export XTERM_OPTS=
 	verbosely guifyscript sh "$0" -invokefunction playing_thread &
