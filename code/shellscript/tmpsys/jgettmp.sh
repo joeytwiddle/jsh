@@ -18,7 +18,7 @@ fi
 # If already exists, choose a larger ver number!
 X=0;
 TMPFILE="$TOPTMP/$ARGS.tmp"
-while test -f "$TMPFILE"; do
+while test -f "$TMPFILE" || test -d "$TMPFILE"; do
   # X=$(($X+1));
   X=`expr "$X" + 1`;
   TMPFILE="$TOPTMP/$ARGS.$X.tmp"
