@@ -1,7 +1,16 @@
 # Symbolically link all relevant tools into $JPATH/tools/ directory
 # so that they may all be put in the path in one go!
 
-if test ! "$1" = "-old"
+if test ! -d "$JPATH"
+then
+	echo "Need JPATH"
+	exit 1
+fi
+
+echo "Clearing existing links"
+"rm" -f $JPATH/tools/*
+
+if test ! "$1" = "-old" # || test ! "this" = "good"
 then
 
 	## Faster
@@ -9,7 +18,7 @@ then
 	echo "Linking"
 	(
 	find $JPATH/code/shellscript \
-		  \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d
+		  \( -regex ".*/[^\.]*" -o -name "*.sh" -o -name "*.hs" \) ! -type d
 	test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	/bin/grep -v "/.ignore/" |
@@ -26,9 +35,6 @@ else
 
 	#################################
 	## The old one
-
-	echo "Removing existing links"
-	"rm" -f $JPATH/tools/*
 
 	echo "Collecting"
 	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`

@@ -55,6 +55,26 @@ if test "$DIFFCOM" = ""; then
 	# DIFFCOM="vimdiff -c"
 	# DIFFCOMARG=":syn off
 # :set wrap"
+	if test "`jwhich $DIFFCOM`" = ""
+	then
+		export DIFFCOM=simplediff
+		simplediff () {
+			while true
+			do
+				jfcsh -bothways "$1" "$2"
+				jdiff "$1" "$2"
+				echo "Press <Enter> to move on, e<Enter> to edit, or <anything><Enter> to commit."
+				read KEY
+				if test "$KEY" = e
+				then editandwait "$1"; continue
+				fi
+				if test ! "$KEY" = ""
+				then touch "$1"
+				fi
+				break
+			done
+		}
+	fi
 fi
 
 $DIFFCOM "$FILENAME" "$CKOUT"
