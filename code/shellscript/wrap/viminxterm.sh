@@ -12,7 +12,8 @@ FILE="$1";
 
 if test -f "$FILE"; then
 
-	MAXVOL=`expr 80 "*" 50`
+	# MAXVOL=`expr 80 "*" 50`
+	MAXVOL=`expr 120 "*" 60`
 
 	LINES=`countlines $FILE`
 	LONGEST=`longestline $FILE`

@@ -1,3 +1,6 @@
+# This is pretty nice (although it gets itself sometimes :-/ )
+# pstree -ap | vi -R - -c "/$@"
+
 # echo "grep $*" 1>&2
 PID=$$
 # echo "-$PID"
@@ -7,7 +10,7 @@ PID=$$
 env COLUMNS=65535 myps -A |
 	grep -v "grep" | grep "$@" | grep -v " $PID " | grep -v "findjob" |
 	# Highlighting
-	highlight "$@"
+	highlight "$@" | grep -vE "sed s#.*$@"
 	# if test $JM_DOES_COLOUR; then
 		# sed "$SEDSTR"
 	# else

@@ -1,9 +1,10 @@
 #!/bin/sh
 # Recommended usage:
 # higrep grepstring grepopts grepfiles
-# -E to grep will not be passed to sed, but sed does regex =)
+# -E to grep will not be passed to sed, but sed does regex (although there are some differences)
 
-grep "$@" |
+# The stderr pipe is optional, but grep * always give annoying directory errors
+grep "$@" 2>/dev/null |
   # sed "s|^|"`cursecyan``cursebold`"|;s|:|"`cursegrey`":$TABCHAR|" |
   sed "s|^|"`cursecyan`"|;s|:|"`cursegrey`":$TABCHAR|" |
   # sed "s#$1#$CURSEON$1$CURSEOFF#g"

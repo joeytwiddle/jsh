@@ -5,7 +5,7 @@ if test "$1" = ""; then
 	exit 1
 fi
 
-SSHCOM="ssh $@"
+SSHCOM="ssh -C $@"
 
 # Problem: Unix hostname does not allow this!
 SHORTHOSTNAME=`hostname`

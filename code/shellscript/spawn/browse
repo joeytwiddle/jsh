@@ -1,6 +1,6 @@
 #!/bin/sh
 
-FAVOURITE_BROWSERS='konqueror mozilla netscape encompass nautilus amaya lynx'
+FAVOURITE_BROWSERS='galeon skipstone konqueror mozilla netscape encompass nautilus amaya lynx links w3m w3c'
 FAVOURITE_TERM_BROWSERS='lynx links w3c'
 
 ARGS="$@"

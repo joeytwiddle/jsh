@@ -18,6 +18,10 @@ else
 		fi
 		# fi
 		DEST="./$1"
+		if test -f "$DEST"; then
+			echo "del: File $DEST already exists!"
+			exit 1
+		fi
 		mv "$DELEDFILE" "$DEST"
 		echo "./$DEST <- $DELEDFILE"
 		shift

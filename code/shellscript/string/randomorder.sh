@@ -1,5 +1,8 @@
+#!/bin/sh
+
 # #!/usr/local/bin/zsh
 # /usr/bin/nawk '
+
 awk '
   BEGIN {
     FS="\n";

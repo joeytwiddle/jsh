@@ -6,5 +6,13 @@ if test "$1" = ""; then
 	) > /dev/stderr
 	exit 1
 fi
-# ps -A -o pid,user,args | grep $@
-ps -A -o pid,user,comm | grep $@
+FORMAT="pid,user,comm"
+if test "$1" = "-x"; then
+	FORMAT="pid,user,args"
+	shift
+fi
+ps -A -o "$FORMAT" | grep $@ |
+	# Hide this shell (with $@ passed as args!)
+	grep -v "^$$ " |
+	# Hide the first grep (with $@ passed as args!) and yourself
+	grep -v "grep $@"

@@ -35,14 +35,15 @@ else
 				echo "$X"
 			fi
 		 done`
-	# Nothing: assume user chose a file with tab-completion, and go
-	# to directory above.  (What if it doesn't exist?!)
-	if test "$NEWLIST" = ""; then
-		DIRABOVE=`dirname "$NEWDIR"`
-		echo "< $DIRABOVE"
-		'cd' "$DIRABOVE"
+	# No way, this is really naff if you have up-history:
+	# # Nothing: assume user chose a file with tab-completion, and go
+	# # to directory above.  (What if it doesn't exist?!)
+	# if test "$NEWLIST" = ""; then
+		# DIRABOVE=`dirname "$NEWDIR"`
+		# echo "< $DIRABOVE"
+		# 'cd' "$DIRABOVE"
 	# One unique dir =)
-	elif test `echo "$NEWLIST" | countlines` = "1"; then
+	if test `echo "$NEWLIST" | countlines` = "1"; then
 		echo "> $NEWLIST"
 		'cd' "$NEWLIST"
 	# A few possibilities, suggest them to the user.

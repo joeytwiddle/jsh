@@ -13,7 +13,7 @@ if test "$FILENAME" = ""; then
 	exit 1
 fi
 
-WHICHREV="Working"
+# WHICHREV="Working"
 WHICHREV="Repository"
 if test "$REV" = ""; then
 	REV=`cvs status "$FILENAME" |

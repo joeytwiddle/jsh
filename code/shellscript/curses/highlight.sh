@@ -36,8 +36,15 @@ if test "$COLOR" = ""; then
 	# GREPSTRING="highlight\.sh"
 	# COLI=`myps -A | grep "$GREPSTRING" | grep -v "grep $GREPSTRING" | countlines`
 
+	# Note: We go from 1-5 not 6 because 0=black 7=white and 6=cyan=filename: highlight for multifile grep output
+	
 	# OK this one works now that I've randomised randomorder with $$
-	COLI=`seq 1 5 | tr " " "\n" | chooserandomline`
+	# COLI=`seq 1 5 | tr " " "\n" | chooserandomline`
+
+	# Observed between 1 and 10 PIDs away, averaging at 3!
+	# echo "$$" > /dev/stderr
+	COLI=` expr 1 '+' '(' $$ '%' 5 ')' `
+	# echo "$COLI" > /dev/stderr
 
 	# COLI=$SHLVL
 

@@ -7,7 +7,7 @@
 # echo '# or cvs status 2>/dev/null | grep "^File: " | grep -v "Status: Up-to-date"'
 # echo "# Rats, for some reason this doesn't work recursively."
 
-echo "# Try cvsdiff * to see which local files do not exist in repository."
+echo "# Try cvsdiff .* * to see which local files do not exist in repository."
 echo "# Sorry subdirs' files don't work 'cos status loses path."
 
 SHABLE=
