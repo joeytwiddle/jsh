@@ -12,7 +12,7 @@ wget -N www.google.com
 HREF=`
 	cat index.html |
 	grep -i "img" | grep -i "src=" | grep -i "href=" |
-	head -1 |
+	head -n 1 |
 	afterfirst "href=" |
 	between '\"' |
 	head -n 1
@@ -30,7 +30,7 @@ echo "Got href=>$HREF<"
 
 IMG=`
 	cat index.html |
-	grep -i img | head -1 |
+	grep -i img | head -n 1 |
 	afterfirst img | afterfirst IMG | afterfirst src= | beforefirst " " |
 	tr -d '"'
 `

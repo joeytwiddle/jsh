@@ -5,6 +5,6 @@ cat "$@" |
 
 drop $LINENUM |
 
-head -1
+head -n 1
 
 # cat > /dev/null

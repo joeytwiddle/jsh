@@ -21,7 +21,7 @@ fi
 SCRNAME="$1"
 shift
 
-SCRSES=`screen -list | grep "$SCRNAME" | head -1 | takecols 1`
+SCRSES=`screen -list | grep "$SCRNAME" | head -n 1 | takecols 1`
 
 if [ "$SCRSES" ]
 then

@@ -20,7 +20,7 @@ do
 		filename "$FILE" | sed "s/\(.*\)\..*/\1/"
 	`
 
-	FIRSTLINE=`head -1 "$FILE"`
+	FIRSTLINE=`head -n 1 "$FILE"`
 
 	SKIP=
 	if startswith "$FIRSTLINE" "#!"

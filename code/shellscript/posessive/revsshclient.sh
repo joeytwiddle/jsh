@@ -77,7 +77,7 @@ then
 		sleep 10
 	done
 
-	SESSID=`echo "$NEW" | head -1 | afterlast - | beforefirst "\."`
+	SESSID=`echo "$NEW" | head -n 1 | afterlast - | beforefirst "\."`
 
 	echo "OK, joining session: $SESSID"
 	echo "You may want to: rm /tmp/revssh-host-$TARGETHOST.on"

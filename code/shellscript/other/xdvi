@@ -4,7 +4,7 @@
 # fi
 
 XDVI=`jwhich xdvi`
-XDVIVERINFO=`$XDVI -version | head -1 | after "version "`
+XDVIVERINFO=`$XDVI -version | head -n 1 | after "version "`
 XDVIVERSION=`echo "$XDVIVERINFO" | getint`
 # echo "version=$XDVIVERSION"
 # if startswith `hostname` qanir; then
