@@ -8,7 +8,7 @@
 
 # FILES="$@"
 
-if test "$*" = ""; then
+if test "$1x" = "x"; then
   echo "del <files>"
   echo "will move <files> to $DEST"
   exit 1
@@ -30,9 +30,7 @@ while test "$1"; do
 	shift
 
   # if ! there $x ]; then
-  if test ! -e "$x"; then
-    echo "$x does not exist!"
-  else
+  if test -f "$x"; then
 
     # Work out source => destination directory
     # SRCDIR=$PWD;
@@ -48,7 +46,7 @@ while test "$1"; do
       SRCDIR=$PWD
     fi
     DEST="$JPATH/trash$SRCDIR"
-    
+
     # Create destination directory
     while test -f "$DEST"; do
       echo "$DEST is a file - using $DEST.dir"
@@ -73,7 +71,7 @@ while test "$1"; do
       # fi
       
       # This used to go wrong if $y is a dir ending in "/"
-      while test -e "$DEST/$y"; do
+      while test -f "$DEST/$y" -o -d "$DEST/$y"; do
         # echo "$y already in trash - writing $y.new"
         # mv "$y" "$y.new"   # required with $y $DEST below:   # now broken - needs $SRCDIR ?
         y="$y.new"
@@ -96,6 +94,9 @@ while test "$1"; do
 			fi
 
     fi
+
+  else
+    echo "$x does not exist!"
   fi
 done
 
