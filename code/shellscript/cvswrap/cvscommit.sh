@@ -12,11 +12,16 @@ then
 	## But with previous while read vim complained input not from term (outside X)
 	for FILE in $FILES
 	do
+		echo
 		if test ! -f "$FILE"
 		then error "skipping non-file: $FILE"; continue
 		fi
 		touch -r "$FILE" "$ORIGFILETIME"
-		cvsvimdiff "$FILE" # doesn't work sometimes: > /dev/null 2>&1
+		if ! cvsvimdiff "$FILE" # doesn't work sometimes: > /dev/null 2>&1
+		then
+			echo
+			error "cvsvimdiff exited badly"; continue
+		fi
 		echo
 		if newer "$FILE" "$STARTTIME"
 		then
@@ -32,7 +37,6 @@ then
 			echo "Not committing $FILE"
 			cursenorm
 		fi
-		echo
 	done
 	jdeltmp $STARTTIME $ORIGFILETIME
 	exit 0
