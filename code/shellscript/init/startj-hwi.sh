@@ -3,6 +3,8 @@ export JPATH=$HOME/j
 export JWHICHOS=linux
 export PATH=.:$JPATH/tools:$PATH
 
+source getmachineinfo
+
 # alias hwicvs='cvs -d :pserver:joey@hwi.dyn.dhs.org:/stuff/cvsroot'
 alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
 alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'

@@ -1,4 +1,8 @@
-alias ls='ls -atrhF --color'
+if test $JM_COLOUR_LS; then
+echo "WRONG!!!"
+	XARGS='h --color'
+fi
+alias ls="ls -atrF$XARGS"
 
 hist='history -100 | grep'
 
