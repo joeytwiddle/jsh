@@ -17,18 +17,19 @@ fi
 APIDOCPATH="
 /home/joey/j/code/java/jlib
 /home/joey/j/code/java
+/stuff/docs/java/
 /stuff/software/doc/java/
 /home/joey/multicom/joey_dev/multicom_docs
 /home/joey/multicom/jtidy-04aug2000r7-dev
 /home/joey/multicom/javadocs/HTTPClient
 /home/joey/multicom/joey_dev/lib/notinuse/multicom_docs
-/mnt/pod2/stuff/docs
 /home/joey/j/code/java/HTTPClient/doc
 /usr/local/install/java/castor/doc
 "
 
-APIDOCPATH=`echo "$APIDOCPATH" | while read X; do
-	test -d "$X" && echo "$X"
+APIDOCPATH=`echo "$APIDOCPATH" |
+while read X
+do [ -d "$X" ] && echo "$X"
 done`
 
 # Finds likely javadoc file
@@ -36,17 +37,16 @@ done`
 # POSSIBLE=`locate "/$CLASS.html" |
 # POSSIBLE=`memo find /mnt/stig/javadoc/ -name "$CLASS.html" |
 cd / # For memo
-POSSIBLE=`find $APIDOCPATH -name "$CLASS.html" |
+POSSIBLE=`memo find $APIDOCPATH -name "$CLASS.html" |
             ungrep "$JPATH/trash" |
-						ungrep "/CVS/" |
+            ungrep "/CVS/" |
 #           ungrep "^/mnt/filfirin/stig/javadoc/jdk1.2.2/docs/" |
             ungrep "class-use"`
 
 # Only takes top one anyway! (unless "all" specified)
-if [ $ALL ]; then
-  FILES="$POSSIBLE";
-else
-  FILES=`echo "$POSSIBLE" | head -n 1`
+if [ $ALL ]
+then FILES="$POSSIBLE";
+else FILES=`echo "$POSSIBLE" | head -n 1`
 fi
 # FILES=`find /usr/local/jdk1.2.2/docs/ -name "$@.html" | ungrep "class-use"`
 
@@ -54,13 +54,14 @@ fi
 echo "$POSSIBLE"
 
 # Open the doc files
-for X in $FILES; do
+for X in $FILES
+do
   # echo "$X"
   # bigwin lynx $X
 # 	echo "Not browsing"
   browse $X
 done
 
-if [ "$FILES" = "" ]; then
-  echo "Sorry, no class $CLASS found"
+if [ "$FILES" = "" ]
+then echo "Sorry, no class $CLASS found"
 fi
