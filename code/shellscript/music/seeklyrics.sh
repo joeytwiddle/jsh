@@ -7,9 +7,9 @@
 
 ## would be nice to name filenames simialr to the url (just strip '/'s "http::" and "www.".
 
-TMPDIR=/tmp
+TMPDIR=`jgettmpdir seeklyrics "$@"`
 
-rm $TMPDIR/*.lyrics*
+# rm $TMPDIR/*.lyrics*
 
 N=0
 
@@ -65,7 +65,7 @@ do
 
 done
 
-diffgraph $TMPDIR/*.lyrics.nopun
+diffgraph $TMPDIR/*.lyrics.nopun | sed "s+$TMPDIR++g"
 # diffgraph -diffcom worddiff $TMPDIR/*.lyrics.nopun
 # diffgraph -diffcom proportionaldiff $TMPDIR/*.lyrics.nopun
 
