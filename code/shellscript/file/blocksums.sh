@@ -11,7 +11,9 @@ NUMBLOCKS=`expr $FILESIZE / $BLOCKSIZE`
 for BLOCKNUM in `seq -w 0 $NUMBLOCKS`
 do
 
-	echo -n "$BLOCKNUM "
+	BLOCKOFF=`expr $BLOCKNUM '*' $BLOCKSIZE`
+	# echo -n "$BLOCKNUM "
+	echo -n "$BLOCKOFF "
 	dd if="$FILE" ibs=$BLOCKSIZE skip=$BLOCKNUM count=1 2>/dev/null |
 	md5sum
 
