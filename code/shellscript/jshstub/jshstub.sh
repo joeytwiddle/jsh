@@ -102,8 +102,13 @@ then
 
 		rm -f "$SCRIPTFILE"
 
+		if which wget 2>&1 > /dev/null
+		then WGETCOM="wget -O -"
+		else WGETCOM="lynx --source"
+		fi
+
 		echo "[ jshstub: Retrieving $SCRIPT_WAS_SOURCED\"$SCRIPTNAME\" args=$* ]" >&2
-		wget -q "http://hwi.ath.cx/jshstubtools/$SCRIPTNAME" -O "$SCRIPTFILE"
+		$WGETCOM -q "http://hwi.ath.cx/jshstubtools/$SCRIPTNAME" > "$SCRIPTFILE"
 
 		if test ! "$?" = 0
 		then

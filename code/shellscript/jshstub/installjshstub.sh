@@ -4,20 +4,25 @@
 export JPATH=/tmp/jsh-$$
 export JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshstubtools/"
 
+if which wget 2>&1 > /dev/null
+then WGETCOM="wget -O -"
+else WGETCOM="lynx --source"
+fi
+
 mkdir -p $JPATH
 cd $JPATH
 
 mkdir tools tmp
 cd tools
-wget "$JSH_STUB_NET_SOURCE/jshstub" -O jshstub
+$WGETCOM "$JSH_STUB_NET_SOURCE/jshstub" > jshstub
 chmod a+x jshstub
 
 ## Link all the jshtools to jshstub
 # 'ls' /home/joey/j/tools/ |
-# wget "http://hwi.ath.cx/jshstubtools" -O - |
+# $WGETCOM "http://hwi.ath.cx/jshstubtools" -O - |
 # grep "<img" | grep -v "Parent Directory" |
 # sed 's+.*href="\(.*\)">.*+\1+' |
-wget "$JSH_STUB_NET_SOURCE/.listing" -O - |
+$WGETCOM "$JSH_STUB_NET_SOURCE/.listing" |
 while read X
 do ln -s jshstub "$X"
 done 2>&1 |
