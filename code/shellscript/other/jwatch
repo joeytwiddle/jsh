@@ -1,9 +1,16 @@
-EXECSH=`jgettmp jwatch-do-$1`
+# EXECSH=`jgettmp jwatch-do-$1`
 NEW=`jgettmp "new-$1"`
 OLD=`jgettmp "old-$1"`
 
-echo "$@" > $EXECSH
-chmod a+x "$EXECSH"
+# echo "$@" > $EXECSH
+## Better to preserve quotes:
+EXECSTR=""
+for X
+# do EXECSTR="$EXECSTR\"$X\" "
+do EXECSTR="$EXECSTR$X "
+done
+# echo "$EXECSTR" > $EXECSH
+# chmod a+x "$EXECSH"
 
 ## TODO:
 ## Should really make this an option, so jwatch can be used by progs
@@ -11,16 +18,19 @@ chmod a+x "$EXECSH"
 cursecyan
 echo "### Just to check: (no aliases since run in sh)"
 cursemagenta
-$EXECSH
+# $EXECSH
+echo "$EXECSTR" | sh
 cursecyan
 echo "### End check; starting watch. ----------------------------- "
 cursenorm
 
-$EXECSH > $NEW
+echo "$EXECSTR" | sh > $NEW
+# $EXECSH > $NEW
 
 if test "x$JWATCHCOMPCOM" = "x"; then
-  JWATCHCOMPCOM="jfcsh"
   # JWATCHCOMPCOM="jfc simple oneway"
+  # JWATCHCOMPCOM="jfcsh"
+  JWATCHCOMPCOM="monitorpscompcom"
 fi
 
 sleep 1
@@ -29,7 +39,8 @@ while [ true ]; do
 
 	mv $NEW $OLD
 
-	$EXECSH > $NEW
+	# $EXECSH > $NEW
+	echo "$EXECSTR" | sh > $NEW
 
 	$JWATCHCOMPCOM $NEW $OLD
 
