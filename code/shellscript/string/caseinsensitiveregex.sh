@@ -1,3 +1,4 @@
+## Does not handle numbers well, probably filters out all except alpha
 echo "$@" | sed '
 	y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/
 	s/[a-z]/[&]/g

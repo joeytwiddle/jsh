@@ -55,7 +55,7 @@ then
 	touch "$STARTTIME"
 	## Doesn't handle spaces
 	## But with previous while read vim complained input not from term (outside X)
-	## Now we are sometimes getting cvs errors in the filelist.
+	## Now we sometimes get (but successfully ignore) cvs errors in the filelist: "Repository revision: No revision control file"
 	for FILE in $FILES
 	do
 		echo
