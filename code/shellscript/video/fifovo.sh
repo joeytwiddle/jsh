@@ -1,9 +1,10 @@
-## fifovo: Watches a streaming video, saving it in rotating files, so that video from the past few minutes can be retrieved.
+## fifovo: Plays a streaming video, saving it in rotating files,
+##         and accepts messages to rewind, fast-forward, or record the stream.
 
-## TODO: Add facility to save the playing stream (so can rewind, then "hit" "start recording").
-##       This might run into problems, since header is likely to be missing, but _we_ know what stream type it is (or we could possibly keep the very start of the stream and append it; hacky but it will at least get a working video with the bit we want).
 ## TODO: If playing stream has paused at block 10 (or is just being slow to playback than encode),
 ##       when saving stream reaches 9, it should start creating new files rather than overtaking / overwriting the playing thread / stream.
+## TODO: Yes, there is no management for overlap (either when rewind/fast-forwarding, or when paused or even just when streaming at different speeds).
+##       It is never really desirable to pause the encoding thread, so in circumstances of unavoidable overlap, we should create more files (increase buffer size _globally_).
 
 ## BUG: Doesn't currently work for rtsp because for mencoder to encode rtsp, it requires output formats that do not suit our fifo trick
 
@@ -17,18 +18,18 @@
 ## Also TODO: add a higher resolution (smaller byte-block) pipe for more fine-controlled merging / splitting
 ##            and a meta-manager which knows the duration of video which each file in the ringbuffer spans.
 
-## Yeah essentially this script is useless until we either:
-##  Get it to rewind and playback if user desires
-##  or, allow a nice way to save what has just passed and what is coming, to somewhere sensible.
-
 ## See also: transcode has a --avi_limit MB option, which will produce multiple files...
 
-# jsh-depends: guifyscript verbosely jshinfo curseyellow cursenorm
+# jsh-depends: guifyscript verbosely jshinfo curseyellow cursenorm mykill jshwarn
 # jsh-ext-depends: mencoder mkfifo mplayer seq tee
-# jsh-depends-ignore: mplayer mykill
-# jsh-ext-depends-ignore: from killall size
+# jsh-depends-ignore: mplayer before
+# jsh-ext-depends-ignore: from killall size less
 
-VQSCALE="10" ## Reduce this if you have a fast enough machine (check that the reencoder is managing one second of stream every second!)
+## My poor computer needs to encode at low quality, just in case demoscene.tv is playing a very detailed video!
+## Reduce this to encode at better quality, if you have a fast enough machine.
+## (Check that your encoding_thead is managing one second of stream every second!)
+[ "$VQSCALE" ] || export VQSCALE="10"
+export FIFOVO_MESSAGE_DIR=/tmp/fifovo
 
 encoding_thread () {
 
@@ -41,25 +42,38 @@ encoding_thread () {
 	## This successfully encodes RTSP, but doesn't create a stream playable from a fifo or even a file :(  In fact it is probably encoding into fifo that failed.
 	# ENCODING_OPTIONS="-oac pcm -ovc lavc -lavcopts vqscale=6"
 
-	## Audio and video playback ok provided -of mpeg below:
+	## Audio and video playback OK provided -of mpeg below:
 	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts acodec=mp3:vcodec=mpeg2video:vqscale=6"
 
-	## Seems ok but expensive for CPU:
+	## Seems OK but expensive for CPU unless we increase vqscale:
 	# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
 	## One time the video did not play on one clip:
 	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=2"
 	ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=$VQSCALE"
 
-	verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
+	# verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
+	# verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS
+	verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS &
+	echo "$!" > "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid
+	fg
+	wait
 	## Try to make reencoder use less CPU by running gentoo version:!
 	# export LD_LIBRARY_PATH="/lib:/usr/lib:/mnt/gentoo/lib:/mnt/gentoo/usr/lib"
 	# verbosely /mnt/gentoo/usr/bin/mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
-	#
+
+	## The following try to get a stream out of mplayer directly, without mencoder.
+	## In these cases, you need to change ENCODED_FIFO in init to whatever mplayer outputs to.
+
+	## mpegpes:
 	## Won't work for me cos I have no /dev/dvb/adapter0/video0+audio0
 	# verbosely mplayer "$STREAM_SOURCE" -vo mpegpes 2>&1 |
+
+	## yuv4mpeg:
+	## This one works but it separates audio/video:
 	# verbosely mplayer "$STREAM_SOURCE" -vo yuv4mpeg -ao pcm 2>&1 |
+
 	# highlight ".*" yellow
-	cat
+	# cat
 
 	# wget "$STREAM_SOURCE" -O - > "$ENCODED_FIFO"
 
@@ -69,15 +83,20 @@ saving_thread () {
 
 	WRITING_BLOCK=0
 
+	## CONSIDER: If this thread would be happy to switch input source, then
+	## we could get the reencoder to start encoding a new video stream, into a new fifo, effectively "switching the channel".
+	## Eg. here we could:
+	##   while true; cat "$ENCODED_FIFO"; get_new_fifo || break; done |
+
 	cat "$ENCODED_FIFO" |
 
 	while true
 	do
 
+		jshinfo "Saving re-encoded stream into block $WRITING_BLOCK"
 		echo "$WRITING_BLOCK" > "$CURRENT_WRITING_BLOCK_INFO_FILE"
 		WRITING_BLOCK=`printf "%04i" "$WRITING_BLOCK"`
 		FILE="$STREAM_DATA_DIR/streamed.$WRITING_BLOCK.mpeg"
-		jshinfo "Now saving into $FILE"
 
 		verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
 		## Bad:
@@ -101,27 +120,28 @@ saving_thread () {
 		then WRITING_BLOCK=1
 		fi
 
+		[ -f "$FIFOVO_MESSAGE_DIR"/stop_everything ] && break
+
 	done
 
 }
 
 restreaming_thread () {
 
-	CURRENT_STREAMING_BLOCK=0
+	jshinfo "Will start streaming once MPlayer starts..."
 
-	# while true
-	# do
+	CURRENT_STREAMING_BLOCK=0
 
 	while true
 	do
 
 		## This paragraph lets you rewind the playing stream, eg.:
-		##   echo "20" > /tmp/rewind
+		##   echo "20" > "$FIFOVO_MESSAGE_DIR"/rewind
 		## TODO: doesn't check whether you cross the boundary of the
 		##       start of the ringbuffer (go too far back)
-		if [ -f /tmp/rewind ]
+		if [ -f "$FIFOVO_MESSAGE_DIR"/rewind ]
 		then
-			DISTANCE=`cat /tmp/rewind`
+			DISTANCE=`cat "$FIFOVO_MESSAGE_DIR"/rewind`
 			jshinfo "Rewinding $DISTANCE blocks ($BLOCK_SIZE bytes each)"
 			LAST_CURRENT_STREAMING_BLOCK="$CURRENT_STREAMING_BLOCK"
 			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - $DISTANCE`
@@ -134,13 +154,13 @@ restreaming_thread () {
 			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + "$BUFFER_SIZE"`
 			fi
 			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
-			rm -f /tmp/rewind
+			rm -f "$FIFOVO_MESSAGE_DIR"/rewind
 		fi
 
 		## Copied from previous; bugs and all:
-		if [ -f /tmp/fastforward ]
+		if [ -f "$FIFOVO_MESSAGE_DIR"/fastforward ]
 		then
-			DISTANCE=`cat /tmp/fastforward`
+			DISTANCE=`cat "$FIFOVO_MESSAGE_DIR"/fastforward`
 			jshinfo "Fast-forwarding $DISTANCE blocks ($BLOCK_SIZE bytes each)"
 			LAST_CURRENT_STREAMING_BLOCK="$CURRENT_STREAMING_BLOCK"
 			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + $DISTANCE`
@@ -153,21 +173,21 @@ restreaming_thread () {
 			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - "$BUFFER_SIZE"`
 			fi
 			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
-			rm -f /tmp/fastforward
+			rm -f "$FIFOVO_MESSAGE_DIR"/fastforward
 		fi
 
-		if [ -f /tmp/start_recording ]
+		if [ -f "$FIFOVO_MESSAGE_DIR"/start_recording ]
 		then
-			RECORDING_FILE=`cat /tmp/start_recording`
-			rm -f /tmp/start_recording
+			RECORDING_FILE=`cat "$FIFOVO_MESSAGE_DIR"/start_recording`
+			rm -f "$FIFOVO_MESSAGE_DIR"/start_recording
 			RECORDING=true
 			RECORDING_NUM=0
 			if [ ! "$RECORDING_FILE" ]
 			then
-				while [ -f "/tmp/recorded$RECORDING_NUM.mpeg" ]
+				while [ -f ""$FIFOVO_MESSAGE_DIR"/recorded$RECORDING_NUM.mpeg" ]
 				do RECORDING_NUM=`expr "$RECORDING_NUM" + 1`
 				done
-				RECORDING_FILE=/tmp/recorded$RECORDING_NUM.mpeg
+				RECORDING_FILE="$FIFOVO_MESSAGE_DIR"/recorded$RECORDING_NUM.mpeg
 			fi
 			jshinfo "Starting recording into $RECORDING_FILE"
 			## We need to get the header of the original stream, so we import the first file streamed:
@@ -179,21 +199,26 @@ restreaming_thread () {
 			##       When they stop recording, they will have already got more saved than they have seen!
 		fi
 
-		if [ -f /tmp/stop_recording ]
+		if [ -f "$FIFOVO_MESSAGE_DIR"/stop_recording ]
 		then
-			rm -f /tmp/stop_recording
+			rm -f "$FIFOVO_MESSAGE_DIR"/stop_recording
 			jshinfo "Stopping recording"
 			RECORDING=
 		fi
 
 		while [ `cat "$CURRENT_WRITING_BLOCK_INFO_FILE"` = "$CURRENT_STREAMING_BLOCK" ]
 		do
+			if [ -f "$FIFOVO_MESSAGE_DIR"/stop_everything ]
+			then break ## If the saving_thread has finished but was on the same block as the playing_thread is waiting for, then only this can break it out!
+			fi
 			# CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - 1`
-			jshinfo "Waiting for block $CURRENT_STREAMING_BLOCK to finish writing..."
+			jshwarn "Waiting for block $CURRENT_STREAMING_BLOCK to finish writing (letting encoder get ahead)..."
+			jshwarn "MPlayer may temporarily block; consider pausing for a moment, or rewind!"
+			jshwarn "(The alternative is to wait longer before initially starting the player.)"
 			verbosely sleep 10
 		done
 
-		# jshinfo "Streaming block $CURRENT_STREAMING_BLOCK"
+		jshinfo "Re-streaming to mplayer from block $CURRENT_STREAMING_BLOCK"
 
 		CURRENT_STREAMING_BLOCK=`printf "%04i" "$CURRENT_STREAMING_BLOCK"`
 		if [ "$RECORDING" ]
@@ -207,15 +232,13 @@ restreaming_thread () {
 		if [ ! "$?" = 0 ]
 		then
 			jshinfo "There was a problem"
-			return
+			break
 		fi
 
 		CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + 1`
 		if [ "$CURRENT_STREAMING_BLOCK" -gt "$BUFFER_SIZE" ]
 		then CURRENT_STREAMING_BLOCK=1
 		fi
-
-	# done
 
 	done > "$PLAYER_FIFO"
 	# done |
@@ -227,11 +250,25 @@ restreaming_thread () {
 }
 
 playing_thread () {
-	verbosely mplayer "$PLAYER_FIFO" # | highlight ".*" green
+	jshinfo "Giving the encoder a head-start before starting the player..."
+	verbosely sleep 10
+	verbosely mplayer -cache-prefill 99 "$PLAYER_FIFO" # | highlight ".*" green
+
+	touch "$FIFOVO_MESSAGE_DIR"/stop_everything
+	## Might not be needed:
+	# jshinfo "Giving saving_thread and restreaming_thread time to die."
+	# verbosely sleep 5
+	ENCODER_PID=`cat "$FIFOVO_MESSAGE_DIR"/fifovo_encoder.pid`
+	[ "$ENCODER_PID" ] && kill "$ENCODER_PID"
+	# kill "$ENCODING_PID"
+	true
 }
 
 ## I don't know why but if you leave the ()s out it causes a nasty infloop!
 initialise () {
+
+	export STREAM_SOURCE="$1"
+	shift
 
 	export TOTAL_BUFFER_SIZE_MEG=20
 	## With my machine (and now that we are reading and writing from files), I really needed to save the ringbuffer in memory (aka ramfs):
@@ -239,11 +276,7 @@ initialise () {
 	# export STREAM_DATA_DIR=/dev/shm/joey/
 	## But you probably won't have one of them!
 	[ "$STREAM_DATA_DIR" ] && [ -w "$STREAM_DATA_DIR" ] || export STREAM_DATA_DIR=/tmp
-	# export CURRENT_WRITING_BLOCK_INFO_FILE=/tmp/current_block.info
-	export CURRENT_WRITING_BLOCK_INFO_FILE="$STREAM_DATA_DIR"/current_block.info
-
-	export STREAM_SOURCE="$1"
-	shift
+	export CURRENT_WRITING_BLOCK_INFO_FILE="$FIFOVO_MESSAGE_DIR"/current_block.info
 
 	## Larger bits, less shell cycles:
 	export BUFFER_SIZE=100
@@ -260,57 +293,84 @@ initialise () {
 	mkfifo "$ENCODED_FIFO"
 	mkfifo "$PLAYER_FIFO"
 
-	guifyscript sh "$0" -invokefunction encoding_thread "$STREAM_SOURCE" &
+	mkdir -p "$FIFOVO_MESSAGE_DIR"
+
+	rm -f "$FIFOVO_MESSAGE_DIR"/stop_everything
+
+	## Cleanup any previous nasties:
+	echo | mykill -x saving_thread > /dev/null
+
+	export GUIFYSCRIPT_TIMEOUT=2
+	export XTERM_OPTS="-geometry 80x12"
+
+	# export XTERM_OPTS=
+	verbosely guifyscript sh "$0" -invokefunction encoding_thread "$STREAM_SOURCE" &
 	ENCODING_PID="$!"
 	echo "ENCODING_PID=$ENCODING_PID"
 
-	sleep 2
+	# verbosely sleep 2
+	sleep 1
 
-	guifyscript sh "$0" -invokefunction saving_thread &
+	# export XTERM_OPTS="-geometry 80x10"
+	verbosely guifyscript sh "$0" -invokefunction saving_thread &
 	SAVING_PID="$!"
 	echo "SAVING_PID=$SAVING_PID"
 
-	sleep 5
+	# jshinfo "Giving the encoder a head-start before starting the player..."
+	# verbosely sleep 5
+	sleep 1
 
-	guifyscript sh "$0" -invokefunction restreaming_thread &
+	# export XTERM_OPTS="-geometry 80x10"
+	verbosely guifyscript sh "$0" -invokefunction restreaming_thread &
 	## Didn't appear to help:
-	# guifyscript nice -n 15 sh "$0" restreaming_thread &
+	# verbosely guifyscript -timeout 2 nice -n 15 sh "$0" restreaming_thread &
 	RESTREAMING_PID="$!"
 	echo "RESTREAMING_PID=$RESTREAMING_PID"
 
-	sleep 5
+	# verbosely sleep 5
+	sleep 1
 
-	guifyscript sh "$0" -invokefunction playing_thread &
+	# export XTERM_OPTS=
+	verbosely guifyscript sh "$0" -invokefunction playing_thread &
 	PLAYER_PID="$!"
 	echo "PLAYER_PID=$PLAYER_PID"
 
+	sleep 1 ## Ensures the &-ed verbosely prints before the following does.
+
 	curseyellow
-	echo
-	echo "Commands you can send to fifovo:"
-	echo "  echo 20 > /tmp/rewind"
-	echo "  echo 20 > /tmp/fastforward"
-	echo "  touch /tmp/start_recording"
-	echo "    or"
-	echo "  echo /tmp/yummy_vid.mpeg > /tmp/start_recording"
-	echo "  touch /tmp/stop_recording"
-	echo
-	echo "How to stop fifovo:"
-	echo "  Press 'q' on the mplayer window,"
-	echo "  and press Ctrl+C on the saving window."
-	echo "  Then press Ctrl+C here to close all remaining windows."
-	echo
-	echo "Hopefully you won't need these:"
-	# echo "  kill -KILL $ENCODING_PID $SAVING_PID $RESTREAMING_PID $PLAYER_PID"
-	echo "  killall -KILL mencoder mplayer"
-	# echo "  killall \"$0\""
-	echo "  mykill -x saving_thread"
-	echo
+	fifovohelp
 	cursenorm
 
 	wait
 
 	rm -f "$ENCODED_FIFO" "$PLAYER_FIFO"
+	rm -f "$FIFOVO_MESSAGE_DIR"/stop_everything
 
+}
+
+fifovohelp () {
+	echo
+	echo "Commands you can send to fifovo:"
+	echo "  echo 20 > $FIFOVO_MESSAGE_DIR/rewind"
+	echo "  echo 10 > $FIFOVO_MESSAGE_DIR/fastforward"
+	echo "  touch $FIFOVO_MESSAGE_DIR/start_recording"
+	echo "    or        (NOTE: due to mplayer's cache, you should start recording early!)"
+	echo "  echo /tmp/yummy_vid.mpeg > $FIFOVO_MESSAGE_DIR/start_recording"
+	echo "  touch $FIFOVO_MESSAGE_DIR/stop_recording"
+	echo
+	echo "To stop fifovo:"
+	echo "  Press 'q' on the mplayer window, and wait for the other threads to stop."
+	# echo "  and press Ctrl+C on the saving window."
+	echo "  If they don't, then press Ctrl+C here to close all remaining windows."
+	# echo
+	echo "Hopefully you no longer need these:"
+	# echo "  kill -KILL $ENCODING_PID $SAVING_PID $RESTREAMING_PID $PLAYER_PID"
+	echo "  killall -KILL mencoder mplayer"
+	# echo "  killall \"$0\""
+	echo "  mykill -x saving_thread"
+	echo
+	echo "For better/faster encoding, export VQSCALE=<something less/more than $VQSCALE> ."
+	echo
 }
 
 if [ "$1" = -invokefunction ]
@@ -328,6 +388,9 @@ then
 	echo
 	echo "fifovo <url_of_stream>"
 	echo
+	echo "  Plays a streaming video, saving it in rotating files, and accepts messages"
+	echo "  to rewind, fast-forward, or record the stream."
+	fifovohelp
 	exit 1
 
 else
