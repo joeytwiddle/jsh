@@ -23,19 +23,19 @@ while read X; do
 	echo
 	cursegrey
 
-	sleep 2
 	(
 	curseblue
 		killall wine.bin
 		killall wineserver
-		del $HOME/.wine/wineserver-*
+		rm -rf $HOME/.wine/wineserver-*
 	cursegrey
 	) > /dev/null
-	sleep 1
-	findjob wine |
-	grep -v "$JPATH/tools/" |
-	grep -v "xterm"
-	sleep 1
+	# Check it has been killed!
+	# sleep 1
+	# findjob wine |
+	# grep -v "$JPATH/tools/" |
+	# grep -v "winealldemoz" |
+	# grep -v "wineonedemo"
 
 	curseyellow
 	echo
@@ -43,7 +43,13 @@ while read X; do
 	echo
 	cursegrey
 
+	# To test for gl/non-gl progs:
+	# -dll opengl32=s,n 
+	# --managed 
+	# --desktop 640x480+0+0 
 	wine "$X"
+
+	sleep 1
 
 done
 

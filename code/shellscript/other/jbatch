@@ -1,2 +1,2 @@
 editandwait $JPATH/tmp/batch.txt
-source $JPATH/tmp/batch.txt
+. $JPATH/tmp/batch.txt

@@ -30,11 +30,11 @@ find /stuff/mp3s/ -iname "*.mp3" |
 	sed 's+\(.*\)/\(.*\)+"\2" \1/\2+' | sort -f -k 1 | sed 's+.*" ++' > $JPATH/music/list.m3u
 
 # echo "PID= $$"
-# requestsudo "source $JPATH/startj
+# requestsudo ". $JPATH/startj
 # myrenice -15 '-E (esd| grep -v /dontplay/ > $JPATH/music/list.m3u
 
 # echo "PID= $$"
-# requestsudo "source $JPATH/startj
+# requestsudo ". $JPATH/startj
 # myrenice -15 '-E (esd|mpg123|xmms|freeamp|$$)'"
 # TOMOD=`ps -A | grep -E "(esd|mpg123|xmms|freeamp)" | takecols 1`
 TOMOD=$$

@@ -16,3 +16,5 @@ while test ! $DONE; do
     sleep $GAP
   fi
 done
+
+xmms -t

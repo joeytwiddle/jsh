@@ -26,7 +26,7 @@ export USERNAME BASH_ENV PATH
 # export PS1
 
 dircolors ~/.dircolors > ~/.lscols
-source ~/.lscols
+. ~/.lscols
 export LS_COLORS
 
 FIGNORE='.class';

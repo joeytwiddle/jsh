@@ -1,7 +1,9 @@
-# echo "JPATH = $JPATH" >> /home/joey/tmp.txt
-# echo "PATH = $PATH" >> /home/joey/tmp.txt
 M=`$JPATH/tools/getminute`
+
 LOGFILE="$JPATH/tmp/ps.$M.txt"
 LOGFILE2="$JPATH/tmp/ps-simple.$M.txt"
 $JPATH/tools/myps -A > $LOGFILE
 $JPATH/tools/psforwatch -A > $LOGFILE2
+
+LOGFILE="$JPATH/tmp/$M.top"
+/usr/bin/top c n 1 b > $LOGFILE

@@ -1,7 +1,7 @@
 if test ! -f $HOME/.lscols; then
-  echo "You have no lscolours.  Run lscolsrefresh"
+  echo "You have no ~/.lscols file.  Run lscolsrefresh."
 else
-  source $HOME/.lscols
+  . $HOME/.lscols
   # echo "Got: $LS_COLORS"
   export LS_COLORS
 fi

@@ -3,23 +3,26 @@ export PATH=$JPATH/tools:$PATH
 
 # Setup user bin, libs, man etc...
 export PATH=$HOME/bin:$PATH
+# not yet finished - refer too setuppath in pclark/pubbin
 
-source getmachineinfo
+if test ! "$1" = "simple"; then
 
-source joeysaliases
-source cvsinit
+. getmachineinfo
+
+. joeysaliases
+. cvsinit
 
 if test $ZSH_NAME; then
-	source zshkeys
+	. zshkeys
 fi
 
-# source dirhistorysetup.bash
-source dirhistorysetup.zsh
-source hwipromptforbash
-source hwipromptforzsh
-source javainit
-source hugsinit
-source lscolsinit
+# . dirhistorysetup.bash
+. dirhistorysetup.zsh
+. hwipromptforbash
+. hwipromptforzsh
+. javainit
+. hugsinit
+. lscolsinit
 
 alias hwicvs='cvs -d :pserver:joey@hwi.dyn.dhs.org:/stuff/cvsroot'
 alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
@@ -107,5 +110,7 @@ case $TERM in
 	;;
 esac
 
-# source $JPATH/tools/jshellalias
-# source $JPATH/tools/jshellsetup
+# . $JPATH/tools/jshellalias
+# . $JPATH/tools/jshellsetup
+
+fi

@@ -4,5 +4,5 @@ if test ! -f $HOME/.dircolors; then
   dircolors -p > $HOME/.dircolors
 fi
 dircolors $HOME/.dircolors > $HOME/.lscols
-source $HOME/.lscols
+. $HOME/.lscols
 export LS_COLORS

@@ -1,7 +1,20 @@
+if test "$1" = "topdown" || test "$1" = "bestfirst"; then
+	for X in `seq 10 -1 0`; do
+		winealldemoz "/$X/"
+	done
+	exit 0
+fi
+
 find "/stuff/software/demoz/recommend/" -type f |
 grep "/wine/" |
 # Optional:
-grep -v "/gl/" |
+if test "$1" = ""; then
+	cat
+else
+	grep "$1"
+fi |
+# grep -v "/gl/" |
+# grep "/gl/" |
 randomorder |
 while read X; do
 

@@ -19,6 +19,6 @@ export PWD='$NEXT';
 # alias cd='cd'
 "cd" "$NEXT"
 
-dirhistory "$@"
+# dirhistory "$@"
 
 xttitle "$SHOWUSER$SHOWHOST$PWD %% "

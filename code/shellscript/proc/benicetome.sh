@@ -4,5 +4,5 @@ if test "x$1" = "x"; then
 fi
 
 PID="$1"
-requestsudo "source $JPATH/startj
+requestsudo ". $JPATH/startj
 myrenice -15 '$PID'"

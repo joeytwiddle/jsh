@@ -39,12 +39,11 @@ else
 		# find "$LOOKIN" -maxdepth 1 -name "$LOOKFOR*" |
 		'ls' -d "$LOOKIN/$LOOKFOR"* |
 		while read X; do
-			echo "__$X"
 			if test -d "$X"; then
-				echo "== $X" > /dev/stderr
+				echo "$X"
 			fi
 		done
-	` 2> /dev/null
+	`
 	# echo ">$NEWLIST<"
 
 	if test "$NEWLIST" = ""; then

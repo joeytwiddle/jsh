@@ -28,7 +28,8 @@ FILE=`
 
 if test -f "$FILE" && file "$FILE" | egrep "image|bitmap" > /dev/null; then
   echo "$PWD$FILE"
-  xv -root -rmode 5 -maxpect -quit "$FILE" 1>&2 &
+  # xv -root -rmode 5 -maxpect -quit "$FILE" 1>&2 &
+  xsetroot "$FILE" 1>&2 &
   ln -sf "$PWD/$FILE" "$JPATH/background1.jpg" &
 else
   echo "Wallpaper $FILE does not exist or is not an image!"

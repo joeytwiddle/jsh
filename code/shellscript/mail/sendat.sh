@@ -24,7 +24,7 @@ elif test "$COM" = "dosend"; then
 	WAITSECS=`listnums 1 30 | chooserandomline`
 	sleep $WAITSECS"s"
 
-	source "$SENDSCRIPT"
+	. "$SENDSCRIPT"
 	del "$SENDSCRIPT"
 	del "$DIR/*"
 	# SENTDIR="$JPATH/mail/sent"

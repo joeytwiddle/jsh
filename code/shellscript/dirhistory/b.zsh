@@ -23,6 +23,6 @@ mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 # alias cd='cd'
 "cd" "$LAST"
 
-dirhistory "$@"
+# dirhistory "$@"
 
 xttitle "$SHOWUSER$SHOWHOST$PWD %% "
