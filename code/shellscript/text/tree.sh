@@ -5,6 +5,10 @@ if test "$1" = "-java"
 then TREEJAVA=true; shift
 fi
 
+if test "$1" = "-cat" || test "$1" = "-novim"
+then CAT=true; shift
+fi
+
 FOLDINGFILE=~/.vim/plugin/joeyfolding.vim
 if test -f "$FOLDINGFILE"
 then VIMOPTS=$VIMOPTS" +:Joeyfolding"
@@ -20,15 +24,18 @@ then
 
 else
 
-	# runhugs $JPATH/code/haskell/tools/treelist.hs "$@"
 	## Hugs interpreter is not efficient:
+	# runhugs $JPATH/code/haskell/tools/treelist.hs $TMPFILE
 	# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
 	## Compiled with ghc =)
 	$JPATH/code/haskell/tools/treelist $TMPFILE
 
 fi |
 
-vi - -R $VIMOPTS
+if test "$CAT"
+then cat
+else vi - -R $VIMOPTS
+fi
 
 jdeltmp $TMPFILE
 

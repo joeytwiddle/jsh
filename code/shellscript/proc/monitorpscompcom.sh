@@ -1,9 +1,22 @@
-OTHER=`jfc simple oneway "$2" "$1" | ungrep "cat$"`
-if ! test "x$OTHER" = "x"; then
-  echo
-  echo `cursered``cursebold`"<<< DIED:"
-  echo "$OTHER"
-  echo ">>>"`cursenorm`
-  echo
+if test "$1" = "-ungrep"
+then UNGREP="$2"; shift; shift
 fi
-jfc simple oneway "$1" "$2" | ungrep "cat$"
+
+FILEA="$1"
+FILEB="$2"
+shift
+shift
+
+OTHER=`jfc simple oneway "$FILEB" "$FILEA" | ungrep "$UNGREP"`
+if ! test "$OTHER" = ""; then
+  # echo
+  # echo `cursered``cursebold`"<<< DIED:"
+  cursered;cursebold
+  echo "$OTHER"
+  cursenorm
+  # echo ">>>"`cursenorm`
+  # echo
+fi
+# cursegreen # ;cursebold
+jfc simple oneway "$FILEA" "$FILEB" | ungrep "$UNGREP"
+# cursenorm

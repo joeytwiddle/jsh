@@ -23,7 +23,7 @@ else
 			exit 1
 		fi
 		mv "$DELEDFILE" "$DEST"
-		echo "./$DEST <- $DELEDFILE"
+		echo "$DEST "`cursegreen`"<-"`cursenorm`" $DELEDFILE"
 		shift
 	done
 fi

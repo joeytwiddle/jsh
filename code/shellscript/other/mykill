@@ -1,3 +1,5 @@
+## BUG/TODO: should record initial result then re-use, rather than run mykillps twice, cos something might have changed!
+
 mykillps "$@"
 echo "Press <Enter> to kill them."
 read INPUT

@@ -1,7 +1,28 @@
+## WISHLIST: Rather than buffering by line, it'd be nice to read all available, then send to txt2speech, then read again...
+
+## Don't wait for whole block, speak each line as it arrives:
+
+if test "$1" = "-nobuf"
+then
+
+	while read LINE
+	do
+		echo "$LINE"
+		echo "$LINE" | txt2speech
+	done
+	exit
+
+fi
+
+## Wait for whole block:
+
 (
 
 	echo "("
 
+	## Can't
+	# cat "$@" |
+	## because options may be passed for later.  Cld fix by parsing options first yawn zzz
 	cat |
 
 	col -bx |
@@ -11,6 +32,9 @@
 	# sed 's+\[\(..\):\(..\)\] <\([^>]*\)>+At \1 \2 user \3 said +' |
 	sed "s+\[\(..\):\(..\)\] <\([^>]*\)>+ . \\
 \3 says +" |
+
+	## For tail:
+	sed 's+^==> \(.*\) <==$+Appended to file \1:+' |
 
 	## for debugging:
 	# tee /tmp/tmp-tts.txt |	
