@@ -108,12 +108,14 @@ then
 		fi
 
 		echo "[ jshstub: Retrieving $SCRIPT_WAS_SOURCED\"$SCRIPTNAME\" args=$* ]" >&2
-		$WGETCOM -q "http://hwi.ath.cx/jshstubtools/$SCRIPTNAME" > "$SCRIPTFILE"
+		## When sourced in zsh, $WGETCOM was not being expanded as desired.
+		eval $WGETCOM -q "$JSH_STUB_NET_SOURCE/$SCRIPTNAME" > "$SCRIPTFILE"
 
 		if test ! "$?" = 0
 		then
 			echo "[ jshstub: Error: failed to retrieve http://hwi.ath.cx/jshstubtools/$SCRIPTNAME ]" >&2
 			echo "[ jshstub: Replacing removed symlink ]" >&2
+			rm -f "$SCRIPTFILE"
 			ln -s "$JPATH/tools/jshstub" "$SCRIPTFILE"
 			OKTOGO=
 		fi
