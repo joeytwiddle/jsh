@@ -1,3 +1,17 @@
-forall *.zip do "mkdir '%s' && cd '%s' && unzip '../%f'"
-forall *.tar.gz *.tgz do "mkdir '%s' && cd '%s' && tar xfz '../%f'"
-forall *.tar do "mkdir '%s' && cd '%s' && tar xf '../%f'"
+for X in *.zip; do
+	Y=`echo "$X" | sed 's/\.zip$//'`
+	mkdir "$Y"
+	cd "$Y"
+	unzip "../$X"
+	# And because it always segfaults first time round:
+	unzip "../$X"
+	cd ..
+done
+
+for X in *.tar.gz *.tgz; do
+	Y=`echo "$X" | sed 's/\(\.tar.gz\|\.tgz\)$//'`
+	mkdir "$Y"
+	cd "$Y"
+	tar xfz "../$X"
+	cd ..
+done

@@ -1,2 +1,2 @@
 # access time
-ls -aultrF --color $@
+ls -aultr $JM_LS_OPTS $@

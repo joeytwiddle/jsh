@@ -17,4 +17,4 @@ while test ! $DONE; do
   fi
 done
 
-xmms -t
+xmms -t &

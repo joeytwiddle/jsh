@@ -4,6 +4,8 @@ if test "$1" = ""; then
 	exit 1
 fi
 
+# Hopefully passed down from .xinitrc
+# Nah didn't!
 NEXTWMFILE="$JPATH/data/nextwinman.dat"
 CURRENTWMFILE="$JPATH/data/currentwinman.dat"
 

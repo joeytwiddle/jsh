@@ -1,1 +1,1 @@
-ls -alrtFh --color $@
+ls $JM_LS_OPTS -alrth $@

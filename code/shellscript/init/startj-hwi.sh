@@ -63,7 +63,8 @@ fi
 if test "$SHOWUSER" = "joey@"; then
 	SHOWUSER=""
 fi
-export SHOWHOST # for d f b
+export SHOWUSER # for d f b
+export SHOWHOST
 
 # tcsh makes itself known by ${shell} envvar.
 
