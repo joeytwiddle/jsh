@@ -10,15 +10,14 @@ source getmachineinfo
 source joeysaliases
 source cvsinit
 
-source zshkeys
+if endswith "$SHELL" = "/zsh"; then
+	source zshkeys
+fi
 
 # source dirhistorysetup.bash
 source dirhistorysetup.zsh
-if endswith "$SHELL" "/bash"; then
-	source hwipromptforbash
-elif endswith "$SHELL" = "/zsh"; then
-	source hwipromptforzsh
-fi
+source hwipromptforbash
+source hwipromptforzsh
 source javainit
 source hugsinit
 source lscolsinit
