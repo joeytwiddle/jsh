@@ -189,6 +189,7 @@ bindkey "^l" forward-word
 bindkey "^u" backward-kill-line
 bindkey "^o" kill-line
 #
-bindkey "^p" vi-backward-kill-word
-bindkey "^[" vi-backward-word
-bindkey "^]" vi-forward-word
+# Had trouble getting [ fully cleared for:
+# bindkey "^p" vi-backward-kill-word
+# bindkey "^[" vi-backward-word
+# bindkey "^]" vi-forward-word
