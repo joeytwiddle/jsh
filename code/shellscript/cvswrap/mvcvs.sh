@@ -1,16 +1,34 @@
-## TODO: allow you to provide a new filename if sending just one
-##       ability to move whole directories
+## BUG: Now allows you rename files, but if there are multiple srcs it should check that dest is a dir!
+## TODO: ability to move whole directories (we could perform build a new tree and mvcvs every file)
 
 # safe until you | sh
 
+## Oops
+# if test ! "$3" = ""
+# then
+	# echo "mvcvs <file> <dest-dir/file>"
+	# echo "  TODO: deal with more than one file at a time"
+	# echo "        allow move directories...mmm"
+	# exit 1
+# fi
+
 ## Function to move one file
-mvcvs2() {
+mvcvs1() {
 
-	LOCALFILE="$1"
-	LOCALDESTDIR="$2"
+	LOCALSRC="$1"
+	FILEPATH=`filepath "$LOCALSRC"`
+	FILENAME=`filename "$LOCALSRC"`
 
-	FILEPATH=`filepath "$LOCALFILE"`
-	FILENAME=`filename "$LOCALFILE"`
+	LOCALDEST="$2"
+	if test -d "$LOCALDEST"
+	then
+		LOCALDESTDIR="$LOCALDEST"
+		DESTFILENAME="$FILENAME" ## ****************
+	else
+		LOCALDESTDIR=`filepath "$LOCALDEST"`
+		DESTFILENAME=`filename "$LOCALDEST"`
+	fi
+
 	REPOSFILEDIR=`cat "$FILEPATH/CVS/Repository"`
 	REPOSDESTDIR=`cat "$LOCALDESTDIR/CVS/Repository"`
 
@@ -21,6 +39,7 @@ mvcvs2() {
 	CVSFILE="$CVSROOT/$REPOSFILEDIR/$FILENAME,v"
 	CVSDESTDIR="$CVSROOT/$REPOSDESTDIR"
 
+	## Checking ok:
 	if test ! -d "$FILEPATH"; then
 	  echo "Probleming resolving local directory.  Got \"$FILEPATH\""
 	  exit 1
@@ -29,8 +48,8 @@ mvcvs2() {
 	  echo "CVS destination \"$CVSROOT\" is not a directory."
 	  exit 1
 	fi
-	if test ! -f "$LOCALFILE"; then
-	  echo "\"$LOCALFILE\" is not a file!"
+	if test ! -f "$LOCALSRC"; then
+	  echo "\"$LOCALSRC\" is not a file!"
 	  exit 1
 	fi
 	if test ! -f "$CVSFILE"; then
@@ -38,14 +57,14 @@ mvcvs2() {
 	  exit 1
 	fi
 
-	# echo "mv \"$LOCALFILE\" \"$LOCALDESTDIR/\""
+	# echo "mv \"$LOCALSRC\" \"$LOCALDESTDIR/\""
 	if test ! -d "$CVSDESTDIR"; then
 	  echo "mkdir -p \"$CVSDESTDIR\""
 	fi
 	## We can copy the file in the CVS repository to create the new entry
-	echo "cp \"$CVSFILE\" \"$CVSDESTDIR/\""
-	## We must delete the local version.  Is it up-to-date?!
-	echo "del -cvs \"$LOCALFILE\""
+	echo "cp \"$CVSFILE\" \"$CVSDESTDIR/$DESTFILENAME,v\""
+	## I think somebody has to do this (and commit it, although nobody has to add mmm)
+	echo "del -cvs \"$LOCALSRC\""
 
 }
 
@@ -57,13 +76,13 @@ do
 "
 	shift
 done
-LOCALDESTDIR="$1"
+LOCALDEST="$1"
 
 ## Show move for each file
 printf "%s" "$FILELIST" |
 while read FILE
 do
-	mvcvs2 "$FILE" "$LOCALDESTDIR"
+	mvcvs1 "$FILE" "$LOCALDEST"
 done
 
 ## Move to top of repository
