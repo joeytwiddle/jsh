@@ -23,6 +23,7 @@
 
 ## This is actually the max output bytes per second you can observe from monitoriflow running without shaping
 BANDWIDTH_OUT=22000
+# BANDWIDTH_OUT=25000
 
 ## How much smaller than your overall bandwidth do you want the non-priority pipe(pair) to be?
 ## Note this is in expr format.
@@ -31,14 +32,15 @@ then
 	# PROPORTION_TO_ALLOW="3 / 2" ## works quite well for me, maybe even 5 / 3 (although that was when the webserver was quiet!)
 											 ## Problem is: this will lead to torrents getting choked if someone downloads from the webserver, filling the new pipe
 	# PROPORTION_TO_ALLOW="3 / 4"
-	PROPORTION_TO_ALLOW="2 / 3" ## better if we give webserver twice
+	PROPORTION_TO_ALLOW="3 / 4"
+	# PROPORTION_TO_ALLOW="2 / 3" ## better if we give webserver twice
 	# PROPORTION_TO_ALLOW="1 / 2"
 	# PROPORTION_TO_ALLOW="1"
 	# PROPORTION_TO_ALLOW="1 / 10"
 fi
+BUT_ALLOW_WEBSERVER_TWICE=2
 # BUT_ALLOW_WEBSERVER_TWICE=2
 # BUT_ALLOW_WEBSERVER_TWICE="1 / 4"
-BUT_ALLOW_WEBSERVER_TWICE=2
 
 # INTERFACE=ppp0
 # INTERFACE=eth0
@@ -78,6 +80,7 @@ case "$1" in
 
 		start)
 			echo -n "shaping: "
+			[ "$DEBUG" ] && echo ## to make later debug calls neat!
 			## configure "$INTERFACE" so that there is a bandwidth cap on large packets going up the DSL line
 			## and then garp advertising the true gateway's IP, so that other hosts use us rather than it
 
@@ -85,40 +88,49 @@ case "$1" in
 
 			## >>>>>>>>>>>>>>>>>>>> Initialisation
 
-			## This magically converts BANDWIDTH_OUT to MAXKBIT (which is what tc thinks is you max output per second!)
-			MAXKBIT=`expr "$BANDWIDTH_OUT" / 202`
-			MAXKBITPERPIPE=`expr "$MAXKBIT" / 2` ## Because we create two small pipes of the same size.  (Well now we create three but this seems to work ok!)
-			KBITLIMITPERPIPE=`expr "$MAXKBITPERPIPE" '*' $PROPORTION_TO_ALLOW`
-			PEAKKBITLIMITPERPIPE=`expr "$KBITLIMITPERPIPE" '*' 5 / 4`
+			[ "$BUT_ALLOW_WEBSERVER_TWICE" ] || BUT_ALLOW_WEBSERVER_TWICE=1
 
-			if [ "$KBITLIMITPERPIPE" -lt 1 ]
+			## This magically converts BANDWIDTH_OUT to MAXBPS (which is what tc thinks is you max output per second!)
+			set -e
+			MAXBPS=`expr $BANDWIDTH_OUT '*' $PROPORTION_TO_ALLOW`
+			[ "$DEBUG" ] && debug "[traffic_shaping] Will allow pipes $MAXBPS bps of your outgoing bandwidth $BANDWIDTH_OUT."
+			PIPES=`expr 2 + $BUT_ALLOW_WEBSERVER_TWICE`
+			BPSPERPIPE=`expr $MAXBPS / $PIPES` ## Because we create two small pipes of the same size.  (Well now we create three but this seems to work ok!)
+			PEAKBPSPERPIPE=`expr "$BPSPERPIPE" '*' 5 / 4`
+			set +e
+
+			if [ "$BPSPERPIPE" -lt 1 ]
 			then
-				jshwarn "[traffic_shaping] Limit $KBITLIMITPERPIPE kbit too low, setting 1."
-				KBITLIMITPERPIPE=1
-				PEAKKBITLIMITPERPIPE=1
+				jshwarn "[traffic_shaping] Limit $BPSPERPIPE too low, setting 1."
+				BPSPERPIPE=1
+				PEAKBPSPERPIPE=2
 			fi
-			if [ "$KBITLIMITPERPIPE" -gt 0 ] && [ "$KBITLIMITPERPIPE" -lt 99999999999 ]
+			if [ "$BPSPERPIPE" -gt 0 ] && [ "$BPSPERPIPE" -lt 99999999999 ]
 			then :
 			else
-				jshwarn "[traffic_shaping] Calculation failed producing \"$KBITLIMITPERPIPE\","
-				KBITLIMITPERPIPE=44
-				PEAKKBITLIMITPERPIPE=55
-				jshwarn "[traffic_shaping] using $KBITLIMITPERPIPE kbit instead."
+				jshwarn "[traffic_shaping] Calculation failed producing \"$BPSPERPIPE\","
+				BPSPERPIPE=44
+				PEAKBPSPERPIPE=55
+				jshwarn "[traffic_shaping] using $BPSPERPIPE instead."
 			fi
-			## If peak == kbit then tc throws error on creation!
-			[ "$PEAKKBITLIMITPERPIPE" -gt "$KBITLIMITPERPIPE" ] || PEAKKBITLIMITPERPIPE=`expr "$KBITLIMITPERPIPE" + 1`
+			## If peak == bps then tc throws error on creation!
+			[ "$PEAKBPSPERPIPE" -gt "$BPSPERPIPE" ] || PEAKBPSPERPIPE=`expr "$BPSPERPIPE" + 1`
 
-			[ "$DEBUG" ] && debug "[traffic_shaping] Will create two pipes of size $KBITLIMITPERPIPE kbit (peak $PEAKKBITLIMITPERPIPE)"
-			# [ "$DEBUG" ] && debug "[traffic_shaping] Will create two pipes of size $KBITLIMITPERPIPE (peak $PEAKKBITLIMITPERPIPE)"
+			[ "$DEBUG" ] && debug "[traffic_shaping] Will create two pipes of size $BPSPERPIPE bps (peak $PEAKBPSPERPIPE)"
+			# [ "$DEBUG" ] && debug "[traffic_shaping] Will create two pipes of size $BPSPERPIPE (peak $PEAKBPSPERPIPE)"
 
+			WEBSERVER_BPS=`expr $BPSPERPIPE '*' $BUT_ALLOW_WEBSERVER_TWICE`
+			WEBSERVER_PEAKBPS=`expr $PEAKBPSPERPIPE '*' $BUT_ALLOW_WEBSERVER_TWICE`
+			[ "$DEBUG" ] && debug "[traffic_shaping] and a pipe for the webserver $WEBSERVER_BPS bps (peak $WEBSERVER_PEAKBPS)"
+
+			## These and the |sort below allow me to re-order the priority of the pipes, but the webserver connections all die unless i put the webserver first.  Strange.
 			WEBSERVER_DISC=7
 			SMALL_DISC=8
 			REST_DISC=9
-			## Unfortunately for some reason this kills the webserver entirely:
 			# SMALL_DISC=7
 			# WEBSERVER_DISC=8
 			# REST_DISC=9
-			## Unfortunately for some reason this kills the webserver entirely:
+			## This doesn't work.  I think the webserved packets get caught into disc 8 regardless.
 			# SMALL_DISC=7
 			# REST_DISC=8
 			# WEBSERVER_DISC=9
@@ -153,7 +165,7 @@ case "$1" in
 			## ones before dropping. a buffer of 1600 tokens means that at any time we are ready to burst one of
 			## these big ones (at the peakrate, 128kbit/s). the mtu of 1518 instead of 1514 is in case I ever start
 			## using vlan tagging, because if mtu is too low (like 1500) then all traffic blocks
-			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate "$KBITLIMITPERPIPE"kbit mtu 1518 mpu 64 latency 50ms
+			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:3 handle 13: tbf rate 20kbit buffer 1600 peakrate "$BPSPERPIPE"kbit mtu 1518 mpu 64 latency 50ms
 			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:3 handle 13: tbf rate 80kbit buffer 1600 peakrate 100kbit mtu 1518 mpu 64 latency 50ms
 			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:3 handle 13: tbf rate 60kbit buffer 1600 peakrate 75kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 80kbit buffer 1600 peakrate 90kbit mtu 1518 mpu 64 latency 50ms
@@ -164,7 +176,7 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			echo "$REST_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$REST_DISC handle 1$REST_DISC: tbf rate $KBITLIMITPERPIPE""kbit buffer 1600 peakrate $PEAKKBITLIMITPERPIPE""kbit mtu 1518 mpu 64 latency 50ms"
+			echo "$REST_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$REST_DISC handle 1$REST_DISC: tbf rate $BPSPERPIPE""bps buffer 1600 peakrate $PEAKBPSPERPIPE""bps mtu 1518 mpu 64 latency 50ms"
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
@@ -173,23 +185,15 @@ case "$1" in
 			# # /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# # # /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 20kbit buffer 1600 peakrate 120kbit mtu 1518 mpu 64 latency 50ms
 			## Decided they should have equal weighting:
-			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate "$KBITLIMITPERPIPE"kbit buffer 1600 peakrate 50kbit mtu 1518 mpu 64 latency 50ms
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate "$BPSPERPIPE"kbit buffer 1600 peakrate 50kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			echo "$SMALL_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate $KBITLIMITPERPIPE""kbit buffer 1600 peakrate $PEAKKBITLIMITPERPIPE""kbit mtu 1518 mpu 64 latency 50ms"
+			echo "$SMALL_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate $BPSPERPIPE""bps buffer 1600 peakrate $PEAKBPSPERPIPE""bps mtu 1518 mpu 64 latency 50ms"
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
-			WEBSERVER_KBITLIMITPERPIPE=$KBITLIMITPERPIPE
-			WEBSERVER_PEAKKBITLIMITPERPIPE=$PEAKKBITLIMITPERPIPE
-			if [ "$BUT_ALLOW_WEBSERVER_TWICE" ]
-			then
-				WEBSERVER_KBITLIMITPERPIPE=`expr $KBITLIMITPERPIPE '*' $BUT_ALLOW_WEBSERVER_TWICE`
-				WEBSERVER_PEAKKBITLIMITPERPIPE=`expr $PEAKKBITLIMITPERPIPE '*' $BUT_ALLOW_WEBSERVER_TWICE`
-			fi
-			[ "$DEBUG" ] && debug "[traffic_shaping] and a pipe for the webserver $WEBSERVER_KBITLIMITPERPIPE kbit (peak $WEBSERVER_PEAKKBITLIMITPERPIPE)"
-			echo "$WEBSERVER_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$WEBSERVER_DISC handle 1$WEBSERVER_DISC: tbf rate $WEBSERVER_KBITLIMITPERPIPE""kbit buffer 1600 peakrate $WEBSERVER_PEAKKBITLIMITPERPIPE""kbit mtu 1518 mpu 64 latency 50ms"
+			echo "$WEBSERVER_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$WEBSERVER_DISC handle 1$WEBSERVER_DISC: tbf rate $WEBSERVER_BPS""bps buffer 1600 peakrate $WEBSERVER_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
 
 			) | sort -r -n -k 1 | sed 's+^[^ ]*[ ]*++' | sh
 
@@ -333,7 +337,7 @@ case "$1" in
 		;;
 
 			## Couldn't get red to work:
-			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: red limit "$PEAKKBITLIMITPERPIPE"kbit min "1"kbit max "$PEAKKBITLIMITPERPIPE"kbit avpkt 1000 burst 2000 probability 0.01 bandwidth 100kbit
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: red limit "$PEAKBPSPERPIPE"kbit min "1"kbit max "$PEAKBPSPERPIPE"kbit avpkt 1000 burst 2000 probability 0.01 bandwidth 100kbit
 
 		start-simple)
 			# /sbin/tc qdisc add dev "$INTERFACE" root tbf rate 0.5mbit burst 5kb latency 70ms peakrate 1mbit minburst 1540
