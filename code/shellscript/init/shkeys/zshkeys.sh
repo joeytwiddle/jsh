@@ -145,9 +145,9 @@ bindkey "^t" vi-forward-word
 bindkey "^v" kill-word
 bindkey "^b" vi-kill-word
 # Unfortunately, there is no vi-kill-word, so we fake it:
-bindkey -s "^b" "^f^x"
+bindkey -s "^b" "^t^x"
 # and to keep inline, we fake the other too:
-bindkey -s "^z" "^d^v"
+bindkey -s "^z" "^r^v"
 
 bindkey "^u" backward-kill-line # (default!)
 bindkey "^o" kill-line
