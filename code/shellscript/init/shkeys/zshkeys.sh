@@ -124,7 +124,8 @@ bindkey "^p" vi-put-before
 bindkey "^h" expand-history
 bindkey "^u" vi-undo-change # now taken
 bindkey "^z" vi-undo-change # now taken
-bindkey "^r" vi-undo-change
+bindkey "^r" vi-undo-change # now taken
+bindkey "^y" vi-undo-change
 
 # My preferred word movement and deletion.
 # It's purely left-handed and positioned to avoid the reserved keys qeaszc.
@@ -180,8 +181,10 @@ bindkey "^x" vi-backward-kill-word
 # bindkey "^f" forward-word
 bindkey "^z" vi-backward-kill-word
 bindkey "^x" backward-kill-word
-bindkey "^d" vi-backward-word
-bindkey "^f" vi-forward-word
+bindkey "^d" backward-word
+bindkey "^f" forward-word
+bindkey "^r" vi-backward-word
+bindkey "^t" vi-forward-word
 bindkey "^v" kill-word
 # there is no vi-kill-word so we fake it
 # approximation
@@ -196,7 +199,7 @@ bindkey -s "^z" "^d^v"
 # bindkey "^j" vi-backward-word
 # bindkey "^k" vi-forward-word
 # bindkey "^l" forward-word
-bindkey "^u" backward-kill-line
+bindkey "^u" backward-kill-line # (default!)
 bindkey "^o" kill-line
 
 # Had trouble getting [ fully cleared for:

@@ -6,7 +6,7 @@ if test "$1" = ""; then
 fi
 
 SSHCOM="ssh -C $@"
-TITLE="$*"
+TITLE="ssh $*"
 
 # Problem: Unix hostname does not allow this!
 SHORTHOSTNAME=`hostname`

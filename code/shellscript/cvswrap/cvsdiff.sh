@@ -49,8 +49,9 @@ cvs -q status "$@" | egrep "(^File:|Repository revision:)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
 	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
 	sed "s+[	 ]*Repository revision:[^/]*$PRE\(.*\),v+\1+" |
-	while read X; do read Y;
-		echo "$Y	# "`curseyellow`"$X"
+	while read X; do
+		read Y;
+		echo "$Y	# "`curseyellow`"$X"`cursegrey`
 		echo "./$Y" >> /dev/stderr
 	done 2> /tmp/in-repos.txt |
 	grep -v "Up-to-date"

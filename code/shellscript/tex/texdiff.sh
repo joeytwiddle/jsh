@@ -33,10 +33,17 @@ echo
 curseyellow
 
 # Do the diff
-TEXSTART=" \\color{Red} \\itshape \\bfseries " # \\textbf "
-TEXEND=" \\color{Black} \\normalfont \\mdseries " # \\textmd"
+TEXSTART=" \\color{Red} \\itshape \\bfseries "
+TEXEND=" \\color{Black} \\normalfont \\mdseries "
+# TEXSTART=" $ \\succ \\gg $ "
+# TEXEND=" $ \\ll \\prec $ "
+# TEXSTART=" \>\>\> "
+# TEXEND=" \<\<\< "
 cd "$NEWTEX"
 for X in *.tex; do
+	if test ! -f "$OLDTEX/$X"; then
+		touch "$OLDTEX/$X"
+	fi
 	jfc silent diff -ds "$TEXSTART" -dsf "$TEXEND" "$OLDTEX/$X" "$X"
 	# jfc silent diff -ds "$TEXSTART" "$OLDTEX/$X" "$X"
 done
@@ -59,13 +66,21 @@ cd "$FINALDEST"
 for X in `beforeext diff`; do
 	mv "$X.diff" "$X"
 done
-# TEXEND2=" \\\\color{Black} \\\\normalfont \\\\mdseries " # \\textmd"
-# NL="\
-# "
-# for X in *.tex; do
+
+# Hack to add some extra undiff coloring 'cos sometimes diff style gets stuck :-( :
+TEXEND2=" \\\\color{Black} \\\\normalfont \\\\mdseries "
+NL="\
+"
+for X in *.tex; do
 	# cat "$X" | sed "s/^$/$NL$TEXEND2$NL/" > "$X.diff"
-	# mv "$X.diff" "$X"
-# done
+	(
+		cat "$X" |
+		sed "s:\(\\end{\(figure\|table\)}\):\1 $TEXEND2 :g" |
+		sed "s:\.$:. $TEXEND2:g" |
+		sed "s:^\([:alpha:]\):$TEXEND2 \1:g"
+	) > "$X.diff"
+	mv "$X.diff" "$X"
+done
 # ... reformat document!
 ./dotex
 xdvi *.dvi

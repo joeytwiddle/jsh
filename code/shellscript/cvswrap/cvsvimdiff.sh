@@ -8,8 +8,9 @@ REV2="$3"
 # if test "$FILENAME" = "" || test "$REV" = ""; then
 if test "$FILENAME" = ""; then
 	echo "cvsvimdiff <filename> [ <revision#> [ <another_revision#> ] ]"
-	echo "  will check out (a) temporary revision(s) of <filename> and do a vimdiff..."
+	echo "  will check out a temporary revision(s) of <filename> and do a vimdiff..."
 	echo "  at present, no <revision#> means compare against the most recent repository version."
+	echo "  You may optionally set \$DIFFCOM to use a different diff program."
 	exit 1
 fi
 
