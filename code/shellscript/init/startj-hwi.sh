@@ -13,7 +13,16 @@
 # chmod a+w /tmp/env.out
 # chmod a+w /tmp/set.out
 
-test -x "$BASH_BASH" && source "$BASH_BASH"
+## V. dangerous if user runs jsh from their .bashrc
+# test -x "$BASH_BASH" && source "$BASH_BASH"
+## TODO: can only source bashrc if it doesn't contain above
+##       is it possible to start jsh automatically another way
+##       should we grep bashrc to see if suitable?!
+test -f "$BASH_BASH" &&
+! grep "\<jsh\>" "$BASH_BASH" > /dev/null &&
+! grep "\<startj\>" "$BASH_BASH" > /dev/null &&
+source "$BASH_BASH"
+## Well maybe we should start sourcing startj again!
 
 ## Try to guess the top directory of j install
 ## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj

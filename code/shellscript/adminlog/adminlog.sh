@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## TODO: no locking
+
 ## For a fresh installation, do the following as root:
 # touch /var/logadmin.log
 # chgrp users /var/logadmin.log
@@ -52,7 +54,9 @@ echo "The full log is available from: $LOGFILE"
 printf "\033[00m" # normal
 echo
 
-) | if test "$1" = "add"; then
+) |
+if test "$1" = "add" && test -w /etc/motd
+then
 	cat > /etc/motd
 	cat /etc/motd
 else
