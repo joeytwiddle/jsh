@@ -7,6 +7,14 @@ PS1="\[\033[00m\]/\[\033[00;35m\]\u\[\033[00m\])\[\033[00;34m\]at\[\033[00m\](\[
 # Quite fun:
 # PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\])\['`cursemagenta`'\]\u\['`cursenorm`'\]-\['`curseblue`'\]\t\['`cursenorm`'\]-\['`cursemagenta`'\]\h\['`cursenorm`'\](\['`cursegreen`'\]\w/\['`cursenorm`'\] '
 
+if [ ! "$RUNNING_GENTOO" ]
+then
+	if uname -r | grep "gentoo" >/dev/null 2>&1
+	then export RUNNING_GENTOO=1
+	else export RUNNING_GENTOO=0
+	fi
+fi
+
 # case `hostname -s` in
 case "$SHORTHOST" in
 
@@ -34,11 +42,22 @@ case "$SHORTHOST" in
 	;;
 
 	*)
-		if test "$HOME" = "/root"; then # Note: cld use UID=0 but not USER=root!
-			PS1="\[\033[01;31m\]\!\[\033[01;33m\]\$ \[\033[00m\](\[\033[01;31m\]\\h \[\033[00;36m\]\t\[\033[01;31m\] \u\[\033[00m\]) \[\033[00;36m\]\w/\[\033[00m\] "
+		if test "$HOME" = "/root" # Note: cld use UID=0 but not USER=root!
+		then
+			COLOR="\[\033[01;31m\]"
+			OTHERCOLOR="\[\033[00;36m\]"
+			DIRCOLOR="\[\033[00;36m\]"
+			HISTCOL="\[\033[01;31m\]"
+			RESCOL="\[\033[01;33m\]"
 		else
-			PS1="\[\033[00;33m\]\!\[\033[01;31m\]\$ \[\033[00m\](\[\033[00;36m\]\\h \[\033[00m\]\t\[\033[00;36m\] \u\[\033[00m\]) \[\033[00;32m\]\w/\[\033[00m\] "
+			COLOR="\[\033[00;36m\]"
+			OTHERCOLOR="\[\033[00m\]"
+			DIRCOLOR="\[\033[00;32m\]"
+			HISTCOL="\[\033[00;33m\]"
+			RESCOL="\[\033[01;31m\]"
 		fi
+		DOLLARDOESNTDOMUCH="\$"
+		PS1="$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR\h $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
 	;;
 
 esac
