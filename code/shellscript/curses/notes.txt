@@ -1,0 +1,14 @@
+0=white
+1=red
+2=green
+3=yellow
+4=blue
+5=magenta
+6=cyan
+7=white
+
+Visual brightness goes in the order: 0,4,1,5,2,6,3,7
+
+todo: LUV conversions
+
+Hence, it is common for red and blue to be complemented with "bold" (equates to "brighter" on xterm) in order to make them visible to the user.
