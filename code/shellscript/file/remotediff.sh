@@ -132,7 +132,7 @@ rsyncdiff () {
 
 	else
 
-		EXTRACTDIR="`echo "$LOCAL" | sed 's+[/]*$++'`-incoming"
+		EXTRACTDIR=/tmp/rsyncdiff-incoming # "`echo "$LOCAL" | sed 's+[/]*$++'`-incoming"
 		while [ -e "$EXTRACTDIR" ]
 		do EXTRACTDIR="$EXTRACTDIR"_
 		done
@@ -141,7 +141,9 @@ rsyncdiff () {
 
 		## TODO: factor out the cat $EDITFILE bit so we can check if its empty and skip if so (same for sending above)
 
+		## ()s here retain PWD:
 		BRINGCMD="
+			(
 			cd \"$EXTRACTDIR\"
 			ssh -C $RUSER@$RHOST \"cd \\\"$RDIR\\\" && tar cz "`
 					echo "$TOBRING" |
@@ -150,11 +152,15 @@ rsyncdiff () {
 			`"\" |
 			tar xz
 			`
-				echo "$TOBRINGNODIFF" |
-				while read FILE
-				do echo "mv \\\"$EXTRACTDIR/$FILE\\\" \\\"$LOCAL/\`dirname "$FILE"\`\\\""
-				done
+				if [ "$TOBRINGNODIFF" ]
+				then
+					echo "$TOBRINGNODIFF" |
+					while read FILE
+					do echo "mv \\\"$EXTRACTDIR/$FILE\\\" \\\"$LOCAL/\`dirname "$FILE"\`\\\""
+					done
+				fi
 			`
+			)
 		"
 
 		echo "Hit <Enter> to bring files with:"
