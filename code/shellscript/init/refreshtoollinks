@@ -23,7 +23,7 @@ cd $JPATH/tools
 
 # Rename any of those with .sh or .hs extensions to not have it!
 for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
-  y=`echo $x | sed "s/\.sh$//" | sed "s/\.hs$//"`
+  y=`echo $x | sed "s/\.sh$//;s/\.hs$//"`
 	if test -f "$y"; then
 		J="$JPATH/code/shellscript/file/justlinks.sh"
 		A=`$J "$x"`

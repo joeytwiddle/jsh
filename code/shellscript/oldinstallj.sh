@@ -1,6 +1,6 @@
 #!/bin/sh
 # NEEDED:
-# if directory is specified without trailing /
+# If directory is specified without trailing /
 #   JPATH is set without trailing / which is undesirable
 # do dircolors
 # install in bashrc (and bash_profile?)

@@ -1,3 +1,4 @@
+#!/bin/sh
 # del <files> : moves files to trash directory
 # It tries to keep the directory structure in the trash dir
 # but because it's not very clever, it uses your current dir

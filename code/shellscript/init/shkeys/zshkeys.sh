@@ -176,9 +176,13 @@ bindkey -s "^v" "^f^x"
 # bindkey "^g" end-of-line
 
 # The lot, spanning xdfv nhjkl yuo
-bindkey "^x" backward-kill-word
-bindkey "^d" backward-word
-bindkey "^f" forward-word
+# Shorter here thanx to CTRL+arrow below:
+# bindkey "^x" backward-kill-word
+# bindkey "^d" backward-word
+# bindkey "^f" forward-word
+bindkey "^x" vi-backward-kill-word
+bindkey "^d" vi-backward-word
+bindkey "^f" vi-forward-word
 bindkey "^v" kill-word
 #
 bindkey "^n" vi-backward-kill-word
@@ -193,3 +197,11 @@ bindkey "^o" kill-line
 # bindkey "^p" vi-backward-kill-word
 # bindkey "^[" vi-backward-word
 # bindkey "^]" vi-forward-word
+
+# At last, bindkey on CTRL+arrow
+bindkey "^[[5D" backward-word
+bindkey "^[[5C" forward-word
+# And at last, fake vi-kill-word using vi-forward-word and vi-backward-kill-word of course!
+# Bad at end of line.
+# Um yes nasty!
+# bindkey -s "^v" "^f^x"

@@ -10,7 +10,7 @@ NEWDIR="$@"
 # Record where we are for b and f sh tools
 echo "$PWD" >> $HOME/.dirhistory
 
-if [ "$NEWDIR" = "" ]; then
+if test "$NEWDIR" = ""; then
 	if test `filename "$HOME"` = "$USER"; then
 		"cd" "$HOME"
 	 else
