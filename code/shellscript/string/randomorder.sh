@@ -9,7 +9,7 @@
 # #!/usr/local/bin/zsh
 # /usr/bin/nawk '
 
-SEED=`date +%s`
+SEED=`date +%N`
 
 awk '
   BEGIN {

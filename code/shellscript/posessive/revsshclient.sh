@@ -59,9 +59,19 @@ then
 		# NOW=`rememo ls "/tmp/revssh-client-output-$TARGETHOST*"`
 		OLD=`memo   ls /tmp | grep "revssh-client-output-$TARGETHOST"`
 		NOW=`rememo ls /tmp | grep "revssh-client-output-$TARGETHOST"`
+		# echo
+		# echo "OLD="
+		# echo "$OLD"
+		# echo
+		# echo "NEW="
+		# echo "$NEW"
+		# echo
 		if [ "$OLD" ]
 		then
-			KILLRE=`echo -n "$OLD" | list2regexp`
+			KILLRE=`echo "$OLD" | list2regexp` ## removed -n cos it was dropping last line!  Maybe trimempty would be more suitable than -n
+			# echo "KILLRE="
+			# echo "$KILLRE"
+			# echo
 			NEW=`echo "$NOW" | grep -v "$KILLRE"`
 		else
 			NEW="$NOW"

@@ -38,8 +38,8 @@ do
   fi
 done
 
-## cached data must be refreshed if sources have been updated:
-MEMOCOM="memo -d /var/lib/apt"
+## Cached data need only be refreshed if sources have changed, or been updated:
+MEMOCOM="memo -f /etc/apt/sources.list -d /var/lib/apt"
 ## if we are interested in installed packages, the cached data must be refreshed if installed packages have been changed
 if [ "$INSTALLED" ]
 then MEMOCOM="$MEMOCOM -f /var/lib/dpkg/status"

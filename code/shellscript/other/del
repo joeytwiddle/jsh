@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## TODO: doesn't work well under chroot (cannot determine which partition the file is on).
+
 ## Deletes a file or files in a recoverable way (by moving them to a "RECLAIM" directory).
 ## If reclaimspace is setup (in cron), it will remove some of the "deleted" files when more disk space it needed.
 ## WARNING: This setup /can/ cause problems if you write large files to disk very quickly, and cron isn't called in time to reclaim the space necessary to finish writing the file.  Easily solved by deleting files from RECLAIM directory when you know you need space now/soon.  (Or you could call "reclaimspace 1000000" to ensure ~1Gig is reclaimed).
@@ -12,6 +14,10 @@
 ## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash
 ## TODO: check for reclaimspace in crontab or otherwise, and warn if not present!
 ## BUG: doesn't work in chroot without bound mounts because df only reports /.
+
+## TODO: overlapping problems with different users leaving non-writeable directories
+## I guess writeability to dirs is not absolutely neccessary, since current deleting user can change filename with '_'s.
+## But if all desired subdirs are unwireable, it may need to add '_' to the toplevel dir rather than the filename.
 
 DOCVS=
 if [ "$1" = "-cvs" ]
@@ -50,7 +56,11 @@ do
 				fi
 				## Create the directory if its parent is writeable:
 				if [ -w "`dirname \"$TRASHDIR\"`" ]
-				then mkdir "$TRASHDIR" && break
+				then
+					mkdir "$TRASHDIR"
+					# chmod ugo+w "$TRASHDIR" ## Not secure.  Shared RECLAIM dirs should be created by root.
+					chmod go-rwx "$TRASHDIR" ## Secure.  Other users can create their own TRASHDIR!  TODO: could act differently if we are root.
+					break
 				# else echo "not writeable: `dirname \"$TRASHDIR\"`" >&2
 				fi
 			fi
@@ -68,6 +78,7 @@ do
 		then TODELPARENTDIR=/`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
 		else TODELPARENTDIR="$PARENTDIR"
 		fi
+		## TODO: refactor TRASHDIR out of DEST, so that _s can be added to start of $TODELPARENTDIR if no subdirs are writeable.
 		DEST="$TRASHDIR/$TODELPARENTDIR"
 		PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
 
@@ -78,6 +89,7 @@ do
 			DEST="$DEST.dir"
 		done
 		mkdir -p "$DEST"
+		# chmod ugo+w "$DEST" ## TODO: and all created parents!  (Use while ! parent loop to create them all?)
 		if [ ! -d "$DEST" ]
 		then
 			error "del: problem creating destination directory: $DEST"

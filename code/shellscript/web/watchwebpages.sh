@@ -158,7 +158,8 @@ do
 						echo "  [ Sent by \"watchwebpages\" running as $USER on $HOST at `date` ]"
 					) |
 
-					mutt -a "$DESTINATION" -s "[wwc] Changes found to $URL" "$REPORTTO"
+					## -F "" to avoid config file, which avoids user preferences, eg. save outgoing mail to sent-mail mailbox.
+					mutt -F "" -a "$DESTINATION" -s "[wwc] Changes found to $URL" "$REPORTTO"
 
 					# del "$DESTINATION"
 

@@ -9,13 +9,20 @@
 export DISPLAY=
 
 ## This _might_ get it to buggy if problems persist:
-# export WINNAMEW
-export STY
+# # export WINNAMEW
+# export STY
+## But now disabled because of manpopup problems.  Why would we want it?
+
+## Actually you are not recommended to export SCREEN_COMMAND_CHARS,
+## unless you are happy for them to be applied to new/resumed child screens too.
+[ "$SCREEN_COMMAND_CHARS" ] || SCREEN_COMMAND_CHARS="^k^l"
+DEFAULT_SCREEN_OPTIONS="-h 10000 -a -e$SCREEN_COMMAND_CHARS"
+unset SCREEN_COMMAND_CHARS
 
 if test "$*"
 then
 
-	unj screen "$@"
+	unj screen $DEFAULT_SCREEN_OPTIONS "$@"
 
 else
 
@@ -32,7 +39,7 @@ else
 	test "$NAME" || NAME=screen
 	export SCREENNAME="$NAME"
 	screentitle -remote "[$SHORTHOST:$SCREENNAME]"
-	screen -h 10000 -a "-e^k^l" -S "$NAME" -D -RR
+	screen $DEFAULT_SCREEN_OPTIONS -S "$NAME" -D -RR
 	## Multi-session, but fails if doesn't exist :-(
 	# screen -h 10000 -a "-e^k^l" -S "$NAME" -x
 

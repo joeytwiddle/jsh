@@ -1,5 +1,7 @@
 ## After the first audio pass, you can rerun with SKIP_FIRST_PASS=true.
 
+## Note afterwards, leftover files are: sizes.log divx2pass.log frameno.avi (and of course the video file you started with!).
+
 if [ ! "$1" ] || [ "$1" = --help ]
 then
 cat << !

@@ -7,6 +7,7 @@ REALMAN=`jwhich man`
 ## If screen is running, could pop up in an extra window.  Could make this X/screen window popup functionality generic
 
 ## If user is running in X, we pop up a separate window for them
+## DONE: This has caused problems when vnc is initialised from X, and has this variable exported to its children!  OK jsh has removed its export STY for now so this shouldn't be a problem.
 if [ "$STY" ]
 then screen -X screen -t '"'"$1"'"' $REALMAN -a "$@"
 elif xisrunning

@@ -18,7 +18,7 @@ monitoriflow [ -window <seconds> ] [ -tc <qdisc_num> ] [ <interface> ]
 
   With the -tc option, will display mean outgoing bps over the specified qdisc.
 
-  The window used to take measurements gets larger until it reaches 30 seconds.
+  The window used to take measurements gets larger until it reaches 10 seconds.
 
 !
 exit
@@ -39,7 +39,7 @@ getbytestc () {
 	takecols 2 # | pipeboth
 }
 
-WINDOW=30
+WINDOW=10
 if [ "$1" = -window ]
 then
 	WINDOW="$2"
@@ -62,6 +62,7 @@ then IFACE="$1"
 # else IFACE=ppp0
 else # IFACE=eth0
 	## guess desired interface for logging by choosing that with gretest # received packets
+	## TODO: avoid choosing lo (eg. by name, or by checking RX==TX)
 	IFACE=`
 		GREATEST=-1
 		GREATEST_IFACE=none_found
@@ -74,7 +75,7 @@ else # IFACE=eth0
 		done | sort -n -k 2 |
 		tail -n 1 | sed 's+ .*++'
 	`
-	jshinfo "Guessing (from numebr of packets received) you want interface: $IFACE"
+	jshinfo "Guessing (from number of packets received) you want interface: $IFACE"
 fi
 
 SLEEPFOR=1

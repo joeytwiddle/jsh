@@ -12,6 +12,10 @@ then
 	echo "  If the screen does not already exist, the -xterm option will cause it to"
 	echo "  start in a new xterm."
 	echo
+	echo "  Note: if the screen has already been created, then none of your existing"
+	echo "        environment will be passed to the called command.  You can only hope"
+	echo "        to pass it command-line arguments."
+	echo
 	## How surprising I couldn't get screen to do this without this shellscript!
 	exit 1
 fi

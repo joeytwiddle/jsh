@@ -27,7 +27,7 @@ do
 	## Does it have a security version at same stability, but not same version?
 	if \
 		apt-list from security.debian.org |
-		grep "\<$PKG\>" | grep "\<$CURRENT_DISTRO\>" | grep -v "\<$CURRENT_VERSION\>" > /dev/null
+		grep "^\<$PKG\> " | grep "\<$CURRENT_DISTRO\>" | grep -v "\<$CURRENT_VERSION\>" > /dev/null
 	then
 		echo
 		echo "$PKG `cursered;cursebold`needs updating.`cursenorm`"

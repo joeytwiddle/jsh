@@ -10,7 +10,11 @@
 # vncserver -depth 16 -geometry 1024x768 -dpi 75
 # vncserver -depth 16 -geometry 1024x768 -dpi 100
 ADDRESS=`
+	# vncserver -depth 16 -geometry 800x600 -dpi 75 2>&1 |
+	# vncserver -depth 16 -geometry 800x600 -dpi 100 2>&1 |
+	# vncserver -depth 16 -geometry 1024x768 -dpi 100 2>&1 |
 	vncserver -depth 16 -geometry 800x600 -dpi 75 2>&1 |
+	# vncserver -depth 8 -geometry 800x600 -dpi 100 2>&1 |
 	pipeboth |
 	grep "desktop is " | after "desktop is "
 `

@@ -3,7 +3,9 @@
 # OPTIONS="--max_uploads 5 --max_upload_rate 10" # --check_hashes 0"
 
 ## When spawning lots of clients:
-OPTIONS="--max_uploads 2 --max_upload_rate 1" # --check_hashes 0"
+# OPTIONS="--max_uploads 2 --max_upload_rate 1" # --check_hashes 0"
+
+OPTIONS="$*"
 
 ####
 

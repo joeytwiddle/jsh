@@ -1,3 +1,4 @@
+## A hack to initialise my soundcard (when I was using RedHat6.0!)
 aumix -v0
 # so that sndconfig can find insmod
 # cd /sbin

@@ -1,3 +1,7 @@
+## I used this script to find out which of my fonts was causing X to crash.
+
+## See also: xscreensaver's fontglide, which does the same job more easily for me these days.
+
 ## Some of the TTF fonts I installed caused the X session to bomb :-(
 ## This script opens an xterm with each font to test which is the evil one.
 

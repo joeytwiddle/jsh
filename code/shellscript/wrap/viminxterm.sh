@@ -1,4 +1,7 @@
 #!/bin/sh
+
+## My script to popup vim in a new xterm with a sensible size for the file it is editing.
+
 ## BUGS: Works badly on .gzipped files.  Either skip sizing or gunzip them!
 
 # jwhich inj vim > /dev/null
@@ -15,6 +18,7 @@ FILE="$1"
 ## TODO: this algorithm should be refactored out.  But how should it return /two/ values?  Source it or use it as a fn?  But it uses so many variables, we should ensure they are kept local.  Fn then, not direct sourcing.
 ## If the file exists, this cunning algorithm is used to determine the optimal dimensions for the editor window
 ## If the file needs more space than the maximum volume allowed, the algorithm prioritises height over width, but within limits.
+## Alternative algorithm: Ideally we would ensure we get 95% of the lines fitting within the width of the terminal, but allow 5% of really long lines which we don't need to show in full.  But what if the longest 5% are only slightly longer than the rest, rather than grossly?  Ideally, we don't want the text to look "sparse" in the window when it pops up.
 if [ -f "$FILE" ] && [ ! `filesize "$FILE"` = "0" ]
 then
 

@@ -2,11 +2,14 @@
 # jsh-ext-depends: sed uname
 # jsh-depends: startswith
 # jsh-depends-ignore: pid call contains mykill
+
+## Added support for multiple expressions
+
 if test "$1" = ""; then
 	(
-	echo "mykillps [-x] <searchstring>"
-	echo "  will kill all processes whose name contains <searchstring>"
-	echo "  -x will kill all processes with <searchstring> anywhere in the call!"
+	echo "mykillps [-x] <searchstring>s..."
+	echo "  will kill all processes whose name contains one of the <searchstring>s"
+	echo "  -x will kill all processes with a <searchstring> anywhere in the call!"
 	) >&2
 	exit 1
 fi
@@ -17,6 +20,16 @@ if test "$1" = "-x"; then
 	PS_OPTS="-A -o pid,user,args"
 	shift
 fi
+
+# GREPEXPR="$*"
+GREPEXPR="\("
+while [ "$1" ]
+do
+	GREPEXPR="$GREPEXPR$1"
+	shift
+	[ "$1" ] && GREPEXPR="$GREPEXPR\|"
+done
+GREPEXPR="$GREPEXPR\)"
 
 ## Not exported.
 # if endswith "$MACHTYPE" "cygwin"
@@ -32,7 +45,7 @@ fi |
 
 # ps $PS_OPTS |
 	## Pick out user's desired job:
-	grep "$*" |
+	grep "$GREPEXPR" |
 	## Now (for -x) we need to hide shells with "$*" as args:
 	## Hide this shell:
 	# grep -v "^$$ " | ## redundant due to next
@@ -40,3 +53,4 @@ fi |
 	grep -v "\<mykill" |
 	## Hide the first grep:
 	grep -v "grep $*"
+

@@ -1,6 +1,6 @@
 # jsh-depends: countlines
 # if test ! "$1" = ""; then
-	echo "$@" |
+echo "$@" |
 # else
 	# cat
 # fi |

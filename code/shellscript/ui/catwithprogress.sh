@@ -23,8 +23,9 @@ do
 	dd bs="$BLOCKSIZE" count=1 2> /tmp/dd.err
 
 	grep "^0+0" /tmp/dd.err && break
-
-	SOFAR=`expr $SOFAR + $BLOCKSIZE`
+	ADDED=`cat /tmp/dd.err | tail -n 1 | sed 's+ .*++'`
+	# SOFAR=`expr $SOFAR + $BLOCKSIZE`
+	SOFAR=`expr $SOFAR + $ADDED`
 	PERCENTAGE=`expr 100 '*' $SOFAR / $SIZE`
 	echo "$SOFAR / $SIZE ($PERCENTAGE%)" >&2
 

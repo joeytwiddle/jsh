@@ -52,7 +52,8 @@ MARKERTYPE=In_Mark
 LASTMARKERPOS=not_yet_set
 
 ## gmplyer doesn't give the output!
-# MPLAYER=`which gmplayer`
+## Oh well it does now on my sys so now it's back in:
+MPLAYER=`which gmplayer`
 [ "$MPLAYER" ] || MPLAYER=`which mplayer`
 
 $MPLAYER "$@" "$VIDEOFILE" 2>&1 |
@@ -106,6 +107,7 @@ echo "Clip markers have been saved to `cursecyan`$CLIPMARKERFILE`cursenorm`"
 
 echo
 echo    "I can extract the clips now to: `cursegreen`$PWD`cursenorm`"
+echo    "By running: `cursecyan`extract_marked_clips_from_video \"$VIDEOFILE\" $*`cursenorm`"
 echo -n "Would you like me to do that? `curseyellow`[Y/n]`cursenorm`"
 
 read DECISION

@@ -1,4 +1,5 @@
-# jsh-depends: afterfirst beforefirst lynx debug
+# jsh-depends: afterfirst beforefirst debug
+# jsh-ext-depends: links
 ## TODO: See seeklyrics syntax.  We should surround each argument passed with ""s in the google query, or %whatevers.
 
 if [ "$1" = -links ]
@@ -6,7 +7,7 @@ then
 NL="\\
 "
 	shift
-	lynx -source `googlesearch "$@"` |
+	links -source `googlesearch "$@"` |
 	sed "s+><+>$NL<+g" |
 	grep "^<a href=http://" |
 	afterfirst "href=" |

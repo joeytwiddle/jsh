@@ -30,7 +30,7 @@ then
 				if [ -w "$PARENT" ]
 				then
 					# echo "Creating a temporary directory for jsh: $TOPTMP" >&2
-					jshwarn "jgettmpdir: Creating a temporary directory for jsh: $TOPTMP"
+					jshinfo "jgettmpdir: Creating a temporary directory for jsh: $TOPTMP"
 					# mkdir "$TOPTMP" && break
 					mkdir "$TOPTMP"
 					## TODO: we should be do ( -d || -L (symlink) ), provided it will fail if symlink target dir is not writeable (ie. doesn't use perms of symlink itself)

@@ -80,7 +80,7 @@ do
 		# set +x
 		echo "del \"$FILE\""
 		ln -sf "$FILE" "$JPATH/background1.jpg"
-		xsetbg "$FILE" || REPEAT=true
+		jxsetbg "$FILE" || REPEAT=true
 	else
 		# set +x
 		echo "Wallpaper $FILE does not exist or is not an image or is too small!"
