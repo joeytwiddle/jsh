@@ -1,4 +1,9 @@
-while [ true ]; do
+DELAY=1
+
+[ "$1" = -delay ] && DELAY="$2" && shift && shift
+
+while true
+do
   eval "$@"
-  sleep 1s
+  sleep "$DELAY"
 done
