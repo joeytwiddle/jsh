@@ -1,1 +1,1 @@
-ssh -l joey 62.30.68.43
+ssh -l joey bristoldev.dyndns.org

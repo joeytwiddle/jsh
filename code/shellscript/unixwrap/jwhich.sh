@@ -26,6 +26,7 @@ QUIETLY="$2"
 # Note the quotes around $PATHS here are important, otherwise unix converts into one line again!
 # This is no good cos it spawns a new process, and the exit doesn't work.
 # echo "$PATHS" | while read dir; do
+# This seems to work better, although there may be problems with spaces in the PATH
 for dir in $PATHS; do
   if test -f "$dir/$FILE"; then
     if [ ! "$QUIETLY" = "quietly" ]; then

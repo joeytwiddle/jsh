@@ -1,6 +1,10 @@
 # Breaks on Unix:
-# DUCOM="du -skx"
-DUCOM="du -sk"
+
+if test $JM_ADVANCED_DU; then
+	DUCOM="du -skx"
+else
+	DUCOM="du -sk"
+fi
 
 (
 
@@ -17,10 +21,10 @@ DUCOM="du -sk"
 				fi
 			fi
 		done | while read X; do
-			$DUCOM -x -sk "$X"
+			$DUCOM "$X"
 		done
 	else
-		$DUCOM -x -sk "$@"
+		$DUCOM "$@"
 	fi
 
 ) | sort -n -k 1 |

@@ -1,10 +1,10 @@
 #!/bin/sh
 
-if test ! -e $*; then
-  echo 0
-else
-  awk ' END { print NR } ' $*
-fi
+# if test ! -e "$@"; then
+  # echo 0
+# else
+  awk ' END { print NR } ' "$@"
+# fi
 
 # LINES=0;
 # cat $* |
