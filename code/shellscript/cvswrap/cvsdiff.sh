@@ -56,15 +56,30 @@ printf "\n"
 
 printf "" > $REPOSLIST
 
-cvs -z 5 -q status "$@" | grep "\(^File:\|Repository revision:\)" |
+PARENT=.
+cvs -z 5 status "$@" 2>&1 |
+grep "\(^cvs status:\|^File:\|^[	 ]*Repository revision:\)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
-	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
-	sed "s+[	 ]*Repository revision:[^/]*$PRE\(.*\),v+\1+" |
-	while read X
+	sed "
+		s=^cvs status:[	 ]*Examining \(.*\)=PARENT \1=
+		s=^File:[	 ]*\(no file\|\)\(.*\)[ 	]*Status:[	 ]*\(.*\)=\2 \3=
+		s=[	 ]*Repository revision: No revision control file=NO_FILE=
+		s=[	 ]*Repository revision:[^/]*$PRE\(.*\),v=\1=
+	" |
+	while read FNAME STATUS
 	do
-		read Y
-		echo "$Y	# "`curseyellow`"$X"`cursenorm`
-		echo "./$Y" >> $REPOSLIST
+		if test "$FNAME" = PARENT
+		then
+			# echo "A `cursemagenta`$FNAME $STATUS`cursenorm`"
+			PARENT="$STATUS"
+			read FNAME STATUS
+		fi
+		# echo "B `curseblue`$FNAME $STATUS`cursenorm`"
+		read FILE_FROM_REPOS
+		# echo "C `cursered`$Y`cursenorm`"
+		FILE="$PARENT/$FNAME"
+		echo "$FILE	# "`curseyellow`"$STATUS"`cursenorm`
+		echo "./$FILE" >> $REPOSLIST
 	done |
 	grep -v "Up-to-date" |
 	if jwhich column quietly; then
