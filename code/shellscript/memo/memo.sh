@@ -7,6 +7,7 @@ MEMODIR=$TOPTMP/memo
 #    We should memo to a temp file and move to memo file when complete
 #  - Allow user to specify timeout after which rememo occurs
 #  - Allow user to specify quick command which returns non-0 if rememo needed (or a test-rememo command?)
+#  -                       a file (or indeed a directory full of files) which, if it is (they are) newer than the memo-cache-file, will force rememoing
 
 if test "$1" = "-info"; then
 	MEMO_SHOW_INFO=true
