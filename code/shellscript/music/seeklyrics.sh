@@ -47,16 +47,8 @@ else
 	do
 
 		N=$[$N+1]
-		echo "$N $LINK"
 
-	done |
-
-	## I know this is crazy
-
-	while read N LINK
-	do
-
-		echo "$LINK" >&2
+		echo "$N $LINK" >&2
 		# wget -O - "$LINK" |
 		lynx -dump "$LINK" > $TMPDIR/$N.lyrics
 
@@ -90,16 +82,7 @@ diffgraph $TMPDIR/*.lyrics.nopun |
 
 pipeboth |
 
-## drop columns 1 and 2, yeah and drop 4+, just take #3 (their duplicity should weight again st them?    nah but it shouldn't weight for them either)
-## then see which one is most common.  it may be the lyrics!
-
-takecols 3 |
-
-grouplinesbyoccurrence |
-
-sort -n -k 1 |
-
-reverse |
+takecols 3 | grouplinesbyoccurrence | sort -n -k 1 | reverse |
 
 pipeboth |
 
