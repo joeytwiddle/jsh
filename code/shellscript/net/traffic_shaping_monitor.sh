@@ -16,4 +16,6 @@ do echo -n "s+$NUM:+$NUM$TYPE:+g;"
 done | beforelast ";"
 `
 
-jwatchchanges /sbin/tc -s qdisc ls dev eth1 "|" trimempty "|" sed "\"$SEDSTR\""
+INTERFACE=`ifonline`
+
+jwatchchanges /sbin/tc -s qdisc ls dev $INTERFACE "|" trimempty "|" sed "\"$SEDSTR\"" | highlight '[^ ]*:'
