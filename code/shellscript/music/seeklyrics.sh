@@ -45,11 +45,12 @@ else
 	do
 
 		# wget -O - "$LINK" |
-		echo "$LINK" >&2
-		lynx -dump "$LINK" |
-		cat > $TMPDIR/$N.lyrics
+		# echo "$LINK" >&2
+		lynx -dump "$LINK" | cat > $TMPDIR/$N.lyrics &
 
 	done
+
+	wait
 
 fi
 
