@@ -9,12 +9,15 @@ if test ! "$2" = ""; then
 	MULTIPLE=true
 fi
 
-for X in "$@"; do
+for X
+do
   if test $MULTIPLE; then
     printf "$X:	"
   fi
-  imageinfo "$X" 2>&1 | grep -v "^$X=>" | head -1 | sed 's+.* \([1234567890]*x[1234567890]*\) .*+\1+'
   # imageinfo "$X" | head -n 1 | after "$X " | beforefirst ' ' | beforefirst "+"
   # | tail -n 1 | beforefirst ' '
   # | takecols 2
+  ## Not for tiff's :-(
+  # imageinfo "$X" 2>&1 | grep -v "^$X=>" | head -1 | sed 's+.* \([1234567890]*x[1234567890]*\) .*+\1+'
+  imageinfo "$X" 2>&1 | grep "^$X=>" | sed 's+.* \([1234567890]*x[1234567890]*\) .*+\1+'
 done

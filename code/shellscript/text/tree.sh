@@ -5,6 +5,11 @@ if test "$1" = "-java"
 then TREEJAVA=true; shift
 fi
 
+FOLDINGFILE=~/.vim/plugin/joeyfolding.vim
+if test -f "$FOLDINGFILE"
+then VIMOPTS=$VIMOPTS" +:Joeyfolding"
+fi
+
 TMPFILE=`jgettmp tree`
 cat "$@" > $TMPFILE
 
@@ -23,7 +28,7 @@ else
 
 fi |
 
-vi - -R +":so ~/.vim/joey/joeyfolding.vim" $VIMOPTS
+vi - -R $VIMOPTS
 
 jdeltmp $TMPFILE
 

@@ -1,8 +1,10 @@
 MEMODIR="$JPATH/data/memo"
 
 ## TODO:
-## - Allow user to specify timeout after which rememo occurs
-## - Allow user to specify quick command which returns non-0 if rememo needed
+#  - Leaves an empty or partial memo file if interrupted
+#    We should memo to a temp file and move to memo file when complete
+#  - Allow user to specify timeout after which rememo occurs
+#  - Allow user to specify quick command which returns non-0 if rememo needed (or a test-rememo command?)
 
 if test "$1" = "-info"; then
 	MEMO_SHOW_INFO=true
@@ -11,7 +13,7 @@ fi
 
 if test "$1" = ""; then
 	echo "memo <command>..."
-	echo "  Caches the output of a command which takes a long time to run!"
+	echo "  Caches the output of a command (useful if it takes a long time to run)."
 	echo "  Memo will remember the output of <command> in current working directory, and"
 	echo "    will redisplay this output on subsequent calls."
 	echo "  You may use rememo <cmd> to override the stored output."
