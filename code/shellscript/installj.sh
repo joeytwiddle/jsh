@@ -11,7 +11,11 @@ test -d "$JPATH" &&
 echo "Will try to log you into Hwi's CVS as USER=$USER"
 export CVSROOT=":pserver:$USER@hwi.ath.cx:/stuff/cvsroot"
 cvs login ||
-	exit 1
+	(
+		echo "OK giving you read-only access, please use password \"anonymouos\""
+		export CVSROOT=":pserver:$USER@hwi.ath.cx:/stuff/cvsroot"
+		cvs login
+	) || exit 1
 
 mkdir -p "$JPATH" && cd "$JPATH" ||
 	exit 1
@@ -34,6 +38,7 @@ echo
 echo "Linking shellscripts into $JPATH/tools (may take a while)"
 "$JPATH"/code/shellscript/init/refreshtoollinks
 
+# Link a handy startup file
 STARTFILE="$JPATH"/startj
 ln -s "$JPATH"/tools/startj-hwi "$STARTFILE"
 
