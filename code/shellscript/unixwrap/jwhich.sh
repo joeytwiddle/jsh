@@ -6,7 +6,7 @@ if [ "$1" = "" ]; then
   exit 1
 fi
 
-fakegrep-v () {
+fakeungrep () {
 	sed "s|.*$*.*||"
 }
 
@@ -15,7 +15,7 @@ if test "$1" = "inj"; then
   shift
 else
   # Remove all references to JLib from the path
-  PATHS=`echo "$PATH" | tr ":" "\n" | fakegrep-v "$JPATH"`;
+  PATHS=`echo "$PATH" | tr ":" "\n" | fakeungrep "$JPATH"`;
 fi
 FILE="$1"
 QUIETLY="$2"
