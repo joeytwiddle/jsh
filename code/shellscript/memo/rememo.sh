@@ -2,6 +2,8 @@
 ## TODO: delete the memoed file if interrupted
 ##       (eg. (optionally delete it,) memo to elsewhere, then move into correct place if successful)
 
+[ "$DEBUG" ] && debug "rememo: $*"
+
 . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
 REALPWD=`realpath "$PWD"`
@@ -10,7 +12,7 @@ NICECOM=`echo "$REALPWD: $@.$CKSUM" | tr " /" "_-" | sed 's+\(..................
 FILE="$MEMODIR/$NICECOM.memo"
 mkdir -p "$MEMODIR"
 
-TMPFILE=`jgettmp tmprememo:$*`
+TMPFILE=`jgettmp tmprememo`
 
 # "$@" | tee "$FILE"
 ## Now passes back appropriate exit code: =)

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# . selfmemo -t 5minutes - "$0" "$@"; shift
+
 CHECKALL=
 while true
 do

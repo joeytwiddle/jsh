@@ -30,35 +30,35 @@ then
 			jdiff -infg $TMPFILE "$FILE"
 		) | more
 		echo
-    while true
-    do
-      # echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
-      echo "`curseyellow`Hit <E>dit, <V>imdiff, re-<D>iff, <Enter> to skip, or <.> or comment to commit.`cursenorm`"
-      read INPUT
-      case "$INPUT" in
-        e|E)
-          edit "$FILE"
-        ;;
-        v|V)
-          vimdiff $TMPFILE "$FILE"
-        ;;
-        d|D)
-          jdiff -infg $TMPFILE "$FILE" | more
-        ;;
-        "")
-          echo "`cursegreen`Skipping:`cursenorm` $FILE"
-          break
-        ;;
-        "."|*)
-          [ "$INPUT" = "." ] && INPUT=""
-          echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
-          echo "`cursecyan`cvscommit -m \"$INPUT\" \"$FILE\"`cursenorm`"
-          cvscommit -m "$INPUT" "$FILE" ||
-          error "cvscommit failed!"
-          break
-        ;;
-      esac
-    done
+		while true
+		do
+			# echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
+			echo "`curseyellow`Hit <E>dit, <V>imdiff, re-<D>iff, <Enter> to skip, or <.> or comment to commit.`cursenorm`"
+			read INPUT
+			case "$INPUT" in
+				e|E)
+					edit "$FILE"
+				;;
+				v|V)
+					vimdiff "$FILE" $TMPFILE
+				;;
+				d|D)
+					jdiff -infg $TMPFILE "$FILE" | more
+				;;
+				"")
+					echo "`cursegreen`Skipping:`cursenorm` $FILE"
+					break
+				;;
+				"."|*)
+					[ "$INPUT" = "." ] && INPUT=""
+					echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
+					echo "`cursecyan`cvscommit -m \"$INPUT\" \"$FILE\"`cursenorm`"
+					cvscommit -m "$INPUT" "$FILE" ||
+					error "cvscommit failed!"
+					break
+				;;
+			esac
+		done
 		echo
 	done
 	jdeltmp $TMPFILE

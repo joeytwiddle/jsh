@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: 
 # No arguments => show all
 if test "$1" = ""; then
   cat

@@ -1,4 +1,4 @@
-# jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath md5sum
+# jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath md5sum debug
 # jsh-depends-ignore: arguments filename arguments todo
 
 . jgettmpdir -top
@@ -12,12 +12,13 @@ MEMODIR=$TOPTMP/memo
 #  - Allow user to specify quick command which returns non-0 if rememo needed (or a test-rememo command?)
 #  -                       a file (or indeed a directory full of files) which, if it is (they are) newer than the memo-cache-file, will force rememoing
 
-if test "$1" = "-info"; then
+if [ "$1" = "-info" ]
+then
 	MEMO_SHOW_INFO=true
 	shift
 fi
 
-if test "$1" = ""
+if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo "Usage:"
   echo
@@ -97,7 +98,7 @@ export FILE="$MEMODIR/$NICECOM.memo"
 # echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$FILE" ] || eval "$REMEMOWHEN"
 then
-  [ "$DEBUG" ] && echo "`cursemagenta;cursebold`memo: (re-)caching command $*`cursenorm`" >&2
+  [ "$DEBUG" ] && debug "`cursemagenta;cursebold`memo: (re-)caching command $*`cursenorm`"
   rememo "$@"
 else cat "$FILE"
 fi
