@@ -2,6 +2,7 @@
 ##       (not really safe since no encryption ... https?)
 ## TODO: Output should be clumped together, not one request per line
 ##       Could we use HTML upload instead of post/get?
+## TODO: because the shell isn't interactive, we may want to source /etc/profile and other stuff so the user doesn't have to
 PROTOCOL="http"
 # PROTOCOL="https"
 SERVER="hwi.ath.cx"

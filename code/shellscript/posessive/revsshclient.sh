@@ -18,47 +18,94 @@ function indent() {
 	sed 's+^+  +'
 }
 
-echo "The following hosts have tried to initiate revssh sessions:"
-ATTEMPTS=`ls /tmp/revssh-host-*.off | sed 's+^/tmp/revssh-host-++;s+\.off$++'`
-echo "$ATTEMPTS" | indent
-if [ "$ATTEMPTS" ]
+if [ "$1" = -join ]
 then
-	echo
-	echo "To enable one, type one of the following:"
-	echo "$ATTEMPTS" |
-	sed 's+\(.*\)+touch /tmp/revssh-host-\1.on+' |
-	## Move is not possible since .off file was created by the www user (cgi)
-	# sed 's+\(.*\)+mv /tmp/revssh-host-\1.off /tmp/revssh-host-\1.on+' |
-	indent
-fi
 
-SESSID="$1"
-if [ ! "$SESSID" ]
+	SESSID="$2"; shift; shift
+
+	echo "Joining session $SESSID ..."
+
+	tail -f /tmp/revssh-client-output-$SESSID.txt |
+	while read X; do
+		printf "\033[00;32m"
+		echo "$X"
+		printf "\033[0m"
+	done &
+
+	## TODO: these appear to be killed when the session is exited with Ctrl+C, which is good!
+	( while true; do echo >> /tmp/revssh-client-input-$SESSID.txt ; sleep 10 ; done ) &
+
+	## Pass user input to remote shell (well, leave it in file for CGI script to
+	## pass to remote revsshserver when it makes http request)
+	cat >> /tmp/revssh-client-input-$SESSID.txt
+
+	wait
+
+elif [ "$1" = -wait ]
 then
+
+	HOST="$2"; shift; shift
+	
+	echo "Waiting for a fresh connection to $HOST"
+	echo "TODO: you have to touch the .on file before this is worthwhile."
+
+	while true
+	do
+		OLD=`memo ls "/tmp/revssh-client-output-$HOST*" 2>/dev/null`
+		NOW=`rememo ls "/tmp/revssh-client-output-$HOST*" 2>/dev/null`
+		KILLRE=`echo "$OLD" | list2regexp`
+		NEW=`echo "$NOW" | grep -v "$KILLRE"`
+		echo "--------------------------------"
+		echo "$OLD"
+		echo "------------------"
+		echo "$NOW"
+		echo "==========="
+		echo "$NEW"
+		echo "......."
+		[ "$NEW" ] && break
+		sleep 10
+	done
+
+	SESSID=`echo "$NEW" | head -1 | afterlast - | beforefirst "\."`
+
+	echo "OK, joining session: $SESSID"
+	echo "You may want to: rm /tmp/revssh-host-$HOST.on"
 	echo
-	if ! ls -l /tmp/revssh-client-input-*.txt
+
+	revsshclient -join "$SESSID"
+
+else
+
+	echo "The following hosts have tried to initiate revssh sessions:"
+	ATTEMPTS=`ls /tmp/revssh-host-*.off | sed 's+^/tmp/revssh-host-++;s+\.off$++'`
+	echo "$ATTEMPTS" | indent
+	if [ "$ATTEMPTS" ]
 	then
-		echo "There are no open connections at this time."
-		exit 1
+		echo
+		echo "To enable one, type one of the following:"
+		echo "$ATTEMPTS" |
+		sed 's+\(.*\)+touch /tmp/revssh-host-\1.on+' |
+		## Move is not possible since .off file was created by the www user (cgi)
+		# sed 's+\(.*\)+mv /tmp/revssh-host-\1.off /tmp/revssh-host-\1.on+' |
+		indent
 	fi
-	echo "Choose which session to join:"
-	ls /tmp/revssh-client-input-*.txt |
-	sed "s+^/tmp/revssh-client-input-++;s+\.txt$++" |
-	indent
-	read SESSID
+
+	SESSID="$1"
+	if [ ! "$SESSID" ]
+	then
+		echo
+		if ! ls -l /tmp/revssh-client-input-*.txt
+		then
+			echo "There are no open connections at this time."
+			exit 1
+		fi
+		echo "Choose which session to join:"
+		ls /tmp/revssh-client-input-*.txt |
+		sed "s+^/tmp/revssh-client-input-++;s+\.txt$++" |
+		indent
+		read SESSID
+	fi
+
+	revsshclient -join "$SESSID"
+
 fi
-
-echo "Joining session $SESSID ..."
-
-tail -f /tmp/revssh-client-output-$SESSID.txt |
-while read X; do
-	printf "\033[00;32m"
-	echo "$X"
-	printf "\033[0m"
-done &
-
-## Pass user input to remote shell (well, leave it in file for CGI script to
-## pass to remote revsshserver when it makes http request)
-cat >> /tmp/revssh-client-input-$SESSID.txt
-
-wait
