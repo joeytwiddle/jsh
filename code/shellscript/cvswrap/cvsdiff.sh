@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # This should not be called cvsdiff, because it ain't like cvs diff:
 # it only finds what's missing, not what's been changed.
 
@@ -61,7 +63,9 @@ if test $CHECKALL; then
 	if test "$1" = ""; then
 		find . -type f
 	else
-		for X; do echo "./$X"; done
+		# originally just for X; but no good on Solaris
+		for X in "$@"; do echo "./$X"; done
+		# for X; do echo "./$X"; done
 	fi | grep -iv "/CVS/" > /tmp/local.txt
 
 	echo
