@@ -1,19 +1,26 @@
 ## WISHLIST:
-#    - order duplicates by least number of /s to bring us closer to automatic removal
+# - order duplicates by least number of /s to bring us closer to automatic removal choice
 
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
-	echo "findduplicatefiles [ -qkck | -size ] -samename [ <files/directories>... ]"
-	echo "  -qkck     : use quick checksum, (only examine 16k at either end of file)"
-	echo "  -size     : use file size instead of checksum (faster)."
-	echo "  -samename : assume identical filenames (even faster)."
-	echo "  Without either option, first looks for files of the same size, then checksums"
-	echo "  to compare them."
+	echo "findduplicatefiles [ -samename ] [ -qkck | -size ] <files/directories>..."
+	echo "  The search is done in two stages.  First files with the same size are found."
+	echo "    -samename : extract only files with identical names (faster)"
+	echo "  Second, the files are hashed (cksum) to check if they really are identical."
+	echo "    -qkck : use quick checksum, (only examine 16k at either end of file)"
+	echo "    -size : use file size instead of checksum (much faster but DANGEROUS)."
 	exit 1
 fi
 
 echo "Note: these could be hard links, or possibly (to check) symlinks,"
 echo "so make sure you don't delete the target!"
 echo
+
+SAMENAME=
+if test "$1" = "-samename"
+then
+	SAMENAME=true
+	shift
+fi
 
 HASH="cksum"
 if test "$1" = "-qkck"
@@ -24,14 +31,7 @@ elif test "$1" = "-size"
 then
 	shift
 	HASH="filesize -likecksum"
-	echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done' >> /dev/stderr
-fi
-
-SAMENAME=
-if test "$1" = "-samename"
-then
-	SAMENAME=true
-	shift
+	# echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done' >> /dev/stderr
 fi
 
 WHERE="$*"
@@ -51,8 +51,7 @@ then
 		do $HASH "$Y"
 		done
 	done |
-	keepduplicatelines -gap 1 2 |
-	sed 's/[0123456789]* [0123456789]* \(.*\)/rm "\1"/'
+	keepduplicatelines -gap 1 2
 
 else
 
@@ -64,7 +63,9 @@ else
 	done |
 	keepduplicatelines -gap 1 2
 
-fi
+fi |
+
+sed 's/[0123456789]* [0123456789]* \(.*\)/del "\1"/'
 
 exit
 

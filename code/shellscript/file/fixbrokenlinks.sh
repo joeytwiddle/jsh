@@ -1,13 +1,16 @@
 if test "$1" = ""
 then
-	echo "fixbrokenlinks <in_dir> <scope_dir>..."
+	echo "fixbrokenlinks <in_dir> <scope_dirs>..."
 	echo "fixbrokenlinks <in_dir> -list <scope_list_file>"
-	echo "  don't worry it doesn't overwrite anything - just suggests something to |sh"
+	echo "  For each broken link found in <in_dir>, tries to find a matching filename in one of the <scope_dirs> or the <scope_list>."
+	echo "  Don't worry it doesn't overwrite anything - just suggests something to |sh"
 	exit 1
 fi
 
-## TODO: make a verion that can take an index file (eg a cksum list) as scope
-##       eg. to find files lost onto some indexed backup medium
+## Progress: make a verion that can take an index file (eg a cksum list) as scope
+##           eg. to find files lost onto some indexed backup medium
+## See /stuff/cdlistings/makebiglist .sh and use -list
+## Now TODO: instead of ln, pin files so they get copied off the needed cd
 
 INDIR="$1"
 shift

@@ -130,6 +130,7 @@ rsyncdiff () {
 	vim "$EDITFILE"
 
 	## TODO: error handling!
+	## eg. Could put exit 1 instead of echo "ERROR"
 
 	## Send local files
 	cat "$EDITFILE" | grep "^local " |
