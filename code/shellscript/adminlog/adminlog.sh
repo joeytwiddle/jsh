@@ -37,7 +37,7 @@ fi
 
 echo
 printf "\033[00;32m" # green
-printf "Welcome to neuralyte.  "
+printf "Welcome to `hostname`.  "
 printf "\033[00;36m" # cyan
 printf "Here follows the adminlog:"
 echo
