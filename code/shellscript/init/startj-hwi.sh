@@ -20,11 +20,14 @@ source javainit
 source hugsinit
 source lscolsinit
 
-# alias hwicvs='cvs -d :pserver:joey@hwi.dyn.dhs.org:/stuff/cvsroot'
+alias hwicvs='cvs -d :pserver:joey@hwi.dyn.dhs.org:/stuff/cvsroot'
 alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
 alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
 
-mesg y
+# Avoid error if not on a tty
+if test ! "$BAUD" = "0"; then
+	mesg y
+fi
 
 export FIGNORE=".class"
 
