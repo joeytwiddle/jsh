@@ -33,7 +33,7 @@ do
 	## All in one memo:
 	# memo "dpkg -L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
 	## Inner memo because there is a small chance dpkg -L ... may have been run elsewhere
-	memo "memo dpkg -L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
+	memo "memo dpkg-L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
 	## yuk: memo dpkg -L "$PACKAGE" '|' sed "'s|$|	[$PACKAGE]|'"
 done |
 grep "^$WHERE" |
@@ -44,10 +44,9 @@ cat > $INPACKAGES
 
 ## TODO: rpm version!
 
-# OUTPUTKNOWN=/dev/stdout
 OUTPUTKNOWN=/dev/null
-
-curseblue
+# OUTPUTKNOWN=/dev/stdout
+# curseblue
 
 find "$WHERE" -not -type d |
 while read FILE
@@ -57,6 +56,8 @@ do
 		echo "`cursenorm`$FILE	`cursered;cursebold`NOT FOUND`curseblue`"
 	)
 done
+
+cursenorm
 
 jdeltmp $INPACKAGES
 

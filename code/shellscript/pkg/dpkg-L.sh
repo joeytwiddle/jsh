@@ -21,5 +21,7 @@ BASENAME=/var/lib/dpkg/info/$PACKAGENAME
 # dropcols 1 |
 # sed 's+^+/+'
 
-cat $BASENAME.list $BASENAME.conffiles |
-removeduplicatelines
+(
+	cat $BASENAME.list
+	[ -f $BASENAME.conffiles ] && cat $BASENAME.conffiles
+) | removeduplicatelines
