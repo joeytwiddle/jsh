@@ -10,8 +10,11 @@ FIFO=`jgettmp fifo`
 rm -f "$FIFO"
 mkfifo "$FIFO"
 
-FILENAME="$1"
+FILE="$1"
+FILENAME=`basename "$1"`
 WHERE="$2"
+
+screentitle "remoteedit $FILE $WHERE"
 
 send () {
 	echo "[local] sending \"$*\"" >&2
@@ -19,37 +22,40 @@ send () {
 }
 
 local_prog () {
+	send "$USER $HOST"
 	send "$FILENAME"
-	SIZE=`filesize "$FILENAME"`
+	SIZE=`filesize "$FILE"`
 	send "$SIZE"
-	cat "$FILENAME"
+	cat "$FILE"
 	
 	while read INPUT
 	do
-		if [ "$INPUT" = file_saved ]
+		if [ "$INPUT" = file_changed ]
 		then
 			read SIZE
 			echo "[local] receiving file size $SIZE" >&2
-			dd bs=1 count=$SIZE of="$FILENAME" 2> /dev/null &&
-			echo "[local] got $FILENAME" >&2 ||
+			dd bs=1 count=$SIZE of="$FILE" 2>&1 &&
+			echo "[local] `date` got $FILENAME" >&2 ||
 			echo "[local] error downloading $FILENAME" >&2
 		else
 			echo "[local] erroneous input: \"$INPUT\""
-		fi
+			# break
+		fi | grep -v "records \(in\|out\)$" ## for the dd!
 	done
 
 }
 
 REMOTE_PROG='
 
-	read FILE
+	read RUSER RHOST
+	read FILENAME
 	read SIZE
-	FILE="/tmp/$FILE"
-	mkdir `dirname "$FILE"`
+	FILE="/tmp/$FILENAME.$RUSER.$RHOST.$$"
+	# mkdir `dirname "$FILE"`
 	dd bs=1 count=$SIZE of=$FILE
-	echo "You should now edit $FILE on $HOST" >&2
+	echo "[remote] You should now edit $FILE on $HOST" >&2
 
-	WATCH=$FILE.watch
+	WATCH="$FILE.watch"
 
 	touch -r "$FILE" "$WATCH"
 	while true
@@ -60,7 +66,7 @@ REMOTE_PROG='
 		then
 			touch -r "$FILE" "$WATCH" ## touch now for sensitivity to quickly repeated saves
 			echo "[remote] file changed" >&2
-			echo "file_saved"
+			echo "file_changed"
 			echo "$NEWSIZE"
 			cat "$FILE"
 		fi

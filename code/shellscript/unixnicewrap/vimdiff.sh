@@ -6,7 +6,7 @@ fi
 
 SOFAR=0
 for X
-do SOFAR=`expr "$SOFAR" + \`longestline "$X"\`` ## doesn't account for tabs!
+do SOFAR=`expr "$SOFAR" + \`longestline "$X"\`` ## doesn't account for tabs! ## TODO: solve with s/tab/        /g
 done
 # SOFAR=$[$SOFAR+11]
 
