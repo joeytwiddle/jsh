@@ -1,3 +1,5 @@
+# jsh-depends-ignore: write
+# jsh-depends: takecols
 ## TODO: depend on (and farm off stuff to) monitorhdflow | head
 
 if [ "$1" = "" ] || [ "$1" = --help ]
