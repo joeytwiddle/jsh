@@ -12,7 +12,7 @@ FILEB="$2"
 shift
 shift
 
-OTHER=`$JFCCOM "$FILEB" "$FILEA" | ungrep $UNGREP`
+OTHER=`$JFCCOM "$FILEB" "$FILEA" | ungrep "$UNGREP"`
 if ! test "$OTHER" = ""; then
   # echo
   # echo `cursered``cursebold`"<<< DIED:"
@@ -23,5 +23,5 @@ if ! test "$OTHER" = ""; then
   # echo
 fi
 # cursegreen # ;cursebold
-$JFCCOM "$FILEA" "$FILEB" | ungrep $UNGREP
+$JFCCOM "$FILEA" "$FILEB" | ungrep "$UNGREP"
 # cursenorm
