@@ -1,21 +1,9 @@
-# More like fromline
+STRING="$*"
 
-ECHOBEFORE=
-ECHOAFTER=true
-if test "$1" = "-tostring"; then
-	ECHOBEFORE=true
-	ECHOAFTER=
-	shift
-fi
+## TODO: What about when [ "$LINE" = "-n" ] eh?!
 
-STRING="$1"
+while read LINE && [ ! "$LINE" = "$STRING" ]
+do noop
+done
 
-while read LINE && test ! "$LINE" = "$STRING"; do
-	echo "$LINE"
-done |
-if test $ECHOBEFORE; then cat; else cat > /dev/null; fi
-
-while read LINE; do
-	echo "$LINE"
-done |
-if test $ECHOAFTER; then cat; else cat > /dev/null; fi
+cat

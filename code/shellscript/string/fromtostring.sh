@@ -6,7 +6,7 @@
 
 ECHOBEFORE=
 ECHOAFTER=true
-if [ "$1" = -tostring]
+if [ "$1" = -tostring ]
 then
 	ECHOBEFORE=true
 	ECHOAFTER=
