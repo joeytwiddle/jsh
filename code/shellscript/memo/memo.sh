@@ -68,9 +68,10 @@ do
     -t)
       export TIME="$2"
       shift; shift
+			AGEFILE=`jgettmp check_age`
       REMEMOWHEN="$REMEMOWHEN"' || (
-        touch -d "$TIME ago" $TMPFILE
-        newer $TMPFILE "$FILE"
+        touch -d "$TIME ago" $AGEFILE
+        newer $AGEFILE "$FILE"
       )'
     ;;
     -f)
@@ -97,8 +98,7 @@ REALPWD=`realpath "$PWD"`
 CKSUM=`echo "$REALPWD/$*" | md5sum`
 NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
 FILE="$MEMODIR/$NICECOM.memo"
-TMPFILE=`jgettmp check_age`
-export CHECKDIR CHECKFILE REMEMOWHEN FILE TMPFILE
+export CHECKDIR CHECKFILE REMEMOWHEN FILE AGEFILE
 
 # [ "$DEBUG" ] && debug "memo:     `cursemagenta`checking: $REMEMOWHEN (FILE=$FILE)`cursenorm`"
 
@@ -113,7 +113,7 @@ else
 	cat "$FILE"
 fi
 
-jdeltmp $TMPFILE
+[ "$AGEFILE" ] && jdeltmp $AGEFILE
 
 if [ "$MEMO_SHOW_INFO" ]
 then
