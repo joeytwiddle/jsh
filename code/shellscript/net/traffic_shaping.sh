@@ -16,15 +16,26 @@
 ## NOTE: you can view the various pipes at work by running the traffic_shaping_monitor script.
 ##       monitoriflow (or any network traffic monitor) on a busy network can also give a good indication of how the shaping rules are working.
 
+## I decided to create a third throttled pipe for my webserver, because if it goes full whack, it floods my outgoing filesharing packets and severely reduces their incoming responses.
+
 
 ### >>>>>>>>>>>>>>>>>>>> Config
 
 ## This is actually the max output bytes per second you can observe from monitoriflow running without shaping
 BANDWIDTH_OUT=22000
 
-## How much smaller than your overall bandwidth do you want the non-priority pipe to be?
-PROPORTION_TO_ALLOW="3 / 4"
-# PROPORTION_TO_ALLOW="1 / 2"
+## How much smaller than your overall bandwidth do you want the non-priority pipe(pair) to be?
+## Note this is in expr format.
+if [ ! "$PROPORTION_TO_ALLOW" ]
+then
+	# PROPORTION_TO_ALLOW="3 / 2" ## works quite well for me, maybe even 5 / 3 (although that was when the webserver was quiet!)
+											 ## Problem is: this will lead to torrents getting choked if someone downloads from the webserver, filling the new pipe
+	PROPORTION_TO_ALLOW="3 / 4"
+	# PROPORTION_TO_ALLOW="1 / 2"
+	# PROPORTION_TO_ALLOW="1"
+	# PROPORTION_TO_ALLOW="1 / 10"
+fi
+BUT_ALLOW_WEBSERVER_TWICE=true
 
 # INTERFACE=ppp0
 # INTERFACE=eth0
@@ -55,19 +66,12 @@ function filter_port () {
 	PORT="$3"
 	DESTDISC="$4"
 	if [ "$DESTDISC" = 2 ]
-	then echo "!!! $1 $2 $3 $4"
+	then error "[traffic_shaping] filter_port $1 $2 $3 $4 : Don't use disc 2 it's dodgy!  (I don't know why but it gets packets without rules!)"
 	fi
 	/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio $DESTDISC protocol ip u32 match ip $PORTDIR $PORT 0xffff flowid 1:$DESTDISC
 }
 
 case "$1" in
-
-		start-simple)
-			# /sbin/tc qdisc add dev "$INTERFACE" root tbf rate 0.5mbit burst 5kb latency 70ms peakrate 1mbit minburst 1540
-			## From: http://lartc.org/lartc.html#AEN691
-			/sbin/tc qdisc add dev "$INTERFACE" root tbf rate 99kbit burst 2000 latency 50ms
-			## Note: if I change burst to 1000, ssh slows down dramatically, why?
-		;;
 
 		start)
 			echo -n "shaping: "
@@ -80,20 +84,28 @@ case "$1" in
 
 			## This magically converts BANDWIDTH_OUT to MAXKBIT (which is what tc thinks is you max output per second!)
 			MAXKBIT=`expr "$BANDWIDTH_OUT" / 202`
-			MAXKBITPERPIPE=`expr "$MAXKBIT" / 2` ## Because we create two small pipes of the same size
+			MAXKBITPERPIPE=`expr "$MAXKBIT" / 2` ## Because we create two small pipes of the same size.  (Well now we create three but this seems to work ok!)
 			KBITLIMITPERPIPE=`expr "$MAXKBITPERPIPE" '*' $PROPORTION_TO_ALLOW`
 			PEAKKBITLIMITPERPIPE=`expr "$KBITLIMITPERPIPE" '*' 5 / 4`
 
-			if [ "$KBITLIMITPERPIPE" -gt 5 ] && [ "$KBITLIMITPERPIPE" -lt 99999999999 ]
+			if [ "$KBITLIMITPERPIPE" -lt 1 ]
+			then
+				jshwarn "[traffic_shaping] Limit $KBITLIMITPERPIPE kbit too low, setting 1."
+				KBITLIMITPERPIPE=1
+				PEAKKBITLIMITPERPIPE=1
+			fi
+			if [ "$KBITLIMITPERPIPE" -gt 0 ] && [ "$KBITLIMITPERPIPE" -lt 99999999999 ]
 			then :
 			else
-				jshwarn "[traffic_shaping] Don't trust kbit limit $KBITLIMITPERPIPE,"
+				jshwarn "[traffic_shaping] Calculation failed producing \"$KBITLIMITPERPIPE\","
 				KBITLIMITPERPIPE=44
 				PEAKKBITLIMITPERPIPE=55
-				jshwarn "[traffic_shaping] using $KBITLIMITPERPIPE instead."
+				jshwarn "[traffic_shaping] using $KBITLIMITPERPIPE kbit instead."
 			fi
+			## If peak == kbit then tc throws error on creation!
+			[ "$PEAKKBITLIMITPERPIPE" -gt "$KBITLIMITPERPIPE" ] || PEAKKBITLIMITPERPIPE=`expr "$KBITLIMITPERPIPE" + 1`
 
-			jshinfo "[traffic_shaping] Will create two pipes of size $KBITLIMITPERPIPE kbit/s (peak $PEAKKBITLIMITPERPIPE)"
+			[ "$DEBUG" ] && debug "[traffic_shaping] Will create two pipes of size $KBITLIMITPERPIPE kbit (peak $PEAKKBITLIMITPERPIPE)"
 			# [ "$DEBUG" ] && debug "[traffic_shaping] Will create two pipes of size $KBITLIMITPERPIPE (peak $PEAKKBITLIMITPERPIPE)"
 
 
@@ -152,8 +164,18 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:8 handle 18: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
+			WEBSERVER_KBITLIMITPERPIPE=$KBITLIMITPERPIPE
+			WEBSERVER_PEAKKBITLIMITPERPIPE=$PEAKKBITLIMITPERPIPE
+			if [ "$BUT_ALLOW_WEBSERVER_TWICE" ]
+			then
+				WEBSERVER_KBITLIMITPERPIPE=`expr $KBITLIMITPERPIPE '*' 2`
+				WEBSERVER_PEAKKBITLIMITPERPIPE=`expr $PEAKKBITLIMITPERPIPE '*' 2`
+			fi
+			[ "$DEBUG" ] && debug "[traffic_shaping] and a pipe for the webserver $WEBSERVER_KBITLIMITPERPIPE kbit (peak $WEBSERVER_PEAKKBITLIMITPERPIPE)"
+			/sbin/tc qdisc add dev "$INTERFACE" parent 1:7 handle 17: tbf rate "$WEBSERVER_KBITLIMITPERPIPE"kbit buffer 1600 peakrate "$WEBSERVER_PEAKKBITLIMITPERPIPE"kbit mtu 1518 mpu 64 latency 50ms
+
 			## add fifos to the other bands so we can have some stats
-			for SUBDISC in `seq 7 -1 1`
+			for SUBDISC in `seq 6 -1 1`
 			do
 				# if [ "$SUBDISC" = 6 ]
 				# then
@@ -242,24 +264,24 @@ case "$1" in
 			## If you prefer to choke your webserver too, you can send it to band 8 or 9 instead.  (9 seems great but sometimes tails off!)
 			## Or I could set up a third sub-pipe for webserver throttling...
 			## Lower priority webserver:
-			filter_port http   sport 80   6
-			filter_port https  sport 443  6
+			filter_port http   sport 80   7
+			filter_port https  sport 443  7
 
 			## DNS:
 			filter_port domain dport 53   6
 			filter_port domain sport 53   6
 
 			## CVS:
-			filter_port cvs    dport 2401 7
-			filter_port cvs    sport 2401 7
+			filter_port cvs    dport 2401 6
+			filter_port cvs    sport 2401 6
 
 			## And all the smeggin rest:
 			## I gave up on socks line 217 of /etc/services, resume there?  I don't really know which ones are needed.  rsync might be preferably batched.  irc probably needs higher priority, unless it's being used for d/l'ing!
 			##          ftp telnet gopher finger hostnames rtelnet sftp nntp ntp! snmp irc ldap snpp talk ntalk rsync ftps ftps-data telnets ircs socks
 			for PORT in 21  23     70     79     101       107     115  119  123  161  194 389  444  517  518   873   990  989       992     994  1080
 			do
-				filter_port batch$PORT sport $PORT 7
-				filter_port batch$PORT dport $PORT 7
+				filter_port batch$PORT sport $PORT 6
+				filter_port batch$PORT dport $PORT 6
 			done
 
 			## Joey says: for some reason the original author split small and large packets up,
@@ -288,6 +310,17 @@ case "$1" in
 			## It takes 5-10 seconds for the failback to happen, but it works :-)
 			# /usr/sbin/arpspoof -i "$INTERFACE" 192.168.168.1 >/dev/null 2>&1 &
 			# echo $! >/var/run/shapedsl.arpspoof.pid
+			echo "startified"
+		;;
+
+			## Couldn't get red to work:
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:9 handle 19: red limit "$PEAKKBITLIMITPERPIPE"kbit min "1"kbit max "$PEAKKBITLIMITPERPIPE"kbit avpkt 1000 burst 2000 probability 0.01 bandwidth 100kbit
+
+		start-simple)
+			# /sbin/tc qdisc add dev "$INTERFACE" root tbf rate 0.5mbit burst 5kb latency 70ms peakrate 1mbit minburst 1540
+			## From: http://lartc.org/lartc.html#AEN691
+			/sbin/tc qdisc add dev "$INTERFACE" root tbf rate 99kbit burst 2000 latency 50ms
+			## Note: if I change burst to 1000, ssh slows down dramatically, why?
 			echo "startified"
 		;;
 
