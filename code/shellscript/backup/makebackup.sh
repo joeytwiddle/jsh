@@ -15,6 +15,8 @@ cat << !
 
 makebackup [-efficient] <dir/file_to_backup> <storage_dir> [<storage_prefix>]
 
+  TODO: storage_dir must be absolute to work, but I should change that!
+
   will create a numbered backup (tar.gz) of the given file or directory
     in <storage_dir> each time it is run.
 
