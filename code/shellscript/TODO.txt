@@ -9,3 +9,10 @@ Desired features:
 - User can choose which scripts to install / use / ignore.
 - Dependencies are checked (for other scripts or system packages, or something in the PATH at least)
 - Configuration happens in the correct place, and user knows how to alter it.
+
+States:
+	viewing (no xscreensaver, no fadevolume)
+	normal -> used
+	       -> unused (=sleeping) (fadevolume, xscreensaver)
+
+ability to tag current song or current background with a meta-word
