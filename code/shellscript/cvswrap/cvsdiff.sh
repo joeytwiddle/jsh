@@ -77,7 +77,10 @@ grep "\(^cvs \(status\|server\):\|^File:\)" |
 		echo "$FILE" | sed 's+^\.\/++' >> $REPOSLIST
 	done |
 	grep -v "Up-to-date" |
-	sed 's+^+cvs commit +' |
+	sed '
+		s+^\(.*Locally Modified.*\)$+cvs commit \1+
+		s+^\(.*Needs Patch.*\)$+cvs update \1+
+	' |
 	if jwhich column quietly
 	then column -t -s "	"
 	else cat
