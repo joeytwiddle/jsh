@@ -14,7 +14,7 @@ then
 		then JPATH="/NOT/LIKELY"
 		fi
 
-		for TOPTMP in "$TMPDIR" "$JPATH/tmp" "/tmp/jsh-$USER" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
+		for TOPTMP in "$TMPDIR" "/tmp/jsh-$USER" "$JPATH/tmp" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
 		do
 
 			if [ "$TOPTMP" ]
