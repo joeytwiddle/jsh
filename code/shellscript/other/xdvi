@@ -1,5 +1,5 @@
 if test "$JWHICHOS" = "linux"; then
-  COM=`jwhich xdvi`" -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 8 -shrinkbutton3 5 -shrinkbutton4 3"
+  COM=`jwhich xdvi`" -install -nopostscript -geometry 790x920 -s 7 -shrinkbutton1 11 -shrinkbutton2 8 -shrinkbutton3 5 -shrinkbutton4 3"
   # COM=`jwhich xdvi`" -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 6 -shrinkbutton4 3"
   # COM=`jwhich xdvi`" -install -nopostscript -geometry 630x720 -s 11 -shrinkbutton1 11 -shrinkbutton2 9 -shrinkbutton3 7 -shrinkbutton4 5"
   # COM=`jwhich xdvi`" -geometry 550x650 -s 11 -shrinkbutton1 11"
