@@ -82,7 +82,7 @@ do
 	done
 	# echo "$X is closest to $BESTFORX (at $BESTFORXSIZE bytes)"
 	## what symbol for derivation?  <-   >-  <<<  ++--  
-	echo "$X" ">-($BESTFORXSIZE)	" $BESTFORX
+	echo "$X" ">-($BESTFORXSIZE)<-	" $BESTFORX
 	# echo "$BESTFORX	($BESTFORXSIZE)->	$X"
 done |
 

@@ -1,3 +1,5 @@
+## Pass -f to mkisofs to follow symlinks
+
 if test "$1" = "-multi"
 then
 	shift
