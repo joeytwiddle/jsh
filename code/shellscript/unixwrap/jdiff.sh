@@ -2,17 +2,37 @@
 ## BUGS: Sometimes highlighting matches "><|"s which are not actually diff--side-by-side's change description tags.
 ## TODO: Eliminate bug #1 by escaping characters, ignoring them during highlight, and unescaping them again for output.
 
-if test ! "$COLUMNS"
+if [ "$1" = --help ] || [ ! "$*" ]
 then
-	COLUMNS=80
-	error "Please export COLUMNS."
-else COLUMNS=`expr $COLUMNS - 8` ## fix hack
+	echo
+	echo "jdiff [ -infg ] [ -diffopts <opts_for_gnu_diff> ] <filea> <fileb>"
+	echo
+	echo "    It's just a nice human way of seeing diffs."
+	echo
+	echo "    It attempts to highlight all added/removed/changed lines, but sometimes gets false positives."
+	echo
+	exit 1
 fi
 
-if test "$1" = "-infg"
+if [ ! "$COLUMNS" ]
+then
+	COLUMNS=72
+	error "Please export COLUMNS."
+else
+	COLUMNS=`expr $COLUMNS - 8` ## fix hack
+fi
+export COLUMNS
+
+if [ "$1" = "-infg" ]
 then shift
 elif xisrunning
 then bigwin "jdiff -infg $@ | more" && exit
+fi
+
+if [ "$1" = -diffopts ]
+then
+	DIFFOPTS="$2"
+	shift; shift
 fi
 
 FILEA="$1"
@@ -28,7 +48,7 @@ WSC="[	 ]"
 
 echo "diff $@:"
 # diff -W $COLUMNS -b --side-by-side "$FILEAx" "$FILEBx" |
-diff -W $COLUMNS -b --side-by-side "$FILEA" "$FILEB" |
+diff $DIFFOPTS -W $COLUMNS -b --side-by-side "$FILEA" "$FILEB" |
 # tee /tmp/b4jdiff |
 ## These two break rarely:
 highlight -bold '^.* <$' red |
