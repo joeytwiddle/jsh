@@ -5,7 +5,7 @@ fi
 # MP_MEET_STANDARD="-vf scale=720:480 -ofps 30" ## NTSC
 # MP_MEET_STANDARD="-vf scale=720:576 -ofps 25" ## PAL
 ## transcode: --export_fps 25,3 
-# TC_CLIP="-c 50-100"
+TC_CLIP="-c 50-100"
 # TC_CLIP="-c 500-1200"
 
 NOT_SO_BLUE=-k
@@ -65,15 +65,21 @@ do
 	## Try: --video_max_bitrate 1200
 
 	rm -f stream.yuv ## If not cleaned up (eg. due to crash), mplayer input plugin will not work
-	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
-	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y mov,null -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
+	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y mov,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y mov,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	## Try without audio:
+	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y mov,null -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y mov,null -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	## Try without video: (TODO: get this to work better!)
+	# transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-video.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE ||
+	# transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-video.mov" -y null,mov -N 0x1 -F mjpa -Q 4 $TC_CLIP $DOWNSAMPLE || continue
 
 	echo
 	jshinfo "Transcoding audio"
 
-	rm -f stream.yuv
-	transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-audio.wav" -N 0x1 -y null,wav $TC_CLIP ||
-	transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-audio.wav" -N 0x1 -y null,wav $TC_CLIP || continue
+	# rm -f stream.yuv
+	# transcode -i "$VIDEOFILE" $MPLAYER_OR_NOT -o "$OVIDEOFILE-audio.wav" -N 0x1 -y null,wav $TC_CLIP ||
+	# transcode -i "$VIDEOFILE"                 -o "$OVIDEOFILE-audio.wav" -N 0x1 -y null,wav $TC_CLIP || continue
 	## Haven't managed to get cinelerra reading mp3 (smaller files)
 	# transcode -i "$VIDEOFILE" -x mplayer -N 0x55 -o "$VIDEOFILE-audio" -y null,lame $TC_CLIP || continue
 	# transcode -i "$VIDEOFILE" -x mplayer -N 0x50 -o "$VIDEOFILE-audio" -y null,mp2enc $TC_CLIP || continue
