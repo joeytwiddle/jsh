@@ -18,6 +18,13 @@ then
 	if test "$SHOWHOST" = ""; then
 		export SHOWHOST=`echo "$HOSTNAME" | beforefirst "\."`
 	fi
+
+	SCRHEAD=""
+	if [ "$TERM" = screen ] && [ ! "$STY" ]
+	   # ! contains "$SCREENTITLE" "$SHOWHOST"
+	then SCRHEAD="($SHOWHOST)"
+	fi
+
 	SHOWHOST="$SHOWHOST:"
 	SHOWUSER="$USER@"
 	# could try using `logname`
@@ -85,7 +92,7 @@ then
 				[ "$SCREENTITLE" ] &&
 				SCREEN_TITLE_TMP="$SCREENTITLE" ||
 				SCREEN_TITLE_TMP="#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`"
-				screentitle "$SCREEN_TITLE_TMP"
+				screentitle "$SCRHEAD$SCREEN_TITLE_TMP"
 			}
 			precmd () {
 				# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
@@ -95,8 +102,8 @@ then
 				# screentitle "[$HEAD$SHOWUSER$SHOWHOST%`swd | sed 's+.*/\(.*/.*\)+\1+' | cut -c -10`]"
 				[ "$SCREENTITLE" ] &&
 				SCREEN_TITLE_TMP="$SCREENTITLE" ||
-				SCREEN_TITLE_TMP="$HEAD$SHOWUSER$SHOWHOST`swd | sed 's+.*/\(.*/.*\)+\1+ ; s+.*\(..........\)+\1+'`/"
-				screentitle "$SCREEN_TITLE_TMP"
+				SCREEN_TITLE_TMP="`swd | sed 's+.*/\(.*/.*\)+\1+ ; s+.*\(..........\)+\1+'`/"
+				screentitle "$SCRHEAD$SCREEN_TITLE_TMP"
 			}
 		;;
 
