@@ -27,13 +27,19 @@ do
 			if [ "$TARGET" = "$IFLINKED" ]
 			then
 
-				echo -n "# $TARGET <- "
-				## The | tr etc... is because I think ls drops it's cursenorm /after/ the newline, hence "rm not found"! :-(
-				ls -artFhd --color "$HOME/$LINK" | tr -d '\n'; cursenorm; echo
-				# echo -n "## "
-				# ls -artFhd --color "$HOME/$LINK" | tr -d '\n'
-				# echo " links to $TARGET"
+				# echo -n "# $TARGET <- "
+				# ## The | tr etc... is because I think ls drops it's cursenorm /after/ the newline, hence "rm not found"! :-(
+				# ls -artFhd --color "$HOME/$LINK" | tr -d '\n'; cursenorm; echo
+				# # echo -n "## "
+				# # ls -artFhd --color "$HOME/$LINK" | tr -d '\n'
+				# # echo " links to $TARGET"
+				# echo "rm -f \"$HOME/$LINK\""
+
+				printf "# "
+				# ls -l -artFhd --color "$HOME/$LINK" # | tr -d '\n'; echo
+				ls -artFhd --color "$HOME/$LINK" # | tr -d '\n'; echo
 				echo "rm -f \"$HOME/$LINK\""
+
 				echo
 
 			fi

@@ -202,6 +202,7 @@ else
 						[ "$DEBUG" ] && debug "Tab completion for bash: loading /etc/bash_completion"
 						. /etc/bash_completion
 					## Disabled because "ls --col"<Tab> didn't work:
+					## Besides, testing jsh's autocomplete_from_man is my priority!
 					# elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
 					# then
 						# [ "$DEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"

@@ -3,6 +3,8 @@
 ### xterm title change
 # Requires SHORTSHELL from startj
 
+XTTITLEPROMPT_SIMPLER=true
+
 ## Maybe too strict but this script is too heavy for low-spec machines.
 if [ "$TERM" = xterm ] || [ "$TERM" = screen ]
 then
@@ -93,7 +95,12 @@ then
 				## $* repeats under zsh4 :-(
 				## $1 before alias expansion, $2 and $3 after
 				export LASTCMD="$1"
-				xttitle "$HEAD# $LASTCMD [$SHOWUSER$SHOWHOST`swd`]"
+
+				# xttitle "$HEAD# $LASTCMD [$SHOWUSER$SHOWHOST`swd`]"
+				XTTITLE_DISPLAY="$HEAD# $LASTCMD"
+				[ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY [$SHOWUSER$SHOWHOST`swd`]"
+				xttitle "$XTTITLE_DISPLAY"
+
 				# echo ">$STY<" >> /tmp/123
 				# screentitle "$HEAD$SHOWUSER$SHOWHOST`swd` # $LASTCMD"
 				# screentitle "[$HEAD#`echo \"$LASTCMD\" | cut -c -10`]"
@@ -106,7 +113,12 @@ then
 			}
 			precmd () {
 				# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
-				xttitle "$HEAD$SHOWUSER$SHOWHOST`swd` % ($LASTCMD)"
+
+				# xttitle "$HEAD$SHOWUSER$SHOWHOST`swd` % ($LASTCMD)"
+				XTTITLE_DISPLAY="% $HEAD$SHOWUSER$SHOWHOST`swd`"
+				[ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
+				xttitle "$XTTITLE_DISPLAY"
+
 				# echo ">$STY<" >> /tmp/123
 				# screentitle "[$HEAD$SHOWUSER$SHOWHOST%`swd | cut -c -10`]"
 				# screentitle "[$HEAD$SHOWUSER$SHOWHOST%`swd | sed 's+.*/\(.*/.*\)+\1+' | cut -c -10`]"

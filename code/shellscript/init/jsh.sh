@@ -6,6 +6,8 @@
 ## Also makes it easy to leave the J environment again!
 ## Alternatively can be used as a one-liner to run a command inside J env, then exit.
 
+## TODO: (document or fix) jsh is not like sh in that you cannot jsh <script> if <script> is not executable.  Also you cannot cat <script> | jsh, or can you?!  TEST!
+
 ## TODO: calls to exit are fatal if user (daftly) sources: . .../jsh
 ##       so do not exit if $SHLVL == 1
 ##       or do not exit at all, just use a flag or structure to skip to the end
@@ -80,7 +82,7 @@ else
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
 	## Second line: current approach is, jsh in zsh will only work if startj is sourced in .zshrc
 	if [ `which zsh` > /dev/null 2>&1 ] &&
-	   cat $HOME/.zshrc | grep -v "^[ 	]*#" | grep '^\(source\|\.\) .*/startj$' > /dev/null 2>&1 &&
+	   cat $HOME/.zshrc 2>/dev/null | grep -v "^[ 	]*#" | grep '^\(source\|\.\) .*/startj$' > /dev/null &&
 		[ ! "$USE_SHELL" = bash ]
 	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
