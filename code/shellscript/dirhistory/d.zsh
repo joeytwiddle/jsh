@@ -17,7 +17,7 @@ elif test -d "$NEWDIR"; then
   'cd' "$NEWDIR"
 else
 	# If incomplete dir given, check if there is a
-	# unique directory they probably meant.
+	# unique directory which the user probably meant.
 	# Useful substitue when tab-completion unavailable,
 	# or with tab-completion which does not contextually exclude files.
 	NEWLIST=`'ls' -d "$NEWDIR"* |
@@ -26,14 +26,17 @@ else
 				echo "$X"
 			fi
 		 done`
+	# Nothing: assume user chose a file with tab-completion, and go
+	# to directory above.  (What if it doesn't exist?!)
 	if test "$NEWLIST" = ""; then
 		DIRABOVE=`dirname "$NEWDIR"`
 		echo "< $DIRABOVE"
 		'cd' "$DIRABOVE"
+	# One unique dir =)
 	elif test `echo "$NEWLIST" | countlines` = "1"; then
 		echo "> $NEWLIST"
 		'cd' "$NEWLIST"
-		DIRABOVE=`dirname "$NEWDIR"`
+	# A few possibilities, suggest them to the user.
 	else
 		echo "$NEWLIST ?" | tr "\n" " "
 		echo
