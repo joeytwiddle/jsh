@@ -23,9 +23,9 @@ cat "$1" | sort > "$A"
 cat "$2" | sort > "$B"
 
 test $BOTHWAYS && (
-	cursecyan
+	echo `cursecyan`
 	centralise -pad "v" " " "v" "Lines only in $A"
-	cursenorm
+	echo `cursenorm`
 )
 
 diff "$A" "$B" |
@@ -33,11 +33,9 @@ diff "$A" "$B" |
 
 test $BOTHWAYS && (
 
-	# echo `cursecyan`
-	cursecyan
+	echo `cursecyan`
 	echo "--------------------------------------------------------------------------------"
-	# echo `cursenorm`
-	cursenorm
+	echo `cursenorm`
 
 	diff "$B" "$A" |
 		grep "^< " | sed "s/^< //"
@@ -46,9 +44,9 @@ test $BOTHWAYS && (
 	# diff "$A" "$B" |
 		# grep "^> " | sed "s/^> //"
 
-	cursecyan
+	echo `cursecyan`
 	centralise -pad "^" " " "^" "Lines only in $B"
-	cursenorm
+	echo `cursenorm`
 
 )
 
