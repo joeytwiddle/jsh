@@ -23,7 +23,6 @@ then cat
 else cat > /dev/null
 fi
 
-cat |
 if [ $ECHOAFTER ]
 then cat
 else cat > /dev/null
