@@ -14,6 +14,8 @@
 if [ "$BASH" ]
 then
 
+	## -g -s removed for odin's older bash
+
 	function joeyComplete {
 		COMMAND="$1"
 		CURRENT=${COMP_WORDS[COMP_CWORD]}
@@ -22,18 +24,18 @@ then
 		`
 		## Fix for bug: "it shows you the options, but doesn't let you complete them!" (because it's returning all options, not those which apply to $CURRENT)
 		## Also acts as a cache, so future calls are faster:
-		complete -W "$WORDS" -a -b -c -d -f -g -j -k -s -u "$COMMAND"
+		complete -W "$WORDS" -a -b -c -d -f -j -k -u "$COMMAND"
 		# COMPREPLY=($WORDS)
-		COMPREPLY=(`compgen -W "$WORDS" -a -b -c -d -f -g -j -k -s -u -- "$CURRENT"`)
+		COMPREPLY=(`compgen -W "$WORDS" -a -b -c -d -f -j -k -u -- "$CURRENT"`)
 	}
 
 	## Since bash only runs completion on named commands, we must go and get the names of all commands in $PATH:
-	# (Turned off all alternative completion types until I find a subset which works)
+	# (Turned off all alternative completion types until I find a subset which works) ## -g not even possible on odin
 	# complete -a -b -c -d -f -g -j -k -s -u -F joeyComplete `
 	complete -F joeyComplete `
 		echo "$PATH" | tr ':' '\n' |
 		while read DIR
-		do find "$DIR" -type f -maxdepth 1
+		do [ -r "$DIR" ] && find "$DIR" -type f -maxdepth 1
 		done | sed 's+.*/++'
 	`
 

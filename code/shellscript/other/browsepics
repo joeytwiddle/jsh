@@ -1,18 +1,25 @@
 ARGS="$@"
 if [ "$ARGS" = "" ]; then
-  IMAGES="*.jpg *.jpeg *.bmp *.xpm *.gif *.pgm *.ppm *.pcx"
+  FILES="*.jpg *.jpeg *.bmp *.xpm *.gif *.pgm *.ppm *.pcx"
+  # FILES="*.mp3"
 else
-  IMAGES="$ARGS"
+  FILES="$ARGS"
 fi
 
-HTMLFILE="browsepics.html"
+HTMLFILE="index.html"
 
 # EXTRAS=""
 EXTRAS="-geometry 200 -interlace Plane"
 
-echo "<html><body>" > $HTMLFILE
-forall $IMAGES do convert $EXTRAS %w browsepics%n.Jpeg : echo "\"<img src=\\\"browsepics%n.Jpeg\\\"><br>%w<br><br>\"" %p%p $HTMLFILE
-echo "</body></html>" >> $HTMLFILE
+(
+
+	echo "<html><body>"
+	for IMAGE in $FILES
+	do echo "<A href=\"$IMAGE\">$IMAGE</A><BR>"
+	done
+	echo "</body></html>"
+
+) > $HTMLFILE
 
 browse $HTMLFILE
 

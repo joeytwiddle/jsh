@@ -11,13 +11,41 @@
 # chmod g+w /etc/motd
 
 LOGFILE="/var/logadmin.log"
+
+display_log () {
+
+	echo
+	printf "\033[00;32m" # green
+	printf "Welcome to `hostname`.  "
+	printf "\033[00;36m" # cyan
+	printf "Here follows the adminlog:"
+	echo
+	echo
+
+	printf "\033[00m" # normal
+	cat $LOGFILE |
+	sed 's+................................................................................+\0\
++g' |
+	tail -14
+
+	echo
+	printf "\033[00;36m" # cyan
+	echo "To add to the admin log, type: adminlog add"
+	echo "The full log is available from: $LOGFILE"
+
+	printf "\033[00m" # normal
+	echo
+
+}
+
 TMPFILE="/tmp/logentry.tmp"
 while test -e "$TMPFILE"; do
 	TMPFILE=$TMPFILE"-"
 done
 touch $TMPFILE
 
-if test "$1" = "add"; then
+if [ "$1" = "add" ]
+then
 
 	# New entry
 	echo "Please enter your message then press Ctrl+D:"
@@ -33,29 +61,9 @@ if test "$1" = "add"; then
 
 fi
 
-(
+display_log |
 
-echo
-printf "\033[00;32m" # green
-printf "Welcome to `hostname`.  "
-printf "\033[00;36m" # cyan
-printf "Here follows the adminlog:"
-echo
-echo
-
-printf "\033[00m" # normal
-tail -15 $LOGFILE
-
-echo
-printf "\033[00;36m" # cyan
-echo "To add to the admin log, type: adminlog add"
-echo "The full log is available from: $LOGFILE"
-
-printf "\033[00m" # normal
-echo
-
-) |
-if test "$1" = "add" && test -w /etc/motd
+if ( [ "$1" = "add" ] || [ "$1" = "update" ] ) && [ -w /etc/motd ]
 then
 	cat > /etc/motd
 	cat /etc/motd
