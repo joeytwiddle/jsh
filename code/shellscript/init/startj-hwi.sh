@@ -53,14 +53,15 @@ case $TERM in
 					# Dunno why doesn't work:
 					# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
 					# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
-					echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
+					# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
+					echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|\1|"
 				}
 				preexec () {
 					export LASTCMD="$*"
-					xttitle "[$USER@$HOST:"`swd`"] # $LASTCMD"
+					xttitle "# $LASTCMD [$USER@$HOST:"`swd`"]"
 				}
 				precmd () {
-					xttitle "($USER@$HOST:"`swd`") %% $LASTCMD"
+					xttitle "%% $LASTCMD ($USER@$HOST:"`swd`")"
 				}
 			;;
 			# Doesn't work 'cos tcsh can't exec this far!
