@@ -9,6 +9,9 @@ else
   SEARCH="$1" # Could | grep -v "no description available"
 fi
 
+# browse "http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all" &
+newwin lynx "http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all" &
+
 # use dlocate if it's available
 BIN=`jwhich dlocate`
 SEARCHEXP="$SEARCH"
