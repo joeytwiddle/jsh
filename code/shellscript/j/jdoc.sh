@@ -15,7 +15,8 @@ then
 elif [ "$1" = -hasdoc ]
 then
 
-	head -100 "$2" | grep '\-\-help' > /dev/null	
+	[ "$DEBUG" ] && debug "jdoc: looking for --help in $2"
+	head -500 "$2" | grep '\-\-help' > /dev/null	
 	exit "$?"
 
 elif [ "$1" = showjshtooldoc ]

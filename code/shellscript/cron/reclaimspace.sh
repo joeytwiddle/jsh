@@ -14,7 +14,7 @@ set -e
 ##      The solution would be to join each line containing no spaces to the next line.  Although this (in fact the script anyway) would have trouble if the filename/device contains spaces.
 ##      Dodgy hack factored out to flatdf.
 
-flatdf | drop 1 |
+flatdf 2>/dev/null | drop 1 |
 
 takecols 1 4 6 |
 grep -v "/cdr" |

@@ -109,8 +109,8 @@ cvs checkout shellscript | grep -v "^U "
 if [ ! -d shellscript ]
 then exit 1
 fi
-echo "Checking out rc files"
-cvs checkout home | grep -v "^U "
+# echo "Checking out rc files"
+# cvs checkout home | grep -v "^U "
 # echo "Checking out C files"
 # cvs checkout c
 # echo "Checking out java files"
@@ -153,7 +153,8 @@ echo "  export JPATH=\"$JPATH\""
 # echo "  source \"$STARTFILE\""
 echo "  source \"\$JPATH/startj\""
 echo
-echo "You may also want to run linkhome to link in some useful .rc files."
+# echo "You may also want to run linkhome to link in some useful .rc files."
+echo "To get .rc scripts, type:  cd \$JPATH/code && env CVSROOT=:pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot cvs co home"
 # echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del,"
 # echo "memo, onchange, findduplicatefiles, undelext2, b, et)"
 echo

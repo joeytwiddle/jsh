@@ -45,6 +45,8 @@ makejshwebdocs -onlydocumented $OUTDIR/list-documented
 		echo "</TT>"
 		echo "</TD>"
 		echo "<TD>"
+		SCRIPTDIR=`dirname \`realpath "$SCRIPT"\``
+		export CVSROOT=`cat "$SCRIPTDIR"/CVS/Root`
 		STATUS=`cvs status \`realpath "$SCRIPT"\` 2>/dev/null | grep "Status: " | after "Status: "`
 		if [ "$STATUS" = "Up-to-date" ]
 		then : # echo "OK"

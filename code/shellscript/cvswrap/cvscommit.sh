@@ -5,6 +5,7 @@ getfiles () {
 	## This is very slow, could try: cvs diff 2>/dev/null | grep "^Index:"
 	## I use memo to avoid locking problems caused by two cvs's querying the same directory.  Ie. I get the cvsdiff saved to a file (thanks to memo) before I do any commits.
 	## TODO: this memo doesn't solve the problem!  cvs status: [07:42:00] waiting for joey's lock in /stuff/cvsroot/shellscript/memo
+	## TODO: does it only happen after a commit?  I added a sleep below to try to fix the BUG.
 	memo -t "30 seconds" cvsdiff "$@" |
 	grep "^cvs commit " |
 	sed 's+^cvs commit ++' |
@@ -28,7 +29,7 @@ then
 		then
 			for FIGLET_FONT in straight stampatello italic mini short ogre
 			do
-				FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -1`
+				FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -n 1`
 				if [ "$FIGLET_FONT_FILE" ]
 				then break
 				fi
@@ -102,6 +103,7 @@ then
 					echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 					cvscommit -m "$INPUT" "$FILE" ||
 					error "cvscommit failed!"
+					sleep 5 ## attempt to fix lock BUG ## NOPE!!!
 					break
 				;;
 				?|??|???)

@@ -5,7 +5,7 @@ do
 	while true
 	do
 		read FILE
-		if test "$FILE" = ""
+		if [ ! "$FILE" ]
 		then break
 		fi
 		echo "$DIR/$FILE"

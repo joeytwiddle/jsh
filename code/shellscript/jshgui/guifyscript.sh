@@ -16,6 +16,6 @@ then
 
 else
 
-	xterm -e guifyscript -inxterm "$@"
+	xterm -title "$*" -e guifyscript -inxterm "$@"
 
 fi
