@@ -61,9 +61,9 @@ FAIL=false
 /root/ipcheck_emailforever.net/doipcheck_emailforever.net.sh || FAIL=true
 
 ( sleep 10m ; killall noip ) &
-# no-ip.org update (for a domain probably better left unmentioned!):
+# no-ip.org update (for freenet):
 /root/noip_updater_v1.6/noip -c /root/noip_updater_v1.6/no-ip.conf || FAIL=true
-# since it likes to detach, and daemon itself, I kill it =)
+# since it likes to detach, and daemon itself, I used to kill it =)
 
 # # dhs.org for hwi.dyn.dhs.org:
 # HOST="hwi"

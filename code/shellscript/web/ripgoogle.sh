@@ -59,7 +59,7 @@ convert $DESTIMGFILE -crop $HALFIMGWIDTH"x"$IMGHEIGHT+$HALFIMGWIDTHMAJ+0 $RIGHTI
 LINE='                <td width="'"$IMGWIDTHPLUS"'" valign="middle" align="center"><a href="http://www.google.com/"><img alt="(Home)" border="0" align="middle" src="'"$LEFTIMGFILE"'"></a><a href='"$HREF"'><img alt="(Topical)" border="0" align="middle" src="'"$RIGHTIMGFILE"'"></a></td>'
 
 cp $JPATH/org/jumpgate.html jumpgate-orig.html
-replaceline jumpgate-orig.html "<\!-- #~googleimage~# -->" "<\!-- #~googleimage~# -->$LINE" > finaljumpgate.html
+cat jumpgate-orig.html | replaceline "<\!-- #~googleimage~# -->" "<\!-- #~googleimage~# -->$LINE" > finaljumpgate.html
 
 # Move the final files over the originals
 cp finaljumpgate.html $JPATH/org/jumpgate.html

@@ -58,7 +58,7 @@ listmail() {
 }
 
 getmail() {
-	## Arguments are the index numbers of the emails in the mbox
+	## Arguments are the index numbers of the emails in the mbox   Actually only takes one at the moment
 	(
 		if test "$1" = -dont-mark-read
 		then DONT_MARK_AS_READ=true; shift
@@ -117,3 +117,17 @@ getaddresses() {
 # if test "$*"
 # then "$@"
 # fi
+
+listsenders() {
+	# for X in `seq 1 \`mailcount\``
+	# do
+		# getmail "$X" |
+		# head -1
+	# done |
+	# takecols 2 |
+	# removeduplicatelines
+	from -f "$MBOX" |
+	takecols 2 |
+	removeduplicatelines
+}
+

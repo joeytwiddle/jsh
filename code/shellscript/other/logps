@@ -2,6 +2,7 @@
 # date
 
 M=`$JPATH/tools/getminute`
+## how to get lastchar?
 
 LOGFILE="$JPATH/tmp/ps.$M.txt"
 LOGFILE2="$JPATH/tmp/ps-simple.$M.txt"
@@ -12,6 +13,7 @@ LOGFILE="$JPATH/tmp/$M.top"
 (
 	cat /proc/meminfo
 	/usr/bin/top c n 1 b
+	## really want to n 3 but only take last, because more is too big (unless i roll by time, eg. only count last digit of minute)
 ) > $LOGFILE
 
 # echo 5

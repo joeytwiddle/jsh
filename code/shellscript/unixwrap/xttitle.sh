@@ -1,9 +1,10 @@
 #!/bin/sh
+## TODO: for the sake of X and X watchers, should strip at, say 80 chars; I saw fluxbox and gnome-tasklisk-app go mad.  Also, should do this for all character-coded title commands to the xterm in jsh
 ## Note formatting: % must be %%, ...
 # ## Only runs the official xttitle if it is present
 # ## Under Unix I had to put 2>&1 last.
-if jwhich xttitle > /dev/null 2>&1; then
-	unj xttitle "$*"
+if jwhich xttitle > /dev/null 2>&1
+then unj xttitle "$*"
 else
 	## printf has problems with the % in:
 	##   grep "#dpkg-buildpackage" debuild.out | after "\% "

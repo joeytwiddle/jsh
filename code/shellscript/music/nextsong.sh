@@ -20,11 +20,11 @@ case $PLAYER in
 		killall -sINT mpg123 ## send it something softer
 	;;
 	mplayer)
-		## No good, doesn't progress to next song.  Want to send it "<Enter>".
+		## No good, doesn't progress to next song.  Want to send it a signal!
 		killall mplayer ## send it something softer
 	;;
 	*)
-		error "Don't know how to operate your media player: $PLAYER"
+		error "$0: Don't know how to operate your media player: $PLAYER"
 	;;
 esac
 

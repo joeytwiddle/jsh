@@ -16,11 +16,12 @@ mkdir -p "$MEMODIR"
 
 TMPFILE=`jgettmp tmprememo`
 
+## This doesn't work if input is "x | y"
 # "$@" | tee "$FILE"
-## Now passes back appropriate exit code: =)
-# eval "$@" > $TMPFILE
+
 # eval caused problems when one of the args was a URL containing the '&' character
-"$@" > $TMPFILE
+eval "$@" > $TMPFILE
+
 EXITWAS="$?"
 if [ "$EXITWAS" = 0 ]
 then

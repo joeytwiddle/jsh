@@ -100,7 +100,33 @@ function adddeptoscript () {
 			# esac
 		fi
 	fi
- }
+}
+
+function addnewdeps () {
+	TYPE="$1"
+	shift
+	for DEP
+	do
+		if [ "$DEPWIZ_NON_INTERACTIVE" ]
+		then
+			echo "New dep $DEP not added to $SCRIPT because DEPWIZ_NON_INTERACTIVE." >&2
+		else
+			echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
+			higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
+			echo -n "`curseyellow`jshdepwiz: Do you think this is a real dependency? [Yn] `cursenorm`" >&2
+			read USER_SAYS
+			case "$USER_SAYS" in
+				n|N|no|NO|No)
+					adddeptoscript "$REALSCRIPT" "$TYPE"-ignore "$DEP"
+				;;
+				*)
+					adddeptoscript "$REALSCRIPT" "$TYPE" "$DEP"
+				;;
+			esac
+			echo >&2
+		fi
+	done
+}
 
 case "$1" in
 
@@ -123,11 +149,11 @@ case "$1" in
 		SCRIPT="$2"
 
 		EXT_DEPS=`extractdep -err "$SCRIPT" ext-depends`
-		# if [ ! "$DEPWIZ_LAZY" ] && ( [ ! "$?" = 0 ] || [ "$DEPWIZ_VIGILANT" ] )
-		# then
-			# jshdepwiz gendeps "$SCRIPT"
-			# EXT_DEPS=`extractdep "$SCRIPT" ext-depends`
-		# fi
+		if [ ! "$DEPWIZ_LAZY" ] && ( [ ! "$?" = 0 ] || [ "$DEPWIZ_VIGILANT" ] )
+		then
+			jshdepwiz gendeps "$SCRIPT"
+			EXT_DEPS=`extractdep "$SCRIPT" ext-depends`
+		fi
 		echo "$EXT_DEPS"
 
 	;;
@@ -161,28 +187,14 @@ case "$1" in
 		# then
 			# adddeptoscript "$REALSCRIPT" depends ""
 		# fi
-		for DEP in $NEW_JSH_DEPS
-		do
-			if [ "$DEPWIZ_NON_INTERACTIVE" ]
-			then
-				echo "New dep $DEP not added to $SCRIPT because DEPWIZ_NON_INTERACTIVE." >&2
-			else
-				echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
-				higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
-				echo -n "`curseyellow`jshdepwiz: Do you think this is a real dependency? [Yn] `cursenorm`" >&2
-				read USER_SAYS
-				case "$USER_SAYS" in
-					n|N)
-						adddeptoscript "$REALSCRIPT" depends-ignore "$DEP"
-					;;
-					*)
-						adddeptoscript "$REALSCRIPT" depends "$DEP"
-					;;
-				esac
-				echo >&2
-			fi
-		done
-		## TODO: EXT
+		addnewdeps depends $NEW_JSH_DEPS
+		addnewdeps ext-depends $NEW_EXT_DEPS
+
+		if [ "$DEPWIZ_NON_INTERACTIVE" ]
+		then
+			## Exit happy if no new deps
+			[ ! "$NEW_JSH_DEPS" ] && [ ! "$NEW_EXT_DEPS" ]
+		fi
 
 	;;
 

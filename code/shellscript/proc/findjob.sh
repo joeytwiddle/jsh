@@ -25,13 +25,14 @@ fi
 
 findjob () {
 	env COLUMNS=65535 myps -A |
-		grep -v "grep" | grep "$@" |
+		grep -v "\<grep\>" | grep "$@" |
 		## TODO: This and the PPID in myps hide valid other jobs belonging to this shell
 		##       Presumably that could be solved by starting new shell with #!/bin/sh
-		grep -v " $PID " |
-		grep -v "findjob"
+		grep -v "\<$PID\>" |
+		grep -v "\<findjob\>" |
 		## TODO: We fail to hide the highlight below, but it only occasionally slips through.
 		## TODO: Usually the best solution is to grep -v "\<$$\>"
+		grep -v "\<sed\>"
 }
 
 findjobtree () {
