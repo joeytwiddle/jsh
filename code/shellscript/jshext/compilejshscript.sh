@@ -24,8 +24,8 @@ do
 
     # LISTJSH="$LISTJSH$NL$SCRIPT"
     echo "Finding dependencies for $SCRIPT ..."
-    ADDJSH=`findjshdeps "$SCRIPT" 2>/dev/null | grep -v "^  " | grep -v "^$" | grep " (jsh)$" | sed 's+ (jsh)$++'`
-    ADDEXT=`findjshdeps "$SCRIPT" 2>/dev/null | grep -v "^  " | grep -v "^$" | grep -v " (jsh)$"`
+    # ADDJSH=`findjshdeps "$SCRIPT" 2>/dev/null | grep -v "^  " | grep -v "^$" | grep " (jsh)$" | sed 's+ (jsh)$++'`
+    # ADDEXT=`findjshdeps "$SCRIPT" 2>/dev/null | grep -v "^  " | grep -v "^$" | grep -v " (jsh)$"`
     ADDJSH=`jshdepwiz getjshdeps "$SCRIPT"`
     ADDEXT=`jshdepwiz getextdeps "$SCRIPT"`
 
@@ -33,7 +33,7 @@ do
     do
       if ! echo "$TODO$NL$LISTJSH$NL$LISTEXT" | grep "^$NAME$" > /dev/null
       then
-          echo "  Adding todo: $NAME"
+          echo "  depends: $NAME"
           TODO="$TODO$NL$NAME"
       # else echo "  Already seen: $NAME $WHERE"
       fi
