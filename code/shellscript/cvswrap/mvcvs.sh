@@ -1,3 +1,7 @@
+## BUG TODO: mvcvs only works when recent version of file has been committed
+##           otherwise changed checkout file gets deleted (retrievable)
+##    SOLVE: check if checkout is committed / up-to-date, and warn if bad situation ; consider making a copy and putting it back after checkout of refactored files/folder
+
 ## BUG: Now allows you rename files, but if there are multiple srcs it should check that dest is a dir!
 ## NEW: "Prototyped" ability to move whole directories (we could perform build a new tree and mvcvs every file)
 

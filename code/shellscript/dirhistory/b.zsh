@@ -2,7 +2,7 @@
 
 SEARCHDIR="$1"
 
-LAST=`grep "$SEARCHDIR" "$HOME/.dirhistory" | tail -n 1`
+LAST=`grep "$SEARCHDIR" "$HOME/.dirhistory" | 'tail' -n 1`
 
 ## Put the directory we're moving to at the top of the history (looping)
 echo "$LAST" > $HOME/.dirhistory2

@@ -20,7 +20,10 @@ getfiles () {
 if [ "$1" = "-diff" ]
 then
 
+	## Users who do not like the default diff output, might like to try instead: env DIFFCOM=jdiffsimple cvscommit -diff
+
 	## Pretty-prints diffs between your checkout and the repository, and allows you to comment and commit changes.
+	[ "$DIFFCOM" ] || DIFFCOM="jdiff -infg"
 
 	## First, choose a figlet font:
 	if [ ! "$DONT_USE_FIGLET" ]
@@ -65,9 +68,7 @@ then
 				echo "File: `cursecyan``cursebold`$FILE`cursenorm`"
 			fi
 			) | trimempty
-			# jdiff "$TMPFILE" $FILE
-		# )
-			jdiff -infg $TMPFILE "$FILE"
+			$DIFFCOM $TMPFILE "$FILE"
 		) | more
 		echo
 		while true
@@ -86,7 +87,7 @@ then
 					vimdiff "$FILE" $TMPFILE
 				;;
 				r|R|d|D)
-					jdiff -infg $TMPFILE "$FILE" | more
+					$DIFFCOM $TMPFILE "$FILE" | more
 				;;
 				s|S)
 					echo "`cursegreen`Skipping:`cursenorm` $FILE"

@@ -1,9 +1,12 @@
 ## Unfortunately it seems this script can still cause short blockages in the system, but it's certainly an improvement.
 ## Maybe if trickle didn't blast $SPEEDk and then sleep 1 second, but work a little more finely, this would improve?
 
+## It seems that by splitting up the transfer the system does get some chances to make other accesses to the drive.
+## But maybe for this application, trickle should really sleep between dd's (rather than in parallel), so that if they are slowed down (due to other hd accesses), it will pause before the next dd.
+
 ## TODO: CONSIDER: Could change -at option to -kbps, here and in trickle, to make it easier (compulsory!) for the user to remember the units.
 
-SPEED="10240"
+SPEED="1024" # 1Meg per second
 
 if [ ! "$1" ] || [ "$1" = --help ]
 then
@@ -62,26 +65,37 @@ fi
 # FROM=`realpath "$FROM"`
 # cd "$TO" || exit
 
-jshinfo "You may also like to run (separately): monitorcopy \"$FROM\" \"$TO/$FROM\""
-
 export KNOWN_TOTAL_SIZE=`du -sb "$FROM" | takecols 1`
+## That is so dodgy; it doesn't account for tar headers, AND it is used by trickle to know when to exit.
+KNOWN_TOTAL_SIZE=`expr $KNOWN_TOTAL_SIZE + 10240`
+KNOWN_TOTAL_SIZE=`expr $KNOWN_TOTAL_SIZE '*' 110 / 100`
+
+ESTTIME=`expr $KNOWN_TOTAL_SIZE / $SPEED / 1024 / 60`
+ESTTIME=`expr $ESTTIME '*' 3 / 2` ## we don't get anything like the optimum
+jshinfo "$KNOWN_TOTAL_SIZE bytes at $SPEED""kps might take ~ $ESTTIME minutes."
+# jshinfo "You may also like to run (separately): monitorcopy \"$FROM\" \"$TO/$FROM\""
 
 (
-	if ! tar c "$FROM"
+	if verbosely tar c "$FROM"
 	then
+		jshinfo "Tar creation complete.  (You should CTRL+C once buffers have flushed.  TODO: dd doesn't tell us when it's finished!)"
+	else
 		error "tar creation failed"
 		exit 1
 		## Unfortunately this exit doesn't seem to work!
 		## TODO: this is bad because any error we want to pass out to parent caller, to inform then the copy failed!
 	fi
+	echo ""
 ) |
 
-trickle -at "$SPEED" |
+verbosely trickle -at "$SPEED" |
 
 (
 	cd "$TO" || exit 1
-	if ! tar xv
+	if verbosely tar xv
 	then
+		jshinfo "Tar extraction complete."
+	else
 		error "Tar extraction failed."
 		exit 1
 		## Unfortunately this exit doesn't seem to work!

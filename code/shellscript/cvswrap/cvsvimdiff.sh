@@ -50,13 +50,13 @@ fi
 
 # Check out the specific revision requested
 CKOUT=`jgettmp "$FILENAME-ver-$REV"`
-cvs -q update -p -r "$REV" "$FILENAME" > "$CKOUT"
+verbosely cvs -q update -p -r "$REV" "$FILENAME" > "$CKOUT" || exit
 
 if [ ! "$REV2" = "" ]
 then
 	CKOUT2=`jgettmp "$FILENAME-ver-$REV2"`
 	# Check out the other revision requested
-	cvs -q update -p -r "$REV2" "$FILENAME" > "$CKOUT2"
+	verbosely cvs -q update -p -r "$REV2" "$FILENAME" > "$CKOUT2" || exit
 	# Adjust vars so that vimdiff runs on the two checked out files.
 	FILENAME="$CKOUT"
 	CKOUT="$CKOUT2"

@@ -42,7 +42,10 @@ do
 				touch $BADFILE
 				echo "bad" >> "$LOGFILE"
 			) >&2
-		) | md5sum
+		) |
+		md5sum |
+		## This avoids generating problematic lines like: "37167a8a1f30b436435b94c3ca8a6dbc  - 550 ./fixqkcksumerrors.sh" (which has an extra undesirable " -" field!)
+		sed 's+  -$++'
 	`
 	if test -e $BADFILE
 	then rm -f $BADFILE
