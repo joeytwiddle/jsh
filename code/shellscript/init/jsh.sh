@@ -11,7 +11,7 @@
 ## Or nash: not actually a shell
 ## exsh?  shext?  jshl?  nsh (neuralyte)?
 
-## TODO:
+## Fixed elsewhere (was todo):
 ## we ignores user's ~/.bashrc
 ## They might not want to run another shell!
 
@@ -19,7 +19,12 @@
 ## $JPATH/jsh
 ## Since jsh is not sourced, "$0" should contain said call
 
-export JPATH=`dirname "$0"`
+ABSOLUTEPATH=`echo "$0" | grep "^/"`
+if test "$ABSOLUTEPATH" = ""; then
+	export JPATH="$PWD/"`dirname "$0"`
+else
+	export JPATH=`dirname "$0"`
+fi
 
 if test ! "$*" = ""; then
 
