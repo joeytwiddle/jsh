@@ -14,7 +14,7 @@ cd / # for memoing
 
 ## Automatically memo everything (certainly simplifies stuff!):
 # if [ ! "$1" = -memoing ]
-# then memo -d /var/lib/apt -f /var/lib/dpkg/status apt-list-all -memoing "$@"; exit
+# then memo -d /var/lib/apt -f /var/lib/dpkg/status apt-list -memoing "$@"; exit
 # fi
 
 ## TODO: option to regen caches (eg. at end of your apt-get-update cronjob)
@@ -54,11 +54,15 @@ cat << ! | more
 
 Usage:
 
-  apt-list-all                      : list all available packages & sources
-  apt-list-all sources              : list repositories which we draw from
-  apt-list-all distros              : list stability status
-  apt-list-all from <source/distro> : list packages in source or distro
-  apt-list-all pkg <package>        : list available versions of package
+  apt-list [ <option>s... ] ( all | sources | distros | from ... | pkg ... )
+
+Commands:
+
+  apt-list all                  : list all available packages & sources
+  apt-list sources              : list repositories which we draw from
+  apt-list distros              : list stability status
+  apt-list from <source/distro> : list packages in source or distro
+  apt-list pkg <package>        : list available versions of package
 
 Options:
 
@@ -67,25 +71,25 @@ Options:
 
 Note:
 
-  apt-list-all is responsive to the sources in your current sources.list,
+  apt-list is responsive to the sources in your current sources.list,
   so if like me you apt-get update using a broader sources file, you
   should use the --source-list option to specify it.
 
 Examples:
 
   To see a list of available sources:
-     apt-list-all sources
+     apt-list sources
 
   To see a list of packages installed from one source:
-     apt_list_all -installed from marillat.free.fr
+     apt-list -installed from marillat.free.fr
 
   To see where different versions of libc6 come from:
-     apt_list_all pkg libc6
+     apt-list pkg libc6
 
 !
 # echo "  -refresh  : refresh cache (use when you have new updates)"
 # (see also pkgversions) [it uses apt-cache directly, and tells you which one is currently installed. ]
-## There is also the command apt-list-all generate, but that is meant for internal use only.
+## There is also the command apt-list generate, but that is meant for internal use only.
 exit 1
 
 elif [ "$1" = from ]
@@ -93,7 +97,7 @@ then
 
   SRC="$2"
   shift; shift
-  $MEMOCOM "$MEMOCOM apt-list-all $INSTALLED $SOURCE_LIST \"$@\" | grep \" \<$SRC\>\"" |
+  $MEMOCOM "$MEMOCOM apt-list $INSTALLED $SOURCE_LIST all \"$@\" | grep \" \<$SRC\>\"" |
   column -t
 
 elif [ "$1" = pkg ]
@@ -101,20 +105,27 @@ then
 
   PKG="$2"
   shift; shift
-  $MEMOCOM apt-list-all $INSTALLED $SOURCE_LIST "$@" | grep "^$PKG " |
+  $MEMOCOM apt-list $INSTALLED $SOURCE_LIST "$@" all | grep "^$PKG " |
   column -t
 
 elif [ "$1" = sources ]
 then
 
-  $MEMOCOM "$MEMOCOM apt-list-all $INSTALLED $SOURCE_LIST | takecols 4 | drop 1 | removeduplicatelines"
+  $MEMOCOM "$MEMOCOM apt-list $INSTALLED $SOURCE_LIST all | takecols 4 | drop 1 | removeduplicatelines"
 
 elif [ "$1" = distros ]
 then
 
-  $MEMOCOM "apt-list-all $INSTALLED $SOURCE_LIST | takecols 3 | drop 1 | removeduplicatelines"
+  $MEMOCOM "apt-list $INSTALLED $SOURCE_LIST all | takecols 3 | drop 1 | removeduplicatelines"
+
+elif [ "$1" = all ]
+then
+
+    $MEMOCOM apt-list $INSTALLED $SOURCE_LIST generate
 
 elif [ "$1" = generate ]
+# elif [ "$1" = all ]
+# elif [ "$1" = all ] || [ "$1" = generate ]
 then
 
   if [ "$INSTALLED" ]
@@ -122,11 +133,11 @@ then
 
     ## Used to build a big regexp for grep but it was too slow.
 
-    export LIST=`jgettmp apt-list-all`
+    export LIST=`jgettmp apt-list`
     export INSTALLED=
-    apt-list-all $SOURCE_LIST | tr -s ' ' > $LIST
+    apt-list all $SOURCE_LIST | tr -s ' ' > $LIST
 
-    echo "`cursemagenta`apt-list-all: building installed cache subset, u may get annoyed now...`cursenorm`" >&2
+    echo "`cursemagenta`apt-list: building installed cache subset, u may get annoyed now...`cursenorm`" >&2
 
     ## This memo file is too large, and we cache the output anyway!
     # $DPKGMEMOCOM "env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5" |
@@ -145,7 +156,7 @@ then
 
   else
 
-    echo "`cursemagenta`apt-list-all: building cache from apt-cache$APT_EXTRA_ARGS dump, please be patient...`cursenorm`" >&2
+    echo "`cursemagenta`apt-list: building cache from apt-cache$APT_EXTRA_ARGS dump, please be patient...`cursenorm`" >&2
     (
       echo "PACKAGE	VERSION	DISTRO	SOURCE"
       ## This memo file is too large, and we cache the output anyway!
@@ -173,11 +184,11 @@ then
 elif [ "$1" = "" ]
 then
 
-    $MEMOCOM apt-list-all $INSTALLED $SOURCE_LIST generate
+		echo "[TODO] apt-list called with no args: should show help."
 
 else
 
-  echo "apt-list-all: Do not understand arguments: $*"
+  error "[apt-list] Do not understand arguments: $*"
   exit 2
 
 fi
