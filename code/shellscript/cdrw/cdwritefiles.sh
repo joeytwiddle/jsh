@@ -1,9 +1,11 @@
 ## Pass -f to mkisofs to follow symlinks
 
-DEVICE="0,0,0"
-CDMNTPNT=/mnt/cdrw
-# DEVICE="ATAPI:/dev/ide/host0/bus1/target1/lun0/cd"
-# CDMNTPNT=/mnt/cdrom
+## Hwi Debian:
+# DEVICE="0,0,0"
+# CDMNTPNT=/mnt/cdrw
+## Hwi Gentoo:
+DEVICE="ATAPI:/dev/ide/host0/bus1/target1/lun0/cd"
+CDMNTPNT=/mnt/cdrom
 
 ## INCOMING: /usr/bin/cdrecord -v gracetime=2 dev=ATAPI:/dev/ide/host0/bus1/target1/lun0/cd speed=4 -dao -dummy driveropts=burnfree -eject -data -tsize=357971s -
 ## Oh and:   /usr/bin/mkisofs -gui -graft-points -volid HHG1of2 -volset  -appid K3B THE CD KREATOR VERSION 0.11.12 (C) 2003 SEBASTIAN TRUEG AND THE K3B TEAM -publisher  -preparer K3b - Version 0.11.12 -sysid LINUX -volset-size 1 -volset-seqno 1 -sort /tmp/kde-joey/k3bHvuBrc.tmp -rational-rock -hide-list /tmp/kde-joey/k3bbyYHec.tmp -full-iso9660-filenames -iso-level 2 -path-list /tmp/kde-joey/k3bPgqNfa.tmp
