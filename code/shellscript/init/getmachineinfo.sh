@@ -17,21 +17,21 @@ case "$JM_UNAME" in
 		JM_DOES_COLOUR=true
 		JM_COLOUR_LS=true
 		JM_ADVANCED_DU=true
-		JM_LS_OPTS="-F --color"
+		JM_LS_OPTS="-F --color -b"
 	;;
 	"sunos")
 		JM_DOES_COLOUR=true
-		JM_LS_OPTS="-F"
+		JM_LS_OPTS="-F -b"
 	;;
 	"hp-ux")
 		JM_DOES_COLOUR=true
-		JM_LS_OPTS="-F"
+		JM_LS_OPTS="-F -b"
 	;;
 	"cygwin")
 		JM_DOES_COLOUR=true
 		JM_COLOUR_LS=true
 		JM_ADVANCED_DU=true
-		JM_LS_OPTS="-F"
+		JM_LS_OPTS="-F -b"
 	;;
 	*)
 		echo "getmachineinfo: Do not know $JM_UNAME, so not setting any advanced features."

@@ -5,12 +5,15 @@
 memo grep "^Filename: " /var/lib/apt/lists/* |
 grep "$1.*\.deb$" 2> /dev/null |
 
-while read SRC PATH
+while read SRC SERVERPATH
 do
 
 	echo
-	echo "SRC=$SRC"
-	echo "PATH=$PATH"
+	echo "SRC=$SRC" |
+	highlight stable green |
+	highlight testing yellow |
+	highlight -bold unstable red
+	echo "SERVERPATH=$SERVERPATH"
 	echo
 
 	SRC=`
@@ -24,7 +27,7 @@ do
 		'
 	`
 
-	URL="ftp://$SRC/$PATH"
+	URL="ftp://$SRC/$SERVERPATH"
 
 	echo "$URL"
 

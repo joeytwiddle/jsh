@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # zsh would also do (just need $RANDOM param)
 
 if test "$1" = ""; then

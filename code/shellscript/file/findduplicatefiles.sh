@@ -1,3 +1,29 @@
+LASTX=
+LASTY=
+
+cksumall "$@" |
+
+sort |
+
+while read X Y FILE
+do
+	if test "$X" = "$LASTX" && test "$Y" = "$LASTY"
+	then
+		echo "# Redund: ($X $Y) \"$FILE\""
+		echo "echo \"Deleting \\\"$FILE\\\"\""
+		echo "rm \"$FILE\""
+	else
+		echo "# Unique: ($X $Y) \"$FILE\""
+	fi
+	echo
+	LASTX="$X"
+	LASTY="$Y"
+done
+
+exit
+
+## Old version (quite good I think!):
+
 echo "Note: these may be hard links,"
 echo "or possibly (to check) symlinks, so don't delete the target!"
 echo

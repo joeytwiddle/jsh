@@ -6,7 +6,8 @@ fi
 
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'
-	alias ls="ls -atrF$XARGS"
+	## We should share the following with getmachineinfo's JM_LS_OPTS
+	alias ls="ls -atrFb$XARGS"
 elif test $JM_DOES_COLOUR; then
 	alias ls='fakels'
 else
@@ -16,10 +17,10 @@ fi
 alias l='ls -l'
 alias dl='ls -ld'
 
-### Note: it's rather important that aliases don't get passed
+## Note: it's rather important that aliases don't get passed
 ## down to child shells / processes, because this would likely
 ## result in infinite loops.
-### Er, I think that might be te default anyway!
+### Er, I think that might be the default anyway!
 
 alias xterm='xtermbg'
 
@@ -36,3 +37,11 @@ xv -perfect "$@" &
 alias xv=myxv
 
 alias igrep='grep -i'
+
+HIGHESTPRIORITYPROGS='cdrecord mkisofs xcdroast'
+# HIGHPRIORITYPROGS='xmms mplayer mpg123'
+## don't usually have root for these
+
+for PROG in $HIGHESTPRIORITYPROGS
+do alias "$PROG" "nice -20 $PROG"
+done
