@@ -12,31 +12,19 @@ then
 	# then export HEAD="[screen] "
 	# fi
 
-	## Gather hostname and username
-	## This is used by lots of other jsh processes!  (Mainly screen/prompt related.)
-	## But it strips all but the first part, which might be naughty.
-	## If change var name, eg. to JSH_SHORT_HOSTNAME, be sure to propogate throughout jsh.
-	if [ ! "$HOST" ]
-	then HOST="$HOSTNAME"
-	fi
-	if [ ! "$HOST" ]
-	then HOST=`hostname`
-	fi
-	HOST=`echo "$HOST" | beforefirst "\."`
-
 	## If we are in a screen, but not on the local machine, we must have ssh'ed somewhere from within screen.
 	SCRHEAD=""
 	if [ "$TERM" = screen ] && [ ! "$STY" ]
 	   # ! contains "$SCREENTITLE" "$SHOWHOST"
 	then
 		## If we want to display the machine name, and what it's up to, we should use screentitle -remote below.
-		SCRHEAD="($HOST)"
+		SCRHEAD="($SHORTHOST)"
 		screentitle -remote "$SCRHEAD"
 	fi
 
 	## However, if we are in a local screen, ...
 
-	SHOWHOST="$HOST:"
+	SHOWHOST="$SHORTHOST:"
 	SHOWUSER="$USER@"
 	# could try using `logname`
 
@@ -129,7 +117,7 @@ then
 		## Doesn't actually appear 'cos tcsh can't exec this far!
 		## See .tcshrc for actual postcmd!
 		tcsh)
-			alias postcmd 'xttitle "${HEAD}${USER}@${HOST}:${PWD}%% \!#"'
+			alias postcmd 'xttitle "${HEAD}${USER}@${SHORTHOST}:${PWD}%% \!#"'
 		;;
 
 		bash)

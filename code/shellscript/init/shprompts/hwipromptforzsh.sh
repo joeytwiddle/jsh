@@ -1,6 +1,6 @@
 #/bin/sh
 
-if test "$USER" = joey && test "$HOST" = hwi
+if test "$USER" = joey && test "$SHORTHOST" = hwi
 then
 
 		## By far the coolest prompt

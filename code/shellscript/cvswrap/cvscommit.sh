@@ -38,6 +38,7 @@ then
 			# echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
 			# echo "`curseyellow`Type: comment or [.] to [C]ommit, <Enter> to [S]kip, [E]dit [V]imdiff [R]ediff." #  (.=\"\").`cursenorm`"
 			echo "`curseyellow`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
+			echo "`curseyellow`Or [U]ndo changes (retrieve previous version)"
 			read INPUT
 			[ "$INPUT" = "" ] && INPUT=s
 			[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
@@ -55,9 +56,14 @@ then
 					echo "`cursegreen`Skipping:`cursenorm` $FILE"
 					break
 				;;
-				?|??|???)
-					echo "Will not accept such a small comment - assuming user error."
+				u|U)
+					del "$FILE"
+					cvs update "$FILE"
+					cvs edit "$FILE" # that's the way i like it ;)
 					break
+				;;
+				?|??|???)
+					error "Will not accept such a small comment - assuming user error."
 				;;
 				*)
 					echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"

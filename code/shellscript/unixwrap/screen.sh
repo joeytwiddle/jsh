@@ -21,13 +21,13 @@ else
 	unj screen -list
 	# sleep 1
 	# DEFNAME=`hostname | beforefirst "\."`
-	DEFNAME="$HOST"
+	DEFNAME="$SHORTHOST"
 	echo "Type session name to attach or start new (<Enter> defaults to \"$DEFNAME\")."
 	read NAME
 	test "$NAME" || NAME="$DEFNAME"
 	test "$NAME" || NAME=screen
 	export SCREENNAME="$NAME"
-	screentitle -remote "[$HOST:$SCREENNAME]"
+	screentitle -remote "[$SHORTHOST:$SCREENNAME]"
 	screen -h 10000 -a "-e^k^l" -S "$NAME" -D -RR
 
 fi

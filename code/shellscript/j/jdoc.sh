@@ -67,6 +67,21 @@ else
     TABCHAR=`echo -e "\011"`
     cd $JPATH/tools/
     higrep "\<$1\>" -C2 *
+
+    echo
+    echo -n "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "
+    read KEY
+    case "$KEY" in y|Y)
+      echo "Warning: experimental; target should be unique!  Won't rename script file.  Ctrl+C to skip."
+      echo "In fact: doesn't work, because changed scripts end up in $JPATH/tools not /shellscript."
+      echo -n "Replace `cursecyan`$1`cursenorm` with what? `cursecyan`"
+      read REPLACEMENT
+      cursenorm
+      cd $JPATH/code/shellscript
+      find . -type f | notindir CVS |
+      foreachdo sedreplace "\<$1\>" "$REPLACEMENT"
+    esac
+
   esac
 
 fi

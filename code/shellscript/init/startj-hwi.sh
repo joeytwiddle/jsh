@@ -137,6 +137,15 @@ else
 				## TODO: Separate scripts which need to run to init stuff for runtime
 				##       from scripts which do stuff that isn't dependent for later.
 
+				## Gather hostname and username (used by screen, prompts, etc.)
+				if [ ! "$SHORTHOST" ]
+				then SHORTHOST="$HOSTNAME"
+				fi
+				if [ ! "$SHORTHOST" ]
+				then SHORTHOST=`hostname`
+				fi
+				SHORTHOST=`echo "$SHORTHOST" | beforefirst "\."`
+
 				# mytime . getmachineinfo
 				. getmachineinfo
 
