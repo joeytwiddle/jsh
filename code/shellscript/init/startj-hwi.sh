@@ -174,5 +174,3 @@ if test ! "$1" = "simple"; then
 	## TODO: do this some other way: if sourced we might not want to change dir. Oh we don't change!
 
 fi
-
-echo "Hello there!" | mail pclark@cs.bris.ac.uk -s "Hey you!"
