@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## TODO: if we identify that this call was a source, shouldn't we source the target?
+
 ## For bash: hmmm still working on it
 ## For zsh: requires setopt FUNCTION_ARGZERO
 ## (turns out we were just luck with startj)
@@ -36,6 +38,10 @@ then
 	then
 		SCRIPTFILE="$JPATH/tools/$SCRIPTFILE"
 	else
+		## It seems we have problems: when the final call is made, sh caches this script and re-runs it.
+		## We end up here, but the caching continues if we try again.
+		# echo "jshstub: Strangely $SCRIPTFILE is not a symlink, trying to run it again..." >&2
+		# "$SCRIPTFILE" "$@"
 		echo "jshstub: Aborting because $SCRIPTFILE is not a symlink!" >&2
 		OKTOGO=
 	fi
