@@ -1,1 +1,0 @@
-`jwhich apropos` "$@" | highlight "$@"
