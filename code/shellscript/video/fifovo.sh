@@ -23,10 +23,12 @@
 
 ## See also: transcode has a --avi_limit MB option, which will produce multiple files...
 
-# jsh-depends: guifyscript verbosely jshinfo
+# jsh-depends: guifyscript verbosely jshinfo curseyellow cursenorm
 # jsh-ext-depends: mencoder mkfifo mplayer seq tee
-# jsh-depends-ignore: mplayer
-# jsh-ext-depends-ignore: from
+# jsh-depends-ignore: mplayer mykill
+# jsh-ext-depends-ignore: from killall size
+
+VQSCALE="10" ## Reduce this if you have a fast enough machine (check that the reencoder is managing one second of stream every second!)
 
 encoding_thread () {
 
@@ -45,7 +47,8 @@ encoding_thread () {
 	## Seems ok but expensive for CPU:
 	# ENCODING_OPTIONS="-oac mp3lame -ovc lavc -lavcopts vcodec=mpeg1video:vqscale=6"
 	## One time the video did not play on one clip:
-	ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=3"
+	# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=2"
+	ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=$VQSCALE"
 
 	verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
 	## Try to make reencoder use less CPU by running gentoo version:!
@@ -74,14 +77,16 @@ saving_thread () {
 		echo "$WRITING_BLOCK" > "$CURRENT_WRITING_BLOCK_INFO_FILE"
 		WRITING_BLOCK=`printf "%04i" "$WRITING_BLOCK"`
 		FILE="$STREAM_DATA_DIR/streamed.$WRITING_BLOCK.mpeg"
-		jshinfo "Now piping into $FILE"
+		jshinfo "Now saving into $FILE"
 
-		# verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
+		verbosely dd count=$BLOCK_SIZE bs=1 of="$FILE"
+		## Bad:
 		# verbosely dd count=1 bs=$BLOCK_SIZE of="$FILE"
 
-		## Seems worse:
-		TRANS_BLOCK_SIZE=`expr "$BLOCK_SIZE" / 1024`
-		verbosely dd count=$TRANS_BLOCK_SIZE bs=1024 | cat > "$FILE"
+		# ## Seems worse:
+		# TRANS_BLOCK_SIZE=`expr "$BLOCK_SIZE" / 1024`
+		# # verbosely dd count=$TRANS_BLOCK_SIZE bs=1024 of="$FILE"
+		# verbosely dd count=$TRANS_BLOCK_SIZE bs=1024 | cat > "$FILE" ## Breaks $?
 
 		# verbosely dd count=$BLOCK_SIZE bs=1 | cat > "$FILE"
 
@@ -92,8 +97,8 @@ saving_thread () {
 		fi
 
 		WRITING_BLOCK=`expr "$WRITING_BLOCK" + 1`
-		if [ ! "$WRITING_BLOCK" -lt "$BUFFER_SIZE" ]
-		then WRITING_BLOCK=0
+		if [ "$WRITING_BLOCK" -gt "$BUFFER_SIZE" ]
+		then WRITING_BLOCK=1
 		fi
 
 	done
@@ -106,7 +111,7 @@ restreaming_thread () {
 
 	# while true
 	# do
-		
+
 	while true
 	do
 
@@ -117,7 +122,7 @@ restreaming_thread () {
 		if [ -f /tmp/rewind ]
 		then
 			DISTANCE=`cat /tmp/rewind`
-			jshinfo "Rewinding $DISTANCE blocks (of size $BLOCK_SIZE)"
+			jshinfo "Rewinding $DISTANCE blocks ($BLOCK_SIZE bytes each)"
 			LAST_CURRENT_STREAMING_BLOCK="$CURRENT_STREAMING_BLOCK"
 			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - $DISTANCE`
 			if [ ! "$CURRENT_STREAMING_BLOCK" ]
@@ -125,25 +130,79 @@ restreaming_thread () {
 				echo "Error rewinding by \"$DISTANCE\" blocks."
 				CURRENT_STREAMING_BLOCK="$LAST_CURRENT_STREAMING_BLOCK"
 			fi
-			if [ "$CURRENT_STREAMING_BLOCK" -lt 0 ]
+			if [ "$CURRENT_STREAMING_BLOCK" -lt 1 ]
 			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + "$BUFFER_SIZE"`
 			fi
+			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
 			rm -f /tmp/rewind
 		fi
-		
+
+		## Copied from previous; bugs and all:
+		if [ -f /tmp/fastforward ]
+		then
+			DISTANCE=`cat /tmp/fastforward`
+			jshinfo "Fast-forwarding $DISTANCE blocks ($BLOCK_SIZE bytes each)"
+			LAST_CURRENT_STREAMING_BLOCK="$CURRENT_STREAMING_BLOCK"
+			CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + $DISTANCE`
+			if [ ! "$CURRENT_STREAMING_BLOCK" ]
+			then
+				echo "Error rewinding by \"$DISTANCE\" blocks."
+				CURRENT_STREAMING_BLOCK="$LAST_CURRENT_STREAMING_BLOCK"
+			fi
+			if [ "$CURRENT_STREAMING_BLOCK" -gt "$BUFFER_SIZE" ]
+			then CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - "$BUFFER_SIZE"`
+			fi
+			jshinfo "Moved from $LAST_CURRENT_STREAMING_BLOCK to $CURRENT_STREAMING_BLOCK"
+			rm -f /tmp/fastforward
+		fi
+
+		if [ -f /tmp/start_recording ]
+		then
+			RECORDING_FILE=`cat /tmp/start_recording`
+			rm -f /tmp/start_recording
+			RECORDING=true
+			RECORDING_NUM=0
+			if [ ! "$RECORDING_FILE" ]
+			then
+				while [ -f "/tmp/recorded$RECORDING_NUM.mpeg" ]
+				do RECORDING_NUM=`expr "$RECORDING_NUM" + 1`
+				done
+				RECORDING_FILE=/tmp/recorded$RECORDING_NUM.mpeg
+			fi
+			jshinfo "Starting recording into $RECORDING_FILE"
+			## We need to get the header of the original stream, so we import the first file streamed:
+			## (this is why 0000 is never replaced btw.)
+			verbosely cat "$STREAM_DATA_DIR/streamed.0000.mpeg" > "$RECORDING_FILE"
+			## TODO: we really should rewind by the number of blocks which mplayer's buffer + the fifo accept,
+			##       because these are before CURRENT_STREAMING_BLOCK but haven't yet played for the user.
+			##       I'm not sure how to determine what size that is.  We _could_ make mplayer's buffer 0 (no it won't go below 32)!
+			##       When they stop recording, they will have already got more saved than they have seen!
+		fi
+
+		if [ -f /tmp/stop_recording ]
+		then
+			rm -f /tmp/stop_recording
+			jshinfo "Stopping recording"
+			RECORDING=
+		fi
+
 		while [ `cat "$CURRENT_WRITING_BLOCK_INFO_FILE"` = "$CURRENT_STREAMING_BLOCK" ]
 		do
 			# CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" - 1`
-			jshinfo "Waiting for $CURRENT_STREAMING_BLOCK to finish writing..."
-			sleep 10
+			jshinfo "Waiting for block $CURRENT_STREAMING_BLOCK to finish writing..."
+			verbosely sleep 10
 		done
 
-		jshinfo "Streaming block $CURRENT_STREAMING_BLOCK"
+		# jshinfo "Streaming block $CURRENT_STREAMING_BLOCK"
 
 		CURRENT_STREAMING_BLOCK=`printf "%04i" "$CURRENT_STREAMING_BLOCK"`
+		if [ "$RECORDING" ]
+		then
+			verbosely cat "$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg" >> "$RECORDING_FILE"
+		fi
 		# dd if="$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg" |
 		# cat
-		cat "$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg"
+		verbosely cat "$STREAM_DATA_DIR/streamed.$CURRENT_STREAMING_BLOCK.mpeg"
 
 		if [ ! "$?" = 0 ]
 		then
@@ -152,8 +211,8 @@ restreaming_thread () {
 		fi
 
 		CURRENT_STREAMING_BLOCK=`expr "$CURRENT_STREAMING_BLOCK" + 1`
-		if [ ! "$CURRENT_STREAMING_BLOCK" -lt "$BUFFER_SIZE" ]
-		then CURRENT_STREAMING_BLOCK=0
+		if [ "$CURRENT_STREAMING_BLOCK" -gt "$BUFFER_SIZE" ]
+		then CURRENT_STREAMING_BLOCK=1
 		fi
 
 	# done
@@ -175,16 +234,23 @@ playing_thread () {
 initialise () {
 
 	export TOTAL_BUFFER_SIZE_MEG=20
-	# export STREAM_DATA_DIR=/tmp/
-	export STREAM_DATA_DIR=/dev/shm/joey/
+	## With my machine (and now that we are reading and writing from files), I really needed to save the ringbuffer in memory (aka ramfs):
+	## (Ah that is now no longer necessary, since I increased VQSCALE.)
+	# export STREAM_DATA_DIR=/dev/shm/joey/
+	## But you probably won't have one of them!
+	[ "$STREAM_DATA_DIR" ] && [ -w "$STREAM_DATA_DIR" ] || export STREAM_DATA_DIR=/tmp
 	# export CURRENT_WRITING_BLOCK_INFO_FILE=/tmp/current_block.info
 	export CURRENT_WRITING_BLOCK_INFO_FILE="$STREAM_DATA_DIR"/current_block.info
 
 	export STREAM_SOURCE="$1"
 	shift
 
+	## Larger bits, less shell cycles:
 	export BUFFER_SIZE=100
 	export BLOCK_SIZE=`expr 10240 '*' $TOTAL_BUFFER_SIZE_MEG`
+	## Fine-grained buffer bits:
+	# export BUFFER_SIZE=1000
+	# export BLOCK_SIZE=`expr 1024 '*' $TOTAL_BUFFER_SIZE_MEG`
 
 	export ENCODED_FIFO="/tmp/encoded.fifo"
 	# export ENCODED_FIFO="./stream.yuv"
@@ -194,29 +260,52 @@ initialise () {
 	mkfifo "$ENCODED_FIFO"
 	mkfifo "$PLAYER_FIFO"
 
-	guifyscript "$0" encoding_thread "$STREAM_SOURCE" &
+	guifyscript sh "$0" -invokefunction encoding_thread "$STREAM_SOURCE" &
 	ENCODING_PID="$!"
 	echo "ENCODING_PID=$ENCODING_PID"
 
 	sleep 2
 
-	guifyscript "$0" saving_thread &
+	guifyscript sh "$0" -invokefunction saving_thread &
 	SAVING_PID="$!"
 	echo "SAVING_PID=$SAVING_PID"
 
-	sleep 2
+	sleep 5
 
-	guifyscript "$0" restreaming_thread &
+	guifyscript sh "$0" -invokefunction restreaming_thread &
 	## Didn't appear to help:
-	# guifyscript nice -n 15 "$0" restreaming_thread &
+	# guifyscript nice -n 15 sh "$0" restreaming_thread &
 	RESTREAMING_PID="$!"
 	echo "RESTREAMING_PID=$RESTREAMING_PID"
 
-	sleep 2
+	sleep 5
 
-	guifyscript "$0" playing_thread &
+	guifyscript sh "$0" -invokefunction playing_thread &
 	PLAYER_PID="$!"
 	echo "PLAYER_PID=$PLAYER_PID"
+
+	curseyellow
+	echo
+	echo "Commands you can send to fifovo:"
+	echo "  echo 20 > /tmp/rewind"
+	echo "  echo 20 > /tmp/fastforward"
+	echo "  touch /tmp/start_recording"
+	echo "    or"
+	echo "  echo /tmp/yummy_vid.mpeg > /tmp/start_recording"
+	echo "  touch /tmp/stop_recording"
+	echo
+	echo "How to stop fifovo:"
+	echo "  Press 'q' on the mplayer window,"
+	echo "  and press Ctrl+C on the saving window."
+	echo "  Then press Ctrl+C here to close all remaining windows."
+	echo
+	echo "Hopefully you won't need these:"
+	# echo "  kill -KILL $ENCODING_PID $SAVING_PID $RESTREAMING_PID $PLAYER_PID"
+	echo "  killall -KILL mencoder mplayer"
+	# echo "  killall \"$0\""
+	echo "  mykill -x saving_thread"
+	echo
+	cursenorm
 
 	wait
 
@@ -224,28 +313,25 @@ initialise () {
 
 }
 
-COMMAND="$1"
-shift
-case "$COMMAND" in
-	encoding_thread)
-		encoding_thread "$@"
-	;;
-	saving_thread)
-		saving_thread "$@"
-	;;
-	restreaming_thread)
-		restreaming_thread "$@"
-	;;
-	playing_thread)
-		playing_thread "$@"
-	;;
-	stream)
-		initialise "$@"
-	;;
-	*)
-		echo "Don't know command: $COMMAND"
-		echo "Try: fifovo stream http://some.url"
-		exit 1
-	;;
-esac
+if [ "$1" = -invokefunction ]
+then
+	shift
+	FUNCTION="$1"
+	shift
+	"$FUNCTION" "$@"
+	exit
+fi
 
+if [ "$1" = "" ] || [ "$1" = --help ]
+then
+	
+	echo
+	echo "fifovo <url_of_stream>"
+	echo
+	exit 1
+
+else
+
+	initialise "$@"
+
+fi
