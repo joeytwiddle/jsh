@@ -1,1 +1,1 @@
-g++ -E -M $* -I $JPATH/joeylib/.comp/
+g++ -E -M "$@" -I $JPATH/joeylib/.comp/

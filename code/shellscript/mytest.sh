@@ -1,5 +1,5 @@
 # #!/bin/sh
-if $*; then
+if "$@"; then
   echo "yes"
 else
   echo "no"
