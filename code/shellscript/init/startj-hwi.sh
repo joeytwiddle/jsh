@@ -3,9 +3,6 @@
 export JPATH=$HOME/j
 export PATH=$JPATH/tools:$PATH
 
-# Don't know why Debian lost this pathdir:
-export PATH=$PATH:/usr/X11R6/bin/
-
 source getmachineinfo
 
 source joeysaliases
@@ -43,6 +40,8 @@ fi
 
 SHORTSHELL=`echo "$SHELL" | afterlast "/"`
 # echo "shell = $SHORTSHELL"
+
+# tcsh makes itself known by ${shell} envvar.
 
 # xterm title change
 case $TERM in
