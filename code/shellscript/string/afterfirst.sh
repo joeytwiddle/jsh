@@ -1,3 +1,5 @@
+## I just cannot do it properly with sed.  :-(
+
 # Ugh
 # SPECIALSTR="nobodyWo0ldn6teverUsastwiunglikevish_unlessOfCourseTh3yw3r34<<355/|\|gthisFile!"
 SPECIALSTR="nbdW0d6eeUatinlkvs"

@@ -1,6 +1,28 @@
 # Symbolically link all relevant tools into $JPATH/tools/ directory
 # so that they may all be put in the path in one go!
 
+(
+find $JPATH/code/shellscript \
+     \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d
+test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
+) |
+/bin/grep -v "/.ignore/" |
+/bin/grep -v "/CVS/" |
+sed 's+\(.*\)/\([^\.]*\)\(\..*\|\)+ln -sf "\1/\2\3" "$JPATH/tools/\2"+' |
+# cat
+sh
+
+## Note: we haven't dealt with duplicates or dangling links
+
+echo "Binaries"
+# echo "Skipping binaries"
+refreshbintoollinks
+
+exit
+
+#################################
+## The old one
+
 echo "Removing existing links"
 "rm" -f $JPATH/tools/*
 
