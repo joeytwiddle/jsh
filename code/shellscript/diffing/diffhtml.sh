@@ -3,8 +3,12 @@
 # ADDTOHEAD='<link rel="stylesheet" type="text/css" href="http://hwi.ath.cx/tmp/diffstyles.css" media="all">'
 ## Or by direct inclusion in the page, which makes it standalone.
 ADDTOHEAD='<STYLE type="text/css">'`
-	( cat /var/www/tmp/diffstyles.css || wget -O - "http://hwi.ath.cx/tmp/diffstyles.css" ) |
-	sed 's+$+\\\\+'
+	(
+		if [ -f /var/www/tmp/diffstyles.css ]
+		then cat /var/www/tmp/diffstyles.css
+		else wget -nv -O - "http://hwi.ath.cx/tmp/diffstyles.css" 2>/dev/null
+		fi
+	) | sed 's+$+\\\\+'
 `'</STYLE>'
 
 OLDFILE="$1"
