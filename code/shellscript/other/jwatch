@@ -1,22 +1,30 @@
-EXECSH=`jgettmp jwatch`
+EXECSH=`jgettmp jwatch-do-$1`
+NEW=`jgettmp "new-$1"`
+OLD=`jgettmp "old-$1"`
+
 echo "$@" > $EXECSH
 chmod a+x "$EXECSH"
-# $@ > $JPATH/tmp/"new.$1"
-$EXECSH > $JPATH/tmp/"new.$1"
+
+$EXECSH > $NEW
+
 if test "x$JWATCHCOMPCOM" = "x"; then
   JWATCHCOMPCOM="jfc simple oneway"
 fi
+
 sleep 1
+
 while [ true ]; do
-  mv $JPATH/tmp/"new.$1" $JPATH/tmp/"old.$1"
-  # $@ > $JPATH/tmp/"new.$1"
-	$EXECSH > $JPATH/tmp/"new.$1"
-  $JWATCHCOMPCOM $JPATH/tmp/"new.$1" $JPATH/tmp/"old.$1"
-  # diff $JPATH/tmp/"new.$1" $JPATH/tmp/"old.$1" | grep "^> "
-  sleep 1
-  # sleep 5
+
+	mv $NEW $OLD
+
+	$EXECSH > $NEW
+
+	$JWATCHCOMPCOM $NEW $OLD
+
+	sleep 1
+
 	`breakonctrlc`
+
 done
-# docheck
-# rm $JPATH/tmp/old.check
-# rm $JPATH/tmp/new.check
+
+jdeltmp "$NEW" "$OLD" "$EXECSH"

@@ -1,4 +1,4 @@
-find "$PWD" -type f |
+find "/stuff/software/demoz/recommend/" -type f |
 grep "/wine/" |
 # Optional:
 grep -v "/gl/" |
