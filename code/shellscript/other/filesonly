@@ -1,3 +1,10 @@
-for x in $@; do
-  if [ -f "$x" ]; then echo "$x "; fi
-done
+if [ "$1" ]
+then
+	for NODE
+	do [ -f "$NODE" ] && echo -n "$NODE "
+	done
+else
+	while read NODE
+	do [ -f "$NODE" ] && echo "$NODE"
+	done
+fi

@@ -22,7 +22,9 @@ then
 	SCRHEAD=""
 	if [ "$TERM" = screen ] && [ ! "$STY" ]
 	   # ! contains "$SCREENTITLE" "$SHOWHOST"
-	then SCRHEAD="($SHOWHOST)"
+	then
+		SCRHEAD="($SHOWHOST)"
+		screentitle -remote "$SCRHEAD"
 	fi
 
 	SHOWHOST="$SHOWHOST:"
@@ -62,7 +64,9 @@ then
 				## xterm title:
 				export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
 				## screen title: "[" <directory> "]"
-				export TITLEBAR="$TITLEBAR\[\033k[\w]\033\\\]"
+				# export TITLEBAR="$TITLEBAR\[k[\w]\\\\\]"
+				export TITLEBAR="$TITLEBAR\[k\w/\\\\\]"
+				# export TITLEBAR="$TITLEBAR`screentitle \"$SCRHEAD/\w/\"`" ## marche pas
 				export PS1="$TITLEBAR$PS1"
 			fi
 		;;
