@@ -41,17 +41,26 @@ do
 	sleep 2
 	RUNNINGPIDS=`mykillps -x "$XSCRBINS" | takecols 1`
 	NUMRUNNINGPIDS=`echo -n "$RUNNINGPIDS" | countlines`
-	echo "$NUMRUNNINGPIDS"
+	echo "$NUMRUNNINGPIDS / $NUM"
+	FAILED=
 	if [ ! "$NUMRUNNINGPIDS" -lt "$NUM" ]
 	then
-		PIDTOKILL=`echo "$RUNNINGPIDS" | head -1` ## Evenly rotate by killing oldest every time
-		echo kill -KILL "$PIDTOKILL"
-		kill -KILL "$PIDTOKILL"
+		PIDTOKILL=`echo "$RUNNINGPIDS" | head -n 1` ## Evenly rotate by killing oldest every time
+		echo "Killing $PIDTOKILL"
+		# echo kill -KILL "$PIDTOKILL"
+		if ! kill -KILL "$PIDTOKILL"
+		then
+			echo "Kill FAILED!"
+			FAILED=true
+		fi
 	fi
-	sleep 1
-	CHOSEN=`chooserandomxscreensaverhack`
-	echo "Starting $CHOSEN"
-	NEWPID=`execgetpid nice -n 20 "$CHOSEN" -root`
+	if [ ! "$FAILED" ]
+	then
+		sleep 1
+		CHOSEN=`chooserandomxscreensaverhack`
+		echo "Starting $CHOSEN"
+		NEWPID=`execgetpid nice -n 20 "$CHOSEN" -root`
+	fi
 done
 
 echo "Killing all"
