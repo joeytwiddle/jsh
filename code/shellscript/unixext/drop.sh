@@ -11,7 +11,11 @@ cat "$@" |
 while read LINE
 do
   if test "$N" = "0"
-  then printf "%s\n" "$LINE"
+  then break
+  ## I think MC needs purer stream than printf can provide:
+  # then printf "%s\n" "$LINE"
   else N=$(($N-1));
   fi
 done
+
+cat
