@@ -19,5 +19,6 @@ do
   # | takecols 2
   ## Not for tiff's :-(
   # imageinfo "$X" 2>&1 | grep -v "^$X=>" | head -1 | sed 's+.* \([1234567890]*x[1234567890]*\) .*+\1+'
-  imageinfo "$X" 2>&1 | grep "^$X=>" | sed 's+.* \([1234567890]*x[1234567890]*\) .*+\1+'
+  imageinfo "$X" 2>&1 | grep "^$X=>" |
+  sed 's|.* \([[:digit:]]*x[[:digit:]]*\)[+ ].*|\1|'
 done

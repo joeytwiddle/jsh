@@ -1,5 +1,7 @@
 # This is pretty nice (although it gets itself sometimes :-/ )
 
+## TODO: optionally allow user to edit process list.  Those lines which are deleted, means the process is killed.  =)
+
 ## BUGS: myps --forest somes does not show all the processes that myps does!
 ##       Not true!  The problem was COLUMNS was too low and forest pushes the process off the side of the screen into oblivion!
 

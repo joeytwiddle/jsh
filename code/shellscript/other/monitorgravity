@@ -1,3 +1,6 @@
+jwatch 'find . -type f -printf "%s\t%p\n"'
+exit
+
 # Uses du to monitor the changing size of files or directories
 # Provide nothing for a measure of files/dirs in .
 # or provide a list of directories

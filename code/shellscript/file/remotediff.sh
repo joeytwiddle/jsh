@@ -52,13 +52,16 @@ rsyncdiff () {
 	## eg. Could put exit 1 instead of echo "ERROR"
 
 	## Send local files
+	echo "[rsyncdiff] sending files to $RHOST" >&2
 	cat "$EDITFILE" | grep "^send  " |
-	while read LOCATION DATETIME CKSUM LEN FILENAME; do
+	while read LOCATION DATETIME CKSUM LEN FILENAME
+	do
 		echo "$LEN $RDIR/$FILENAME"
 		cat "$LOCAL/$FILENAME"
 	done |
 	ssh -C $RUSER@$RHOST '
-		while read LEN FILENAME; do
+		while read LEN FILENAME
+		do
 			printf "Writing $FILENAME..." >&2
 			mkdir -p `dirname "$FILENAME"`
 			dd bs=1 count=$LEN > "$FILENAME" &&
@@ -68,26 +71,31 @@ rsyncdiff () {
 	'
 
 	## Bring remote files and files for diffing
+	echo "[rsyncdiff] bringing riles from $RHOST" >&2
 	(
 		cat "$EDITFILE" | grep "^bring " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+		while read LOCATION DATETIME CKSUM LEN FILENAME
+		do
 			echo "$LEN $RDIR/$FILENAME"
 			echo "$LOCAL/$FILENAME"
 		done
 		cat "$EDITFILE" | grep "^diff " |
-		while read LOCATION DATETIME CKSUM LEN FILENAME; do
+		while read LOCATION DATETIME CKSUM LEN FILENAME
+		do
 			echo "$LEN $RDIR/$FILENAME"
 			echo "$LOCAL/$FILENAME.from-$RHOST"
 		done
 	) |
 	ssh $RUSER@$RHOST '
-		while read LEN FILENAME; do
+		while read LEN FILENAME
+		do
 			read GETFILENAME
 			echo "$LEN $GETFILENAME"
 			cat "$FILENAME"
 		done
 	' |
-	while read LEN GETFILENAME; do
+	while read LEN GETFILENAME
+	do
 		printf "Reading $GETFILENAME..." >&2
 		mkdir -p `dirname "$GETFILENAME"`
 		dd bs=1 count=$LEN > "$GETFILENAME" 2> /dev/null
@@ -95,8 +103,8 @@ rsyncdiff () {
 	done
 
 	cat "$EDITFILE" | grep "^diff " |
-	while read LOCATION DATETIME CKSUM LEN FILENAME; do
-		vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.remote"
+	while read LOCATION DATETIME CKSUM LEN FILENAME
+	do vimdiff "$LOCAL/$FILENAME" "$LOCAL/$FILENAME.remote"
 	done
 
 }
@@ -109,7 +117,7 @@ rsyncdiff () {
 
 if test ! $2 # --help
 then
-	echo "remotediff -diffcom <diff_command> <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
+	echo "remotediff [ -diffcom <diff_command> ] <local-dir> <user>@<host>:<remote-dir> [ <find_options>... ]"
 	echo "Supported diff commands: (may alternatively be provided in \$DIFFCOM)"
 	echo "  gvimdiff"
 	echo "  vimdiff"
@@ -217,8 +225,8 @@ preparefordiff () {
 	TMPTWO="$TMPTWO.sorted"
 }
 
-if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff" -o "$DIFFCOM" = "jdiff"; then
-	preparefordiff
+if test "$DIFFCOM" = "diff" -o "$DIFFCOM" = "vimdiff" -o "$DIFFCOM" = "gvimdiff" -o "$DIFFCOM" = "jdiff"
+then preparefordiff
 fi
 
 # Removing cksum columns for the different diff-ers:

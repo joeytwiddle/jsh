@@ -1,3 +1,5 @@
+## TODO: to make it more useful for formatting code from within vim, have it (optionally/by default?) detect if text block is indented, and preserve that indent after formatting columns.
+
 if [ "$1" = -on ]
 then
 	ON="$2"
@@ -16,5 +18,9 @@ fi
 # column -t -s '	 ' "$@"
 # -x ?
 # column -t -s ' ' "$@"
-column -t -s "$ON" "$@"
+
+column -t -s "$ON" "$@" |
+## Turns column spacing of "  " into " ":
+sed 's+  \([^ ]\)+ \1+g'
+
 # java -cp $CLASSPATH:$JPATH/code/java/tools/columnise/ Columnise $@

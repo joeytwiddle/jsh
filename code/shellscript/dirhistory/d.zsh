@@ -76,3 +76,46 @@ else
 fi >&2
 
 xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+
+
+## TODO: unreadable files / locked dirs
+## TODO: accurate labeling of single/multiple
+## TODO: "examine" mime-magic (see)
+if [ "$LINUXADVENTURE" ]
+then
+	echo
+	echo "`cursebold`You find yourself in $PWD"
+	echo
+	if [ "`find . -type f -maxdepth 1`" = "" ]
+	then
+		echo "`cursebold`Whatever might have been here has long since disappeared.`cursenorm`"
+	else
+		echo -n "You can see `cursenorm`"
+		find . -type f -maxdepth 1 |
+		foreachdo file |
+		afterfirst : | beforefirst , |
+		sed 's+\<ASCII ++' |
+		sort | removeduplicatelines | randomorder |
+		sed 's+^+some +' |
+		sed 's+$+, +' |
+		tr -d '\n'
+		echo
+	fi
+	echo
+	if [ "`find . -type d -maxdepth 1`" = '.' ]
+	then
+		echo "`cursebold`This is a dead end, but you can escape to`cursenorm` .."
+	else
+		echo -n "`cursebold`The maze extends deeper into `cursenorm`"
+		find . -type d -maxdepth 1 |
+		sed 's+^\./++' |
+		tr '\n' ' '
+		echo
+	fi
+	echo
+	if [ "$PWD" = / ]
+	then
+		echo "`cursebold`You feel zen.`cursenorm`"
+		echo
+	fi
+fi

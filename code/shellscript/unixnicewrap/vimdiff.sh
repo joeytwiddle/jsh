@@ -6,8 +6,9 @@ fi
 
 SOFAR=0
 for X
-do SOFAR=`expr "$SOFAR" + \`longestline "$X"\``
+do SOFAR=`expr "$SOFAR" + \`longestline "$X"\`` ## doesn't account for tabs!
 done
+# SOFAR=$[$SOFAR+11]
 
 if test "$COLUMNS" = ""
 then

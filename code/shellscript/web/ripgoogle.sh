@@ -18,7 +18,8 @@ HREF=`
 	head -n 1
 `
 HREF=`tourl "$HREF" "www.google.com"`
-if test ! "$?"=0; then
+if test ! "$?" = 0
+then
 	echo "Failed to find link from main image."
 	HREF=""
 fi

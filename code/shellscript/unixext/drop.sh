@@ -5,17 +5,22 @@
 ## TODO: echo (and even printf) can muck up lines with adjacent spaces!
 ##       deprecate this method, in favour of some other, eg. awkdrop.
 
-N=$1
+N="$1"
 shift
-cat "$@" |
-while read LINE
-do
-  if test "$N" = "0"
-  then break
-  ## I think MC needs purer stream than printf can provide:
-  # then printf "%s\n" "$LINE"
-  else N=$(($N-1));
-  fi
-done
 
-cat
+cat "$@" |
+
+{
+
+	while true
+	do
+		if [ "$N" = 0 ]
+		then break
+		fi
+		read LINE
+		N=$(($N-1));
+	done
+
+	cat
+
+}

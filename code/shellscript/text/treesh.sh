@@ -13,11 +13,19 @@ then
 	shift; shift
 fi
 
+if [ "$1" = - ]
+then
+	TREEVIM=cat
+	shift
+else
+	TREEVIM=treevim
+fi
+
 if [ "$1" = --help ]
 then
 cat << EOF
 
-treesh [ -onlyat <delimeter> ] [ <file> ]
+treesh [ -onlyat <delimeter> ] [ - ] [ <file> ]
 
   will present a navigation interface for tree-like text.
 
@@ -31,6 +39,8 @@ treesh [ -onlyat <delimeter> ] [ <file> ]
 
   The current navigation interface is vim with a custom folding plugin.
   Use -=_+ to expand/contract branches or NumPad's /* to change levels.
+
+  The - option sends the output to stdout instead of to vim.
 
 EOF
 exit 1
@@ -159,6 +169,6 @@ then pipeboth
 else cat
 fi |
 
-treevim
+$TREEVIM
 
 jdeltmp $TMPFILE

@@ -46,6 +46,7 @@ then
 			cvs status "$FILE"
 			# cvs diff "$FILE"
 			cvs -q update -p "$FILE" > $TMPFILE 2>/dev/null
+			cursenorm
 			if [ "$FIGLET_FONT_FILE" ]
 			then
 				cursecyan
@@ -65,7 +66,7 @@ then
 			# echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
 			# echo "`curseyellow`Type: comment or [.] to [C]ommit, <Enter> to [S]kip, [E]dit [V]imdiff [R]ediff." #  (.=\"\").`cursenorm`"
 			echo "`cursecyan;cursebold`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
-			echo "`cursecyan;cursebold`Or [U]ndo changes (retrieve previous version)"
+			echo "Or [U]ndo changes (retrieve previous version)`cursenorm`"
 			read INPUT
 			[ "$INPUT" = "" ] && INPUT=s
 			case "$INPUT" in

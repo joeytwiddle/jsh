@@ -3,14 +3,14 @@
 # grep "$1.*\.deb$" /var/lib/apt/lists/* 2> /dev/null |
 
 if test "$1" = "-src"
-then 
+then
 
 	shift
 
 	## Until automatic memo garbage collection is implemented, these memo calls are bloating $JPATH/data !
 	memo grep "$1.*\.dsc" /var/lib/apt/lists/*Sources
 
-else 
+else
 
 	memo grep "^Filename: " /var/lib/apt/lists/*Packages |
 	grep "$1.*\.deb$" 2> /dev/null |
@@ -37,7 +37,9 @@ else
 			'
 		`
 
-		URL="ftp://$SRC/$SERVERPATH"
+		## I can't find this in *Release or *Packages
+		# URL="ftp://$SRC/$SERVERPATH"
+		URL="http://$SRC/$SERVERPATH"
 
 		echo "$URL"
 

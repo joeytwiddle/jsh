@@ -7,17 +7,24 @@ if test ! -w "$JPATH/trash"
 then TRASHDIR=`dirname "\`jgettmp\`"`/trash
 fi
 
-if test "$1" = ""; then
-	echo "Deleted files in `#cursegreen`$TRASHDIR/$PWD/`#cursenorm`:"
-	ls -ArtFh --color $TRASHDIR/$PWD
+## Better than PWD, but still this needs to update wrt. del's new changes.
+DIR=`realpath "$PWD"`
+
+if [ "$1" = "" ]
+then
+	echo "Deleted files in `#cursegreen`$TRASHDIR/$DIR/`#cursenorm`:"
+	ls -ArtFh --color $TRASHDIR/$DIR
 else
-	while test ! "$1" = ""; do
-		DELEDFILE="$TRASHDIR/$PWD/$1"
+	while [ ! "$1" = "" ]
+	do
+		DELEDFILE="$TRASHDIR/$DIR/$1"
 		# Problem is: may be a broken symlink that will fix on undeletion
 		# # May not be compatible with Unix:
 		# if test ! -e "$DELEDFILE"; then
-		if test ! -f "$DELEDFILE"; then
-			if test ! -d "$DELEDFILE"; then
+		if [ ! -f "$DELEDFILE" ]
+		then
+			if [ ! -d "$DELEDFILE" ]
+			then
 				echo "Sorry - $DELEDFILE is neither a file or directory."
 				echo "Try one of these ..."
 				find $TRASHDIR -name "$1"
@@ -27,7 +34,8 @@ else
 		fi
 		# fi
 		DEST="./$1"
-		if test -f "$DEST"; then
+		if [ -f "$DEST" ]
+		then
 			echo "del: File $DEST already exists!"
 			exit 1
 		fi
