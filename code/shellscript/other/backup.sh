@@ -45,3 +45,8 @@ safetar /etc/ etc
 
 echo Done
 wall Backup complete
+
+( echo
+	date
+	cvsdiffs
+) >> $JPATH/logs/cvsdiffs.txt

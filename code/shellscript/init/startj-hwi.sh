@@ -11,14 +11,16 @@ alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
 source joeysaliases
 source cvsinit
 
+# Key bindings for zsh
+
 # bindkey -N mymap main # clear keymap
 # bindkey -v # viins keymap
 # bindkey -e # emacs keymap
 
-# create custom keymap with viins
+# Create custom keymap with viins
 bindkey -N mymap viins
 
-# clear all CTRL+Xs from viins keymap to leave CTRL+X free for me
+# Clear all CTRL+Xs from viins keymap to leave CTRL+X free for me
 bindkey "^X^B" undefined-key # vi-match-bracket
 bindkey "^X^F" undefined-key # vi-find-next-char
 bindkey "^X^J" undefined-key # vi-join
@@ -36,16 +38,23 @@ bindkey "^Xr" undefined-key # history-incremental-search-backward
 bindkey "^Xs" undefined-key # history-incremental-search-forward
 bindkey "^Xu" undefined-key # undo
 
-# mode switching
+# Mode switching
 bindkey -a "\E" vi-insert
 bindkey "\E" vi-cmd-mode # escape
 bindkey "^ " vi-cmd-mode
 
-# vi-like movement if CTRL held
+# Vim-like movement if CTRL held
 bindkey "^w" forward-word
 bindkey "^b" backward-word
 bindkey "^x" kill-word
-bindkey "^q" expand-history
+bindkey "^r" expand-history
+
+# My preferred word movement and deletion.
+# It's purely left-handed and positioned to avoid the reserved keys qeaszc.
+bindkey "^d" backward-word
+bindkey "^f" forward-word
+bindkey "^x" backward-kill-word
+bindkey "^v" backward-kill-word
 
 # trying to jump words with CTRL+arrows
 # bindkey "^[OC" backward-word

@@ -25,7 +25,7 @@ cd $JPATH/tools
 for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
   y=`echo $x | sed "s/\.sh$//" | sed "s/\.hs$//"`
 	if test -f "$y"; then
-		J="$JPATH/code/shellscript/other/justlinks.sh"
+		J="$JPATH/code/shellscript/file/justlinks.sh"
 		A=`$J "$x"`
 		B=`$J "$y"`
 		echo

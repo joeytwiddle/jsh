@@ -1,2 +1,2 @@
-mkdir -p javadoc
-javadoc -d javadoc *.java
+mkdir -p javadocs
+javadoc -d javadocs `find . -name "*.java"`

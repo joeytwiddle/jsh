@@ -15,6 +15,8 @@ fi
 
 echo "---------------------------------------------------------"
 echo "Making javadocs for $NAME in $DIR/javadoc/"
+echo "Making javadocs for $NAME in $DIR/javadoc/" >> $JPATH/logs/cron.txt
+echo "Making javadocs for $NAME in $DIR/javadoc/" >> $LOGFILE
 mkdir -p javadoc
 $JAVADOC -d javadoc $FILES
 echo "<A HREF=\"$PWD/javadoc/index.html\">$1</A><br>" >> $DOCSUM

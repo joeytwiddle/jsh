@@ -4,7 +4,7 @@ else
   FAVOURITE_EDITORS="vim vi ae pico jpico"
 fi
 
-runoneof "$FAVOURITE_EDITORS" "$@"
+runoneof "$FAVOURITE_EDITORS" "$*"
 
 # case $TERM in
 #   xterm)

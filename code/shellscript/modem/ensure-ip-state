@@ -45,7 +45,12 @@ echo "Coming up"
 'rm' -f $JPATH/logs/packetdata.ppp
 /usr/sbin/pppd call provider
 # /usr/sbin/pppd record $JPATH/logs/packetdata.ppp call provider
+
 sleep 60
+
+cp /stuff/portablelinux/etc/resolv.conf /etc/resolv.conf
+
 echo "Updating IP"
 ppp-updateip
+
 exit 0

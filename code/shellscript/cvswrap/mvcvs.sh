@@ -12,11 +12,15 @@ else
   TOADD="$DEST"
 fi
 
+# Old method lost revision history but did not mess with developers who had source checked out.
 echo "% cp \"$SRC\" \"$DEST\""
-cp "$SRC" "$DEST"
+# cp "$SRC" "$DEST"
 echo "% del \"$SRC\""
-del "$SRC"
+# del "$SRC"
 echo "% cvs add \"$TOADD\""
-cvs add "$TOADD"
+# cvs add "$TOADD"
 
 # echo "Warning: if your dest was a file, as opposed to a directory, it may not be added correctly."
+
+echo "New method should move the cvsroot file itself."
+echo "But we need to establish cvsroot!"

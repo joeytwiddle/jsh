@@ -4,11 +4,11 @@ export LOGFILE="$JPATH/logs/makealljavadocs.txt"
 
 (
 
-echo Making all javadocs >> $JPATH/logs/cron.txt
 date >> $JPATH/logs/cron.txt
+echo Making all javadocs >> $JPATH/logs/cron.txt
 
-echo Making all javadocs
 date >> $LOGFILE
+echo Making all javadocs >> $LOGFILE
 
 echo "<html><body>" > $DOCSUM
 

@@ -1,11 +1,13 @@
 (
 cd "$1"
-find . -type f > $JPATH/tmp/1.lst
+# find . -type f > $JPATH/tmp/1.lst
+find . > $JPATH/tmp/1.lst
 )
 
 (
 cd "$2"
-find . -type f > $JPATH/tmp/2.lst
+# find . -type f > $JPATH/tmp/2.lst
+find . > $JPATH/tmp/2.lst
 )
 
 jfc $JPATH/tmp/1.lst $JPATH/tmp/2.lst
