@@ -1,5 +1,11 @@
+## Example recovery:
+## mkdir /tmp/recover; cd /tmp/recover
+## tar xfz /mnt/stig/makebaks/etc-0.tar.gz
+## cd etc; contractsymlinks; cd ..
+## for PATCH in /mnt/stig/makebaks/etc-*.diff.gz; do gunzip -c "$PATCH" | patch -E -p0; done
+## cd etc; expandsymlinks; cd ..
 
-## Now has external dependency: contractsymlinks
+## Now has external dependencies: contractsymlinks, filesize, j(get|del)tmp(dir|)
 
 # Paranoid; sensible.
 set -e
@@ -7,14 +13,14 @@ set -e
 if test "$1" = "" || test "$1" = --help; then
 cat << !
 
-makebackup <dir_or_file_to_backup> <backup_storage_dir> [<backup_file_prefix>]
+makebackup [-efficient] <dir/file_to_backup> <storage_dir> [<storage_prefix>]
 
   will create a numbered backup (tar.gz) of the given file or directory
-    in <backup_dir> each time it is run.
+    in <storage_dir> each time it is run.
 
   It also automatically generates a patch for each new version, which is
-    a space-efficient way to keep a record (you may remove all but one of
-    the full backups).
+    a space-efficient way to store history (-efficient will remove all but the
+    first and last full backups, as well as skip backup in absence of changes.)
 
   The patches can be used to roll back or forwards from any full backup.
     (They are generated using diff -r -u -N -a which supports new/removed files
@@ -24,12 +30,17 @@ makebackup <dir_or_file_to_backup> <backup_storage_dir> [<backup_file_prefix>]
     so for recovery you must run contractsymlinks before you patch -p0, and
     expandsymlinks afterwards.
 
-  Bugs: empty directories and empty files are sometimes left floating,
-    and GNU diff does not appear to support filenames with spaces!
-    (The data is kept, but it gets name wrong.)
+  Bugs: empty directories and empty files are left floating unless U patch -E,
+    and GNU diff/patch does not appear to support filenames with spaces!
+    (The data is not lost, but the filename in the patch is interpreted badly.)
 
 !
 exit 1
+fi
+
+EFFICIENT=
+if test "$1" = -efficient
+then EFFICIENT=true; shift
 fi
 
 TOBACKUP="$1"
@@ -49,34 +60,30 @@ while test -f "$BACKUPDIR/$BACKUPNAME-$VER.diff.gz" || test -f "$BACKUPDIR/$BACK
 do VER=`expr $VER + 1`
 done
 
-echo "Backing up $TOBACKUP into $BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
-cd "$DIRNAME"
-tar cfz "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz" "$BASENAME"
+DOPUREBACKUP=true
 
 if test ! "$VER" = 0
 then
 
 	OURTMPDIR=`jgettmpdir makebak`
+	if test "$OURTMPDIR" = "" || test ! -w "$OURTMPDIR"; then echo "Problem with OURTMPDIR = >$OURTMPDIR<"; exit 1; fi
 
 	THISVERSION="$OURTMPDIR/ver$VER"
-	echo "Copying $TOBACKUP to temp dir so I can prepare it for diffing" ## Note: I'm fairly confident we could do this to the dir directly, provided we expandsymlinks again afterwards.  If we're backing up a file then there's really little point in this!
+	## Note: confidence in contractsymlinks now allows us to do this to the dir directly (provided we expandsymlinks again afterwards).
+	## But if we're backing up a file then there's really little point in this!  Well of course that's what test $BASENAME is for!
+	echo "Copying $TOBACKUP to temp dir so I can prepare it for diffing"
 	mkdir -p "$THISVERSION"
-	if test "$THISVERSION" = ""; then echo "Problem with THISVERSION = >$THISVERSION<"; exit 1; fi
 	cd "$DIRNAME"
 	cp -a "$BASENAME" "$THISVERSION"
 
 	# Fix symlink problems by removing them!
 	# but list them to a file so their changes may be seen.
-	echo "Moving symlinks into .symlinks.list"
-	cd "$THISVERSION" &&
-	if test "`pwd`" = "$THISVERSION"
+	cd "$THISVERSION"
+	if test -d "$BASENAME"
 	then
-		if test -d "$BASENAME"
-		then
-			cd "$BASENAME"
-			contractsymlinks
-		fi
-	else echo "Problem: `pwd` != $THISVERSION"
+		echo "Contracting symlinks into .symlinks.list"
+		cd "$BASENAME"
+		contractsymlinks
 	fi
 
 	## We can no longer be paranoid, because expr and diff will often return 0!
@@ -90,23 +97,39 @@ then
 	echo "Extracting previous version into tempdir for comparison"
 	cd "$LASTVERSION"
 	tar xfz "$BACKUPDIR/$BACKUPNAME-$PREVER.tar.gz"
-	echo "Contracting symlinks into .symlinks.list"
 	if test -d "$BASENAME"
 	then
+		echo "Contracting symlinks into .symlinks.list"
 		cd "$BASENAME"
 		contractsymlinks
 	fi
 
-	echo "Comparing versions, saving patch in $BACKUPDIR/$BACKUPNAME-$VER.diff"
+	DIFF_FILE="$BACKUPDIR/$BACKUPNAME-$VER.diff"
+	echo "Comparing versions, saving patch in $DIFF_FILE"
 	cd "$LASTVERSION"
 	set +e
-	diff -r -u -N -a "$BASENAME" "../ver$VER/$BASENAME" > "$BACKUPDIR/$BACKUPNAME-$VER.diff"
-	set -e
-	gzip "$BACKUPDIR/$BACKUPNAME-$VER.diff"
-
-	# rm "$BACKUPDIR/$BACKUPNAME-$PREVER.tar.gz" ## Let's wait till we have the next version tarred up shall we?!
+	diff -r -u -N -a "$BASENAME" "../ver$VER/$BASENAME" > "$DIFF_FILE"
+	if test "$?" = 0 && test "$EFFICIENT" && test `filesize "$DIFF_FILE"` = 0
+	then
+		set -e
+		echo "No different from previous version!"
+		echo "Removing empty diff $DIFF_FILE and skipping full backup."
+		rm -f "$DIFF_FILE"
+		DOPUREBACKUP=
+	else
+		set -e
+		gzip "$DIFF_FILE"
+		test $PREVER -gt 0 && rm -f "$BACKUPDIR/$BACKUPNAME-$PREVER.tar.gz"
+	fi
 
 	cd /tmp # anywhere should do
 	jdeltmp "$OURTMPDIR"
 
+fi
+
+if test $DOPUREBACKUP
+then
+	echo "Backing up $TOBACKUP into $BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
+	cd "$DIRNAME"
+	tar cfz "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz" "$BASENAME"
 fi
