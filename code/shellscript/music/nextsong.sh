@@ -28,5 +28,5 @@ case $PLAYER in
 	;;
 esac
 
-sleep 1
+sleep 3
 whatsplaying

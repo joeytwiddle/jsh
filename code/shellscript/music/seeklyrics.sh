@@ -59,6 +59,7 @@ fi
 for N in `seq 1 20`
 do
 
+	## We drop small files.   Shouldn't we just weigh against small files proportional to their ability to be chosen as ancestors?
 	if [ -f $TMPDIR/$N.lyrics ] && [ ! `filesize $TMPDIR/$N.lyrics` -lt 1024 ]
 	then
 		cat $TMPDIR/$N.lyrics |
