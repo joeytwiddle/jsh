@@ -9,6 +9,10 @@ else
   rememo "$@"
 fi
 
+TMPF=`jgettmp`
+touch "$TMPF"
 cursecyan
-echo "As of "`date -r "$FILE"`
+# echo "as of "`date -r "$FILE"`
+echo "as of "`datediff "$FILE" "$TMPF"`" ago."
 cursegrey
+jdeltmp "$TMPF"

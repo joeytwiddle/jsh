@@ -11,6 +11,9 @@ DATEB=`date -r "$2" "+%s"`
 
 DATEDIFF=`expr "$DATEB" - "$DATEA"`
 
+# year 12 month 30 day 24 hour 60 minute 60 second
+# second 60 minute 60 hour 24 day 30 month 12 year
+
 SECS="$DATEDIFF"
 MINS=`expr "$DATEDIFF" / 60`
 SECS=`expr "$SECS" - "$MINS" '*' 60`
@@ -25,24 +28,46 @@ MONTHS=`expr "$MONTHS" - "$YEARS" '*' 12`
 
 STARTED=
 if test $STARTED || test "$YEARS" -gt 0; then
-	printf "$YEARS years, "
+	printf "$YEARS year"
+	if test "$YEARS" -gt 1; then
+		printf "s"
+	fi
+	printf ", "
 	STARTED=true
 fi
 if test $STARTED || test "$MONTHS" -gt 0; then
-	printf "$MONTHS months, "
+	printf "$MONTHS month"
+	if test "$MONTHS" -gt 1; then
+		printf "s"
+	fi
+	printf ", "
 	STARTED=true
 fi
 if test $STARTED || test "$DAYS" -gt 0; then
-	printf "$DAYS days, "
+	printf "$DAYS day"
+	if test "$DAYS" -gt 1; then
+		printf "s"
+	fi
+	printf ", "
 	STARTED=true
 fi
 if test $STARTED || test "$HOURS" -gt 0; then
-	printf "$HOURS hours, "
+	printf "$HOURS hour"
+	if test "$HOURS" -gt 1; then
+		printf "s"
+	fi
+	printf ", "
 	STARTED=true
 fi
 if test $STARTED || test "$MINS" -gt 0; then
-	printf "$MINS minutes, "
+	printf "$MINS minute"
+	if test "$MINS" -gt 1; then
+		printf "s"
+	fi
+	printf ", "
 	STARTED=true
 fi
-printf "$SECS seconds."
-printf "\n"
+printf "$SECS second"
+if test "$SECS" -gt 1; then
+	printf "s"
+fi

@@ -37,6 +37,9 @@ if test $CHECKALL; then
 	echo "Local files not in repository:"
 
 	find . -type f | grep -iv "/CVS/" > /tmp/local.txt
+	# One way:
+	# jfcsh /tmp/local.txt /tmp/in-repos.txt |
+	# Also shows repos files not in local:
 	jfc nolines /tmp/local.txt /tmp/in-repos.txt |
 		sed "s+^./+cvs add ./+"
 fi
