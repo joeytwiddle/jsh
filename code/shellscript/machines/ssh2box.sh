@@ -8,9 +8,11 @@ fi
 SSHCOM="ssh -C $@"
 TITLE="$*"
 
-# Problem: Unix hostname does not allow this!
+## Problem: Unix hostname does not allow this!
 SHORTHOSTNAME=`hostname`
+## and some machines don't have host
 DOMAIN=`host "$SHORTHOSTNAME" | sed "s/[^\.]*\.//;s/ .*//"`
+## TODO: change this rule to: don't forward X if going to or from hwi (ie. across a laggy connexion)
 if test "$DOMAIN" = `echo "$1" | afterfirst "\."`; then
 	echo "Both on $DOMAIN: forwarding X session."
 	SSHCOM="$SSHCOM -X"
