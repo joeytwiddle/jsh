@@ -19,10 +19,12 @@ then
 		export SHOWHOST=`echo "$HOSTNAME" | beforefirst "\."`
 	fi
 
+	## If we are in a screen, but not on the local machine, we must have ssh'ed somewhere from within screen.
 	SCRHEAD=""
 	if [ "$TERM" = screen ] && [ ! "$STY" ]
 	   # ! contains "$SCREENTITLE" "$SHOWHOST"
 	then
+		## If we want to display the machine name, and what it's up to, we should use screentitle -remote below.
 		SCRHEAD="($SHOWHOST)"
 		screentitle -remote "$SCRHEAD"
 	fi
@@ -65,8 +67,11 @@ then
 				export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
 				## screen title: "[" <directory> "]"
 				# export TITLEBAR="$TITLEBAR\[k[\w]\\\\\]"
-				export TITLEBAR="$TITLEBAR\[k\w/\\\\\]"
+				export TITLEBAR="$TITLEBAR\[k$SCRHEAD\w/\\\\\]"
 				# export TITLEBAR="$TITLEBAR`screentitle \"$SCRHEAD/\w/\"`" ## marche pas
+				## but it might be better if it did, at least bash would pass back to remote screens
+				## but also it wouldn't pass to local either!
+				## although it would have a go right now!
 				export PS1="$TITLEBAR$PS1"
 			fi
 		;;

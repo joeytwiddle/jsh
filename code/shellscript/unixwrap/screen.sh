@@ -26,6 +26,7 @@ else
 	test "$NAME" || NAME="$DEFNAME"
 	test "$NAME" || NAME=screen
 	export SCREENNAME="$NAME"
+	screentitle -remote "[$HOST:$SCREENNAME]"
 	screen -h 10000 -a "-e^k^l" -S "$NAME" -D -RR
 
 fi

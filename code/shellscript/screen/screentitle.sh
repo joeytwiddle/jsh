@@ -1,8 +1,11 @@
 ## Is the -S really neccessary?
 
 if [ "$1" = -remote ]
+then shift; STY=""
+fi
+
+if [ ! "$STY" ]
 then
-	shift
 
 	## Works for remote screen:
 	[ "$TERM" = screen ] && echo -n "k$*\\" >&2 # does this work? not as part of bash prompt!
