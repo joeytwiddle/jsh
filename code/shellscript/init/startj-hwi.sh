@@ -44,6 +44,10 @@ SHOWHOST="$SHOWHOST:"
 if test "$SHOWHOST" = "hwi:"; then
 	SHOWHOST=""
 fi
+SHOWUSER="$USER@"
+if test "$SHOWUSER" = "joey@"; then
+	SHOWUSER=""
+fi
 
 SHORTSHELL=`echo "$SHELL" | afterlast "/"`
 # echo "shell = $SHORTSHELL"
@@ -60,15 +64,16 @@ case $TERM in
 					# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
 					# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
 					# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
-					echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|\1|;s|^$HOME|~|"
+					echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|_/\1|;s|^$HOME|~|"
 				}
 				preexec () {
 					# $* repeats on magenta under zsh :-(
 					export LASTCMD="$*"
-					xttitle "$LASTCMD # [$SHOWHOST"`swd`"]"
+					xttitle "# $LASTCMD [$SHOWUSER$SHOWHOST"`swd`"]"
 				}
 				precmd () {
-					xttitle "$SHOWHOST"`swd`" %% ($LASTCMD)"
+					# xttitle "$SHOWHOST"`swd`" %% ($LASTCMD)"
+					xttitle "$SHOWUSER$SHOWHOST"`swd`" %% ($LASTCMD)"
 				}
 			;;
 			# Doesn't work 'cos tcsh can't exec this far!
