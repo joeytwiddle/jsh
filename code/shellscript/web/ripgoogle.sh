@@ -10,7 +10,7 @@ cd $HOME/.ripgoogle
 wget -N www.google.com
 
 HREF=`cat index.html |
-                grep "img=" | head -1 |
+                grep "img src=" | head -1 |
 				grep "href=" |
 				afterfirst "href=" |
 				between '\"' |

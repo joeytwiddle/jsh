@@ -65,7 +65,8 @@ TITLE=`absolutepath "$ARGS"`" [vim]"
 
 # FONT="-font '-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-iso646.1991-irv'"
 # XTFONT='-schumacher-clean-medium-r-normal-*-*-150-*-*-c-*-iso646.1991-irv';
-XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-120-*-*-m-*-iso8859-1';
+# XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-120-*-*-m-*-iso8859-1';
+XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim $*
 
 # xterm -geometry 70x40 -font '-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1' -title "vim:$ARGS" -e "vim $ARGS"

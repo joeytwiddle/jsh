@@ -1,28 +1,36 @@
+#!/usr/local/bin/zsh
 if [ "$1" = "" ]; then
-  echo "jwhich <files> [ quietly ]"
-  echo "  will return the first file it finds in your \$PATH minus \$JPATH"
-  echo "  or an error if none of them are in any of your paths."
+  echo "jwhich [ inj ] <file> [ quietly ]"
+  echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
   exit 1
 fi
 
-# Remove all references to JLib from the path
+if test "$1" = "inj"; then
+  FILE="$2"
+  QUIETLY="$3"
+  PATHS=`echo "$PATH" | tr ":" "\n"`
+else
+  FILE="$1"
+  QUIETLY="$2"
+  # Remove all references to JLib from the path
+  PATHS=`echo "$PATH" | tr ":" "\n" | grep -v "$JPATH" | grep -v "^.\$"`;
+  # PATHS=`echo "$PATH" | tr ":" "\n" | grep -v "^$JPATH/tools" | grep -v "^.\$"`;
+fi
 
-PATHS=`echo "$PATH" | tr ":" "\n" | grep -v "$JPATH" | grep -v "^.\$"`;
-
-for FILE in $@; do
-  for dir in $PATHS; do
-    if [ -f "$dir/$FILE" ]; then
-      if [ ! "$2" = "quietly" ]; then
-        echo $dir/$FILE
-      fi
-      exit 0      # Found!  :)
+# for dir in $PATHS; do
+echo $PATHS | while read dir; do
+  if [ -f "$dir/$FILE" ]; then
+    if [ ! "$QUIETLY" = "quietly" ]; then
+      echo $dir/$FILE
     fi
-  done
+    exit 0      # Found!  :)
+  # else
+    # echo "$dir/$FILE does not exist"
+  fi
 done
 
-if [ ! "$2" = "quietly" ]; then
-  echo "Could not find any of $@ in any of"
-  echo "$PATHS"
+if [ ! "$QUIETLY" = "quietly" ]; then
+  echo "Could not find $FILE in any of $PATHS"
 fi
 exit 1          # Not found  :(
 

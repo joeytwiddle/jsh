@@ -1,3 +1,7 @@
+# Breaks on Unix:
+# DUCOM="du -skx"
+DUCOM="du -sk"
+
 (
 
 	ARGS="$@";
@@ -13,18 +17,18 @@
 				fi
 			fi
 		done | while read X; do
-			du -x -sk "$X"
+			$DUCOM -x -sk "$X"
 		done
 	else
-		du -x -sk "$@"
+		$DUCOM -x -sk "$@"
 	fi
 
 ) | sort -n -k 1 |
 
 # Pretty printing
 while read X Y; do
-	# echo ">>$Y<<"
-	echo -e "$X\t"`ls -artFd --color "$Y"`
+	# echo -e "$X\t"`ls -artFd --color "$Y"`
+	echo "$X	"`ls -dF "$Y"`
 done
 
 # files
