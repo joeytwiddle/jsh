@@ -3,32 +3,46 @@
 
 "rm" -f $JPATH/tools/**
 
-files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | grep -v "/.ignore/"`
+echo "Collecting"
+files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | grep -v "/.ignore/" | grep -v "CVS"`
 files="$files "`find $JPATH/code/java -name "*.sh"`
-for x in $files; do
+# for x in $files; do
   #y=`echo $x | sed "s/\.sh$//"`
   #if [ ! -e $y ]; then
   #  ln -sf $x $y
   #fi
 #  echo -e "$x ... \n"
-  ln -sf $x $JPATH/tools/
-done
-# ln -sf $files $JPATH/tools/
+#   ln -sf $x $JPATH/tools/
+# done
+echo "Linking"
+ln -sf $files $JPATH/tools/
 
+echo "Renaming"
 cd $JPATH/tools
 
-# Rename any of those with .sh extensions to not have it!
-for x in `find . -name "*.sh"`; do
-  y=`echo $x | sed "s/\.sh$//"`
-  "rm" $y
-  mv -f $x $y
+# Rename any of those with .sh or .hs extensions to not have it!
+for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
+  y=`echo $x | sed "s/\.sh$//" | sed "s/\.hs$//"`
+	if test -f "$y"; then
+		J="$JPATH/code/shellscript/other/justlinks.sh"
+		A=`$J "$x"`
+		B=`$J "$y"`
+		echo
+		echo "Error: $A $B"
+		echo
+		$JPATH/bin/jfc "$A" "$B"
+		echo
+		echo "Will you?"
+		echo "del \"$A\""
+		echo "or will you"
+		echo "del \"$B\""
+		echo "?"
+		echo
+	else
+  	# "rm" $y
+	  mv -f $x $y
+	fi
 done
 
-# Rename any of those with .hs extensions to not have it!
-for x in `find . -name "*.hs"`; do
-  y=`echo $x | sed "s/\.hs$//"`
-  "rm" $y
-  mv -f $x $y
-done
-
+echo "Binaries"
 refreshbintoollinks

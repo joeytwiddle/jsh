@@ -84,7 +84,13 @@ for x in $*; do
 
 			# Remove from CVS
 			if test -d "$SRCDIR/CVS"; then
-				cvs remove $x
+				cvs remove $x > /dev/null 2>&1
+				# if test ! "$?" = "0"; then
+				if test "$?" = "0"; then
+					echo "Removed from CVS"
+				else
+					echo "Error with CVS"
+				fi
 			fi
 
     fi

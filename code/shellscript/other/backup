@@ -1,17 +1,17 @@
 # Want a safe tar, that does not copy:
 # higher directories (.*), symbolic links, executables, zips
 
-date >> /home/joey/log/cron.txt
-echo Starting routine backup >> /home/joey/log/cron.txt
+date >> /home/joey/j/log/cron.txt
+echo Starting routine backup >> /home/joey/j/log/cron.txt
 wall Hwi is performing a routine backup
 
 # echo $PATH
 alias rm='/bin/rm -f'
 
 # Copy current backups into old and clear ready for new
-mkdir /mnt/stig/backups/
-mkdir /mnt/stig/oldbackups/
-mv /mnt/stig/backups/* /mnt/stig/oldbackups
+mkdir -p /mnt/stig/backups/
+mkdir -p /mnt/stig/oldbackups/
+cp -rf /mnt/stig/backups/* /mnt/stig/oldbackups
 # echo A
 rm -r /mnt/stig/backups/*
 # echo B

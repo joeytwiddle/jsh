@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if test "x$PORTMP" = ""; then
+	export PORTMP="/tmp/portmp"
+	mkdir -p $PORTMP
+fi
+
 echo -n "$1 "
 # echo portget: getting directory "$1"
 
@@ -28,10 +33,10 @@ find $1 -size 6 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp
 find $1 -size 7 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" >> $PORTMP/tmp.portget
 # Gets directories even though it shouldn't
 # find $1 -size 8 -maxdepth 1 -prune | grep -v "\." | grep -v ",v$" | ungrep "^$1$" >> $PORTMP/tmp.portget
-forall -stealth in $JPATH/portmp/tmp.portget -filesonly do cp "\"%w\"" "\"$PORTMP/$1\""
+forall -stealth in $PORTMP/tmp.portget -filesonly do cp "\"%w\"" "\"$PORTMP/$1\""
 
 # Get subdirs (off)
 # The grep skip this dir $1, and all .* dirs $1/.* and CVS dir
-find "$1" -type d -maxdepth 1 | ungrep "^$1$" | ungrep "^$1/\." | ungrep "CVS" > $JPATH/tmp/portmp1.txt
+find "$1" -type d -maxdepth 1 | ungrep "^$1$" | ungrep "^$1/\." | ungrep "CVS" > $PORTMP/portmp1.txt
 # more $JPATH/tmp/portmp1.txt
-forall -stealth -dirsonly in $JPATH/tmp/portmp1.txt do portget "\"%w\"" $2 $PWD
+forall -stealth -dirsonly in $PORTMP/portmp1.txt do portget "\"%w\"" $2 $PWD

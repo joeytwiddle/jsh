@@ -3,7 +3,7 @@ LEFTIMGFILE=googleripleft.jpg
 RIGHTIMGFILE=googleripright.jpg
 mkdir -p $HOME/.ripgoogle
 cd $HOME/.ripgoogle
-'rm' -rf *
+# Loses original.gif: 'rm' -rf *
 
 wget www.google.com
 
@@ -11,11 +11,14 @@ HREF=`cat index.html | afterfirst "href=" | beforefirst ">" | between '\"' | hea
 HREF=`tourl "$HREF" "www.google.com"`
 echo "Got href=>$HREF<"
 
-IMG=`cat index.html | afterlast 'img' | afterlast 'src=\"' | beforefirst '\"'`
-wget "http://www.google.com/$IMG"
-IMGFILE=`echo $IMG | after /`
-echo "Got image=>$IMGFILE<"
-convert $IMGFILE -geom 80 -quality 100 $DESTIMGFILE
+# IMG=`cat index.html | afterfirst 'img' | afterfirst 'src=' | tr "\n" " " | sed "s/\ .*//g"`
+# echo "Getting image >$IMG<"
+# wget "http://www.google.com/$IMG"
+# IMGFILE=`echo $IMG | after /`
+# echo "Got image=>$IMGFILE<"
+IMG="original.gif"
+IMGFILE="original.gif"
+convert $IMGFILE -geom 60 -quality 100 $DESTIMGFILE
 IMGSIZE=`imagesize $DESTIMGFILE`
 # echo "Got image size=>$IMGSIZE<"
 IMGWIDTH=`echo $IMGSIZE | before "x"`

@@ -1,18 +1,18 @@
 #!/bin/sh
 
-DESTDIR="$JPATH/port";
+# DESTDIR="$JPATH/port";
+DESTDIR="/mnt/stig/backups/port";
 
 # This is used in calls to portget
-export PORTMP="$JPATH/portmp";
+export PORTMP="/tmp/portmp";
 
 alias rm='/bin/rm -f'
 
 #rm hwiport.*
-rm -r -f $PORTMP
+rm -rf $PORTMP
 
 mkdir $PORTMP
-mkdir $PORTMP/c
-mkdir $PORTMP/java
+mkdir -p $PORTMP/c
 
 cd $JPATH/code
 
@@ -39,13 +39,13 @@ forall -stealth -dirsonly c/tools/* do portget %w
 
 cd $PORTMP
 #chmod a-x * -R
-tar cfzh $JPATH/hwiport.tgz *
+mkdir -p "$DESTDIR"
+tar cfzh $DESTDIR/hwiport.tgz *
 
 cd $JPATH
 rm -f -r $PORTMP
 
-mkdir -p "$DESTDIR"
-mv -f hwiport.tgz "$DESTDIR"
+# mv -f hwiport.tgz "$DESTDIR"
 cp -f $JPATH/code/shellscript/installj.sh "$DESTDIR"
 echo
 echo Port created in $DESTDIR

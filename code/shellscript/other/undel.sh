@@ -1,5 +1,5 @@
 FILE="$JPATH/trash/$PWD/$1"
-if [ ! -e "$FILE" ]; then
+if test ! -f "$FILE"; then
   echo "Sorry - $FILE does not exist."
   echo "Try one of these ..."
   find $JPATH/trash -name "$1"
