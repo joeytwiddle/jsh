@@ -43,6 +43,8 @@ fi
 
 FAIL=false
 
+######## BEGIN ACTUAL UPDATE
+
 # dyndhs.org update (using hwi.ath.cx):
 /root/ipcheck/doipcheck || FAIL=true
 
@@ -71,6 +73,8 @@ FAIL=false
 # # echo "NOT UPDATING IP!"
 # echo "UPDATING IP!"
 # env TERM=vt100 lynx -auth=$USER:$PASS -dump "$WHOLEURL"
+
+######## END ACTUAL UPDATE
 
 if test "$FAIL" = "true"
 then

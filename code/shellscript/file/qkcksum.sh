@@ -1,9 +1,8 @@
 ## Like cksum but faster because only reads the start and end of each file
 ## Quick and useful for verification / indexing of written CDs
 
-## TODO: would be nice for files <=32k to just to one dd and be done with
+## TODO: would be nice (more efficient) for files <=32k to just do one dd and be done with
 ##       note that this would throw off any qkcksums people have made on small files
-##       (it might be evident if only one md5sum produced)
 
 # export LOGFILE=`jgettmp qkcsum.log`
 # export BADFILE=`jgettmp qkcsum.bad`
