@@ -4,34 +4,40 @@
 ## wget -O - http://hwi.ath.cx/installj | sh
 ## lynx -source http://hwi.ath.cx/installj | sh
 
+## TODO: Rather than requesting arguments, should ask user.  First question should be justdothedefault or choose -in -dev and -getrcs
+## TODO: Make rc files an option.
+## TODO: ability to checkout (and update) in absence of local cvs exe
+
 ## Default setup
 export JPATH="$HOME/j"
 HWIUSER=anonymous
-
-## TODO: Rather than requesting arguments, should ask user.
 
 ## Parsing user options
 while test "$1"
 do
 	case "$1" in
 		"-in")
+			JPATH="$2"
 			shift
-			JPATH="$1"
+			shift
 			## Ensure JPATH is _absolute_
 			if test ! `echo "$JPATH" | sed "s+^/.*$+ yep +"` = " yep "; then
 				JPATH="$PWD/$JPATH"
 			fi
 		;;
-		"-devel")
+		"-dev")
+			HWIUSER="$2"
 			shift
-			HWIUSER="$1"
+			shift
 			# echo "Note: if the machine you are installing on is not trusted, you should not enter you password here, but instead login to hwi using a trusted connection, cvs login there, and copy your .cvspass from hwi to this box."
 			# Nah soddit, .cvspass is a security risk anyway!
 		;;
 		*)
-			echo "$0 [ -in <directory> ] [ -devel <hwiusername> ]"
-			echo "  Default is:"
-			echo "    $0 \"\$HOME/j\" \"anonymous\""
+			echo "Usage:"
+			echo "  $0 [ -in <directory> ] [ -dev <hwiusername> ]"
+			echo "Defaults:"
+			echo "  $0 -in \"\$HOME/j\" -dev anonymous"
+			# echo "  $0 -in "$JPATH" -dev $HWIUSER"
 			exit 1
 		;;
 	esac
@@ -49,8 +55,9 @@ sleep 1
 export CVSROOT=":pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
 # Test if password already exists.
 if ! grep "^$CVSROOT" "$HOME/.cvspass" > /dev/null 2>&1; then
-	echo "Initial login to Hwi as $HWIUSER, to obtain ~/.cvspass."
-	test "$HWIUSER" = "anonymous" && echo "Please use password: anonymous"
+	# echo "Initial login to Hwi as $HWIUSER, to obtain ~/.cvspass."
+	echo "First we need to login to Hwi's cvs as $HWIUSER, to obtain ~/.cvspass."
+	test "$HWIUSER" = anonymous && echo "Please use the password \"anonymous\""
 	cvs login ||
 		exit 1
 fi
@@ -95,9 +102,11 @@ echo "Done installing."
 echo
 
 echo "To start jsh now, run $JPATH/jsh.  Then type jhelp for help."
-echo "To have jsh start automatically, put the following lines in your ~/.*shrc:"
+echo "To have jsh start automatically, do one the following:"
+echo "  For bash to ~/.bash_profile add \"/home/joey/j/jsh\""
+echo "  For zsh  to ~/.zshrc        add \". /home/joey/j/startj\""
 echo "  export JPATH=\"$JPATH\"   ## this line is optional for zsh or if JPATH=$HOME/j"
 echo "  source \"$STARTFILE\""
-echo "(You may also want to run linkhome to use my .rc files)"
+echo "You may also want to run linkhome to link in some useful .rc files."
 # echo "(Some interesting scripts: higrep, cvsdiff, monitorps, del, memo, onchange, findduplicatefiles, undelext2, b, et)"
 echo
