@@ -1,1 +1,3 @@
 read KEYPRESS
+## Also buffers until <Enter>:  :-(
+# dd bs=1 count=1

@@ -1,13 +1,14 @@
 
-# Batman:
-date | grep "Oct 31" > /dev/null &&
-PS1="\[\033[00m\]/\[\033[00;35m\]\u\[\033[00m\])\[\033[00;34m\]at\[\033[00m\](\[\033[00;35m\]\h\[\033[00m\]\\\\ \[\033[00;32m\]\w/\[\033[00m\] " ||
-# PS1="\[\033[00m\]/\[\033[00;35m\]\\/\[\033[00m\])\[\033[00;34m\]oo\[\033[00m\](\[\033[00;35m\]\\/\[\033[00m\]\\\\ \[\033[00;32m\]\w/\[\033[00m\] " ||
+# Seasonal Batman:
+# date | grep "Oct 31" > /dev/null &&
+# PS1="\[\033[00m\]/\[\033[00;35m\]\u\[\033[00m\])\[\033[00;34m\]at\[\033[00m\](\[\033[00;35m\]\h\[\033[00m\]\\\\ \[\033[00;32m\]\w/\[\033[00m\] " ||
+# # PS1="\[\033[00m\]/\[\033[00;35m\]\\/\[\033[00m\])\[\033[00;34m\]oo\[\033[00m\](\[\033[00;35m\]\\/\[\033[00m\]\\\\ \[\033[00;32m\]\w/\[\033[00m\] " ||
 
 # Quite fun:
 # PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\])\['`cursemagenta`'\]\u\['`cursenorm`'\]-\['`curseblue`'\]\t\['`cursenorm`'\]-\['`cursemagenta`'\]\h\['`cursenorm`'\](\['`cursegreen`'\]\w/\['`cursenorm`'\] '
 
-case `hostname -s` in
+# case `hostname -s` in
+case "$HOST" in
 
 	panic)
 		PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\]/\['`cursemagenta`'\]\u\['`cursenorm`'\] \['`curseblue`'\]\t\['`cursenorm`'\] \['`cursemagenta`'\]\h\['`cursenorm`'\]\\\\\['`cursegreen`'\]\w\\\\\['`cursenorm`'\] '
@@ -45,8 +46,12 @@ esac
 # PS1="[\u@\h \W]\\$ "
 # PS1="(\h \t \u) \w/ "
 
+
 if test "$TERM" = screen
-then PS1="[screen$WINDOW] $PS1"
+then
+	SCREEN_NAME=`echo "$STY" | afterfirst '\.'`
+	test "$SCREEN_NAME" || SCREEN_NAME=screen
+	PS1="[$SCREEN_NAME$WINDOW] $PS1"
 fi
 
 export PS1

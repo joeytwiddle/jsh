@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## TODO: locking of jshstub's if another jshstub is already trying to retrieve the link
+
 ## TODO: if we identify that this call was a source, shouldn't we source the target?
 
 ## Goddammit I have that classic problem when bash sources us!
@@ -37,10 +39,11 @@ SCRIPTNAME=`basename "$SCRIPTFILE"`
 # fi
 
 OKTOGO=true
+GOTBYANOTHERSTUB=
 
 if test "$SCRIPTNAME" = jshstub
 then
-	echo "jshstub: Refusing to retrieve another copy of jshstub!" >&2
+	echo "[ jshstub: Refusing to retrieve another copy of jshstub! ]" >&2
 	OKTOGO=
 fi
 
@@ -51,39 +54,76 @@ then
 	then
 		SCRIPTFILE="$JPATH/tools/$SCRIPTFILE"
 		## But of course this doesn't always work 'cos startj is often sourced with full path!
-		SCRIPT_WAS_SOURCED=true
-		# echo "jshstub: (Looks like this script was sourced)" >&2
+		SCRIPT_WAS_SOURCED="(sourced) "
+		# echo "[ jshstub: (Looks like this script was sourced) ]" >&2
 	else
 		## It seems we have problems: when the final call is made, sh caches this script and re-runs it.
 		## We end up here, but the caching continues if we try again.
-		# echo "jshstub: Strangely $SCRIPTFILE is not a symlink, trying to run it again..." >&2
+		## This caching problem still occurs occasionally with zsh
+		# echo "[ jshstub: Strangely $SCRIPTFILE is not a symlink, trying to run it again... ]" >&2
 		# "$SCRIPTFILE" "$@"
-		echo "jshstub: Aborting because $SCRIPTFILE is not a symlink!" >&2
-		OKTOGO=
+		echo "[ jshstub: $SCRIPTFILE is not a symlink! ]" >&2
+		OKTOGO=true
+		GOTBYANOTHERSTUB=true
 	fi
 fi
 
-if test "$OKTOGO"
+if test $OKTOGO
 then
 
-	rm -f "$SCRIPTFILE"
+	## Block if another jshstub is getting the script (can happen eg. | highlight ... | highlight ...)
+	## TOOD: race condition
+	LOCKFILE="$JPATH/tmp/$SCRIPTNAME.jshstub_lock"
+	if test -f "$LOCKFILE"
+	then
+		echo "[ jshstub: Waiting for lock release on $LOCKFILE ]" >&2
+		while true
+		do
+			## Check if lockfile has been cleared yet
+			if test ! -f "$LOCKFILE"
+			then GOTBYANOTHERSTUB=true; break
+			fi
+			sleep 1
+			## Timeout if lockfile is not cleared after 1 minute
+			touch -d "1 minute ago" "$LOCKFILE.compare"
+			if test "$LOCKFILE.compare" -nt "$LOCKFILE"
+			then
+				echo "[ jshstub: Timeout on $LOCKFILE.  Ploughing on... ]" >&2
+				ls -l "$LOCKFILE" "$LOCKFILE.compare" >&2
+				break
+			fi
+		done
+	fi
 
-	echo "jshstub: Retrieving \"$SCRIPTNAME\" (sourced=$SCRIPT_WAS_SOURCED, args=$*)" >&2
-	wget -q "http://hwi.ath.cx/jshstubtools/$SCRIPTNAME" -O "$SCRIPTFILE"
-
-	if test ! "$?" = 0
+	if test ! $GOTBYANOTHERSTUB
 	then
 
-		echo "jshstub: Error: failed to retrieve http://hwi.ath.cx/jshstubtools/$SCRIPTNAME" >&2
-		echo "jshstub: Replacing removed symlink" >&2
-		ln -s "$JPATH/tools/jshstub" "$SCRIPTFILE"
+		touch "$LOCKFILE"
 
-	else
+		rm -f "$SCRIPTFILE"
 
-		echo "jshstub: Got script \"$SCRIPTNAME\" ok, now running $SCRIPTFILE $* ..." >&2
-		echo >&2
+		echo "[ jshstub: Retrieving $SCRIPT_WAS_SOURCED\"$SCRIPTNAME\" args=$* ]" >&2
+		wget -q "http://hwi.ath.cx/jshstubtools/$SCRIPTNAME" -O "$SCRIPTFILE"
+
+		if test ! "$?" = 0
+		then
+			echo "[ jshstub: Error: failed to retrieve http://hwi.ath.cx/jshstubtools/$SCRIPTNAME ]" >&2
+			echo "[ jshstub: Replacing removed symlink ]" >&2
+			ln -s "$JPATH/tools/jshstub" "$SCRIPTFILE"
+			OKTOGO=
+		fi
 
 		chmod a+x "$SCRIPTFILE"
+
+		rm -f "$LOCKFILE"
+
+	fi
+
+	if test $OKTOGO
+	then
+
+		echo "[ jshstub: Got script \"$SCRIPTNAME\" ok, running: $SCRIPTFILE $* ]" >&2
+		echo >&2
 
 		# if test "$SCRIPT_WAS_SOURCED"
 		# then
@@ -98,6 +138,14 @@ then
 			# "$SCRIPTFILE" "$@"
 		# fi
 
+	else
+
+		test $OKTOGO ## false
+
 	fi
+
+else
+
+	test $OKTOGO ## false
 
 fi

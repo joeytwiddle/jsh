@@ -4,32 +4,48 @@ NL="
 "
 for X
 do
-  N=1
-  while test -e "$X.recovered.$N"
-  do N=`expr $N + 1`
-  done
-  if vim +":w $X.recovered.$N$NL:q" -r "$1" &&
-     test -f "$X.recovered.$N"
-  then
-    echo "Successfully recovered to $X.recovered.$N"
-    if cmp "$X" "$X.recovered.$N" > /dev/null
-    then
-      echo "BUT IDENTICAL to original, so REMOVING."
-      rm "$X.recovered.$N"
-      ## Now if we are really confident about this script, we could
-      ## delete the swapfile, or get vim to.
-    else
-      echo "Not identical."
-      echo "If not empty then its pretty likely the swapfile is redundant =)"
-      cursecyan
-      vimdiff "$X" "$X.recovered.$N"
-      echo "vimdiff $X $X.recovered.$N"
-      echo "del $X.recovered.$N"
-      echo del `dirname "$X"`/.`basename $X`.sw?
-      cursenorm
-    fi
+  DIR=`dirname "$X"`
+  FILE=`basename "$X"`
+  # SWAPS=`countargs $DIR/.$FILE.sw?`
+  SWAPS=` find "$DIR" -maxdepth 1 -name ".$FILE.sw?" | countlines `
+  if test $SWAPS -lt 1
+  then echo "No swapfiles found for $X"
+  elif test $SWAPS -gt 1
+  then echo "More than one swapfile found for $X"
   else
-    echo "Some problem recovering swap file (for) $X"
+
+    N=1
+    while test -e "$X.recovered.$N"
+    do N=`expr $N + 1`
+    done
+    if vim +":w $X.recovered.$N$NL:q" -r "$X" &&
+       test -f "$X.recovered.$N"
+    then
+      echo "Successfully recovered to $X.recovered.$N"
+      ## Could probably delete swapfile now, if we only knew its name!  (Use del)
+      if cmp "$X" "$X.recovered.$N" > /dev/null
+      then
+        echo "Recovered swap is identical to original, removing."
+        rm "$X.recovered.$N"
+        ## Now if we are really confident about this script, we could
+        ## delete the swapfile, or get vim to.
+        cursecyan
+      else
+        echo "Not identical."
+        ## Again, if the recovered file exists and is not empty,
+        ## then its pretty likely the swapfile is redundant, and can be removed.  =)
+        cursecyan
+        # vimdiff "$X" "$X.recovered.$N"
+        echo "vimdiff $X $X.recovered.$N"
+        echo "del $X.recovered.$N"
+      fi
+      # echo del $DIR/.$FILE.sw?
+      echo del $DIR/.$FILE.swp
+      cursenorm
+    else
+      echo "Some problem recovering swap file (for) $X"
+    fi
+
   fi
 done
 

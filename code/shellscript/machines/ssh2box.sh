@@ -1,4 +1,5 @@
 # echo $0
+## TODO: check: if our exported JPATH gets passed across the connection, it'd probably be better to clear it
 
 if test "$1" = ""; then
 	echo "ssh2box <user>@<address> [<extra-args>]"

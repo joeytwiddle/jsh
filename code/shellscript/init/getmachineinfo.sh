@@ -1,5 +1,9 @@
 #!/bin/sh
 
+## Interesting, on Hwi:
+## zsh gives MACHTYPE=i686
+## bash gives MACHTYPE=i386-pc-linux-gnu
+
 export JM_DOES_COLOUR=;
 export JM_COLOUR_LS=; # deprecated in favour of:
 export JM_LS_OPTS=;

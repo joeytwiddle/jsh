@@ -47,47 +47,47 @@ MONTHS=`expr "$MONTHS" - "$YEARS" '*' 12`
 
 STARTED=
 if test $STARTED || test "$YEARS" -gt 0; then
-	printf "$YEARS year"
+	echo -n "$YEARS year"
 	if test ! "$YEARS" = 1; then
-		printf "s"
+		echo -n "s"
 	fi
-	printf ", "
+	echo -n ", "
 	STARTED=true
 fi
 if test $STARTED || test "$MONTHS" -gt 0; then
-	printf "$MONTHS month"
+	echo -n "$MONTHS month"
 	if test ! "$MONTHS" = 1; then
-		printf "s"
+		echo -n "s"
 	fi
-	printf ", "
+	echo -n ", "
 	STARTED=true
 fi
 if test $STARTED || test "$DAYS" -gt 0; then
-	printf "$DAYS day"
+	echo -n "$DAYS day"
 	if test ! "$DAYS" = 1; then
-		printf "s"
+		echo -n "s"
 	fi
-	printf ", "
+	echo -n ", "
 	STARTED=true
 fi
 if test $STARTED || test "$HOURS" -gt 0; then
-	printf "$HOURS hour"
+	echo -n "$HOURS hour"
 	if test ! "$HOURS" = 1; then
-		printf "s"
+		echo -n "s"
 	fi
-	printf ", "
+	echo -n ", "
 	STARTED=true
 fi
 if test $STARTED || test "$MINS" -gt 0; then
-	printf "$MINS minute"
+	echo -n "$MINS minute"
 	if test ! "$MINS" = 1; then
-		printf "s"
+		echo -n "s"
 	fi
-	printf " and "
+	echo -n " and "
 	STARTED=true
 fi
-printf "$SECS second"
+echo -n "$SECS second"
 if test ! "$SECS" = 1; then
-	printf "s"
+	echo -n "s"
 fi
 echo

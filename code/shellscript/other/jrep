@@ -1,4 +1,4 @@
 while [ true ]; do
-  $@
+  eval $@
   sleep 1s
 done

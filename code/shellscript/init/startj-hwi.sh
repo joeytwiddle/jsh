@@ -1,8 +1,15 @@
 ### B # l # o # a # t # e # d # ! #
-## Todo: Offer config.global and config.local config files to ease customization and speed up startup
+## TODO: Offer config.global and config.local config files to ease customization and speed up startup
 ##       Create ". requiresenv <varname>..." script for checking for existence of neccessary shell environment variables, or exit with error.
 ##         As well as making dependent shellscripts safe, it will provide some indication to coders as to what inputs a script takes.
 ##       Further development on dependencies: find dependencies on binaries (=> packages) in PATH too, so that checks may be performed to ensure local sys meets the requirements of each shellscript.  Provide a dselect-like subset chooser.  (". requiresscripts <scriptname>...", ". requiresbins <command>...", ". requirespkgs <package>..." ?)
+
+## TODO: When a new zsh or bash is started already in the jsh environment,
+##       (eg. running xterm from within jsh)
+##       all _exported_ environment variables will still be present
+##       These need not be set all over again
+##       It would be quicker if we could skip them.
+##       Only aliases (and other shell specific stuff) need to be set.
 
 ## Are exits too harsh for a script which is likely to be sourced?
 ## Do we think it's OK because startj is run by jsh these days?
@@ -12,42 +19,48 @@
 # echo "\$\_ = >$_<"
 # echo "\$\0 = >$0<"
 # echo "\$\* = >$*<"
+# echo "\$\FUNCNAME = >$FUNCNAME<"
 # env > /tmp/env.out
 # set > /tmp/set.out
 # chmod a+w /tmp/env.out
 # chmod a+w /tmp/set.out
 
+# set -x
+## in bash on a 486 told me that points of slowness were:
+# jwhich jwhich
+# startswith CYGWIN
+# the runnable (which) checks in dirhistorysetup.zsh
+# the business with JM_UNAME
+# grepping the date in hwipromptforbash
+
+# mytime () {
+	# time "$@"
+	# echo "$@"
+# }
+
 if test "$STARTJ_BLOCK"
-then echo "startj blocked ok"
+then echo "startj blocked ok" >&2
 else
 
-	## Dangerous loop if user runs jsh from their .bashrc, so:
-	export STARTJ_BLOCK=true
-	# test -x "$BASH_BASH" && source "$BASH_BASH"
-	## TODO: can only source bashrc if it doesn't contain above
-	##       is it possible to start jsh automatically another way
-	##       should we grep bashrc to see if suitable?!
-	# test -f "$BASH_BASH" &&
-	# ! grep "\<jsh\>" "$BASH_BASH" > /dev/null &&
-	# ! grep "\<startj\>" "$BASH_BASH" > /dev/null &&
-	# . "$BASH_BASH"
 	if test "$BASH_BASH"
 	then
+		## Dangerous loop if user runs jsh from their .bashrc, so:
+		export STARTJ_BLOCK=true
+		# test -f "$BASH_BASH" &&
+		# ! grep "\<jsh\>" "$BASH_BASH" > /dev/null &&
+		# ! grep "\<startj\>" "$BASH_BASH" > /dev/null &&
+		# . "$BASH_BASH"
 		if test -f $HOME/.bash_profile
 		then . $HOME/.bash_profile
 		## Note: this elif (as opposed to fi \n if) assumes .bash_profile always sources .bashrc (like my Debian one)
 		elif test -f $HOME/.bashrc
 		then . $HOME/.bashrc
 		fi
+		unset STARTJ_BLOCK
 	fi
-	## Well maybe we should start sourcing startj again!
-	## Even the above checks do not avoid possible inf loops.
-	## But anything we do (eg. export NO_MORE_JSHS=true) would prevent the user
-	## from recursively running jsh.  (Not that I do that _that_ much!)
-	## But so that we can (we need to when a new interactive sh starts, even if started in a parent shell, because aliases still need to be set etc.)
-	unset STARTJ_BLOCK
 
 	lookslikejpath () {
+		# test -f "$1/startj"
 		test -f "$1/startj"
 	}
 
@@ -61,14 +74,14 @@ else
 		## TODO: Create a list here then loop it.
 		if lookslikejpath "$HOME/j"
 		then export JPATH="$HOME/j"
-		## This doesn't work: bash cannot see it unless we call startj direct (no source)
+		## Works for zsh, but only for bash if we call startj directly (not sourced).
 		elif lookslikejpath `dirname "$_"`
 		then export JPATH=`dirname "$_"`
-		## When I tried on Hwi with bash=2.05a-11, it needed $0
-		elif lookslikejpath `dirname "$0"`
-		then export JPATH=`dirname "$0"`
+		## Works for zsh, same problems with bash.  No point running it!
+		# elif lookslikejpath `dirname "$0"`
+		# then export JPATH=`dirname "$0"`
 		else
-			echo "startj: Could not find JPATH. Not starting."
+			echo "startj: Could not find JPATH. Not starting." >&2
 			OKTOSTART=
 		fi
 		# test "$OKTOSTART" && echo "startj: found JPATH=$JPATH"
@@ -80,99 +93,93 @@ else
 		PATHBEFORE="$PATH"
 		export PATH="$JPATH/tools:$HOME/bin:$PATH"
 
-		if jwhich jwhich
+		if ALREADY=`jwhich jsh`
 		then
-			echo "Warning: it looks like you have a different jsh in your path, which can be very dangerous (script recursion)."
-			echo "$PATH"
-			echo "Reverting PATH and not starting."
+
 			export PATH="$PATHBEFORE"
-			OKTOSTART=
-		fi
+			echo "Warning: found different set of jsh tools in your PATH at $ALREADY." >&2
+			echo "JPATH must have been altered, possibly by a different call to jsh." >&2
+			echo "Reverted PATH to avoid bouncing between them." >&2
+			## TODO: should deal with this better by clearing old jsh tools from PATH
 
-	fi
+		else
 
-	if test $OKTOSTART
-	then
+			test -f "$JPATH/global.conf" && . "$JPATH/global.conf"
+			test -f "$JPATH/local.conf" && . "$JPATH/local.conf"
 
-		test -f "$JPATH/global.conf" && . "$JPATH/global.conf"
-		test -f "$JPATH/local.conf" && . "$JPATH/local.conf"
+			## Setup user bin, libs, man etc...
+			# export PATH=$HOME/bin:$PATH
+			## not yet finished, should be option - refer to setuppath in pclark/pubbin
 
-		## Setup user bin, libs, man etc...
-		# export PATH=$HOME/bin:$PATH
-		## not yet finished, should be option - refer to setuppath in pclark/pubbin
+			# zsh on Solaris gives errors on . so I use source
 
-		# zsh on Solaris gives errors on . so I use source
+			. javainit
+			. hugsinit
 
-		. javainit
-		. hugsinit
+			### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
 
-		### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
+			if test ! "$1" = "simple"; then
 
-		if test ! "$1" = "simple"; then
+				## TODO: Separate scripts which need to run to init stuff for runtime
+				##       from scripts which do stuff that isn't dependent for later.
 
-			## TODO: Separate scripts which need to run to init stuff for runtime
-			##       from scripts which do stuff that isn't dependent for later.
+				# mytime . getmachineinfo
+				. getmachineinfo
 
-			. getmachineinfo
+				. joeysaliases
+				. cvsinit
 
-			. joeysaliases
-			. cvsinit
+				# . dirhistorysetup.bash
+				. dirhistorysetup.zsh
+				. lscolsinit
 
-			# . dirhistorysetup.bash
-			. dirhistorysetup.zsh
-			. hwipromptforbash
-			. hwipromptforzsh
-			. lscolsinit
+				alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
+				alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
+				alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
 
-			alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
-			alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
-			alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
+				export FIGNORE=".class"
 
-			export FIGNORE=".class"
+				## Avoid error if not on a tty
+				## Nice try Joey but doesn't work on kimo.
+				# if test ! "$BAUD" = "0"; then
+					mesg y
+				# fi
 
-			## Avoid error if not on a tty
-			## Nice try Joey but doesn't work on kimo.
-			# if test ! "$BAUD" = "0"; then
-				mesg y
-			# fi
+				## Message on user login/out (zsh, tcsh, ...?)
+				export WATCH=all
 
-			## Message on user login/out (zsh, tcsh, ...?)
-			export WATCH=all
+				## Which flavour shell are we running?
+				if test $ZSH_NAME; then
+					SHORTSHELL="zsh"
+					. zshkeys
+					. hwipromptforzsh
+				elif test "$BASH"; then
+					SHORTSHELL="bash"
+					. bashkeys
+					. hwipromptforbash
+					shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
+				fi
+				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt
 
-			## What shell are we running?
-			## This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
-			## $0 does OK for bash (at least when in .bash_profile!)
-			# changed for cygwin, hope solaris and linux r still happy!
-			SHELLPS="$$"
-			SHORTSHELL=`
-				# findjob "$SHELLPS" | # (not on cygwin!)
-				ps | grep "$SHELLPS" |
-				grep 'sh$' |
-				tail -1 |
-				sed "s/.* \([^ ]*sh\)$/\1/" |
-				sed "s/^-//"
-			`
-			# echo "shell = $SHORTSHELL"
-			## tcsh makes itself known by ${shell} envvar.
-			## This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
-			# dunno how we got away without this (needed for cygwin anyway):
-			SHORTSHELL=`echo "$SHORTSHELL" | afterlast "/"`
+				. xttitleprompt
 
-			## METHOD 2:
+				### Better solution in jsh.
+				# ## If user prefers zsh but has not sourced startj in their .zshrc,
+				# ## then jsh needs this hack so that it may call zsh $JPATH/startj
+				# if test "$BASH_ZSH"
+				# then
+					# ## If zsh sources .zshrc which sources startj, don't run zsh again!
+					# unset BASH_ZSH
+					# ## but don't block startj, because we want to leave its aliases in zsh
+					# # export STARTJ_BLOCK=true
+					# zsh
+					# # unset STARTJ_BLOCK
+				# fi
+				# ## Doesn't really work because aliases etc get dropped.
 
-			## Which flavour shell are we running?
-			if test $ZSH_NAME; then
-				SHORTSHELL="zsh"
-				. zshkeys
-			elif test "$BASH"; then
-				SHORTSHELL="bash"
-				. bashkeys
-				shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
-			fi
+			fi # ! simple
 
-			. xttitleprompt
-
-		fi # ! simple
+		fi # jwhich jwhich
 
 	fi # OKTOSTART
 

@@ -1,7 +1,8 @@
 #/bin/sh
 
 # Hwi:
-case `hostname` in
+# case `hostname` in
+case "$HOST" in
 
 	hwi)
 		## By far the coolest prompt
@@ -31,13 +32,20 @@ case `hostname` in
 		# For scp:
 		export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;33m%}%~/%{[00m %} "
 		# export RPROMPT="%{[00;31m%}%?%{[00m%}:%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
-		export RPROMPT="%{[0%?;30m%}(%{[00;3%?m%}err %?%{[0%?;30m%}) %{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
+		export RPROMPT="%{[0%?;30m%}[%{[00;3%?m%}err %?%{[0%?;30m%}]%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 	;;
 
 esac
 
+# if test "$SHLVL" -gt 3
+# then PROMPT="($SHLVL) $PROMPT"
+# fi
+
 if test "$TERM" = screen
-then export PROMPT="[screen$WINDOW] $PROMPT"
+then
+	SCREEN_NAME=`echo "$STY" | afterfirst '\.'`
+	test "$SCREEN_NAME" || SCREEN_NAME=screen
+	PROMPT="[$SCREEN_NAME$WINDOW] $PROMPT"
 fi
 
 ## for sh -x debugging

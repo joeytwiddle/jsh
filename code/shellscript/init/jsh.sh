@@ -55,12 +55,20 @@ else
 	then
 		## I believe zsh sources its own rc scripts automatically, so this is not needed:
 		# export BASH_BASH=$HOME/.zshrc
-		## However we are having trouble source the startj script!
+		## However we are having trouble getting zsh to source the startj script!
 		## These should work, but don't:
 		# export ENV="$JPATH/startj"
 		# env ENV="$JPATH/startj" zsh
+		## Ah no, ENV is only for sh ksh compatibility.  We could start in one of those then change options to upgrade the sh!
 		## So we actually end up sourcing startj in .zshrc :-(
+		# zsh
+		## Or use this (partially working) hack:
+		# export BASH_ZSH=why_not
+		# zsh $JPATH/startj
+		## But it's no better than:
+		source $JPATH/startj # simple ## we want half-simple, exporting VARS, but skipping aliases which won't get exported
 		zsh
+		## which isn't guaranteed to give aliases, but will work if .zshrc sources startj (for a second time!)
 	else
 		## Bash will not source its default .rcs when we specify startj, so startj has to source them itself.
 		## triggered by:

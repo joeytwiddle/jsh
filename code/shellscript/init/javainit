@@ -29,9 +29,9 @@ done
 # export CLASSPATH
 
 # Now strip all those entries that don't exist!
-if startswith `uname` "CYGWIN"; then
-	noop
-else
+# if startswith `uname` "CYGWIN"; then
+	# noop
+# else
 	CLASSPATH=`
 		echo "$CLASSPATH" | tr ":" "\n" | while read X; do
 			if test -f "$X"; then
@@ -43,7 +43,7 @@ else
 			fi
 		done | tr "\n" ":"
 	`
-fi
+# fi
 
 JIKESPATH=$CLASSPATH;
 

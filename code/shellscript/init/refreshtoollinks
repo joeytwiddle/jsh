@@ -86,6 +86,8 @@ else
 		fi
 	done
 
+	'ls' > .listing ## For jshstubinstall.  TODO: should really be done by et too.
+
 fi
 
 # echo "Skipping binaries"

@@ -1,6 +1,8 @@
-### remotediff and rsyncdiff are currently stand-alone =)
+### remotediff and rsyncdiff are currently stand-alone =) (not true: they use jgettmp!)
+## and rsyncdiff requires jfcsh locally!
 
-## Other dependencies: dd,sed,diff,cksum,sort,column,vim,ssh and jsh:jfcsh,cksum,vimdiff
+## Other dependencies locally: dd,sed,diff,cksum,sort,column,vi,ssh and jsh:jfcsh,cksum,vimdiff
+## Remotely only a few are needed: sh, cat, dd, mkdir
 
 rsyncdiffdoc () {
 cat << !
@@ -14,6 +16,18 @@ rsyncdiff - a special diff command for remotediff which lets you edit a set of r
         diff could be recommended for files present on both machines.
 !
 }
+
+if ! which jgettmp 2>&1 > /dev/null
+then
+	jgettmp () {
+		echo "/tmp/$1.$$"
+	}
+	jdeltmp () {
+		## TODO: Use it in the script then worth doing something here!
+		# rm -f "$1"
+		echo "Please delete: $1"
+	}
+fi
 
 rsyncdiff () {
 
@@ -32,7 +46,7 @@ rsyncdiff () {
 	sort -k 2 | sort -k 5 |
 	column -t -s '   ' > "$EDITFILE"
 
-	vim "$EDITFILE"
+	vi "$EDITFILE"
 
 	## TODO: error handling!
 	## eg. Could put exit 1 instead of echo "ERROR"

@@ -1,1 +1,2 @@
-ssh2box joey@resnet-ss0557.resnet.bris.ac.uk
+echo "now ghostpuppy"
+ssh2box megmeg@julesb.no-ip.org -p 2200

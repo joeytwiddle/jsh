@@ -2,8 +2,8 @@
 ## Gives you a temporary file you can use in your scripts.
 # eg: TMPFILE=`jgettmp`
 #     LOGFILE=`jgettmp my_log`
-## Can be used without quotes, eg. $TMPFILE (ie. guaranteed not to contain spaces.)
-## Actually JPATH does not guarantee that (maybe should!)
+## The filename returned can be used without quotes, eg. $TMPFILE (ie. it's guaranteed not to contain spaces.)
+## Actually JPATH does not guarantee that (but maybe it should)
 ## NOTE: You should clear your temp files after use with: jdeltmp $TMPFILE
 ## Automatic clearing has not yet been implemented.
 
@@ -16,15 +16,11 @@
 ## What if the computer's date is wrong?!
 
 ## Choosing suitable top tmp directory has been abstracted out (at cost!) for memoing (boris)
-. jgettmpdir -top
 
-if test ! "$TOPTMP"
-then error "$0: no TOPTMP"; exit 1
-fi
+test -w "$TOPTMP" || . jgettmpdir -top || exit 1
 
 # Neaten arguments (to string not needings ""s *)
-# printf "$@" causes error if no args!
-ARGS=`printf "$*" | tr -d "\n" | tr " /" "_-"`
+ARGS=`printf "%s" "$*" | tr -d "\n" | tr " /" "_-"`
 if test "x$ARGS" = "x"; then
   ARGS="$$"
 fi
@@ -34,7 +30,7 @@ X=0;
 TMPFILE="$TOPTMP/$ARGS.tmp"
 while test -f "$TMPFILE" || test -d "$TMPFILE"; do
   # X=$(($X+1));
-  X=`expr "$X" + 1`;
+  X=`expr "$X" + $$`; ## Much better at avoiding buildups.
   TMPFILE="$TOPTMP/$ARGS.$X.tmp"
 done
 
