@@ -3,4 +3,4 @@
 # xterm -fg black -bg white "$@" &
 ## Now a fancy off-white win!
 # xterm -fg "#003000" -bg "#ffffeb" "$@" &
-xterm -fg "#002000" -bg "#ffffe4" "$@" &
+xterm -fg "#002800" -bg "#ffffe4" "$@" &

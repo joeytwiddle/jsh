@@ -9,8 +9,8 @@ if test "$1" = ""; then
 	echo "  Therefore in each case below only one email will remain in your mailboxes:"
 	echo "    a mail you sent to a list, received from the list, and CCed to yourself"
 	echo "    a mail sent to two of your lists (one will get removed!)"
-	echo "  (Warning: message IDs (cksums) are not guaranteed to be unique, so if"
-	echo "   you are really unlucky it is possible that this will delete non-duplicates!)"
+	# echo "  (Warning: message IDs (cksums) are not guaranteed to be unique, so if"
+	# echo "   you are really unlucky it is possible that this will delete non-duplicates!)"
 	exit 0
 fi
 
@@ -36,8 +36,11 @@ do
 		OLDSZ=`ls -l "$X" | takecols 5`
 
 		formail -D 10000000 "$CACHEFILE" -s < "$X" > "$X-new" &&
-		mv "$X-new" "$X" ||
-		echo "removeduplicatemails: Error processing $X"
+		mv "$X-new" "$X"
+		if test ! "$?" = "0"; then
+			echo "removeduplicatemails: Error processing $X"
+			exit 1
+		fi
 
 		SZ=`ls -l "$X" | takecols 5`
 		test "$OLDSZ" = "0" && COMPRESSION="0" ||
