@@ -16,9 +16,17 @@ cvs -q status | egrep "(^File:|Repository revision:)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
 	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
 	sed "s+[	 ]*Repository revision:[^/]*$PRE\(.*\),v+\1+" |
-	while read X; do read Y; echo "$Y	# $X"; done |
-	tee "/tmp/all.txt" |
+	while read X; do read Y;
+		echo "$Y	# $X"
+		echo "./$Y" >> /dev/stderr
+	done 2> /tmp/in-repos.txt |
 	grep -v "Up-to-date"
+
+echo
+echo "Local files not in repository:"
+
+find . -type f | grep -v "/CVS/" > /tmp/local.txt
+jfc nolines /tmp/local.txt /tmp/in-repos.txt
 
 exit 0
 
