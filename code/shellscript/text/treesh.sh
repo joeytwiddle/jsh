@@ -38,35 +38,58 @@ fi
 NL="
 "
 
+TMPFILE=`jgettmp common`
+
 regexpescape () {
 	## Escapes the special regexp chars in a plain string so it can appear as a plain string in a regexp expression.
 	sed '
 		s+\[+\\\\[+g
+		s+\.+\\\\.+g
 	'
 }
 
 commonstring () {
+
   ## Returns the portion of the two input strings which is common to both. (eg. "hello", "hegelian" -> "he")
+
   ## TODO: make it faster!
-	## BUGS: does not handle special chars well (eg '.'!); should sedescape those necessary.
+
 	## To test how much of "$2" matches with "123", we build regexp like:
 	##   "(1(2(3|)|)|)"
+	## BUGS: does not handle special chars well (eg '.'!); should sedescape those necessary.
+	# echo "$FIRSTLINE" |
+	# sed "s+.+\0\\$NL+g" |
+	# grep -v "^$" |
+	# regexpescape |
+	# (
+		# while read CHAR
+		# do
+			# REGEXPHEAD="$REGEXPHEAD\($CHAR"
+			# REGEXPEND="\|\)$REGEXPEND"
+		# done
+		# REGEXP="$REGEXPHEAD$REGEXPEND"
+		# # debug "regexp = >$REGEXP<"
+		# echo "$SECONDLINE" |
+		# sed "s$REGEXP.*\1" ||
+		# error "regexping $FIRSTLINE"
+	# )
+
+	## A bit faster, no special treatment required, but a file is used!
+
 	echo "$FIRSTLINE" |
-	sed "s+.+\0\\$NL+g" |
-	grep -v "^$" |
-	regexpescape |
-	(
-	while read CHAR
-	do
-		REGEXPHEAD="$REGEXPHEAD\($CHAR"
-		REGEXPEND="\|\)$REGEXPEND"
-	done
-	REGEXP="$REGEXPHEAD$REGEXPEND"
-	# debug "+$REGEXP+"
+	sed "s+.+\0\\$NL+g" > $TMPFILE
 	echo "$SECONDLINE" |
-	sed "s$REGEXP.*\1" ||
-	error "regexping $FIRSTLINE"
-	)
+	sed "s+.+\0\\$NL+g" |
+	paste -d "\n" $TMPFILE - |
+	while read LINEA
+	do
+		read LINEB || break
+		if [ "$LINEA" = "$LINEB" ]
+		then printf "%s" "$LINEA"
+		else break
+		fi
+	done
+
 }
 
 ## An upside-down stack, with topmost line cached:
@@ -75,6 +98,8 @@ CURRENTCOMMON=""
 
 ## Guarantees final stack popping.
 ( cat "$@" && echo ) | (
+
+## TODO: escape '{'s to '&lcurl;' etc.
 
 read FIRSTLINE
 
@@ -133,3 +158,5 @@ else cat
 fi |
 
 treevim
+
+jdeltmp $TMPFILE

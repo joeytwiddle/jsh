@@ -29,11 +29,18 @@ then
 	SCRSES=`screen -list | grep "$SCRNAME" | head -1 | takecols 1`
 	if [ "$SCRSES" ]
 	then
-		echo "Rejoining screen $SCRSES with $SSHCOM"
-		screen -S $SCRSES -X screen $SSHCOM
-		screen -S $SCRSES -X title ">$*>"
-		# SSHCOM="screen -DDR -S $SCRSES"
-		SSHCOM="screen -D -R $SCRSES -S $SCRSES"
+		if [ "$SCRSES" = "$STY" ]
+		then
+			SSHCOM="screen -X screen $SSHCOM"
+			echo "Inside $SCRNAME already, so just running $SSHCOM"
+		else
+			echo "Rejoining screen $SCRSES with $SSHCOM"
+			screen -S $SCRSES -X screen $SSHCOM
+			## I have seen this applied to wrong window - I think it happens if there we occupied a spare window slot, as opposed to a new one on the right.
+			screen -S $SCRSES -X title ">$*>"
+			# SSHCOM="screen -DDR -S $SCRSES"
+			SSHCOM="screen -D -R $SCRSES -S $SCRSES"
+		fi
 	else
 		SSHCOM="screen -h 10000 -a -e^b^l -S $SCRNAME $SSHCOM"
 	fi

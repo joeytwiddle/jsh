@@ -41,7 +41,6 @@ then
 			echo "`curseyellow`Or [U]ndo changes (retrieve previous version)"
 			read INPUT
 			[ "$INPUT" = "" ] && INPUT=s
-			[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
 			case "$INPUT" in
 				e|E)
 					edit "$FILE"
@@ -62,15 +61,19 @@ then
 					cvs edit "$FILE" # that's the way i like it ;)
 					break
 				;;
-				?|??|???)
-					error "Will not accept such a small comment - assuming user error."
-				;;
-				*)
+				c|C|.|????*)
+					[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
 					echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
 					echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 					cvscommit -m "$INPUT" "$FILE" ||
 					error "cvscommit failed!"
 					break
+				;;
+				?|??|???)
+					error "Will not accept such a small comment - assuming user error."
+				;;
+				*)
+					error "$0: This should never happen"
 				;;
 			esac
 		done
