@@ -1,3 +1,17 @@
+if [ ! "$1" ] || [ "$1" = --help ]
+then
+	echo
+	echo "diffjars [ -src ] [ -diffcom <diffcom> ] <jar1> <jar2>"
+	echo
+	echo "  will extract each jar to a temporary directory, and compare the contents"
+	echo "  using diffdirs or another <diffcom> if specified."
+	echo
+	echo "  -src : decompile with jad, and show the differences in java source."
+	echo "         \"| more\" strongly recommended!"
+	echo
+	exit 1
+fi
+
 if [ "$1" = -src ]
 then
 	DECOMPILE=true; shift
@@ -18,12 +32,12 @@ JARBDIR=`jgettmpdir "$JARB"`
 
 cd $JARADIR &&
 jar xf "$JARA" &&
-[ "$DECOMPILE" ] && javadecompile 2>&1 | grep -v "^Parsing " && find $JARADIR -type "*.class" | withalldo rm
+[ "$DECOMPILE" ] && javadecompile 2>&1 | grep -v "^Parsing " && find $JARADIR -name "*.class" | withalldo rm
 
 cd $JARBDIR &&
 jar xf "$JARB" &&
-[ "$DECOMPILE" ] && javadecompile 2>&1 | grep -v "^Parsing " && find $JARBDIR -type "*.class" | withalldo rm
+[ "$DECOMPILE" ] && javadecompile 2>&1 | grep -v "^Parsing " && find $JARBDIR -name "*.class" | withalldo rm
 
 $JARDIFFCOM $JARADIR $JARBDIR
 
-jdeltmp "$JARADIR" "$JARBDIR"
+# jdeltmp "$JARADIR" "$JARBDIR"
