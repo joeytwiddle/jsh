@@ -6,11 +6,43 @@
 # 1
 ## but would be happy with reverse.
 
+if [ "$1" = -onlyat ]
+then
+	ONLYAT="$2"
+	shift; shift
+fi
+
+if [ "$1" = --help ]
+then
+cat << EOF
+
+treesh [ -onlyat <delimeter> ] [ <file> ]
+
+  will present a navigation interface for tree-like text.
+
+  Tree-like means adjacent lines start with common strings, and tend to
+  change on the right-hand side.
+
+  For an example, try:
+
+    cd $JPATH/code/shellscript
+    find . -type f | notindir CVS | treesh -onlyat /
+
+  The current navigation interface is vim with a custom folding plugin.
+  Use -=_+ to expand/contract branches or /*-+ on NumPad for levels.
+
+EOF
+exit 1
+fi
+
 NL="
 "
 
 commonstring () {
-	## To test how much of "$2" matches with "123", build regexp like:
+  ## Returns the portion of the two input strings which is common to both. (eg. "hello", "hegelian" -> "he")
+  ## TODO: make it faster!
+	## BUGS: does not handle special chars well (eg '.'!); should sedescape those necessary.
+	## To test how much of "$2" matches with "123", we build regexp like:
 	##   "(1(2(3|)|)|)"
 	echo "$FIRSTLINE" |
 	sed "s+.+\0\\$NL+g" |
@@ -22,7 +54,7 @@ commonstring () {
 		REGEXPEND="\|\)$REGEXPEND"
 	done
 	REGEXP="$REGEXPHEAD$REGEXPEND"
-	# echo "+$REGEXP+"
+	# debug "+$REGEXP+"
 	echo "$SECONDLINE" |
 	sed "s+$REGEXP.*+\1+"
 	)
@@ -33,7 +65,7 @@ COMMONSOFAR=""
 CURRENTCOMMON=""
 
 ## Guarantees final stack popping.
-( cat && echo ) | (
+( cat "$@" && echo ) | (
 
 read FIRSTLINE
 
@@ -42,7 +74,7 @@ do
 
 	# [ "$DEBUG" ] && debug
 	# [ "$DEBUG" ] && debug "commonsofar:"
-	# # echo "$COMMONSOFAR"
+	# # debug "$COMMONSOFAR"
 	# [ "$DEBUG" ] && debug "first         = $FIRSTLINE"
 	# [ "$DEBUG" ] && debug "second        = $SECONDLINE"
 	COMMON=`commonstring "$FIRSTLINE" "$SECONDLINE"`
@@ -56,7 +88,7 @@ do
 	# [ "$DEBUG" ] && debug "notbelow      = $NOTBELOW"
 	# [ "$DEBUG" ] && debug "same          = $SAME"
 
-	if [ ! $SAME ] && [ $NOTABOVE ]
+	if [ ! $SAME ] && [ $NOTABOVE ] && ( [ ! "$ONLYAT" ] || endswith "$COMMON" "$ONLYAT" )
 	then
 		# [ "$DEBUG" ] && debug ">>>>"
 		COMMONSOFAR="$COMMONSOFAR$NL$COMMON"
@@ -83,14 +115,5 @@ do
 done
 
 # SECONDLINE is now the empty line we put there, so we ignore it.  =)
-
-# echo "$SECONDLINE"
-# 
-# while [ ! "$COMMONSOFAR" = "" ]
-# do
-	# echo "- $CURRENTCOMMON...}"
-	# COMMONSOFAR=`echo "$COMMONSOFAR" | chop 1`
-	# CURRENTCOMMON=`echo "$COMMONSOFAR" | tail -1`
-# done
 
 ) | treevim

@@ -14,11 +14,6 @@ if test "$1" = "-cat" || test "$1" = "-novim"
 then CAT=true; shift
 fi
 
-FOLDINGFILE=~/.vim/plugin/joeyfolding.vim
-if test -f "$FOLDINGFILE"
-then VIMOPTS=$VIMOPTS" +:Joeyfolding"
-fi
-
 TMPFILE=`jgettmp tree`
 cat "$@" > $TMPFILE
 
@@ -49,7 +44,7 @@ else
 
 	if test "$CAT"
 	then cat
-	else vi - -R $VIMOPTS
+	else treevim
 	fi
 
 fi
