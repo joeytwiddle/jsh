@@ -36,13 +36,13 @@ fi
 
 export WATCH=all
 
-SHORTSHELL=`echo "$SHELL" | afterlast "/"`
-
-echo "shell = $SHORTSHELL"
-
 if test "$HOST" = ""; then
-	export HOST=`echo "$HOSTNAME" | beforefirst "."`
+	export HOST=`echo "$HOSTNAME" | beforefirst "\."`
+	# echo "set HOST=\"$HOST\""
 fi
+
+SHORTSHELL=`echo "$SHELL" | afterlast "/"`
+# echo "shell = $SHORTSHELL"
 
 # xterm title change
 case $TERM in
