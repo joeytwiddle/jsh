@@ -13,6 +13,8 @@ do
 
 	echo "	$LINE"
 
-done
+done |
 
-jdel $TMPFILE
+sort -n -k 1
+
+jdeltmp $TMPFILE
