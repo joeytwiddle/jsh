@@ -24,4 +24,4 @@ BASENAME=/var/lib/dpkg/info/$PACKAGENAME
 (
 	cat $BASENAME.list
 	[ -f $BASENAME.conffiles ] && cat $BASENAME.conffiles
-) | removeduplicatelines
+) # | removeduplicatelines -adj

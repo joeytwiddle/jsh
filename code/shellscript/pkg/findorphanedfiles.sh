@@ -1,3 +1,26 @@
+if [ "$1" = --help ]
+then
+cat << !
+
+findorphanedfiles [ <directory> ]
+
+  will display files in that directory which do not belong to an installed
+  package (currently dpkg/Debian only; TODO: rpm and ebuild).
+
+  It first determines all packages which *do* have files in the directory, then
+  extracts the file listing of each package, and then looks for files present
+  on the system but which are not included in the listings.
+
+  Slow package listing extraction causes it runs slowly if the directory is
+  affected by lots of packages, but it might run faster in subdirectories.
+
+  Note: does /not/ refer to the stored dpkg checksums, so will /not/ detect
+  files whose size/content has changed, only those unexpectedly present.
+
+!
+exit 1
+fi
+
 WHERE="$1"
 
 if [ ! "$WHERE" ]
