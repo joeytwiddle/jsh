@@ -1,4 +1,6 @@
 #!/bin/sh
+# jsh-ext-depends: sed
+# jsh-ext-depends-ignore: dir find file
 
 ## When compiljsh puts a wrapper sh in a function, it may call jwhich on itself.
 ## To avoid inf loop jwhich should return full path or nothing, never just the
@@ -29,7 +31,12 @@ then
     shift
 else
     # Remove all references to JLib from the path
-    PATHS=`echo "$PATH" | tr ":" "\n" | fakeungrep "$JPATH"`;
+    PATHS=`echo "$PATH" | tr ":" "\n" |
+			if [ "$JPATH" ] ## just in case we arent in jsh!
+			then fakeungrep "$JPATH"
+			else cat
+			fi
+		`
 fi
 FILE="$1"
 QUIETLY="$2"
