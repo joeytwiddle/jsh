@@ -77,9 +77,11 @@ if test ! "$1" = "simple"; then
 	## What shell are we running?
 	## This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
 	## $0 does OK for bash (at least when in .bash_profile!)
+	# changed for cygwin, hope solaris and linux r still happy!
 	SHELLPS="$$"
 	SHORTSHELL=`
-		findjob "$SHELLPS" |
+		# findjob "$SHELLPS" | # (not on cygwin!)
+		ps | grep "$SHELLPS" |
 		grep 'sh$' |
 		tail -1 |
 		sed "s/.* \([^ ]*sh\)$/\1/" |
@@ -88,13 +90,15 @@ if test ! "$1" = "simple"; then
 	# echo "shell = $SHORTSHELL"
 	## tcsh makes itself known by ${shell} envvar.
 	## This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_NAME !
-	# SHORTSHELL=`echo "$SHELL" | afterlast "/"`
+	# dunno how we got away without this (needed for cygwin anyway):
+	SHORTSHELL=`echo "$SHORTSHELL" | afterlast "/"`
 
 	## for bash, base="bash"
 	## for zsh, base="startj" !
 	# base=${0##*/}
 	# echo "base = >$base<"
 
+	# echo ">$SHORTSHELL<"
 	if test $ZSH_NAME; then
 		source zshkeys
 	fi
@@ -107,10 +111,12 @@ if test ! "$1" = "simple"; then
 
 	## Gather hostname and username
 	SHOWHOST=$HOST
-	## Fix 'cos sometimes HOSTNAME is set instead of HOST
+	## Fix 'cos sometimes HOSTNAME is set instead of HOST:
 	if test "$SHOWHOST" = ""; then
 		export SHOWHOST=`echo "$HOSTNAME" | beforefirst "\."`
 	fi
+	## Needed at least under: cygwin
+	## Also, cygwin's hostname command may not take any options.
 	SHOWHOST="$SHOWHOST:"
 	SHOWUSER="$USER@"
 

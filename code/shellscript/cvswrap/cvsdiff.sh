@@ -45,7 +45,9 @@ printf "\n"
 ## This is because "cvs status" exits with something like:
 ## cvs [status aborted]: could not find desired version 1.5 in ...
 
-cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
+printf "" > $REPOSLIST
+
+cvs -z 5 -q status "$@" | grep "\(^File:\|Repository revision:\)" |
 	# sed "s+File:[	 ]*\(.*\)[	 ]*Status:[	 ]*\(.*\)+\1:\2+" |
 	sed "s+.*Status:[	 ]*\(.*\)+\1+" |
 	sed "s+[	 ]*Repository revision:[^/]*$PRE\(.*\),v+\1+" |
@@ -53,8 +55,8 @@ cvs -z 5 -q status "$@" | egrep "(^File:|Repository revision:)" |
 	do
 		read Y
 		echo "$Y	# "`curseyellow`"$X"`cursenorm`
-		echo "./$Y" >> /dev/stderr
-	done 2> $REPOSLIST |
+		echo "./$Y" >> $REPOSLIST
+	done |
 	grep -v "Up-to-date" |
 	if jwhich column quietly; then
 		column -t -s "	"
