@@ -28,7 +28,7 @@ Usage:
   ledit hakpak new <name> : interactive create a new hakpak package
   hakpak update <name> : attempt to update to the latest version
 
-Note: hakpak is very experimental but not particularly dangerous.
+Note: hakpak is very experimental.
 
 !
 exit 1
