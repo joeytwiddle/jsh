@@ -2,7 +2,8 @@
 ## and will try to create and use a swapfile there at half the available space sizes,
 ## or in case of failure, will proceed to the next partitions with availabe space.
 
-## TODO: if a previously created swapfile is there but NOT USED, then swapon it, and if successful, don't create a new swapfile.
+## Done: if a previously created swapfile is there but NOT USED, then swapon it, and if successful, don't create a new swapfile.
+## But it will only encounter it if it's on the partition with the most available space!  Ideally we'd do a search for existing unused swapfiles first.
 
 ## List partitions
 df | drop 1 |
@@ -11,7 +12,7 @@ takecols 1 4 6 | sort -r -n -k 2 |
 ## Remove known unwanted partitions
 grep -v "^tmpfs" |
 
-pipeboth |
+# pipeboth |
 
 while read DEVICE FREE_KB MNTPNT
 do
@@ -26,8 +27,21 @@ do
 
 			SWAPFILE="$MNTPNT/moreswap.$N.swp"
 
-			if [ ! -e "$SWAPFILE" ]
+			if [ -e "$SWAPFILE" ]
 			then
+
+				if cat /proc/swaps | grep "^$SWAPFILE[ 	]" > /dev/null
+				then : ## Skipping already mounted swapfile
+				else
+					echo "Trying to make use of old unused swapfile $SWAPFILE size `filesize \"$SWAPFILE\"`"
+					swapon "$SWAPFILE" &&
+					SUCCESS=true &&
+					break
+				fi
+
+				## Proceed to next numbered swapfile
+
+			else
 
 				## DONE: this badly needs to break the for loop
 				## if dd succeeds but others do not!
@@ -42,16 +56,17 @@ do
 				swapon "$SWAPFILE" &&
 				SUCCESS=true ## since we can't break out of while from here
 
-				break ## out of for
+				break ## out of for loop
 
 			fi
 
 		done
 
 		if [ "$SUCCESS" ]
-		then break ## out of while
+		then break ## out of while loop
 		fi
 
 	fi
 
 done
+
