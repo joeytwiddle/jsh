@@ -121,7 +121,8 @@ fi |
         fi
       done
     ) |
-    sortbydirdepth
+    ## The sorting method decides which one gets kept and which deleted:
+    sortbydirdepth ## The one with the shorter dir depths (num of /s) gets kept.
     echo
   done
 

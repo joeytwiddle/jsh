@@ -1,4 +1,4 @@
-## BUG: this doesn't work if u use terminal vim, because stdin terminal has already been stolen
+## BUG: -showdiffswith doesn't work for eg. vimdiff, because stdin terminal has already been stolen :(  (xterm -e vimdiff is ok though :)
 if [ "$1" = -showdiffswith ]
 then
 	SHOWDIFFSWITH="$2"

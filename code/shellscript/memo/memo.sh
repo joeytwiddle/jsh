@@ -65,11 +65,17 @@ then
   echo "  memo -t '1 day' \"du -sk / | sort -n -k 1\""
   echo "  memo -c <check_com> (todo)"
   echo
-	echo "Todo:"
+  echo "Todo:"
   echo
   echo "  Possibly rememodiff which looks for changes since last memoed."
   echo
-	exit 1
+  echo "Bugs:"
+  echo
+  echo "  -d <dirname> and -f <filename> compare the modified time against the modified time of the memo."
+  echo "    If the memo takes a long time to generate, it may be that the files changed since it started,"
+  echo "    but before it ended, and so it should be rememo-ed, but isn't.  Could solve by changing memofile date to time that it was started."
+  echo
+  exit 1
 fi
 
 [ "$REMEMOWHEN" ] || REMEMOWHEN='false' ## or whatever we think the default should be: 1min, 5mins or 1hour; guess from files in arguments?!

@@ -1,6 +1,11 @@
 ## To use selfmemo, make the following the first command in your script:
 # . selfmemo [ -nodir ] [ <memo_opts>... ] - "$0" "$@"; shift
 
+## CONSIDER: Can't this script, since it is sourced, work out "$0" and "$@" itself?
+##           But that would require that we pass no opts, which means we cannot pass memo_opts.
+
+## TODO: Shouldn't -nodir be a part of memo instead of selfmemo?
+
 if [ "$1" = -nodir ]
 then cd /; shift
 fi

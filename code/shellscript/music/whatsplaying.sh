@@ -4,7 +4,7 @@
 
 PROGNAME=`
 	for DEV in /dev/dsp /dev/sound/dsp
-	do [ -e $DEV ] && fuser -v $DEV 2>/dev/null
+	do [ -e $DEV ] && fuser -v $DEV 2>&1
 	done |
 	drop 2 | head -n 1 | takecols 5
 `

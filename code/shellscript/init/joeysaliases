@@ -17,6 +17,8 @@ fi
 alias l='ls -l'
 alias dl='ls -ld'
 
+alias tail=prettytail
+
 ## Note: it's rather important that aliases don't get passed
 ## down to child shells / processes, because this would likely
 ## result in infinite loops.

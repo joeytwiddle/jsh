@@ -1,5 +1,5 @@
 # jsh-ext-depends: sed
-# jsh-depends: escapenewlines unescapenewlines
+# jsh-depends: escapenewlines unescapenewlines columnise
 
 ## Reformats df output to deal with long lines which can throw it off
 ## Maybe we should be using mtab instead.

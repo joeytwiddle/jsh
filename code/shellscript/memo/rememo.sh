@@ -2,6 +2,8 @@
 # jsh-depends-ignore: cursemagenta cursenorm debug
 # jsh-depends: memo jdeltmp jgettmpdir jgettmp realpath md5sum error jshwarn
 
+## TODO: I think md5sum is more CPU intensive than cksum, so we should probably use the latter.  The only reason is so that really long lines which we have to shorted in order to make files, might have different parameters beyond the clipped point, so we must somehow include these.
+
 ## TODO: Useful realisation.
 ##       In all cases where we have had to start using eval
 ##       (eg. because we want to |)

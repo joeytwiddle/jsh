@@ -143,7 +143,7 @@ do
 			##       Possible solution: find | head -n 1000 might SIGHUP the find or otherwise stop it once 1000 lines have been produced.  =)  Try it the next time the problem is encountered...
 			# nice -n 10 find . -type f |
 			## Oh dear: find was encountering "Stale NFS file handle" error and breaking out instead of continuing.
-			## This does better:
+			## This does better although it has two dependencies so find is preferable on non-symptomatic systems:
 			nice -n 10 'ls' -a -R | ls-Rtofilelist | filesonly |
 
 			# ( ## This sub-clause is needed so that the cat can send the rest of the randomorder stream somwhere, other bash under gentoo complains about a "Broken pipe"
@@ -174,7 +174,8 @@ do
 					## but we are trying to destroy the data anyway, this might actually reclaim the diskspace that would otherwise not be reclaimed.
 					## I can see this working momentarily if the file is being appended to (eg. a logfile) but not sure if it is open at specific seek points (eg. a torrent download file).
 					echo "Reclaiming: printf '' > $MNTPNT"/RECLAIM/"$FILE"
-					printf '' > "$MNTPNT"/RECLAIM/"$FILE"
+					## But we only actually do this if it /isn't/ a symlink!  (BUG TODO: This means we _will_ kill hardlinks :( )
+					issymlink "$MNTPNT"/RECLAIM/"$FILE" || printf '' > "$MNTPNT"/RECLAIM/"$FILE"
 					echo "Reclaiming: rm -f $MNTPNT"/RECLAIM/"$FILE"
 					## Now we need to turn set -e off!
 					# set +e

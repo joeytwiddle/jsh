@@ -2,6 +2,7 @@
 ##               should not perform autocomplete_from_man (which currently overrides defaults for all commands with the same COMPCTL_OPTS).
 ##               Where can we get a list of ones to avoid doing this on, and go via some other defined default?
 ##               Really autocomplete_from_man should only be for uncommon commands which don't already default completion rules.
+## Simplified: make autocomplete_from_man a fallback from better completion rules.  Find some better completion rules!
 
 ## autocomplete_from_man: Adds to bash or zsh the ability to use tab-completion for the - and -- options of the current command (provided it has a man page installed).
 ## eg.: source this script with ". ./autocomplete_from_man", then type: tar --<Tab>

@@ -1,8 +1,7 @@
-# jsh-ext-depends-ignore: from save
+# jsh-ext-depends-ignore: from save line
 # jsh-ext-depends: sort
 # jsh-depends-ignore: before removeduplicatelinespo
 ## Does not preserve order, which makes it a "set" function, whereas removeduplicatelinespo is the corresponding (slower) "list" fn.  Could rephrase / rename scripts to convey this concept.
-# jsh-depends: bounce
 # but there is a nice new version with extension po which does
 # using sort...
 
@@ -40,14 +39,14 @@ if [ "$1" = "-adj" ]
 then SORT="cat"; shift
 fi
 
-Y="what would be a non-existent string, if such a string was possible"
+Y="what would be a non-existent string, if such a string was possible (maybe sh env's NULL equiv, if we can check whether a var is set or not)" ## Pray your stream never starts with this! ## TODO could fix with a tiddly little FIRST_PASS variable!!!
 cat "$@" |
 $SORT |
 while read X
 do
   if [ ! "$X" = "$Y" ]
   then
-      bounce "$X"
+      printf "%s\n" "$X"
       Y="$X"
   fi
 done

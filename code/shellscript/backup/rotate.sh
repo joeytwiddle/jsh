@@ -27,6 +27,7 @@ then
 	echo "  never rotates <file>[.gz].0"
 	echo
 	echo "You may also wish to investigate savelog(8), part of debianutils."
+	echo "jsh rotate appears to do the opposite of lograte.  Higher numbers are more recent."
 	exit 1
 fi
 
@@ -120,7 +121,7 @@ do
 			echo "Rotating the files..."
 			## Start at 1 so 0 is not rotated.
 			X=1
-			mv "$FINALFILE.$X" "$FINALFILE.$X.oldMEGAbakB4rotate"
+			# mv "$FINALFILE.$X" "$FINALFILE.$X.oldMEGAbakB4rotate" ## ???!
 			while test "$X" -lt "$N"
 			do
 				XN=`expr "$X" + 1`

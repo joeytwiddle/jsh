@@ -15,15 +15,20 @@
 ## jsh-depends-tocheck: ...
 ## jsh-ext-depends-tocheck: ...
 
+## TODO: we might like to introduce:
+## jsh-rev-deps: depending script, ...
+## jsh-meta: something, something_else, ...
+
 ## Note: instead of commenting out, the first two could be sourced and checked at runtime.
 
 ## Turn off default mode which asks user to resolve new dependencies:
 # export DEPWIZ_NON_INTERACTIVE=true
 
-## Makes getjshdeps and getextdeps less lazy: they will check for new dependencies even if some have already been defined.
+## DEPWIZ_VIGILANT makes getjshdeps and getextdeps less lazy: they will check for new dependencies even if some have already been defined.
 ## You want this on if any of the scripts may have been changed since its dependencies were defined.  (Should really be on by default, but SLOW if user only wants to compile scripts whose dependencies are valid (ie. on up-to-date jsh's, should be able to default off!), and FORCES INTERACTION unless DEPWIZ_NON_INTERACTIVE is set.)  Recommended solution: jsh developers have DEPWIZ_VIGILANT set, but by default it is off.  Or, invert the meaning of the boolean, but have neat checkouts set the var.
 ## Vigilance is not needed in order to include dependencies for scripts for which no dependency info has been generated, because vigilant checking is normal for such scripts.
 [ "$DEPWIZ_NOT_VIGILANT" ] || export DEPWIZ_VIGILANT=true
+## As you can see, it currently defaults to vigilant (not lazy)
 
 ## Makes getjshdeps and getextdeps very lazy: they won't check even if the script has no dependency info of that type
 # export DEPWIZ_LAZY=true
@@ -34,6 +39,8 @@
 ## TODO: error exit if no line, but empty exit if empty line
 
 ## TODO: suggest removal of dependencies which findjshdeps no longer sees, but how to pin it in the rare case that it's OK?
+
+## TODO: what needs to be documented, and is most relevant for compilejshscript, is whether "unsure" dependencies are returned or not when compilejshscript is running but not interactively.
 
 function getrealscript () {
 	if ! jwhich inj "$1"

@@ -1,3 +1,11 @@
+# jsh-depends-ignore: wine xterm
+# jsh-ext-depends: find seq wine
+# jsh-depends: randomorder wineonedemo
+
+## I think wine+demoz are more likely to work if you set wine's "window management" to "desktop" (i use 1024x768).
+
+DEMODIRS="/stuff/software/demoz/recommend/ /mnt/cdrom/stuff/software/demoz/recommend/"
+
 if test "$1" = "topdown" || test "$1" = "bestfirst"; then
 	for X in `seq 10 -1 0`; do
 		winealldemoz "/$X/"
@@ -5,7 +13,7 @@ if test "$1" = "topdown" || test "$1" = "bestfirst"; then
 	exit 0
 fi
 
-find "/stuff/software/demoz/recommend/" -type f |
+find $DEMODIRS -type f |
 grep "/wine/" |
 # Optional:
 if test "$1" = ""; then
@@ -20,7 +28,8 @@ while read X; do
 
 	echo "$X"
 
-	`jwhich xterm` -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
+	'xterm' -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
+	# /usr/bin/X11/xterm -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
 	# wineonedemo "$X"
 
 done
