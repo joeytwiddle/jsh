@@ -2,6 +2,8 @@
 ## This script assumes dd blocks.  Fortunately it does!
 ## This script saves a temporary copy of the stream contents, so don't use it if the stream is very long or unbounded.
 ## If the full contents of the stream is too large, this script is not suitable, since it must temporarily save the stream contents in a file.
+## Hmm well it works over networks at least, maybe helped if stdout/err are sent in sync over ssh.
+## But it doesn't always work.
 
 TMPFILE=`jgettmp catwithprogress`
 
