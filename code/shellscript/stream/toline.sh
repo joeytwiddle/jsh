@@ -5,14 +5,20 @@
 ## Might be useful to escape '/'s, '&'s, and '?'s:
 # sed 's+\(/\|\&\|\?\)+\\\\\1+g'
 
+AWKOPTS=""
+## Interactive mode is line-buffered, which can be nice if you want to watch output until line is reached, but only available with mawk.
+if realpath `which awk` | grep /mawk > /dev/null
+then AWKOPTS="-W interactive"
+fi
+
 if [ "$1" = -x ]
 then
 	shift
 	PAT="$1"
-	awk -W interactive ' /'"$PAT"'/ { exit } { print $0'\n' } '
+	awk $AWKOPTS ' /'"$PAT"'/ { exit } { print $0'\n' } '
 else
 	PAT="$1"
-	awk -W interactive ' { print $0'\n' } /'"$PAT"'/ { exit } '
+	awk $AWKOPTS ' { print $0'\n' } /'"$PAT"'/ { exit } '
 fi
 
 # echo "AWK OVER" >&2
@@ -24,7 +30,9 @@ fi
 ## to wait until a certain point in a stream is reached
 ## (eg. watching for particular even in a logfile).
 ## TODO: Note I also had to make awk interactive to achieve this, which is actually a mawk option that might cause problems on Solaris, etc.
-cat > /dev/null &
+
+## Didn't work on orion: cat > /dev/null &
+cat > /dev/null
 
 # # OUT="/dev/stdout"
 # OUT="&1" ## Ha! It was saving a file with that name!

@@ -38,7 +38,7 @@ rsyncdiff () {
 	jfcsh "$2" "$1" > "$2.only"
 	(
 		cat "$1.only" |
-		while read X; do grep "$X$" "$1.longer"; done |
+		while read X; do grep "$X$" "$1.longer"; done | ## TODO: assert exactly one match per X
 		sed "s/^/send  /"
 		cat "$2.only" |
 		while read X; do grep "$X$" "$2.longer"; done |
@@ -105,6 +105,8 @@ rsyncdiff () {
 	done
 
 	## BUG TODO: vimdiff doesn't work because it's inside a pipe!
+	# Could try running it inside a new bash?
+	# or reading files=`...`
 
 	cat "$EDITFILE" | grep "^diff " |
 	while read LOCATION DATETIME CKSUM LEN FILENAME
@@ -181,7 +183,7 @@ fi
 
 ### Set up commands for cksum retrieval:
 
-FINDOPTS="-type f $@"
+FINDOPTS="-type f $1"
 echo "Find options: $FINDOPTS"
 
 CKSUMCOMEXT=""
@@ -211,7 +213,7 @@ REMOTECOM='cd "'"$RDIR"'" && eval "find . '"$FINDOPTS"'" | '"$CKSUMCOM"
 ### Get the cksums:
 
 echo "Getting cksums for remote $RHOST:$RDIR"
-debug ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" '>' "T$MPTWO.longer" "&&" echo "Got remote"
+debug ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" '>' "$TMPTWO.longer" "&&" echo "Got remote"
 ssh -C -l "$RUSER" "$RHOST" "$REMOTECOM" > "$TMPTWO.longer" && echo "Got remote" &
 
 echo "Getting cksums for local $LOCAL"
@@ -223,8 +225,17 @@ wait
 
 ## Post-process results if required:
 
-cat "$TMPONE.longer" | cut -d " " -f 2,3,4 > "$TMPONE"
-cat "$TMPTWO.longer" | cut -d " " -f 2,3,4 > "$TMPTWO"
+if [ "$DIFFCOM" = rsyncdiff ]
+then
+	## Removes the extra cksum (date) info to allow easier diffing
+	# cat "$TMPONE.longer" | cut -d " " -f 2,3,4 > "$TMPONE"
+	# cat "$TMPTWO.longer" | cut -d " " -f 2,3,4 > "$TMPTWO"
+	cat "$TMPONE.longer" | sed 's+^[^ 	]*[ 	]*++' > "$TMPONE"
+	cat "$TMPTWO.longer" | sed 's+^[^ 	]*[ 	]*++' > "$TMPTWO"
+else
+	cat "$TMPONE.longer" > "$TMPONE"
+	cat "$TMPTWO.longer" > "$TMPTWO"
+fi
 
 # Some diffs work badly if not sorted:
 preparefordiff () {
@@ -249,4 +260,4 @@ fi
 # echo "Comparing $LOCAL to $RHOST:$RDIR using $DIFFCOM ..."
 echo "Comparing local to remote using \"$DIFFCOM\" ..."
 
-"$DIFFCOM" "$TMPONE" "$TMPTWO" | tee "$TMPTHREE"
+"$DIFFCOM" "$TMPONE" "$TMPTWO" # | tee "$TMPTHREE"

@@ -2,7 +2,7 @@
 # jsh-depends: cursecyan cursemagenta cursenorm jwatchcomp breakonctrlc jdeltmp jgettmp
 if test "$1" = "" || test "$1" = --help
 then
-	echo "jwatch [ -oneway ] [ -quiet ] [ -direct ] [ -delay <seconds> ] ... <command>"
+	echo "jwatch [ -oneway ] [ -quiet ] [ -delay <seconds> ] [ -direct ] ... <command>"
 	echo "  Executes the given command every 5 seconds, and reports changed lines."
 	echo "  -oneway: does not show dropped lines (red), only shows new lines (white)."
 	echo "  -quiet:  does not do initial verbose command check" ## CONSIDER: alternatively, -verbose could be a recommended sh alias, and quiet the default
@@ -17,6 +17,13 @@ fi
 
 if test "$1" = -quiet
 then QUIET=true; shift
+fi
+
+DELAY=5
+if [ "$1" = -delay ]
+then
+	DELAY="$2"
+	shift; shift
 fi
 
 if test "$1" = -direct
@@ -37,13 +44,6 @@ else
 	# chmod a+x "$EXECSH"
 	## We default to pipe method:
 	METHOD='echo "$EXECSTR" | sh'
-fi
-
-DELAY=5
-if [ "$1" = -delay ]
-then
-	DELAY="$2"
-	shift; shift
 fi
 
 NEW=`jgettmp "new-$1"`

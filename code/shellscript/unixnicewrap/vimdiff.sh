@@ -20,8 +20,7 @@ fi
 if test "$SOFAR" -gt "160"
 then SOFAR="160"
 fi
-# if test "$COLUMNS" -lt "$SOFAR" && xisrunning
-if true
+if test "$COLUMNS" -lt "$SOFAR" && xisrunning
 then
 	# echo "Terminal width $COLUMNS < $SOFAR needed, forking."
 	xterm -geometry "$SOFAR"x`expr "$SOFAR" / 2` -e `jwhich vimdiff` "$EXTRAARGS" "$@"
