@@ -1,1 +1,3 @@
-grepcount $@ | awk ' BEGIN { FS=":" }; { printf($1"\n"); } '
+# grepcount $@ | awk ' BEGIN { FS=":" }; { printf($1"\n"); } '
+grep -l $*
+

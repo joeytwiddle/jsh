@@ -70,7 +70,7 @@ source dirhistorysetup.zsh
 source hwipromptforbash
 source hwipromptforzsh
 source javainit
-# source hugsinit
+source hugsinit
 source lscolsinit
 
 # mesg y
