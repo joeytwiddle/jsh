@@ -66,6 +66,7 @@ do
 
 done
 
+echo "$TMPDIR"
 diffgraph $TMPDIR/*.lyrics.nopun | sed "s+$TMPDIR++g"
 # diffgraph -diffcom worddiff $TMPDIR/*.lyrics.nopun
 # diffgraph -diffcom proportionaldiff $TMPDIR/*.lyrics.nopun
