@@ -34,6 +34,7 @@ then
 	if [ x ]
 	then
 		# WINLIST="%{$WINDOWBAR} %{$WINDOWHIGHLIGHT} %n %t %{kw} %{$WINDOWBAR} %W "
+		# WINLIST="%{$WINDOWBAR} %{$WINDOWHIGHLIGHT} %n %{$WINDOWBAR} %w "
 		## todo
 		RIGHTJUST=""
 		DATEBIT="%d/%M %c"
