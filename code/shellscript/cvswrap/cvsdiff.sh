@@ -18,12 +18,13 @@ do
 		;;
 		-h|--help)
 			echo "cvsdiff [ -all [ -del ] ] [<files>]"
+			echo "  Pretty prints the status of your checkout relative to the repository."
 			echo "  Without -all you get a brief listing of the status of your CVS files."
 			echo "  With -all you get a full listing:"
 			echo "    It suggests you add local files which are not in the repository."
 			echo "    Without -del it suggests you update repository files you do not have."
 			echo "    With -del it suggests removal of repository files you do not have."
-			echo "  Note: I think cvsdiff only works properly after a cvs update."
+			echo "  Note: cvsdiff only works properly after a cvs update (see TODO)."
 			echo "cvsdiff -vimdiff"
 			echo "  Performs a cvsvimdiff on each uncommited file."
 			echo "  If you write the file during its session, it will be committed."
