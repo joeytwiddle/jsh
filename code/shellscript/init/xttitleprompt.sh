@@ -13,11 +13,15 @@ then
 	# fi
 
 	## Gather hostname and username
-	SHOWHOST=$HOST
+	SHOWHOST=$HOST ## cache it?
 	## Fix 'cos sometimes HOSTNAME is set instead of HOST
-	if test "$SHOWHOST" = ""; then
-		export SHOWHOST=`echo "$HOSTNAME" | beforefirst "\."`
+	if [ ! "$SHOWHOST" ]
+	then SHOWHOST="$HOSTNAME"
 	fi
+	if [ ! "$SHOWHOST" ]
+	then SHOWHOST=`hostname`
+	fi
+	SHOWHOST=`echo "$SHOWHOST" | beforefirst "\."`
 
 	## If we are in a screen, but not on the local machine, we must have ssh'ed somewhere from within screen.
 	SCRHEAD=""
@@ -28,6 +32,8 @@ then
 		SCRHEAD="($SHOWHOST)"
 		screentitle -remote "$SCRHEAD"
 	fi
+
+	## However, if we are in a local screen, ...
 
 	SHOWHOST="$SHOWHOST:"
 	SHOWUSER="$USER@"
