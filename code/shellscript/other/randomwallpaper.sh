@@ -17,6 +17,7 @@ do
 	REPEAT=
 
 	# cd $JPATH/wallpapers
+	[ "$WALLPAPERDIRS" ] || WALLPAPERDIRS="/usr/share/wallpapers" # /stuff/mirrors/" # /www/uploads/"
 
 	FILETYPES="jpg jpeg gif bmp pcx lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
 	SEARCHARGS=' -iname "*.'` echo "$FILETYPES" | sed 's+ +" -or -iname "*.+g' `'"'
