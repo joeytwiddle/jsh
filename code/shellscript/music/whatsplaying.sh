@@ -1,6 +1,6 @@
 # tail -1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
 
-PROGNAME=`fuser -v /dev/dsp | drop 2 | head -1 | takecols 5`
+PROGNAME=`fuser -v /dev/dsp | drop 2 | head -n 1 | takecols 5`
 
 if [ ! "$PROGNAME" ]
 then

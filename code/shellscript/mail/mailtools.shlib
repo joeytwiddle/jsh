@@ -82,15 +82,15 @@ getaddresses() {
 	# NUM=`mailcount`
 	# for N in `seq 1 $NUM`
 	# do
-		# # maildo $N | grep "^From:" | head -1 | dropcols 1
-		# # maildo $N | grep "^Date:" | head -1 | dropcols 1
-		# # EMAIL=`maildo $N | grep "^From:" | head -1 | dropcols 1 | after "<" | before ">"`
-		# # DATE=`maildo $N | grep "^Date:" | head -1 | dropcols 1 | after "Date: "`
+		# # maildo $N | grep "^From:" | head -n 1 | dropcols 1
+		# # maildo $N | grep "^Date:" | head -n 1 | dropcols 1
+		# # EMAIL=`maildo $N | grep "^From:" | head -n 1 | dropcols 1 | after "<" | before ">"`
+		# # DATE=`maildo $N | grep "^Date:" | head -n 1 | dropcols 1 | after "Date: "`
 		# # echo "$EMAIL	$DATE"
 		# printf "$N/$NUM: "
 		# maildo $N | tostring "" |
 		# grep "^From:" |
-		# head -1
+		# head -n 1
 	# done |
 	# dropcols 1 |
 
@@ -122,7 +122,7 @@ listsenders() {
 	# for X in `seq 1 \`mailcount\``
 	# do
 		# getmail "$X" |
-		# head -1
+		# head -n 1
 	# done |
 	# takecols 2 |
 	# removeduplicatelines

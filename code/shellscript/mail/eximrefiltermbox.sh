@@ -37,7 +37,7 @@ cat /tmp/mbox | formail -s $COMMAND
 # for N in `seq 1 $COUNT`
 # do
 # 
-	# WHO=`getmail $N | grep "^From: " | head -1 | sed 's+From: ++'`
+	# WHO=`getmail $N | grep "^From: " | head -n 1 | sed 's+From: ++'`
 # 
 	# echo "### $N <- $WHO"
 # 

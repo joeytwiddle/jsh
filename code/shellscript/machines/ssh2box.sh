@@ -37,7 +37,7 @@ then
 	# SCRNAME="$1"
 	SCRNAME="boxen"
 	export SCREENNAME="$SCRNAME"
-	SCRSES=`screen -list | grep "$SCRNAME" | head -1 | takecols 1`
+	SCRSES=`screen -list | grep "$SCRNAME" | head -n 1 | takecols 1`
 	## TODO: try doing: inscreendo $SSHCOM
 	if [ "$SCRSES" ]
 	then

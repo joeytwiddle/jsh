@@ -2,7 +2,7 @@
 # IP=`/sbin/ifconfig | grep P-t-P | afterfirst : | takecols 1 | tr -d " "`
 
 ## For cable modem on eth1:
-IP=`/sbin/ifconfig | fromline "^eth1" | grep "inet addr:" | head -1 | afterfirst : | takecols 1 | tr -d " "`
-# IP=`/sbin/ifconfig eth1 | fromline "^eth1" | grep "inet addr:" | head -1 | afterfirst : | takecols 1 | tr -d " "`
+IP=`/sbin/ifconfig | fromline "^eth1" | grep "inet addr:" | head -n 1 | afterfirst : | takecols 1 | tr -d " "`
+# IP=`/sbin/ifconfig eth1 | fromline "^eth1" | grep "inet addr:" | head -n 1 | afterfirst : | takecols 1 | tr -d " "`
 
 echo "$IP"

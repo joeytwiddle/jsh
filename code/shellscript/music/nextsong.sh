@@ -6,8 +6,8 @@
 # }
 
 whichmediaplayer () {
-	# fuser -v /dev/dsp | drop 2 | head -1 | takecols 5
-	fuser -v /dev/dsp | grep "^/dev/dsp" | head -1 | takecols 5
+	# fuser -v /dev/dsp | drop 2 | head -n 1 | takecols 5
+	fuser -v /dev/dsp | grep "^/dev/dsp" | head -n 1 | takecols 5
 }
 
 PLAYER=`whichmediaplayer`

@@ -19,10 +19,12 @@
 
 ## Turn off default mode which asks user to resolve new dependencies:
 # export DEPWIZ_NON_INTERACTIVE=true
+
 ## Makes getjshdeps and getextdeps less lazy: they will check for new dependencies even if some have already been defined.
 ## You want this on if any of the scripts may have been changed since its dependencies were defined.  (Should really be on by default, but SLOW if user only wants to compile scripts whose dependencies are valid (ie. on up-to-date jsh's, should be able to default off!), and FORCES INTERACTION unless DEPWIZ_NON_INTERACTIVE is set.)  Recommended solution: jsh developers have DEPWIZ_VIGILANT set, but by default it is off.  Or, invert the meaning of the boolean, but have neat checkouts set the var.
-## Vigilance is not needed in order to include dependencies for scripts for which no dependency info has been generated, because vigilance is normal in that for such scripts.
+## Vigilance is not needed in order to include dependencies for scripts for which no dependency info has been generated, because vigilant checking is normal for such scripts.
 [ "$DEPWIZ_NOT_VIGILANT" ] || export DEPWIZ_VIGILANT=true
+
 ## Makes getjshdeps and getextdeps very lazy: they won't check even if the script has no dependency info of that type
 # export DEPWIZ_LAZY=true
 
@@ -37,7 +39,7 @@ function getrealscript () {
 	if ! jwhich inj "$1"
 	then
 		error "Not found inj: $1"
-		find "$JPATH/code/shellscript" -name "$1" -or -name "$1".sh | notindir CVS | head -1
+		find "$JPATH/code/shellscript" -name "$1" -or -name "$1".sh | notindir CVS | head -n 1
 	fi
 }
 
@@ -124,7 +126,7 @@ function adddeptoscript () {
 		then
 			debug "NEW_ENTRY"
 			(
-				if head -1 "$REALSCRIPT" | grep "^#!" > /dev/null
+				if head -n 1 "$REALSCRIPT" | grep "^#!" > /dev/null
 				then DROP=1
 				else DROP=0
 				fi
@@ -166,6 +168,7 @@ function addnewdeps () {
 			# echo "$DEP? " >&2
 			# jshwarn "Vigilance suggests '$DEP' may be a dependency, but non-interactiveness means we aren't including it, or are we?  We probably should!"
 			jshwarn "jshdepwiz: Unchecked possible dependency of $SCRIPT on '$DEP'"
+			## Actually I think this is ok.  Provided lazy isn't on, DEPWIZ_NON_INTERACTIVE or empty dependencies will cause a re-gendeps, which means the whole set gets returned.
 		else
 			echo "`curseyellow`jshdepwiz: Calls to `cursered;cursebold`$DEP`curseyellow` are made in `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
 			higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2

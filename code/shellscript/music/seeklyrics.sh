@@ -137,7 +137,7 @@ then
 
 	pipeboth |
 
-	head -1 |
+	head -n 1 |
 
 	while read SCORE PAGE
 	do

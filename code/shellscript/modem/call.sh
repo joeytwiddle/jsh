@@ -15,7 +15,7 @@ else
 	CHOICE=`
 		phonelookup "$TARGET" |
 		extractregex "[0-9]+( [0-9]+|)" |
-		head -1
+		head -n 1
 	`
 
 	if [ ! "$CHOICE" ]

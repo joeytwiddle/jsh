@@ -66,7 +66,7 @@ do
 	while true
 	do
 
-		PARENT=`grep "^$CURRENTCLASS" $ANCESTRY | head -1 | takecols 2`
+		PARENT=`grep "^$CURRENTCLASS" $ANCESTRY | head -n 1 | takecols 2`
 		# PARENT=`
 			# java jlib.JReflect "$CURRENTCLASS" 2>/dev/null |
 			# grep " extends " |
