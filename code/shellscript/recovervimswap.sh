@@ -26,13 +26,13 @@ do
       ## Could probably delete swapfile now, if we only knew its name!  (Use del)
       if cmp "$X" "$X.recovered.$N" > /dev/null
       then
-        echo "Recovered swap is identical to original, removing."
-        rm "$X.recovered.$N"
+        echo "Recovered swap is identical to original, recommend removing with:"
+        rm "$X.recovered.$N" ## remove temp file
         ## Now if we are really confident about this script, we could
         ## delete the swapfile, or get vim to.
         cursecyan
       else
-        echo "Not identical."
+        echo "Not identical, but recovered, so you can remove the swapfile with:"
         ## Again, if the recovered file exists and is not empty,
         ## then its pretty likely the swapfile is redundant, and can be removed.  =)
         cursecyan
