@@ -1,2 +1,0 @@
-# /stuff/install/StarOffice5.1/bin/soffice "$@" &
-`jwhich soffice` "$@" &
