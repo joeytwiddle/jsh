@@ -153,7 +153,7 @@ echo >&2
 export TMPFILE MAINSCRIPT
 ## Perform cleanup, and add main call to main script's function:
 (
-	echo "## $MAINSCRIPT [compiled on `date +'%Y/%m/%d.%H:%M'` by $USER@`hostname -f`]"
+	echo "## $MAINSCRIPT [compiled on `date +'%Y/%m/%d-%H:%M'` by $USER@`hostname -f`]"
 	echo "## Copyright 2003 Free Software Foundation, released under GNU Public Licence"
 	echo "## This is silly - what does GPL mean for non-binarised software?!"
 	echo "## Homepage: http://hwi.ath.cx/twiki/bin/view/Neuralyte/ProjectJsh"

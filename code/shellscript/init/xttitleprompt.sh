@@ -64,7 +64,10 @@ then
 				export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
 				## screen title: "[" <directory> "]"
 				# export TITLEBAR="$TITLEBAR\[k[\w]\\\\\]"
-				export TITLEBAR="$TITLEBAR\[k$SCRHEAD\w/\\\\\]"
+				# if [ "$STY" ]
+				if [ "$TERM" = screen ]
+				then export TITLEBAR="$TITLEBAR\[k$SCRHEAD\w/\\\\\]"
+				fi
 				# export TITLEBAR="$TITLEBAR`screentitle \"$SCRHEAD/\w/\"`" ## marche pas
 				## but it might be better if it did, at least bash would pass back to remote screens
 				## but also it wouldn't pass to local either!
