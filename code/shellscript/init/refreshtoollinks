@@ -26,7 +26,7 @@ for x in `find . -name "*.sh"` `find . -name "*.hs"`; do
 		if cmp "$A" "$B"; then
 			echo "Identical."
 		else
-			$JPATH/bin/jfc "$A" "$B"
+			$JPATH/code/shellscript/fake/jfcsh.sh "$A" "$B"
 		fi
 		echo
 		echo "Will you?"
