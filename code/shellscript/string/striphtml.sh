@@ -1,8 +1,8 @@
 ## Oops leaves a 0 length file
-TMPF=`jgettmp striphtml`.html
-cat "$@" > "$TMPF"
-lynx -dump "$TMPF"
-jdeltmp "$TMPF"
+TMPF=`jgettmp striphtml`
+cat "$@" > "$TMPF".html
+lynx -dump "$TMPF".html
+jdeltmp "$TMPF" "$TMPF".html
 exit
 
 #################################################
