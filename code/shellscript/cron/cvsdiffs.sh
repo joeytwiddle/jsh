@@ -1,7 +1,7 @@
 for X in c shellscript haskell java; do
 
   echo
-  echo "# code/$X -------------------------------------"
+  echo "# code/$X -----------------------------------------------"
   cd $JPATH/code/$X
   cvsdiff
 
@@ -17,7 +17,7 @@ done
 # cvsdiff shellscript
 
 echo
-echo "# servlets -------------------------------------"
+echo "# servlets -----------------------------------------------"
 cd $JPATH/code/java/servlets
 cvsdiff
 
