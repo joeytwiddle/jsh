@@ -7,7 +7,7 @@ then
 elif [ ! "$*" ]
 then
 
-	df -h
+	flatdf -h
 
 else
 
@@ -16,7 +16,7 @@ else
 		MOUNTPNT="`wheremounted \"$WHERE\"`"
 		REALPATH=`realpath "$WHERE"`
 		REST=`echo "$REALPATH" | afterfirst "$MOUNTPNT"`
-		df -h |
+		flatdf -h |
 		grep "$MOUNTPNT$" |
 		sed "s|[ 	]$MOUNTPNT| $MOUNTPNT`cursegreen`$REST`cursenorm`|g" |
 		if [ -d "$MOUNTPNT/RECLAIM" ]

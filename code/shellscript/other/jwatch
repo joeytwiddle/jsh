@@ -3,7 +3,7 @@
 if test "$1" = "" || test "$1" = --help
 then
 	echo
-	echo "jwatch [ -oneway ] [ -quiet ] [ -delay <seconds> ] [ -direct ] ... <command>"
+	echo 'jwatch [ -oneway ] [ -quiet ] [ -delay <seconds> ] [ -direct ] ... "<command>"'
 	echo
 	echo "  Executes the given command every 5 seconds, and reports changed lines."
 	echo

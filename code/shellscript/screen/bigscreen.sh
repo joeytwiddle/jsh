@@ -27,7 +27,8 @@ fi
 
 # echo $ARGS $GEOM +sb -sl 5000 -vb -si -sk -bg black -fg white -font "$FONT" "$@"
 
-export SCREEN_COMMAND_CHARS="^aa" ## we don't want to use jsh's default because we want it to seem transparent, so we use the original default
+# export SCREEN_COMMAND_CHARS="^aa" ## we don't want to use jsh's default because we want it to seem transparent, so we use the original default
+export SCREEN_COMMAND_CHARS="^bb" ## we don't want to use jsh's default because we want it to seem transparent, so we use the original default
 ## Problem with export, it reaches child screens too.
 # SCREEN_COMMAND_CHARS="^aa" ## we don't want to use jsh's default because we want it to seem transparent, so we use the original default
 ## Now unset in screen script

@@ -3,7 +3,7 @@
 ## or in case of failure, will proceed to the next partitions with availabe space.
 
 ## Done: if a previously created swapfile is there but NOT USED, then swapon it, and if successful, don't create a new swapfile.
-## But it will only encounter it if it's on the partition with the most available space!  Ideally we'd do a search for existing unused swapfiles first.
+## TODO: But it will only encounter it if it's on the partition with the most available space!  Ideally we'd do a search for existing unused swapfiles first.
 
 ## List partitions
 df | drop 1 |

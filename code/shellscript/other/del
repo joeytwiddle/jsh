@@ -31,6 +31,8 @@ then
 	echo '    /RECLAIM on same partition (see reclaimspace), $TRASHDIR, $JPATH/trash,'
 	echo '    $HOME/.trash, or /tmp/$USER-trash'
 	echo '  The option -cvs also runs "cvs remove" on each file.'
+	echo
+	echo '  del can/should be a lossy history manager.  ;)'
 	exit 1
 fi
 

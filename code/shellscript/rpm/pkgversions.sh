@@ -2,6 +2,7 @@
 # jsh-ext-depends: sed apt-cache
 # jsh-depends: cursecyan cursenorm drop tostring
 ## TODO: Change "[Selected]" to "[Installed]" to be accurate, but also check for dependencies on it by other scripts!
+## Doh!  See also: apt-show-versions
 for X in "$@"
 do
 	if [ "$1" != "$*" ]

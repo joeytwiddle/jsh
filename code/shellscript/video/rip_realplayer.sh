@@ -6,6 +6,10 @@
 # export DISPLAY=:0
 # br=8
 
+## NOTE: as of now I am changing it to rip all streams (currently starting to introduce mms: to this script)
+## TODO: I want it to provide options to watch and / or capture.  I also would like it to be a "Web TV tuner", and even allow it to get another channel in a multitasking type way.
+##       I doubt Xdialog can be used in a multitasking way nicely (killing it and respawning to present update will prolly kill users current gui state).  Is there a better alternative?
+
 function nicefilename () {
 	echo "$*" |
 	tr '/:;"& ~<>'"'" '_'
@@ -39,9 +43,10 @@ else
 	RPURL="$URL"
 fi
 
-if ! startswith "$RPURL" "rtsp://" && ! startswith "$RPURL" "pnm://" && ! startswith "$RPURL" "file://"
+# if ! startswith "$RPURL" "rtsp://" && ! startswith "$RPURL" "pnm://" && ! startswith "$RPURL" "file://"
+if ! echo "$RPURL" | egrep "^(rtsp|pnm|mms|file)://" >/dev/null
 then
-	error "Got $RPURL which is not an rtsp:// or pnm://"
+	error "Got $RPURL which is not (yet) one of the recognised protocols."
 	exit 1
 fi
 
@@ -102,8 +107,9 @@ do
 		jshinfo "Stream happily saved to $OUTFILE"
 		break
 	else
+		RES="$?"
 		echo
-		jshwarn "That attempt failed; trying something different..."
+		jshwarn "That attempt failed with code $RES (or was closed uncleanly); trying something different..."
 		echo
 		sleep 5
 	fi

@@ -72,6 +72,13 @@ function column4color () {
 PROCESS_NAME="$1"
 shift
 
+## Stuff we (could) disable:
+## -n : don't convert IP address to hostname
+## -S 2 : spend at max 2 seconds in kernel calls
+## -l : don't convert login IDs to login names
+## -P : don't convert port numbers to service names
+## -V : for debugging (lists failures)
+
 lsof -n -S 2 -V "$@" |
 grep "^$PROCESS_NAME" |
 # grep "^[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*r " | ## Only files opened for reading

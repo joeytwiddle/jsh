@@ -1,8 +1,8 @@
 SEDSTR=`
 cat << ! |
-11 mail
+11 games
 12 crazy
-13 fmail
+13 mail
 14 int
 15 web
 16 other

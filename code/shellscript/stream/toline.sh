@@ -32,7 +32,10 @@ fi
 ## TODO: Note I also had to make awk interactive to achieve this, which is actually a mawk option that might cause problems on Solaris, etc.
 
 ## Didn't work on orion: cat > /dev/null &
-cat > /dev/null
+## OK this variable makes this behaviour configurable, in case caller /wants/ the rest of the stream after this call is over.
+## In this way toline can be used to skip a block of stdin (to the given line), and then continue reading it.
+## Maybe it should be the default, but this variable can be used in case it doesn't become the default.
+[ "$TOLINE_LEAVE_REST" ] || cat > /dev/null
 
 # # OUT="/dev/stdout"
 # OUT="&1" ## Ha! It was saving a file with that name!

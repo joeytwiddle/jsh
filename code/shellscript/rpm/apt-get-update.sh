@@ -2,8 +2,13 @@ FILE=/etc/apt/all-sources.list
 
 if [ ! -f "$FILE" ] || [ "$1" = --help ]
 then
+	echo
 	echo "apt-get-update is intended to update a larger set of packages than your default install sources, from $FILE"
+	echo
 	echo "  It won't do anything unless that file exists!"
+	echo
+	echo "  By using it I can quickly change the selection of source repositories (subset) I want to use (in /etc/apt/sources.list) without having to re-get the listings."
+	echo
 	exit 1
 fi
 

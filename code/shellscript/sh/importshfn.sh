@@ -1,4 +1,9 @@
 # . importshfn <jtoolname> | <shellscript> ...
+
+## TODO: optionally grep the script for potential problems (as bughunt clues for developer)
+##       eg. exit will only be rarely desirable, mostly that should become a return
+##       maybe jsh scripts which are ready to be used as functions should say so (meta)
+
 # Warning: incomptabile scripts can entirely kill your shell!
 # Actually maybe that's just sourced scripts which have an exit in them.
 
