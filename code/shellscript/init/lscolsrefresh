@@ -1,14 +1,16 @@
-FILE="$HOME/.dircolors"
-# If they don't already have a colour scheme
-if test ! -f "$FILE"; then
-	# Try using Joey's setting
-	if test -f "$JPATH/code/home/.dircolors"; then
-		FILE="$JPATH/code/home/.dircolors"
-	# Otherwise generate default
-	else
-		echo "I am generating default ls colour settings in $FILE"
-		echo "Change it if you want funkier colours."
-		dircolors -p > "$FILE"
-	fi
-fi
-dircolors "$FILE" > $HOME/.lscols
+## Deprecated, just use lscolsinit
+# 
+# FILE="$HOME/.dircolors"
+# # If they don't already have a colour scheme
+# if test ! -f "$FILE"; then
+	# # Try using Joey's setting
+	# if test -f "$JPATH/code/home/.dircolors"; then
+		# FILE="$JPATH/code/home/.dircolors"
+	# # Otherwise generate default
+	# else
+		# echo "I am generating default ls colour settings in $FILE"
+		# echo "Change it if you want funkier colours."
+		# dircolors -p > "$FILE"
+	# fi
+# fi
+# dircolors "$FILE" > $HOME/.lscols

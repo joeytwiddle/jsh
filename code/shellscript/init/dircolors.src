@@ -77,12 +77,14 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 .z   00;33
 .Z   00;33
 .gz  00;33
-.deb 00;33
 .jar 00;33
-.rpm 00;33
 .rar 00;33
+.rpm 00;33
+.deb 00;33
+.encrypted 00;33
 
-# magenta
+# magenta = Media
+# would of course be nice to distinguish video, raster, vector, audio
 # Images
 .jpg 01;35
 .Jpeg 01;35
@@ -99,11 +101,27 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 .ppm 01;35
 .png 01;35
 .pgm 01;35
+.pnm 01;35
 .tga 01;35
+.tif 01;35
+.tiff 01;35
 .xbm 01;35
 .xpm 01;35
 .tif 01;35
 .gf 01;35
+.xcf 01;35 # Gimpformat. Also got these from Gimp:
+.aa 01;35
+.cel 01;35
+.fits 01;35
+.fli 01;35
+.gbr 01;35
+.gicon 01;35
+.hrz 01;35
+.pat 01;35
+.pix 01;35
+.sgi 01;35
+.sunras 01;35
+.xwd 01;35
 # Video
 .ram 01;35
 .rm 01;35
@@ -113,6 +131,7 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 # Audio
 .ra 01;35
 .mp3 01;35
+.m3u 01;35
 .pls 01;35
 .wav 01;35
 .raw 01;35
@@ -124,6 +143,12 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 .obj 01;35 # tfig
 .eps 01;35
 .ps 01;35 # maybe should be under docs?
+# SVG
+.svg 01;35
+# StarOffice drawings
+.sda 01;35
+# Windows SVG?
+.wmf 01;35
 
 # ?
 .gl 01;37
@@ -134,9 +159,11 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 .diff 01;33
 .sync 01;33
 .txt 01;33
+.log 01;33
 .TXT 01;33
 .doc 01;33
 .DOC 01;33
+.ppt 01;33
 .man 01;33
 .html 01;33
 .HTML 01;33
@@ -144,18 +171,33 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 .HTM 01;33
 .dvi 01;33
 .pdf 01;33
-.sdw 01;33 # StarOffice
-.sda 01;33
+.sdw 01;33 # StarOffice Document
+.sxi 01;33 # StarOffice Presentation
+.mbox 01;33 # Mail folder
+# .sda 01;33 # Drawing (moved to images)
+.sdd 01;33 # Presentation
 *readme 01;33
 *README 01;33
 *INSTALL 01;33
 *FAQ 01;33
 *HELP 01;33
+*TODO 01;33
 .nfo 01;33
 .NFO 01;33
+# patch failure: certainly deserves user attention!
+.rej 01;33
+# Debian package readables / code:
+.changes 01;33
+.asc 01;33
+# Java decompile: coloured different from normal code!
+.jad 01;33
 
 # cyan
-# Code
+# Code ("input")
+.sh 01;36
+.zsh 01;36
+.csh 01;36
+.bash 01;36
 .c 01;36
 .h 01;36
 .cc 01;36
@@ -178,9 +220,39 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 .bib 01;36
 .sty 01;36
 .cls 01;36
-# Strictly data
-.dat 01;36
-.xml 01;36
+.dsc 01;33
+.patch 01;36
+# PHP (IMC)
+.php3 01;36
+.inc 01;33
+# DB:
+.sql 01;36
+
+# Plain data ("output")
+.dat 00;36
+.data 00;36
+.results 00;36
+.xml 00;36
+.dtd 00;36
+.xsl 00;36
+# Some data files I like to use:
+.cksum 00;36
+.find 00;36
+.list 00;36
+.sizes 00;36
+.qkcksum 00;36
+.cdrec 00;36
+.trace 00;36
+.strace 00;36
+# Data I want white! (Don't remember why, maybe to encourage rename!)
+.out 00;37
+.err 00;37
+
+# Config files
+.config 01;36
+.conf 01;36
+.cfg 01;36
+*rc 01;36
 
 # Don't work:
 #*tmp* 01;31
@@ -189,7 +261,9 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 # Redundant files
 *tmp 00;37
 *core 00;37
+*~ 00;37
 *.ini 00;37
+## TODO: consider undeprecating legacy OS files
 *.bat 00;37
 *.com 00;37
 *.exe 00;37
@@ -197,6 +271,11 @@ ORPHAN 00;31;40 # symlink to nonexistent file (bold red)
 *.pif 00;37
 .bak 00;37
 .BAK 00;37
+.old 00;37
+.OLD 00;37
+.swp 00;37
+.swo 00;37
+.b4sr 00;37
 
 # red
 # This is for files with execute permission:

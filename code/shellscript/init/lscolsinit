@@ -1,5 +1,9 @@
-if test ! -f $HOME/.lscols; then
-  lscolsrefresh
+if test -f $HOME/.lscols
+then . $HOME/.lscols
+elif test -f "$HOME/.dircolors"
+then eval `dircolors $HOME/.dircolors`
+elif test -f "$JPATH/code/home/.dircolors"
+then eval `dircolors $JPATH/code/home/.dircolors`
+else eval `dircolors -p | dircolors`
 fi
-. $HOME/.lscols
 export LS_COLORS
