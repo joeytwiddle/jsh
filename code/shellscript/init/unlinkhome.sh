@@ -28,7 +28,8 @@ do
 			then
 
 				echo -n "# $TARGET <- "
-				ls -artFhd --color "$HOME/$LINK"
+				## The | tr etc... is because I think ls drops it's cursenorm /after/ the newline, hence "rm not found"! :-(
+				ls -artFhd --color "$HOME/$LINK" | tr -d '\n'; cursenorm; echo
 				# echo -n "## "
 				# ls -artFhd --color "$HOME/$LINK" | tr -d '\n'
 				# echo " links to $TARGET"

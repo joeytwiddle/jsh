@@ -8,6 +8,8 @@ else
 	ON=" 	"
 fi
 
+# echo "ON=$ON"
+
 ## Unsupported as yet, but should prevent alignment of columns beyond # $UPTO
 if [ "$1" = -upto ]
 then
@@ -20,7 +22,11 @@ fi
 # column -t -s ' ' "$@"
 
 column -t -s "$ON" "$@" |
-## Turns column spacing of "  " into " ":
+## Turns column spacing of "  " into " " or $ON:
 sed 's+  \([^ ]\)+ \1+g'
+# if [ "$ON" ]
+# then sed "s+  \([^ ]\)+$ON\1+g"
+# else sed 's+  \([^ ]\)+ \1+g'
+# fi
 
 # java -cp $CLASSPATH:$JPATH/code/java/tools/columnise/ Columnise $@
