@@ -5,6 +5,9 @@ CLIPMARKERFILE=/tmp/clipmarkers.txt
 
 OUTPUTDIR=`dirname "$VIDEOFILE"`
 if [ ! -w "$OUTPUTDIR" ]
+then OUTPUTDIR="$PWD"
+fi
+if [ ! -w "$OUTPUTDIR" ]
 then OUTPUTDIR=/tmp
 fi
 

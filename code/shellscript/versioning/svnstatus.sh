@@ -8,9 +8,10 @@ svn status "$@" | grep -v "^\?" |
 if inUserMode
 then
 
+	highlight "^A.*" green |
 	highlight "^M.*" yellow |
-	highlight "^\!.*" blue |
-	highlight "^A.*" green
+	highlight "^\!.*" red |
+	highlight "^D.*" blue
 
 else
 

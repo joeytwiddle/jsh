@@ -39,7 +39,7 @@ VIDEOFILE="$1"
 ## Backup the marker file in case you realise u wanted an older one!
 [ -f "$CLIPMARKERFILE" ] && which rotate >/dev/null && rotate -nozip "$CLIPMARKERFILE"
 
-echo "# Clip_start	Clip_end (seconds)" > "$CLIPMARKERFILE"
+echo "# Start	End	(Optional_clip_name)" > "$CLIPMARKERFILE"
 
 echo
 echo "OK now hit PAUSE to mark in and out points."
@@ -53,7 +53,7 @@ LASTMARKERPOS=not_yet_set
 # MPLAYER=`which gmplayer`
 [ "$MPLAYER" ] || MPLAYER=`which mplayer`
 
-$MPLAYER "$VIDEOFILE" 2>&1 |
+$MPLAYER -louder "$VIDEOFILE" 2>&1 |
 
 # sed 's++'`echo`'+g' |
 
@@ -83,7 +83,7 @@ do
 		if [ "$MARKERTYPE" = Out_Mark ]
 		then
 			echo "Adding clip $LASTMARKERPOS -> $MARKERPOS to $CLIPMARKERFILE"
-			echo "$LASTMARKERPOS	$MARKERPOS" >> "$CLIPMARKERFILE"
+			echo "$LASTMARKERPOS	$MARKERPOS	" >> "$CLIPMARKERFILE"
 			echo
 			MARKERTYPE=In_Mark
 		else
