@@ -1,52 +1,69 @@
-## Problem: cannot get variables to echo out identically if they have read in binary.
-## Flippo suggests solution by encoding to variable-friendly codeset, splitting, and then reverse filtering.  =)
+if [ "$1" = "" ] || [ "$1" = --help ]
+then
+more << !
 
-# <flippo> joey_: You don't really want to read a binary file line-by-line, do you?
-# <flippo> joey_: It's pretty meaningless
-# <flippo> joey_: Some "lines" may be too long for variable to hold
-# <joey_> In this case I do, because the binary lines are between txt header lines which I detect.  It's actually a jpeg stream.
-# <flippo> oh
-# <joey_> flippo, in that case, I guess I should not really do it in sh, but I like to!
-# <flippo> you might want to run through a reversible filter then
-# <-- Bogaurd has quit ("Bye")
-# --> Bogaurd (Bogaurd@ppp137-98.lns1.adl2.internode.on.net) has joined #bash
-# <joey_> yes that would be a solution, thanks (do u know any?)
-# <flippo> you could use a mime filter, like base64
-# <flippo> or quote-printable
-# <Bogaurd> if i have a string containing something like 'ppp0:xxxxxxxxx', where each x represents a digit, and there being a random number of digits, how can i cut off the ppp0: part? so that all i have left is the numerical value.
-# <flippo> mimencode might do
-# --- Thanaporlosuelos is now known as Thanatermesis
-# <joey_> flippo, right i will look into them; it would be useful to preserve newlines after filter, but i could always go and detect them... tx!
+  split_jpeg_stream <saved_http_stream>
+
+    will split a jpeg stream into its component jpeg image frames, saving them
+    as frame-<nnnn>.jpg in the current directory.
+
+    These are the sorts of streams that a webserver (eg. a webcam) can send
+    to graphical webbrowsers to display a sequence of images.
+
+    But I found if I saved a copy of the stream (using wget), I could not play
+    it back, hence this script.
+
+!
+exit 1
+fi
 
 STREAMFILE="$1"
 
-N=0
+FRAMENUM=0
 
 # cat "$1" | tee /tmp/tmpfile.tmp |
-cat "$1" | pipeboth 2> /tmp/tmpfile.tmp |
+cat "$1" |
+mimencode -q |
+# | pipeboth 2> /tmp/tmpfile.tmp |
 
 while read CONTENT TYPE
 do
 
 	[ "$CONTENT" = "Content-type:" ] && [ "$TYPE" = image/jpeg ] || continue
 
-	read EMPTY
+	PADDEDFRAMENUM=`printf "%05i\n" "$FRAMENUM"` ## pads the number
+	FRAMEFILE="frame-$PADDEDFRAMENUM.jpg"
+	## (Oddly, if we pass padded numbers back round the loop, printf breaks on 0008!)
 
-	# toline -x "^--ThisRandomString$" > "frame-$N.jpg"
+	read EMPTYLINE
 
-	while read LINE
-	do
-		[ "$LINE" = "--ThisRandomString" ] && break
+	## Even with mimencode (and post-filtering), I cannot get echo or printf to faithfully reproduce what was read.
+	## I can reproduce '\'s by sedding them into '\\'s,
+	## but there are still problems reproducing leading/trailing ' 's or '\t's,
+	## and other "special" chars.
+	# while read LINE
+	# do
+		# [ "$LINE" = "--ThisRandomString" ] && break
 		# printf "%s\n" "$LINE"
-		# set | grep -A2 "^LINE=" >&2
-		# echovar LINE
-		tail -n 1 /tmp/tmpfile.tmp
-	done > "frame-$N.jpg"
+		# # set | grep -A2 "^LINE=" >&2
+		# # echovar LINE
+		# # tail -n 1 /tmp/tmpfile.tmp
+	# done |
 
-	echo "Written frame-$N.jpg"
+	## At time of writing, toline defaults to nullifying the rest of the stream, but we want it, so:
+	env TOLINE_LEAVE_REST=true \
+	toline "^--ThisRandomString$" |
+	## An inline copy of toline:
+	# # AWKOPTS="-W interactive"
+	# PAT="^--ThisRandomString$"
+	# awk $AWKOPTS ' /'"$PAT"'/ { exit } { print $0'\n' } ' |
 
-	ls -l "frame-$N.jpg"
+	mimencode -q -u > "$FRAMEFILE"
 
-	N=`expr "$N" + 1`
+	echo "Written $FRAMEFILE"
+	[ "$DEBUG" ] && ls -l "$FRAMEFILE"
+	[ "$DEBUG" ] && file "$FRAMEFILE"
+
+	FRAMENUM=`expr "$FRAMENUM" + 1`
 
 done
