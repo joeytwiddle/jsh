@@ -9,27 +9,30 @@ fi
 
 FILE="$1";
 
-MAXVOL=`expr 80 "*" 50`
-
 if test -f "$FILE"; then
 
-	# Determine optimal height
-	LINES=`cat $FILE | countlines`
-	ROWS="50"
-	if test $LINES -lt $ROWS; then
-		ROWS=`expr '(' $LINES '+' 2 ')' '*' 11 '/' 10`;
+	MAXVOL=`expr 80 "*" 50`
+
+	# Determine desired height
+	LINES=`countlines $FILE`
+	ROWS=`expr '(' $LINES '+' 2 ')' '*' 11 '/' 10`;
+	if test $ROWS -gt 50; then
+		ROWS=50
 	fi
 
-	# Determine optimal width
+	# Determine desired width
 	LONGEST=`longestline $FILE`
-	LONGEST=`expr "(" $LONGEST "+" 2 ")" "*" 11 "/" 10`
+	LONGEST=`expr '(' $LONGEST '+' 2 ')' '*' 11 '/' 10`
 
 	# Determine optimal distribution
+	# Actually choose columns from maxvolume and rows
 	COLS=`expr $MAXVOL / $ROWS`
+	# But expand columns to fill longest line!
 	if test $LONGEST -lt $COLS; then
 		COLS=$LONGEST;
 	fi
 
+	# Ensure at least minimum size
 	if test $COLS -lt 20; then
 		COLS=20
 	fi
@@ -45,19 +48,9 @@ else
 
 fi
 
-# echo "$COLS"x"$ROWS"
-
 INTGEOM=`echo "$COLS"x"$ROWS" | sed 's|\..*x|x| ; s|\..*$||'`
 
-# TITLE="vi:$ARGS"
-# TITLE=`filename "$ARGS"`"("`dirname "$ARGS"`"/)" # This seems to be what Vim actually forces on the xterm.
-TITLE=`absolutepath "$ARGS"`" [vim]"
+TITLE=`absolutepath "$@"`" [vim]"
 
-# FONT="-font '-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-iso646.1991-irv'"
-# XTFONT='-schumacher-clean-medium-r-normal-*-*-150-*-*-c-*-iso646.1991-irv';
-# XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-120-*-*-m-*-iso8859-1';
 XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
-
-# xterm -geometry 70x40 -font '-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1' -title "vim:$ARGS" -e "vim $ARGS"
-# gnome-terminal -geometry 70x40 --font='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1' --title="vim:$ARGS" --execute="vim $ARGS"
