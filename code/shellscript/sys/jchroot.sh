@@ -19,8 +19,8 @@ chmod ugo+r "$TARGET"/dev/zero
 TARGET=`echo "$TARGET" | tr -s / | sed 's+/$++'`
 for MNTPNT in /mnt/*
 do
-	REGEXP=`echo "^$MNTPNT[ 	].*$TARGET/$MNTPNT$" | tr -s /`
-	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && ! memo -t "10 seconds" flatdf | grep "$REGEXP"
+	REGEXP=`echo "^$MNTPNT $TARGET/$MNTPNT .*\<bind\>" | tr -s /`
+	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && ! cat /etc/mtab | grep "$REGEXP"
 	then mount --bind "$MNTPNT" "$TARGET"/"$MNTPNT"
 	fi
 done
@@ -43,8 +43,8 @@ mv -f $TARGET/dev/zero.b4 $TARGET/dev/zero
 ## Unbind all those mounts
 for MNTPNT in /mnt/*
 do
-	REGEXP=`echo "^$MNTPNT[ 	].*$TARGET/$MNTPNT$" | tr -s /`
-	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && memo -t "10 seconds" flatdf | grep "$REGEXP"
+	REGEXP=`echo "^$MNTPNT $TARGET/$MNTPNT .*\<bind\>" | tr -s /`
+	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && cat /etc/mtab | grep "$REGEXP"
 	then umount "$TARGET"/"$MNTPNT"
 	fi
 done
