@@ -38,7 +38,7 @@ else
 		'cd' "$NEWLIST"
 	# A few possibilities, suggest them to the user.
 	else
-		echo "$NEWLIST ?" | tr "\n" " "
+		echo "? $NEWLIST" | tr "\n" " "
 		echo
 		# echo -n "$NEWLIST" | tr "\n" " "
 		# echo " ?"

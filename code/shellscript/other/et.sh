@@ -10,8 +10,8 @@ LSLINE=`justlinks $JPATH/tools/$NAME`
 TOOL="$LSLINE";  # `echo "$LSLINE" | after symlnk`
 if test "x$TOOL" = "x"; then TOOL="."; fi
 # Can't put quotes around the -f "$TOOL" !
-if test "x$TOOL" != "x" -a -f $TOOL; then
-	echo -e -n ""
+if test "x$TOOL" != "x" -a -f "$TOOL"; then
+	printf ""
 else
 	TOOL="$PWD/$NAME.sh"
 
@@ -33,7 +33,8 @@ else
 	fi
 fi
 
-edit $FORCE "$TOOL" # now handles below
+echo "$TOOL"
+edit $FORCE "$TOOL"
 
 # A quick check to inform the user if this command already exists on system.
 # which, where, and whereis are never guaranteed:
@@ -41,5 +42,6 @@ edit $FORCE "$TOOL" # now handles below
 # which $1
 # jwhere $1
 if jwhich $1 quietly; then
+	printf "  overrides "
 	jwhich $1
 fi

@@ -5,9 +5,9 @@ else
   IMAGES="$ARGS"
 fi
 
-HTMLFILE="_ImageIndex.html"
+HTMLFILE="ImageIndex.html"
 
-EXTRAS="-geom 100"
+EXTRAS="-geometry 100"
 # EXTRAS=""
 
 echo "<html><body>" > $HTMLFILE
@@ -15,7 +15,7 @@ echo "<html><body>" > $HTMLFILE
 n=0
 for w in $IMAGES; do
   echo "$n: $w"
-  n=$[$n+1]
+  n=`expr $n + 1`
   # SHOWPIC="browsepics$n.Jpeg"
   # convert $EXTRAS $w "$SHOWPIC"
   SHOWPIC=$w
