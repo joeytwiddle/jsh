@@ -10,10 +10,19 @@ then
 fi
 
 KILLCOM="kill -KILL"
-for x in `mykillps "$@" | takecols 1`; do
-  echo $x
-  $KILLCOM $x
+
+mykillps "$@" |
+
+while read PROC_PID PROC_REST
+do
+	echo "$PROC_PID"
+	$KILLCOM "$PROC_PID"
 done
+
+# for x in `mykillps "$@" | takecols 1`; do
+  # echo $x
+  # $KILLCOM $x
+# done
 
 # export S1="$PPID"
 # export S2="$$"
