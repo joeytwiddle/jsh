@@ -79,8 +79,8 @@ else
 		if lookslikejpath "$HOME/j"
 		then export JPATH="$HOME/j"
 		## Works for zsh, but only for bash if we call startj directly (not sourced).
-		elif lookslikejpath `dirname "$_"`
-		then export JPATH=`dirname "$_"`
+		elif lookslikejpath `dirname "$0"`
+		then export JPATH=`dirname "$0"`
 		## Works for zsh, same problems with bash.  No point running it!
 		# elif lookslikejpath `dirname "$0"`
 		# then export JPATH=`dirname "$0"`
