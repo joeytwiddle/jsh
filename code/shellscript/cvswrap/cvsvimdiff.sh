@@ -19,8 +19,9 @@ if test "$REV" = ""; then
 	REV=`cvs status "$FILENAME" |
 			grep "$WHICHREV revision:" |
 			after "$WHICHREV revision:" |
-			sed 's/^\( \|	\)//g' |
+			tr "\t" " " | sed 's/^\( \)//g' |
 			getnumber`
+			# Note the sed tab does not work on Unix, hence tr
 	echo "Diffing local against current $WHICHREV revision $REV"
 fi
 
