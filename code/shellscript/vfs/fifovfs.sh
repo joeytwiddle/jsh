@@ -2,23 +2,25 @@
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-cat << !
+cat | more << !
 
-  fifovfsmount -ssh <user>@<hostname>:<path> <mountpoint>
+  fifovfsmount [ -rw ] -ssh <user>@<hostname>:<path> <mountpoint>
 
 	  will create a fifo vfs under <mountpoint> of the remote directory.
-    with the following limitations:
+    and start a transfer server, with the following limitations:
 
       You must have ssh authentication setup to easily access the remote account.
 
       Average delay is proportional to the number of files, so do not choose
       too large a tree under <path>.
 
-      The vfs will be read only (for the moment!).
+      The vfs will be read only unless the -rw option is specified.
 
       The fifos will not display any file permissions, dates or size.
 
       Seeking into files will probably not work.
+
+      It's not a proper filesystem; you can't add or delete files.
 
   How does it work?
 
@@ -41,20 +43,26 @@ cat << !
 !
 fi
 
+FILELIST=/tmp/fifovfs_filelist.$$.txt
+GO_AHEAD_MARKER=/tmp/fifovfs_goahead.$$.marker
+TMPFILE=/tmp/fifovfs_tempfile.$$.tmp
+DO_READING=true
+DO_WRITING=
+
+if [ "$1" = -rw ]
+then DO_WRITING=true; shift
+fi
 TARGET="$1"
 MOUNTPOINT=`realpath "$2"`
 TARGET_ACCOUNT=`echo "$TARGET" | sed 's+:.*++'`
 TARGET_DIR=`echo "$TARGET" | sed 's+.*:++'`
 
-FILELIST=/tmp/filelist.$$.txt
-GO_AHEAD_MARKER=/tmp/goahead.$$.marker
-
 jshinfo () {
-  printf "\033[00;33m%s\033[00;00m\n" "$*"
+  printf "\033[00;33m%s\033[00;00m\n" "$*" >&2
 }
 
 jshhappy () {
-  printf "\033[00;32m%s\033[00;00m\n" "$*"
+  printf "\033[00;32m%s\033[00;00m\n" "$*" >&2
 }
 
 # ssh-agent ## Dunno if this makes later ssh's faster...?! nope!
@@ -91,13 +99,15 @@ notify_progress () {
 }
 
 another_notify_progress () {
-	CNT=1024
+  [ "$1" ] && CHAR="$1" || CHAR=.
+	# CNT=1024
+  CNT=1
 	while true
 	do
 		dd bs=1 count=$CNT 2> /tmp/dd_inner.out
-		printf "." >&2
 		grep "^0" /tmp/dd_inner.out >/dev/null && break
-		# CNT=`expr $CNT '*' 2`
+		printf "$CHAR" >&2
+		CNT=`expr $CNT '*' 2`
 	done
 }
 
@@ -110,43 +120,92 @@ send_needed_daemon () {
 		while read FILE
 		# for FILE in `cat $FILELIST` ## No spaces in filenames allowed for the moment!
 		do
-			jshinfo "[READ] Trying: $FILE"
 
-			BS=99999999
-      rm -f $GO_AHEAD_MARKER
-      (
-        sleep 0.3
-        [ -f $GO_AHEAD_MARKER ] &&
-        ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
-      ) |
-      another_notify_progress |
-      dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
-      DDPID="$!"
-
-      sleep 0.1 ## This seems neccessary for the below:
-
-      ## Well how odd!  It appears that if the fifo is not being read, then this signal kills the dd, but if it is being read, the dd survives, and echos to stderr as it should =)
-      kill -USR1 "$DDPID" > /tmp/killsig.out 2> /tmp/killsig.err
-
-      CONTENT=`cat /tmp/dd.out`
-      if [ ! "$CONTENT" ]
+      if [ "$DO_READING" ]
       then
-        jshinfo "[READ] dd has (probably) died => file not being read"
-      else
-        touch $GO_AHEAD_MARKER
-        jshhappy "[READ] PUSHING Waiting for dd to finish"
-        wait
-        jshinfo "[READ] PUSHED dd finished"
+
+        echo
+
+        jshinfo "[READ] Trying: $FILE"
+
+        BS=99999999
+        rm -f $GO_AHEAD_MARKER
+        (
+          sleep 0.3
+          [ -f $GO_AHEAD_MARKER ] &&
+          ssh $TARGET_ACCOUNT "cat '$TARGET_DIR/$FILE'"
+        ) |
+        another_notify_progress "<" |
+        dd of="$MOUNTPOINT"/"$FILE" bs=$BS count=$BS 2> /tmp/dd.out &
+        DDPID="$!"
+
+        sleep 0.1 ## This seems neccessary for the below:
+
+        ## Well how odd!  It appears that if the fifo is not being read, then this signal kills the dd, but if it is being read, the dd survives, and echos to stderr as it should =)
+        kill -USR1 "$DDPID" > /tmp/killsig.out 2> /tmp/killsig.err
+
+        CONTENT=`cat /tmp/dd.out`
+        if [ ! "$CONTENT" ]
+        then
+          jshinfo "[READ] dd has (probably) died => file not being read"
+        else
+          touch $GO_AHEAD_MARKER
+          jshhappy "[READ] PUSHING Waiting for dd to finish..."
+          wait
+          jshinfo "[READ] PUSHED OK dd finished."
+        fi
+
+        # wait ## We don't have to wait for the ssh clause to finish, but if we don't it might get confused (picking up a goahead/sending_state tag meant for a later file) but who cares anyway?!
+        ## Oh it appears it is needed.  Without it the first send never finishes!
+
       fi
 
-      wait ## We don't have to wait for the ssh clause to finish, but if we don't it might get confused (picking up a goahead/sending_state tag meant for a later file) but who cares anyway?!
-      ## Oh it appears it is needed.  Without it the first send never finishes!
+      if [ "$DO_WRITING" ]
+      then
+
+        echo
+
+        jshinfo "[WRITE] Trying: $FILE"
+
+        rm -f $TMPFILE
+        cat "$MOUNTPOINT/$FILE" > $TMPFILE &
+        ## Below oesn't kill the cat in this form:
+        # cat "$MOUNTPOINT/$FILE" |
+        # another_notify_progress "<" |
+        # cat > $TMPFILE &
+        CATPID="$!"
+
+        sleep 0.1
+        # ls -l $TMPFILE
+        SIZE=`find $TMPFILE -printf %s`
+        if [ "$SIZE" ] && [ "$SIZE" -gt 0 ]
+        then
+          jshhappy '[WRITE] PULL waiting for all of file...'
+          wait
+          jshhappy '[WRITE] Sending file to remote filesystem...'
+          # cat $TMPFILE | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
+          cat $TMPFILE | another_notify_progress ">" | ssh $TARGET_ACCOUNT "cat > '$TARGET_DIR/$FILE'" &&
+          jshhappy "[WRITE] File sent OK" ||
+          jshinfo '[WRITE] ERROR sending file!'
+          sleep 5
+        else
+          jshinfo '[WRITE] No data so killing cat'
+          kill "$CATPID" ## presumably blocked
+        fi
+
+        # wait ## Why not?!
+
+      fi
+
+      wait
 
 		done || break # this was good for user Ctrl+Cing
+
 		echo
 		jshinfo "[READ] PAUSING after a full pass over the filelist"
 		echo
 		sleep 5
+
 	done
 }
 
