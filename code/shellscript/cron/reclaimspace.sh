@@ -173,9 +173,14 @@ do
 					## The philosophy behind the printf, is that if apps do still have references to this files inode (they have the file open),
 					## but we are trying to destroy the data anyway, this might actually reclaim the diskspace that would otherwise not be reclaimed.
 					## I can see this working momentarily if the file is being appended to (eg. a logfile) but not sure if it is open at specific seek points (eg. a torrent download file).
-					echo "Reclaiming: printf '' > $MNTPNT"/RECLAIM/"$FILE"
 					## But we only actually do this if it /isn't/ a symlink!  (BUG TODO: This means we _will_ kill hardlinks :( )
-					issymlink "$MNTPNT"/RECLAIM/"$FILE" || printf '' > "$MNTPNT"/RECLAIM/"$FILE"
+					## This relies on the issymlink script which /might/ be broken!  But alternatives offered by bash (-h, -l) only test whether the link is non-broken.  So if it's broken we would end up creating an empty file with this!
+					## issymlink appears to correctly recognise both working and broken symlinks.
+					if ! issymlink "$MNTPNT"/RECLAIM/"$FILE"
+					then
+						echo "Reclaiming: printf '' > $MNTPNT"/RECLAIM/"$FILE"
+						printf '' > "$MNTPNT"/RECLAIM/"$FILE"
+					fi
 					echo "Reclaiming: rm -f $MNTPNT"/RECLAIM/"$FILE"
 					## Now we need to turn set -e off!
 					# set +e
