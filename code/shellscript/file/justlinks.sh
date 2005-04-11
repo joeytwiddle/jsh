@@ -1,14 +1,19 @@
-# jsh-ext-depends-ignore: symlinks
-# jsh-ext-depends: sed dirname
 # jsh-depends: absolutepath takecols
-if test "$1" = ""; then
+# jsh-ext-depends: sed dirname
+# jsh-ext-depends-ignore: symlinks
+
+if [ "$1" = "" ] || [ "$1" = --help ]
+then
+	echo
   echo "justlinks <symlinks>"
   echo "  or"
   echo "justlinks -absolute <symlink>"
+	echo
   exit 1
 fi
 
-if test "$1" = "-absolute"; then
+if [ "$1" = "-absolute" ]
+then
   absolutepath `dirname "$2"` `'ls' -ld "$2" | takecols 11`
 else
   # "ls" -l "$@" | awk ' { printf($9"symlnk"$11"\n"); } '

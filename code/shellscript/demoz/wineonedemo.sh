@@ -17,7 +17,7 @@ cd /tmp/demotmp
 unzip "$1"
 
 echo
-ls
+ls -l -h
 echo
 
 ## Didn't really work (so should at least randomorder them!)
