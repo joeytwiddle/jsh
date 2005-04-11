@@ -32,7 +32,7 @@ TMPFILE=`jgettmp tmprememo`
 # "$@" | tee "$FILE"
 
 if ! tty >/dev/null && [ ! "$IKNOWIDONTHAVEATTY" ]
-then jshwarn "rememo found no pts on \"$*\".  If different input streams can give different outputs, then memoing should not be employed."
+then jshwarn "rememo found no pts on \"$*\".  If different input streams can give different outputs, then memoing should not be employed.  This warning can currently be disabled by setting \$IKNOWIDONTHAVEATTY."
 fi
 
 ## eval caused problems when one of the args was a URL containing the '&' character

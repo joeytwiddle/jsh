@@ -1,2 +1,6 @@
+findjob pppd
+
 hwippp down
-killall -KILL pppd > /dev/null 2>&1
+
+# killall -KILL pppd > /dev/null 2>&1
+findjob pppd

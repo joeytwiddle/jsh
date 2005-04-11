@@ -1,10 +1,15 @@
-OUTDIR=/var/www/jsh-generated-docs
+OUTDIR=/var/www/jsh
 mkdir -p "$OUTDIR"
 
-COUNT=200
+COUNT=500
 
-makejshwebdocs $OUTDIR/list
-makejshwebdocs -onlydocumented $OUTDIR/list-documented
+if [ ! "$SKIP" ]
+then
+
+	makejshwebdocs $OUTDIR/list
+	makejshwebdocs -onlydocumented $OUTDIR/list-documented
+
+fi
 
 (
 
@@ -36,17 +41,25 @@ makejshwebdocs -onlydocumented $OUTDIR/list-documented
 		PAGE="/jshtools/$SCRIPT"
 		echo "<TD>"
 		echo "<TT>"
+
+		## Nasty hack to wrap really long names (which would otherwise make page really wide, in Konqueror anyway)
+		# SHOW_SCRIPT_NAME="$SCRIPT"
+		# [ `strlen "$SHOW_SCRIPT_NAME"` -gt 30 ] && SHOW_SCRIPT_NAME="<font size='-3'><tiny>$SHOW_SCRIPT_NAME</tiny></font>"
+		# SEDEXP='s+..............................+\0<BR>\&nbsp;+g'
+		SEDEXP="s+..............................+\0<BR>.............+g"
+		SHOW_SCRIPT_NAME=`echo "$SCRIPT" | sed "$SEDEXP"`
+
 		[ "$DEBUG" ] && debug "SED: s$SCRIPT\$<A href=\"$PAGE\">$SCRIPT</A>"
 		'ls' -l -L "$SCRIPT" |
 		dropcols 1 2 3 4 5 |
 			# s+^.................................++
 		sed "
 			s+ +\&nbsp;+g
-			s$SCRIPT\$<A href=\"$PAGE\">$SCRIPT</A>
+			s$SCRIPT\$<A href=\"$PAGE\">$SHOW_SCRIPT_NAME</A>
 		"
 		echo "</TT>"
 		echo "</TD>"
-		echo "<TD>"
+		echo "<TD nowrap>"
 		SCRIPTDIR=`dirname \`realpath "$SCRIPT"\``
 		export CVSROOT=`cat "$SCRIPTDIR"/CVS/Root`
 		STATUS=`cvs status \`realpath "$SCRIPT"\` 2>/dev/null | grep "Status: " | after "Status: "`
@@ -59,6 +72,12 @@ makejshwebdocs -onlydocumented $OUTDIR/list-documented
 		else echo "[$STATUS!]"
 		fi
 		echo "</TD>"
+
+		## Add onelinedescription:
+		echo "<TD nowrap>"
+		onelinedescription "$SCRIPT"
+		echo "</TD>"
+		
 		echo "</TR>"
 		# echo "<BR>"
 	done
@@ -67,4 +86,4 @@ makejshwebdocs -onlydocumented $OUTDIR/list-documented
 
 	endhtml
 
-) > "$OUTDIR/recent.html"
+) | cat > "$OUTDIR/recent.html"

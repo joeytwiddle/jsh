@@ -1,5 +1,13 @@
 ## See also: exim -qff
 
+EXIM=`which exim`
+[ -x "$EXIM" ] || EXIM=`which exim4`
+if [ ! -x "$EXIM" ]
+then
+	error "Couldn't find exim or exim4"
+	exit 1
+fi
+
 if [ "$1" = -test ]
 then TEST=true; shift
 fi
@@ -55,7 +63,9 @@ do
 			# ;;
 
 			-peek)
-				env EDITOR=cat exim -Meb "$MSGID" | highlight ".*" yellow
+				## No longer with exim4 -Meb:
+				# env EDITOR=cat $EXIM -Meb "$MSGID" | highlight ".*" yellow
+				$EXIM -Mvb "$MSGID" | highlight ".*" yellow
 				echo "??????????????????????????????????????????????????????????????????????????????" | highlight ".*" cyan
 			;;
 
@@ -64,17 +74,17 @@ do
 			### I ph34r this might cause exim to drop the mail immediately!
 			-clearrecipients)
 				centralise '-' "Marking as delivered all recipients of $MSGID" | highlight ".*" cyan
-				exim -Mmad "$MSGID"
+				$EXIM -Mmad "$MSGID"
 			;;
 
 			-reroute)
 				centralise '-' "Adding debug@hwi to the recipient list of $MSGID" | highlight ".*" cyan
-				exim -Mar "$MSGID" debug@hwi.ath.cx
+				$EXIM -Mar "$MSGID" debug@hwi.ath.cx
 			;;
 
 			-flush)
 				centralise '-' "Asking exim to flush $MSGID" | highlight ".*" cyan
-				exim -v -M "$MSGID"
+				$EXIM -v -M "$MSGID"
 				# # exim -M "$MSGID"
 				# # echo "## Response: $?" | highlight ".*" cyan
 			;;
@@ -82,7 +92,7 @@ do
 			### This one isn't needed if we complete the delivery using methods above.
 			-remove)
 				centralise '-' "Asking exim to remove $MSGID" | highlight ".*" cyan
-				exim -Mrm "$MSGID"
+				$EXIM -Mrm "$MSGID"
 			;;
 
 			*)

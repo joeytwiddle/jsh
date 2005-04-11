@@ -9,9 +9,9 @@ then
   echo "  eg.: warnlowspace jim 102400 \"^/dev/hd\""
   echo "       will mail jim if any of his partitions has less than 100M of free space."
 	echo
-	echo "  <device_pattern> is a regular expression."
+	echo "  Each <device_pattern> is an extended regular expression."
 	# echo "  Another example is: \"/dev/hd((a|b)[123456]|c(2|3))\""
-	echo "  Another example is: \"/dev/hd(a[124]|b[12]\""
+	echo "  An example is: \"/dev/hd(a[124]|b[12])\""
 	echo "  or: /dev/hda1 /dev/hda2 /dev/hda4 /dev/hdb1 /dev/hdb2"
   echo "  Option -v displays matching devices on stderr, to check your pattern works ok."
   echo

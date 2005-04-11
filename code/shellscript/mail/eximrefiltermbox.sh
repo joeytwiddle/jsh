@@ -7,15 +7,23 @@
 
 ## TODO: Could make $COMMAND a call back to eximrefiltermbox, which will only process mails matching user selection (eg. mail contains grep expression).
 
+EXIM=/usr/sbin/exim
+[ -x "$EXIM" ] || EXIM=/usr/sbin/exim4
+if [ ! -x "$EXIM" ]
+then
+	error "Could not find exim or exim4"
+	exit 1
+fi
+
 if [ "$UID" = 0 ]
 then
 	echo "Need to change \$USER in script to correct user innit."
 	exit 1
 fi
 
-DO=
-if [ "$1" = -do ]
-then DO="-do"; shift
+ONEMAIL_ON_STDIN=
+if [ "$1" = -onemail ]
+then ONEMAIL_ON_STDIN="-onemail"; shift
 fi
 
 TEST=
@@ -23,20 +31,27 @@ if [ "$1" = -test ]
 then TEST="-test"; shift
 fi
 
-# TEST=true
- TEST=-test
-
 MBOX="$1"
-cp "$1" /tmp/mbox
+[ "$MBOX" ] || MBOX=/tmp/mbox
 
-if [ "$DO" ]
+if [ ! "$ONEMAIL_ON_STDIN" ]
 then
+
+	## They must have provided a mailbox; run once for each mail in it:
+	cat "$MBOX" | formail -s eximrefiltermbox -onemail $TEST
+	
+	# |
+	# highlight "^Save message to: .*"
+
+else
+
+	## We are going to process the email passed to us on standard input.
 
 	# debug "$*"
 
 	if [ "$TEST" ]
-	then COMMAND="/usr/sbin/exim -bf $HOME/.forward"
-	else COMMAND="echo /usr/sbin/exim -bm $USER"
+	then COMMAND="$EXIM -bf $HOME/.forward"
+	else COMMAND="$EXIM -bm $USER"
 	fi
 	
 	TMPFILE=`jgettmp email`
@@ -49,27 +64,24 @@ then
 	# set -x
 
 	# debug "$COMMAND"
+
+	jshinfo "Doing: $COMMAND"
 	
-	DEST=`cat "$TMPFILE" | $COMMAND`
+	# cat "$TMPFILE" | $COMMAND
+	# DEST=`cat "$TMPFILE" | $COMMAND`
 	# | grep "^Save message to: .*" | sed 's/[^:]*: //'`
+	DEST=`cat "$TMPFILE" | $COMMAND | pipeboth | grep "^Save message to: .*" | sed 's/[^:]*: //'`
 
 	# debug postdest
 
 	if [ "$DEST" ]
 	then
-		echo "Will add to $DEST"
-		echo "eg. ( cat \"$DEST\" ; cat \"$TMPFILE\" ) | dog \"$DEST\""
+		jshinfo "Exim decided to add to: $DEST"
+		jshinfo "We could do this, eg.: ( cat \"$DEST\" ; cat \"$TMPFILE\" ) | dog \"$DEST\" but that doesn't lock the mailbox!"
 		## ...
 	fi
 
 	jdeltmp "$TMPFILE"
-
-else
-
-	cat /tmp/mbox | formail -s eximrefiltermbox -do $TEST "$MBOX"
-	
-	# |
-	# highlight "^Save message to: .*"
 
 fi
 
@@ -93,8 +105,8 @@ fi
 	# grep -v "^From " | ## cos for some reason these were all marked the same, so I used $WHO instead.
 # 
 	# if [ "$TEST" ]
-	# then /usr/sbin/exim -f "$WHO" -bf ~/.forward
-	# else /usr/sbin/exim -f "$WHO" -bm $USER
+	# then $EXIM -f "$WHO" -bf ~/.forward
+	# else $EXIM -f "$WHO" -bm $USER
 	# fi
 # 
 	# echo

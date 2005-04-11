@@ -3,11 +3,14 @@
 case $1 in
   up)
     touch /var/hwi/orders/ensure-ip-up
-	 # chmod a+rw /var/hwi/orders/ensure-ip-up
-	 chown joey:joey /var/hwi/orders/ensure-ip-up
+		# chmod a+rw /var/hwi/orders/ensure-ip-up
+		chown joey:joey /var/hwi/orders/ensure-ip-up
+		[ "$UID" = 0 ] && ensure-ip-state
     ;;
   down)
     /bin/rm -f /var/hwi/orders/ensure-ip-up
+		[ "$UID" = 0 ] && ensure-ip-state
+		# killall -KILL pppd > /dev/null 2>&1
     ;;
   *)
     echo 'Do not know "$1"'

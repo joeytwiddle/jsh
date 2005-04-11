@@ -1,14 +1,16 @@
 #!/bin/sh
 
-ppp-updateip
+### For cable modem:
 
-exit 0
+# ppp-updateip
+# exit 0
 
 
 
-## Old for modem:
+## For phone modem:
 echo -n `nicedate`"/ ensure-ip-state: "
 
+## Determine current state
 PPPON=false
 if [ -r /var/run/ppp0.pid ]; then
   # Doesn't work on Mandrake
@@ -16,8 +18,14 @@ if [ -r /var/run/ppp0.pid ]; then
   JOB=`ps -A | grep '^[ 	]*$PID\>'`
   if [ "$JOB" = "" -o "$PID" = "" ]
 	then
-    echo -n "(has pid but off) "
+    printf "(has pid but not running) " >&2
+    # printf "(checking for other pppd) " >&2
     # rm -f /var/run/ppp0.pid
+		if ps -A | grep "\<pppd\>" >/dev/null
+		then
+			printf "(found pppd with other pid) "
+			PPPON=true
+		fi
   else
     echo -n "(on) "
     PPPON=true
@@ -34,6 +42,7 @@ else
   fi
 fi
 
+## What is the desired state (our orders)?
 if [ ! -f /var/hwi/orders/ensure-ip-up ]; then
   if [ "$PPPON" = "true" ]
 	then
@@ -54,12 +63,14 @@ then
 fi
 
 echo "Coming up"
+## If you run in debug mode and save data to file: (really should continually purge it with printf "" > )
 'rm' -f $JPATH/logs/packetdata.ppp
 ## One of kdebug 0 | nolog prevents endless send rcvd logging
 /usr/sbin/pppd kdebug 0 nolog call provider
 # /usr/sbin/pppd record $JPATH/logs/packetdata.ppp call provider
 
-sleep 60
+# echo "Up ok.  Waiting before performing IP update."
+# sleep 60
 
 cp /stuff/portablelinux/etc/resolv.conf /etc/resolv.conf
 

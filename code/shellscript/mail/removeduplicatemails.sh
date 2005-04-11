@@ -11,7 +11,7 @@ cat << !
 if test "$1" = ""; then
 cat << !
 
-removeduplicatemails ( -d | -f ) <mailbox_files>...
+removeduplicatemails [ -test ] ( -d | -f ) <mailbox_files>...
 
   where -d deletes the old msgID cache, -f forces re-use of the old cache.
 
@@ -73,7 +73,10 @@ do
 		OLDSZ=`ls -l "$MBOX" | takecols 5`
 
 		export KNOWN_TOTAL_SIZE=`filesize "$MBOX"`
-		if cat "$MBOX" | trickle | formail -D 10000000 "$CACHEFILE" -s > "$MBOX.new"
+		if
+			cat "$MBOX" |
+			trickle -at 1000 | ## At 1000k=1Meg per second, this is hardly trickling, only showing progress.  Why not use catwithprogress (passing size thru)?
+			formail -D 10000000 "$CACHEFILE" -s > "$MBOX.new"
 		then
 			if [ ! `filesize "$MBOX"` = `filesize "$MBOX.new"` ]
 			then ls -l "$MBOX" "$MBOX.new"

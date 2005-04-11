@@ -3,6 +3,8 @@
 test "$COLUMNS" && export COLUMNS
 
 . preventgreperrs
+alias grep='grep --line-buffered'
+alias sed='sed -u'
 
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'

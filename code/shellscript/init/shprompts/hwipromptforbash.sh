@@ -7,13 +7,14 @@ PS1="\[\033[00m\]/\[\033[00;35m\]\u\[\033[00m\])\[\033[00;34m\]at\[\033[00m\](\[
 # Quite fun:
 # PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\])\['`cursemagenta`'\]\u\['`cursenorm`'\]-\['`curseblue`'\]\t\['`cursenorm`'\]-\['`cursemagenta`'\]\h\['`cursenorm`'\](\['`cursegreen`'\]\w/\['`cursenorm`'\] '
 
-if [ ! "$RUNNING_GENTOO" ]
-then
-	if uname -r | grep "gentoo" >/dev/null 2>&1
+# if [ ! "$RUNNING_GENTOO" ]
+# then
+	# if uname -r | grep "gentoo" >/dev/null 2>&1
+	if [ -f /etc/gentoo-release ]
 	then export RUNNING_GENTOO=1
 	else export RUNNING_GENTOO=0
 	fi
-fi
+# fi
 
 # case `hostname -s` in
 case "$SHORTHOST" in
