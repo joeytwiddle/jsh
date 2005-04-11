@@ -31,8 +31,9 @@ fi
 mkdir -p "$OUTDIR"
 
 INDEXFILE="$OUTDIR/index.html"
+TMPINDEXFILE="$INDEXFILE.tmp"
 
-cat > "$INDEXFILE" << !
+cat > "$TMPINDEXFILE" << !
 <HTML>
 <HEAD><TITLE>jsh script index</TITLE></HEAD>
 <BODY>
@@ -56,13 +57,15 @@ cat > "$INDEXFILE" << !
 </TR>
 !
 
-# cd "$JPATH/code/shellscript"
-# find . -type f | notindir CVS | sed 's+^\./++' |
+export IKNOWIDONTHAVEATTY=true ## don't know where it went, but memoing complains.
 
 COLOR=0
 
+# cd "$JPATH/code/shellscript"
+# find . -type f | notindir CVS | sed 's+^\./++' |
+
 cd "$JPATH/tools"
-find . -type l | sed 's+^\./++' |
+find . -type l | sed 's+^\./++' | randomorder |
 
 while read SCRIPT
 do
@@ -203,13 +206,14 @@ do
 		fi
 		echo "</TD></TR>"
 		# echo "<BR>"
-	) >> "$INDEXFILE"
+	) >> "$TMPINDEXFILE"
 
 done
 
-cat >> "$INDEXFILE" << !
+cat >> "$TMPINDEXFILE" << !
 </TABLE>
 </BODY>
 </HTML>
 !
 
+mv "$TMPINDEXFILE" "$INDEXFILE"
