@@ -4,12 +4,12 @@
 M=`$JPATH/tools/getminute`
 ## how to get lastchar?
 
-LOGFILE="$JPATH/tmp/ps.$M.txt"
-LOGFILE2="$JPATH/tmp/ps-simple.$M.txt"
+LOGFILE="$JPATH/logs/logps/ps.$M.txt"
+LOGFILE2="$JPATH/logs/logps/ps-simple.$M.txt"
 $JPATH/tools/myps -A > $LOGFILE
 $JPATH/tools/psforwatch -A > $LOGFILE2
 
-LOGFILE="$JPATH/tmp/$M.top"
+LOGFILE="$JPATH/logs/logps/$M.top"
 (
 	cat /proc/meminfo
 	env COLUMNS=160 /usr/bin/top c n 1 b

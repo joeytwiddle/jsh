@@ -190,7 +190,7 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			echo "$REST_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$REST_DISC handle 1$REST_DISC: tbf rate $SMALL_PIPE_BPS""bps buffer 1600 peakrate $SMALL_PIPE_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
+			echo "$REST_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$REST_DISC handle 1$REST_DISC: tbf rate $LARGE_PIPE_BPS""bps buffer 1600 peakrate $LARGE_PIPE_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
@@ -203,7 +203,7 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			echo "$SMALL_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate $LARGE_PIPE_BPS""bps buffer 1600 peakrate $LARGE_PIPE_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
+			echo "$SMALL_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate $SMALL_PIPE_BPS""bps buffer 1600 peakrate $SMALL_PIPE_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
@@ -243,8 +243,8 @@ case "$1" in
 			### Critical:
 
 			## Games:
-			##          unreal....most................
-			for PORT in 7775 7776 7777 7778 7779 27900
+			##          unreal.prolly!.most..........................
+			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900
 			do
 				filter_port batch$PORT sport $PORT 1
 				filter_port batch$PORT dport $PORT 1
@@ -273,31 +273,31 @@ case "$1" in
 			filter_port razor    dport 773  "$WEBSERVER_DISC" 3
 
 			## Peercast:
-			filter_port peercast dport 7144 4
-			filter_port peercast sport 7144 4
-			filter_port peercast dport 7145 4
-			filter_port peercast sport 7145 4
+			filter_port peercast dport 7144 5
+			filter_port peercast sport 7144 5
+			filter_port peercast dport 7145 5
+			filter_port peercast sport 7145 5
 			## Dialect:
-			filter_port peercast dport 7900 4
-			filter_port peercast sport 7900 4
+			filter_port peercast dport 7900 5
+			filter_port peercast sport 7900 5
 			## Dialect's remote port:
-			filter_port peercast dport 7100 4
-			filter_port peercast sport 7100 4
+			filter_port peercast dport 7100 5
+			filter_port peercast sport 7100 5
 
 			### Interactive:
 
 			## Unfortunately ssh is not at highest because rsync, scp, and other things can run across it
 			## apparently, one "could tell ssh from scp; scp sets the IP diffserv flags to indicate bulk traffic"
 			## but i don't know how to do this.  And what about rsync?  Maybe we can deal with large packets differently...?
-			filter_port ssh      sport 22   4
-			filter_port ssh      dport 22   4
+			filter_port ssh      sport 22   5
+			filter_port ssh      dport 22   5
 			## My friends sometimes port-forward on 220:
-			filter_port ssh      sport 220  4
-			filter_port ssh      dport 220  4
-			filter_port ssh      sport 222  4
-			filter_port ssh      dport 222  4
-			filter_port ssh      sport 2200  4
-			filter_port ssh      dport 2200  4
+			filter_port ssh      sport 220  5
+			filter_port ssh      dport 220  5
+			filter_port ssh      sport 222  5
+			filter_port ssh      dport 222  5
+			filter_port ssh      sport 2200  5
+			filter_port ssh      dport 2200  5
 
 			## Vnc-http, Vnc, and X
 			## Oh but it gets eMule too!
@@ -305,13 +305,13 @@ case "$1" in
 			# for VNCPORT in `seq 5800 5849`
 			for VNCPORT in `seq 5800 5899` `seq 5900 5999`
 			do
-				filter_port vnc sport $VNCPORT 4
-				# filter_port vnc dport $VNCPORT 4
+				filter_port vnc sport $VNCPORT 5
+				# filter_port vnc dport $VNCPORT 5
 			done
 
 			## Realplay
-			filter_port realplay sport 554 4
-			filter_port realplay dport 554 4
+			filter_port realplay sport 554 5
+			filter_port realplay dport 554 5
 
 			## Webcam
 			filter_port webcam   sport 9192   5
@@ -322,10 +322,14 @@ case "$1" in
 			## Or I could set up a third sub-pipe for webserver throttling...
 			## Lower priority webserver:
 			filter_port http   sport 80   $WEBSERVER_DISC
-			filter_port https  sport 443  $WEBSERVER_DISC
+			# filter_port https  sport 443  $WEBSERVER_DISC
+			filter_port https  sport 443  5 ## ok I unthrottles https hopefully will make pru's emailforever.net faster, and hopefully no-one else will think to use it!!
 			## Fast websurfing:
 			filter_port http   dport 80   5
 			filter_port https  dport 443  5
+			## Might be a mistake (8000 used by filesharing?) but enabled for demoscene:
+			filter_port http   dport 8000   5
+			filter_port http   dport 8034   5
 
 			## Experiment to test whether torrents were flooding gnutella:
 			# filter_port gtkgnut sport 6346 $WEBSERVER_DISC
@@ -334,27 +338,26 @@ case "$1" in
 			# filter_port mutella dport 6350 $WEBSERVER_DISC
 			## But strangely it <d the outgoing traffic when I expected it to >= it!
 
+			## These used to go to 6, but there was flooding :(
 			## DNS:
-			filter_port domain dport 53   6
-			filter_port domain sport 53   6
-
+			filter_port domain dport 53   $WEBSERVER_DISC
+			filter_port domain sport 53   $WEBSERVER_DISC
 			## CVS:
-			filter_port cvs    dport 2401 6
-			filter_port cvs    sport 2401 6
-
+			filter_port cvs    dport 2401 $WEBSERVER_DISC
+			filter_port cvs    sport 2401 $WEBSERVER_DISC
 			## And all the smeggin rest:
 			## I gave up on socks line 217 of /etc/services, resume there?  I don't really know which ones are needed.  rsync might be preferably batched.  irc probably needs higher priority, unless it's being used for d/l'ing!
-			##          ftp telnet dhcp gopher finger hostnames rtelnet sftp nntp ntp! snmp irc ldap snpp talk ntalk rsync ftps ftps-data telnets ircs webcam socks
-			for PORT in 21  23     67   70     79     101       107     115  119  123  161  194 389  444  517  518   873   990  989       992     994  9192   1080
+			##          ftp telnet dhcp gopher finger hostnames rtelnet sftp nntp ntp! snmp irc ldap snpp talk ntalk rsync ftps ftps-data telnets ircs webcam # socks (disabled because someone was http-ing from it!)
+			for PORT in 21  23     67   70     79     101       107     115  119  123  161  194 389  444  517  518   873   990  989       992     994  9192   # 1080
 			do
-				# filter_port batch$PORT sport $PORT 6
-				filter_port batch$PORT dport $PORT 6
+				filter_port batch$PORT sport $PORT $WEBSERVER_DISC
+				filter_port batch$PORT dport $PORT $WEBSERVER_DISC
 			done
 
 			## Joey says: for some reason the original author split small and large packets up,
 			## (presumably to ensure one class didn't swamp the other?), so I haven't changed it.
 
-			## small IP packets go to band #2 (Joey: #3)
+			## small IP packets go to band #2 (Joey: #8)
 			## by small I mean <128 bytes in the IP datagram, or in other words, the upper 9 bits of the iph.tot_len are 0
 			## note: this completely fails to do the right thing with fragmented packets. However
 			## we happen to not have many (any? icmp maybe, but tcp?) fragmented packets going out the DSL line
@@ -362,13 +365,19 @@ case "$1" in
 			## Joey finds there are too many, at least when running multiple bittorrents.  CONSIDER: make abother tbf for the small packets?
 			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio $SMALL_DISC protocol ip u32 match u16 0x0000 0xff80 at 2 flowid 1:$SMALL_DISC
 
-			## a final catch-all filter that redirects all remaining ip packets to band #4
+			## a final catch-all filter that redirects all remaining ip packets to band #4 (Joey: #9)
 			## presumably all that is left are large packets headed out the DSL line, which are
 			## precisly those we wish to rate limit in order to keep them from filling the
 			## DSL modem's uplink egress queue and keeping the shorter 'interactive' packets from
 			## getting through
 			## the dummy match is required to make the command parse
 			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio $REST_DISC protocol ip u32 match u8 0 0 at 0 flowid 1:$REST_DISC
+
+			## Trying to create a sub-disc:
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 4 handle 4: prio bands 3
+			# /sbin/tc filter add dev "$INTERFACE" parent 4 prio 1 protocol ip u32 match ip sport 80 0xffff flowid 4:1
+			# /sbin/tc qdisc add dev "$INTERFACE" parent 4 handle 4: prio bands 3
+			# /sbin/tc filter add dev "$INTERFACE" parent 4 prio 1 protocol ip u32 match ip sport 80 0xffff flowid 4:1
 
 			## have the rest of the house think we are the gateway
 			## the reason I use arpspoofing is that I want automatic failover to the real gateway
@@ -377,6 +386,10 @@ case "$1" in
 			## It takes 5-10 seconds for the failback to happen, but it works :-)
 			# /usr/sbin/arpspoof -i "$INTERFACE" 192.168.168.1 >/dev/null 2>&1 &
 			# echo $! >/var/run/shapedsl.arpspoof.pid
+
+			## Block telewest's scanner:
+			/sbin/route add -host scanner.abuse.blueyonder.co.uk reject
+
 			echo "startified"
 		;;
 

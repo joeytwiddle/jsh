@@ -12,7 +12,8 @@ IP=`ppp-getip`
 LASTIP=`cat "$LAST"`
 if test "$LASTIP" = "$IP"
 then
-	echo "$0: Last time we did an update, ip $IP was the same, so skipping."
+	# echo "$0: Last time we did an update, ip $IP was the same, so skipping."
+	echo "$0: IP $IP has not changed since last update; skipping."
 	exit 0
 fi
 
@@ -54,11 +55,15 @@ FAIL=false
 
 ######## BEGIN ACTUAL UPDATE
 
+export INTERFACE=`ifonline`
+[ "$INTERFACE" ] || jsherror "[ppp-updateip] ifonline returned nothing"
+
 # dyndns.org update for hwi.ath.cx:
 /root/ipcheck/doipcheck || FAIL=true
 
 # dyndns.org update for generation-online.org
-/root/ipcheck_generation-online.org/doipcheck_generation-online.org.sh || FAIL=true
+## Disabled 18/02/2005 because Erik started hosting this domain somewhere else.
+# /root/ipcheck_generation-online.org/doipcheck_generation-online.org.sh || FAIL=true
 
 # dyndns.org update for emailforever.net:
 /root/ipcheck_emailforever.net/doipcheck_emailforever.net.sh || FAIL=true
