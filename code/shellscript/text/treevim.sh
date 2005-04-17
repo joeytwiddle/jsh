@@ -28,8 +28,8 @@ cat > "$VIMPLUGIN" << EOF
 " Colours
 :highlight Folded ctermbg=DarkBlue ctermfg=White guibg=#0000b0 guifg=White
 :highlight FoldColumn ctermbg=DarkBlue ctermfg=White cterm=bold gui=bold guifg=White guibg=#0000b0
-:highlight TreeListTag ctermbg=darkblue ctermfg=grey cterm=none gui=bold guibg=#000060
-:highlight TreeListTagNorm ctermbg=darkblue ctermfg=grey cterm=none gui=bold guibg=#000060
+:highlight TreeListTag ctermbg=darkmagenta ctermfg=grey cterm=none gui=bold guibg=#000060
+:highlight TreeListTagNorm ctermbg=darkmagenta ctermfg=grey cterm=none gui=bold guibg=#000060
 " Options
 :set foldtext=getline(v:foldstart).'\ \ \ ['.(v:foldend-v:foldstart).'\ lines]'
 :set fdc=0
