@@ -18,8 +18,12 @@ MEMODIR=$TOPTMP/memo
 ##                        : if realpath slows it down, then just use $PWD, it's not that much of a feature loss (memo's from different $PWD's will fail even if `realpath $PWD` is identical)
 ##                          don't do realpath on /!   OK it doesn't do realpath on /, which helped a lot for scripts which call memo after cd /
 ##       the checksumming : is there a quicker hash we can use in the shell?
+## Afterthought: another factor may be the damn size of this script!
+##               but DONE :) as far as checksumming is concerned, I think we should only try to include the command in the memofile name if we are in debug mode, because that may be slowing it down.
 
-## TODO: refactor the destination nonsense out of memo/rememo to somewhere common!
+## HOW-TO-SPEED-IT-UP-EXTERNALLY: Yes the re-parsing of this script does slow it down considerably; this can be improved by using ". importshfn rememo" and ". importshfn memo" before repeatedly using memo.  :)
+
+## TODO: refactor the destination nonsense out of memo/rememo to somewhere common!  (Well actually we could pass it to rememo)
 
 ## DONE:
 #  - Leaves an empty or partial memo file if interrupted
@@ -56,7 +60,7 @@ then
   echo "  -f <filename>     : force refresh if file has changed since last caching"
   echo "  -d <dirname>      : force refresh if any file in given directory has changed"
   echo "  -c <test_command> : force refresh if command returns true"
-  echo "                      (the command is evaluated with the memo file in \$FILE)"
+  echo "                      (the command is evaluated with the memo file in \$MEMOFILE)"
   echo
   echo "Examples:"
   echo
@@ -88,18 +92,18 @@ do
       AGEFILE=`jgettmp check_age`
       REMEMOWHEN="$REMEMOWHEN"' || (
         touch -d "$TIME ago" $AGEFILE
-        newer $AGEFILE "$FILE"
+        newer $AGEFILE "$MEMOFILE"
       )'
     ;;
     -f)
       export CHECKFILE="$2"
       shift; shift
-      REMEMOWHEN="$REMEMOWHEN"' || newer "$CHECKFILE" "$FILE"'
+      REMEMOWHEN="$REMEMOWHEN"' || newer "$CHECKFILE" "$MEMOFILE"'
     ;;
     -d)
       export CHECKDIR="$2"
       shift; shift
-      REMEMOWHEN="$REMEMOWHEN"' || ( find "$CHECKDIR" -newer "$FILE" | grep "^" > /dev/null ) '
+      REMEMOWHEN="$REMEMOWHEN"' || ( find "$CHECKDIR" -newer "$MEMOFILE" | grep "^" > /dev/null ) '
     ;;
     -c)
       REMEMOWHEN="$REMEMOWHEN || ( $2 )"
@@ -111,27 +115,31 @@ do
   esac
 done
 
-if [ "$PWD" = / ]
+if [ "$MEMO_IGNORE_DIR" ] || [ "$PWD" = / ] ## for speed
 then REALPWD=/
 else REALPWD=`realpath "$PWD"`
 fi
 CKSUM=`echo "$REALPWD/$*" | md5sum`
-NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
-FILE="$MEMODIR/$NICECOM.memo"
-export CHECKDIR CHECKFILE REMEMOWHEN FILE AGEFILE
+if [ "$DEBUG_MEMO" ]
+then NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
+else NICECOM="$CKSUM"
+fi
+MEMOFILE="$MEMODIR/$NICECOM.memo"
+export CHECKDIR CHECKFILE REMEMOWHEN MEMOFILE AGEFILE
 
-# [ "$DEBUG" ] && debug "memo:     `cursemagenta`checking: $REMEMOWHEN (FILE=$FILE)`cursenorm`"
+# [ "$DEBUG" ] && debug "memo:     `cursemagenta`checking: $REMEMOWHEN (MEMOFILE=$MEMOFILE)`cursenorm`"
 
 # echo "Doing check: $REMEMOWHEN" >&2
-if [ "$REMEMO" ] || [ ! -f "$FILE" ] || eval "$REMEMOWHEN"
+if [ "$REMEMO" ] || [ ! -f "$MEMOFILE" ] || eval "$REMEMOWHEN"
 then
-	[ "$DEBUG" ] && ( debug "memoRE:   `cursemagenta`$NICECOM`cursenorm` rememo=$REMEMO filecached=`mytest test -f \"$FILE\"` rememowhen=$REMEMOWHEN" | tr '\n' ';' ; echo>&2 )
+	[ "$DEBUG" ] && ( debug "memoRE:   `cursemagenta`$NICECOM`cursenorm` rememo=$REMEMO filecached=`mytest test -f \"$MEMOFILE\"` rememowhen=$REMEMOWHEN" | tr '\n' ';' ; echo>&2 )
 	# eval "$REMEMOWHEN" && [ "$DEBUG" ] && debug "memo:     `cursemagenta`Refresh needed with com: $REMEMOWHEN`cursenorm`"
 	rememo "$@"
 else
 	[ "$DEBUG" ] && debug "memo:     `cursemagenta`$NICECOM`cursenorm`"
-	cat "$FILE"
+	cat "$MEMOFILE"
 fi
+EXITWITH="$?"
 
 [ "$AGEFILE" ] && jdeltmp $AGEFILE
 
@@ -142,12 +150,14 @@ then
 	touch "$TMPF"
 	(
 		cursecyan
-		# echo "as of "`date -r "$FILE"`
+		# echo "as of "`date -r "$MEMOFILE"`
 		echo "$@"
-		TIMEAGO=`datediff -files "$FILE" "$TMPF"`
+		TIMEAGO=`datediff -files "$MEMOFILE" "$TMPF"`
 		echo "as of $TIMEAGO ago."
 		cursenorm
 	) >&2
 	jdeltmp "$TMPF"
 
 fi
+
+[ "$EXITWITH" = 0 ]
