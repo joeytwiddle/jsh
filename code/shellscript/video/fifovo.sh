@@ -38,17 +38,17 @@
 
 ## See also: transcode has a --avi_limit MB option, which will produce multiple files...
 
-# jsh-depends: guifyscript verbosely jshinfo curseyellow cursenorm mykill jshwarn toline
+# jsh-depends: guifyscript verbosely jshinfo curseyellow cursenorm mykill jshwarn toline unj
 # jsh-ext-depends: mencoder mkfifo mplayer seq tee
 # jsh-depends-ignore: mplayer before findjob
-# jsh-ext-depends-ignore: from killall size less sync
+# jsh-ext-depends-ignore: from killall size less sync file
 
 ## These vars are here and not in initialise, because they are needed for --help.
 
 ## Reduce this to encode at better quality, if you have a fast enough machine.
 ## (Check that your encoding_thead is managing one second of stream every second!)
 ## My poor computer needs to encode at low quality, just in case demoscene.tv is playing a very detailed video!
-[ "$VQSCALE" ] || export VQSCALE="10"
+[ "$VQSCALE" ] || export VQSCALE="1"
 
 export FIFOVO_MESSAGE_DIR=/tmp/fifovo
 
@@ -58,6 +58,7 @@ unbuffered_tr () {
 	if [ "$MORE_PRETTY_LESS_EFFICIENT" ]
 	then
 		## TODO BUG: this doesn't catch sync loss which is a problem!  (Well, maybe it catches it, but it doesn't exit cleanly.)
+		## And I would like to do bs=20 but this seems to steal too much CPU!
 		while true
 		do nice -n 15 dd bs=200 count=1 2>/dev/null | nice -n 15 tr "$@" || break
 		done
@@ -67,14 +68,44 @@ unbuffered_tr () {
 	fi
 }
 
+showlag () {
+	awk '
+
+		BEGIN {
+			# starttime = -1
+			starttime = systime()
+			OFMT="%+0.01f"
+		}
+
+		/^(Pos|A|V):/ {
+			# if (starttime == -1) {
+				# starttime = systime()
+			# } else {
+				unlag = $2 - systime() + starttime
+				# if (unlag > 0) {
+					# starttime = starttime - unlag
+					# printf "(%0.01f) ", unlag
+					# unlag = 0
+				# }
+				printf "%+0.01f | ", unlag
+				print $_
+				if (unlag > 0) {
+					starttime = starttime - unlag
+				}
+			# }
+		}
+
+	'
+}
+
 encoding_thread () {
+
+	[ "$ENCODER_CACHE_SIZE" ] || ENCODER_CACHE_SIZE=4000
 
 	# ENCODING_NUM=0
 
 	while [ ! -f "$FIFOVO_MESSAGE_DIR"/stop_everything ]
 	do
-
-		MENCODER_OUTPUT_FORMAT="-of mpeg" ## Needed for the ones I got working
 
 		## CODE_TO_CHANGE_FIFO wasn't needed once we "while true; cat fifo; done"d because now fifo closes and reopens at both ends properly.
 		# # verbosely rm -f "$ENCODED_FIFO"
@@ -103,6 +134,7 @@ encoding_thread () {
 		# ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=2"
 		# OPTIMISATION_ATTEMPT="vhq:dia=-3:subq=4" # :last_pred=20
 		ENCODING_OPTIONS="-oac lavc -ovc lavc -lavcopts vcodec=mpeg2video:vqscale=$VQSCALE:$OPTIMISATION_ATTEMPT"
+		MENCODER_OUTPUT_FORMAT="-of mpeg" ## Needed for the ones I got working
 
 		## Got this working one time; survived the nonsense at start, then seemed ok.  So it's maybe just the start that is the problem.
 		## Much easier on CPU.  But can it be recorded?  Probably equally buggy for recording :-( .
@@ -118,9 +150,9 @@ encoding_thread () {
 		## I thought a cache might buffer input if mencoder was temporarily slow
 		## but 1) mencoder doesn't seem to use it; 2) when mplayer uses it, it's a pre-cache not post-cache, so it starts full not empty!
 		## Left it in anyway!
-		MENCODER_OPTS="$MENCODER_OPTS -cache 2000" ## Hey don't do that, we are in a loop!  (Bring all these outside loop, but not vqscale.)
+		MENCODER_OPTS="$MENCODER_OPTS -cache $ENCODER_CACHE_SIZE" ## Hey don't do that, we are in a loop!  (Bring all these outside loop, but not vqscale.)
 
-		# ## WORKING METHOD:
+		# ## SIMPLE WORKING METHOD:
 		# # verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
 		# # verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS
 		# verbosely mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS &
@@ -130,7 +162,7 @@ encoding_thread () {
 		# # export LD_LIBRARY_PATH="/lib:/usr/lib:/mnt/gentoo/lib:/mnt/gentoo/usr/lib"
 		# # verbosely /mnt/gentoo/usr/bin/mencoder "$STREAM_SOURCE" -of mpeg -o "$ENCODED_FIFO" $ENCODING_OPTIONS 2>&1 |
 
-		## EXPERIMENTING:
+		## METHOD WHICH DETECTS SYNC LOSS:
 		## Safe as sausages.  Toline now detects when mencoder has lost sync with the stream,
 		## and instead of waiting for ages for mencoder to finally give up, it kills it nice and quickly.
 		## Oh it appears that the kill is unneccessary?  The toline ending kills the mencoder.
@@ -140,7 +172,7 @@ encoding_thread () {
 			if [ "$USE_MPLAYER_MPEGPES_NOT_MENCODER" ]
 			# then verbosely unj mplayer -x 100 -cache 3000 "$STREAM_SOURCE" -vo mpegpes -ao mpegpes 2>&1
 			then
-				verbosely unj mplayer -cache 3000 "$STREAM_SOURCE" \
+				verbosely unj mplayer -cache $ENCODER_CACHE_SIZE "$STREAM_SOURCE" \
 					-vo mpegpes:"$ENCODED_FIFO" -vf lavc=$VQSCALE \
 					-ao mpegpes:"$ENCODED_FIFO" -af-adv force=2 2>&1
 			else
@@ -179,6 +211,7 @@ encoding_thread () {
 			unbuffered_tr '' '\n' | toline "^(Pos|A):.*" ## Strangely if we do this it works, but the following doesn't show.  Ah, before I tr-ed here, the awk never finished reading that last long line!
 			## Watch for any errors reporting sync loss:
 			unbuffered_tr '' '\n' | toline ".*rying to resync.*" |
+			showlag |
 			unbuffered_tr '\n' '' ## optional
 			echo
 			jshinfo "Detected sync loss; exiting encoding thread..."
@@ -491,7 +524,7 @@ initialise () {
 	export STREAM_SOURCE="$1"
 	shift
 
-	[ "$BUFFER_SIZE_MEG" ] || export BUFFER_SIZE_MEG=20
+	[ "$BUFFER_SIZE_MEG" ] || export BUFFER_SIZE_MEG=50
 	## With my machine (and now that we are reading and writing from files), I really needed to save the ringbuffer in memory (aka ramfs):
 	## (Ah that is now no longer necessary, since I increased VQSCALE.)
 	# export STREAM_DATA_DIR=/dev/shm/joey/
@@ -514,10 +547,13 @@ initialise () {
 		## Even larger:
 		# export TOTAL_BLOCKS=`expr 1 '*' $BUFFER_SIZE_MEG`
 		export BLOCK_SIZE=`expr 1024 '*' 1024` ## 1Meg
+		# export BLOCK_SIZE=`expr 4 '*' 1024 '*' 1024` ## 4Meg
 	else
 		## Larger bits, less shell cycles:
 		# export TOTAL_BLOCKS=`expr 5 '*' $BUFFER_SIZE_MEG`
 		export BLOCK_SIZE=`expr 1024 '*' 200` ## 200k
+		## But with low vqscale and high-visual video, we want more like:
+		export BLOCK_SIZE=`expr 1024 '*' 400` ## 400k
 	fi
 	export TOTAL_BLOCKS=`expr "$BUFFER_SIZE_MEG" '*' 1024 '*' 1024 / "$BLOCK_SIZE"`
 	jshinfo "TOTAL_BLOCKS=$TOTAL_BLOCKS"

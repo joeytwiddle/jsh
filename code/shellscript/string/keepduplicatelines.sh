@@ -41,6 +41,7 @@ keepduplicatelines [ -gap ] [ <column_#>s ]
 	With -gap, prints an empty line between each set of duplicates
 
 !
+exit 1
 fi
 
 TMPFILE=`jgettmp keepduplicatelines`

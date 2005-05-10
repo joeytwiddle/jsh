@@ -1,3 +1,5 @@
+## See also: joey/project/gentoo/chroot_into_gentoo.sh which has isActiveMountPoint().
+
 if [ "$1" = -fixdev ]
 then FIXDEV=true; shift
 fi
@@ -32,7 +34,7 @@ fi
 
 ## Bind all the same mounts
 TARGET=`echo "$TARGET" | tr -s / | sed 's+/$++'`
-for MNTPNT in /mnt/*
+for MNTPNT in /dev /home /mnt/*
 do
 	REGEXP=`echo "^$MNTPNT $TARGET/$MNTPNT .*\<bind\>" | tr -s /`
 	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && ! cat /etc/mtab | grep "$REGEXP"
@@ -72,7 +74,7 @@ fi
 # mv -f $TARGET/dev/zero.b4 $TARGET/dev/zero
 
 ## Unbind all those mounts
-for MNTPNT in /mnt/*
+for MNTPNT in /dev /home /mnt/*
 do
 	REGEXP=`echo "^$MNTPNT $TARGET/$MNTPNT .*\<bind\>" | tr -s /`
 	if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && cat /etc/mtab | grep "$REGEXP"

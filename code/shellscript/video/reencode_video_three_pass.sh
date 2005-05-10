@@ -19,7 +19,7 @@ No options at the moment, but you can pass the following variables:
 
   BITRATE=<bps>              Set this to override the default bitrate (700MB),
 
-  TARGET_SIZE=<megabytes>     or this to produce a final file of this many MB.
+  TARGET_SIZE=<megabytes>    or this to produce a final file of this many MB.
 
 And more...
 
@@ -29,7 +29,7 @@ And more...
     or
   POSTPROC="de/hb/vb/dr/al/lb/tn:1:2:3"
 
-  PREVIEW="-ss 0:50:00 -endpos 0:10"
+  PREVIEW="-ss 0:10:00 -endpos 0:10"
 
   PERFORM_AUTOMATIC_CROPPING=true   To strip black areas off the edges =)
 

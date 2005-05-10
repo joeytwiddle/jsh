@@ -1,5 +1,6 @@
-# jsh-ext-depends-ignore: clip
 # jsh-ext-depends: dirname mencoder
+# jsh-ext-depends-ignore: clip
+
 VIDEOFILE="$1"; shift
 CLIPMARKERFILE=/tmp/clipmarkers.txt
 
@@ -40,7 +41,7 @@ do
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=4000"
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## Huge!
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
-	mencoder "$@" $COPY $CLIPOPTS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
+	verbosely mencoder "$@" $COPY $CLIPOPTS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
 
 	# prepare_for_editing "$VIDEOFILE"
 	# mv re_encoded.dv clip$CLIPNUM.dv

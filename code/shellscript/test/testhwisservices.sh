@@ -1,4 +1,5 @@
 #### TODO TODO What about all those other address: eg. open-lists.net!
+#### TODO: and what about running it as a cronjob somewhere?!?!
 
 ## Functions:
 

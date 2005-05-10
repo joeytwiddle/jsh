@@ -23,6 +23,7 @@ cat > "$VIMPLUGIN" << EOF
 :map <kMultiply> zr
 " Regions to fold and to match for highlighting (next line is the essential one)
 :syntax region myFold matchgroup=myDummy start="{" end="}" transparent fold
+" Note we must not match the {}s because they must be matched by previous for folding.
 :syntax match TreeListTag "^\(+\|-\) [^{}]*"
 :syntax match TreeListTagNorm "^\(\.\|\*\) "
 " Colours

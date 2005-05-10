@@ -5,17 +5,25 @@
 ## Hmm well it works over networks at least, maybe helped if stdout/err are sent in sync over ssh.
 ## But it doesn't always work.
 
-TMPFILE=`jgettmp catwithprogress`
+if [ "$1" = -size ]
+then
+	SIZE="$2"; shift; shift
+	TMPFILE=
+else
+	TMPFILE=`jgettmp catwithprogress`
+	cat "$@" > "$TMPFILE" || exit 123
+	SIZE=`filesize "$TMPFILE"`
+fi
 
-cat "$@" > "$TMPFILE" || exit 123
-
-SIZE=`filesize "$TMPFILE"`
 BLOCKSIZE=`expr "$SIZE" / 50`
-[ "$BLOCKSIZE" -gt 0 ] || BLOCKSIZE=1024
+[ "$BLOCKSIZE" -gt 0 ] || BLOCKSIZE=1024 ## Well if size is valid, maybe this should be 1.
 
 SOFAR=0
 
-cat "$TMPFILE" |
+if [ "$TMPFILE" ]
+then cat "$TMPFILE"
+else cat
+fi |
 
 while true
 do
@@ -31,4 +39,4 @@ do
 
 done
 
-jdeltmp "$TMPFILE"
+[ "$TMPFILE" ] && jdeltmp "$TMPFILE"
