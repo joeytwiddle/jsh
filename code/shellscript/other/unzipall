@@ -1,6 +1,7 @@
 ## Still buggy, but in different ways.
 
 for X in *.zip; do
+	[ -f "$X" ] || continue
 	X=`realpath "$X"`
 	Y="$X"_unpacked
 	mkdir "$Y"
@@ -12,9 +13,21 @@ for X in *.zip; do
 done
 
 for X in *.tar.gz *.tgz; do
+	[ -f "$X" ] || continue
 	X=`realpath "$X"`
 	Y="$X"_unpacked
 	mkdir "$Y"
 	cd "$Y"
 	tar xfz "$X"
+	cd ..
+done
+
+for X in *.rar; do
+	[ -f "$X" ] || continue
+	X=`realpath "$X"`
+	Y="$X"_unpacked
+	mkdir "$Y"
+	cd "$Y"
+	rar x "$X"
+	cd ..
 done

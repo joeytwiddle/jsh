@@ -53,12 +53,12 @@ then
 
 	while true
 	do
-		# OLD=`memo ls "/tmp/revssh-client-output-$TARGETHOST*" 2>/dev/null`
-		# NOW=`rememo ls "/tmp/revssh-client-output-$TARGETHOST*" 2>/dev/null`
-		# OLD=`memo ls "/tmp/revssh-client-output-$TARGETHOST*"`
-		# NOW=`rememo ls "/tmp/revssh-client-output-$TARGETHOST*"`
-		OLD=`memo   ls /tmp | grep "revssh-client-output-$TARGETHOST"`
-		NOW=`rememo ls /tmp | grep "revssh-client-output-$TARGETHOST"`
+		# OLD=`memo         ls "/tmp/revssh-client-output-$TARGETHOST*" 2>/dev/null`
+		# NOW=`memo -c true ls "/tmp/revssh-client-output-$TARGETHOST*" 2>/dev/null`
+		# OLD=`memo         ls "/tmp/revssh-client-output-$TARGETHOST*"`
+		# NOW=`memo -c true ls "/tmp/revssh-client-output-$TARGETHOST*"`
+		OLD=`memo         ls /tmp | grep "revssh-client-output-$TARGETHOST"`
+		NOW=`memo -c true ls /tmp | grep "revssh-client-output-$TARGETHOST"`
 		# echo
 		# echo "OLD="
 		# echo "$OLD"

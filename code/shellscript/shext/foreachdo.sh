@@ -11,6 +11,8 @@
 
 ## xmode can be used like this:
 # find . -type f -not -size 0 | foreachdo -x mv \"\$X\" ..
+## Or better:
+# find . -type f -not -size 0 | foreachdo -x mv \"\$X\" ..
 ## poo huh?
 if [ "$1" = -x ]
 then XMODE=true; shift
@@ -28,8 +30,7 @@ then
 else
 
 	while read LINE
-	do
-		"$@" "$LINE"
+	do "$@" "$LINE"
 	done
 
 fi

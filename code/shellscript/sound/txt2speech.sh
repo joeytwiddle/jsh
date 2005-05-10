@@ -77,8 +77,9 @@ NL="
 	sed 's|)| close-bracket |g' |
 	sed 's|\"| unmatched-quote |g' |
 
-	sed 's|\<magic\>|majjichk|g' |
-	sed 's|\<of\>|orve|g'
+	sed 's|\<US\>|U S|g' |
+	# sed 's|\<of\>|orve|g' |
+	cat
 
 	echo ")"
 

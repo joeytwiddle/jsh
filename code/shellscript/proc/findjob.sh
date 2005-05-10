@@ -6,6 +6,8 @@
 
 ## TODO: optionally allow user to edit process list.  Those lines which are deleted, means the process is killed.  =)
 
+## TODO: implement -branch: tag each line as TOPLEVEL or CHILD, then xescape, then sed from \nTOPLEVEL.*target.*\nTOPLEVEL *non* greedily?!
+
 ## BUGS: myps --forest somes does not show all the processes that myps does!
 ##       Not true!  The problem was COLUMNS was too low and forest pushes the process off the side of the screen into oblivion!
 

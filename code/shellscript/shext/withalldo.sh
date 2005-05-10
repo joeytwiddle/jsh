@@ -1,4 +1,8 @@
+# jsh-depends: error
 ## TODO: goes slow on long lists, presumably because of the long string manipulation.  Fix by using a stream | sh, so we can echo straight to stream instead of adding to String.
+
+## Xargs example:
+# echo 08 | xargs -i convert img{}.gif img{}.png
 
 ## One day we are going to hit too-many-arguments, and we'll need to get withalldo to do it it chunks.  But that would change functionality :-/
 

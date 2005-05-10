@@ -32,6 +32,8 @@ then
 
 fi
 
+WHERE=`realpath "$WHERE"` ## or absolutepath
+
 cd / ## For memoing.
 
 INPACKAGES=`jgettmp inPackages`
@@ -45,18 +47,18 @@ PACKAGES_TO_CHECK=`
 # striptermchars | takecols 1 | beforefirst : |
 # removeduplicatelines
 ## All in one memo:
-memo "findpkgwith '$WHERE' | striptermchars | takecols 1 | beforefirst : | removeduplicatelines"
+memo eval "findpkgwith '$WHERE' | striptermchars | takecols 1 | beforefirst : | removeduplicatelines"
 ## yuk: memo findpkgwith "$WHERE" '|' striptermchars '|' takecols 1 '|' beforefirst : '|' removeduplicatelines
 `
 
 for PACKAGE in $PACKAGES_TO_CHECK
 do
-	echo "Reading file list for package $PACKAGE" >&2
+	jshinfo "Reading file list for package $PACKAGE"
 	# memo dpkg -L "$PACKAGE" | sed "s|$|	[$PACKAGE]|"
 	## All in one memo:
 	# memo "dpkg -L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
 	## Inner memo because there is a small chance dpkg-L ... may have been run elsewhere
-	memo "memo dpkg-L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
+	memo eval "memo dpkg-L '$PACKAGE' | sed 's|$|	[$PACKAGE]|'"
 	## yuk: memo dpkg -L "$PACKAGE" '|' sed "'s|$|	[$PACKAGE]|'"
 done |
 grep "^$WHERE" |

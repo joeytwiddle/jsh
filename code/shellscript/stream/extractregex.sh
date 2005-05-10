@@ -1,3 +1,5 @@
+## lool, 7/4/05: See grep -o !!
+
 ## Prints (non-overlapping?) occurrences of the given (perl) regular expression found in the stream, each on an individual line.
 ## The -atom option specifies that only the first bracketed atom matched should be echoed, allowing you to extract onlt a part of each matched string.
 
