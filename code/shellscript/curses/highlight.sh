@@ -1,15 +1,29 @@
 #!/bin/bash
-## zsh would also do (just need the $RANDOM param)
+## zsh would also do (just need the $RANDOM param)  (well actually that's a job for getrandom to worry about now :)
 
 # jsh-ext-depends: sed
 # jsh-depends: cursebold cursenorm getrandom
 
 if [ "$1" = "" ] || [ "$1" = --help ]
-then
-  echo "highlight [-bold] <string> [<color>]"
-  echo "  Note: the search <string> will be fed into sed, so may be in sed format."
-  exit 1
+then cat << !
+
+highlight [ -bold ] <regexp> [ <color> ]
+
+  highlights all occurrences of the expression in stdout using a random termcap
+  colour (or the colour specified).
+	
+  Can be used to make certain expressions stand out (easier to find),
+  in long streams of data.
+
+  Note: the search <regexp> will be fed into sed, so should be sed-compatible.
+
+  For example, try: highlight | highlight "col.*r"
+
+!
+exit 1
 fi
+
+## Parse arguments and prepare colours:
 
 BOLD=
 if [ "$1" = "-bold" ]
@@ -19,16 +33,19 @@ then
 fi
 
 COLOR="$2"
-if [ "$COLOR" = "" ]
+if [ ! "$COLOR" ]
 then
+
+	## Choose a random colour:
 
 	# COLI=` expr 1 '+' '(' $RANDOM '%' 5 ')' `
 	RAND=`getrandom`
 	COLI=` expr 1 '+' '(' $RAND '%' 5 ')' `
 
-	if test "$COLI" = ""; then
-		COLI=3
+	if [ ! "$COLI" ] ## In case random failed, choose yellow :)
+	then COLI=3
 	fi
+	## These colours appear dark against my black background, but might not against a light one!
 	if [ "$COLI" = 1 ] || [ "$COLI" = 4 ]; then BOLDI=1; else BOLDI=0; fi
 	HIGHCOL=`printf '\033[0'"$BOLDI"';3'"$COLI"'m'`
 
@@ -43,11 +60,7 @@ fi
 
 NORMCOL=`cursenorm`
 
-# printf "$NORMCOL" ## Can throw off regexps, notably in jdiff, but could be fixed there if this is needed here.
-# sed "s#$1#$HIGHCOL$1$NORMCOL#g"
-# sed "s#\($1\)#$HIGHCOL\1$NORMCOL#g"
-# sed "s#$1#$HIGHCOL\0$NORMCOL#g"
+## Replace all matches in the stream with a highlighted copy:
 
-## Adding -u option should cause sed to print out more often, but it doesn't appear to work :-/
 sed -u "s#$1#$HIGHCOL\0$NORMCOL#g"
 

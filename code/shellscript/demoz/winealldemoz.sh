@@ -4,7 +4,7 @@
 
 ## I think wine+demoz are more likely to work if you set wine's "window management" to "desktop" (i use 1024x768).
 
-DEMODIRS="$DEMODIRS /stuff/software/demoz/recommend/ /mnt/cdrom/stuff/software/demoz/recommend/"
+DEMODIRS="$DEMODIRS /stuff/software/demoz/ /mnt/cdrom/stuff/software/demoz/"
 
 if test "$1" = "topdown" || test "$1" = "bestfirst"; then
 	for X in `seq 10 -1 0`; do

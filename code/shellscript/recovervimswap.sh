@@ -14,24 +14,28 @@ do
   SWAPFILES=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" `
 	SWAPS=`echo "$SWAPS" | countlines`
 
-  if test $SWAPS -lt 1
+  if [ $SWAPS -lt 1 ]
   then echo "No swapfiles found for $X"
 
   ## This didn't get caught one time when I thought it should have.  The file might have been a .file
-  elif test $SWAPS -gt 1
+  elif [ $SWAPS -gt 1 ]
   then echo "More than one swapfile found for $X.  TODO: can recover by referring to swapfile directly."
 
   else
 
     N=1
-    while test -e "$X.recovered.$N"
+    while [ -e "$X.recovered.$N" ]
     do N=`expr $N + 1`
     done
 		## TODO: Could grep following for "^Recovery completed"
     if vim +":w $X.recovered.$N$NL:q" -r "$X" &&
-       test -f "$X.recovered.$N"
+       [ -f "$X.recovered.$N" ]
     then
       echo "Successfully recovered to $X.recovered.$N"
+      # echo del $DIR/.$FILE.sw?
+      # echo del "$DIR/.$FILE.swp"
+      # echo del "$DIR/$LOOKFOR"
+      echo del "$SWAPFILES"
       ## Could probably delete swapfile now, if we only knew its name!  (Use del)
       if cmp "$X" "$X.recovered.$N" > /dev/null
       then
@@ -49,10 +53,6 @@ do
         echo "vimdiff $X $X.recovered.$N"
         echo "del $X.recovered.$N"
       fi
-      # echo del $DIR/.$FILE.sw?
-      # echo del "$DIR/.$FILE.swp"
-      # echo del "$DIR/$LOOKFOR"
-      echo del "$SWAPFILES"
       cursenorm
     else
       echo "Some problem recovering swap file (for) $X"
