@@ -54,6 +54,10 @@ CONFIGLIST=$HOME/.jsh_emerge--helpconfig_config-matches.list
 ## (And I guess it is more secure, only recording md5sums for those configs you do have installed.)
 # ## # XXXXXX [[[[[[ not accurate: The scan looks through /etc for any config file which matches its checksum in its portage package's CONTENTS file. ]]]]]]
 
+commentstream () {
+	sed 's+^+# +'
+}
+
 if [ "$1" = -scan ]
 then
 
@@ -107,16 +111,24 @@ then
 	do
 		CONFIG=`echo "$NEWCONFIG" | sed 's+/\._cfg...._+/+'`
 		GOTSUM=`md5sum "$CONFIG"`
-		if grep "^$GOTSUM matches" "$CONFIGLIST"
-		then echo "Therefore it should be fine to: `cursecyan`mv '$NEWCONFIG' '$CONFIG'`cursenorm`"
-		elif grep "^$CONFIG mismatches" "$CONFIGLIST"
-		then echo "So you might want to: `cursecyan`vimdiff '$NEWCONFIG' '$CONFIG'`cursenorm`"
-		else echo "$CONFIG was not recognised.  You may like to: `cursecyan`vimdiff '$NEWCONFIG' '$CONFIG'`cursenorm`"
+		if
+			grep "^$GOTSUM matches" "$CONFIGLIST" | commentstream
+		then
+			echo "# `cursegreen`Therefore it should be fine to:`cursenorm`"
+			echo "mv '$NEWCONFIG' '$CONFIG'"
+		elif
+			grep "^$CONFIG mismatches" "$CONFIGLIST" | commentstream
+		then
+			echo "# `curseyellow`So you might want to:`cursenorm`"
+			echo "vimdiff '$NEWCONFIG' '$CONFIG'"
+		else
+			echo "# `cursered;cursebold`$CONFIG was not recognised.  You may like to:`cursenorm`"
+			echo "vimdiff '$NEWCONFIG' '$CONFIG'"
 		fi
 		echo
 	done
 
-	echo "No more config files need merging."
+	echo "# No more config files need merging."
 
 elif [ "$1" = fullcheck ]
 then
@@ -135,6 +147,8 @@ else
 	echo
 	echo "emerge--helpconfig [ --help | -scan | -check ]"
 	echo
+	echo "[ See also: etc-update and dispatch-conf ]"
+	echo
 	if [ "$1" = --help ]
 	then
 		echo "Emerge does not appear to know when a new version of a config file should"
@@ -149,11 +163,11 @@ else
 		echo
 		echo "  You need to do -scan before you emerge, because it needs to record the"
 		echo "  default for the old config file, in order to know whether it can be replaced"
-		echo "  by the new version.  Run --check after an emerge, before the next -scan."
+		echo "  by the new version.  Run -check after an emerge, before the next -scan."
 		echo
 		echo "  If this doc is confusing, just try it.  It's harmless; it only reports."
 	else	
-		echo "Don't understand: \"$1\".  Try \"--help\" then \"-scan\" then \"-check\""
+		echo "Don't understand: \"$1\".  Try \"--help\" then \"-check\" then \"-scan\""
 	fi	
 	echo
 	exit 1

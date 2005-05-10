@@ -3,7 +3,7 @@
 test "$COLUMNS" && export COLUMNS
 
 . preventgreperrs
-alias grep='grep --line-buffered'
+alias grep='grep --line-buffered' ## This seems to add to the previous definition :)
 alias sed='sed -u'
 
 if test $JM_COLOUR_LS; then
@@ -147,10 +147,13 @@ alias help='jhelp' ## Hehe I stole it back! (U can still type 'help' for bash's)
 alias apropos=japropos
 
 ## We should do this for everything (no reason why not to, apart from memo diskspace usage I guess):
-alias dusk="rememo dusk"
+# alias dusk="rememo dusk"
+alias dusk="memo -c true dusk"
 
 # alias wget='screen wget'
 
 ## Shellscripts in their own right, but oneliners: (could make functions)
 
 alias quiet='fadevolume 0'
+
+alias memo='memo -info'

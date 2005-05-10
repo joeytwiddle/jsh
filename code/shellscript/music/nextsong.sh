@@ -28,7 +28,10 @@ quickfadevolume
 
 case $PLAYER in
 	xmms)
+		## Added stop and start (-s and -p) in an attempt to avoid the audio clipping problem below.
+		xmms -s
 		xmms -f
+		xmms -p
 	;;
 	mpg123|ogg123|mpg321)
 		killall -sINT $PLAYER ## send it something softer
@@ -44,6 +47,7 @@ esac
 
 ## On my system this prevents a tiny bit of the old audio continuing after the kill,
 ## but on your system it might take longer, or it might clip a second of the new song!  But who cares, it's only a second right?
+## TODO: could fix by waiting (say max 10 seconds) for song (whatsplaying) to change
 sleep 1
 restorevolume
 

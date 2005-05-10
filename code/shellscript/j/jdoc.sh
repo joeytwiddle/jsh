@@ -7,7 +7,7 @@ then
 	echo "  will show you the documentation for the command, be it unix or jsh,"
 	echo "  and, if requested, will show uses of that command in all jsh scripts."
 	echo
-	echo "  You can find a list of jsh scripts in \$JPATH/tools/"
+	echo "  You can find the list of jsh scripts in \$JPATH/tools/"
 	echo
 	echo "  jdoc also has a feature which helps you to refactor (rename) jsh scripts."
 	echo
@@ -15,6 +15,10 @@ then
 elif [ "$1" = -hasdoc ]
 then
 
+	## Internal: checks if script will accept --help argument and provide meaningful help back.
+
+	## (TODO: we could also attempt this on binaries!)
+	# if grep '\-\-help' "$LINKTOCOM" > /dev/null
 	[ "$DEBUG" ] && debug "jdoc: looking for --help in $2"
 	head -n 500 "$2" | grep '\-\-help' > /dev/null	
 	exit "$?"
@@ -25,39 +29,41 @@ then
 		LINKTOCOM="$2"
 
 			(
+
 				barline() {
 					echo "::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::"
 				}
-				## If if appears to accept the --help argument, then just run it!
-				## (TODO: we could in fact attempt this on binaries!)
-				# if grep '\-\-help' "$LINKTOCOM" > /dev/null
+
+				## If the script appears to accept the --help argument, then run <script> --help !
 				if jdoc -hasdoc "$LINKTOCOM"
 				then
 					barline
-					curseyellow
-					echo "$LINKTOCOM --help"
-					cursenorm
+					echo "Help: "`curseyellow`"$LINKTOCOM --help"`cursenorm`
 					barline
 					$LINKTOCOM --help
 					echo
 				fi
+
 				## Show the script:
-					barline
-					cursecyan
-					echo `realpath "$LINKTOCOM"`
-					cursenorm
-					barline
-					cat "$LINKTOCOM" |
-					## Pretty print it (I'd like to use a dedicated program with syntax highlighting)
-					highlight "^[ 	]*\#\#.*" magenta | ## for comments
-					# highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
-					highlight "^[ 	]*\# .*" cyan | ## single comment
-					highlight "	" blue | ## tabs
-					# sed 's+	+|--+g' | ## tabs
-					cat
-					echo
-					barline
-				## TODO: might the user want the man page as well as the script?
+				barline
+				echo "Code: `cursecyan`"`realpath "$LINKTOCOM"``cursenorm`
+				barline
+
+				cat "$LINKTOCOM" |
+
+				## Pretty print it
+				## (I'd like to use a dedicated program with syntax highlighting)
+				## (Nah actually I quite like this implementation, it matches my coding policies!)
+				highlight -bold "^[ 	]*\#\#.*" yellow | ## BRIGHT double-hashed comment, probable documentation
+				# highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
+				highlight "^[ 	]*\# .*" magenta | ## DARK single-hashed comment, probably commented out code
+				# highlight "	" blue | ## tabs
+				# sed 's+	+|--+g' | ## tabs
+				cat
+
+				echo
+				barline
+
 			) | more
 
 else
@@ -73,7 +79,7 @@ else
 	if [ -f "$LINKTOCOM" ]
 	then
 
-		## I decided popping up was not desirable behaviour after all!
+		## I decided popping up was not always desirable behaviour; so shifted it into manpoup.
 		# if xisrunning
 		# then
 			# bigwin jdoc showjshtooldoc "$LINKTOCOM"

@@ -14,7 +14,7 @@
 ## TODO: delete the memoed file if interrupted
 ##       (eg. (optionally delete it,) memo to elsewhere, then move into correct place if successful)
 
-## Instead of repeating the code for the checksum here, why doesn't memo pass it in, and rememo can barf otherwise?  (Other uses of rememo?  See "jdoc rememo"...)
+## DONE: Instead of repeating the code for the checksum here, why doesn't memo pass it in, and rememo can barf otherwise?  (External uses of/dependencies on rememo?  See "jdoc rememo"...DONE :)
 
 # [ "$DEBUG" ] && debug "REMEMO:   `cursemagenta`$*`cursenorm`"
 
@@ -39,7 +39,8 @@
 
 if [ ! "$MEMOFILE" ]
 then
-	error "MEMOFILE should have been exported to rememo"
+	error "MEMOFILE was not exported to rememo"
+	error "rememo can no longer be called directly; please use \"memo -c true\" instead."
 	exit 1
 fi
 mkdir -p `dirname "$MEMOFILE"`
@@ -75,7 +76,7 @@ do TOEVAL="$TOEVAL""\"$ARG\" "
 done
 eval "$TOEVAL" > $TMPFILE
 # eval "$TOEVAL" | tee $TMPFILE ## no need to wait before catting; better for streaming :) , although tee seems to buffer at 4k, but only when |ed :/
-## TODO: tee loses the exit code, but if we could send that as a separate message (eg. via a file), we could use tee :)
+## TODO: tee loses the exit code, but if we could send that as a separate message (eg. via a file, or using exec), we could use tee :)
 
 EXITWAS="$?"
 ## At the moment, only successful executions are actually memo-ed.

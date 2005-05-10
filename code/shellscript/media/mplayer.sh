@@ -35,6 +35,11 @@ do
 	esac
 done
 
+## AFAIK VNC only works with the x11 vo:
+if [ "$VNCDESKTOP" = "X" ]
+then OPTS="$OPTS -vo x11"
+fi
+
 [ "$MPLAYER" ] || MPLAYER=mplayer
 verbosely unj $MPLAYER $OPTS "$@"
 

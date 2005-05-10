@@ -1,3 +1,7 @@
+# jsh-ext-depends-ignore: file batch rename strings
+# jsh-ext-depends: sed find tty
+# jsh-depends: jshwarn
+# jsh-depends-ignore: exists
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo

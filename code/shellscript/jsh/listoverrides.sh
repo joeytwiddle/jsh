@@ -10,8 +10,8 @@ intersection () {
 	done
 }
 
-TMPA=`jgettmp listoverrides`
-TMPB=`jgettmp listoverrides`
+ALL_NONJSH_COMMAND_NAMES=`jgettmp listoverrides`
+ALL_JSH_SCRIPT_NAMES=`jgettmp listoverrides`
 
 	echo "$PATH" |
 	tr : '\n' |
@@ -19,16 +19,16 @@ TMPB=`jgettmp listoverrides`
 	while read PATHDIR
 	do
 		'ls' $PATHDIR
-	done > $TMPA
+	done > $ALL_NONJSH_COMMAND_NAMES
 
 JSHS=`
 	'ls' $JPATH/tools
 	alias | sed 's+.* \(.*=\).*+\1+'
 `
 
-echo "$JSHS" > "$TMPB"
+echo "$JSHS" > "$ALL_JSH_SCRIPT_NAMES"
 
-intersection $TMPA $TMPB |
+intersection $ALL_NONJSH_COMMAND_NAMES $ALL_JSH_SCRIPT_NAMES |
 
 while read NAME
 do
@@ -36,7 +36,7 @@ do
 	echo "jsh's `cursecyan`$NAME`cursenorm` overrides `curseyellow`"`jwhich "$NAME"``cursenorm`
 done
 
-jdeltmp $TMPB
+jdeltmp $ALL_JSH_SCRIPT_NAMES
 
 echo
 echo "Generally, jsh only overrides an existing program when it improves the functionality of that program."

@@ -6,7 +6,7 @@ jwatchchanges [ -fine ] [ -n <delay_time> ] <command>
 
   will repeatedly run <command>, displaying its output with changes highlighted.
 
-	-fine will highlight changed characters, not changed lines, but uses more CPU.
+  -fine will highlight changed characters, not changed lines, but uses more CPU.
 
   Alternatively, you may like to try Unix watch(1): watch -d <command>
 
