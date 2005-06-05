@@ -5,6 +5,8 @@
 ## Hmm well it works over networks at least, maybe helped if stdout/err are sent in sync over ssh.
 ## But it doesn't always work.
 
+## TODO: add ETA.  CONSIDER: factoring out progress from catwith first.
+
 if [ "$1" = -size ]
 then
 	SIZE="$2"; shift; shift
@@ -35,8 +37,11 @@ do
 	# SOFAR=`expr $SOFAR + $BLOCKSIZE`
 	SOFAR=`expr $SOFAR + $ADDED`
 	PERCENTAGE=`expr 100 '*' $SOFAR / $SIZE`
-	echo "$SOFAR / $SIZE ($PERCENTAGE%)" >&2
+	# echo "$SOFAR / $SIZE ($PERCENTAGE%)" >&2
+	printf "%s\r" "$SOFAR / $SIZE ($PERCENTAGE%)" >&2
 
 done
+
+echo >&2 ## Or clear the line and \r
 
 [ "$TMPFILE" ] && jdeltmp "$TMPFILE"
