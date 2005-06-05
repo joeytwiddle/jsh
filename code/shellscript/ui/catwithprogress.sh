@@ -17,10 +17,15 @@ else
 	SIZE=`filesize "$TMPFILE"`
 fi
 
-BLOCKSIZE=`expr "$SIZE" / 50`
-[ "$BLOCKSIZE" -gt 0 ] || BLOCKSIZE=1024 ## Well if size is valid, maybe this should be 1.
+BLOCKSIZE=`expr "$SIZE" / 1000`
+[ "$BLOCKSIZE" ] || BLOCKSIZE=1024
+[ "$BLOCKSIZE" -gt 0 ] || BLOCKSIZE=1 ## Well if size is valid, maybe this should be 1.
+[ "$BLOCKSIZE" -lt 10240000 ] || BLOCKSIZE=10240000
+# BLOCKSIZE=4096
 
 SOFAR=0
+
+STARTTIME=`date +"%s"`
 
 if [ "$TMPFILE" ]
 then cat "$TMPFILE"
@@ -37,8 +42,21 @@ do
 	# SOFAR=`expr $SOFAR + $BLOCKSIZE`
 	SOFAR=`expr $SOFAR + $ADDED`
 	PERCENTAGE=`expr 100 '*' $SOFAR / $SIZE`
+
+	if [ "$SOFAR" -gt 0 ]
+	then
+		TIMENOW=`date +"%s"`
+		TIMETAKEN=`expr "$TIMENOW" - "$STARTTIME"`
+		ESTTOTTIME=`expr "$TIMETAKEN" '*' "$SIZE" / "$SOFAR"`
+		ESTREMTIME=`expr "$ESTTOTTIME" - "$TIMETAKEN"`
+		# ETAMSG="   ETA: $ESTREMTIME seconds ("`date -d "$ESTREMTIME seconds"`")"
+		# ETAMSG="   ETA: `datediff -english $ESTREMTIME` ("`date -d "$ESTREMTIME seconds"`")"
+		ETAMSG="   ETA: `datediff -english $ESTREMTIME` " ## Trailing space since datediff's output was not fixed-length
+	fi
+
 	# echo "$SOFAR / $SIZE ($PERCENTAGE%)" >&2
-	printf "%s\r" "$SOFAR / $SIZE ($PERCENTAGE%)" >&2
+	# printf "%s\r" "$SOFAR / $SIZE ($PERCENTAGE%)$ETAMSG" >&2
+	printf "\r%s" "$SOFAR / $SIZE ($PERCENTAGE%)$ETAMSG" >&2
 
 done
 
