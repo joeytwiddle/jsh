@@ -1,3 +1,5 @@
+[ -d "$JPATH/logs/logps" ] || mkdir -p "$JPATH/logs/logps"
+
 # (
 # date
 

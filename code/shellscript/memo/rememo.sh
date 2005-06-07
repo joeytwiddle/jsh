@@ -45,7 +45,8 @@ then
 fi
 mkdir -p `dirname "$MEMOFILE"`
 
-[ "$DEBUG" ] && debug "REMEMO:   `cursemagenta`$NICECOM`cursenorm`"
+# [ "$DEBUG" ] && debug "REMEMO:   `cursemagenta`$NICECOM`cursenorm`"
+[ "$DEBUG" ] && debug "rememo: \"$*\" > \"$MEMOFILE\""
 
 TMPFILE=`jgettmp tmprememo`
 
@@ -74,21 +75,33 @@ TOEVAL=""
 for ARG in "$@"
 do TOEVAL="$TOEVAL""\"$ARG\" "
 done
-eval "$TOEVAL" > $TMPFILE
-# eval "$TOEVAL" | tee $TMPFILE ## no need to wait before catting; better for streaming :) , although tee seems to buffer at 4k, but only when |ed :/
-## TODO: tee loses the exit code, but if we could send that as a separate message (eg. via a file, or using exec), we could use tee :)
+# eval "$TOEVAL" > $TMPFILE
+# EXITWAS="$?"
 
-EXITWAS="$?"
+# eval "$TOEVAL" | tee $TMPFILE ## no need to wait before catting; better for streaming :) , although tee seems to buffer at 4k, but only when |ed :/
+## DONE: tee loses the exit code, but if we could send that as a separate message (eg. via a file, or using exec), we could use tee :)
+## DONE: ok we could solve this eg. by making the last line of stderr contain the exit code...?
+(
+	## NOTE: It falsely thought it had completed one time (before I added jdeltmp)
+	##       Philosophy now is that $TMPFILE.result will be empty if the eval is interrupted and the (..) breaks out.
+	jdeltmp $TMPFILE.result
+	eval "$TOEVAL"
+	echo "$?" > $TMPFILE.result
+) | tee $TMPFILE
+## TODO: can we prevent tee's 4k buffering when stdout is not direct to terminal?  (eg. if stdout is |ed to highlight)
+EXITWAS=`cat $TMPFILE.result`
+
 ## At the moment, only successful executions are actually memo-ed.
 if [ "$EXITWAS" = 0 ]
 then
 	mv -f $TMPFILE "$MEMOFILE"
-	cat "$MEMOFILE"
+	# cat "$MEMOFILE" ## not needed now teeing
 else
   [ "$DEBUG" ] && debug "rememo: not caching since command gave exit code $EXITWAS: $*"
-	cat $TMPFILE
+	# cat $TMPFILE ## not needed now teeing
 fi
-jdeltmp $TMPFILE
+
+jdeltmp $TMPFILE $TMPFILE.result
 
 ## Ideal for script, but caused problems when importshfn rememo was used:
 # exit "$EXITWAS"
