@@ -1,25 +1,27 @@
+## TODO: If given a file, for efficiency pipebackto should seek to obtain a tmpfile on the partition the file is on.
+
 if [ "$1" = --help ]
 then
 cat << !
 
 "| dog \$FILE" and "| pipebackto \$FILE" are alternatives to "> \$FILE".
 
-Let's you write back to a file in a single pipe:
+  1) Let's you write back to a file in a single pipe command:
 
-    cat \$FILE | ... <process> ... | dog \$FILE
+       cat \$FILE | ... process ... | dog \$FILE
 
-  (Because all good shell users know that this doesn't work:
+     [ Because all good shell users know that this doesn't work:
 
-    cat \$FILE | ... process ... > \$FILE
+       cat \$FILE | ... process ... > \$FILE
 
-  It empties the file before reading it!)
+     It empties the file before reading it! ]
 
-Or, let's you change a file atomically:
+  2) Also, they let you change a file atomically:
 
-    ... <slow_process_to_create_file> ... | pipebackto \$FILE
+       ... slow_process_to_create_file ... | pipebackto \$FILE
 
-The file will not be overwritten until the process has completed.
-Hence, no other processes will see the partial file.  :)
+     The file will not be overwritten until the process has completed.
+     Hence, no other processes will see the partial file.  :)
 
 !
 exit 1
