@@ -12,9 +12,13 @@ then
 	echo "  If the screen does not already exist, the -xterm option will cause it to"
 	echo "  start in a new xterm."
 	echo
-	echo "  Note: if the screen has already been created, then none of your existing"
-	echo "        environment will be passed to the called command.  You can only hope"
-	echo "        to pass it command-line arguments."
+	echo "  Always backgrounds.  (Just added that, hope it's fine!)"
+	echo "  (However, it might block talking to an existing screen if screen has broken!)"
+	echo
+	echo "  Note: If the screen has already been created, then none of your current"
+	echo "        environment will be passed to the called command.  You can only"
+	echo "        pass it new command-line arguments.  But exports when you start"
+	echo "        the first screen do get through."
 	echo
 	## How surprising I couldn't get screen to do this without this shellscript!
 	exit 1
@@ -27,6 +31,7 @@ fi
 SCRNAME="$1"
 shift
 
+## Is there already a screen with that name?
 SCRSES=`screen -list | grep "$SCRNAME" | head -n 1 | takecols 1`
 
 if [ "$SCRSES" ]
@@ -44,13 +49,14 @@ else
 
 	## Start a new screen with the command:
 	if [ "$INXTERM" ]
-	then xterm -e screen -S "$SCRNAME" "$@"
+	then
+		xterm -e screen -S "$SCRNAME" "$@" &
 	else
 		## TODO:
 		# if live terminal
 		# then screen -S "$SCRNAME" "$@"
 		# else
-		screen -d -m -S "$SCRNAME" "$@"
+		screen -d -m -S "$SCRNAME" "$@" &
 		# fi
 	fi
 

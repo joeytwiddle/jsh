@@ -1,3 +1,4 @@
+# jsh-depends-ignore: escapenewlines
 # jsh-ext-depends: sed
 # jsh-depends: error
 # unj decodeslashn "$@"

@@ -59,7 +59,7 @@ highlight -bold '^[ 	][ 	]*>\(.*\| .*\|	.*\|\)$' green | ## eh?!
 ## i have changed following since writing above:
 ## Now it colours very likely changed line in bright yellow, and maybe changed lines in dark yellow.
 highlight -bold "^.*$WSC$WSC|$WSC$WSC.*$" yellow |
-highlight "^.*$WSC|$WSC.*$" yellow |
+highlight "^.*$WSC|$WSC.*$" yellow | ## haven't seen a valid one of these, yet...
   ##                \\ should we have 1 or 2 spaces here?  1 matches lots of false +ves in files, but 2 fails to match changed lines which are so long they leave no space.  :-(
 # highlight -bold '.*[ 	][ 	][ 	]*|\(	.*\|$\)' yellow | ## now forces 2+ tabs/spaces.  Oh dear that's not the case for wide files
 more

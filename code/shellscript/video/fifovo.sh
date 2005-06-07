@@ -51,6 +51,7 @@
 [ "$VQSCALE" ] || export VQSCALE="1"
 
 export FIFOVO_MESSAGE_DIR=/tmp/fifovo
+# export FIFOVO_MESSAGE_DIR=/tmp/fifovo-$$
 
 unbuffered_tr () {
 	## We use tr to scan mencoder's output, but tr's buffer causes final user output to burst in blocks.

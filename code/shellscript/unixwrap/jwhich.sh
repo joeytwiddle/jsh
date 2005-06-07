@@ -28,6 +28,7 @@ fakeungrep () {
 if test "$1" = "inj"
 then
     PATHS=`echo "$PATH" | tr ":" "\n"`
+    INJ=true
     shift
 else
     # Remove all references to JLib from the path
@@ -49,6 +50,11 @@ for dir in $PATHS
 do
   if test -f "$dir/$FILE"
   then
+      ## Skip this one if it looks like _another_ instance of jsh on the path.
+      ## (Except if doing inj.)  Needed this because simple_init was recursively calling screen and filling mem evil-ly :/ :/
+      if [ ! "$INJ" ] && ( [ -f "$dir/../startj" ] || [ -f "$dir/../startj-hwi" ] )
+      then continue
+      fi
       test ! "$QUIETLY" && echo $dir/$FILE
       exit 0      # Found!  :)
   fi

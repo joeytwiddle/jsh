@@ -72,14 +72,29 @@ function column4color () {
 PROCESS_NAME="$1"
 shift
 
+if [ ! -x "$LSOF" ]
+then
+	LSOF=`which lsof 2>/dev/null`
+	if [ ! -x "$LSOF" ]
+	then
+		LSOF=/usr/sbin/lsof
+		if [ ! -x "$LSOF" ]
+		then
+			error "Couldn't find lsof."
+			exit 1
+		fi
+	fi
+fi
+
 ## Stuff we (could) disable:
 ## -n : don't convert IP address to hostname
 ## -S 2 : spend at max 2 seconds in kernel calls
 ## -l : don't convert login IDs to login names
 ## -P : don't convert port numbers to service names
 ## -V : for debugging (lists failures)
+## -o : because we are more interested in offset than filesize XXX wanted to use this but lsof complained
 
-lsof -n -S 2 -V "$@" |
+"$LSOF" -n -S 2 -V "$@" |
 grep "^$PROCESS_NAME" |
 # grep "^[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*r " | ## Only files opened for reading
 # grep "\<REG\>" |

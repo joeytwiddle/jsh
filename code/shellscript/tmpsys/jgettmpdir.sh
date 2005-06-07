@@ -1,6 +1,6 @@
 # jsh-ext-depends: dirname
 # jsh-depends: jdeltmp jgettmp
-# jsh-depends-ignore: jsh
+# jsh-depends-ignore: jsh debug
 
 ## TODO: the other day, unfortunately, /tmp/jsh-joey was owned by and private to root.  This script tried to re-create it.  Did it then try to use it?!  This behaviour is bad.  It should just find an alternative.
 
