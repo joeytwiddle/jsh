@@ -1,3 +1,6 @@
+# jsh-ext-depends: sed md5sum
+# jsh-depends: cursebold cursered curseyellow cursenorm filesize md5sum
+
 ## Like cksum but faster because only reads the start and end of each file
 ## Quick and useful for verification / indexing of written CDs
 

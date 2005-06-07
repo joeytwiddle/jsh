@@ -6,5 +6,5 @@
 # echo "`curseyellow;cursebold`[WARN] `cursecyan`$*`cursenorm`" >&2
 # echo "`cursered;cursebold`[WARN] `curseyellow`$*`cursenorm`" >&2
 # echo "`cursered;cursebold`[`curseyellow;cursebold`WARN`cursered;cursebold`] `curseyellow`$*`cursenorm`" >&2
-echo "`curseyellow;cursebold`[`cursered;cursebold`WARN`curseyellow;cursebold`] `curseyellow`$*`cursenorm`" >&2
+[ "$NOWARN" ] || echo "`curseyellow;cursebold`[`cursered;cursebold`WARN`curseyellow;cursebold`] `curseyellow`$*`cursenorm`" >&2
 # fi

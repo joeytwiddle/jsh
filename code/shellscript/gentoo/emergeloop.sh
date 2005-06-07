@@ -1,3 +1,6 @@
+## jsh-help: Like emerge, but skips failed packages and compiles all it can.
+## jsh-help: Runs emerge as normal, but if there is a failure, restarts the emerge with --resume --skipfirst .
+
 LOGNUM=0
 
 while true

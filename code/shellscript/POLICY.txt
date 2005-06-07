@@ -36,6 +36,13 @@ Documentation:
 	Just started experimenting with "## jsh-help: ..." at the top of scripts.
 	This should be new policy in situations where --help is too cumbersome.
 
+General meta info:
+
+	jsh-meta <meta-tag> ...
+
+	would allow us to, eg.: install-jsh <meta-tags> <exclude-meta-tags>
+	eventually: apt-get install jsh-musthave
+
 Development:
 
 	Posix compliance: we use $HOME instead of ~, and the other thing I think,

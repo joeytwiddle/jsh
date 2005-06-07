@@ -11,7 +11,33 @@
 ## Problem: unj and jwhich don't work for functions (or do they!), so cksum might act recursively!
 
 ## TODO: In non-interactive mode, consider including jsh-depends-tocheck too, since they may well be needed, and it won't hurt (too much) if they aren't.
+## TODO: See the TODO in the help too!
 
+
+if [ "$1" = --help ]
+then
+cat << !
+compilejshscript [ -vigilant | -nonint ]
+
+  Will compile all the dependencies of a jsh script into one standalone script.
+
+  By default, will check dependencies for scripts which have none, and prompt
+  user to confirm.
+
+  With -vigilant, also checks scripts which already have dependencies defined.
+
+  With -nonint, will not prompt user to confirm dependencies.
+
+  TODO: if the user does not own the copy of jsh, if they confirm a dependency,
+  this meta-data will not be stored in the script.  What does compilejshscript
+  do in this situation?  Does it go wrong?!
+
+  compilejshscript uses jshdepwiz to manipulate the jsh dependency metadata,
+  and to guess the dependencies of a script if they are not already defined.
+
+!
+exit 1
+fi
 
 
 ## Options for jshdepwiz:
@@ -22,6 +48,8 @@
 
 if [ "$1" = -vigilant ]
 then export DEPWIZ_VIGILANT=true; shift
+elif [ "$1" = -nonint ]
+then export DEPWIZ_NON_INTERACTIVE=true
 fi
 
 

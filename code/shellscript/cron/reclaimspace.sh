@@ -145,6 +145,8 @@ do
 			## Oh dear: find was encountering "Stale NFS file handle" error and breaking out instead of continuing.
 			## This does better although it has two dependencies so find is preferable on non-symptomatic systems:
 			nice -n 10 'ls' -a -R | ls-Rtofilelist | filesonly |
+			## TODO: test:
+			# nice -n 10 find-typef_avoiding_stale_handle_error . |
 
 			# ( ## This sub-clause is needed so that the cat can send the rest of the randomorder stream somwhere, other bash under gentoo complains about a "Broken pipe"
 

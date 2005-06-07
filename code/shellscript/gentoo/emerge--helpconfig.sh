@@ -4,10 +4,19 @@
 ##       shouldn't be replaced automatically).
 ##       Check: I think this script retains the old versions as well with a >> .  What's wrong with > ?
 
+# jsh-ext-depends: sed find md5sum
+# jsh-ext-depends-ignore: dir file from script
+# jsh-depends-ignore: after before vimdiff md5sum
+# jsh-depends: cursegreen cursered cursenorm striptermchars pipeboth pipebackto
+
 ## Also: When are CONTENTS files present or not?  Does that affect the script?
 ##       Are we checking non-installed packages as well as installed ones (dodgy since we only care about actually installed config files, although unlikely to cause major problems).
 
 ## NOTE: not yet tested on /multiple/ updates per conf-file
+
+WHERE_TO_SCAN="/etc"
+# WHERE_TO_SCAN="/etc /usr/kde" ## too big to be the default, since it scans all files (we don't know which ones are config files until the ._cfg file appears!) :/
+WHERE_TO_SCAN_REGEXP=`echo "\($WHERE_TO_SCAN\)" | sed 's+ +\\\|+g'`
 
 # CONFIGLIST=/tmp/config-matches.list
 CONFIGLIST=$HOME/.jsh_emerge--helpconfig_config-matches.list
@@ -16,7 +25,7 @@ CONFIGLIST=$HOME/.jsh_emerge--helpconfig_config-matches.list
 # if [ "$1" = "-new" ]
 # then
 # 
-	# find /etc -iname '._cfg????_*' |
+	# find $WHERE_TO_SCAN -iname '._cfg????_*' |
 # 
 	# while read NEWCONFIG
 	# do
@@ -52,7 +61,7 @@ CONFIGLIST=$HOME/.jsh_emerge--helpconfig_config-matches.list
 ## Config files which match the package's default are recorded, so that later we can check they haven't changed, and replace them with the latest.
 ## (This is supposedly more efficient than just recording /all/ the CONTENTS's md5sums for later.)
 ## (And I guess it is more secure, only recording md5sums for those configs you do have installed.)
-# ## # XXXXXX [[[[[[ not accurate: The scan looks through /etc for any config file which matches its checksum in its portage package's CONTENTS file. ]]]]]]
+# ## # XXXXXX [[[[[[ not accurate: The scan looks through $WHERE_TO_SCAN for any config file which matches its checksum in its portage package's CONTENTS file. ]]]]]]
 
 commentstream () {
 	sed 's+^+# +'
@@ -73,7 +82,7 @@ then
 		cat $GROUPNAMEVER/CONTENTS |
 		grep -v "^dir " |
 
-		grep "[^ ]* /etc/" |
+		grep "[^ ]* $WHERE_TO_SCAN_REGEXP/" |
 
 		while read TYPE FILE MD5SUM SIZE
 		do
@@ -99,25 +108,29 @@ then
 	# echo "Removing duplicates..."
 	# cat "$CONFIGLIST" | removeduplicatelines | dog "$CONFIGLIST"
 	## Probably better, any reason why not?
-	striptermchars > "$CONFIGLIST"
+	striptermchars |
+	# cat > "$CONFIGLIST"
+	## This allows you to interrupt without destroying the original.  (Untested!)
+	pipebackto "$CONFIGLIST"
 
 	ls -l "$CONFIGLIST"
 
 elif [ "$1" = -check ]
 then
 
-	find /etc -iname '._cfg????_*' |
+	find $WHERE_TO_SCAN -iname '._cfg????_*' |
 	while read NEWCONFIG
 	do
 		CONFIG=`echo "$NEWCONFIG" | sed 's+/\._cfg...._+/+'`
 		GOTSUM=`md5sum "$CONFIG"`
+		## Oops the commentstream was losing grep's exit code, so we do the final grep to get an exit code!
 		if
-			grep "^$GOTSUM matches" "$CONFIGLIST" | commentstream
+			grep "^$GOTSUM matches" "$CONFIGLIST" | commentstream | grep .
 		then
 			echo "# `cursegreen`Therefore it should be fine to:`cursenorm`"
 			echo "mv '$NEWCONFIG' '$CONFIG'"
 		elif
-			grep "^$CONFIG mismatches" "$CONFIGLIST" | commentstream
+			grep "^$CONFIG mismatches" "$CONFIGLIST" | commentstream | grep .
 		then
 			echo "# `curseyellow`So you might want to:`cursenorm`"
 			echo "vimdiff '$NEWCONFIG' '$CONFIG'"
@@ -133,7 +146,7 @@ then
 elif [ "$1" = fullcheck ]
 then
 
-	find /etc -type f |
+	find $WHERE_TO_SCAN -type f |
 	while read CONFIG
 	do
 		GOTSUM=`md5sum "$CONFIG"`
@@ -166,6 +179,7 @@ else
 		echo "  by the new version.  Run -check after an emerge, before the next -scan."
 		echo
 		echo "  If this doc is confusing, just try it.  It's harmless; it only reports."
+		echo "  If you are happy with the recommendations, run: emerge--helpconfig -scan | sh"
 	else	
 		echo "Don't understand: \"$1\".  Try \"--help\" then \"-check\" then \"-scan\""
 	fi	
