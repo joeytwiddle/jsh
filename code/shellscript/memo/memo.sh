@@ -1,12 +1,13 @@
 # jsh-ext-depends-ignore: apt-cache dpkg find dirname last sort from file time realpath
 # jsh-ext-depends: sed md5sum newer
-# jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath md5sum debug
-# jsh-depends-ignore: arguments filename arguments todo mytest
+# jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath debug
+# jsh-depends-ignore: arguments filename arguments todo mytest md5sum
 
 ## Note: if you see a script which does "cd /" and claims to do it for memoing, this is because it wants all its memo's to be "working-directory independent"
 ##       this might be solved in future by TODO: an option (or envvar) to specify that the working-directory is irrelevant to memo's output, and should be ignored in the hash
 
-. jgettmpdir -top
+## DONE: added efficiency here if . jgettmpdir -top is run before using memo
+[ -w "$TOPTMP" ] || . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
 
 ## TODO:
@@ -23,7 +24,7 @@ MEMODIR=$TOPTMP/memo
 
 ## HOW-TO-SPEED-IT-UP-EXTERNALLY: Yes the re-parsing of this script does slow it down considerably; this can be improved by using ". importshfn rememo" and ". importshfn memo" before repeatedly using memo.  :)
 
-## TODO: refactor the destination nonsense out of memo/rememo to somewhere common!  (Well actually we could pass it to rememo)
+## DONE: refactor the destination nonsense out of memo/rememo to somewhere common!  (Well actually we could pass it to rememo :)
 
 ## DONE:
 #  - Leaves an empty or partial memo file if interrupted
@@ -31,6 +32,12 @@ MEMODIR=$TOPTMP/memo
 #  - Allow user to specify timeout after which rememo occurs
 #  - Allow user to specify quick command which returns non-0 if rememo needed (or a test-rememo command?)
 #  -                       a file (or indeed a directory full of files) which, if it is (they are) newer than the memo-cache-file, will force rememoing
+
+## DONE: added efficiency by referring to md5sum binary directly to avoid jsh's md5sum from being called.
+## but TODO NOTE BUG: this is NOT good if there is no md5sum binary!  :/
+## so TODO: What is the efficient way to select which md5sum command to use?
+
+## DONE: allow the default memo-ing condition and/or command to be provided as an env-var :) .  Oh yeah, it's REMEMOWHEN!
 
 if [ "$1" = "-info" ]
 then
@@ -119,7 +126,7 @@ if [ "$MEMO_IGNORE_DIR" ] || [ "$PWD" = / ] ## for speed
 then REALPWD=/
 else REALPWD=`realpath "$PWD"`
 fi
-CKSUM=`echo "$REALPWD/$*" | md5sum`
+CKSUM=`echo "$REALPWD/$*" | /usr/bin/md5sum`
 if [ "$DEBUG_MEMO" ]
 then NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
 else NICECOM="$CKSUM"
@@ -132,11 +139,13 @@ export CHECKDIR CHECKFILE REMEMOWHEN MEMOFILE AGEFILE
 # echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$MEMOFILE" ] || eval "$REMEMOWHEN"
 then
-	[ "$DEBUG" ] && ( debug "memoRE:   `cursemagenta`$NICECOM`cursenorm` rememo=$REMEMO filecached=`mytest test -f \"$MEMOFILE\"` rememowhen=$REMEMOWHEN" | tr '\n' ';' ; echo>&2 )
+	# [ "$DEBUG" ] && ( debug "REmemoing: com=\"$NICECOM\" REMEMO=$REMEMO filecached=`mytest test -f \"$MEMOFILE\"` REMEMOWHEN=$REMEMOWHEN" | tr '\n' ';' ; echo>&2 )
+	[ "$DEBUG" ] && debug "memo: re-running com=\"$NICECOM\" REMEMO=$REMEMO filecached=`mytest test -f \"$MEMOFILE\"` REMEMOWHEN=$REMEMOWHEN"
 	# eval "$REMEMOWHEN" && [ "$DEBUG" ] && debug "memo:     `cursemagenta`Refresh needed with com: $REMEMOWHEN`cursenorm`"
 	rememo "$@"
 else
-	[ "$DEBUG" ] && debug "memo:     `cursemagenta`$NICECOM`cursenorm`"
+	# [ "$DEBUG" ] && debug "memo: re-using com=\"$NICECOM\""
+	[ "$DEBUG" ] && debug "memo: re-using memofile=\"$MEMOFILE\""
 	cat "$MEMOFILE"
 fi
 EXITWITH="$?"
