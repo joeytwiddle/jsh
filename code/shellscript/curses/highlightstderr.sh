@@ -14,3 +14,6 @@ CURSEREDBOLD=`cursered;cursebold`
 while read X
 do printf "%s\n" "$CURSEREDBOLD$X$CURSENORM"
 done
+
+## Ahem.  The second while read doesn't actually only get stderr, it also adds colours to stdout,
+## but fortunately the CURSENORM in stdout overrides them.
