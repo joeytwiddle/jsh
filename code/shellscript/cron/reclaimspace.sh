@@ -5,7 +5,7 @@
 
 ## SAFETY:  Don't be scared; look below.  The two rm and rmdir commands both have /RECLAIM/ hardwired into them.  Therefore they will never delete anything that isn't below a directory called RECLAIM (or "reclaim" on some fs).
 
-## TOUBLESHOOTING: If (like me) you get "Stale NFS file handle" errors on your (vfat filing) system, you should swap "find . -type f" below for the "ls -R | ls-Rtofilelist | filesonly" line.
+## TOUBLESHOOTING: If (like me) you get "Stale NFS file handle" errors on your (vfat filing) system, you should swap "find . -type f" below for the "ls -R | ls-Rtofilelist | filesonly -inclinks" line.
 
 ## Rare danger of infinite loop if somehow rm -f repeatedly succeeds but does not reduce disk usage, or the number of files in RECLAIM/ .
 ## DONE: so that reclaimspace may be run regularly from cron, put in a max loop threshold to catch that condition.
@@ -132,21 +132,21 @@ do
 
 			## I had a lot of trouble if I broke out of the while loop, because the find was left dangling and still outputting (worse on Gentoo's bash).
 			## I did try cat > /dev/null to cleanup the end of the stream, but if I had already passed, the cat caused everything to block!
-			## So I decided it's easier (especially if the script might be modified in the future), that the while loop should ready all of find's output,
+			## So I decided it's easier (especially if the script might be modified in the future), that the while loop should read all of find's output,
 			## but only act if low space requires it.
 			# nice -n 20 find . -type f |
 			# ( randomorder && echo ) | ## need this end line otherwise read FILE on last entry ends the stream and hence the sh is killed.
 			# ( nice -n 20 find . -type f ; echo ; echo ; echo ) |
 			## After huge changes it turns out it was only the 20 that was the problem on Gentoo; 10 seems ok.
 			## This find | the rest means the rest never gets done if there are no files.
-			## TODO: This find can run really slow if your are on a busy system and/or . has many files and subdirs.  At least now it only runs when reclamation is needed.
-			##       Possible solution: find | head -n 1000 might SIGHUP the find or otherwise stop it once 1000 lines have been produced.  =)  Try it the next time the problem is encountered...
 			# nice -n 10 find . -type f |
 			## Oh dear: find was encountering "Stale NFS file handle" error and breaking out instead of continuing.
 			## This does better although it has two dependencies so find is preferable on non-symptomatic systems:
-			nice -n 10 'ls' -a -R | ls-Rtofilelist | filesonly |
-			## TODO: test:
-			# nice -n 10 find-typef_avoiding_stale_handle_error . |
+			## But: This find can run really slow if your are on a busy system and/or . has many files and subdirs.  At least now it only runs when reclamation is needed.
+			## So testing: Possible solution: find | head -n 1000 might SIGHUP the find or otherwise stop it once 1000 lines have been produced.  =)  Try it the next time the problem is encountered...
+			nice -n 10 'ls' -a -R | ls-Rtofilelist | filesonly -inclinks |
+			# nice -n 10 find-typef_avoiding_stale_handle_error . | ## works but skips links :/
+			head -n 1000 | ## since that is the timeout/max we do below
 
 			# ( ## This sub-clause is needed so that the cat can send the rest of the randomorder stream somwhere, other bash under gentoo complains about a "Broken pipe"
 
@@ -170,7 +170,7 @@ do
 				# echo "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
 
 				REMOVED=
-				if [ -f "$MNTPNT"/RECLAIM/"$FILE" ]
+				if [ -f "$MNTPNT"/RECLAIM/"$FILE" ] || [ -L "$MNTPNT"/RECLAIM/"$FILE" ] ## working file or broken link
 				then
 					## The philosophy behind the printf, is that if apps do still have references to this files inode (they have the file open),
 					## but we are trying to destroy the data anyway, this might actually reclaim the diskspace that would otherwise not be reclaimed.
@@ -192,6 +192,9 @@ do
 						## TODO: refactor this so /RECLAIM/ is hardwired into rmdir line:
 						DIR=`dirname "$MNTPNT"/RECLAIM/"$FILE"`
 						rmdir -p "$DIR" 2>/dev/null
+						## TODO: problem, if done as root, and /RECLAIM is empty, this might remove the /RECLAIM directory itself!
+						## Well, here's a fix:!
+						mkdir -p "$MNTPNT"/RECLAIM ## Remake the /RECLAIM dir just in case it was deleted.
 					fi
 					# set -e
 				fi
@@ -220,6 +223,8 @@ do
 
 			# )
 
+		else
+			echo "Could not cd to reclaim dir: $MNTPNT/RECLAIM" >&2
 		fi
 
 	fi

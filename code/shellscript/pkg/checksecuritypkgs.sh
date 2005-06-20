@@ -18,8 +18,12 @@
 # 		grep "$PKG" > /dev/null
 # 	then
 
+# export IKNOWIDONTHAVEATTY=true
+
 ## List all installed packages:
 apt-list -installed all | grep "$*" |
+
+catwithprogress |
 
 while read PKG CURRENT_VERSION CURRENT_DISTRO CURRENT_SOURCE
 do
@@ -34,7 +38,7 @@ do
 		pkgversions "$PKG"
 		# echo
 	else
-		echo "$PKG `cursegreen`is up-to-date (or later version than security version)`cursenorm`"
+		# echo "$PKG `cursegreen`is up-to-date (or later version than security version)`cursenorm`"
 		# echo
 		:
 	fi

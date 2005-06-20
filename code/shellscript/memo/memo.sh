@@ -126,7 +126,8 @@ if [ "$MEMO_IGNORE_DIR" ] || [ "$PWD" = / ] ## for speed
 then REALPWD=/
 else REALPWD=`realpath "$PWD"`
 fi
-CKSUM=`echo "$REALPWD/$*" | /usr/bin/md5sum`
+# CKSUM=`echo "$REALPWD/$*" | /usr/bin/md5sum`
+CKSUM=`echo "$REALPWD/$*" | /usr/bin/cksum -` ## seems minutely faster to me
 if [ "$DEBUG_MEMO" ]
 then NICECOM=`echo "$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
 else NICECOM="$CKSUM"
@@ -162,7 +163,7 @@ then
 		# echo "as of "`date -r "$MEMOFILE"`
 		echo "$@"
 		TIMEAGO=`datediff -files "$MEMOFILE" "$TMPF"`
-		echo "as of $TIMEAGO ago."
+		echo "cached $TIMEAGO ago."
 		cursenorm
 	) >&2
 	jdeltmp "$TMPF"
