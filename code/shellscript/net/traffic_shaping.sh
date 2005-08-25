@@ -2,6 +2,8 @@
 ## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
 ## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.
 
+## TODO: If I put the most commonly used rules (at priority times) first, maybe classification will happen faster, helping the important packets through...
+
 ## Sorry, this isn't adaptive, ie. it doesn't shrink the non-interactive pipe when you are using the net interactively, and then grow it when you are idle or away.
 ## It puts a constant reduction on your non-priority traffic (PROPORTION_TO_ALLOW).
 ## But since it works and can be used all the time, I find it means I can send more non-interactive traffic by leaving it running constantly through this form of shaping.
@@ -27,8 +29,10 @@
 # INTERFACE=eth1
 
 ## This is actually the max output bytes per second you can observe from monitoriflow running without shaping
-BANDWIDTH_OUT=20000
 # BANDWIDTH_OUT=25000
+# BANDWIDTH_OUT=20000
+## Reduced again because was reaching 15000 and slowing down sshs.  monitoriflow now reads about 13000 which is what I need
+BANDWIDTH_OUT=15000
 
 # PROPORTION_SMALL_PIPE="15"
 # PROPORTION_WEBSERVER="45"
@@ -67,7 +71,7 @@ function filter_port () {
 	DESTDISC="$4"
 	[ "$5" ] && PRIO="$5" || PRIO="$DESTDISC"
 	if [ "$DESTDISC" = 2 ]
-	then error "[traffic_shaping] filter_port $1 $2 $3 $4 : Don't use disc 2 it's dodgy!  (I don't know why but it gets packets without rules!)"
+	then jshwarn "[traffic_shaping] filter_port $1 $2 $3 $4 : Don't use disc 2 it's dodgy!  (I don't know why but it gets packets without rules!)"
 	fi
 	/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio $PRIO protocol ip u32 match ip $PORTDIR $PORT 0xffff flowid 1:$DESTDISC
 }
@@ -138,12 +142,14 @@ case "$1" in
 			[ "$DEBUG" ] && debug "[traffic_shaping]            webserver pipe size $WEBSERVER_BPS bps (peak $WEBSERVER_PEAKBPS)"
 
 			## These and the |sort below allow me to re-order the priority of the pipes, but the webserver connections all die unless i put the webserver first.  Strange.
-			WEBSERVER_DISC=7
-			SMALL_DISC=8
-			REST_DISC=9
-			# SMALL_DISC=7
-			# WEBSERVER_DISC=8
+			# WEBSERVER_DISC=7
+			# SMALL_DISC=8
 			# REST_DISC=9
+			## This is intended to reduce latency for the small packets; but might decrease it for webserver.
+			## TODO: could/should do detection of small packets before webserver packets.
+			SMALL_DISC=7
+			WEBSERVER_DISC=8
+			REST_DISC=9
 			## This doesn't work.  I think the webserved packets get caught into disc 8 regardless.
 			# SMALL_DISC=7
 			# REST_DISC=8
@@ -226,13 +232,13 @@ case "$1" in
 			## thus traffic going to an inhouse location has top priority
 			# /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.168.0/24 flowid 1:1
 			## Joey TODO: I guess this assumes your network is 10.0.0.*
-			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 10.0.0.0/24 flowid 1:1
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 10.0.0.0/24 flowid 1:2
 
 			## multicasts also go into band #1, since they are all inhouse (and we don't want to delay ntp packets and mess up time)
-			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 224.0.0.0/4 flowid 1:1
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 224.0.0.0/4 flowid 1:2
 
 			# On the TOS field, to select interactive, minimum delay traffic: (apparently some apps lie in this field :-( )
-			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip tos 0x10 0xff flowid 1:3
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip tos 0x10 0xff flowid 1:2
 			## Use 0x08 0xff for bulk traffic.
 
 			## This filters by IP (and sends to the pipe of big packets!)
@@ -243,8 +249,8 @@ case "$1" in
 			### Critical:
 
 			## Games:
-			##          unreal.prolly!.most..........................
-			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900
+			##          unreal.prolly!.most...........................trufftruffopen.ec...another..whoshack.oneoff.for_server somewhere dutchnet temp..... iNz. anuva
+			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900 7733 7766 7788 7080 8889     7767     6666   7787 28902 24777     1111     8000 7757 6100 27000
 			do
 				filter_port batch$PORT sport $PORT 1
 				filter_port batch$PORT dport $PORT 1
@@ -261,16 +267,16 @@ case "$1" in
 			filter_port pop3s    sport 995  3
 			# ## Remote mail:
 			## Make sure email gets out, but doesn't flood the connection:
-			filter_port smtp     dport 25   "$WEBSERVER_DISC" 3
-			filter_port ssmtp    dport 465  "$WEBSERVER_DISC" 3
-			filter_port imap2    dport 143  "$WEBSERVER_DISC" 3
-			filter_port imap3    dport 220  "$WEBSERVER_DISC" 3
-			filter_port imaps    dport 993  "$WEBSERVER_DISC" 3
-			filter_port pop2     dport 109  "$WEBSERVER_DISC" 3
-			filter_port pop3     dport 110  "$WEBSERVER_DISC" 3
-			filter_port pop3s    dport 995  "$WEBSERVER_DISC" 3
-			# ## Spamassassin or razor, dunno:
-			filter_port razor    dport 773  "$WEBSERVER_DISC" 3
+			filter_port smtp     dport 25   "$WEBSERVER_DISC"
+			filter_port ssmtp    dport 465  "$WEBSERVER_DISC"
+			filter_port imap2    dport 143  "$WEBSERVER_DISC"
+			filter_port imap3    dport 220  "$WEBSERVER_DISC"
+			filter_port imaps    dport 993  "$WEBSERVER_DISC"
+			filter_port pop2     dport 109  "$WEBSERVER_DISC"
+			filter_port pop3     dport 110  "$WEBSERVER_DISC"
+			filter_port pop3s    dport 995  "$WEBSERVER_DISC"
+			## Spamassassin or razor, dunno:
+			filter_port razor    dport 773  "$WEBSERVER_DISC"
 
 			## Peercast:
 			filter_port peercast dport 7144 5
@@ -299,6 +305,13 @@ case "$1" in
 			filter_port ssh      sport 2200  5
 			filter_port ssh      dport 2200  5
 
+			## MSN messenger:
+			filter_port msn      sport 33377 5
+			filter_port msn      dport 33377 5
+			## IRC:
+			filter_port irc      sport 6667 5
+			filter_port irc      dport 6667 5
+
 			## Vnc-http, Vnc, and X
 			## Oh but it gets eMule too!
 			# for VNCPORT in `seq 5800 5899` `seq 5900 5999` `seq 6000 6010`
@@ -310,16 +323,19 @@ case "$1" in
 			done
 
 			## Realplay
-			filter_port realplay sport 554 5
+			# filter_port realplay sport 554 5
 			filter_port realplay dport 554 5
+
+			## Demoscene
+			filter_port realplay dport 8018 5
 
 			## Webcam
 			filter_port webcam   sport 9192   5
-			filter_port webcam   dport 9192   5
+			# filter_port webcam   dport 9192   5
 
 			## You probably want your webserver to go reasonably fast (compared to file sharing networks for example).
 			## If you prefer to choke your webserver too, you can send it to band 8 or 9 instead.  (9 seems great but sometimes tails off!)
-			## Or I could set up a third sub-pipe for webserver throttling...
+			## Or I could set up a third sub-pipe for webserver throttling...done.
 			## Lower priority webserver:
 			filter_port http   sport 80   $WEBSERVER_DISC
 			# filter_port https  sport 443  $WEBSERVER_DISC
@@ -327,6 +343,12 @@ case "$1" in
 			## Fast websurfing:
 			filter_port http   dport 80   5
 			filter_port https  dport 443  5
+			## Fast ftp access (not serving):
+			# filter_port http   dport 21   5
+			## Oh dear, http continuations were going here :( someone hacked my shaping?!  So altered it to:
+			filter_port http   dport 21   $WEBSERVER_DISC
+			## I don't have an ftp server but if I did I would throttle it along with the w eb server:
+			filter_port http   sport 21   $WEBSERVER_DISC
 			## Might be a mistake (8000 used by filesharing?) but enabled for demoscene:
 			filter_port http   dport 8000   5
 			filter_port http   dport 8034   5
@@ -389,6 +411,11 @@ case "$1" in
 
 			## Block telewest's scanner:
 			/sbin/route add -host scanner.abuse.blueyonder.co.uk reject
+			## Mo-fo was ssh-ing in with random passwords; got guest/guest
+			/sbin/route add -host 204.11.237.148 reject
+			/sbin/route add -host 82.55.183.170 reject
+			/sbin/route add -host 70.84.152.52 reject
+			/sbin/route add -host 86.126.59.133 reject
 
 			echo "startified"
 		;;
