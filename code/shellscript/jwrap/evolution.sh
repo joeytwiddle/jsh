@@ -13,7 +13,10 @@ else
 	test -f "$BACKUPFILE" &&
 		mv "$BACKUPFILE" "$HOME/evolution-config-bak-previous.tgz"
 
-	cd "$HOME/evolution"
+	cd "$HOME/.evolution" ||
+	cd "$HOME/evolution" ||
+	exit 1
+
 	FILES=`'ls' | grep -v ^local | grep -v ^mail`
 	tar cfz "$BACKUPFILE" $FILES
 	rotate -nozip -max 4 "$BACKUPFILE"

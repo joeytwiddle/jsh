@@ -85,7 +85,8 @@ grep "\(^cvs \(status\|server\):\|^File:\)" |
 		s|^\(.*Locally Added.*\)$|cvs commit \1|
 		s|^\(.*Locally Removed.*\)$|cvs commit \1|
 		s|^\(.*Locally Modified.*\)$|cvs commit \1|
-		s|^\(.*File had conflicts on merge.*\)$|cvs commit \1|
+		# s|^\(.*File had conflicts on merge.*\)$|cvs diff \1|
+		s|^\(.*File had conflicts on merge.*\)$|cvsvimdiff \1|
 		s|^\(.*Needs Patch.*\)$|cvs update \1|
 		s|^\(.*Needs Merge.*\)$|cvs update \1|
 	' |
