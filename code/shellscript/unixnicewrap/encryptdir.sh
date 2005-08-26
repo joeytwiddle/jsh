@@ -14,6 +14,8 @@ mv "$FILE" "$FILE.bak"
 touch "$FILE"
 chmod 600 "$FILE"
 
+[ "$WHICHKEY" ] || WHICHKEY=`gpg --list-keys | grep "^pub" | head -n 1 | dropcols 1 2 3`
+
 if test "$NOTAR"
 then
 	cat "$DIR"
@@ -21,7 +23,7 @@ else
 	tar cz "$DIR"
 fi |
 
-gpg -r "Paul Clark <pclark@cs.bris.ac.uk>" -e > "$FILE"
+gpg -r "$WHICHKEY" -e > "$FILE"
 
 if test ! "$?" = 0
 then

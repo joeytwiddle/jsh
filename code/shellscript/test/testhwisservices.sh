@@ -20,7 +20,7 @@ function checkWebPageForRegexp () {
 	doing "Checking URL $1 for string \"$2\" ..."
 	OUTPUT=`
 		wget -nv -O - "$1" & wgpid=$!
-		sleep 5 ; kill $wgpid 2>/dev/null
+		sleep 10 ; kill $wgpid 2>/dev/null ## 5 seconds didn't give slow hwi enough time!
 	`
 	if echo "$OUTPUT" | grep "$2" > /dev/null
 	then good "`cursegreen;cursebold`OK: Found \"$2\" in \"$1\" ok.`cursenorm`"
