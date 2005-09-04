@@ -4,6 +4,13 @@ NL="
 "
 for X
 do
+
+	if [ ! -f "$X" ]
+	then
+		jshwarn "Not a file: $X"
+		continue
+	fi
+
   DIR=`dirname "$X"`
   FILE=`basename "$X"`
   # SWAPS=`countargs $DIR/.$FILE.sw?`
@@ -12,7 +19,7 @@ do
 
   # SWAPS=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" | countlines `
   SWAPFILES=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" `
-	SWAPS=`echo "$SWAPS" | countlines`
+	SWAPS=`printf "%s" "$SWAPFILES" | countlines`
 
   if [ $SWAPS -lt 1 ]
   then echo "No swapfiles found for $X"
@@ -28,14 +35,15 @@ do
     do N=`expr $N + 1`
     done
 		## TODO: Could grep following for "^Recovery completed"
-    if vim +":w $X.recovered.$N$NL:q" -r "$X" &&
+		SEND_ERR=/dev/null ## BUG: if there is more than 1 swapfile, vim may ask user to choose which one to recover (somehow it does read answer from terminal not stdin); but user cannot see message if we hide output!
+    if vim +":w $X.recovered.$N$NL:q" -r "$X" > "$SEND_ERR" 2>&1 &&
        [ -f "$X.recovered.$N" ]
     then
       echo "Successfully recovered to $X.recovered.$N"
       # echo del $DIR/.$FILE.sw?
       # echo del "$DIR/.$FILE.swp"
       # echo del "$DIR/$LOOKFOR"
-      echo del "$SWAPFILES"
+      echo `cursecyan`del "$SWAPFILES"`cursenorm`
       ## Could probably delete swapfile now, if we only knew its name!  (Use del)
       if cmp "$X" "$X.recovered.$N" > /dev/null
       then
