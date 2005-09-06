@@ -16,7 +16,7 @@ exit 1
 fi
 
 PKGNAME="$1"
-# ssh joey@hwi.ath.cx "dpkg -L $PKGNAME | filesonly | withalldo tar cz" > $PKGNAME.fromhwi.tgz
-# ssh joey@hwi.ath.cx "echo 'dpkg -L $PKGNAME | filesonly | withalldo tar cz' | jsh" > $PKGNAME.fromhwi.tgz
-ssh joey@hwi.ath.cx "/home/joey/j/jsh -c 'dpkg -L $PKGNAME | filesonly | withalldo tar cz'" > $PKGNAME.fromhwi.tgz
+# ssh joey@hwi.ath.cx "dpkg -L $PKGNAME | filesonly -inclinks | withalldo tar cz" > $PKGNAME.fromhwi.tgz
+# ssh joey@hwi.ath.cx "echo 'dpkg -L $PKGNAME | filesonly -inclinks | withalldo tar cz' | jsh" > $PKGNAME.fromhwi.tgz
+ssh joey@hwi.ath.cx "/home/joey/j/jsh -c 'dpkg -L $PKGNAME | filesonly -inclinks | withalldo tar cz'" > $PKGNAME.fromhwi.tgz
 ## TODO: We are calling jsh on the remote machine (hwi).  So we may as well make that command into a script, eg. taruppkg
