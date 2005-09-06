@@ -1,10 +1,21 @@
+## Trims down a list to those entries which are existing files.
+## Symlinks do not count as files, unless -inclinks is specified, in which case even broken symlinks are included.
+## Other node-types (devices, fifos, etc.) are always excluded.
+
+if [ "$1" = -inclinks ]
+then INCLINKS=-inclinks; shift
+fi
+
 if [ "$1" ]
 then
-	for NODE
-	do [ -f "$NODE" ] && echo -n "$NODE "
-	done
+	echolines "$@" | filesonly "$INCLINKS"
 else
 	while read NODE
-	do [ -f "$NODE" ] && echo "$NODE"
+	do
+		# if [ -f "$NODE" ] && ! ( [ ! "$INCLINKS" ] && [ -L "$NODE" ] )
+		# if [ -f "$NODE" ] && ( [ "$INCLINKS" ] || [ ! -L "$NODE" ] )
+		if ( [ -f "$NODE" ] && [ ! -L "$NODE" ] ) || ( [ "$INCLINKS" ] && [ -L "$NODE" ] )
+		then echo "$NODE"
+		fi
 	done
 fi
