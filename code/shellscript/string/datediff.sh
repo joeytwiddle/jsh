@@ -2,6 +2,7 @@ if test "$2" = ""; then
 	echo "datediff [-secs] <earlierdate> <laterdate>"
 	echo "           expressed in seconds since 1970"
 	echo "datediff [-secs] -files <earlierfile> <laterfile>"
+	echo "datediff [-secs] -file <file>"
 	echo "datediff [-english] <seconds>"
 	echo "  Option -secs outputs difference in seconds rather than English."
 	echo "  TODO: option for format yyyymmddhhmmss"
@@ -24,6 +25,11 @@ else
 		shift
 		DATEA=`date -r "$1" "+%s"`
 		DATEB=`date -r "$2" "+%s"`
+	elif [ "$1" = -file ]
+	then
+		shift
+		DATEA=`date -r "$1" "+%s"`
+		DATEB=`date "+%s"`
 	else
 		DATEA="$1"
 		DATEB="$2"
