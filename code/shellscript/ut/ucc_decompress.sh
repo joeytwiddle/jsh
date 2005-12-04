@@ -3,16 +3,29 @@ for FILE
 do
 
 	PARENTDIR=`dirname "$FILE"`
-	UNZIPPEDNAME=`filename "$FILE" | sed 's+.uz$++'`
+	UNZIPPEDNAMESB=`filename "$FILE" | sed 's+.uz$++'`
+	# UNZIPPEDFILE="$HOME"/.loki/ut/System/"$UNZIPPEDNAME"
+	REALFILE=`realpath "$FILE"`
+
+	# jshinfo "Doing $FILE -> $UNZIPPEDNAME"
+	jshinfo "Doing $FILE ..."
+
+	# if /home/oddjob2/ut_server/ut-server/ucc decompress `realpath "$FILE"`
+	# then
+	UNZIPPEDNAME=`
+		/home/oddjob2/ut_server/ut-server/ucc decompress "$REALFILE" |
+		pipeboth |
+		grep "Decompressed .* -> " |
+		afterlast " -> "
+	`
 	UNZIPPEDFILE="$HOME"/.loki/ut/System/"$UNZIPPEDNAME"
-	DESTFILE="$PARENTDIR/$UNZIPPEDNAME"
-
-	jshinfo "Doing $FILE -> $UNZIPPEDNAME"
-
-	SIZEBEFORE=`filesize "$FILE"`
-
-	if /home/oddjob2/ut_server/ut-server/ucc decompress `realpath "$FILE"`
+	if [ "$UNZIPPEDFILE" ] && [ -f "$UNZIPPEDFILE" ]
 	then
+		if [ ! "$UNZIPPEDNAME" = "$UNZIPPEDNAMESB" ]
+		then jshwarn "Old name $UNZIPPEDNAMESB and new name $UNZIPPEDNAME do not match."
+		fi
+		DESTFILE="$PARENTDIR/$UNZIPPEDNAMESB"
+		SIZEBEFORE=`filesize "$FILE"`
 		SIZEAFTER=`filesize "$UNZIPPEDFILE"`
 		SIZEPROP=`expr "$SIZEAFTER" '*' 100 / "$SIZEBEFORE"`
 		jshinfo "Decompressed to $SIZEPROP%"
@@ -27,8 +40,10 @@ do
 				error "Dest file already exists: $DESTFILE"
 			else
 				[ -f "$UNZIPPEDFILE" ] &&
-				mv -i "$UNZIPPEDFILE" "$PARENTDIR" &&
-				del "$FILE" >/dev/null
+				# verbosely mv -i "$UNZIPPEDFILE" "$PARENTDIR" &&
+				# verbosely mv -i "$UNZIPPEDFILE" "$PARENTDIR"/"$UNZIPPEDNAMESB" &&
+				verbosely mv -i "$UNZIPPEDFILE" "$DESTFILE" &&
+				del "$FILE" # >/dev/null
 			fi
 		fi
 	else

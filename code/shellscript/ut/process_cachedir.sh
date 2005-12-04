@@ -1,9 +1,13 @@
 CACHEDIR="$HOME/.loki/ut/Cache"
 
 DESTMAPDIR=/stuff/software/games/unreal/server/maps
-DESTFILEDIR=/stuff/software/games/unreal/server/files
+DESTFILEDIR=/stuff/software/games/unreal/server/files/new
 
-FILEDIRS="$DESTMAPDIR $DESTFILEDIR /home/oddjob2/ut_server/ut-server/"
+FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win"
+
+if [ "$1" = -delnew ]
+then shift; DELNEW=true
+fi
 
 ## Optional:
 # LOST_CACHEFILES_LIST=/home/oddjob2/ut_server/lost_cachefiles_list.txt
@@ -63,13 +67,13 @@ do
 				then
 					jshwarn "More than 1 option for $FNAME"
 					# echo "$TARGETS" >&2
-					jshinfo "$TARGETS" >&2
+					echo "$TARGETS" | foreachdo jshinfo >&2
 					# echo "$TARGETS" | withalldo cmp >&2 ||
 					# error "The different options differ!"
 					# if ! echo "$TARGETS" | withalldo cmp >&2
 					if ! cmp $TARGETS >&2
 					then error "The different options differ!"
-					else echo "$TARGETS" | drop 1 | grep "/stuff/software/games/unreal/server/files/" | withalldo echo del
+					else echo "$TARGETS" | drop 1 | grep "/stuff/software/games/unreal/server/files/" | foreachdo echo del
 					fi
 				fi
 				# jshinfo "$NUMTARGETS for $FNAME, using $TARGET_TO_USE"
@@ -79,7 +83,7 @@ do
 				# then ln -sf "$TARGET_TO_USE" "$BOWFILE"
 				else
 					# jshinfo "$BOWFILE already exists but it not a symlink!  Should check against $TARGET_TO_USE"
-					if [ -f "$BOWFILE" ] && [ -f "$TARGET_TO_USE" ] && cmp "$BOWFILE" "$TARGET_TO_USE"
+					if [ -f "$BOWFILE" ] && [ -f "$TARGET_TO_USE" ] && cmp "$BOWFILE" "$TARGET_TO_USE" >&2
 					then
 						jshinfo "New cachefile matches existing file: $TARGET_TO_USE"
 						TARGETNAME=`filename "$TARGET_TO_USE"`
@@ -93,18 +97,24 @@ do
 							echo "ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
 						fi
 					else
-						jshwarn "New cachefile mis-matches existing file: $TARGET_TO_USE"
+						jshwarn "New cachefile: $BOWFILE"
+						jshwarn "mismatches existing: $TARGET_TO_USE"
 					fi
 				fi
 			else
 				jshinfo "Could not find existing target for $FNAME ; new file?!"
-				jshinfo "TODO: check cos it might be in server dir"
+				# jshinfo "TODO: check cos it might be in server dir"
 				if echo "$FNAME" | grep "^CTF" >/dev/null
 				then TARGET_TO_USE="$DESTMAPDIR/$FNAME"
 				else TARGET_TO_USE="$DESTFILEDIR/$FNAME"
 				fi
-				echo "mv -i \"$BOWFILE\" \"$TARGET_TO_USE\""
-				echo "ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
+				if [ "$DELNEW" ]
+				then
+					echo "del \"$BOWFILE\""
+				else
+					echo "mv -i \"$BOWFILE\" \"$TARGET_TO_USE\""
+					echo "ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
+				fi
 				# if [ -e "$BOWFILE" ]
 				# then ls -l "$BOWFILE"
 				# fi
