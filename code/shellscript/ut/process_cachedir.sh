@@ -29,7 +29,7 @@ cat "$CACHEDIR"/cache.ini |
 dos2unix | grep = | sed 's+=+ +' |
 
 # reverse |
-randomorder |
+# randomorder |
 catwithprogress | ## later = better = more representative and fewer buffers; but better representation might be by line progress rather than byte progress...
 
 ## For debugging:

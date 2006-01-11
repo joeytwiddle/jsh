@@ -67,6 +67,6 @@ do
 		put_line_in_collection "$FILENAME" "$DEPDBDIR"/"$DEPENDENCY".is_needed_by
 	fi
 # done
-done | countlines
+done # | countlines
 # done |
 # pipebackto /dev/stdout
