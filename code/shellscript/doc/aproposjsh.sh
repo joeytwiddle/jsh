@@ -15,6 +15,7 @@ case "$1" in
 
 		jshinfo "Updating jsh apropos DB ..."
 		'ls' "$JPATH/tools/" |
+		catwithprogress |
 		while read SCRIPT
 		do
 			# echo -e -n "$SCRIPT(jsh)\t- "
