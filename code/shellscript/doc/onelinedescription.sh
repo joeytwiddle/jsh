@@ -12,32 +12,63 @@ fi
 export SCRIPTNAME=`basename "$SCRIPT" sh`
 [ "$DEBUG" ] && debug "SCRIPTNAME=$SCRIPTNAME"
 
-jdoc showjshtooldoc "$SCRIPT" |
-head -50 |
-striptermchars | ## Highlighted lines can throw off fromline (awk)
-# pipeboth |
-grep -v "^# " | ## intended to avoid non-English comments, as per my commenting policy.  Actually mainly needed in case a "# jsh-depends: ..." has been added before the one-line description comment.
-fromline -x "^:*$" |
-fromline -x "^:*$" |
-# pipeboth |
-trimempty |
-sed 's+^[# 	*]*\<jsh-help\>[: 	]*++' | ## TODO: actually we should detect jsh-help and use it if present
-cat |
+seek_help () {
+	if jdoc -hasdoc "$SCRIPT"
+	then
+		"$SCRIPT" --help |
+		grep -v "^[ 	]*$SCRIPTNAME "
+	fi
+}
 
-(
+seek_jshhelp () {
+	JSHHELPEXPR="^[# 	*]*\<jsh-help\>[: 	]*"
+	cat "$SCRIPT" |
+	grep "$JSHHELPEXPR" |
+	sed "s+$JSHHELPEXPR++g"
+}
 
-	read LINE
+seek_comment () {
+	COMMENTEXPR="^##[ 	]*"
+	cat "$SCRIPT" |
+	grep "$COMMENTEXPR" |
+	# sed "s+$COMMENTEXPR++g" |
+	# grep -v "^[A-Z]*:" | ## Avoids lines starting e.g. "TODO: "
+	# sed 's+^+(#) +g' | ## This added just for debug (so we know which ones were comments)
+	# sed 's+^+# +g' | ## This added just for debug (so we know which ones were comments)
+	cat
+}
 
-	## If the first line is syntax description,
-	if echo "$LINE" | grep "^[ 	]*$SCRIPTNAME " > /dev/null ## or | tr '\n' ' ' to keep the syntax line
-	then ## then skip to the second.
-		read LINE
-		[ "$DEBUG" ] && debug "LINE=$LINE"
+give_up () {
+	echo '???'
+}
+
+for METHOD in seek_help seek_jshhelp seek_comment give_up
+do
+
+	[ "$DEBUG" ] && debug "Trying method $METHOD"
+
+	LINE=`
+		"$METHOD" "$SCRIPT" |
+		trimempty |
+		head -n 1
+	`
+	if [ "$LINE" ]
+	then
+		[ "$DEBUG" ] && debug "Method $METHOD worked!"
+		break
 	fi
 
-	## Ignore all the other lines.  TODO: I would have thought this would block if no lines are left/EOF (it would wait for a new input stream).  Maybe I'm wrong.
-	cat > /dev/null
+done
 
-	echo "$LINE"
+echo "$LINE"
 
-)
+# jdoc showjshtooldoc "$SCRIPT" |
+# head -50 |
+# striptermchars | ## Highlighted lines can throw off fromline (awk)
+# # pipeboth |
+# grep -v "^# " | ## intended to avoid non-English comments, as per my commenting policy.  Actually mainly needed in case a "# jsh-depends: ..." has been added before the one-line description comment.
+# fromline -x "^:*$" |
+# fromline -x "^:*$" |
+# # pipeboth |
+# sed 's+++' | ## TODO: actually we should detect jsh-help and use it if present
+# cat |
