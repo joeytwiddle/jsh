@@ -3,7 +3,7 @@ CACHEDIR="$HOME/.loki/ut/Cache"
 DESTMAPDIR=/stuff/software/games/unreal/server/maps
 DESTFILEDIR=/stuff/software/games/unreal/server/files/new
 
-FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win"
+FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win_pure"
 
 if [ "$1" = -delnew ]
 then shift; DELNEW=true
