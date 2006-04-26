@@ -1,4 +1,5 @@
 # jsh-ext-depends: sed column
+
 ## TODO: to make it more useful for formatting code from within vim, have it (optionally/by default?) detect if text block is indented, and preserve that indent after formatting columns.
 
 if [ "$1" = -on ]
@@ -24,10 +25,24 @@ fi
 
 column -t -s "$ON" "$@" |
 ## Turns column spacing of "  " into " " or $ON:
-sed 's+  \([^ ]\)+ \1+g'
+# sed 's+  \([^ ]\)+ \1+g' ## remove one space from each sequence of spaces encountered
+cat
 # if [ "$ON" ]
 # then sed "s+  \([^ ]\)+$ON\1+g"
 # else sed 's+  \([^ ]\)+ \1+g'
 # fi
 
 # java -cp $CLASSPATH:$JPATH/code/java/tools/columnise/ Columnise $@
+
+
+
+
+exit
+
+## Undo columnisation on all fields > 3:
+MATCH_COLUMN="[^ ]*\( *\)"
+LEAVE_ALONE="\1"
+SQUEEZE=" "
+
+## Can't think of a way to implement squeezing of earlier columns
+## unless we turn em into eg. _s then back

@@ -3,8 +3,8 @@
 ## Policy: empty files get 0, files with no '\n' get 1, files with '\n' get count of '\n's plus 1 if there is a last line with no trailing '\n'.
 ## In other words, counts the number of non-empty lines you could get from the file/stream
 
-## TODO: test that wc -l gives the same results as awk on, eg. streams with no \n at end, echo's etc.
-## Laziest: put the test in the code, with an assert, innit!
+## Actually wc says it counts newlines, so they act the same except when the file is just '\n', in which case countlines responds 0.
+## Not sure if that behaviour was needed for another script, but I like it anyway.
 
 docountlines () {
 

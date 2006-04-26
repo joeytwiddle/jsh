@@ -21,23 +21,22 @@ shift
 # fi
 JFCCOM="jfcsh -sorted"
 
-## Optionally, check for lines which have been dropped
+## Optionally, check for lines which have been dropped:
 
-if test "$BOTHWAYS"
+if [ "$BOTHWAYS" ]
 then
 	OTHER=`$JFCCOM "$FILEB" "$FILEA"`
 	if ! test "$OTHER" = ""; then
 		# echo
 		# echo `cursered``cursebold`"<<< DIED:"
-		cursered;cursebold
-		echo "$OTHER"
-		cursenorm
+		echo "$OTHER" |
+		sed "s+^.*$+`cursered;cursebold`\0`cursenorm`+"
 		# echo ">>>"`cursenorm`
 		# echo
 	fi
 fi
 
-## Optionally, check for lines which have been dropped
+## Now check for lines which have been added:
 
 # cursegreen # ;cursebold
 $JFCCOM "$FILEA" "$FILEB"

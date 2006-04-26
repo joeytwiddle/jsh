@@ -4,7 +4,8 @@
 ## Shell version.  Should refactor name now!
 TOTAL=0
 while read LINE
-do TOTAL=`expr "$TOTAL" + $LINE`
+# do TOTAL=`expr "$TOTAL" + $LINE`
+do TOTAL=$(($TOTAL+$LINE))
 done
 echo "$TOTAL"
 

@@ -1,6 +1,6 @@
 ARGS="$@"
 if [ "$ARGS" = "" ]; then
-  FILES="*.jpg *.jpeg *.bmp *.xpm *.gif *.pgm *.ppm *.pcx"
+  FILES="*.jpg *.jpeg *.bmp *.xpm *.gif *.pgm *.ppm *.pcx *.png"
   # FILES="*.mp3"
 else
   FILES="$ARGS"
@@ -15,7 +15,10 @@ EXTRAS="-geometry 200 -interlace Plane"
 
 	echo "<html><body>"
 	for IMAGE in $FILES
-	do echo "<A href=\"$IMAGE\">$IMAGE</A><BR>"
+	do
+		echo "<A href=\"$IMAGE\">$IMAGE</A>:<BR>"
+		echo "<IMG src=\"$IMAGE\"></IMG><BR>"
+		echo "<P>"
 	done
 	echo "</body></html>"
 

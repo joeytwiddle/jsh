@@ -1,6 +1,6 @@
-## Trims down a list to those entries which are existing files.
-## Symlinks do not count as files, unless -inclinks is specified, in which case even broken symlinks are included.
-## Other node-types (devices, fifos, etc.) are always excluded.
+## Trims down a list to those entries which are existing files (not directories).
+## Symlinks do not count as files, unless -inclinks is specified, in which case even broken symlinks are included, and/but what about symlinks to directories?!.
+## Strange node-types (devices, fifos, etc.) are always excluded.
 
 if [ "$1" = -inclinks ]
 then INCLINKS=-inclinks; shift
@@ -8,7 +8,7 @@ fi
 
 if [ "$1" ]
 then
-	echolines "$@" | filesonly "$INCLINKS"
+	echolines "$@" | filesonly $INCLINKS
 else
 	while read NODE
 	do

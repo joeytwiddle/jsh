@@ -18,8 +18,9 @@ else
 	echo "Tool not found.  Please enter $JPATH/code/shellscript/<path>/$NAME.sh"
 	echo "Suggested directories:"
 	( cd $JPATH/code/shellscript/ &&
-	ls -d `find . -type d | grep -v "/CVS"` )
+	# ls -d `find . -type d | grep -v "/CVS"` )
 	# ls -d */ )
+	'ls' -d */ )
 	read theirpath
 	if [ ! "A$theirpath" = "A" ]; then
 		TOOL="$JPATH/code/shellscript/$theirpath/$NAME.sh"

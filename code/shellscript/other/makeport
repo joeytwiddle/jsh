@@ -1,3 +1,35 @@
+## Makes a tarball of jsh in /tmp, and also a separate tarball of the CVS directories.
+
+## TODO: well this is actually my bleeding edge version; we might prefer to package a fresh CVS checkout.
+## TODO: we haven't packaged any of the config scripts in code/home (or any haskell or java).
+
+# SRCPATH="$JPATH"
+SRCPATH=/tmp/jsh-`geekdate`
+ln -s "$JPATH" "$SRCPATH"
+
+PARENT=`dirname "$SRCPATH"`
+DIRNAME=`basename "$SRCPATH"`
+
+
+cd "$PARENT" || . errorexit "Failed to enter directory \"$PARENT\"."
+
+# tar cfz /tmp/jsh-`geekdate`.tgz "$DIRNAME/code/shellscript/" "$DIRNAME/tools/" "$DIRNAME/jsh" "$DIRNAME/startj" "$DIRNAME/startj-simple"
+# tar cfj /tmp/jsh-`geekdate`.tar.bz2 --exclude "CVS" "$DIRNAME/code/shellscript/" "$DIRNAME/tools/" "$DIRNAME/jsh" "$DIRNAME/startj" "$DIRNAME/startj-simple"
+
+tar cfj /tmp/jsh-`geekdate`.tar.bz2 --exclude "CVS" "$DIRNAME/code/shellscript/" "$DIRNAME/tools/" "$DIRNAME/jsh" "$DIRNAME/startj" "$DIRNAME/startj-simple"
+
+## TODO BUG: One day this might exceed max args:
+find "$DIRNAME/code/shellscript/" -name CVS | withalldo tar cfj /tmp/jsh-CVS-`geekdate`.tar.bz2
+
+
+
+exit
+
+
+
+
+## This stuff is old:  (forall no longer exists)
+
 #!/bin/sh
 
 # DESTDIR="$JPATH/port";
