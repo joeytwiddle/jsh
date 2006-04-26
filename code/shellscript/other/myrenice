@@ -4,7 +4,7 @@ shift
 for JOB do findjob "$JOB"; done | grep -v renice |
 sed 's+^+# +'
 
-echo -n "renice $PRI -p"
+echo -n "renice $PRI -p "
 for JOB do findjob "$JOB"; done | grep -v renice |
 striptermchars |
 awk ' { printf($3" ") } '
