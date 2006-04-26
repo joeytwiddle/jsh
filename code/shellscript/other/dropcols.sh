@@ -2,7 +2,8 @@
 
 # jsh-ext-depends: sed
 
-## See also: colrm
+## See also: colrm (No that treats each char as a column)
+## See also: cut
 
 ## dropcols takes a list of columns numbers to drop, eg. df | dropcols 2 3 5 6
 ## Could have generated arguments for takecols (*) but instead generates a sedscript (no trailing spaces =)
