@@ -1,5 +1,7 @@
 # /bin/grep -v $@
 
+## BUG: inefficient (runs a new sh+grep for every arg!)
+
 # Now changed to recursive method
 # multiple arguments are multiple ungreps, not classic grep arguments.
 

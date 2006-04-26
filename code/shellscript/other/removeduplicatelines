@@ -24,11 +24,11 @@ removeduplicatelines [ -adj ] [ <files> ]
   BUT: it does not preserve the order of the stream; it sorts it.
 
   With the -adj option: does not sort the lines before processing.
-    This can be used to save processing if the stream is already sorted.
-    Otherwise, preserves line order, but only squeezes adjacent duplicates.
+    If the stream is already sorted, this can be used to save processing.
+    Otherwise, it will only squeeze adjacent duplicates.
 
-  Note: to preserve order but remove non-adjacent duplicates, use
-        removeduplicatelinespo .
+  Note: to remove non-adjacent duplicates and preserve order, use
+        removeduplicatelinespo.
 
 !
 exit 1

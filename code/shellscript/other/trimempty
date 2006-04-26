@@ -1,1 +1,3 @@
+## Removes any empty (blank) lines from the stream (or indeed lines containing only spaces/tabs, although it's less often used this way).
+# jsh-ext-depends: sed
 sed "s/^[ 	]*$//" | grep -v "^$"
