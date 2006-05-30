@@ -19,9 +19,10 @@
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-	echo "rotate [ -keep ] [ -nozip ] [ -max <num> ] [ -nodups ] <file>"
-	echo "  will move <file> to <file>.N"
-	echo "  -keep:  will retain the file after rotation (via tmpfile <file>.keep)"
+	echo "rotate [ -keep ] [ -nozip ] [ -max <num> ] [ -nodups ] <file/dir>*"
+	echo "  will compress each <file> to <file>.gz.N, and make <file> empty."
+	echo "  or compress each <dir> to <dir>.tgz.N, leaving it untouched."
+	echo "  -keep:  will not empty the file after rotation (via tmpfile <file>.keep)"
 	echo "  -nozip: will not gzip or tar-up the file or directory before rotation"
 	echo "  -max:   will rotate to ensure no more than <num> + 1 logs"
 	echo "  never rotates <file>[.gz].0"
