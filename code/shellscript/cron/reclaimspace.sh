@@ -3,6 +3,8 @@
 
 ## TODO: if del is really meant to be recoverable, reclaimspace should probably favour oldest deleted files, rather than deleting them in a random order.
 
+## TODO: it would be good (if there aren't too many files in /RECLAIM) to order files by last-accessed time, and delete the longest-unaccessed files first.
+
 ## SAFETY:  Don't be scared; look below.  The two rm and rmdir commands both have /RECLAIM/ hardwired into them.  Therefore they will never delete anything that isn't below a directory called RECLAIM (or "reclaim" on some fs).
 
 ## TOUBLESHOOTING: If (like me) you get "Stale NFS file handle" errors on your (vfat filing) system, you should swap "find . -type f" below for the "ls -R | ls-Rtofilelist | filesonly -inclinks" line.
@@ -28,6 +30,7 @@ then
 	echo "  It scans all partitions (meeting the regexp if given),"
 	echo "  and on those for which free space deceeds MINKBYTES [default=51200 (50Meg)],"
 	echo "  it tries to remove files from the partition's /RECLAIM directory."
+	echo "  You can also now export MINMEG=200 for example, to ensure 200 meg left free."
 	echo
 	echo "Setup:"
 	echo
@@ -50,6 +53,7 @@ then
 
 fi
 
+[ "$MINMEG" ] && MINKBYTES=$((MINMEG*1024))
 # export MINKBYTES=10240 ## 10Meg
 [ "$MINKBYTES" ] || export MINKBYTES=51200 ## 50Meg
 
@@ -67,6 +71,8 @@ date
 ##       The solution would be to join each line containing no spaces to the next line.  Although this (in fact the script anyway) would have trouble if the filename/device contains spaces.
 ##       Dodgy hack factored out to flatdf.  OK better solution now with spaceon function.
 
+## DONE: rather than a dependency on this dirty external flatdf,
+##       we should re-run df for each device of interest,
 ## DONE: rather than a dependency on this dirty external flatdf,
 ##       we should re-run df for each device of interest,
 ##       and use tail -1 and a sed which doesn't mind missing initial filename
@@ -135,7 +141,7 @@ do
 			## So I decided it's easier (especially if the script might be modified in the future), that the while loop should read all of find's output,
 			## but only act if low space requires it.
 			# nice -n 20 find . -type f |
-			# ( randomorder && echo ) | ## need this end line otherwise read FILE on last entry ends the stream and hence the sh is killed.
+			# ( randomorder && echo ) | ## need this end line otherwise read FILE on last entry ends the stream and hence the sh is killed. (?)
 			# ( nice -n 20 find . -type f ; echo ; echo ; echo ) |
 			## After huge changes it turns out it was only the 20 that was the problem on Gentoo; 10 seems ok.
 			## This find | the rest means the rest never gets done if there are no files.
