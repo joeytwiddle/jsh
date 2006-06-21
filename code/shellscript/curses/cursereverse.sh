@@ -1,2 +1,4 @@
-## TODO: don't know how to do this!
-cursebold
+# cursebold
+setterm -reverse
+# tput -rev
+# echo ^[[7m
