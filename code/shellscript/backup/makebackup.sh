@@ -40,9 +40,16 @@ makebackup [-efficient] <dir/file_to_backup> <storage_dir> [<storage_prefix>]
   Note: Although makebackup's output is incremental, its processing is not.
     It must have space to expand the last full backup for comparison.
 
-  Bugs: new but empty files and directories are not recorded in the diffs,
+  Bugs: New but empty files and directories are not recorded in the diffs,
     and GNU diff/patch does not appear to support filenames with spaces!
     (The data is not lost, but the filename in the patch is interpreted badly.)
+    Although the tarballs will contain tar-supported device nodes, patches will
+    probably fail to notice any changes to them.
+
+  Lacking features: Well it takes a lot of space (~ 2 x target size) to create
+   the patches (current and previous copies in /tmp, with contractsymlinks run).
+   It creates a full tarball of the current target each time.  A truly space-
+	 efficient method would need only 1 initial tarball and the patches from there.
 
 !
 exit 1
@@ -78,13 +85,13 @@ then
 
 	OURTMPDIR=`jgettmpdir makebak`
 	if [ "$OURTMPDIR" = "" ] || [ ! -w "$OURTMPDIR" ]
-	then echo "Problem with OURTMPDIR = >$OURTMPDIR<"; exit 1
+	then echo makebackup: "Problem with OURTMPDIR = >$OURTMPDIR<"; exit 1
 	fi
 
 	THISVERSION="$OURTMPDIR/ver$VER"
 	## Note: confidence in contractsymlinks now allows us to do this to the dir directly (provided we expandsymlinks again afterwards).
 	## But if we're backing up a file then there's really little point in this!  Well of course that's what test $BASENAME is for!
-	echo "Copying $TOBACKUP to temp dir so I can prepare it for diffing"
+	echo makebackup: "Copying $TOBACKUP to $THISVERSION so I can prepare it for diffing"
 	mkdir -p "$THISVERSION"
 	cd "$DIRNAME"
 	cp -a "$BASENAME" "$THISVERSION"
@@ -94,12 +101,12 @@ then
 	cd "$THISVERSION"
 	if [ -d "$BASENAME" ]
 	then
-		echo "Contracting symlinks into .symlinks.list"
+		echo makebackup: "Contracting symlinks into .symlinks.list"
 		cd "$BASENAME"
 		contractsymlinks
 	fi
 
-	## We can no longer be paranoid, because expr and diff will often return 0!
+	## We can no longer be paranoid, because expr or diff might return non-0.
 	set +e
 	PREVER=`expr $VER - 1` ## Exits with 0 if VER=1
 	set -e
@@ -107,26 +114,26 @@ then
 	LASTVERSION="$OURTMPDIR/ver$PREVER"
 	mkdir -p "$LASTVERSION"
 
-	echo "Extracting previous version into tempdir for comparison"
+	echo makebackup: "Extracting previous version into $LASTVERSION for comparison"
 	cd "$LASTVERSION"
 	tar xfz "$BACKUPDIR/$BACKUPNAME-$PREVER.tar.gz"
 	if [ -d "$BASENAME" ]
 	then
-		echo "Contracting symlinks into .symlinks.list"
+		echo makebackup: "Contracting symlinks into .symlinks.list"
 		cd "$BASENAME"
 		contractsymlinks
 	fi
 
 	DIFF_FILE="$BACKUPDIR/$BACKUPNAME-$VER.diff"
-	echo "Comparing versions, saving patch in $DIFF_FILE"
+	echo makebackup: "Comparing versions, saving patch in $DIFF_FILE"
 	cd "$LASTVERSION"
 	set +e
 	diff -r -u -N -a "$BASENAME" "../ver$VER/$BASENAME" > "$DIFF_FILE"
 	if [ "$?" = 0 ] && [ "$EFFICIENT" ] && [ `filesize "$DIFF_FILE"` = 0 ]
 	then
 		set -e
-		echo "No different from previous version!"
-		echo "Removing empty diff $DIFF_FILE and skipping full backup."
+		echo makebackup: "No different from previous version!"
+		echo makebackup: "Removing empty diff $DIFF_FILE and skipping full backup."
 		rm -f "$DIFF_FILE"
 		DOPUREBACKUP=
 	else
@@ -142,7 +149,9 @@ fi
 
 if [ $DOPUREBACKUP ]
 then
-	echo "Backing up $TOBACKUP into $BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
+	echo makebackup: "Backing up $TOBACKUP into $BACKUPDIR/$BACKUPNAME-$VER.tar.gz"
 	cd "$DIRNAME"
 	tar cfz "$BACKUPDIR/$BACKUPNAME-$VER.tar.gz" "$BASENAME"
+	## Useful for debugging when trying to restore from patches:
+	verbosely fasttreeprofile "$BASENAME" | gzip -c > "$BACKUPDIR/$BACKUPNAME-$VER.fasttreeprofile.gz"
 fi

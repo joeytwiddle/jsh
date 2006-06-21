@@ -22,5 +22,6 @@ done
 # killall mpg123 mp3blaster
 # xmms -t &
 # # echo | mykill music
+## And bring back some volume after that:
 # sleep 3
 # aumix -v 50
