@@ -20,3 +20,10 @@ ability to tag current song or current background with a meta-word
 
 
 TODO: remove ppp-updateip because it gives too much of my security away!
+
+
+
+
+
+replace all checks which call tty with checks that use [ -t 0 ]
+(that is, checking whether stdin/term is a user-term or if we are part of a pipe)
