@@ -1,4 +1,7 @@
 #!/bin/sh
+# jsh-depends-ignore: arguments
+
+## BUG TODO: Exit code does not perform like grep
 
 ## Recommended usage:
 ## higrep <grepstring> [ <grepopts> ... ] [ <grepfiles> ... ]
@@ -19,6 +22,9 @@ higrep <regexp> [ <grep_options> ]* [ <files> ]*
   If multiple arguments are given, it also attempts highlighting of filenames
   in a multi-file search, and context regions in a context grep.
 
+  BUG TODO: higrep does not always return the correct exit value (=grep's).
+        Can this simply be solved with a "grep ." at the end of the |s?
+
 !
 exit 1
 fi
@@ -34,6 +40,7 @@ if [ "$2" ] && [ ! "$HIGREP_NO_CONTEXT" ]
 then
 
 	## Um I'm not sure what this one is for:
+	## Oh it's for the marker lines in context, that says we skipped some lines
 	sed -u "s|^--$|`curseblue`--`cursenorm`|" | ## And I don't know why it doesn't prevent later ^ regexps from failing!
 
 	## Render lines beginning <filename>: or <filename>-
@@ -41,7 +48,9 @@ then
 	## Highlight filenames (up to ':'):
 	sed -u "s|^\([^:-]*\)\(:\)|`cursecyan;cursebold`\1\2`cursenorm`$TABCHAR|" |
 	## Highlight -A -B or -C filenames (up to '-'):  KNOWN (UNFIXABLE) BUG: higlight stops early if filename contains '-'!
-	sed -u "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
+	# sed -u "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
+	## If no filenames were generated, the - may be matched in the text; breaking proper highlighting matches; this avoids line starting with whitespace; but really we should determine whether filenames are expected or not:
+	sed -u "s|^\([^ 	][^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
 
 	cat
 

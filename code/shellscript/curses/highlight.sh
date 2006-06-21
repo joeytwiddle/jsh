@@ -1,5 +1,9 @@
 #!/bin/bash
+# jsh-ext-depends-ignore: find make
 ## zsh would also do (just need the $RANDOM param)  (well actually that's a job for getrandom to worry about now :)
+
+## TODO: scripts sometimes use highlight ".*" curseblue as a lazy way of printing the whole stream in blue
+##       We could detect this regexp, and add the colours to the stream more efficiently than actually using sed for the regexp search/replace.
 
 # jsh-ext-depends: sed
 # jsh-depends: cursebold cursenorm getrandom
@@ -61,6 +65,8 @@ fi
 NORMCOL=`cursenorm`
 
 ## Replace all matches in the stream with a highlighted copy:
+
+## TODO: cvs copy had alternatives here for highlighting only the first -atom specified in the regexp (like extractregexp).  do it :)
 
 sed -u "s#$1#$HIGHCOL\0$NORMCOL#g"
 
