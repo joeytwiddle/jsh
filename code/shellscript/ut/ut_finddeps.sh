@@ -1,8 +1,11 @@
-ALL_UT_FILES="/stuff/software/games/unreal/server/ /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win_pure"
+ALWAYS_SCAN=true
+
+DEFAULT_UT_DIR="/stuff/ut/ut_win_pure/"
+ALL_UT_FILES="/stuff/software/games/unreal/server/ /home/oddjob2/ut_server/ut-server/ $DEFAULT_UT_DIR /stuff/ut/ut_win/"
 
 REGEXP_OF_PACKAGE_NAMES_TO_IGNORE="\("`
 	(
-		find /mnt/big/ut_win_pure -name "*.u*" |
+		find "$DEFAULT_UT_DIR/" -name "*.u*" |
 		afterlast / | beforelast "\."
 		echo "Color"
 		echo "MyLevel"
@@ -11,12 +14,21 @@ REGEXP_OF_PACKAGE_NAMES_TO_IGNORE="\("`
 	sed 's+.$+\0\\\\|+' | tr -d '\n'
 `"\)"
 
-# jshinfo ">$REGEXP_OF_PACKAGE_NAMES_TO_IGNORE<"
+jshinfo ">$REGEXP_OF_PACKAGE_NAMES_TO_IGNORE<"
 
 FILE="$1"
 
-[ "$DEPDBDIR" ] || DEPDBDIR="/stuff/software/games/unreal/dependencydb"
+FILENAME=`filename "$FILE"`
+
+[ "$DEPDBDIR" ] || DEPDBDIR="/mnt/space/stuff/software/games/unreal/dependencydb"
 mkdir -p "$DEPDBDIR"
+
+if [ -f "$DEPDBDIR"/"$FILENAME".depends_on ] && [ ! "$ALWAYS_SCAN" ]
+then
+	cat "$DEPDBDIR"/"$FILENAME".depends_on |
+	grep -v "^$REGEXP_OF_PACKAGE_NAMES_TO_IGNORE\$"
+	exit
+fi
 
 # ALL_PACKAGES_LIST=/tmp/ut_files.names.list
 ALL_PACKAGES_LIST="$DEPDBDIR"/all_packages.list
@@ -52,17 +64,17 @@ put_line_in_collection () {
 # memo eval "find $ALL_UT_FILES -type f -name '*.u*' | afterlast / | beforelast '\.'" > "$ALL_PACKAGES_LIST"
 # memo -t "1 hour" verbosely eval "find $ALL_UT_FILES -type f -name '*.u*' | afterlast / | beforelast '\.' | grep -v '^\\(ctf\\|dm\\|jb\\|dom\\|as\\)-'" > "$ALL_PACKAGES_LIST"
 # memo -t "1 hour" verbosely eval " find $ALL_UT_FILES -type f -name '*.u*' | afterlast / | grep -v '\\.unr$' | beforelast '\.' " > "$ALL_PACKAGES_LIST"
-memo -t "1 hour" verbosely eval " find $ALL_UT_FILES -type f -name '*.u*' | afterlast / | grep -v '\\.unr$' | beforelast '\.' > '$ALL_PACKAGES_LIST'"
+# memo -t "1 hour" verbosely eval " find $ALL_UT_FILES -type f -name '*.u*' | afterlast / | grep -v '\\.unr$' | beforelast '\.' > '$ALL_PACKAGES_LIST'"
+# memo -t "1 hour" verbosely eval " find $ALL_UT_FILES -type f -name '*.u*' | afterlast / | beforelast '\.' > '$ALL_PACKAGES_LIST'"
+memo -t "1 hour" verbosely eval " find $ALL_UT_FILES -type f -name '*.u*' -not -name '*.unr' | afterlast / | beforelast '\.' > '$ALL_PACKAGES_LIST'"
 ## TODO: we should also touch the .neededby (the .dependson?) so that we can see which packages are not needed by anything.  ATM they won't appear in the metadata dir.
 ## Tho we could find them with: cat "$ALL_PACKAGES_LIST" | while read PACKAGE; do [ -f "$DEPDBDIR"/"$PACKAGE".neededby ] || echo "! $PACKAGE"; done
 
 # ALL_PACKAGES_REGEXP='^\('"`cat "$ALL_PACKAGES_LIST" | toregexp | trimempty | sed 's+$+\\\\|+' | tr -d '\n' | sed 's+..$++'`"'\)$'
-# jshinfo "Testing ALL_PACKAGES_REGEXP: $ALL_PACKAGES_REGEXP"
-# jshinfo "Testing ALL_PACKAGES_REGEXP:"
-# echo "test" | grep "$ALL_PACKAGES_REGEXP"
-# jshinfo "Result: $?"
-
-FILENAME=`filename "$FILE"`
+# # jshinfo "Testing ALL_PACKAGES_REGEXP: $ALL_PACKAGES_REGEXP"
+# # jshinfo "Testing ALL_PACKAGES_REGEXP:"
+# # echo "test" | grep "$ALL_PACKAGES_REGEXP"
+# # jshinfo "Result: $?"
 
 jshinfo "Scanning $FILE"
 cat "$FILE" |
@@ -82,14 +94,16 @@ do
 	if [ "$LEN" -lt 3 ]
 	then
 		CONCURRENT_SHORT_LINES=$((CONCURRENT_SHORT_LINES+1))
-		if [ "$CONCURRENT_SHORT_LINES" -gt 10 ]
+		if [ "$CONCURRENT_SHORT_LINES" -gt 100 ]
 		then while read L; do :; done ## break out!
 		fi
 	else
 		CONCURRENT_SHORT_LINES=0
+		echo "$LINE"
 	fi
-	echo "$LINE"
 done |
+
+tee /tmp/ut_finddeps_seeking_words.debug | ## TODO: this is debug, should be commented
 
 tolowercase |
 # catwithprogress |
@@ -97,7 +111,6 @@ tolowercase |
 toregexp |
 while read REGEXP
 do
-	# jshinfo "Considering $REGEXP"
 	# grep -i "^$STRING$" "$ALL_PACKAGES_LIST" >/dev/null &&
 	# echo "$STRING" # ||
 	# echo "$FILE does not need $STRING"
@@ -114,12 +127,13 @@ do
 		ERR="$?"
 		if [ ! "$ERR" = 1 ]
 		then
+			## Sometimes get errors on unescaped ][s (toregexp *should* have escaped them)
 			jshinfo "ut_finddeps error $ERR with regexp \"$REGEXP\""
 			CONCURRENT_ERRORS=$((CONCURRENT_ERRORS+1))
 			if [ "$CONCURRENT_ERRORS" -gt 10 ]
 			then
-				jshwarn "so many concurrent errors ($CONCURRENT_ERRORS), skipping rest of scan"
-				while read X; do :; done
+				error "so many concurrent errors ($CONCURRENT_ERRORS), skipping rest of scan"
+				while read X; do :; done ## Sometimes this doesn't work, and hangs =/
 			fi
 		fi
 	fi
@@ -128,7 +142,9 @@ done |
 grep -v "^$REGEXP_OF_PACKAGE_NAMES_TO_IGNORE\$" |
 removeduplicatelines
 
+# catwithprogress |
 # grep "$ALL_PACKAGES_REGEXP" |
+# catwithprogress |
 # while read DEPENDENCY
 # do
 	# put_line_in_collection "$DEPENDENCY" "$DEPDBDIR"/"$FILENAME".depends_on
