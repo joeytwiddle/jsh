@@ -1,9 +1,21 @@
+## process_cachedir will look at new files in your UT cachedir and move them to one of:
+##   $DESTMAPDIR on $DESTFILEDIR
+## However it will check first if the files is already in one of $FILEDIRS
+## and if it is, then a symlink to that file will be created instead (provided the two files match of course)
+## None of this is actually executed: the user is given a documented suggested script to | to sh.
+
 CACHEDIR="$HOME/.loki/ut/Cache"
 
 DESTMAPDIR=/stuff/software/games/unreal/server/maps
 DESTFILEDIR=/stuff/software/games/unreal/server/files/new
 
-FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win_pure"
+# FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut/ut_win_pure"
+## Added ut_win so I can create symlinks to my own custom maps.
+FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut/ut_win_pure /mnt/big/ut/ut_win"
+
+# ADD_DATE_TO_DESTINATION=
+# ADD_DATE_TO_DESTINATION="/`geekdate -fine`/"
+ADD_DATE_TO_DESTINATION=true
 
 if [ "$1" = -delnew ]
 then shift; DELNEW=true
@@ -104,16 +116,24 @@ do
 			else
 				jshinfo "Could not find existing target for $FNAME ; new file?!"
 				# jshinfo "TODO: check cos it might be in server dir"
+				[ "$ADD_DATE_TO_DESTINATION" ] && ADD_DATE_TO_DESTINATION="/`geekdate -fine -r "$BOWFILE"`/"
 				if echo "$FNAME" | grep "^CTF" >/dev/null
-				then TARGET_TO_USE="$DESTMAPDIR/$FNAME"
-				else TARGET_TO_USE="$DESTFILEDIR/$FNAME"
+				then TARGET_TO_USE="$DESTMAPDIR/$ADD_DATE_TO_DESTINATION/$FNAME"
+				else TARGET_TO_USE="$DESTFILEDIR/$ADD_DATE_TO_DESTINATION/$FNAME"
 				fi
 				if [ "$DELNEW" ]
 				then
 					echo "del \"$BOWFILE\""
 				else
-					echo "mv -i \"$BOWFILE\" \"$TARGET_TO_USE\""
-					echo "ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
+					## Since I removed -i (mkdirandmv couldn't handle it):
+					if [ -e "$TARGET_TO_USE" ]
+					then jshwarn "Unexpected: $TARGET_TO_USE exists!"
+					else
+						# echo "mv -i \"$BOWFILE\" \"$TARGET_TO_USE\""
+						echo "mkdirandmv \"$BOWFILE\" \"$TARGET_TO_USE\""
+						# echo "mvpreserve \"$BOWFILE\" \"$TARGET_TO_USE\""
+						echo "ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
+					fi
 				fi
 				# if [ -e "$BOWFILE" ]
 				# then ls -l "$BOWFILE"
