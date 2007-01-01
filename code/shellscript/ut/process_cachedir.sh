@@ -4,6 +4,9 @@
 ## and if it is, then a symlink to that file will be created instead (provided the two files match of course)
 ## None of this is actually executed: the user is given a documented suggested script to | to sh.
 
+## TODO: fix broken links in Cachedir
+## TODO: fix missing links in Cachedir
+
 CACHEDIR="$HOME/.loki/ut/Cache"
 
 DESTMAPDIR=/stuff/software/games/unreal/server/maps
@@ -85,13 +88,13 @@ do
 					# if ! echo "$TARGETS" | withalldo cmp >&2
 					if ! cmp $TARGETS >&2
 					then error "The different options differ!"
-					else echo "$TARGETS" | drop 1 | grep "/stuff/software/games/unreal/server/files/" | foreachdo echo del
+					else echo "$TARGETS" | drop 1 | grep "/stuff/software/games/unreal/server/files/" | foreachdo echo verbosely del
 					fi
 				fi
 				# jshinfo "$NUMTARGETS for $FNAME, using $TARGET_TO_USE"
 				# ln -sf "$TARGET_TO_USE" "$BOWFILE"
 				if [ ! -e "$BOWFILE" ] || [ -L "$BOWFILE" ]
-				then verbosely echo ln -sf "$TARGET_TO_USE" "$BOWFILE"
+				then echo verbosely ln -sf "$TARGET_TO_USE" "$BOWFILE"
 				# then ln -sf "$TARGET_TO_USE" "$BOWFILE"
 				else
 					# jshinfo "$BOWFILE already exists but it not a symlink!  Should check against $TARGET_TO_USE"
@@ -105,8 +108,8 @@ do
 							jshwarn "BUT cachefile's name $FNAME does not match target's $TARGETNAME"
 						else
 							# echo "rmlink \"$BOWFILE\""
-							echo "del \"$BOWFILE\""
-							echo "ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
+							echo "verbosely del \"$BOWFILE\""
+							echo "verbosely ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
 						fi
 					else
 						jshwarn "New cachefile: $BOWFILE"
@@ -123,16 +126,16 @@ do
 				fi
 				if [ "$DELNEW" ]
 				then
-					echo "del \"$BOWFILE\""
+					echo "verbosely del \"$BOWFILE\""
 				else
 					## Since I removed -i (mkdirandmv couldn't handle it):
 					if [ -e "$TARGET_TO_USE" ]
 					then jshwarn "Unexpected: $TARGET_TO_USE exists!"
 					else
 						# echo "mv -i \"$BOWFILE\" \"$TARGET_TO_USE\""
-						echo "mkdirandmv \"$BOWFILE\" \"$TARGET_TO_USE\""
+						echo "verbosely mkdirandmv \"$BOWFILE\" \"$TARGET_TO_USE\""
 						# echo "mvpreserve \"$BOWFILE\" \"$TARGET_TO_USE\""
-						echo "ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
+						echo "verbosely ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
 					fi
 				fi
 				# if [ -e "$BOWFILE" ]
