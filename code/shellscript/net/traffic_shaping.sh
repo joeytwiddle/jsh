@@ -32,17 +32,21 @@
 # BANDWIDTH_OUT=25000
 # BANDWIDTH_OUT=20000
 ## Reduced again because was reaching 15000 and slowing down sshs.  monitoriflow now reads about 13000 which is what I need
-BANDWIDTH_OUT=15000
+# BANDWIDTH_OUT=15000
+## Rob's:
+# BANDWIDTH_OUT=4500
+# BANDWIDTH_OUT=9000 ## silly expanded for faster torrenting (why not just turn off shaping?!)
+## Rob's:
+# BANDWIDTH_OUT=45000
+## Mine:
+BANDWIDTH_OUT=33566
+# BANDWIDTH_OUT=30000
 
-# PROPORTION_SMALL_PIPE="15"
-# PROPORTION_WEBSERVER="45"
-# PROPORTION_LARGE_PIPE="35"
-# PROPORTION_SMALL_PIPE="15"
-# PROPORTION_WEBSERVER="35"
-# PROPORTION_LARGE_PIPE="40"
-PROPORTION_SMALL_PIPE="15"
-PROPORTION_WEBSERVER="40"
-PROPORTION_LARGE_PIPE="40"
+PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="45" ; PROPORTION_LARGE_PIPE="35"
+# PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="35" ; PROPORTION_LARGE_PIPE="40"
+# PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="40" ; PROPORTION_LARGE_PIPE="40"
+# PROPORTION_SMALL_PIPE="5" ; PROPORTION_WEBSERVER="5" ; PROPORTION_LARGE_PIPE="90"
+# PROPORTION_SMALL_PIPE="10" ; PROPORTION_WEBSERVER="10" ; PROPORTION_LARGE_PIPE="80"
 
 INTERFACE=`/home/joey/j/jsh ifonline`
 
@@ -249,14 +253,16 @@ case "$1" in
 			### Critical:
 
 			## Games:
-			##          unreal.prolly!.most...........................trufftruffopen.ec...another..whoshack.oneoff.for_server somewhere dutchnet temp..... iNz. anuva
-			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900 7733 7766 7788 7080 8889     7767     6666   7787 28902 24777     1111     8000 7757 6100 27000
+			## truff fun day was: 7300 7400 7500 7600 7700
+			##          unreal.prolly!.most...........................trufftruffopen.ec...another..whoshack.oneoff.for_server somewhere dutchnet temp..... iNz. anuva #ctfpug.. XP.. ?... jolt .... ....                          .deOF            nerdnetworkDM ezpug dns             pwa        wmc  spampug            jolt-iCTF multiplay                             testing: ecTS tacsu sa-pug pug2 mace nTo  face  dm-clan nTo   f1x2 TS(experiment!)     HT$  rubor
+			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900 7733 7766 7788 7080 8889     7767     6666   7787 28902 24777     1111     8000 7757 6100 27000 7040 8100 7807 7770 7897 8020 8420 7755 8888 7700 9977 5555 6200  3333 27800 9400 14000    7000  6600 8680 37420 27040 8430 7797 6400    7800 27215 7817      27606 7877 7977 8477 8859 27808 60000          9600 6300  7040   9200 7070 6500 21000 8000    23000 8177 8767 9018 4022 8900 2222 7707 7744 7020 9000 30200
 			do
 				filter_port batch$PORT sport $PORT 1
 				filter_port batch$PORT dport $PORT 1
 			done
 
 			## Hwi's mail services:
+			## Does not catch outgoing mail (dport 25), so that goes slowly.
 			filter_port smtp     sport 25   3
 			filter_port ssmtp    sport 465  3
 			filter_port imap2    sport 143  3
@@ -277,18 +283,27 @@ case "$1" in
 			filter_port pop3s    dport 995  "$WEBSERVER_DISC"
 			## Spamassassin or razor, dunno:
 			filter_port razor    dport 773  "$WEBSERVER_DISC"
+			## MSN (idk which of these is for chat, and which for file-transfer yet):
+			filter_port msn      sport 5050  "$WEBSERVER_DISC"
+			filter_port msn      dport 5050  "$WEBSERVER_DISC"
+			filter_port msn      sport 5190  "$WEBSERVER_DISC"
+			filter_port msn      dport 5190  "$WEBSERVER_DISC"
+
+			for IRC_DCC_PORT in `seq 3300 3310`
+			do filter_port dcc   sport $IRC_DCC_PORT "$WEBSERVER_DISC"
+			done
 
 			## Peercast:
-			filter_port peercast dport 7144 5
-			filter_port peercast sport 7144 5
-			filter_port peercast dport 7145 5
-			filter_port peercast sport 7145 5
+			filter_port peercast dport 7144 6
+			filter_port peercast sport 7144 6
+			filter_port peercast dport 7145 6
+			filter_port peercast sport 7145 6
 			## Dialect:
-			filter_port peercast dport 7900 5
-			filter_port peercast sport 7900 5
+			filter_port peercast dport 7900 6
+			filter_port peercast sport 7900 6
 			## Dialect's remote port:
-			filter_port peercast dport 7100 5
-			filter_port peercast sport 7100 5
+			filter_port peercast dport 7100 6
+			filter_port peercast sport 7100 6
 
 			### Interactive:
 
@@ -306,11 +321,11 @@ case "$1" in
 			filter_port ssh      dport 2200  5
 
 			## MSN messenger:
-			filter_port msn      sport 33377 5
-			filter_port msn      dport 33377 5
+			filter_port msn      sport 33377 4
+			filter_port msn      dport 33377 4
 			## IRC:
-			filter_port irc      sport 6667 5
-			filter_port irc      dport 6667 5
+			filter_port irc      sport 6667 4
+			filter_port irc      dport 6667 4
 
 			## Vnc-http, Vnc, and X
 			## Oh but it gets eMule too!
@@ -323,15 +338,15 @@ case "$1" in
 			done
 
 			## Realplay
-			# filter_port realplay sport 554 5
-			filter_port realplay dport 554 5
+			# filter_port realplay sport 554 6
+			filter_port realplay dport 554 6
 
 			## Demoscene
-			filter_port realplay dport 8018 5
+			filter_port realplay dport 8018 6
 
 			## Webcam
-			filter_port webcam   sport 9192   5
-			# filter_port webcam   dport 9192   5
+			filter_port webcam   sport 9192   6
+			# filter_port webcam   dport 9192   6
 
 			## You probably want your webserver to go reasonably fast (compared to file sharing networks for example).
 			## If you prefer to choke your webserver too, you can send it to band 8 or 9 instead.  (9 seems great but sometimes tails off!)
