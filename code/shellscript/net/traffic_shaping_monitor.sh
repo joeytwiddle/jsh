@@ -1,13 +1,13 @@
 SEDSTR=`
 cat << ! |
 11 games
-12 crazy
+12 tos
 13 mail
 14 int
-15 web
+15 ssh
 16 other
-17 wserv
-18 small
+17 small
+18 websrv
 19 big
 !
 
@@ -18,4 +18,4 @@ done | beforelast ";"
 
 INTERFACE=`ifonline`
 
-jwatchchanges /sbin/tc -s qdisc ls dev $INTERFACE "|" trimempty "|" sed "\"$SEDSTR\"" | highlight '[^ ]*:'
+jwatchchanges -fine /sbin/tc -s qdisc ls dev $INTERFACE "|" trimempty "|" sed "\"$SEDSTR\"" | highlight '[^ ]*:'

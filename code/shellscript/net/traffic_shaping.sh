@@ -42,11 +42,14 @@
 BANDWIDTH_OUT=33566
 # BANDWIDTH_OUT=30000
 
-PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="45" ; PROPORTION_LARGE_PIPE="35"
+# PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="45" ; PROPORTION_LARGE_PIPE="35"
 # PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="35" ; PROPORTION_LARGE_PIPE="40"
 # PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="40" ; PROPORTION_LARGE_PIPE="40"
 # PROPORTION_SMALL_PIPE="5" ; PROPORTION_WEBSERVER="5" ; PROPORTION_LARGE_PIPE="90"
 # PROPORTION_SMALL_PIPE="10" ; PROPORTION_WEBSERVER="10" ; PROPORTION_LARGE_PIPE="80"
+# PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="45" ; PROPORTION_LARGE_PIPE="35"
+# PROPORTION_SMALL_PIPE="10" ; PROPORTION_WEBSERVER="50" ; PROPORTION_LARGE_PIPE="80" ## Letting torrents go fast, but still prioritising web traffic, so although we may be flooded, we at least got prioritisation
+PROPORTION_SMALL_PIPE="30" ; PROPORTION_WEBSERVER="80" ; PROPORTION_LARGE_PIPE="80" ## Letting torrents go fast, but still prioritising web traffic, so although we may be flooded, we at least got prioritisation
 
 INTERFACE=`/home/joey/j/jsh ifonline`
 
@@ -232,11 +235,22 @@ case "$1" in
 				# fi
 			done
 
+			# MY_IP="`ppp-getip`"
+			## Filter all incoming traffic to an unlimited disc, so ingress is not throttled.  (Ah that's actually what I was doing below, until my local IP changed due to router ^^ )
+			# verbosely /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 6 protocol ip u32 match ip dst "$MY_IP"/24 flowid 1:6
+			# verbosely /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 6 protocol ip u32 match ip dst 127.0.0.1/24 flowid 1:6
+			# verbosely /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 6 protocol ip u32 match ip dst 192.168.11.2/24 flowid 1:6
+			# verbosely /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 6 protocol ip u32 match ip src 192.168.11.1/24 flowid 1:6
+
+			### Ah finally I understand what the data flowing through disc 2 was, that's incoming data!!
 			## add a filter so DIP's within the house go to prio band #1 instead of being assigned by TOS
 			## thus traffic going to an inhouse location has top priority
 			# /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.168.0/24 flowid 1:1
-			## Joey TODO: I guess this assumes your network is 10.0.0.*
+			## Joey TODO: I guess this assumes your network is 10.0.0.* TODO: auto-detect from ifconfig!
 			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 10.0.0.0/24 flowid 1:2
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.11.0/24 flowid 1:2 ## new range since i have a router now
+			## Stupid: pririotise everything outgoing too:
+			# /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip src 192.168.11.0/24 flowid 1:2 ## new range since i have a router now
 
 			## multicasts also go into band #1, since they are all inhouse (and we don't want to delay ntp packets and mess up time)
 			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 224.0.0.0/4 flowid 1:2
