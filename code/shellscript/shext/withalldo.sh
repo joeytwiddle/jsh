@@ -4,6 +4,18 @@
 ## Xargs example:
 # echo 08 | xargs -i convert img{}.gif img{}.png
 
+# ## Trying to get xargs working:
+# sed  's+ +\\ +g' |
+# xargs "$@" ## this seems to give up at 1024 args
+# ## My xargs man page says of the --max-chars option: "The default is as large as possible, up to 20k characters."
+# exit
+
+
+## CONSIDER: It might be nice to automaticall striptermchars from the input stream.
+## Mm it may be inefficient, but it's handy for the user :)
+## But I couldn't get it working.
+# striptermchars |
+
 ## One day we are going to hit too-many-arguments, and we'll need to get withalldo to do it it chunks.  But that would change functionality :-/
 
 ## Equivalent to:
