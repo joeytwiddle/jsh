@@ -1,0 +1,32 @@
+## To keep a revssh session open, try something like the following:
+# while true; do echo >> /tmp/revssh-client-input-moonunit_5761.txt; sleep 1; done
+
+## SITUATION: Remote machine has run revsshserver, local machine has received session with revsshclient (and CGI).
+
+## INTENTION: Since revssh provides only a non-interactive shell, we would next like to make a normal ssh connection to the remote machine.
+
+## PLAN: We will use RSA authentication to ssh out of the local machine, and provide port backwarding so that normal ssh sessions can be made to the remote machine.
+## We /mustn't/ let the remote ssh client ask us for a password, because this will freeze the revsshserver (temporarily?).
+
+## Generate an RSA key on the remote machine:
+# mkdir .ssh
+# ssh-keygen -t rsa -f .ssh/id_rsa -N ""
+
+# cat .ssh/id_rsa.pub |
+cat .ssh/id_dsa.pub |
+
+ssh-agent verbosely ssh "$1" eval "cat >> ./.ssh/authorized_keys"
+
+## Paste the key into your local authorized_keys
+# eg. using on localhost: cat >> ~/.ssh/authorized_keys
+
+## I don't know why this doesn't work!
+## Aha.  I think I had copied the key wrong, because + was being turned to ' ' by cgi?
+# ssh-agent ssh joey@hwi.ath.cx -R 7822:localhost:22 -o "StrictHostKeyChecking no" ls /
+
+## Even if I also use: -o "CheckHostIP no" 
+
+## In the logs I get:
+# Apr  4 15:07:08 hwi sshd[13571]: fatal: buffer_get: trying to get more bytes 129 than in buffer 55
+
+## SOLUTION: it turned out that I was copy/pasting the key badly because revssh had problems with ' 's and '+'s
