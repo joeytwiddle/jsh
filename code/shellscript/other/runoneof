@@ -20,7 +20,9 @@ for FILE in $LIST; do
   # echo "file: $FILE" >&2
 
   # which may not be present
-  TRY=`jwhich $INJOPT "$FILE"`
+  # TRY=`jwhich $INJOPT "$FILE"`
+  # TRY=`which "$FILE"`
+  TRY=`[ "$INJOPT" ] && which "$FILE" || jwhich "$FILE"`
 
   # WARNING: don't disrupt $? next line
   if test "$?" = "0"; then

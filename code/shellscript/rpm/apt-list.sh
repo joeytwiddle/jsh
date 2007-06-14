@@ -1,10 +1,12 @@
-# jsh-ext-depends-ignore: find env from file update
+# jsh-depends: cursemagenta cursenorm memo removeduplicatelines takecols jdeltmp jgettmp drop error
+# this-script-does-not-depend-on-jsh: arguments pkgversions
 # jsh-ext-depends: sed apt-cache apt-get dpkg column
-## TODO: rename apt-list
+# jsh-ext-depends-ignore: find env from file update
+
+## DONE: rename apt-list
 ## TODO: make "apt-list" return help, and use "apt-list generate" to make the big list
 
-# jsh-depends-ignore: arguments pkgversions
-# jsh-depends: cursemagenta cursenorm memo removeduplicatelines takecols jdeltmp jgettmp drop error
+## CONSIDER: add each package's group as an additional column
 
 cd / # for memoing
 
@@ -97,7 +99,7 @@ then
 
   SRC="$2"
   shift; shift
-  $MEMOCOM "$MEMOCOM apt-list $INSTALLED $SOURCE_LIST all \"$@\" | grep \" \<$SRC\>\"" |
+  $MEMOCOM apt-list $INSTALLED $SOURCE_LIST all "$@" | grep " \<$SRC\>" |
   column -t
 
 elif [ "$1" = pkg ]
@@ -111,12 +113,12 @@ then
 elif [ "$1" = sources ]
 then
 
-  $MEMOCOM "$MEMOCOM apt-list $INSTALLED $SOURCE_LIST all | takecols 4 | drop 1 | removeduplicatelines"
+  $MEMOCOM eval "$MEMOCOM apt-list $INSTALLED $SOURCE_LIST all | takecols 4 | drop 1 | removeduplicatelines"
 
 elif [ "$1" = distros ]
 then
 
-  $MEMOCOM "apt-list $INSTALLED $SOURCE_LIST all | takecols 3 | drop 1 | removeduplicatelines"
+  $MEMOCOM eval "apt-list $INSTALLED $SOURCE_LIST all | takecols 3 | drop 1 | removeduplicatelines"
 
 elif [ "$1" = all ]
 then
@@ -142,6 +144,7 @@ then
     ## This memo file is too large, and we cache the output anyway!
     # $DPKGMEMOCOM "env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5" |
     env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5 |
+		catwithprogress |
     while read PKGNAME PKGVER REST
     do
       [ "$REST" ] && error "Unexpected data: $REST"
@@ -161,6 +164,7 @@ then
       echo "PACKAGE	VERSION	DISTRO	SOURCE"
       ## This memo file is too large, and we cache the output anyway!
       apt-cache $APT_EXTRA_ARGS dump |
+			catwithprogress |
       grep "^\(Package\| Version\|[ ]*File\): " |
       # This sed fails for non-traditional archives (lacking dist/ dir):
       sed "s|File: .*/\([^_]*\).*dists_\([^_]*\).*|File: \1 \2|" |

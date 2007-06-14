@@ -1,6 +1,6 @@
 ## explore: given a path (or possible an ftp url), opens up the user's favourite file manager
 
 if test "$*" = ""
-then konqueror . &
-else konqueror "$@" &
+then konqueror . >/dev/null 2>&1 &
+else konqueror "$@" >/dev/null 2>&1 &
 fi

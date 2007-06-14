@@ -1,14 +1,24 @@
 # jsh-depends: qkcksum error
 for FILE
 do
-	# mp3gain -u "$FILE"
-	# mp3gain -s d "$FILE"
-	CHECK=`qkcksum "$FILE"`
-	SHOULDBE=`cat "$FILE".qkcksum.b4mp3gain`
-	if [ ! "$CHECK" = "$SHOULDBE" ]
+	mp3gain -u "$FILE"
+	mp3gain -s d "$FILE"
+	CHECKFILE="$FILE".qkcksum.b4mp3gain
+	if [ "$CHECKFILE" ]
 	then
-		error "Failed match:"
-		error "CHECK    = $CHECK"
-		error "SHOULDBE = $SHOULDBE"
+		CHECK=`qkcksum "$FILE" | takecols 1 2`
+		SHOULDBE=`cat "$CHECKFILE" | takecols 1 2 2>/dev/null`
+		if [ "$CHECK" = "$SHOULDBE" ] || [ "$SHOULDBE" = "" ]
+		then
+			jshinfo "Restored ok :)"
+			[ -f "$CHECKFILE" ] && del "$CHECKFILE"
+		else
+			error "Failed match:"
+			error "CHECK    = $CHECK"
+			error "SHOULDBE = $SHOULDBE"
+			[ -f "$CHECKFILE" ] && del "$CHECKFILE" ## who cares if it failed - we tried the best we could so now this file is redundant.
+		fi
+	else
+		jshwarn "I hope that worked, because I couldn't find a .qkcksum.b4mp3gain file to check against."
 	fi
 done

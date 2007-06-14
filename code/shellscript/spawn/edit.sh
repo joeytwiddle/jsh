@@ -6,6 +6,7 @@
 if [ "$STY" ]
 then
 	## spawned shell may not have same PWD, so:
+	## BUG: this doesn't work for new files because of the [ -f "$X" ] check.
 	for X
 	do [ -f "$X" ] && realpath "$X" || echo "$X"
 	done |

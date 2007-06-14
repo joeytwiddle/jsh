@@ -19,3 +19,5 @@ escapenewlines -x "$FILEA" > $FILEAX
 escapenewlines -x "$FILEB" > $FILEBX
 
 diff $FILEAX $FILEBX "$@"
+
+jdeltmp $FILEAX $FILEBX

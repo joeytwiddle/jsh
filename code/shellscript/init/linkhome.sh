@@ -43,7 +43,8 @@ find . -maxdepth $DEPTH |
 	
 	while read X
 	do
-		SOURCE="$JPATH/code/home/$X"
+		# SOURCE="$JPATH/code/home/$X"
+		SOURCE="`realpath "$JPATH/code/home/$X"`"
 		DEST="$HOME/$X"
 		NICEDEST="~/$X"
 		if [ ! -d "$DEST" ] && [ ! -f "$DEST" ]

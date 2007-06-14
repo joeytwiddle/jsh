@@ -4,6 +4,8 @@
 ##               Really autocomplete_from_man should only be for uncommon commands which don't already default completion rules.
 ## Simplified: make autocomplete_from_man a fallback from better completion rules.  Find some better completion rules!
 
+## TODO: this should go elsewhere: Does this script have the power to change the user's terminal shell environment?  If so, this technology could be useful, e.g. to reload functions from files when the files are changed, and other things to keep the shell fresh and avoid having to start a subshell or a whole new shell in order to get the latest dev version.
+
 ## autocomplete_from_man: Adds to bash or zsh the ability to use tab-completion for the - and -- options of the current command (provided it has a man page installed).
 ## eg.: source this script with ". ./autocomplete_from_man", then type: tar --<Tab>
 
@@ -18,17 +20,68 @@
 # jsh-depends: extractpossoptsfrommanpage
 # jsh-ext-depends: sed find
 
+## For Kipz; after testing, should be default off, user option to turn it on
+# export SHOW_COMMAND_INFO=true
+
+show_command_info () {
+	if [ "$ARGS" = "" ] || [ "$ARGS" = - ]
+	then
+		if [ "$SHOW_COMMAND_INFO" ]
+		then
+			FOUND=
+			if ( builtin "$COMMAND" ) >/dev/null 2>&1 ## This may be running the bash version; zsh's version of builtin may differ
+			then printf "%s\n" " `cursegreen;cursebold`[$COMMAND is a shell builtin]`cursenorm`" >&2 ; FOUND=true
+			fi
+			if alias "$COMMAND" >/dev/null 2>&1
+			then printf "%s\n" " `curseyellow`[$COMMAND is an alias to: ` alias "$COMMAND" 2>&1 | afterfirst "=" `]`cursenorm`" >&2 ; FOUND=true
+			fi
+			if declare -f "$COMMAND" >/dev/null 2>&1
+			# if declare -f "$COMMAND" 2>/dev/null | grep . > /dev/null
+			then printf "%s\n" " `cursecyan`[$COMMAND is a function: declare -F $COMMAND]`cursenorm`" >&2 ; FOUND=true
+			fi
+			if [ -e "$JPATH/tools/$COMMAND" ] ## BUG: this line causes "bad pattern" errors in zsh if an uncompleted [ is in the command
+			# then printf "%s\n" " `cursered``cursebold`[$COMMAND is a jsh script]`cursenorm`" >&2 ; FOUND=true
+			then printf "%s\n" " `cursered``cursebold`[$COMMAND is a jsh script (type jdoc $COMMAND for more info)]`cursenorm`" >&2 ; FOUND=true
+			fi
+			if [ ! "$FOUND" ]
+			then
+				# list_commands_in_path | grep "/$COMMAND$" ||
+				which "$COMMAND" >/dev/null 2>&1 && printf "%s\n" " `cursegreen;cursebold`[`which "$COMMAND"`]`cursenorm`" >&2 ||
+				printf "%s\n" " `cursered`[Could not find $COMMAND]`cursenorm`" >&2
+			fi
+		fi
+	fi
+}
+
+## This is expensive, so memo it!  OK that wasn't working, so I disabled the filters below for the moment.
+list_commands_in_path () {
+		echo "$PATH" | tr ':' '\n' |
+		# (EFF) removeduplicatelines |
+		while read DIR
+		# do [ -r "$DIR" ] && verbosely find "$DIR" -type f -maxdepth 1
+		# do [ -r "$DIR" ] && find "$DIR" -maxdepth 1 | filter_list_with test -e | filter_list_with test -x
+		do [ -r "$DIR" ] && find "$DIR" -maxdepth 1 # (EFF) disabled until efficient (memoed): | filter_list_with test -e | filter_list_with test -x
+		done | sed 's+.*/++' # (EFF) | removeduplicatelines
+}
+
 ## bash version:
 if [ "$BASH" ]
 then
+
+	. jgettmpdir -top
+	export BASH_COMPLETION_STORAGE_DIR="$TOPTMP/completion_options-$USER.bash"
 
 	## -g -s removed for odin's older bash
 
 	function joeyComplete {
 		COMMAND="$1"
+		shift
+		ARGS="$*"
+		# memo show_command_info ## not working :| (jsh hasn't started?)
+		show_command_info
 		CURRENT=${COMP_WORDS[COMP_CWORD]}
 		WORDS="--help "`
-			extractpossoptsfrommanpage "$COMMAND"
+			IKNOWIDONTHAVEATTY=1 MEMOFILE="$BASH_COMPLETION_STORAGE_DIR"/"$COMMAND".cached 'memo' extractpossoptsfrommanpage "$COMMAND"
 		`
 		## Fix for bug: "it shows you the options, but doesn't let you complete them!" (because it's returning all options, not those which apply to $CURRENT)
 		## Also acts as a cache, so future calls are faster:
@@ -39,13 +92,8 @@ then
 
 	## Since bash only runs completion on named commands, we must go and get the names of all commands in $PATH:
 	# (Turned off all alternative completion types until I find a subset which works) ## -g not even possible on odin
-	# complete -a -b -c -d -f -g -j -k -s -u -F joeyComplete `
-	complete -F joeyComplete `
-		echo "$PATH" | tr ':' '\n' |
-		while read DIR
-		do [ -r "$DIR" ] && find "$DIR" -type f -maxdepth 1
-		done | sed 's+.*/++'
-	`
+	# complete -F joeyComplete `
+	complete -a -b -c -d -f -g -j -k -s -u -F joeyComplete `list_commands_in_path`
 
 fi
 
@@ -54,6 +102,9 @@ fi
 if [ "$ZSH_NAME" ]
 then
 
+	. jgettmpdir -top
+	export ZSH_COMPLETION_STORAGE_DIR="$TOPTMP/completion_options-$USER.zsh"
+
 	function joeyComplete {
 		read -c COMMAND ARGS
 		## Heuristic:
@@ -61,12 +112,14 @@ then
 		then
 			reply=
 		else
+			# memo show_command_info ## not working :| (jsh hasn't started?)
+			show_command_info
 			## Cache:
-			MEMOFILE=/tmp/completion_options-$USER/"$COMMAND".cached
+			MEMOFILE="$ZSH_COMPLETION_STORAGE_DIR"/"$COMMAND".cached
 			if [ ! -f "$MEMOFILE" ] || [ "$REMEMO" ]
 			then
 				mkdir -p `dirname "$MEMOFILE"` ## This works even if COMMAND is an alias with '/'s in path.
-				extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
+				IKNOWIDONTHAVEATTY=1 'memo' extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
 			fi
 			reply=(--help `cat "$MEMOFILE"`)
 			## Ne marche pas: compctl -f -c -u -r -k "($reply)" -H 0 '' "$COMMAND" -tn

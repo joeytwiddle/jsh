@@ -16,6 +16,8 @@ then
 	jdiffsimple "$FILEA".xescaped "$FILEB".xescaped "$@" |
 	unescapenewlines -x
 
+	del "$FILEA".xescaped "$FILEB".xescaped
+
 else
 
 	## BUG: sometimes common lines get printed in red, white and green!!

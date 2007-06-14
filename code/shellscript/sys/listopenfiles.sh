@@ -2,22 +2,32 @@
 ## Use listopenfiles <whatever> | dropcols 2 | removeduplicatelines
 ## Make this an option defaulting to on (could call it "merge threads")
 
-if [ ! "$1" ] || [ "$1" = --help ]
+if [ "$1" = --help ]
 then cat << !
 
-listopenfiles [ -allthreads | -mergethreads ] <start_of_process_name> [ <lsof_options> ]
+listopenfiles [ -allthreads | -mergethreads ] [ <start_of_process_name> ] [ <lsof_options> ]
 
-  will list those files the process has opened for reading or writing.
-  <start_of_process_name> can be a regexp, but don't try to match more than 8 chars!
-	(This could be altered with lsof's +c <cols> option)
+  will list all files the process currently has opened for reading or writing.
+  <start_of_process_name> is a regexp, but don't try to match more than 8 chars!
+  (TODO: fix this with lsof's +c <cols> option)
+  If no regexp is given, or "", or ., then all processes are listed, which may take longer.
 
-  -allthreads will show individual PIDs but may show many if a process
-  is accessing the file in multiple threads.
+  -allthreads will show every PID which is accessing a file, so may list files twice if more
+    than one thread is accessing it.  Use this if you want to know all the PIDs.
 
-  -mergethreads is the opposite behaviour; the default is currently undecided!
+  -mergethreads will show each file only once, so some PIDs may not be listed.
+    Use this if you just want to know the filenames.  (Currently the default.)
 
-  (Reason: duplication is annoying, but PIDs are useful.)
+  If a process has more than one file open, its PID will be listed more than once.
+
+  Try: export ENABLE_COLOUR=true
+
   (We could default to showing only the first PID in each otherwise identical group.)
+  (Idk what that meant! :p We could drop all the extra info, and list each file only once,
+    but with a comma-separated list of all the PIDs :)
+  (listopenfiles is a friendly wrapper for lsof, which strips some but not all of lsof's
+    listings, and currently still retains some of lsof's meta-info about each access,
+    which it might be better to strip.)
 
 !
 exit 1
@@ -72,6 +82,7 @@ function column4color () {
 PROCESS_NAME="$1"
 shift
 
+## Find the lsof executable:
 if [ ! -x "$LSOF" ]
 then
 	LSOF=`which lsof 2>/dev/null`

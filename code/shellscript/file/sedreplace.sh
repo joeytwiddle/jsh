@@ -1,5 +1,5 @@
 # jsh-depends: jdeltmp jgettmp
-# jsh-depends-ignore: filename
+# this-script-does-not-depend-on-jsh: filename
 if [ "$*" = "" ] || [ "$1" = --help ]
 then
 	echo 'sedreplace [ <options> ] "search_string" "replace_string" [ <filename>... ]'

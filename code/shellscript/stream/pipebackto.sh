@@ -1,5 +1,8 @@
 ## TODO: If given a file, for efficiency pipebackto should seek to obtain a tmpfile on the partition the file is on.
 
+## TODO POLICY: I don't know what it does now, but dog should act similarly to cat, but it should offer the feature that
+##              it will only start streaming out the data once it has totally finished reading in the data.  Might be useful...
+
 if [ "$1" = --help ]
 then
 cat << !
@@ -42,12 +45,15 @@ fi
 
 FILE="$1"
 
-TMPFILE=`jgettmp $0`
+TMPFILE=`jgettmp $0` || exit
 
-cat > $TMPFILE
+cat > $TMPFILE || exit
 
 ## That should finish way after the initial cat has opened filehandle, so we can:
 
 cat $TMPFILE > "$FILE"
+ERR="$?"
 
 jdeltmp $TMPFILE
+
+exit "$ERR"

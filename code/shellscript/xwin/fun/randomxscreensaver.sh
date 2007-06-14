@@ -11,6 +11,20 @@
 
 XSCRBINS=/usr/lib/xscreensaver
 
+echo "Copy this to your clipboard.  It is needed to stop the hacks when you break out."
+echo "  echo | mykill -x $XSCRBINS"
+# sleep 2
+## or could run randomwallpaper, which takes a while and is nice for bg!
+# randomwallpaper
+# sleep 2
+
+## A better/additional/easier way for the user to stop it, rather than mykill, is an xterm they can kill:
+## Of course it might not work; the hacks may have detatched.
+if [ "$1" = -inxterm ]
+then shift
+else xterm -e "$0" -inxterm "$@" ; exit
+fi
+
 [ "$DESIRED_NUMBER_OF_SWIRLIES" ] || DESIRED_NUMBER_OF_SWIRLIES=4
 [ "$CYCLE_DELAY" ] || CYCLE_DELAY=5
 
@@ -22,7 +36,7 @@ NL='
 '
 
 chooserandomxscreensaverhack () {
-	find "$XSCRBINS" -perm +u+x |
+	find "$XSCRBINS" -perm /u+x |
 	## This sh call was used so that if chooserandomline is imported as a function, the seed $$ changes.
 	# sh chooserandomline
 	## But it broke if chooserandomline was imported as a function, and now randomorder uses date as seed.
@@ -37,8 +51,7 @@ getrunningpids () {
 	mykillps -x "$XSCRBINS" | takecols 1
 }
 
-echo "Copy this to your clipboard.  It is needed to stop the hacks when you break out."
-echo "  echo | mykill -x $XSCRBINS"
+echo | mykill -x $XSCRBINS >/dev/null
 
 for X in `seq 1 $DESIRED_NUMBER_OF_SWIRLIES`
 do

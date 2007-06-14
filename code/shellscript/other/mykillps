@@ -1,7 +1,7 @@
 # jsh-ext-depends-ignore: comm
 # jsh-ext-depends: sed uname
 # jsh-depends: startswith
-# jsh-depends-ignore: pid call contains mykill
+# this-script-does-not-depend-on-jsh: pid call contains mykill
 
 ## Added support for multiple expressions
 

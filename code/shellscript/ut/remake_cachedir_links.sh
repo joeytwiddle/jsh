@@ -1,13 +1,15 @@
 ## This has rather overgrown its original purpose; to extract cachefiles
 ## It now tries crazy things like suggesting removal of duplicates etc.
 ## But I think the process_cachedir.sh script is much better than this one.
+## Ahh atm, this script has the advantage that it will fix broken cachefile symlinks.
 
 CACHEDIR="/home/joey/linux/.loki/ut/Cache"
 
 # FILEDIRS="/stuff/software/games/unreal/server/"
 # FILEDIRS="/stuff/software/games/unreal/server/maps /home/oddjob2/ut_server/ut-server/ /stuff/software/games/unreal/server/files /mnt/big/ut"
 # FILEDIRS="/stuff/software/games/unreal/server/ /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win"
-FILEDIRS="/stuff/software/games/unreal/server/maps /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win_pure"
+# FILEDIRS="/stuff/software/games/unreal/server/maps /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut_win_pure"
+FILEDIRS="/stuff/software/games/unreal/server/maps /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /stuff/ut/ut_win_pure"
 
 ## Optional, definitely slower!
 # LOST_CACHEFILES_LIST=/home/oddjob2/ut_server/lost_cachefiles_list.txt

@@ -23,27 +23,8 @@ fi
 
 if [ "$1" = --help ]
 then
-cat << EOF
-
-treesh [ -onlyat <delimeter> ] [ - ] [ <file> ]
-
-  will present a navigation interface for tree-like text.
-
-  Tree-like means adjacent lines start with common strings, and tend to
-  change on the right-hand side.
-
-  For an example, try:
-
-    cd $JPATH/code/shellscript
-    find . -type f | notindir CVS | treesh -onlyat /
-
-  The current navigation interface is vim with a custom folding plugin.
-  Use -=_+ to expand/contract branches or NumPad's /* to change levels.
-
-  The - option sends the output to stdout instead of to vim.
-
-EOF
-exit 1
+	tree --help
+	exit
 fi
 
 NL="
@@ -109,7 +90,9 @@ COMMONSOFAR=""
 CURRENTCOMMON=""
 
 ## Guarantees final stack popping.
-( cat "$@" && echo ) | (
+( catwithprogress "$@" && echo ) | (
+
+# catwithprogress |
 
 ## TODO: escape '{'s to '&lcurl;' etc.
 
@@ -169,6 +152,6 @@ then pipeboth
 else cat
 fi |
 
-$TREEVIM
+eval "$TREEVIM"
 
 jdeltmp $TMPFILE

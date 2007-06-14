@@ -17,17 +17,20 @@ kdeinit > /tmp/kdeinit-$DISPLAY.log 2>&1 &
 ## Otherwise klauncher doesn't work properly (although we don't need to load it):
 # klauncher > /tmp/klauncher-$DISPLAY.log 2>&1 &
 
-sleep 2
-## We want the panel:
-(
-	sleep 3
-	jshinfo "[kdelight] Starting kicker"
-	kicker > /tmp/kicker-$DISPLAY.log 2>&1
-) &
-# kicker > /tmp/kicker-$DISPLAY.log 2>&1 &
-
-jshinfo "[kdelight] Starting kwin"
+sleep 10
 
 ## Finally the WM!:
-kwin > /tmp/kwin-$DISPLAY.log 2>&1
+jshinfo "[kdelight] Starting kwin"
+kwin > /tmp/kwin-$DISPLAY.log 2>&1 &
 
+sleep 10
+
+## We want the panel:
+jshinfo "[kdelight] Starting kicker"
+kicker > /tmp/kicker-$DISPLAY.log 2>&1 &
+
+## The version of KDE on Morphix needs this started:
+which khotkeys >/dev/null 2>&1 &&
+khotkeys > /tmp/khotkeys-$DISPLAY.log 2>&1 &
+
+wait

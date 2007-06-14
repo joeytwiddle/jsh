@@ -1,3 +1,5 @@
+## If you do not yet have a public/private key pair, run: gpg --gen-key
+
 NOTAR=
 if test "$1" = "-notar"
 then
@@ -14,7 +16,8 @@ mv "$FILE" "$FILE.bak"
 touch "$FILE"
 chmod 600 "$FILE"
 
-[ "$WHICHKEY" ] || WHICHKEY=`gpg --list-keys | grep "^pub" | head -n 1 | dropcols 1 2 3`
+# [ "$WHICHKEY" ] || WHICHKEY=`gpg --list-keys | grep "^pub" | head -n 1 | dropcols 1 2 3`
+[ "$WHICHKEY" ] || WHICHKEY=`gpg --list-keys --with-colons | grep "^pub:" | head -n 1 | tr : ' ' | takecols 5`
 
 if test "$NOTAR"
 then
@@ -23,7 +26,7 @@ else
 	tar cz "$DIR"
 fi |
 
-gpg -r "$WHICHKEY" -e > "$FILE"
+gpg $ENCDIR_GPGOPTS -r "$WHICHKEY" -e > "$FILE"
 
 if test ! "$?" = 0
 then

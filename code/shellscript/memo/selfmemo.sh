@@ -1,13 +1,25 @@
 ## To use selfmemo, make the following the first command in your script:
 # . selfmemo [ -nodir ] [ <memo_opts>... ] - "$0" "$@"; shift
+## Note: there appears to be a BUG, you cao do -t 20 but -t "1 minute" doesn't work.  Hmm -t 20 doesn't work for me either
+## Also NOTE: do NOT use -nodir because it changes the current shell's current directory.
 
 ## CONSIDER: Can't this script, since it is sourced, work out "$0" and "$@" itself?
 ##           But that would require that we pass no opts, which means we cannot pass memo_opts.
 
-## TODO: Shouldn't -nodir be a part of memo instead of selfmemo?
+## TODO/DONE: Shouldn't -nodir be a part of memo instead of selfmemo?
 
+## After all, the above doc would force the parent process to move, which may not be desired
+## TODO/DONE: if it is needed, the cd / should be hidden/separated by using a child shell
+## or we could possible go back by saving $PWD
+## WARN: disabled for now
+# if [ "$1" = -nodir ]
+# then cd /; shift
+# fi
+## check with: jdoc nodir
+
+## Instead we have this solution:
 if [ "$1" = -nodir ]
-then cd /; shift
+then export MEMO_IGNORE_DIR=true; shift
 fi
 
 MEMO_OPTS=

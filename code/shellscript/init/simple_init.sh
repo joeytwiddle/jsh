@@ -25,6 +25,11 @@
 ##             (Current default to inscreendo/bg automatically, means we return 0 immediately.)
 
 
+## TODO BUG: I started my own screen under oddjob with: j/jsh screen, and opened a couple of tabs there.
+##           When /etc/init.d/ut_server tried to start in that screen, it failed.
+
+## TODO CONSIDER: if not implemented by calling script, we could/should implement restart using stop then start.
+
 
 ## If possible, don't we want this to automatically track the PID?
 ## This script won't be that simple really, cos it will accept various options.
@@ -57,6 +62,9 @@ then
 	case "$1" in
 		start)
 			[ "$SERVICE_NAME" ] || export SERVICE_NAME=`basename "$0"`
+			## TODO: some systems don't have screen available, or it's otherwise undesirable
+			##       by default, we should do what other scripts do: run the command in the background, and send the stdout and stderr to a logfile
+			##       or maybe the startup command is designed to do the backgrounding (we need to know / be told this), in which case just run it directly.
 			/home/joey/j/jsh inscreendo "$SERVICE_NAME" "$0" -start "$@"
 		;;
 		stop)
@@ -64,6 +72,11 @@ then
 		;;
 		status)
 			check_service
+		;;
+		restart)
+			## TODO: really this should only be a default implementation if the script does not provide its own restart method.  (So: check for local function, and if it exists, run that instead of below.)
+			"$0" -done-su stop
+			"$0" -done-su start
 		;;
 		--help)
 			echo

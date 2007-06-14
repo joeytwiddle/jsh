@@ -20,6 +20,7 @@ while test ! "$2" = ""; do
 			WEBSRCH=true
 		;;
 		-big)
+			# extend columns in order to show full package name and description
 			HEAD="env COLUMNS=184"
 		;;
 		*)
@@ -43,18 +44,41 @@ fi
 
 # use dlocate if it's available
 BIN=`jwhich dlocate`
+## NO don't, because it stopped working properly on my system!
+BIN=""
 SEARCHEXP="$SEARCH"
 if test "$USEDPKGOVERDLOCATE" || test ! -x "$BIN"; then
   BIN=`jwhich dpkg`
   SEARCHEXP="*$SEARCH*"
 fi
 
-# extend columns in order to show full package name and description
+
+
+# ## New adaptation: looks up description of all packages using apt-cache show.
+# ## TODO BUG: could miss packages if somehow they were shown by dpkg but did not have both Package and Description lines in apt-cache show.
+# ## BUG: other bugs too
+# 
+# env COLUMNS=65535 $BIN -l "$SEARCHEXP" |
+# takecols 2 |
+# withalldo apt-cache show |
+# grep "^\(Package\|Description\):" |
+# while read HEAD REST
+# do
+	# [ "$HEAD" = "Package:" ] && PACKAGE="$REST"
+	# [ "$HEAD" = "Description:" ] && echo "$PACKAGE	$REST"
+# done | column -t -s "	" | removeduplicatelines
+# 
+# exit
+
+
+
+## Old method; presents output much like dpkg, but optionally with highlighting.
+
 $HEAD $BIN -l "$SEARCHEXP" |
-if test $SHOWALL; then
-  cat
-else
-  grep -v "no description available"
+drop 5 | ## My dpkg's first five lines are headers
+if [ $SHOWALL ]
+then cat
+else grep -v "no description available"
 fi | highlight "$SEARCH"
 
 # dpkg -l "*$@*" | egrep -v "^?n"

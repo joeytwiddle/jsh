@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## wtf is -f for?  Who uses -f ?!
+
 NAME="$1"
 if test "$NAME" = "-f"; then
 	FORCE="-f";
@@ -36,6 +38,8 @@ fi
 
 echo "$TOOL"
 edit $FORCE "$TOOL"
+
+## Actually, in jsh, we might want to do: editandwait $FORCE "$TOOL"
 
 # A quick check to inform the user if this command already exists on system.
 # which, where, and whereis are never guaranteed:

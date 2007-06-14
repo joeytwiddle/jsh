@@ -1,3 +1,36 @@
+USER_HOST="$1"
+
+if [ ! "$USER_HOST" ]
+then
+	echo "ssh-send-key <user>@<host>"
+	exit 1
+fi
+
+# KEYFILE="$HOME/.ssh/id_rsa.pub"
+KEYFILE="$HOME/.ssh/id_dsa.pub"
+
+if [ ! -f "$KEYFILE" ]
+then
+	echo "You have no ssh key $KEYFILE, would you like me to generate one?"
+	read ANSWER
+	if [ "$ANSWER" = y ]
+	then
+		mkdir -p "$HOME/.ssh"
+		ssh-keygen -t dsa -f "$HOME/.ssh/id_dsa" -N ""
+	fi
+fi
+
+cat "$KEYFILE" |
+
+ssh-agent verbosely ssh "$USER_HOST" eval "cat >> ./.ssh/authorized_keys"
+## The ssh-agent is a weak attempted fallback if the key sending fails; i'm not sure i have ever got ssh-agent to do anything useful
+
+
+
+## These are notes from /stuff/joey/projects/...:
+
+exit
+
 ## To keep a revssh session open, try something like the following:
 # while true; do echo >> /tmp/revssh-client-input-moonunit_5761.txt; sleep 1; done
 

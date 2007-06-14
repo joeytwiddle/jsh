@@ -1,4 +1,4 @@
-# jsh-depends-ignore: xterm jsh
+# this-script-does-not-depend-on-jsh: xterm jsh
 # jsh-depends: waitforkeypress xisrunning jdeltmp jgettmp
 ## Based on xtermsh
 

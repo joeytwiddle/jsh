@@ -1,7 +1,7 @@
-# jsh-ext-depends-ignore: over
+# jsh-ext-depends-ignore: over from display
 
-# jsh-depends: takecols
-# jsh-ext-depends: bc sed ifconfig
+# jsh-depends: takecols nicedate error jshinfo
+# jsh-ext-depends: bc sed ifconfig sort
 
 ## TODO: deal with rollover of numbers.  easily detectable (new < last), but how much do we add (~1213030)
 

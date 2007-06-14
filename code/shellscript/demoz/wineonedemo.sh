@@ -1,4 +1,4 @@
-# jsh-depends-ignore: wine winealldemoz
+# this-script-does-not-depend-on-jsh: wine winealldemoz
 # jsh-depends: mykill waitforkeypress findjob curseblue curseyellow cursenorm
 # jsh-ext-depends: find wine unzip
 

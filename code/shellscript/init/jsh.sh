@@ -7,6 +7,7 @@
 ## Alternatively can be used as a one-liner to run a command inside J env, then exit.
 
 ## TODO: (document or fix) jsh is not like sh in that you cannot jsh <script> if <script> is not executable.  Also you cannot cat <script> | jsh, or can you?!  TEST!
+## Aha, but you can: $JPATH/jsh sh <script> and presumably | to that too.
 
 ## TODO: calls to exit are fatal if user (daftly) sources: . .../jsh
 ##       so do not exit if $SHLVL == 1
@@ -29,7 +30,7 @@
 # set -x
 
 # debug () {
-	# test "$JSH_DEBUG" && echo "$*" >&2
+	# test "$JSH_JSHDEBUG" && echo "$*" >&2
 # }
 
 if [ ! $COUNT_JSH_RUN ]
@@ -70,20 +71,56 @@ fi
 if [ "$*" ]
 then
 
+	###=== Jsh has been asked to execute a command immediately, and return
+	## We need only load a light (non-user) jsh environment, and execute the command
+
 	## Non-interactive shell: start jenv then run command.
 	source "$JPATH"/startj-simple
-	"$@"
+	## This "jsh -c <command>" option is useful for eg. pipes, especially when we can't "| jsh".
+	if [ "$1" = -c ]
+	then
+		shift
+		# verbosely eval "$@"
+		$PRE eval "$@"
+		# echo "$@" | sh ## yuk haven't tried it hope we don't need it!
+	else
+		# verbosely "$@"
+		$PRE "$@"
+	fi
 	## alternatively: bash -c "$@"
 
 else
 
+	###=== Jsh has been called with no arguments
+	## We will invoke a new shell (bash or zsh), and in it load the jsh environment, and jsh's friendly shell-user power-tweaks.
+
+	## When we start the user shell, will we highlight standard-error for them in red?
+	PRE=""
+	## Oh dear: highlightstderr prevents su from working :S
+	# if [ ! "$NO_TTY_CHECK_CONFIRMED" ] || tty -s
+	# then
+		# PRE="highlightstderr"
+	# else
+		# export NO_TTY_CHECK_CONFIRMED=true ## sub calls to jsh will not need to check
+		# jshwarn "jsh started with no tty and no arguments :-o"
+	# fi
+
+	## TODO: DOC needed!
+	## When we call bash or zsh, what gets passed down?
+	## Obviously PATH, and exported variables.
+	## But some stuff will not get passed down.
+	## What about functions, aliases, ... ?
+	## For that reason, we need to have the shell load startj in it's config.
+	## It appears bash can do this with --rcfile, nice and neat.  :)
+	## But if zsh does not have ~"source startj" in its .zshrc, some stuff will not get loaded.
+
 	## Interactive shell: start user's favourite shell with startj as rc file.
 	# if test "`hostname`" = hwi && test $USER = joey; then
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
-	## Second line: current approach is, jsh in zsh will only work if startj is sourced in .zshrc
+	## Second line is a check because: jsh in zsh will only work if startj is sourced in .zshrc
 	if [ `which zsh` > /dev/null 2>&1 ] &&
 	   cat $HOME/.zshrc 2>/dev/null | grep -v "^[ 	]*#" | grep '^\(source\|\.\) .*/startj$' > /dev/null &&
-		[ ! "$USE_SHELL" = bash ]
+		[ ! "$USE_SHELL" = bash ] ## should come first, except when I'm testing the others ;)
 	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
 		## I believe zsh sources its own rc scripts automatically, so this is not needed:
@@ -100,15 +137,15 @@ else
 		# zsh $JPATH/startj
 		## But it's no better than:
 		# source $JPATH/startj # simple ## we want half-simple, exporting VARS, but skipping aliases which won't get exported
-		[ "$DEBUG" ] && echo "jsh: invoking zsh" >&2
-		zsh
+		[ "$JSHDEBUG" ] && echo "jsh: invoking zsh" >&2
+		$PRE zsh
 		## which isn't guaranteed to give aliases, but will work if .zshrc sources startj (for a second time!)
 	else
-		[ "$DEBUG" ] && echo "jsh: invoking bash" >&2
+		[ "$JSHDEBUG" ] && echo "jsh: invoking bash" >&2
 		## Bash does not source its default .rcs when we specify startj, so startj should source them itself.
 		## This is be triggered by:
 		export BASH_BASH=yes_please
-		bash --rcfile "$JPATH/startj"
+		$PRE bash --rcfile "$JPATH/startj"
 	fi
 
 fi

@@ -1,5 +1,16 @@
+#### I have disabled ppp-updateip because I cannot accept incoming requests.
+#### Instead I wanted to set an offline URL, but I don't know how to do this automatically.
+# exit 0
+## OK well the next time I get online, it *should* work both ways, so I've reenable this script, so I can actually see hwi if she does come back on.
+
+export INTERFACE=eth0
+## overrides my old defaults to eth1, since i switched from USB->cable_modem to eth->wireless_router->cable_modem
+
+#### Before running scripts to update our IP into DNS, we check that we didn't already do it recently (dyndns.org doesn't like an update more than every 15 minutes).
+
 ## TODO: could allow option to force override of the 15min check
 ##       No, it's dangerous if cron runs < 15mins and it's not difficult to allow file access (/tmp!)
+##       ??
 
 LAST=/tmp/ppp-updateip.last
 
@@ -53,12 +64,16 @@ fi
 
 FAIL=false
 
+
+
 ######## BEGIN ACTUAL UPDATE
 
 export INTERFACE=`ifonline`
 [ "$INTERFACE" ] || jsherror "[ppp-updateip] ifonline returned nothing"
 
 # dyndns.org update for hwi.ath.cx:
+## disabled since telewest suck:
+## reenabled since i'm not so firewalled :)
 /root/ipcheck/doipcheck || FAIL=true
 
 # dyndns.org update for generation-online.org
@@ -68,8 +83,8 @@ export INTERFACE=`ifonline`
 # dyndns.org update for emailforever.net:
 /root/ipcheck_emailforever.net/doipcheck_emailforever.net.sh || FAIL=true
 
-# dyndns.org update for open-lists.net:
-/root/ipcheck_open-lists.net/doipcheck_open-lists.net.sh || FAIL=true
+# dyndns.org update for open-lists.net:  (My domain registration expired now)
+# /root/ipcheck_open-lists.net/doipcheck_open-lists.net.sh || FAIL=true
 
 ( sleep 10m ; killall noip ) &
 # no-ip.org update (for freenet):

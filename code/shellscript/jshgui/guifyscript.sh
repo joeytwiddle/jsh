@@ -1,5 +1,8 @@
+## jsh-help: Runs the given command in an xterm, and pauses after it has finished, so the user can see the results.
+## jsh-help: Not neccessarily for scripts, any command is ok.
+
 # jsh-depends: error jshinfo
-# jsh-depends-ignore: xterm
+# this-script-does-not-depend-on-jsh: xterm
 
 if [ "$1" = -inxterm ]
 then
@@ -31,6 +34,8 @@ then
 
 else
 
-	xterm $XTERM_OPTS -title "$*" -e guifyscript -inxterm "$@"
+	# xterm $XTERM_OPTS -title "$*" -e guifyscript -inxterm "$@"
+	bigwin guifyscript -inxterm "$@"
+	# whitewin -e guifyscript -inxterm "$@"
 
 fi

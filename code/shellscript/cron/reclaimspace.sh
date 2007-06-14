@@ -17,7 +17,7 @@
 # set -e
 
 # jsh-ext-depends: find
-# jsh-depends-ignore: randomorder there flatdf
+# this-script-does-not-depend-on-jsh: randomorder there flatdf
 # jsh-depends: takecols drop error issymlink
 
 if [ "$1" = --help ]

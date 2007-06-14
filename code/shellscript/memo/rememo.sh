@@ -1,5 +1,5 @@
 # jsh-ext-depends: sed md5sum tty realpath
-# jsh-depends-ignore: cursemagenta cursenorm debug
+# this-script-does-not-depend-on-jsh: cursemagenta cursenorm debug
 # jsh-depends: memo jdeltmp jgettmpdir jgettmp realpath md5sum error jshwarn
 
 ## TODO: I think md5sum is more CPU intensive than cksum, so we should probably use the latter.  The only reason is so that really long lines which we have to shorted in order to make files, might have different parameters beyond the clipped point, so we must somehow include these.
@@ -23,6 +23,7 @@
 # . jgettmpdir -top
 # MEMODIR=$TOPTMP/memo
 
+## Generating the MEMOFILE is now all in one place, in the memo script.
 # if [ "$MEMO_IGNORE_DIR" ] || [ "$PWD" = / ]
 # then REALPWD="/"
 # else REALPWD=`realpath "$PWD"`
@@ -39,9 +40,12 @@
 
 if [ ! "$MEMOFILE" ]
 then
-	error "MEMOFILE was not exported to rememo"
-	error "rememo can no longer be called directly; please use \"memo -c true\" instead."
-	exit 1
+	# error "MEMOFILE was not exported to rememo"
+	# error "rememo can no longer be called directly; please use \"memo -c true\" instead."
+	# exit 1
+	## FIXED BUG: doh, why don't we just do that here?!
+	verbosely memo -c true "$@"
+	exit
 fi
 mkdir -p `dirname "$MEMOFILE"`
 
@@ -50,8 +54,9 @@ mkdir -p `dirname "$MEMOFILE"`
 
 TMPFILE=`jgettmp tmprememo`
 
-if ! tty >/dev/null && [ ! "$IKNOWIDONTHAVEATTY" ]
-then jshwarn "rememo found no pts on \"$*\".  If different input streams can give different outputs, then memoing should not be employed.  This warning can currently be disabled by setting \$IKNOWIDONTHAVEATTY."
+## Is stdin being piped?  If so, memo may not be doing what the user thought!  Warn them...
+if [ ! "$IKNOWIDONTHAVEATTY" ] && ! tty -s
+then jshwarn "rememo found no tty on \"$*\".  If different input streams can give different outputs, then memoing should not be employed.  This warning can currently be disabled by setting \$IKNOWIDONTHAVEATTY."
 fi
 
 ## This doesn't work if input is "x | y"

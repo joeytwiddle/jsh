@@ -1,3 +1,13 @@
+
+### TESTING NEW
+
+printf "%s" "$*" | wc -m
+exit
+
+
+
+### Original:
+
 # jsh-depends: countlines
 # if test ! "$1" = ""; then
 echo "$@" |
@@ -8,3 +18,4 @@ tr -d "\n" |
 sed 's/./\
 /g' |
 countlines
+

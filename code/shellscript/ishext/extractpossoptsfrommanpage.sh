@@ -1,7 +1,12 @@
 # jsh-depends: extractregex
 # jsh-ext-depends: col
 
+if [ "$WARNJSHTOOLS" ] && [ -f "$JPATH/tools/$1" ]
+then printf "%s" " `cursered`jsh`cursenorm`" >&2
+fi
+
 function unprint () {
+	# [ "$SHOW_COMMAND_INFO" ] && return
 	LEN=`strlen "$*"`
 	for X in `seq 1 $LEN`
 	do printf "%s" "" >&2
@@ -46,3 +51,7 @@ extractregex -atom "[ 	]((-|--)[A-Za-z0-9-=]+)" ## accepts '=', and accepts alph
 unprint "$TOPRINT"
 ## Unless we pause:
 sleep 0
+
+if [ "$WARNJSHTOOLS" ] && [ -f "$JPATH/tools/$1" ]
+then printf "%s" " `cursered`jsh`cursenorm`" >&2
+fi

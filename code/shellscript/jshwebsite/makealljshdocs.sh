@@ -66,7 +66,8 @@ fi
 		if [ "$STATUS" = "Up-to-date" ]
 		then : # echo "OK"
 		elif [ "$STATUS" = "Unknown" ]
-		then echo "[Not yet part of Jsh]"
+		# then echo "[Not yet part of Jsh]"
+		then echo "[Not yet in CVS]"
 		elif [ "$STATUS" = "Locally Modified" ]
 		then echo "[Newer version than CVS]"
 		else echo "[$STATUS!]"

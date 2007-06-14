@@ -36,7 +36,9 @@ IMG=`
 `
 IMGURL="http://www.google.com/$IMG"
 IMGURL=`echo "$IMGURL" | tr -s '/' | sed 's+/+//+'`
+[ "$DEBUG" ] && debug "IMGURL=$IMGURL"
 IMGFILE="www.google.com/$IMG"
+[ "$DEBUG" ] && debug "IMGFILE=$IMGFILE"
 echo "Getting image >$IMGURL<"
 ## Why do -x and -N options result in 404?!  What's different about http of former?!
 wget -N -x "$IMGURL"
@@ -55,11 +57,19 @@ IMGWIDTHPLUS=$[$IMGWIDTH+12];
 convert $DESTIMGFILE -crop $HALFIMGWIDTH"x"$IMGHEIGHT+0+0 $LEFTIMGFILE
 convert $DESTIMGFILE -crop $HALFIMGWIDTH"x"$IMGHEIGHT+$HALFIMGWIDTHMAJ+0 $RIGHTIMGFILE
 
+[ "$DEBUG" ] && debug "IMGWIDTHPLUS=$IMGWIDTHPLUS"
+[ "$DEBUG" ] && debug "LEFTIMGFILE=$LEFTIMGFILE"
+[ "$DEBUG" ] && debug "HREF=$HREF"
+[ "$DEBUG" ] && debug "RIGHTIMGFILE=$RIGHTIMGFILE"
 # LINE='                <a href='$HREF'><img border="0" align="middle" src="'$DESTIMGFILE'"></a>'
-LINE='                <td width="'"$IMGWIDTHPLUS"'" valign="middle" align="center"><a href="http://www.google.com/"><img alt="(Home)" border="0" align="middle" src="'"$LEFTIMGFILE"'"></a><a href='"$HREF"'><img alt="(Topical)" border="0" align="middle" src="'"$RIGHTIMGFILE"'"></a></td>'
+LINE='                <td width="'"$IMGWIDTHPLUS"'" valign="middle" align="center"><a href="http://www.google.com/"><img alt="(Home)" border="0" align="middle" src="'"$LEFTIMGFILE"'"></a><a href="'"$HREF"'"><img alt="(Topical)" border="0" align="middle" src="'"$RIGHTIMGFILE"'"></a></td>'
+[ "$DEBUG" ] && debug "LINE=$LINE"
 
+## Need to escape &s because they have special meaning in sed replacement string.
+LINE=`echo "$LINE" | sed 's+&+\\\\\&+g'`
 cp $JPATH/org/jumpgate.html jumpgate-orig.html
-cat jumpgate-orig.html | replaceline "<\!-- #~googleimage~# -->" "<\!-- #~googleimage~# -->$LINE" > finaljumpgate.html
+cat jumpgate-orig.html | verbosely replaceline "<\!-- #~googleimage~# -->" "<\!-- #~googleimage~# -->$LINE" > finaljumpgate.html
+# [ "$DEBUG" ] && debug "`cat finaljumpgate.html | grep googleimage`"
 
 # Move the final files over the originals
 cp finaljumpgate.html $JPATH/org/jumpgate.html

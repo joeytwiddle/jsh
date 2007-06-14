@@ -25,10 +25,27 @@ extract_spam_score () {
 	## X-Spam-Status: No, score=-1.9 required=5.0 tests=ALL_TRUSTED,
 	## In this case I got duplicated, but the first one was the new one, hence head.
 	grep "^X-Spam-Status" |
-	pipeboth |
+	# pipeboth |
 	head -n 1 |
 	sed 's+.*\(hits\|score\)=++ ; s+ req.*++'
+}
 
+extract_spam_score_old1 () {
+	## If email already has been scanned and marked, we seem to get the newest score by getting the last score reported, hence the tail.
+	## Ah but this doesn't work with spamc!
+	# grep -C 5 "^Content analysis details:" | pipeboth |
+	grep "^Content analysis details:" |
+	# pipeboth |
+	tail -n 1 |
+	sed 's+.*(++ ; s+ points.*++'
+}
+
+extract_spam_score_old2 () {
+	## Hmm well now I'm only getting *this* header:
+	grep -i "^x-spam-score: " |
+	# pipeboth |
+	head -n 1 |
+	afterlast ": "
 }
 
 error_exit () {
@@ -51,8 +68,10 @@ then
 	cat "$TMPFILE" | grep "^Subject"
 
 	SCORE_BEFORE=`cat "$TMPFILE" | extract_spam_score`
+	[ "$SCORE_BEFORE" ] || SCORE_BEFORE=`cat "$TMPFILE" | extract_spam_score_old1`
+	[ "$SCORE_BEFORE" ] || SCORE_BEFORE=`cat "$TMPFILE" | extract_spam_score_old2`
 	if [ "$SCORE_BEFORE" ]
-	then jshinfo "Score before: $SCORE_BEFORE"
+	then jshinfo "Old score: $SCORE_BEFORE"
 	fi
 
 	## TODO:
@@ -77,7 +96,7 @@ then
 		SAVE_ANYWAY=true
 	else
 		INTSCORE=`echo "$SCORE * 10" | bc | sed 's+\..*++'`
-		jshinfo "As integer: $INTSCORE"
+		# jshinfo "As integer: $INTSCORE"
 	fi
 
 	if [ "$SAVE_ANYWAY" ] || [ "$INTSCORE" -lt 50 ]
@@ -85,8 +104,9 @@ then
 		jshinfo "Not spam"
 		cat "$TMPFILE" >> "$OUTPUT" || error_exit 1
 	else
-		jshinfo "Spam!"
+		jshwarn "Spam!"
 		# cat "$TMPFILE" >> "$SPAM_OUTPUT"
+		## I'm guessing this is slow because it runs spamc again, but it's useful to read spamassassin's header msgs.  Maybe we could save the original output of spamc and re-use it here if desired.
 		cat "$TMPFILE" | spamc >> "$SPAM_OUTPUT" || error_exit 1
 	fi
 

@@ -38,7 +38,7 @@ then
 	# SCRNAME="boxen"
 	# export SCREENNAME="$SCRNAME"
 	# SCRSES=`screen -list | grep "$SCRNAME" | head -n 1 | takecols 1`
-	# ## TODO: try doing: inscreendo $SSHCOM
+	# ## Done: try doing: inscreendo $SSHCOM
 	# if [ "$SCRSES" ]
 	# then
 		# if [ "$SCRSES" = "$STY" ]
@@ -58,6 +58,8 @@ then
 	# else
 		# SSHCOM="screen -h 10000 -a -e^k^l -S $SCRNAME $SSHCOM"
 	# fi
+
+	## TODO: But, inscreendo only pops up xterm on first screen, whereas we want ssh2box to always popup the xterm.
 	inscreendo -xterm boxen $SSHCOM
 else
 	jshwarn "Cannot start sshi in screen, because you don't have screen!"

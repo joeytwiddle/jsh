@@ -5,6 +5,7 @@
 ## Runs a recovervimswap check, interactively, then runs vim afterwards.
 if [ "$1" = -thenvim ]
 then VIMAFTER=true; INTERACTIVE=true; shift
+# then INTERACTIVE=true; shift
 fi
 
 NL="
@@ -47,9 +48,12 @@ do
 		if [ "$INTERACTIVE" ] && verbosely fuser -v "$SWAPFILE"
 		then
 			jshwarn "Swapfile is already open; quitting"
+			## BUG: isn't this VIMAFTER= guaranteed to be forgotten outside of this fine | while loop?  Is that even relevant, since we exit just below?
 			VIMAFTER=
 			sleep 4
-			exit 3 ## not strong enough inside this | while !
+			exit 0 ## everything happened as it should have, assume the call to this script "succeeded"
+			# exit 3 ## not strong enough inside this | while !  (Not sure why I thought that, maybe this exit works fine, but editandwait's runoneof was running viminxterm then vim so it looked like VIMAFTER was left set the second time round <- ??!  Isn't that style of find | guarantted to pass either 0 or 1 lines?  No, if LOOKFOR contains "?" or "*"!)
+			## BUG TODO: Wait I investigated, and I do think that, and it's a problem, because we seem to break out and VIMAFTER=true, and we open the file despite the fact we've warned the user it's already opened, and refused to open it.  :P  Maybe the outer for loop contributes to our problem here.
 		fi
 
 		N=1
@@ -72,6 +76,7 @@ do
 				touch -r "$SWAPFILE" "$RECOVERFILE"
 				# verbosely del "$SWAPFILE"
 				del "$SWAPFILE"
+				VIMAFTER=true
 			else
 				echo "Successfully recovered $SWAPFILE to $RECOVERFILE, so you can:"
 				# echo del $DIR/.$FILE.sw?
@@ -79,6 +84,7 @@ do
 				# echo del "$DIR/$LOOKFOR"
 				echo `cursecyan`del "$SWAPFILE"`cursenorm`
 				## Could probably delete swapfile now, if we only knew its name!  (Use del)
+				VIMAFTER=true
 			fi
 			if cmp "$X" "$RECOVERFILE" > /dev/null
 			then
@@ -87,6 +93,7 @@ do
 				## Now if we are really confident about this script, we could
 				## delete the swapfile, or get vim to.
 				cursecyan
+				VIMAFTER=true
 			else
 				if [ "$INTERACTIVE" ]
 				then
@@ -111,6 +118,7 @@ do
 					# vimdiff "$X" "$RECOVERFILE"
 					echo "vimdiff $X $RECOVERFILE"
 					echo "del $RECOVERFILE"
+					VIMAFTER=
 				fi
 			fi
 			cursenorm
@@ -123,7 +131,11 @@ do
 done
 
 if [ "$VIMAFTER" ]
-then vim "$@"
+then
+	jshinfo "[recovervimswap] running: vim $*"
+	vim "$@"
+else
+	jshinfo "[recovervimswap] no vim $*"
 fi
 
 ## Doesn't work:

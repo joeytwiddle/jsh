@@ -31,6 +31,7 @@ do
 
 		TMPFILE=`jgettmp`
 
+		# memo -f "$LOCATION"
 		makeshfunction "$LOCATION" > $TMPFILE
 
 		. $TMPFILE

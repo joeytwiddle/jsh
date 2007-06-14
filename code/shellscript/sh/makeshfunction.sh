@@ -4,6 +4,7 @@
 ## Notes: It is good that we include the main script itself as a function, in case it tries to make calls to itself.
 
 # Does not appear to speed up processing.  :-(
+# Well no, but it does seem to avoid some costs, such as re-parsing a script which is called often.
 
 # export CHECKING=true
 

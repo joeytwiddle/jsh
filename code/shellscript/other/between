@@ -1,2 +1,5 @@
+## If you want to grab something between two lines:
+# awk '/Section "InputDevice/,/EndSection/' /etc/X11/xorg.conf
+
 awk ' BEGIN { FS="'$1'" } { printf($2"\n") } '
 

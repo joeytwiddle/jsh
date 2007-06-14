@@ -1,8 +1,9 @@
+## TODO: Doesn't complain if search string is not there and hence replacement is not made!
+##       Could grep but not if piping in->out
+
 # jsh-ext-depends-ignore: find file
 # jsh-ext-depends: sed
 # jsh-depends: curseyellow cursenorm dog
-## TODO: Doesn't complain if search string is not there and hence replacement is not made!
-##       Could grep but not if piping in->out
 
 if [ ! "$1" ] || [ "$1" = --help ]
 then

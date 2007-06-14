@@ -24,7 +24,7 @@ export DEBIAN_BUILDARCH=i686
 ## I don't know why Debian doesn't recognise I have a k7, and why debuild won't just build and install for that architecture when asked to.
 
 # jsh-depends: countlines
-# jsh-depends-ignore: del
+# this-script-does-not-depend-on-jsh: del
 # jsh-ext-depends: apt-get dpkg debuild
 # jsh-ext-depends-ignore: build
 

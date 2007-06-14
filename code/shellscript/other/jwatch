@@ -1,6 +1,6 @@
-# jsh-depends-ignore: check new
+# this-script-does-not-depend-on-jsh: check new
 # jsh-depends: cursecyan cursemagenta cursenorm jwatchcomp breakonctrlc jdeltmp jgettmp
-if test "$1" = "" || test "$1" = --help
+if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
 	echo 'jwatch [ -oneway ] [ -quiet ] [ -delay <seconds> ] [ -direct ] ... "<command>"'
@@ -15,11 +15,11 @@ then
 	exit 1
 fi
 
-if test "$1" = -oneway
+if [ "$1" = -oneway ]
 then ONEWAY="-oneway"; shift
 fi
 
-if test "$1" = -quiet
+if [ "$1" = -quiet ]
 then QUIET=true; shift
 fi
 
@@ -30,7 +30,7 @@ then
 	shift; shift
 fi
 
-if test "$1" = -direct
+if [ "$1" = -direct ]
 then
 	shift
 	METHOD="$@"
@@ -57,7 +57,7 @@ NEW=`jgettmp "new-$1"`
 OLD=`jgettmp "old-$1"`
 
 ## Optionally, display the results once (in case user assumed aliases would work!)
-if test ! "$QUIET"
+if [ ! "$QUIET" ]
 then
 	cursecyan
 	echo "### Check this is what you wanted to watch: ('|'s etc. should be escaped; no aliases or fns)"
@@ -70,7 +70,7 @@ then
 	cursenorm
 fi
 
-if test ! "$JWATCHCOMPCOM";
+if [ ! "$JWATCHCOMPCOM" ]
 then
   JWATCHCOMPCOM="jwatchcomp $ONEWAY"
 fi

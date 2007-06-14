@@ -1,8 +1,9 @@
 # jsh-ext-depends: sed
-# Actually does last per line
+
+# WRONG: Actually does last per line
 # sed "s|.*$*||"
 
-# This way is valid but very slow.
+# This way is valid (well not really: e.g. echo -n ?!) but very slow.
 # Shame sh isn't lazy, eg. for "randomorder | head -n 1".
 # while read X; do
   # Y=`echo "$X" | sed "s|$*.*||"`

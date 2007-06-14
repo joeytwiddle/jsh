@@ -12,7 +12,7 @@ fi
 export SCRIPTNAME=`basename "$SCRIPT" sh`
 [ "$DEBUG" ] && debug "SCRIPTNAME=$SCRIPTNAME"
 
-seek_help () {
+seek___help_ () {
 	if jdoc -hasdoc "$SCRIPT"
 	then
 		"$SCRIPT" --help |
@@ -22,14 +22,16 @@ seek_help () {
 
 seek_jshhelp () {
 	JSHHELPEXPR="^[# 	*]*\<jsh-help\>[: 	]*"
-	cat "$SCRIPT" |
+	# cat "$SCRIPT" |
+	head -10 "$SCRIPT" |
 	grep "$JSHHELPEXPR" |
 	sed "s+$JSHHELPEXPR++g"
 }
 
 seek_comment () {
 	COMMENTEXPR="^##[ 	]*"
-	cat "$SCRIPT" |
+	# cat "$SCRIPT" |
+	head -10 "$SCRIPT" |
 	grep "$COMMENTEXPR" |
 	# sed "s+$COMMENTEXPR++g" |
 	# grep -v "^[A-Z]*:" | ## Avoids lines starting e.g. "TODO: "
@@ -42,10 +44,11 @@ give_up () {
 	echo '???'
 }
 
-for METHOD in seek_help seek_jshhelp seek_comment give_up
+for METHOD in seek___help_ seek_jshhelp seek_comment give_up
 do
 
 	[ "$DEBUG" ] && debug "Trying method $METHOD"
+	# jshinfo "$METHOD" "$SCRIPT"
 
 	LINE=`
 		"$METHOD" "$SCRIPT" |
@@ -54,7 +57,8 @@ do
 	`
 	if [ "$LINE" ]
 	then
-		[ "$DEBUG" ] && debug "Method $METHOD worked!"
+		# [ "$DEBUG" ] && debug "Method $METHOD worked!"
+		# jshinfo "OK: Method $METHOD on $SCRIPT produced: $LINE"
 		break
 	fi
 

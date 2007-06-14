@@ -40,7 +40,7 @@
 
 # jsh-depends: guifyscript verbosely jshinfo curseyellow cursenorm mykill jshwarn toline unj
 # jsh-ext-depends: mencoder mkfifo mplayer seq tee
-# jsh-depends-ignore: mplayer before findjob
+# this-script-does-not-depend-on-jsh: mplayer before findjob
 # jsh-ext-depends-ignore: from killall size less sync file
 
 ## These vars are here and not in initialise, because they are needed for --help.

@@ -4,7 +4,8 @@
 
 ## Hwi Debian:
 # scanbus line:         0,0,0     0) 'ATAPI   ' 'CD-RW CW5201    ' '190C' Removable CD-ROM
-DEVICE="0,0,0"
+# DEVICE="0,0,0"
+DEVICE="ATAPI:/dev/ide/host0/bus1/target0/lun0/cd" ## hwi's debian changed
 CDMNTPNT=/mnt/cdrom
 
 ## Hwi Gentoo: (scanbus gets nothing useful)

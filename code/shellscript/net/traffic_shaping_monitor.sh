@@ -1,3 +1,6 @@
+## A simple visualisation for tc traffic
+## Show bars representing the amount of traffic passed through each class, and highlights the changes.
+
 SEDSTR=`
 cat << ! |
 11 games
@@ -17,6 +20,8 @@ done | beforelast ";"
 `
 
 INTERFACE=`ifonline`
+
+# jwatchchanges -fine /sbin/tc -s qdisc ls dev $INTERFACE "|" trimempty "|" sed "\"$SEDSTR\"" | highlight '[^ ]*:'
 
 add_levels_to_tc_output () {
 	TMPFILE=/tmp/tc_output.tmp

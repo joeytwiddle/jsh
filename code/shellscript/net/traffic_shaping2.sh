@@ -5,13 +5,13 @@ clear_all_shaping () {
 }
 
 create_main_pipe () {
-	/sbin/tc qdisc add dev "$INTERFACE" root handle 1: prio bands 9
+	/sbin/tc qdisc add dev "$INTERFACE" root handle $PARENT: prio bands 9
 }
 
 create_pipe () {
 	PIPENUM="$1"
 	shift
-	/sbin/tc qdisc add dev "$INTERFACE" parent 1:"$PIPENUM" handle 1"$PIPENUM": "$@"
+	/sbin/tc qdisc add dev "$INTERFACE" parent $PARENT:"$PIPENUM" handle $PARENT"$PIPENUM": "$@"
 }
 
 create_throttled_pipe () {
@@ -26,7 +26,7 @@ create_free_pipe () {
 }
 
 filter_match () {
-	/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match "$@"
+	/sbin/tc filter add dev "$INTERFACE" parent $PARENT:0 prio $PARENT protocol ip u32 match "$@"
 }
 
 filter_destip () {
@@ -88,8 +88,10 @@ runnable_config () {
 	## First we need to create the subpipes (aka discs) which make up our outgoing connection:
 	## We have to create them backwards; so runnable config will always look a bit weird!
 
+	export PARENT=1
+
 	create_main_pipe
-	create_throttled_pipe 9 30000 ## low priority traffic (latency ok)
+	create_throttled_pipe 8 30000 ## low priority traffic (latency ok)
 	create_throttled_pipe 5 30000 ## general traffic
 	create_throttled_pipe 3 30000 ## priority traffic (interactive)
 	create_free_pipe 1            ## really really priority traffic (which can exceed all limits)
@@ -103,6 +105,14 @@ runnable_config () {
 	# filter_destip 82.33.185.244      1  ## Hwi gets unlimited on anything not yet classified
 	filter_ports -from 80              5  ## webserver is general
 	filter_rest                        9  ## any other traffic is throttled and very low priority
+
+	# export PARENT=9
+# 
+	# create_main_pipe
+	# create_throttled_pipe 8 30000 ## low priority traffic (latency ok)
+	# create_throttled_pipe 5 30000 ## general traffic
+	# create_throttled_pipe 3 30000 ## priority traffic (interactive)
+	# create_free_pipe 1            ## really really priority traffic (which can exceed all limits)
 
 }
 

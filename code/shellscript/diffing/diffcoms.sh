@@ -1,6 +1,6 @@
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-  echo "diffcoms [ -vimdiff | -worddiff | -diffwith <diffcommand> ] <command_a> <command_b>"
+  echo "diffcoms [ -color | -vimdiff | -worddiff | -diffwith <diffcommand> ] <command_a> <command_b>"
   echo "  will run both commands, and diff their output."
   exit 1
 fi
@@ -9,6 +9,9 @@ DIFFCOM="jfcsh -bothways"
 while true
 do
   case "$1" in
+    -color)
+      DIFFCOM="jdiffsimple -fine"; shift
+    ;;
     -vimdiff)
       DIFFCOM="vimdiff"; shift
     ;;

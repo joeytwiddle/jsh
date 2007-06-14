@@ -1,6 +1,6 @@
 ## Adds colour highlight to apropos; also runs aproposjsh
 ## Script intended to be aliased to apropos in user's shell.
 (
-	`jwhich apropos` "$@"
+	# `jwhich apropos` "$@"
 	aproposjsh "$@" | highlight "\<jsh\>"
-) | highlight "$@"
+) | highlight "`caseinsensitiveregex "$@"`"

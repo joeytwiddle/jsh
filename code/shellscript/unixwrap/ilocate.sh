@@ -2,4 +2,5 @@
 # IREG=`echo "$1" | sed --file /home/joey/iregex.sed`
 IREG=`caseinsensitiveregex "$1"`
 # echo ">$IREG<"
-`jwhich locate` -r $IREG
+# `jwhich locate` -r $IREG
+unj locate -r "$IREG[^/]*$"

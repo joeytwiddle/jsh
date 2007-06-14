@@ -1,4 +1,4 @@
-# jsh-depends-ignore: jsh
+# this-script-does-not-depend-on-jsh: jsh
 # jsh-depends: cursecyan curseyellow cursenorm makeshfunction contains jdeltmp jgettmp
 
 ## CONSIDER: Is there a better word than "compile"?

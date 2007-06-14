@@ -1,8 +1,11 @@
 # jsh-ext-depends-ignore: dpkg
 # jsh-ext-depends: sed apt-cache
 # jsh-depends: cursecyan cursenorm drop tostring
+
 ## TODO: Change "[Selected]" to "[Installed]" to be accurate, but also check for dependencies on it by other scripts!
 ## Doh!  See also: apt-show-versions
+## See also: dpkg --print-avail
+
 for X in "$@"
 do
 	if [ "$1" != "$*" ]
@@ -19,3 +22,4 @@ do
 	sed 's+/var/lib/apt/lists/++g'
 	# sed 's+([^)]*/\([^)]*\))+(\1)+g'
 done
+

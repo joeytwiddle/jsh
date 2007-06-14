@@ -4,6 +4,8 @@
 ## Like cksum but faster because only reads the start and end of each file
 ## Quick and useful for verification / indexing of written CDs
 
+## BUG: it's unlike cksum, because it produces a different result for symlinks (assumes the wrong size!)
+
 ## TODO: would be nice (more efficient) for files <=32k to just do one dd and be done with
 ##       note that this would throw off any qkcksums people have made on small files
 

@@ -1,7 +1,10 @@
 # jsh-ext-depends-ignore: savelog file
 # jsh-ext-depends: gzip tar cmp
 # jsh-depends: del
-# jsh-depends-ignore: after before
+# this-script-does-not-depend-on-jsh: after before
+
+## TODO: allow one environment variable which determines whether number comes after extension or before it
+## TODO: allow another which determines whether a number, or a geekdate is used (and how fine it needs to be)
 
 ## TODO: inconsistency: rotating a file removes it, but rotating a folder leaves it intact!
 ## NOTE: beware that some of my scripts to rotate logs and mailboxes require that the file is either emptied or removed.  Note that printf "" > might be better than rm, because anything writing to the file might still get some done!
@@ -24,8 +27,10 @@ then
 	echo "  or compress each <dir> to <dir>.tgz.N, leaving it untouched."
 	echo "  -keep:  will not empty the file after rotation (via tmpfile <file>.keep)"
 	echo "  -nozip: will not gzip or tar-up the file or directory before rotation"
-	echo "  -max:   will rotate to ensure no more than <num> + 1 logs"
+	echo "  -max:   will rotate to ensure no more than <num> + 1 logs (default=infinity)"
 	echo "  never rotates <file>[.gz].0"
+	echo
+	echo "  it attempts to work on .tgz .gz .zip and .w/e files similary, but idk how well it works :P"
 	echo
 	echo "You may also wish to investigate savelog(8), part of debianutils."
 	echo "jsh rotate appears to do the opposite of lograte.  Higher numbers are more recent."
@@ -53,13 +58,13 @@ then NODUPS=true; shift
 fi
 
 function logfriendly_gzip () {
-	for FILE
-	do
-		cat "$FILE" | gzip -c > "$FILE".gz &
-		sleep 2
-		printf "" > "$FILE"
+	## TODO: this isn't as atomic as it should be; maybe there is a better way
+		OUTPUT_FILE="$1"
+		INPUT_FILE="$2"
+		cat "$INPUT_FILE" | gzip -c > "$OUTPUT_FILE" &
+		sleep 5 ## give cat time to get a handle on the file
+		printf "" > "$FILE" ## clear the file asap, so that new additions made during the gzip are in a new file
 		wait
-	done
 }
 
 for FILE
@@ -69,67 +74,114 @@ do
 	then cp -a "$FILE" "$FILE.keep"
 	fi
 
+	## What extension will we use, if any?
 	if [ ! "$ZIP" ]
-	then
-		ZIPCOM=""
+	then EXT=""
+	elif [ -f "$FILE" ]
+	then EXT=.gz
+	elif [ -d "$FILE" ]
+	then EXT=.tgz
+	else
+		jshwarn "$FILE is not a file or directory; I don't know what to do!"
+		exit 1
+	fi
+
+	## What will new file be called (what number)?
+	## TODO: user can optionally choose to append the date (date+time?) to the file instead
+	N=0
+	FINALFILE="$FILE.$N$EXT"
+	while [ -f "$FINALFILE" ]
+	do
+		LASTFINAL="$FINALFILE"
+		N=`expr "$N" + 1`
+		FINALFILE="$FILE.$N$EXT"
+		# [ "$MAX" ] && [ "$N" -gt "$MAX" ] && jshwarn "Exceeded max $MAX with $FINALFILE and haven't yet fixed code to deal with this."
+	done
+
+	while [ "$MAX" ] && [ "$N" -gt "$MAX" ]
+	do
+		jshinfo "$N exceeds max $MAX, so rotating earlier copies..."
+		for OLDN in `seq 1 $((N-2))`
+		do
+			NEWN=$((OLDN+1))
+			# if shexec cmp "$FILE.$NEWN$EXT" "$FILE.$OLDNEXT" ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
+			if verbosely cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" 2>/dev/null ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
+			then
+				SKIPNEXT=true
+				jshwarn "$NEWN$EXT = $OLDN$EXT so SKIPNEXT=true" #  verbosely mv -f \"$FILE.$NEWN$EXT\" \"$FILE.$OLDN$EXT\"" ||
+			else
+				SKIPNEXT=
+			fi
+			[ "$SKIPNEXT" ] &&
+			verbosely mv -f "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT"
+		done
+		N=$((N-1))
+		FINALFILE="$FILE.$N$EXT"
+	done
+
+	## How will we compress it?
+	if [ ! "$ZIP" ]
+	then ## TODO: does this work if it's a dir, and is it logfriendly?
+		ZIPCOM="mv $FILE $FINALFILE"
 		FINALFILE="$FILE"
 	elif [ -f "$FILE" ]
 	then
-		ZIPCOM="logfriendly_gzip"
-		FINALFILE="$FILE.gz"
+		ZIPCOM="logfriendly_gzip $FINALFILE $FILE"
 	elif [ -d "$FILE" ]
 	then
-		ZIPCOM="tar cfz $FILE.tgz"
-		FINALFILE="$FILE.tgz"
+		ZIPCOM="tar cfz $FINALFILE $FILE" ## TODO: even without -keep, this will leave the $FILE (directory) intact =/
 	else
 		echo "$FILE is not a file or a directory"
 		exit 1
 	fi
 
+	## Do the compression, if needed:
 	if [ "$ZIPCOM" ]
 	then
-		echo "rotate: $ZIPCOM \"$FILE\""
-		$ZIPCOM "$FILE" || exit 1
+		# echo "rotate: $ZIPCOM \"$FILE\""
+		echo "rotate: $ZIPCOM"
+		$ZIPCOM || exit 1
 	fi
 
-	N=0
-	while [ -f "$FINALFILE.$N" ]
-	do
-		LASTN="$N"
-		N=`expr "$N" + 1`
-	done
+	## If we wanted to keep the original file, but gzip has removed it:
+	if [ "$KEEP" ]
+	then mv "$FILE.keep" "$FILE"
+	fi
 
-	if [ "$NODUPS" ] && [ "$LASTN" ] && cmp "$FINALFILE" "$FINALFILE.$LASTN"
+	## If avoiding duplicates, check whether we have already backed up an identical copy of this file/directory:
+	if [ "$NODUPS" ] && [ "$LASTFINAL" ] && cmp "$FINALFILE" "$LASTFINAL"
 	then
-		echo "rotate: skipping backup because files are identical"
+		echo "rotate: skipping backup because files is identical to last"
 		del "$FINALFILE"
 		## To skip processing of latter section
 		# MAX=
 		N=$LASTN
 	else
-		echo "rotate: mv \"$FINALFILE\" \"$FINALFILE.$N\""
-		mv "$FINALFILE" "$FINALFILE.$N"
+		# echo "rotate: mv \"$FINALFILE\" \"$FINALFILE.$N\""
+		# mv "$FINALFILE" "$FINALFILE.$N"
+		## Now we do nothing, because FINALFILE should have been worked out already
+		:
 	fi
 
-	if [ "$KEEP" ]
-	then mv "$FILE.keep" "$FILE"
-	fi
-
-	if [ "$MAX" ]
-	then
-		if [ "$N" -gt "$MAX" ]
-		then
-			echo "Rotating the files..."
-			## Start at 1 so 0 is not rotated.
-			X=1
-			# mv "$FINALFILE.$X" "$FINALFILE.$X.oldMEGAbakB4rotate" ## ???!
-			while test "$X" -lt "$N"
-			do
-				XN=`expr "$X" + 1`
-				mv "$FINALFILE.$XN" "$FINALFILE.$X"
-				X="$XN"
-			done
-		fi
-	fi
+	## If we exceed the maximum, then do the rotation:
+	## TODO: This has been disabled for now; it needs to be refactored to deal with the new style
+	##       Fortunately at present, no important jsh scripts use -max.
+	# if [ "$MAX" ]
+	# then
+		# if [ "$N" -gt "$MAX" ]
+		# then
+			# echo "Rotating the files..."
+			# ## Start at 1 so 0 is not rotated.
+			# X=1
+			# # mv "$FINALFILE.$X" "$FINALFILE.$X.oldMEGAbakB4rotate" ## ???!
+			# while [ "$X" -lt "$N" ]
+			# do
+				# XN=`expr "$X" + 1`
+				# verbosely mv "$FINALFILE.$XN" "$FINALFILE.$X"
+				# X="$XN"
+			# done
+		# fi
+	# fi
 
 done
+

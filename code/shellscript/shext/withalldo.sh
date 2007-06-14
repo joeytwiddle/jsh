@@ -1,4 +1,7 @@
+## Why did I write this, instead of using xargs?  Was there some problem being reached with xargs?
+
 # jsh-depends: error
+
 ## TODO: goes slow on long lists, presumably because of the long string manipulation.  Fix by using a stream | sh, so we can echo straight to stream instead of adding to String.
 
 ## Xargs example:
@@ -23,6 +26,10 @@
 ## Except (under gentoo kernel, debian bash) withalldo could cope when xargs complained "argument line too long".  =)
 
 ## Changed it so that you can specify --- to put the arguments in the middle of the command you call.
+
+slashescape () {
+	sed -e "s$1\\$1g"
+}
 
 COMMANDLEFT=""
 COMMAND=""
@@ -49,9 +56,15 @@ then
 	COMMAND=""
 fi
 
+## Failed fix for: ~/.xchat2.nogginBasher/xchatlogs/ % echolines * | grep -v "#" | withalldo jzcat
+
+# slashescape '`' |
+
 while read LINE
 do
 	COMMANDLEFT="$COMMANDLEFT\"$LINE\" "
 done
 
+# debug "withalldo: eval \"$COMMANDLEFT $COMMAND\""
 eval "$COMMANDLEFT$COMMAND"
+

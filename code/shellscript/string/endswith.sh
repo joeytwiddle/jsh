@@ -10,13 +10,24 @@ then
 	exit 1
 fi
 
-## Now accepts multiple options for the end string
-STRING="$1"
+STR="$1"
+# [ "$2" = "" ] && exit 0
 shift
-for PAT
+for SEARCHSTR
 do
-	if echo "$STRING" | grep "$PAT\$" > /dev/null
-	then exit 0
-	fi
+	[ "$SEARCHSTR" = "" ] && exit 0
+	[ ! "${STR%$SEARCHSTR}" = "$STR" ] && exit 0
 done
-exit 2
+exit 1
+
+## Old method (actually matched regexps instead of strings):
+# ## Now accepts multiple options for the end string
+# STRING="$1"
+# shift
+# for PAT
+# do
+	# if echo "$STRING" | grep "$PAT\$" > /dev/null
+	# then exit 0
+	# fi
+# done
+# exit 2

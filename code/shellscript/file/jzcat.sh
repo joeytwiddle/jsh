@@ -8,6 +8,8 @@ for FILE
 do
 	if file "$FILE" | grep "gzip compressed data" >/dev/null
 	then zcat "$FILE"
+	elif file "$FILE" | grep "bzip2 compressed data" >/dev/null
+	then bzcat "$FILE"
 	else cat "$FILE"
 	fi |
 	

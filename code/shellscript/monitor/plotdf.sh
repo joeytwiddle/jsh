@@ -8,6 +8,7 @@ sed "s+TIME=+\\
 }
 
 PLOTFILE=`jgettmp df.data`
+PLOTFILE=/tmp/plotdf.data
 
 halfway |
 sed "s+/[^ ]* ++g" > "$PLOTFILE"
@@ -37,16 +38,17 @@ PLOTLINE=`echo "$PLOTLINE" | sed "s+,$++"`
 echo ">> $PLOTLINE"
 
 (
+# set term post color
 echo "
-set term post color
 set output 'dfplot.ps'
 $PLOTLINE
 "
 # read KEY
+cat
 ) |
 
 gnuplot
 
-jdeltmp "$PLOTFILE"
+# jdeltmp "$PLOTFILE"
 
-gv dfplot.ps
+# gv dfplot.ps

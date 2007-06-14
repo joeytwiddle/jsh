@@ -9,6 +9,7 @@ fi
 
 [ ! "${1#$2}" = "$1" ]
 
+## Old method (actually matched regexps instead of strings):
 # RESULT=`echo "$1" | grep "^$2"`
 # if test "$RESULT" = ""; then
   # # echo "no"

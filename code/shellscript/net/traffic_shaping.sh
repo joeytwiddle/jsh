@@ -2,6 +2,8 @@
 ## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
 ## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.
 
+## From Jim for fast ssh: tc filter add dev eth1 parent 1:0 protocol all prio 1 handle 22:0:1 u32 ht 22:0:0 match u16 0x16 0xffff at 2 classid 1:2
+
 ## TODO: If I put the most commonly used rules (at priority times) first, maybe classification will happen faster, helping the important packets through...
 
 ## Sorry, this isn't adaptive, ie. it doesn't shrink the non-interactive pipe when you are using the net interactively, and then grow it when you are idle or away.
@@ -222,10 +224,15 @@ case "$1" in
 
 			echo "$WEBSERVER_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$WEBSERVER_DISC handle 1$WEBSERVER_DISC: tbf rate $WEBSERVER_BPS""bps buffer 1600 peakrate $WEBSERVER_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
 
+			### EXPERIMENT: Make the ssh disc limited like the webserver disc
+			echo "6 /sbin/tc qdisc add dev $INTERFACE parent 1:6 handle 16: pfifo"
+			echo "5 /sbin/tc qdisc add dev $INTERFACE parent 1:5 handle 15 tbf rate $WEBSERVER_BPS""bps buffer 1600 peakrate $WEBSERVER_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
+
 			) | sort -r -n -k 1 | sed 's+^[^ ]*[ ]*++' | sh
 
 			## add fifos to the other bands so we can have some stats
-			for SUBDISC in `seq 6 -1 1`
+			# for SUBDISC in `seq 6 -1 1`
+			for SUBDISC in `seq 4 -1 1`
 			do
 				# if [ "$SUBDISC" = 6 ]
 				# then
@@ -249,6 +256,11 @@ case "$1" in
 			## Joey TODO: I guess this assumes your network is 10.0.0.* TODO: auto-detect from ifconfig!
 			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 10.0.0.0/24 flowid 1:2
 			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.11.0/24 flowid 1:2 ## new range since i have a router now
+			## I think these next two may be redundant:
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.11.1/24 flowid 1:2 ## new range since i have a router now
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.11.2/24 flowid 1:2 ## new range since i have a router now
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.11.3/24 flowid 1:2 ## new range since i have a router now
+			/sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip dst 192.168.11.4/24 flowid 1:2 ## new range since i have a router now
 			## Stupid: pririotise everything outgoing too:
 			# /sbin/tc filter add dev "$INTERFACE" parent 1:0 prio 1 protocol ip u32 match ip src 192.168.11.0/24 flowid 1:2 ## new range since i have a router now
 
@@ -268,8 +280,8 @@ case "$1" in
 
 			## Games:
 			## truff fun day was: 7300 7400 7500 7600 7700
-			##          unreal.prolly!.most...........................trufftruffopen.ec...another..whoshack.oneoff.for_server somewhere dutchnet temp..... iNz. anuva #ctfpug.. XP.. ?... jolt .... ....                          .deOF            nerdnetworkDM ezpug dns             pwa        wmc  spampug            jolt-iCTF multiplay                             testing: ecTS tacsu sa-pug pug2 mace nTo  face  dm-clan nTo   f1x2 TS(experiment!)     HT$  rubor
-			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900 7733 7766 7788 7080 8889     7767     6666   7787 28902 24777     1111     8000 7757 6100 27000 7040 8100 7807 7770 7897 8020 8420 7755 8888 7700 9977 5555 6200  3333 27800 9400 14000    7000  6600 8680 37420 27040 8430 7797 6400    7800 27215 7817      27606 7877 7977 8477 8859 27808 60000          9600 6300  7040   9200 7070 6500 21000 8000    23000 8177 8767 9018 4022 8900 2222 7707 7744 7020 9000 30200
+			##          unreal.prolly!.most...........................trufftruffopen.ec...another..whoshack.oneoff.for_server somewhere dutchnet temp..... iNz. anuva #ctfpug.. XP.. ?... jolt .... ....                          .deOF            nerdnetworkDM ezpug dns             pwa        wmc  spampug            jolt-iCTF multiplay                             testing: ecTS tacsu sa-pug pug2 mace nTo  face  dm-clan nTo   f1x2 TS(experiment!)     HT$  rubor                                         reb-siege
+			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900 7733 7766 7788 7080 8889     7767     6666   7787 28902 24777     1111     8000 7757 6100 27000 7040 8100 7807 7770 7897 8020 8420 7755 8888 7700 9977 5555 6200  3333 27800 9400 14000    7000  6600 8680 37420 27040 8430 7797 6400    7800 27215 7817      27606 7877 7977 8477 8859 27808 60000          9600 6300  7040   9200 7070 6500 21000 8000    23000 8177 8767 9018 4022 8900 2222 7707 7744 7020 9000 30200 8899 8450 4444 9500 2775      8500
 			do
 				filter_port batch$PORT sport $PORT 1
 				filter_port batch$PORT dport $PORT 1
@@ -298,10 +310,12 @@ case "$1" in
 			## Spamassassin or razor, dunno:
 			filter_port razor    dport 773  "$WEBSERVER_DISC"
 			## MSN (idk which of these is for chat, and which for file-transfer yet):
-			filter_port msn      sport 5050  "$WEBSERVER_DISC"
-			filter_port msn      dport 5050  "$WEBSERVER_DISC"
-			filter_port msn      sport 5190  "$WEBSERVER_DISC"
-			filter_port msn      dport 5190  "$WEBSERVER_DISC"
+			filter_port msn      sport 5050  6
+			filter_port msn      dport 5050  6
+			filter_port msn      sport 5190  6
+			filter_port msn      dport 5190  6
+			filter_port jabber   sport 5223  6
+			filter_port jabber   dport 5223  6
 
 			for IRC_DCC_PORT in `seq 3300 3310`
 			do filter_port dcc   sport $IRC_DCC_PORT "$WEBSERVER_DISC"
@@ -337,6 +351,10 @@ case "$1" in
 			## MSN messenger:
 			filter_port msn      sport 33377 4
 			filter_port msn      dport 33377 4
+			## MSN file transfer:
+			for PORT in `seq 55980 55999`
+			do filter_port msnfile sport $PORT 6
+			done
 			## IRC:
 			filter_port irc      sport 6667 4
 			filter_port irc      dport 6667 4
@@ -372,6 +390,7 @@ case "$1" in
 			## Fast websurfing:
 			filter_port http   dport 80   5
 			filter_port https  dport 443  5
+			filter_port google_video dport 36915 5
 			## Fast ftp access (not serving):
 			# filter_port http   dport 21   5
 			## Oh dear, http continuations were going here :( someone hacked my shaping?!  So altered it to:

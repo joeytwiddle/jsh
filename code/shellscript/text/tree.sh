@@ -1,55 +1,76 @@
 ## Calls my Haskell version
 ## eg. find /var/lib/apt/lists/ | sort | tree
 
-if test "$1" = "-java"
-then export TREEJAVA=true; shift
+if [ "$1" = --help ]
+then
+cat << EOF
+
+tree [ -java | -sh ] [ <file> ]
+
+treesh [ -onlyat <delimeter> ] [ - ] [ <file> ]
+
+  will group the given lines of text into a tree-shaped structure, and
+  present a navigation interface (currently Vim).
+
+  Adjacent input lines which start with the same text will be grouped together.
+  For example, a list of file-paths will get grouped by directory, as in:
+
+    find $JPATH/code/shellscript/ -type f | treesh -onlyat / -
+    find /tmp | tree
+
+  The current navigation interface (treevim) is Vim with a custom folding plugin.
+  The keys -=_+ expands/contracts branches; NumPad's /* expands/contracts levels.
+
+  treesh's - option will send the output to stdout instead of to Vim.
+
+  tree will call the Hugs implementation by default, or treesh if it is missing.
+  tree will call the java or shell implementation if -java or -sh is specified.
+
+EOF
+exit 0
 fi
 
-TREESH=
-if [ "$1" = "-sh" ]
-then export TREESH=true; shift
+
+
+[ "$1" = -java ] && TREECOM="java tools.tree.Tree" && shift
+
+[ "$1" = -sh ] && TREECOM="treesh -" && shift
+
+if [ ! "$TREECOM" ]
+then
+	## Use compiled Haskell treelist tool if available.
+	HASKELL_TREELIST_BINARY="$JPATH/code/haskell/tools/treelist"
+	if [ -x "$HASKELL_TREELIST_BINARY" ]
+	then TREECOM="$HASKELL_TREELIST_BINARY" ## Compiled with ghc =)
+	else TREECOM=treesh ## fallback
+	fi
+	## Hugs interpreter is not efficient:
+	# runhugs $JPATH/code/haskell/tools/treelist.hs $TMPFILE
+	# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
+	# highlight '\#' blue |
+	# highlight '@' red
 fi
 
-if test "$1" = "-cat" || test "$1" = "-novim"
-then export CAT=true; shift
-fi
+[ "$1" = - ] && CAT=true && shift ## previously -cat and -novim
 
+
+## The tmpfile is actually only needed by the Hugs implementation:
 export TMPFILE=`jgettmp tree`
 cat "$@" > $TMPFILE
 
-if [ $TREESH ]
+$TREECOM "$TMPFILE" |
+
+if [ "$CAT" ]
 then
-
-	cat $TMPFILE | treesh
-
+	# cat
+	cat | highlight "^+ .* {" green | highlight "^- .* }" red
 else
-
-	if test "$TREEJAVA"
-	then
-
-		java tools.tree.Tree $TMPFILE
-
-	else
-
-		## Hugs interpreter is not efficient:
-		# runhugs $JPATH/code/haskell/tools/treelist.hs $TMPFILE
-		# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
-		## Compiled with ghc =)
-		$JPATH/code/haskell/tools/treelist $TMPFILE |
-		cat
-		# highlight '\#' blue |
-		# highlight '@' red
-
-	fi |
-
-	if test "$CAT"
-	then cat
-	else treevim
-	fi
-
+	treevim
 fi
 
 jdeltmp $TMPFILE
+
+
 
 ################# OLD STUFF (shellscript attempt - is it worth anything or should it be chucked?)
 exit

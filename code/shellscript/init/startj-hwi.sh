@@ -64,14 +64,14 @@ else
 		# . "$BASH_BASH"
 		if [ -f $HOME/.bash_profile ]
 		then
-			[ "$DEBUG" ] && echo "startj: sourcing $HOME/.bash_profile" >&2
+			[ "$JSHDEBUG" ] && echo "startj: sourcing $HOME/.bash_profile" >&2
 			. $HOME/.bash_profile
 		fi
 		## Note: this elif (as opposed to fi \n if) assumes .bash_profile always sources .bashrc (like my Debian one)
 		# elif [ -f $HOME/.bashrc ]
 		if [ -f $HOME/.bashrc ]
 		then
-			[ "$DEBUG" ] && echo "startj: sourcing $HOME/.bashrc" >&2
+			[ "$JSHDEBUG" ] && echo "startj: sourcing $HOME/.bashrc" >&2
 			. $HOME/.bashrc
 		fi
 		unset STARTJ_BLOCK
@@ -110,10 +110,33 @@ else
 	if [ $OKTOSTART ]
 	then
 
-		[ "$DEBUG" ] && echo "startj: starting jsh system" >&2
+		[ "$JSHDEBUG" ] && echo "startj: starting jsh system" >&2
 
 		PATHBEFORE="$PATH"
-		export PATH="$JPATH/tools:$HOME/bin:$PATH"
+		# export PATH="$JPATH/tools:$HOME/bin:$PATH"
+		export PATH="$PATH:$JPATH/tools:$HOME/bin"
+
+		[ "$JSHDEBUG" ] && echo "Added $JPATH/tools to get new PATH=$PATH" >&2
+
+		## Dunno about below checks.  This is new:
+		PATH=`
+			echo "$PATH" |
+			tr : '\n' |
+			while read EXEDIR
+			do
+				if [ ! "$EXEDIR" = "$JPATH"/tools ] && [ -x "$EXEDIR"/jsh ] && [ -x "$EXEDIR"/startj-hwi ]
+				then
+					jshwarn "$EXEDIR on you PATH looks like jsh, but not $JPATH/tools; so I'm removing it"
+					# . removefrompath "$EXEDIR"
+				else
+					echo "$EXEDIR"
+				fi
+			done |
+			removeduplicatelinespo |
+			tr '\n' : | tr -s : | sed 's+:$++' ## last exp important to avoid . on PATH :P
+		`
+
+		[ "$JSHDEBUG" ] && echo "PATH is now $PATH" >&2
 
 		if ALREADY=`jwhich jsh` && [ -d `dirname \`jwhich jsh\``/tools ]
 		then
@@ -199,18 +222,21 @@ else
 				then
 					if [ "$BASH" ] && [ -f /etc/bash_completion ]
 					then
-						[ "$DEBUG" ] && debug "Tab completion for bash: loading /etc/bash_completion"
+						[ "$JSHDEBUG" ] && debug "Tab completion: loading /etc/bash_completion"
 						. /etc/bash_completion
+						## But it wasn't working (when I did su - <a_user> from root).
 					## Disabled because "ls --col"<Tab> didn't work:
 					## Besides, testing jsh's autocomplete_from_man is my priority!
 					# elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
 					# then
-						# [ "$DEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
+						# [ "$JSHDEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
 						# . $HOME/.zsh_completion_rules
-					else
-						[ "$DEBUG" ] && debug "Tab completion for zsh: loading jsh:autocomplete_from_man"
-						. autocomplete_from_man
+					# else
+						# [ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
+						# . autocomplete_from_man
 					fi
+					[ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
+					. autocomplete_from_man
 				fi
 
 				export FIGNORE=".class"

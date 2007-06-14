@@ -1,5 +1,5 @@
 # jsh-ext-depends-ignore: start-stop-daemon
-# jsh-depends-ignore: pid jdeltmp jgettmp
+# this-script-does-not-depend-on-jsh: pid jdeltmp jgettmp
 ## TODO:
 ## The fluxbox xinitrc HOWTO mentions:
 # wmaker & wmpid=$!

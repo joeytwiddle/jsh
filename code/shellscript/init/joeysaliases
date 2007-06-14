@@ -1,3 +1,9 @@
+## TODO: maybe this should be renamed to jshaliases
+## aliases are worth keeping in one place because they are so fundamental to the user's shell that
+## they should be easy to find if they prove troublesome
+## new jsh users should be warned about shell aliases
+## which or something nicer like whatis (ah that's already taken) should info of aliases before informing about cmd-line programs
+
 # Note: other aliases are initialised in dirhistorysetup
 
 test "$COLUMNS" && export COLUMNS
@@ -9,14 +15,16 @@ alias sed='sed -u'
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'
 	## We should share the following with getmachineinfo's JM_LS_OPTS
-	alias ls="ls -atrFb$XARGS"
+	alias ls="ls -atrFb$XARGS --time-style=long-iso"
 elif test $JM_DOES_COLOUR; then
 	alias ls='fakels'
 else
 	alias ls='ls -atrF'
 fi
 
-alias l='ls -l'
+# alias l='ls -l'
+## superceded by the l shellscript:
+alias l='. l'
 alias dl='ls -ld'
 
 alias tail=prettytail
@@ -35,87 +43,12 @@ alias mykilljob=". 'mykilljob' -jc"
 ## I guess we need this as an aliased function because a script would lost the history!
 if test "$SHORTSHELL" = zsh
 then
+
+	# . pawan_zshrc_stripped
+
 	myhist() {
 		history 1 | grep "$*"
 	}
-
-	### From Pawan zshrc:
-
-	# set command completions
-	compctl -a {,un}alias
-	compctl -/ {c,push,pop}d
-	compctl -c exec
-	compctl -c man
-	compctl -c {where,which}
-	compctl -o {,un}setopt
-	compctl -E {,un}setenv
-	compctl -E printenv
-	compctl -b bindkey
-	## shell's jobs:
-	compctl -j fg
-	# compctl -j kill
-	compctl -u chown
-	compctl -g '*.(ps|eps)' gv
-
-	## TODO: get zsh_compctl_from_man to cache and then source it here
-
-	## TODO: generate following rules from mimetypes?!
-
-	# Autocomplete for current dir on filetypes
-	compctl -g '*.Z *.gz *.tgz' + -g '*' zcat gunzip
-	# joey sez bollox compctl -g '*.tar.Z *.tar.gz *.tgz *.tar.bz2 .*.tar.Z .*.tar.gz .*.tgz .*.tar.bz2' + -g '*' tar
-	compctl -g '*.zip *.ZIP' + -g '*' unzip zip
-	compctl -g '*.(mp3|MP3|m3u)' + -g '*(-/)'  mpg123 xmms
-
-	setopt extendedglob
-	setopt nohup
-	setopt pathdirs
-
-	## Factor out identical calls (not all!)
-	case $TERM in 
-		linux)
-			bindkey "^[[2~" yank
-			bindkey "^[[3~" delete-char
-			bindkey "^[[5~" up-line-or-history ## PageUp
-			bindkey "^[[6~" down-line-or-history ## PageDown
-			bindkey "^[[1~" beginning-of-line
-			bindkey "^[[4~" end-of-line
-			bindkey "^[e" expand-cmd-path 
-			bindkey "^[[A" up-line-or-search ## up arrow for back-history-search
-			bindkey "^[[B" down-line-or-search ## down arrow for fwd-history-search
-			bindkey " " magic-space ## do history expansion on space
-		;;
-		*xterm*|rxvt|\(dt|k|E|a\)term)
-			bindkey "^[[2~" yank
-			bindkey "^[[3~" delete-char
-			bindkey "^[[5~" up-line-or-history ## PageUp
-			bindkey "^[[6~" down-line-or-history ## PageDown
-			bindkey "^[[7~" beginning-of-line
-			bindkey "^[[8~" end-of-line
-			bindkey "^[e" expand-cmd-path ## C-e for expanding path of typed command
-			bindkey "^[[A" up-line-or-search ## up arrow for back-history-search
-			bindkey "^[[B" down-line-or-search ## down arrow for fwd-history-search
-			bindkey " " magic-space ## do history expansion on space
-		;;
-	esac
-
-	# Setting HOME and END keys 
-	case $TERM in (xterm*|aterm|rxvt)
-		bindkey '\e[H' beginning-of-line
-		bindkey '\e[F' end-of-line ;;
-	esac
-
-	# Binding of the keys for command line editing
-	bindkey '^K' kill-region
-	bindkey '^A' beginning-of-line
-	bindkey '^E' end-of-line
-	bindkey '^W' complete-word
-	bindkey '^L' clear-screen
-	bindkey '\e[1~' beginning-of-line	
-	bindkey '\e[4~' end-of-line
-
-	### End Pawan zshrc
-
 elif test "$SHORTSHELL" = bash
 then
 	myhist() {
@@ -141,14 +74,18 @@ do alias "$PROG"="nice -n -20 $PROG"
 done
 
 # alias jhelp="$JPATH/tools/help" ## Because bash went and used it!
-alias help='jhelp' ## Hehe I stole it back! (U can still type 'help' for bash's)
+# alias help='jhelp' ## Hehe I stole it back! (U can still type 'help' for bash's)
+## Hmm, seems rude, so leaving help as it was.
 
 ## Because it's nice for the user, but overriding is bad for scripts:
-alias apropos=japropos
+# alias apropos=japropos
+alias apropos='NOPROGRESS=true catch japropos'
 
 ## We should do this for everything (no reason why not to, apart from memo diskspace usage I guess):
 # alias dusk="rememo dusk"
-alias dusk="memo -c true dusk"
+# alias dusk="memo -c true dusk"
+# alias dusk="memo -t '1 minute' dusk"
+alias dusk="memo -t '1 hour' dusk"
 
 # alias wget='screen wget'
 
@@ -157,3 +94,15 @@ alias dusk="memo -c true dusk"
 alias quiet='fadevolume 0'
 
 alias memo='memo -info'
+
+## (Intended) for user only:
+alias mv='mv -i'
+## -a is nice, it will copy directories recursively; -i because i don't want to overwrite stuff by accident
+alias cp='cp -a -i'
+
+alias cal='cal | highlight "\<`date | takecols 3`\>"'
+
+alias h='hist .'
+
+alias locate='memo -t "1 day" locate'
+

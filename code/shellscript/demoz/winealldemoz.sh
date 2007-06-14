@@ -1,4 +1,4 @@
-# jsh-depends-ignore: wine xterm
+# this-script-does-not-depend-on-jsh: wine xterm
 # jsh-ext-depends: find seq wine
 # jsh-depends: randomorder wineonedemo
 
@@ -28,7 +28,10 @@ while read X; do
 
 	echo "$X"
 
-	'xterm' -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
+	# 'xterm' -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
+	NAME=`echo "$X" | sed 's+.*/++;s+\(.*\)\.[^\.]*$+\1+'`
+	SIZE=`du -sk "$X" | sed 's+[ 	].*++'`"k"
+	'xterm' -title "wineonedemo: $NAME ($SIZE)" -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
 	# /usr/bin/X11/xterm -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
 	# wineonedemo "$X"
 

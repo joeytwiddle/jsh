@@ -6,7 +6,7 @@
 
 # jsh-ext-depends: sed find md5sum
 # jsh-ext-depends-ignore: dir file from script
-# jsh-depends-ignore: after before vimdiff md5sum
+# this-script-does-not-depend-on-jsh: after before vimdiff md5sum
 # jsh-depends: cursegreen cursered cursenorm striptermchars pipeboth pipebackto
 
 ## Also: When are CONTENTS files present or not?  Does that affect the script?

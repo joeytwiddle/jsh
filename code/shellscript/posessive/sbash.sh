@@ -18,13 +18,14 @@ then
 	jshinfo "[sbash] Refusing to decrypt over existing $PRIVFILEDIR/$PRIVFILEBASE."
 	jshinfo "[sbash] Find running copy of sbash or clean up yourself."
 
-	jshinfo "[sbash] Checking to see if old sbash is still running..."
-	if findjob sbash | striptermchars | grep "\<sh [^ ]*sbash\>" | grep -v "\<$$\>"
-	then exit 2
-	fi
-	jshinfo "[sbash] It isn't; I appear to be the only one."
+	## This check was detecting itself =/
+	# jshinfo "[sbash] Checking to see if old sbash is still running..."
+	# if findjob sbash | striptermchars | grep "\<sh [^ ]*sbash\>" | grep -v "\<$$\>"
+	# then exit 2
+	# fi
+	# jshinfo "[sbash] It isn't; I appear to be the only one."
 
-	jshinfo "[sbash] Do you want to rejoin the old sbash session?"
+	jshinfo "[sbash] Do you want to rejoin the old sbash session? (Type \"yes\".)"
 	read ANSWER
 	if [ ! "$ANSWER" = yes ]
 	then exit 3

@@ -1,6 +1,6 @@
 # jsh-ext-depends: dirname
 # jsh-depends: jdeltmp jgettmp
-# jsh-depends-ignore: jsh debug
+# this-script-does-not-depend-on-jsh: jsh debug
 
 ## TODO: the other day, unfortunately, /tmp/jsh-joey was owned by and private to root.  This script tried to re-create it.  Did it then try to use it?!  This behaviour is bad.  It should just find an alternative.
 
@@ -17,8 +17,12 @@ then
 		then JPATH="/NOT/LIKELY"
 		fi
 
-		[ ! "$USER" ] && USER="$UID"
-		for TOPTMP in "$TMPDIR" "/tmp/jsh-$USER" "$JPATH/tmp" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
+		# [ ! "$USER" ] && USER="$UID" ## we add uid, in case $USER is inaccurate (like $HOME often is)
+		## $USER can be inaccurate (e.g. su instead of su -), so we always use $UID ## "/tmp/jsh-$USER" "/tmp/jsh-$UID" 
+		## Ah no, USER was fine, the problem was that we had already exported TOPTMP, so we never got here to reset it! "/tmp/jsh-$USER.$UID" 
+		[ "$USER" ] && JSHTMP=/tmp/jsh-"$USER"
+		[ "$USER" ] || JSHTMP=/tmp/jsh-"$UID"
+		for TOPTMP in "$TOPTMP" "$TMPDIR" "$JSHTMP" "$HOME/.jshtmp" "$JPATH/tmp" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
 		do
 
 			if [ "$TOPTMP" ]
@@ -41,6 +45,10 @@ then
 
 		done
 
+		if [ "$TOPTMP" = NO_DIR_WRITEABLE ]
+		then . errorexit "jgettmpdir could not find a writeable temp directory." ## this is quite harsh since jgettmpdir is sometimes sources; but OTOH most scripts assumes sourcing this script succeeded, and would continue with problems if it failed
+		fi
+
 		## Could be moved up into dir creation code, if people want to open up their tmpdirs!
 		## This is safer for tmpdir data protection, but dangerous if user wanted TOPTMP to remain open (eg. /tmp if U R root!)
 		chmod go-rwx $TOPTMP
@@ -50,7 +58,7 @@ then
 
 	export TOPTMP
 
-	[ "$DEBUG" ] && debug "export TOPTMP=$TOPTMP" || true ## || true ensures this script exits/returns 0 (because it is sometimes sourced, and its exit code is checked)!
+	[ "$DEBUG" ] && debug "export TOPTMP=$TOPTMP" # || true ## || true ensures this script exits/returns 0 (because it is sometimes sourced, and its exit code is checked)!
 
 	## Even better exit code:
 	[ -d "$TOPTMP" ] && [ -w "$TOPTMP" ]

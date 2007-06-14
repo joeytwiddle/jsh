@@ -1,4 +1,4 @@
-# jsh-depends-ignore: pid
+# this-script-does-not-depend-on-jsh: pid
 # pstree -ap
 # ps aux | dropcols 3 4 5 6 8 9
 ps --cols 160 -o ppid,pid,user,args -A | grep -v "\<$$\>" ## Thanks to ppid and pid, both this sh, the ps, and the grep are removed =)

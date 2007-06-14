@@ -2,7 +2,7 @@
 ## jsh-help: The -quiet option will supress error messages if the <program> does not exist outside jsh, but at time of writing, there were no uses of it in jsh, and it seems pretty daft anyway, so I recommend this option should be removed.
 
 # jsh-depends: jwhich
-# jsh-depends-ignore: exists jsh startj-hwi
+# this-script-does-not-depend-on-jsh: exists jsh startj-hwi
 
 ## Should unj deprecate jwhich?
 ## Note: Both are dangerous because if X calls unj X but unj X return the same X then infinite loop :-(

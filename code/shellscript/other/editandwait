@@ -1,10 +1,10 @@
-# jsh-depends-ignore: viinxterm viminxterm gvim
+# this-script-does-not-depend-on-jsh: viinxterm viminxterm gvim
 # jsh-depends: runoneof xisrunning
 if xisrunning
 then
-	FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim notepad"
+	FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim" # notepad"
 else
-	FAVOURITE_EDITORS="vim vi ae pico jpico gvim notepad"
+	FAVOURITE_EDITORS="vim vi ae pico jpico gvim" # notepad"
 	[ "$SCREENTITLE" ] || export SCREENTITLE="{"`echo "$*" | afterlast / | cut -c -20`"}"
 	screentitle "$SCREENTITLE"
 fi

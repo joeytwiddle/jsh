@@ -1,6 +1,7 @@
 #!/bin/sh
 
 ## My script to popup vim in a new xterm with a sensible size for the file it is editing.
+## Also runs recovervimswap first :)
 
 ## BUGS: Works badly on .gzipped files.  Either skip sizing or gunzip them!
 
@@ -85,10 +86,14 @@ fi
 
 INTGEOM=`echo "$COLS"x"$ROWS" | sed 's|\..*x|x|;s|\..*$||'`
 
-TITLE=`absolutepath "$1"`" [vim-never-shown]"
+## This xterm title may eventually be overwritten by vim:
+# TITLE=`absolutepath "$1"`" [vim-never-shown]"
+TITLE="vim: `basename "$1"` (`dirname "$1"`)"
 
 # XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 # `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
 
 # xterm -bg "#000048" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
-xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
+# xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
+xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
+

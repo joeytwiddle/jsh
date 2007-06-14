@@ -20,21 +20,23 @@ do
 		echo "</HEAD>"
 		echo "<BODY>"
 		echo "<H1>Index of <javascript>document.location</javascript></H1>"
+		echo "<TABLE>"
 
 		cd "$DIR"
-		find . -type d -maxdepth 1 | sed 's+^..++' |
+		find . -follow -type d -maxdepth 1 | sed 's+^..++' | sort |
 		while read SUBDIR
-		do echo "<A href=\"$SUBDIR\">$SUBDIR/</A><BR>"
+		do echo "<TR><TD><A href=\"$SUBDIR\">$SUBDIR/</A></TD></TR>"
 		done
 
-		find . -type f -maxdepth 1 | sed 's+^..++' |
+		find . -follow -type f -maxdepth 1 | sed 's+^..++' | sort |
 		while read FILE
 		do
 			SIZE=`filesize "$FILE"`
 			DATE=`date -r "$FILE"`
-			echo "<A href=\"$FILE\">$FILE</A> ($SIZE) $DATE<BR>"
+			echo "<TR><TD><A href=\"$FILE\">$FILE</A></TD><TD align=\"right\">$SIZE</TD><TD>$DATE</TD></TR>"
 		done
 
+		echo "</TABLE>"
 		echo "</BODY></HTML>"
 	) > "$DIR"/index.html
 done

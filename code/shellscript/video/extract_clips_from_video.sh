@@ -1,9 +1,11 @@
 # jsh-ext-depends: mplayer
 # jsh-ext-depends-ignore: script last from make file time clip play
-# jsh-depends-ignore: before mplayer
+# this-script-does-not-depend-on-jsh: before mplayer
 # jsh-depends: cursecyan cursegreen curseyellow cursenorm afterfirst beforefirst beforelast rotate extract_marked_clips_from_video
 
 ## TODO: allow interactive labelling of marks -> filename, or optionally undo the last unwanted mark.
+
+## Note: I didn't realise when I was writing this, that there are -slave and -input options.
 
 CLIPMARKERFILE=/tmp/clipmarkers.txt
 

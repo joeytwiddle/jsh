@@ -5,7 +5,7 @@ then
 	shift
 	SYS=`jgettmp dpkg_-L`
 	HAK=`jgettmp dpkg-L`
-	# dpkg -L "$@" | filesonly | sort > $SYS
+	# dpkg -L "$@" | filesonly -inclinks | sort > $SYS
 	time dpkg-L  "$@" | sort > $HAK
 	time dpkg -L "$@" | sort > $SYS
 	vimdiff $SYS $HAK

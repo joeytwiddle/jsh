@@ -1,4 +1,5 @@
 # jsh-depends: takecols
+## TODO: trim this down: remove -likecksum / put it elsewhere; and consider using find -maxdepth 0 -printf "%s" to avoid spawning another process
 if test "$1" = "-likecksum"; then
 	shift
 	'ls' -l "$@" |
@@ -7,6 +8,9 @@ if test "$1" = "-likecksum"; then
 			echo "0 $SIZE	$FILENAME"
 		done
 else
-	'ls' -l "$@" |
-		takecols 5
+	## Doesn't work on symlinks; sometimes breaks on weird names (like --) in ut maps?)
+	# 'ls' -l "$@" |
+		# takecols 5
+	## this also breaks: find: invalid predicate `)Starship.unr'
+	find "$@" -maxdepth 0 -follow -printf "%s\n"
 fi

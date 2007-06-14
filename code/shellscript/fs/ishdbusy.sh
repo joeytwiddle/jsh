@@ -1,4 +1,4 @@
-# jsh-depends-ignore: write
+# this-script-does-not-depend-on-jsh: write
 # jsh-depends: takecols
 
 ## TODO: depend on (and farm off stuff to) monitorhdflow | head

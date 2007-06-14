@@ -33,6 +33,11 @@ then
 	(
 		## Some Solaris boxes don't support -regex, so using grep instead.
 		find ../code/shellscript/ -not -type d |
+			## If you have a standalone copy of the catwithprogress script (make one with compilejshscript), then we can display progress... :)
+			if [ -x $HOME/bin/catwithprogress ]
+			then $HOME/bin/catwithprogress
+			else cat
+			fi |
 		grep ".*/\([^\.]*\|.*\.\(sh\|hs\|zsh\|bash\|shlib\)\)$"
 		# test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |

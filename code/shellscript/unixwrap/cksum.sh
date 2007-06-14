@@ -1,6 +1,7 @@
+# jsh-ext-depends-ignore: write
 # jsh-ext-depends: dirname tee newer
 # jsh-depends: unj endswith filename newer
-# jsh-depends-ignore: jsh write
+# this-script-does-not-depend-on-jsh: jsh write
 ## cksum caching, re-checked when file is newer than cached cksum
 ## Unfortaunetly at the moment it doesn't provide any speed increase,
 ## at least in the presence of a small proportion of small files.

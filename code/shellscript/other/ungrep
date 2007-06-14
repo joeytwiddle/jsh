@@ -7,10 +7,11 @@
 
 . importshfn ungrep
 
-if test "$1" = ""; then
-	cat
+if [ "$1" = "" ]
+then cat
 else
 	STR="$1"
 	shift
-	/bin/grep -v "$STR" | ungrep "$@"
+	# /bin/grep -v "$STR" | ungrep "$@"
+	/bin/grep -v "\<`toregexp "$STR"`\>" | ungrep "$@"
 fi

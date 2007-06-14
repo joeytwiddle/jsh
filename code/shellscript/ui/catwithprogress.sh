@@ -1,31 +1,56 @@
-## If the time is spent reading the stream (not creating it), then this cat will show progress.
-## This script assumes dd blocks.  Fortunately it does!
-## This script saves a temporary copy of the stream contents, so don't use it if the stream is very long or unbounded.
+## If the time is spent reading (piping/processing) the stream (as opposed to creating it), then this cat will show progress.
+## This script assumes dd blocks.  Fortunately it does, although there may be buffers which offset the info :/ .
+## If the input is from a stream (as opposed to file(s)), and -size is not specified, then this script saves a temporary copy of the stream contents, so don't use it if the stream is very long or unbounded.
 ## If the full contents of the stream is too large, this script is not suitable, since it must temporarily save the stream contents in a file.
-## Hmm well it works over networks at least, maybe helped if stdout/err are sent in sync over ssh.
-## But it doesn't always work.
 
-## TODO: add ETA.  CONSIDER: factoring out progress from catwith first.
+# jsh-depends: cursebold cursewhite cursenorm filesize awksum countbytes datediff jdeltmp jgettmp striptermchars
+# jsh-ext-depends: sed seq dd cat
 
-## TODO: To make it properly like cat, should check args for input files.
+## TODO: add option -byline, so progress is measured by line-progress through stream, rather than byte-progress.
+
+## TODO: bug when compilejshscript was used on catwithprogress: did not recognise dd as an external dependency (probably filename too small)
+
+## DONE: added ETA.
+## CONSIDER: separate progress code from catwith code.
+
+## DONE: To make it properly like cat, should check args for input files.
 ##       If they exist, we should perform filesize on them.
+
+## If user doesn't want to see progress, they can set this.  We do a normal cat, then drop out.
+## FIXED: But it isn't as efficient as cat, because if size is not passed in above, a cat > a file is performed.  Not any more!
+if [ "$NOPROGRESS" ]
+then
+	if [ "$1" = -size ]
+	then shift; shift
+	fi
+	cat "$@"
+	# cat $TMPFILE
+	exit
+fi
 
 if [ "$1" = -size ]
 then
 	SIZE="$2"; shift; shift
 	TMPFILE=
+	# cat "$@"
+## jsh-help: NOTE: If -size is passed, then the input _should_not_be_files!  (Or we could make this an "if [ ! "$SIZE" ] &&" instead of an "elif".)
+elif [ "$1" ]
+then
+	SIZE=`
+		for FILE
+		do filesize "$FILE"
+		done |
+		awksum
+	`
+	TMPFILE="$*"
+	PRESERVE_TMPFILE=true
+	## because it _isn't_ actually a tempfile!!
+	# cat "$@"
 else
 	TMPFILE=`jgettmp catwithprogress`
-	cat "$@" > "$TMPFILE" || exit 123
+	cat > "$TMPFILE" || exit 123
 	SIZE=`filesize "$TMPFILE"`
-fi
-
-## If user doesn't want to see progress, they can set this.  We do a normal cat, then drop out.
-## But it isn't as efficient as cat, because if size is not passed in above, a cat > a file is performed.
-if [ "$NOPROGRESS" ]
-then
-	cat $TMPFILE
-	exit
+	# cat "$TMPFILE"
 fi
 
 # CURSEMESSAGECOL=`cursemagenta`
@@ -53,7 +78,8 @@ STARTTIME=`date +"%s"`
 # then cat "$TMPFILE"
 # else cat
 # fi |
-cat $TMPFILE |
+( cat $TMPFILE || exit ) | ## This causes correct error exit if input files do not exist
+# exec <&1
 
 while true
 do
@@ -90,7 +116,8 @@ do
 		then
 			TIMENOW=`date +"%s"`
 			TIMETAKEN=`expr "$TIMENOW" - "$STARTTIME"`
-			ESTTOTTIME=`expr "$TIMETAKEN" '*' "$SIZE" / "$SOFARRESERVED"`
+			# ESTTOTTIME=`expr "$TIMETAKEN" '*' "$SIZE" / "$SOFARRESERVED"`
+			ESTTOTTIME=`expr "$TIMETAKEN" '*' '(' "$SIZE" - 4096 ')' / "$SOFARRESERVED"`
 			ESTREMTIME=`expr "$ESTTOTTIME" - "$TIMETAKEN"`
 			# ETAMSG="   ETA: $ESTREMTIME seconds ("`date -d "$ESTREMTIME seconds"`")"
 			# ETAMSG="   ETA: `datediff -english $ESTREMTIME` ("`date -d "$ESTREMTIME seconds"`")"
@@ -104,7 +131,18 @@ do
 
 		# echo "$SOFAR / $SIZE ($PERCENTAGE%)" >&2
 		# printf "%s\r" "$SOFAR / $SIZE ($PERCENTAGE%)$ETAMSG" >&2
-		printf "\r%s" "$CURSEMESSAGECOL$STATE $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM" >&2
+		# printf "\r%s" "$CURSEMESSAGECOL$STATE $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM" >&2
+		## Added clearing of string, which is better than overwriting, because sometimes the length gets much smaller!
+		STRINGTOPRINT="$CURSEMESSAGECOL$STATE $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM"
+		if [ "$LASTPRINTLENGTH" ]
+		then
+			CLEARANCE=`seq 1 "$LASTPRINTLENGTH" | while read N; do echo " "; done | tr -d '\n'`
+			# printf "\r%s" "$CLEARANCE" >&2
+		fi
+		printf "\r%s\r%s" "$CLEARANCE" "$STRINGTOPRINT" >&2
+		LASTPRINTLENGTH=`
+			printf "\r%s" "$STRINGTOPRINT" | striptermchars | countbytes
+		`
 		# printf "\r%s" "$CURSEMESSAGECOL$STATE [+$ADDED/$BLOCKSIZE] $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM" >&2
 		# +$ADDED/$BLOCKSIZE 
 
@@ -118,7 +156,11 @@ do
 
 done
 
+RESULT="$?" ## This causes correct error-exit if catwithprogress is killed (e.g. Ctrl+C-ed).
+
 echo >&2 ## Or clear the line and \r
 
-[ "$TMPFILE" ] && jdeltmp "$TMPFILE"
+[ "$PRESERVE_TMPFILE" ] || ( [ "$TMPFILE" ] && jdeltmp "$TMPFILE" )
 jdeltmp "$DDTMPFILE"
+
+exit "$RESULT"

@@ -1,7 +1,7 @@
 # jsh-ext-depends-ignore: file batch rename strings
 # jsh-ext-depends: sed find tty
 # jsh-depends: jshwarn
-# jsh-depends-ignore: exists
+# this-script-does-not-depend-on-jsh: exists
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
@@ -10,10 +10,15 @@ then
 	echo "<command>... | renamefiles <search> <replace> [ |sh ]"
 	echo
 	echo "  allows you to easily rename a batch of files by simply providing"
-	echo "  a regular expression to match, and a replacement."
+	echo "  a glob to match, and a regexp-style (\1,\2,...) replacement string."
 	echo
-	echo "  In the first instance, the files are those in the current directory,"
+	# echo "  In the first instance, the files are those in the current directory,"
+	echo "  In the first instance, the file-nodes are found in the current directory,"
 	echo "  In the second instance, the list of files is fed in."
+	echo
+	echo "  grep and sed are used for the selection of files and their renaming,"
+	# echo "  but pre-processing auto-changes . to \. and * to (.*) and ? to . ."
+	echo "  but you should actually specify a glob for <search> and a regexp for <replace>."
 	echo
 	echo "  Pipe the output through |sh if you are happy."
 	echo
@@ -31,16 +36,23 @@ fi
 SEARCH="$1"
 REPLACE="$2"
 
-if ! tty
+## Convert SEARCH from glob into regexp:
+# jshinfo "New stylee: any occurrences of * in the search are auto-converted to \(..*\) , making it easier for you, turning your glob into a regexp"
+# jshinfo "Because yes idd \? is also turned into \(.\), and . into \. :)"
+SEARCH=`echo "$SEARCH" | sed 's+\.+\\\\.+g ; s+\\?+\\\\(.\\\\)+g ; s+\*+\\\\(.*\\\\)+g'`
+# jshinfo "SEARCH=$SEARCH"
+
+if ! tty >/dev/null
 then cat
-else find . -type f -maxdepth 1
+# else find . -type f -maxdepth 1
+else find . -maxdepth 1
 fi |
 grep "$SEARCH" |
 
 ## Method 1:
 while read FILENAME
 do
-	RENAMEDFILE=`echo "$FILENAME" | sed "s+$SEARCH+$REPLACE+"`
+	RENAMEDFILE=`echo "$FILENAME" | sed "s$SEARCH$REPLACE"`
 	if [ -e "$RENAMEDFILE" ]
 	then jshwarn "Skipping \"$FILENAME\", target file already exists: \"$RENAMEDFILE\""
 	else echo "mv \"$FILENAME\" \"$RENAMEDFILE\""

@@ -1,6 +1,6 @@
 # jsh-ext-depends-ignore: from save line
 # jsh-ext-depends: sort
-# jsh-depends-ignore: before removeduplicatelinespo
+# this-script-does-not-depend-on-jsh: before removeduplicatelinespo
 ## Does not preserve order, which makes it a "set" function, whereas removeduplicatelinespo is the corresponding (slower) "list" fn.  Could rephrase / rename scripts to convey this concept.
 # but there is a nice new version with extension po which does
 # using sort...
@@ -21,14 +21,16 @@ removeduplicatelines [ -adj ] [ <files> ]
 
   reads from stdin or <files>, removes duplicate lines, and echos to stdout.
 
-  BUT: it does not preserve the order of the stream; it sorts it.
+  One line in each set of duplicates is kept, repeats are removed.
+
+  Note: it does not preserve the order of the stream; it sorts it.
 
   With the -adj option: does not sort the lines before processing.
     If the stream is already sorted, this can be used to save processing.
     Otherwise, it will only squeeze adjacent duplicates.
 
-  Note: to remove non-adjacent duplicates and preserve order, use
-        removeduplicatelinespo.
+  To remove non-adjacent duplicates *and* preserve order, use
+    removeduplicatelinespo.
 
 !
 exit 1

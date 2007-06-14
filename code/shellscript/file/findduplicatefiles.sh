@@ -18,22 +18,50 @@ debug () {
 }
 
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
-	echo "findduplicatefiles [ -samename ] [ -qkck | -size ] <files/directories>..."
-	echo "  The search has three stages:  First files with the same size are grouped."
+	echo
+	echo "findduplicatefiles [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ] <path>s.."
+	echo
+	echo "The search has three stages:"
+	echo
+	echo "1) First files with the same size are grouped."
+	echo
 	## echo "    -samename : group only files with identical names (faster but incomplete)"
-	echo "    -samename : do not check files which have a unique filename"
-	echo "  Second, similar files are hashed (cksum) to ensure they really are identical."
-	echo "    -qkck : use quick checksum, (only examine 16k at either end of file)"
+	echo "    -samename : skip check of files which have a unique filename"
+	echo "      (can still match files with non-identical filenames, if both hashed!)"
+	echo
+	echo "2) Second, similar files are hashed (cksum) to ensure they really are identical."
+	echo
+	echo "    -qkck : use quick checksum, (only examine 16k at either end of the file)."
 	echo "    -size : use file size instead of checksum (very fast but DANGEROUS)."
-	echo "  Finally redundant files deemed to have duplicates are suggested for removal."
-	echo "    TODO: output formats."
+	echo
+	echo "3) Finally redundant files deemed to have duplicates are suggested for removal."
+	echo
+	# echo "    TODO: output formats.  <-- ???!"
 	echo "    Note: ATM it outputs results, but doesn't delete anything, so ph34r not!"
+	echo
+	echo "  You may wish to temporarily rename, move, or symlink the directories under analysis into some alphanumeric order; since the first duplicate found is kept; and all later duplicates are nominated for removal."
+	echo
 	exit 1
 fi
 
-echo "# Note: these could be hard links, or possibly (to check) symlinks,"
-echo "# so make sure you don't delete the target!"
-echo
+## OK well they aren't symlinks, because we use find -type f, and like it says hardlinks aren't a problem, so we don't need to display this message:
+# echo "# Note: these could be hard links (but surely that isn't a problem, since one is always kept), or possibly symlinks (actually I think we skip these too, by using find -type f throughout :),"
+# echo "# so make sure you don't delete the target!"
+# echo
+
+EXCLUDE_REGEXP=
+if [ "$1" = -x ]
+then
+	EXCLUDE_REGEXP="$2"
+	shift; shift
+fi
+
+stripexcluded () {
+	if [ "$EXCLUDE_REGEXP" ]
+	then grep -v "$EXCLUDE_REGEXP"
+	else cat
+	fi
+}
 
 SAMENAME=
 if test "$1" = "-samename"
@@ -64,12 +92,14 @@ then
 	## If only two same-named files are grouped, they could be cmp-ed rather than hashed.
 	find $WHERE -type f |
 	afterlast '/' |
+	stripexcluded |
 	# sed "s+\(.*\)/\(.*\)+\2 \1/\2+" |  ## More similar to other method (wouldn't need the inner find =) but would have a problem with spaced filenames
 	keepduplicatelines |
 	while read X
 	do
 		debug "Group $X"
 		find $WHERE -name "$X" |
+	stripexcluded |
 		while read Y
 		do
 			debug "Hashing $Y"
@@ -82,16 +112,18 @@ then
 
 else
 
-	## Whatever method we use (other than -samename), we first group by filesize.
-	## This is different from the -filesize option which matches on filesize!
-	## If we replace %s with <filename> then we can do -samename in one method =)
+	## Whatever later we use (unless optimising with -samename), we first group by filesize.
+	## This is different from the -filesize option which *matches* on filesize!
+	## CONSIDER: If we replace %s with <filename> then we could do -samename in one method =)
 	find $WHERE -type f -printf "%s %p\n" |
+	stripexcluded |
 	keepduplicatelines 1 |
-	dropcols 1 |
-	while read X
+	sort -n -r -k 1 | ## optional; NO undesirable; it mucks up ordering!  Eh, how so?
+	# dropcols 1 |
+	while read SIZE FILE
 	do
-		debug "Hashing $X"
-		$HASH "$X"
+		debug "Hashing (size $SIZE) $FILE"
+		$HASH "$FILE"
 	done |
 	keepduplicatelines -gap 1 2
 

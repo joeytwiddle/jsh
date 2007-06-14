@@ -21,7 +21,7 @@
 if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo
-	echo "diffgraph [ -diffcom <command> ] <files>..."
+	echo "diffgraph [ -fine | -diffcom <command> ] <files>..."
 	echo
 	echo "  constructs a graph showing which files are similar to each other."
 	echo
@@ -31,6 +31,10 @@ then
 	echo "  If read/plotted properly, this shows which files forked from which others."
 	echo
 	exit 1
+fi
+
+if [ "$1" = -fine ]
+then DIFFCOM=worddiff; shift
 fi
 
 ## TODO: jsh should have policy for whether envvar or -option takes priority in presence of both.
@@ -67,10 +71,25 @@ do
 			# echo "Testing: $X $Y" >&2
 			## Diff the files, and find size of diff:
 			# DIFFFILE=$DIFFDIR/"$X"____"$Y" ## No good if $Y contains a '/' !
-			DIFFFILE=`jgettmp diffgraph..."$X"..."$Y"`
-			$DIFFCOM "$X" "$Y" > "$DIFFFILE"
-			RESULTSIZE=`filesize "$DIFFFILE"`
-			jdeltmp $DIFFFILE
+
+			## This creates a file (slow/inefficient/waste-space):
+			# DIFFFILE=`jgettmp diffgraph..."$X"..."$Y"`
+			# $DIFFCOM "$X" "$Y" > "$DIFFFILE"
+			# RESULTSIZE=`filesize "$DIFFFILE"`
+			# jdeltmp $DIFFFILE
+
+			## This just measures the length of the diff (fast,efficient):
+			# RESULTSIZE=` $DIFFCOM "$X" "$Y" | countbytes `
+
+			## Extra support for fine worddiffs, to make the numbers nicer (smaller):
+			## TODO CONSIDER: should we gzip all diifs (not just fine ones/ones done with worddiff) before counting length?
+			if [ "$DIFFCOM" = worddiff ]
+			then
+				RESULTSIZE=` $DIFFCOM "$X" "$Y" | gzip -c | countbytes `
+			else
+				RESULTSIZE=` $DIFFCOM "$X" "$Y" | countbytes `
+			fi
+
 			## See if size beats or matches best so far:
 			test "$RESULTSIZE" = "$BESTFORXSIZE" &&
 			BESTFORX="$BESTFORX$NL$Y" ||

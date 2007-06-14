@@ -13,4 +13,6 @@ else
 	dpkg -l "$@" > $JPATH/logs/debpkgs-list-$DATE.log
 	cp $JPATH/logs/debpkgs-list-$DATE.log $JPATH/logs/debpkgs-list-today.log
 
+	dpkg --get-selections > "$JPATH"/logs/dpkg-selections.$DATE
+
 fi

@@ -1,29 +1,29 @@
 # jsh-ext-depends-ignore: diff cksum host file time screen
 # jsh-ext-depends: sed tar find sort column ssh
 # jsh-depends: jfcsh debug cksum
-# jsh-depends-ignore: edit jdeltmp jgettmp jdiff screen vimdiff error
+# this-script-does-not-depend-on-jsh: edit jdeltmp jgettmp jdiff screen vimdiff error
 
 ### What started as "can i do it in three lines?" grew a bit larger...!
-### remotediff and rsyncdiff used to be stand-alone (but this is no longer true: they use jgettmp at least!)
-## and rsyncdiff requires jfcsh locally!
+### remotediff and syncdiff used to be stand-alone (but this is no longer true: they use jgettmp at least!)
+## and syncdiff requires jfcsh locally!
 
 ## Other dependencies locally: dd,sed,diff,cksum,sort,column,vi,ssh and jsh:jfcsh,cksum,vimdiff
 ## Remotely only a few are needed: sh, cat, dd, mkdir
 
 ## About to introduce tar dependency.  But it will bring less buggy transfer and preservation of times/perms.
 
-## TODO: fork remotediff and rsyncdiff, and rename the latter (sync/merga?)!
+## TODO: fork remotediff and syncdiff, and rename the latter (sync/merga?)!
 
 ## TODO: we should sort by filename (column 2) on the default cksum diffing, rather than sorting by cksum.
 
-## TODO: add "ignore" command which will drop the filepath into the srcdir's .rsyncdiff.ignore file, and add approriate conditions to the find fn. when it is next run
+## TODO: add "ignore" command which will drop the filepath into the srcdir's .syncdiff.ignore file, and add approriate conditions to the find fn. when it is next run
 
-rsyncdiffdoc () {
+syncdiffdoc () {
 cat << !
 
-rsyncdiff - a special diff command for remotediff which lets you edit a set of recommended file transfers and then performs them =)
+syncdiff - a special diff command for remotediff which lets you edit a set of recommended file transfers and then performs them =)
 
-  rsyncdiff presents a list of files, with the words send / bring / diff beside them.
+  syncdiff presents a list of files, with the words send / bring / diff beside them.
   Delete the lines for actions you do not wish to perform, or edit them, then save and exit and the transfers will take place.
   Files for diffing will be brought locally, and the extension .from-<host> will be added.  That is all.
   You then need to type your password twice more for the transfers.  (TODO: these could be merged into one, but I wonder if we could keep the earlier ssh session open and reattach to it... )
@@ -46,7 +46,7 @@ then
 	}
 fi
 
-rsyncdiff () {
+syncdiff () {
 
 	EDITFILE=`jgettmp remotediff.edit`
 	jfcsh "$1" "$2" > "$1.only" # could factor in below if not used
@@ -57,7 +57,7 @@ rsyncdiff () {
 		echo "#   bring, send, diff,     ## TODO: del, delremote, ignore"
 		echo "# Conflicting files are listed with the most recent first; one of the pair should be deleted."
 		## TODO: compress conflicts into one command defaulting either to diff, bringow, or sendow.
-		## TODO: if rsync remembers when it was last run, or even the file details of when it was last run, it can tell whether one of the two files in a conflict has been unmodified, and can therefore safely default to be overwritten.
+		## TODO: if sync remembers when it was last run, or even the file details of when it was last run, it can tell whether one of the two files in a conflict has been unmodified, and can therefore safely default to be overwritten.
 		(
 			cat "$1.only" |
 			while read X; do grep "$X$" "$1.longer"; done | ## TODO: assert exactly one match per X
@@ -137,7 +137,7 @@ rsyncdiff () {
 
 	else
 
-		EXTRACTDIR=/tmp/rsyncdiff-incoming # "`echo "$LOCAL" | sed 's+[/]*$++'`-incoming"
+		EXTRACTDIR=/tmp/syncdiff-incoming # "`echo "$LOCAL" | sed 's+[/]*$++'`-incoming"
 		while [ -e "$EXTRACTDIR" ]
 		do EXTRACTDIR="$EXTRACTDIR"_
 		done
@@ -227,11 +227,11 @@ then
 	echo "  jfc"
 	echo "  jdiff"
 	echo "  diff"
-	echo "  rsyncdiff - Lets you edit diff list then transports files."
+	echo "  syncdiff - Lets you edit diff list then transports files."
 	echo
 	echo "Note: wildcards in <find_options> should be double-quoted, eg: -name \"'*.txt'\""
 	echo
-	# rsyncdiffdoc
+	# syncdiffdoc
 	exit 1
 fi
 
@@ -244,7 +244,7 @@ then
 fi
 
 LOCAL="$1"
-LOCAL=`realpath "$LOCAL"` ## To deal with rsyncdiff bringing problems
+LOCAL=`realpath "$LOCAL"` ## To deal with syncdiff bringing problems
 REMOTESTRING="$2"
 shift
 shift
@@ -274,7 +274,7 @@ if test ! "$DIFFCOM"; then
 	fi
 	echo "Will use \"$DIFFCOM\" for diffing."
 fi
-# DIFFCOM="rsyncdiff"
+# DIFFCOM="syncdiff"
 
 ### Set up commands for cksum retrieval:
 
@@ -282,7 +282,7 @@ FINDOPTS="-type f $1"
 echo "Find options: $FINDOPTS"
 
 CKSUMCOMEXT=""
-if test "$DIFFCOM" = "rsyncdiff"; then
+if test "$DIFFCOM" = "syncdiff"; then
 	## Note: this date is used for sorting later
 	CKSUMCOMEXT='
 		date "+%Y/%m/%d-%H:%M:%S" -r "$X" | tr -d "\n"
@@ -327,7 +327,7 @@ wait
 
 ## Post-process results if required:
 
-if [ "$DIFFCOM" = rsyncdiff ]
+if [ "$DIFFCOM" = syncdiff ]
 then
 	## Removes the extra cksum (date) info to allow easier diffing
 	# cat "$TMPONE.longer" | cut -d " " -f 2,3,4 > "$TMPONE"
@@ -357,7 +357,7 @@ fi
 
 
 
-### Finally display the differences or start rsyncdiff:
+### Finally display the differences or start syncdiff:
 
 # echo "Comparing $LOCAL to $RHOST:$RDIR using $DIFFCOM ..."
 echo "Comparing local to remote using \"$DIFFCOM\" ..."

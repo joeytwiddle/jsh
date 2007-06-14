@@ -11,10 +11,11 @@ if [ ! "$*" ]
 then
 	echo
 	echo 'seeklyrics -whatsplaying'
+	echo 'seeklyrics -file <file>'
 	echo
 	echo '  will attempt to fill out the following automatically:'
 	echo
-	echo 'seeklyrics "<artist>" "<song title>" [ "<part of song>" ] [ "-<other title>" ]*'
+	echo 'seeklyrics "<artist>" "<song title>" [ "<part of song>" ] [ "-<unwanted title>" ]*'
 	echo
 	echo '  will try to find the lyrics to the song you have specified.'
 	echo
@@ -36,18 +37,24 @@ then
 		error "[seeklyrics] Could not find what is playing!"
 		exit 1
 	fi
+	seeklyrics -file "$WHATSPLAYING"
+	exit
+elif [ "$1" = -file ]
+then
+	shift
+	FILE="$1"
 	ARTIST=
 	TITLE=
 	# ALBUM=
 	if [ "" ] && which mp3info >/dev/null 2>&1
 	then
-		ARTIST=`mp3info -p "%a" "$WHATSPLAYING"`
-		TITLE=`mp3info -p "%t" "$WHATSPLAYING"`
+		ARTIST=`mp3info -p "%a" "$FILE"`
+		TITLE=`mp3info -p "%t" "$FILE"`
 	fi
 	if [ ! "$ARTIST" ] || [ ! "$TITLE" ]
 	then
 		jshwarn "[seeklyrics] Failed to determine artist ($ARTIST) or track ($TRACK)"
-		FILENAME=`filename "$WHATSPLAYING"`
+		FILENAME=`filename "$FILE"`
 		jshwarn "[seeklyrics] So guessing from filename \"$FILENAME\""
 
 		## I assume the filename's fields are delimited by '-' characters (optionally surrounded by spaces)
@@ -173,7 +180,8 @@ fi
 
 echo "$N"
 
-for N in `seq 1 20`
+# for N in `seq 1 20`
+for N in `seq 1 5`
 do
 
 	## We drop small files.   Shouldn't we just weigh against small files proportional to their ability to be chosen as ancestors?
@@ -274,9 +282,10 @@ else
 
 	sort -n -k 1 |
 	pipeboth |
-	tail -n 1 | takecols 2 > /tmp/winner.seeklyrics
+	trimempty |
+	tail -n 1 | takecols 2 > /tmp/winner.seeklyrics-$USER
 
-	WINNER=`cat /tmp/winner.seeklyrics`
+	WINNER=`cat /tmp/winner.seeklyrics-$USER`
 	echo "Winner was $WINNER"
 	[ "$POPUP_BROWSER" ] && browse "$WINNER.html"
 	# ! [ "$LINES" ] && export LINES=`echo "$LINES" - 10`

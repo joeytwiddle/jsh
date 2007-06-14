@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## Was used for makeport, but now deprecated.
+
 if test "x$PORTMP" = ""; then
 	export PORTMP="/tmp/portmp"
 	mkdir -p $PORTMP

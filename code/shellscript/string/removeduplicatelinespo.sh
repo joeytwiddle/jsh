@@ -1,5 +1,9 @@
+## Removes any duplicate lines from the stream, preserving line order on output.
+## Doesn't remove empty lines
+
 LAST=""
 cat "$@" |
+## Can this awk be replaced by numbereachline?
 awk ' {
         printf("%s",NR);
         printf("%s"," ");
@@ -8,11 +12,17 @@ awk ' {
       }
     ' |
 sort -k 2 |
-while read N LINE; do
+
+escapeslash | ## echo "$LINE" below will lose any \s unless they are doubled up.  BUG: echo "$LINE" may lose other stuff too
+
+while read N LINE
+do
   # Ugh these three lines are a hack/fix for keepduplicatelines's gap mode!
-  if test "$LINE" = ""; then
+  if [ "$LINE" = "" ]
+  then
     echo "$N "
-  elif test ! "$LINE" = "$LAST"; then
+  elif [ ! "$LINE" = "$LAST" ]
+  then
     echo "$N $LINE"
     LAST="$LINE"
   fi

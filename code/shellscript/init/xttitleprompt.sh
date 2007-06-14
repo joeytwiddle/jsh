@@ -1,3 +1,5 @@
+## TODO: The default xttitle for a terminal window could be a sanitised version of the user's shell prompt (PS1/PROMPT) [remove colors+other escapes].  The current terminal is my own "traditional" shell prompt: the directory followed by a % (but for some reason I have them the other way around :P )
+
 ## Now does screen titles as well; should rename to generic_shell_update_titler_thingy
 
 ### xterm title change
@@ -26,22 +28,16 @@ then
 
 	## However, if we are in a local screen, ...
 
-	SHOWHOST="$SHORTHOST:"
-	SHOWUSER="$USER@"
+	[ "$USER" = XXjoey ] && SHOWUSER= || SHOWUSER="$USER"
+	[ "$HOST" = XXhwi ] && SHOWHOST= || SHOWHOST="@$SHORTHOST"
 	# could try using `logname`
 
-	## Exception: trim for user's "home machine"
-	if test "$SHOWHOST" = "hwi:"
-	then SHOWHOST=""
-	fi
-	if test "$SHOWUSER" = "joey@"
-	then SHOWUSER=""
-	fi
 	export SHOWUSER # for d f b
 	export SHOWHOST
 	## Needed by others?
 
-	HEAD="$HEAD$SHOWHOST$SHOWUSER"
+	# HEAD="$HEAD$SHOWHOST$SHOWUSER"
+	HEAD="$HEAD$SHOWUSER$SHOWHOST"
 
 	# if xisrunning; then
 
@@ -56,6 +52,8 @@ then
 		# case $TERM in
 			# *term*)
 
+	[ "$DEBUG" ] && debug "SHORTSHELL=$SHORTSHELL"
+
 	case $SHORTSHELL in
 
 		bash)
@@ -64,17 +62,30 @@ then
 				## For bash, get prompt to send xttitle escseq:
 				# export TITLEBAR=`xttitle "\u@\h:\w"`
 				## xterm title:
-				export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
+				# export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
+				jshinfo "Setting (bash) TITLEBAR=\"\[\033]0;$HEAD:\w\007\]\""
+				export TITLEBAR="\[\033]0;$HEAD:\w\007\]"
+				## removed \u and \h since they are in head already :P
+				# export TITLEBAR="\[\033]0;% $HEAD:\w/\007\]"
+				## do we really need to export it?
+				# export TITLEBAR="% $HEAD:\w/"
 				## screen title: "[" <directory> "]"
 				# export TITLEBAR="$TITLEBAR\[k[\w]\\\\\]"
 				# if [ "$STY" ]
 				if [ "$TERM" = screen ]
-				then export TITLEBAR="$TITLEBAR\[k$SCRHEAD\w/\\\\\]"
+				then
+					jshinfo "Setting (bash,screen) TITLEBAR=\"$TITLEBAR\[k$SCRHEAD\w/\\\\\]\""
+					export TITLEBAR="$TITLEBAR\[k$SCRHEAD\w/\\\\\]"
 				fi
 				# export TITLEBAR="$TITLEBAR`screentitle \"$SCRHEAD/\w/\"`" ## marche pas
 				## but it might be better if it did, at least bash would pass back to remote screens
 				## but also it wouldn't pass to local either!
 				## although it would have a go right now!
+				## xttitle does not seem to work as well as doing it directly here:
+				# export XTTITLEBAR="\[\033]0;$TITLEBAR\007\]"
+				# XTTITLEBAR="\[`xttitle "$TITLEBAR"`\]"
+				# export XTTITLEBAR="\[\033]0;$XTTITLE_PRESTRING$TITLEBAR\007\]"
+				# export PS1="$XTTITLEBAR$PS1"
 				export PS1="$TITLEBAR$PS1"
 			fi
 		;;
@@ -89,7 +100,8 @@ then
 				# echo "$PWD" | sed "s|.+/\(.*/.*\)|\.\.\./\1|"
 				# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
 				# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
-				echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|_/\1|;s|^$HOME|~|"
+				# echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|_/\1|;s|^$HOME|~|"
+				echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|.../\1|;s|^$HOME|~|"
 			}
 			preexec () {
 				## $* repeats under zsh4 :-(
@@ -115,7 +127,14 @@ then
 				# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
 
 				# xttitle "$HEAD$SHOWUSER$SHOWHOST`swd` % ($LASTCMD)"
-				XTTITLE_DISPLAY="% $HEAD$SHOWUSER$SHOWHOST`swd`"
+				# XTTITLE_DISPLAY="% $HEAD$SHOWUSER$SHOWHOST`swd`"
+				XTTITLE_DISPLAY="$HEAD:`swd` %"
+				# XTTITLE_DISPLAY="$HEAD:`swd` % ($LASTCMD)"
+				# XTTITLE_DISPLAY="$HEAD:`swd` % (`history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
+				# XTTITLE_DISPLAY="$HEAD:`swd` % ( `history | wc -l`: `history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
+				HISTNUM=`history | wc -l`
+				[ "$HISTNUM" -gt 1 ] && HISTSHOW=" ( ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
+				XTTITLE_DISPLAY="$HEAD:`swd` %$HISTSHOW"
 				[ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
 				xttitle "$XTTITLE_DISPLAY"
 

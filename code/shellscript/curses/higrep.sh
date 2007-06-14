@@ -1,5 +1,5 @@
 #!/bin/sh
-# jsh-depends-ignore: arguments
+# this-script-does-not-depend-on-jsh: arguments
 
 ## BUG TODO: Exit code does not perform like grep
 
@@ -31,7 +31,9 @@ fi
 
 ## The stderr pipe is not vital, but grep * often give annoying directory errors which I want to ignore.  TODO: isn't there is an option to ignore just them so we can keep other errors?  DONE
 # grep --line-buffered "$@" 2>/dev/null |
-grep --line-buffered -d skip "$@" |
+# grep --line-buffered -d skip "$@" |
+## Since we are outputting coloured text, output coloured errors too:
+highlightstderr grep --line-buffered -d skip "$@" |
 
 ## Special highlighting for multiple-file and context greps,
 ## but it can false-positive, so we don't do it if there is only one arg.

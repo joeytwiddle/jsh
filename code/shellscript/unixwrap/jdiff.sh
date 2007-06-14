@@ -8,7 +8,7 @@ then
 	echo
 	echo "jdiff [ -infg ] [ -diffopts <opts_for_gnu_diff> ] <filea> <fileb>"
 	echo
-	echo "    It's just a nice human way of seeing diffs."
+	echo "    It's just a nice human way of seeing diffs, using console/terminal colours."
 	echo
 	echo "    It attempts to highlight all added/removed/changed lines, but sometimes gets false positives."
 	echo

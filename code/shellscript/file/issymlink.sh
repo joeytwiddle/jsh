@@ -3,6 +3,10 @@ test "$RES" = "$1"
 exit
 
 ## Another method:
+[ -L "$1" ]
+exit
+
+## Another method:
 if test -e "$1" && test ! ""`justlinks "$1"` = ""; then
 	exit 0
 else

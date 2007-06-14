@@ -25,8 +25,12 @@ fi
 
 # use dlocate if it's available
 BIN=`jwhich dlocate`
-if test ! -x "$BIN"; then
-  BIN=`jwhich dpkg`
+# BIN="" ## No don't!
+if [ ! "$BIN" ] || [ ! -x "$BIN" ]
+then BIN=`jwhich dpkg`
 fi
+
+## TODO: dpkg now returns results of the style: <pkgname>, <another_pkg_name>: <file_found>
+##       This is no good for the findorphanedfiles script.
 
 $BIN -S "$SEARCH" | sed "s/^/"`cursecyan`"/;s/:/"`cursenorm`":/"

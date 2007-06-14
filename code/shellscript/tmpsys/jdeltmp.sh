@@ -1,16 +1,19 @@
 # jsh-depends: startswith jshwarn
-TOPTMP="$JPATH/tmp"
 
-# if test $JTMPLOCAL && test -w .; then
-	# TOPTMP="."
+# TOPTMP="$JPATH/tmp"
+# 
+# # if test $JTMPLOCAL && test -w .; then
+	# # TOPTMP="."
+# # fi
+# 
+# if test ! -w "$TOPTMP"
+# then
+	# TOPTMP="/tmp/jsh-tempdir-for-$USER"
+	# mkdir -p $TOPTMP
+	# chmod go-rwx $TOPTMP
 # fi
 
-if test ! -w "$TOPTMP"
-then
-	TOPTMP="/tmp/jsh-tempdir-for-$USER"
-	mkdir -p $TOPTMP
-	chmod go-rwx $TOPTMP
-fi
+. jgettmpdir -top
 
 for TMPFILE
 do

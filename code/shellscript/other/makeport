@@ -20,6 +20,7 @@ tar cfj /tmp/jsh-`geekdate`.tar.bz2 --exclude "CVS" "$DIRNAME/code/shellscript/"
 
 ## TODO BUG: One day this might exceed max args:
 find "$DIRNAME/code/shellscript/" -name CVS | withalldo tar cfj /tmp/jsh-CVS-`geekdate`.tar.bz2
+# find "$DIRNAME/code/shellscript/" -name CVS | xargs tar cfj /tmp/jsh-CVS-`geekdate`.tar.bz2
 
 
 

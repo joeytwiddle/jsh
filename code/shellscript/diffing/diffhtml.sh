@@ -1,3 +1,7 @@
+if [ "$1" = -fine ]
+then FINE_DIFFING=true; shift
+fi
+
 ## To display the diff, some style definitions must be made
 ## either by linking to a remote file:
 # ADDTOHEAD='<link rel="stylesheet" type="text/css" href="http://hwi.ath.cx/include/diffstyles.css" media="all">'
@@ -15,8 +19,13 @@ OLDFILE="$1"
 NEWFILE="$2"
 
 quicktidy () {
-	sed 's+><+>\
-<+g'
+NL='\
+'
+	if [ "$FINE_DIFFING" ]
+	then sed "s+<+$NL<+g ; s+>+>$NL+g"
+	else sed "s+><+>$NL<+g"
+	# else sed "s+>[ 	]*<+>$NL<+g"
+	fi
 }
 
 ## Used to use w3c tidy, but it didn't really do what was needed (or was it just too slow?)

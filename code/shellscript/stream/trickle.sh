@@ -1,4 +1,8 @@
-## See also: slowcp
+## See also: slowcp, catslowly
+
+## TODO: catslowly should really work if provided a file as args!  Maybe this could too.
+
+## TODO: could (optionally) check hardisk usage (/proc/partitions) to and adjust its runtime byterate accordingly.
 
 SPEED="1024"
 

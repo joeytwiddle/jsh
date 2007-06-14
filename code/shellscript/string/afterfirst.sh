@@ -1,10 +1,18 @@
 # jsh-ext-depends: sed
+
 ## I just cannot do it properly with sed.  :-(
+## I think it's impossible, due to sed's greediness.
+
+## But, it might be possible to do it properly, if the search string is a single char, using [^$CHAR]
+## So maybe a less ugly implementation would be appropriate for that special case.
+
+## Note, whilst it's impossible to properly reproduce afterfirst in sed for strings, if the search argument is just one character:
+# sed "s+^[^$CHAR]*$CHAR++"
 
 # Ugh
 # SPECIALSTR="nobodyWo0ldn6teverUsastwiunglikevish_unlessOfCourseTh3yw3r34<<355/|\|gthisFile!"
 SPECIALSTR="nbdW0d6eeUatinlkvs"
-sed "s|$@\(.*\)|$SPECIALSTR\1|" | sed "s|.*$SPECIALSTR||"
+sed "s$@\(.*\)$SPECIALSTR\1" | sed "s.*$SPECIALSTR"
 
 ## Nope:
 # sed "s+.\($@.*\)+\1+g"
@@ -27,6 +35,8 @@ sed "s|$@\(.*\)|$SPECIALSTR\1|" | sed "s|.*$SPECIALSTR||"
 
 # OK here we use greedy matching on the right hand side
 # and using awk, extract the text which matched the RE.
+
+## Hmmm I don't remember why I commented this out; maybe the ugly sed version is more efficient, maybe not!  :P
 
 # awk '
   # BEGIN {

@@ -1,5 +1,2 @@
-/usr/games/fortune $@ > $JPATH/tmp/lastfortune.txt
-echo "" >> /home/joey/log/fortune.txt
-more $JPATH/tmp/lastfortune.txt >> /home/joey/log/fortune.txt
-more $JPATH/tmp/lastfortune.txt
-rm $JPATH/tmp/lastfortune.txt
+## This used to log fortunes, but directories for it no longer exist, so it was broken, and I don't want it anymore anyway.
+unj /usr/games/fortune $@

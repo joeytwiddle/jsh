@@ -1,3 +1,11 @@
+jwatchchanges -fine "cat /proc/partitions | columnise"
+
+exit
+
+
+
+## This old method is useless
+
 SLEEPFOR=1
 
 TARGET=target0

@@ -1,14 +1,19 @@
 LETTERS="ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 LETTER=C
 
-mkdir -p "$HOME/Desktop" || exit 123
+# TARGET_FOLDER="$HOME/Desktop"
+TARGET_FOLDER="$HOME/Desktop/My Computer"
 
-## Because we go in reverse; we need to get the last letter!
-cat /etc/fstab | grep "^/dev/hd" |
+mkdir -p "$TARGET_FOLDER" || exit 123
+
+cat /etc/fstab |
+grep "^/dev/[hs]d" |
+
+## Generate a letter for each disk partition (Windows style)
 while read LINE
 do
 	echo "$LETTER $LINE"
-	LETTER=`echo "$LETTER" | tr " $LETTERS" "$LETTERS"`
+	LETTER=`echo "$LETTER" | tr "_$LETTERS" "$LETTERS"`
 done |
 
 reverse |
@@ -20,7 +25,7 @@ do
 	then
 
 		MNTNAME=`echo "$MNTPOINT" | sed 's+.*/++'`
-		FILE="$HOME/Desktop/Drive $LETTER $MNTNAME ($FSTYPE)"
+		FILE="$TARGET_FOLDER"/"Drive $LETTER $MNTNAME ($FSTYPE)"
 
 		(
 			echo "[Desktop Entry]"
@@ -37,7 +42,7 @@ done
 
 ## TODO: make cdrom part of the /etc/fstab parse too!
 
-cat > $HOME/Desktop/"CD-Rom Drive" << !
+cat > "$TARGET_FOLDER"/"CD-Rom Drive" << !
 [Desktop Action Eject]
 Exec=kdeeject %v
 Name=Eject
@@ -54,7 +59,7 @@ UnmountIcon=cdrom_unmount
 X-KDE-Priority=TopLevel
 !
 
-cat > $HOME/Desktop/"Floppy Disc" << !
+cat > "$TARGET_FOLDER"/"Floppy Disc" << !
 [Desktop Action Format]
 Exec=kfloppy %v
 Name=Format
@@ -71,6 +76,7 @@ UnmountIcon=3floppy_unmount
 X-KDE-Priority=TopLevel
 !
 
-[ -f "$HOME/Desktop/Home ] && touch $HOME/Desktop/Home
-[ -f "$HOME/Desktop/"Install to harddisk" ] && touch $HOME/Desktop/"Install to harddisk"
+## I think this was an attempt at ordering the icons on the Desktop:
+# [ -f "$HOME/Desktop/Home" ] && touch "$HOME/Desktop/Home"
+# [ -f "$HOME/Desktop/Install to harddisk" ] && touch "$HOME/Desktop/Install to harddisk"
 

@@ -50,13 +50,23 @@ then
 	PROMPT="[$SCREEN_NAME$WINDOW] $PROMPT"
 fi
 
-## for sh -x debugging (bad for bash though!)
-export PS4="%{[00;35m%}[%{[00;31m%}%N[00;35m%}]%{[00;33m%}%_%{%{[00m%}%% "
+## for zsh -x debugging (bad for bash though!)
+# export PS4="%{[00;35m%}[%{[00;31m%}%N[00;35m%}]%{[00;33m%}%_%{%{[00m%}%% "
+# ## Outputs the following format: [script_name]exec_trace% command args
+# export PS4="%{`cursemagenta`%}[%{`cursered`%}%1N%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%% "
+## Outputs the following format: (exit_code)shell_level/dir/[script_name]exec_trace% command args
+# export PS4="(%?)%L%c%{`cursemagenta`%}[%{`cursered``cursebold`%}%1N:%i%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%# "
+export PS4="(%?)%L%{`cursegreen`$}%c%{`cursemagenta`%}[%{`cursered``cursebold`%}%1N:%i%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%# "
 
 ## TODO: Should really go in bash's .bash_profile (or is it .rc?), so that it is invoked when user types: sh -x something.sh
-##       At the moment that calls bash with zsh's PS4, which makes a horrid mess.
+##       At the moment that calls bash with zsh's PS4, which makes a horrid mess if it gets the zsh PS4 above.
+##       Hmmm I tried putting this PS4 in .bashrc and .bash_profile but it didn't work =/
+##       Maybe instead we can put zsh's PS4 above in .zshrc ? ^^
 ## So for now I'm defaulting to a bash-compatible PS4:
 # export PS4="\[\033[01;31m\]=$$=\[\033[00m\]"
 # export PS4='\['"`cursered`"'\]'"=="'\['"`cursenorm`"'\]'"
-export PS4="[[[[sh]]]] "
+# export PS4="+[bash] "
+# export PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ "
+# export PS4="+\[`cursegreen`\]\W\[`cursenorm`\][\[`cursered;cursebold`\]\s\[`cursenorm`\]]\$ "
+export PS4="+ \[`cursemagenta`\][\[`cursered;cursebold`\]\s\[`cursemagenta`\]]\[`cursegreen`\]\W\[`cursenorm`\]\[`cursenorm`\]# "
 

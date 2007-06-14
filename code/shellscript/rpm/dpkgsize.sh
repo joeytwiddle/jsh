@@ -1,3 +1,20 @@
+PKGNAME="$1"
+VERSION=`apt-list -installed pkg "$PKGNAME" | head -n 1 | takecols 2`
+if [ "$VERSION" ]
+then
+	VERSION_EXPR=`echo "$VERSION" | sed 's/+/\\+/g'`
+	SIZE=`
+		apt-cache show "$PKGNAME" |
+		# fromline "Version: $VERSION_EXPR" | grep "^Size:" | head -n 1 |
+		toline "Version: $VERSION_EXPR" | grep "^Installed-Size:" | tail -n 1 |
+		takecols 2
+	`
+fi
+[ "$SIZE" ] || SIZE=-1
+
+echo "$SIZE	$PKGNAME $VERSION"
+exit
+
 if which dlocate > /dev/null 2>&1
 then
 	echo `

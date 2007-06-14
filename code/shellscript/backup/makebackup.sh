@@ -1,6 +1,6 @@
 ## TODO: As well as symlink list, also make a list of all files, so that after patch-expand, it can be determined which of the new empty files should remain or be removed.
 ##       Of course this assumes we use a special script to unpack the old patches.
-# jsh-depends-ignore: before new filename
+# this-script-does-not-depend-on-jsh: before new filename
 # jsh-depends: filesize jdeltmp jgettmpdir contractsymlinks expandsymlinks
 ## Example recovery:
 ## mkdir /tmp/recover; cd /tmp/recover

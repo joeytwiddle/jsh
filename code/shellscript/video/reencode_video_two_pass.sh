@@ -69,6 +69,8 @@ OUTPUT_CODEC="-y ffmpeg,mjpeg -F mpeg4" ## Tried some others because this one wa
 # transcode -i "$INPUT" -x mplayer -o "$OUTPUT" $OUTPUT_CODEC -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $EXTRA_TRANSCODE_OPTS
 
 ## Two pass:
+# transcode -i "$INPUT" -x vob -o /dev/null $OUTPUT_CODEC -R 1 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
+# transcode -i "$INPUT" -x vob -o "$OUTPUT" $OUTPUT_CODEC -R 2 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
 transcode -i "$INPUT" -x mplayer -o /dev/null $OUTPUT_CODEC -R 1 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
 transcode -i "$INPUT" -x mplayer -o "$OUTPUT" $OUTPUT_CODEC -R 2 -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $PREVIEW $EXTRA_TRANSCODE_OPTS
 

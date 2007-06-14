@@ -1,7 +1,7 @@
 ## jsh-help: Commits files to cvs respository, and immediately unlocks them.
 
 # OUT-OF-DATE: jsh-depends: cursebold cursecyan cursegreen curseyellow cursenorm cvsdiff cvsedit cvsvimdiff edit jdeltmp jgettmp jdiff newer error
-# jsh-depends-ignore: vimdiff
+# this-script-does-not-depend-on-jsh: vimdiff
 
 ## If we can leave it out, it lets us resize during run:
 # export COLUMNS

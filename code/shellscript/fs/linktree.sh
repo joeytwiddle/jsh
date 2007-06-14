@@ -1,11 +1,13 @@
-## Unlike linkhome (and stow), doesn't link to dirs, but only creates tree.
+## Unlike linkhome (and stow), never links to dirs, always creates its own full dir tree.
+
+## BUG: does not follow symlinks in the target though, so symlinks which are actually links to dirs are linked not built.
 
 function dodirs () {
 	( cd "$SOURCE" && find . -type d -mindepth 1 ) | ## mindepth 1 avoids "./"
 	$REVERSE |
 	while read DIR
 	do
-		echo "linktree: $DIRACTION -p \"$DEST/$DIR\""
+		echo "linktree: $DIRACTION \"$DEST/$DIR\""
 		$DIRACTION "$DEST"/"$DIR" || $ONERROR
 	done
 }

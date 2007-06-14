@@ -3,18 +3,31 @@
 ## Works for bash too despite its name!
 ## Although when .-ed without an argument in bash, it remembers the $1 from the last call!  :-(
 ## TODO:
-# Shouldn't we remember moved-into, not moved-out-of?
+# Shouldn't we remember moved-into, not moved-out-of?  Yes we should, it would be nice to not forget it at least.
 # Sometimes NEWDIR="$@" breaks under ssh?
 # Investigate: echo "($LAST)"
 
 ## TODO: this script is sourced by user's shell so NEWDIR etc. are overwritten then left around.
 ##       it might be handy to leave the user with a $LASTDIR env var (maybe bash always has one anyway, but zsh doesn't appear to, at least not with that name)
 
+## Since I am sourced, make me part of the term_state experiment
+# # mkdir -p /tmp/term_states
+# . term_state # > /tmp/term_states/$$.term_state
+
+# xttitle "# d.zsh $*"
+
 # NEWDIR="`expandthreedots "$*"`" ||
 NEWDIR="$*"
 
 # Record where we are for b and f sh tools
 echo "$PWD" >> $HOME/.dirhistory
+## Record it at the other end also (for f):
+# ( echo "$PWD" ; cat $HOME/.dirhistory ) |
+# ## These are slow but keeps the dirhistory size down :)
+# # # dirsonly |
+# # # sort |
+# # removeduplicatelines -adj |
+# dog $HOME/.dirhistory
 
 if [ -d "$NEWDIR" ]
 then
@@ -30,7 +43,9 @@ then
 	else 'cd' "$HOME/.."
 	fi
 
-elif [ `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = found ]
+# elif [ `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*$+found+'` = found ]
+# elif [ `echo "$NEWDIR" | sed 's+^\.\.\.[\.]*.*$+found+'` = found ]
+elif echo "$NEWDIR" | grep "\.\.\." >/dev/null
 then
 	# The user asked for: cd ..... (...):
 	# Allows user to say: cd foo/..../ba/......./bo where ...s become ../..
@@ -78,7 +93,7 @@ else
 
 fi >&2
 
-xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+# xttitle "$SHOWUSER$SHOWHOST$PWD %% "
 
 
 ## TODO: unreadable files / locked dirs
@@ -124,3 +139,5 @@ then
 		echo
 	fi
 fi
+
+# xttitle ". d.zsh $*"

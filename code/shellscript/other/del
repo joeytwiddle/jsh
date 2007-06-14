@@ -1,5 +1,9 @@
 #!/bin/sh
 
+## TODO: might be nice to do a quick check to see if any processes have a handle on (or are opening) each file before we delete it.
+
+## TODO: could integrate with new deldirs script
+
 ## TODO: doesn't work well under chroot (cannot determine which partition the file is on).
 
 ## Deletes a file or files in a recoverable way (by moving them to a "RECLAIM" directory).
@@ -8,7 +12,7 @@
 
 # jsh-ext-depends-ignore: from file cvs
 # jsh-ext-depends: sed basename dirname realpath
-# jsh-depends-ignore: reclaimspace
+# this-script-does-not-depend-on-jsh: reclaimspace
 # jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted
 
 ## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash
@@ -111,7 +115,7 @@ try_del () {
 for FILE
 do
 
-	if [ -f "$FILE" ] || [ -d "$FILE" ]
+	if [ -f "$FILE" ] || [ -d "$FILE" ] || [ -L "$FILE" ]
 	then
 
 		## Efficiency attempt (appears to work if we import memo above, but should use a more efficient memo!)
@@ -122,6 +126,7 @@ do
 		PARENTDIR=`realpath "\`dirname \"$FILE\"\`"`
 		## NOTE sort-of BUG: if you delete a symlink, the symlink is deleted ok, but it doesn't go to the reclaim directory it is in; it goes to the reclaim directory the symlink's target is in.
 		MOUNTPNT=`wheremounted "$PARENTDIR"`
+		# Try this for speed: MOUNTPNT=`memo wheremounted "$PARENTDIR"`
 
 		## TODO: make a memo.quickndirty (local to current shell env, i.e. data stored in variables?),
 		##       and refactor out from here a getreclaimdirfordir <dir> function.

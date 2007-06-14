@@ -1,4 +1,4 @@
-# jsh-depends-ignore: highlight
+# this-script-does-not-depend-on-jsh: highlight
 ## This is one method of viewing the output of tree.sh and tree.hs
 ## It folds up branches in the tree using a vim plugin, and sets
 ## colours and useful keymaps for opening/closing the folds.

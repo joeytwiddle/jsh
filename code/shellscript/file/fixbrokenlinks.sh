@@ -7,6 +7,9 @@ then
 	exit 1
 fi
 
+## TODO: I think the search is just be filename
+##       But sometimes the *path* of the broken link contains useful information to find where the target went.
+
 ## Progress: make a verion that can take an index file (eg a cksum list) as scope
 ##           eg. to find files lost onto some indexed backup medium
 ## See /stuff/cdlistings/makebiglist .sh and use -list
@@ -19,10 +22,10 @@ FILELIST=`jgettmp fixbrokenlinks_filelist`
 
 if [ "$1" = "-list" ]
 then cat "$2"
-else find "$@" -type f
+else verbosely find "$@" -type f
 fi > $FILELIST
 
-find "$INDIR" -type l |
+verbosely find "$INDIR" -type l |
 
 while read SYMLINK
 do
@@ -30,12 +33,13 @@ do
 	then
 		ORIGTARGET=`justlinks "$SYMLINK"`
 		# echo "Missing: \"$SYMLINK\" -> \"$ORIGTARGET\""
-		SEEK=`echo "$SYMLINK" | afterlast /`
+		SEEK=`echo "$SYMLINK" | afterlast / | toregexp`
 		## TODO: construct a sed string to colour in those known path-parts of the original link
 		## hmm difficult if it means a string diff no
 		## or split the original and highlight any matches, yeah that'd do
 		## nah soddit why bother?!
-		CANDIDATES=`grep "/$SEEK\$" "$FILELIST"`
+		# CANDIDATES=`grep "/$SEEK\$" "$FILELIST"`
+		CANDIDATES=`grep "/$SEEK\$" "$FILELIST" | filesonly` ## Added filesonly in case the provided list contains non-files
 		CANDIDATESCNT=`printf "%s" "$CANDIDATES" | countlines`
 		XTRA="# "
 		if [ "$CANDIDATESCNT" = "1" ]
@@ -43,7 +47,7 @@ do
 			XTRA=""
 		fi
 		echo "## `curseblue`$CANDIDATESCNT possibilities for \"$SYMLINK\" -> \"$ORIGTARGET\":`cursenorm`"
-		printf "$CANDIDATES" | sed 's|\(.*\)|'"$XTRA"'ln -sf "\1" "'"$SYMLINK"'"|'
+		printf "%s" "$CANDIDATES" | sed 's|\(.*\)|'"$XTRA"'ln -sf "\1" "'"$SYMLINK"'"|'
 		echo
 	fi
 done

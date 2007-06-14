@@ -1,4 +1,5 @@
 #!/bin/sh
+# this-script-does-not-depend-on-jsh: startj-hwi
 # jsh-ext-depends: sed
 # jsh-ext-depends-ignore: dir find file
 
@@ -10,8 +11,11 @@
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-    echo "jwhich [ inj ] <file> [ quietly ]"
-    echo "  will find the file in your \$PATH minus \$JPATH (unless inj specified)"
+    echo "jwhich <command> [ quietly ]"
+    echo "  will find the executable file in your \$PATH minus anything that looks like jsh's JPATH"
+    echo "  now deprecated in favour of: unj which <command>"
+    echo "jwhich inj <command> [ quietly ]"
+    echo "  will look in cyour current \$JPATH for <file>"
     echo "  quietly means it just checks and returns 1/0, but does not print anything."
     exit 1
 fi
@@ -27,9 +31,13 @@ fakeungrep () {
 
 if test "$1" = "inj"
 then
-    PATHS=`echo "$PATH" | tr ":" "\n"`
-    INJ=true
-    shift
+    # PATHS=`echo "$PATH" | tr ":" "\n"`
+    # INJ=true
+    # shift
+
+	## New fast implementation
+	[ -x "$JPATH/$2" ] && echo "$JPATH/$2" || false
+	exit
 else
     # Remove all references to JLib from the path
     PATHS=`echo "$PATH" | tr ":" "\n" |

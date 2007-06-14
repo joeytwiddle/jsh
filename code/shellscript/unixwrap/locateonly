@@ -1,1 +1,3 @@
-`jwhich locate` "$1" | grep "/$1\$" | higrep "$1"
+for X
+do `jwhich locate` "$X" | higrep "/$X\$"
+done

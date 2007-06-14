@@ -1,7 +1,7 @@
 # jsh-ext-depends: transcode mplayer
 # jsh-ext-depends-ignore: make
 # jsh-depends: error jshwarn jshinfo reencode_video_simple
-# jsh-depends-ignore: mplayer
+# this-script-does-not-depend-on-jsh: mplayer
 if [ "$1" = -foolproof ]
 then shift; FOOLPROOF=true
 fi

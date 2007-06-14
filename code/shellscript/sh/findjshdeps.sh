@@ -20,15 +20,19 @@
 
 ## BUGS: Try it on remotediff or another script containing "...".  The "..." is treated as regexp.  :-(
 
+## The use of PWDBEFORE gets us around the fact that selfmemo might change dir (to /) and then call this script again.
+[ "$PWDBEFORE" ] || export PWDBEFORE="$PWD"
 ## First experiment selfmemoing =)
 # echo "before: >$0< >$1< >$2< >$3<" >&2
 . selfmemo -nodir -d $JPATH/code/shellscript - "$0" "$@"; shift
 # echo "after:  >$0< >$1< >$2< >$3<" >&2
+cd "$PWDBEFORE"
 
 PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin" # /usr/sbin dunno why really should be in!
 
 ## Ever-present programs which we don't want to observe dependencies on:
-## TODO: turn this into a line-delimited list, and check which packages the progs belong to.
+## TODO: turn this into a line-delimited list.
+## TODO: For the sake of curiousity, check which packages the progs belong to.
 EVER_PRESENT='^\('
 EVER_PRESENT="$EVER_PRESENT"'printf\|echo\|test\|clear\|cp\|mv\|ln\|rm\|ls\|kill\|'
 EVER_PRESENT="$EVER_PRESENT"'touch\|mkdir\|tr\|sh\|nice\|sleep\|date\|'
@@ -97,6 +101,18 @@ then
 
   for X
   do [ -f "$X" ] && echo "$X" || echo `realpath \`which "$X"\``
+  # do
+		# set -x
+		# if [ -f "$X" ]
+		# then echo "$X"
+		# else
+			# WHICHX=`which "$X" 2>/dev/null`
+			# if [ -f "$WHICHX" ]
+			# then echo `realpath "$WHICHX"`
+			# else echo "$PWD/$X"
+			# fi
+		# fi
+		# set +x
   done
 
 else
