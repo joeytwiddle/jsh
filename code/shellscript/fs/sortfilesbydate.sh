@@ -8,9 +8,17 @@
 # else ls -rtd "$@"
 # fi
 
-## Stream-only version:
-while read FILE
-do find "$FILE" -maxdepth 0 -printf "%A@ %p\n"
-done |
-sort -n -k 1 |
-dropcols 1
+if [ "$1" ]
+then
+	echolines "$@" | sortfilesbydate
+
+else
+
+	## (No longer) stream-only version:
+	while read FILE
+	do find "$FILE" -maxdepth 0 -printf "%A@ %p\n"
+	done |
+	sort -n -k 1 |
+	dropcols 1
+
+fi
