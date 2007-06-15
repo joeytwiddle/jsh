@@ -16,6 +16,8 @@
 ## This didn't work when if test -f "$FILE" hadn't quotes on a spaced file.
 # set -e
 
+## Fri Jun 15 15:00:36 BST 2007: That's fucking hilarious.  I'm working on my latest most stable version of reclaimspace, and I've run out of diskspace.  :P
+
 # jsh-ext-depends: find
 # this-script-does-not-depend-on-jsh: randomorder there flatdf
 # jsh-depends: takecols drop error issymlink
@@ -59,8 +61,7 @@ fi
 
 SELECTIONREGEXP="$1"
 
-echo
-date
+# date
 
 ## TODO: determine whether mount is ro, and if so skip it.
 
@@ -117,7 +118,9 @@ do
 	## But since we grep "^dev", we don't tend to get an overflowing field 1 anyway!
 	# SPACE=`df "$MNTPNT" | takecols 4`
 
-	echo "Doing $DEVICE $MNTPNT ($SPACE"k")"
+	# echo "Checking space on $DEVICE $MNTPNT $SPACE"k
+	# echo "[reclaimspace]  $MNTPNT     $SPACE"k
+	echo "[reclaimspace]	$MNTPNT	$((SPACE/1024))"M | expand -t 20
 
 	ATTEMPTSMADE=0
 
@@ -232,6 +235,8 @@ do
 		else
 			echo "Could not cd to reclaim dir: $MNTPNT/RECLAIM" >&2
 		fi
+
+		echo
 
 	fi
 

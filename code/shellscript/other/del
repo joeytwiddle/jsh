@@ -59,40 +59,49 @@ try_del () {
 		then TODELPARENTDIR=/`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
 		else TODELPARENTDIR="$PARENTDIR"
 		fi
-		## TODO: refactor TRASHDIR out of DEST, so that _s can be added to start of $TODELPARENTDIR if no subdirs are writeable.
-		DEST="$TRASHDIR/$TODELPARENTDIR"
+		## TODO: refactor TRASHDIR out of DESTDIR, so that _s can be added to start of $TODELPARENTDIR if no subdirs are writeable.
+		DESTDIR="$TRASHDIR/$TODELPARENTDIR"
 		PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
 
 		# Create destination directory
-		while [ -f "$DEST" ]
+		while [ -f "$DESTDIR" ]
 		do
-			echo "$DEST is a file - using $DEST.dir"
-			DEST="$DEST.dir"
+			echo "$DESTDIR is a file - using $DESTDIR.dir"
+			DESTDIR="$DESTDIR.dir"
 		done
-		mkdir -p "$DEST"
-		# chmod ugo+w "$DEST" ## TODO: and all created parents!  (Use while ! parent loop to create them all?)
-		if [ ! -d "$DEST" ]
+
+		## Atm the del system doesn't actually remove any files, it relies on reclaimspace running in a cronjob.
+		## This has sometimes proved to be ineffective in maintaining enough free space to keep the system running.
+		## Therefore we shall perform reclaimspace here, before we delete a file.
+		mkdir -p "$DESTDIR"
+		reclaimspace "`wheremounted "$DESTDIR"`"
+		## we do this before the mkdir, because it likes to rmdir, so may if we're unlucky remove the dir we made! :)
+		## ah but damn wheremounted doesn't work if DESTDIR doesn't exist yet!
+
+		mkdir -p "$DESTDIR"
+		# chmod ugo+w "$DESTDIR" ## TODO: and all created parents!  (Use while ! parent loop to create them all?)
+		if [ ! -d "$DESTDIR" ]
 		then
-			error "del: problem creating destination directory: $DEST"
+			error "del: problem creating destination directory: $DESTDIR"
 			error "del: not moved to trash: $FILE"
 			# waitforkeypress
 			# exit 1
 			# ALLOK=1 ## another attempt might work ... :)
-			break ## continue
+			break ## continue ## TODO CHECK: does this break work now that we are inside the try_del fn?
 		fi
 
 		FILENAME=`basename "$FILE"`
 
-		while [ -f "$DEST/$FILENAME" ] || [ -d "$DEST/$FILENAME" ]
-		do
-			FILENAME="$FILENAME"_
-		done
+		while [ -f "$DESTDIR/$FILENAME" ] || [ -d "$DESTDIR/$FILENAME" ]
+		do FILENAME="$FILENAME"_
+		done ## this could infloop if the previous check failed
 
 		# Something used to go wrong if $FILENAME is a dir ending in "/"
+		# Has this stopped?
 
 		# Move it and report =)
 		echo "$FILE "`cursegreen`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
-		mv -f "$FILE" "$DEST/$FILENAME" # || ALLOK=2
+		mv -f "$FILE" "$DESTDIR/$FILENAME" # || ALLOK=2
 		RETURN="$?"
 
 		# Remove from CVS

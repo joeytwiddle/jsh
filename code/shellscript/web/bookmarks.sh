@@ -21,7 +21,7 @@ then
 	echo "<HTML><HEAD><TITLE>All bookmarks for $USER on $HOSTNAME</TITLE></HEAD><BODY>"
 	bookmarks "$@" |
 	## BUG TODO: problems with bookmarklets which contain space characters
-	##           could seek "[" provided all browsers types output it (they do atm) but then we'd need to strip " " from end of \1
+	## CONSIDER: could seek "[" provided all browsers types output it (they do atm) but then we'd need to strip " " from end of \1
 	sed 's+^\([^ ]*\) \(.*\)+<A href="\1">\2</A><BR>+'
 	echo "</BODY></HTML>"
 
