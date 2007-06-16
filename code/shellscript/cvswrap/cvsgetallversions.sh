@@ -2,16 +2,20 @@ if [ "$1" = -rcs ]
 then RCS=true; shift
 fi
 
+# BEFOREVER=
+# BEFOREVER=-r
+BEFOREVER=cvs.
+
 for FNAME
 do
 
-	# VERNUM=`
+	# REVISION=`
 		# cvs status "$FNAME" |
 		# grep "Repository revision:" |
 		# takecols 3
 	# `
 # 
-	# if [ ! "$VERNUM" ]
+	# if [ ! "$REVISION" ]
 	# then
 		# echo "Failed to get version number for: $FNAME" >&2
 		# continue
@@ -23,19 +27,17 @@ do
 	fi |
 	grep "^revision " |
 	takecols 2 |
+	reverse |
 
-	while read VERNUM
+	while read REVISION
 	do
 
 		## TODO: consider refusing to overwrite files
 		if [ "$RCS" ]
-		then
-			echo "co -p\"$VERNUM\" \"$FNAME\" > \"$FNAME.$VERNUM\""
-			co -p"$VERNUM" "$FNAME" > "$FNAME.$VERNUM"
-		else
-			echo "cvs update -r \"$VERNUM\" -p \"$FNAME\" > \"$FNAME.$VERNUM\""
-			cvs update -r "$VERNUM" -p "$FNAME" > "$FNAME.$VERNUM"
+		then verbosely co -p"$REVISION" "$FNAME" > "$FNAME.$BEFOREVER$REVISION"
+		else verbosely cvs update -r "$REVISION" -p "$FNAME" > "$FNAME.$BEFOREVER$REVISION"
 		fi
+		sleep 1 ## slows it down but at least dates checkouts in order (although not by their real date)
 
 	done
 	
