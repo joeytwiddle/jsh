@@ -111,7 +111,8 @@ do
 					# jshwarn "Vimdiff complete; deleting recoverfile; undelete it if you wanted it!!"
 					# verbosely del "$RECOVERFILE"
 				else
-					echo "Not identical, but recovered, so you can remove the swapfile with:"
+					# echo "Not identical, but recovered, so you can remove the swapfile with:"
+					jshwarn "Recovered file differs from current; compare them with:"
 					## Again, if the recovered file exists and is not empty,
 					## then its pretty likely the swapfile is redundant, and can be removed.  =)
 					cursecyan
