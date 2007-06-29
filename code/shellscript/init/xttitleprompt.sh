@@ -28,8 +28,8 @@ then
 
 	## However, if we are in a local screen, ...
 
-	[ "$USER" = XXjoey ] && SHOWUSER= || SHOWUSER="$USER"
-	[ "$HOST" = XXhwi ] && SHOWHOST= || SHOWHOST="@$SHORTHOST"
+	[ "$USER" = joey ] && SHOWUSER= || SHOWUSER="$USER"
+	[ "$HOST" = hwi ] && SHOWHOST= || SHOWHOST="@$SHORTHOST"
 	# could try using `logname`
 
 	export SHOWUSER # for d f b
@@ -63,7 +63,7 @@ then
 				# export TITLEBAR=`xttitle "\u@\h:\w"`
 				## xterm title:
 				# export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
-				jshinfo "Setting (bash) TITLEBAR=\"\[\033]0;$HEAD:\w\007\]\""
+				# jshinfo "Setting (bash) TITLEBAR=\"\[\033]0;$HEAD:\w\007\]\""
 				export TITLEBAR="\[\033]0;$HEAD:\w\007\]"
 				## removed \u and \h since they are in head already :P
 				# export TITLEBAR="\[\033]0;% $HEAD:\w/\007\]"

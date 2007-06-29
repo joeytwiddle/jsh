@@ -19,6 +19,41 @@ else
 		fi
 	# fi
 
+		# if test "$HOME" = "/root" # Note: cld use UID=0 but not USER=root!
+		if [ "$UID" = 0 ]
+		then
+			COLOR="\[\033[01;31m\]"
+			OTHERCOLOR="\[\033[00;37m\]"
+			DIRCOLOR="\[\033[00;36m\]"
+			HISTCOL="\[\033[01;31m\]"
+			RESCOL="\[\033[01;33m\]"
+			G2COL="\[\033[01;31m\]"
+			G2U=""
+			G2P=" #"
+			G2DIRCOLOR="\[\033[01;34m\]"
+		else
+			COLOR="\[\033[00;36m\]"
+			OTHERCOLOR="\[\033[00m\]"
+			DIRCOLOR="\[\033[00;32m\]"
+			HISTCOL="\[\033[00;33m\]"
+			RESCOL="\[\033[01;31m\]"
+			# G2COL="\[\033[01;32m\]"
+			G2COL="\[\033[01;32m\]"
+			G2U="\u@"
+			G2P=" $"
+			G2DIRCOLOR="\[\033[01;34m\]"
+		fi
+		EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
+		if [ "$RUNNING_GENTOO" = 1 ]
+		then
+			PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$G2COL$G2P \[\033[00m\]"
+		else
+			## this splash of colours is important!
+			# DOLLARDOESNTDOMUCH="\\$" ## should be $ or # depending on uid
+			DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell
+			PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR\h $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
+		fi
+
 	# case `hostname -s` in
 	case "$SHORTHOST" in
 

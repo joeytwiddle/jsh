@@ -132,8 +132,8 @@ else
 					echo "$EXEDIR"
 				fi
 			done |
-			removeduplicatelinespo |
-			tr '\n' : | tr -s : | sed 's+:$++' ## last exp important to avoid . on PATH :P
+			# removeduplicatelinespo | ## neat but too heavy a dependenceny for jsh startup
+			tr '\n' : | tr -s ":" | sed 's+:$++' ## last esp important to avoid . on PATH :P
 		`
 
 		[ "$JSHDEBUG" ] && echo "PATH is now $PATH" >&2
