@@ -2,6 +2,8 @@
 ##           otherwise changed checkout file gets deleted (retrievable)
 ##    SOLVE: check if checkout is committed / up-to-date, and warn if bad situation ; consider making a copy and putting it back after checkout of refactored files/folder
 
+## I think, the best way to move a file or folder in CVS, is to make a duplicate of the old tree in the new position, then do an official cvs remove on the old one, so that all clients can clean it up tidily.
+
 ## BUG: Now allows you rename files, but if there are multiple srcs it should check that dest is a dir!
 ## NEW: "Prototyped" ability to move whole directories (we could perform build a new tree and mvcvs every file)
 

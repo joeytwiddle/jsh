@@ -93,7 +93,8 @@ try_del () {
 		FILENAME=`basename "$FILE"`
 
 		while [ -f "$DESTDIR/$FILENAME" ] || [ -d "$DESTDIR/$FILENAME" ]
-		do FILENAME="$FILENAME"_
+		# do FILENAME="$FILENAME"_
+		do FILENAME="$FILENAME"."`geekdate -fine`"."$$" ## even if geekdate fails, we will at least append with a '.'
 		done ## this could infloop if the previous check failed
 
 		# Something used to go wrong if $FILENAME is a dir ending in "/"

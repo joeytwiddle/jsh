@@ -18,7 +18,7 @@ FILES=`
 
 		# jshinfo "$PROGNAME"
 
-		/usr/sbin/lsof -c "$PROGNAME" |
+		/usr/sbin/lsof -c "$PROGNAME" 2>/dev/null |
 
 		## Negative match: (could be confirmed later eg. by file)
 		# grep -v /lib/ |
@@ -53,14 +53,18 @@ OUTPUT=`
 echo "$OUTPUT"
 
 echo "$OUTPUT" |
+head -n 1 |
 while read FILE
 do
 	DIR=`dirname "$FILE"`
 	NAME=`basename "$FILE"`
 (
+if xisrunning
+then
 echo "$DIR:
 $NAME
-`mp3info "$FILE"`" | osd_cat -c orange -f '-*-lucida-*-r-*-*-*-220-*-*-*-*-*-*'
+` mp3info "$FILE" 2>/dev/null `" | osd_cat -c orange -f '-*-lucida-*-r-*-*-*-220-*-*-*-*-*-*'
+fi
 ) &
 done
 

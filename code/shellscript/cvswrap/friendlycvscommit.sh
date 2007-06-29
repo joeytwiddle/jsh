@@ -39,9 +39,10 @@ then
 	export DONT_USE_FIGLET=true
 	if jwhich figlet quietly
 	then
-		for FIGLET_FONT in straight stampatello italic mini short ogre
+		for FIGLET_FONT in small straight stampatello italic mini short ogre
 		do
-			FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -n 1`
+			# FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -n 1`
+			FIGLET_FONT_FILE=`memo unj locate "$FIGLET_FONT.flf" | head -n 1`
 			if [ "$FIGLET_FONT_FILE" ]
 			then
 				export DONT_USE_FIGLET=
