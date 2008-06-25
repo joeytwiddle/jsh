@@ -9,7 +9,7 @@ then
 
 	## First usage: find a suitable top temp directory.
 
-	if [ ! "$TOPTMP" ] || [ ! -w "$TOPTMP" ]
+	if [ ! "$TOPTMP" ] || [ ! -w "$TOPTMP" ] || [ ! -O "$TOPTMP" ]
 	then
 
 		## Prevents second choice in list below from being /tmp in absence of JPATH, which can be bad if root chmod's it!
@@ -22,7 +22,8 @@ then
 		## Ah no, USER was fine, the problem was that we had already exported TOPTMP, so we never got here to reset it! "/tmp/jsh-$USER.$UID" 
 		[ "$USER" ] && JSHTMP=/tmp/jsh-"$USER"
 		[ "$USER" ] || JSHTMP=/tmp/jsh-"$UID"
-		for TOPTMP in "$TOPTMP" "$TMPDIR" "$JSHTMP" "$HOME/.jshtmp" "$JPATH/tmp" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
+		## OK so we won't use TOPTMP, in case that was exported by a different user before we su-ed:
+		for TOPTMP in "$TMPDIR" "$JSHTMP" "$HOME/.jshtmp" "$JPATH/tmp" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
 		do
 
 			if [ "$TOPTMP" ]

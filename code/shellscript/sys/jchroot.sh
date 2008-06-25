@@ -1,5 +1,6 @@
 ## See also: joey/project/gentoo/chroot_into_gentoo.sh which has isActiveMountPoint().
 
+## TODO: it is safer to do a bind mount than to do a mount from within the chroot.  Therefore we should always mount a partition if it is listed in the chroot's fstab, and any partitions which are not listed should have a mountpoint (e.g. /mnt/hdb2) created in the chroot, and then bind mounted, to avoid the need to mount them in the chroot.
 ## TODO: optionally bind-mount /proc and/or /dev
 ## TODO: I think the currect automounting works if the inner system has some mountpoints with the same name as the outer system.
 ##       This should be made optional, and maybe it should create the mountpoints if they don't exist.
@@ -17,6 +18,15 @@ TARGET="$1"
 [ "$TARGET" ] || exit 1
 
 
+# export HOST="$HOST"_chroot_"$1"
+# export HOSTNAME="$HOSTNAME"_chroot_"$1"
+# export SHORTHOST="$SHORTHOST"_chroot_"$1"
+# export SHOWHOST="$SHOWHOST"_chroot_"$1"
+# export SHORTHOST="chroot@$SHORTHOST:$1"
+export PROMPTHOST="chroot:`echo "$1" | afterlast /`"
+## CONSIDER: maybe better to export CHROOT_IS=... and let anything below pick it up.
+
+
 export HIGHLIGHTSTDERR=true
 
 fix_proc () {
@@ -30,13 +40,32 @@ undo_fix_proc () {
 	verbosely umount "$TARGET"/proc
 }
 
+## TODO: why is this declared twice?!
+
 fix_dev () {
 	mount | grep "^/dev on $TARGET/dev .*bind" ||
 	verbosely mount --bind /dev "$TARGET"/dev
 }
 
+fix_dev () {
+	mount | grep "^/dev on $TARGET/dev .*bind" ||
+	verbosely mount --bind /dev "$TARGET"/dev
+	verbosely mount --bind /dev/pts "$TARGET"/dev/pts
+}
+
 undo_fix_dev () {
+	verbosely umount "$TARGET"/dev/pts
 	verbosely umount "$TARGET"/dev
+}
+
+fix_parent () {
+	[ -d "$TARGET"/CHROOT_PARENT ] || verbosely mkdir -p "$TARGET"/CHROOT_PARENT
+	verbosely mount --bind / "$TARGET"/CHROOT_PARENT
+}
+
+undo_fix_parent () {
+	verbosely umount "$TARGET"/CHROOT_PARENT
+	rmdir "$TARGET"/CHROOT_PARENT
 }
 
 # This doesn't appear to do much good gentoo -> debian.  But maybe it's needed the other way?
@@ -157,6 +186,7 @@ undo_fix_mounts_check_fstab () {
 # fix_proc ; fix_dev ; fix_mounts_check_fstab
 ## Was fix_proc causing the "not enough t/ptys" error?
 fix_dev ; fix_mounts_check_fstab
+fix_parent
 
 check_exec () {
 	if mount | grep " on $TARGET[ 	].*\<noexec\>"
@@ -186,8 +216,9 @@ chroot "$@" env XTTITLE_PRESTRING="$XTTITLE_PRESTRING" bash
 jshinfo "Leaving chroot $TARGET"
 
 undo_fix_proc ; undo_fix_dev ; undo_fix_mounts_check_fstab
+undo_fix_parent
 
-xttitle "$XTTITLE_PRESTRING_BEFORE" ## hardly needed; if xttitle is working, then jsh will probably apply it soon in the shell prompt
+xttitle "chroot-$TARGET $XTTITLE_PRESTRING_BEFORE" ## hardly needed; if xttitle is working, then jsh will probably apply it soon in the shell prompt
 
 
 ### Cleanup (should only do this if we are the last chroot to leave this TARGET)

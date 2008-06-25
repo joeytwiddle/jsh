@@ -136,7 +136,7 @@ do
 		STRINGTOPRINT="$CURSEMESSAGECOL$STATE $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM"
 		if [ "$LASTPRINTLENGTH" ]
 		then
-			CLEARANCE=`seq 1 "$LASTPRINTLENGTH" | while read N; do echo " "; done | tr -d '\n'`
+			CLEARANCE=`seq 1 "$LASTPRINTLENGTH" | while read N; do echo -n " "; done`
 			# printf "\r%s" "$CLEARANCE" >&2
 		fi
 		printf "\r%s\r%s" "$CLEARANCE" "$STRINGTOPRINT" >&2

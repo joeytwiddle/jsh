@@ -3,6 +3,21 @@
 # jsh-ext-depends: sed apt-cache apt-get dpkg column
 # jsh-ext-depends-ignore: find env from file update
 
+## BUG TODO: apt-list -all sometimes disagrees with dpkg -l, due to package numbering
+## e.g.:
+##      dpkg -l | takecols 2 3 > /tmp/1
+##      apt-list -installed pkg ".*"  | takecols 1 2 > /tmp/2
+##      vimdiff /tmp/[12]
+## gives:
+##      analog 5.32-14   vs   analog 2:5.32-14
+## If the extra number comes at the start, apt-list has one entry, without the extra number.
+##      apache-common 1.3.34-4   vs   apache-common 1.3.34-4   and   apache-common 1.3.34-4.1
+## If the extra number comes at the end, apt-list usually has two entries, one with and one without the extra number.  (Maybe this case is NOT actually an error!)
+
+## TODO: "distros" is probably not the correct terminology, and should be renamed throughout.  Maybe "levels"?
+
+## TODO: Move the help to the top, so the flow becomes easier to read.
+
 ## DONE: rename apt-list
 ## TODO: make "apt-list" return help, and use "apt-list generate" to make the big list
 
@@ -25,6 +40,7 @@ cd / # for memoing
 
 # echo "$0 $*" >&2
 
+## I don't like this too much!
 while true
 do
   if [ "$1" = --source-list ]
@@ -92,7 +108,17 @@ Examples:
 # echo "  -refresh  : refresh cache (use when you have new updates)"
 # (see also pkgversions) [it uses apt-cache directly, and tells you which one is currently installed. ]
 ## There is also the command apt-list generate, but that is meant for internal use only.
-exit 1
+
+## Since we are taking some time anyway, pre-generate (aka show summary, aka pre-load cache, aka test generation speed):
+echo "Packages: "`apt-list all | wc -l`
+echo "Installed: "`apt-list -installed all | wc -l`
+echo "Distros: "`apt-list distros` # | tr '\n' " " ; echo
+echo "Sources: "`apt-list sources` # | tr '\n' " " ; echo
+echo
+
+exit 0
+
+## TODO: "apt-list pkg" might accidentally be used instead of "apt-list all", so it should do that :P
 
 elif [ "$1" = from ]
 then
@@ -135,9 +161,10 @@ then
 
     ## Used to build a big regexp for grep but it was too slow.
 
+    ## I don't like this!
     export LIST=`jgettmp apt-list`
     export INSTALLED=
-    apt-list all $SOURCE_LIST | tr -s ' ' > $LIST
+    apt-list all $SOURCE_LIST | tr -s ' ' > $LIST ## Why do we put it into a list, when "apt-list all ..." caches its output anyway?!
 
     echo "`cursemagenta`apt-list: building installed cache subset, u may get annoyed now...`cursenorm`" >&2
 
@@ -175,7 +202,7 @@ then
         if ( $1 == "Package:" )
           { PACK=$2 }
         if ( $1 == "Version:" )
-          { VER=$2 }
+          { VER=$2 } ## BUG TODO: I think this might miss the subversion (e.g. -3)
         if ( $1 == "File:" )
           { PROVIDER=$2 ; STAT=$3; print PACK "\t" VER "\t" STAT "\t" PROVIDER }
       } ' |
@@ -188,7 +215,9 @@ then
 elif [ "$1" = "" ]
 then
 
-		echo "[TODO] apt-list called with no args: should show help."
+		# echo "[TODO] apt-list called with no args: should show help."
+		apt-list --help
+		exit
 
 else
 

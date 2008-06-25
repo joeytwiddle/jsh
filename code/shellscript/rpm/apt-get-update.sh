@@ -16,4 +16,5 @@ fi
 apt-get --option Dir::Etc::sourcelist=$FILE update
 
 ## In case someone runs apt-get update, you can retrieve all your sources from this backup.
-tar c /var/lib/apt/lists | gzip -1 > /tmp/var_lib_apt_lists.tgz
+# tar c /var/lib/apt/lists | gzip -1 > /tmp/var_lib_apt_lists.tgz
+## (Disabled until I clear more HD space!)

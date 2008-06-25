@@ -110,19 +110,26 @@ grep "^$PROCESS_NAME" |
 # grep "^[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*r " | ## Only files opened for reading
 # grep "\<REG\>" |
 # grep "^[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ ]*[^ ]*[ru] " | column5not "TCP" | column5not "sock" | ## Only files opened for reading
-column4not "\(txt\|mem\)" |
+# column4not "\(txt\|mem\)" |
 # column5not "unix" |
 # column5not "IPv4" |
 # column5not "CHR" | ## Strip out pipes (or is it libraries?!)
 # column5not "FIFO" | ## Strips fifos
 # # column5is REG |
-column5is "REG" |
+# column5is "REG" |
 # grep -v "/lib/" | ## Because libraries still crop up despite above (for vim at least)
 
+# dropcols 2 | We used to drop the PID - this was better for watching / ignoring threads which kept refreshing (apachelistuploads and monitor_disk_usage and monitorfileaccess)
+
 if [ "$MERGE_THREADS" ]
-then dropcols 2 | removeduplicatelines
+then removeduplicatelines
 else cat
 fi |
+
+## The following hide some non-files, and also unwanted stuff opened during: jwatch listopenfiles
+grep -v " pipe$" |
+grep -v "^lsof " |
+grep -v "/new-listopenfiles\." |
 
 if [ "$ENABLE_COLOUR" ]
 then

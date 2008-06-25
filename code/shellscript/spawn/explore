@@ -1,6 +1,20 @@
-## explore: given a path (or possible an ftp url), opens up the user's favourite file manager
+## explore: given a path or url, opens up the user's favourite file manager, or browser if neccessary
+
+function jsh_find_favourite() {
+	for X
+	do
+		which "$X" && echo "$X" && return
+	done
+	echo "[FAIL] jsh_find_favourites: $*" >&2
+	return 9
+}
+
+EXPLORER=`jsh_find_favourite konqueror nautilus kvfm kfmclient explorer.exe`
+
+## TODO: When running konqueror, I used to want: >/dev/null 2>&1 
 
 if test "$*" = ""
-then konqueror . >/dev/null 2>&1 &
-else konqueror "$@" >/dev/null 2>&1 &
+then $EXPLORER . &
+else $EXPLORER "$@"
 fi
+
