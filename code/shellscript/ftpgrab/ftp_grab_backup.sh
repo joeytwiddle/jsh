@@ -7,9 +7,6 @@ function convert_ftp_response_to_filestats() {
 	) | ls-Rtofilelist -l
 }
 
-# ftp://user@host.blah/folder/s
-
-SEARCH_FOLDERS_FOR_MATCH="/mnt/big/ut/ut_win /mnt/big/ut/files"
 REMOTEHOST="$1"
 USERNAME="$2"
 PASSWORD="$3"
