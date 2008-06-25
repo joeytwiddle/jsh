@@ -27,7 +27,12 @@ fi
 alias l='. l'
 alias dl='ls -ld'
 
-alias tail=prettytail
+## This has somem nasty problems - put it in config/auto.sh until it's fixed!
+# alias tail=prettytail
+### e.g.:
+### /home/joey/linux/j/tools/prettytail: line 40: 22909 Terminated              ( SLEEPTIME=15; while true; do
+### sleep $SLEEPTIME; echo "[tail] ... $SLEEPTIME seconds passed" | highlight ".*" blue 1>&2;
+### done )
 
 ## Note: it's rather important that aliases don't get passed
 ## down to child shells / processes, because this would likely
@@ -43,16 +48,14 @@ alias mykilljob=". 'mykilljob' -jc"
 ## I guess we need this as an aliased function because a script would lost the history!
 if test "$SHORTSHELL" = zsh
 then
-
 	# . pawan_zshrc_stripped
-
 	myhist() {
-		history 1 | grep "$*"
+		history 1 | grep "$*" | tail -n "$((LINES/2))"
 	}
 elif test "$SHORTSHELL" = bash
 then
 	myhist() {
-		history | grep "$*"
+		history | grep "$*" | tail -n "$((LINES/2))"
 	}
 fi
 alias hist=myhist
@@ -102,7 +105,20 @@ alias cp='cp -a -i'
 
 alias cal='cal | highlight "\<`date | takecols 3`\>"'
 
-alias h='hist .'
+alias h='hist'
 
 alias locate='memo -t "1 day" locate'
+
+## Should not be called by shellscripts:
+## Problem: should be called: mount "$@"
+alias mount='jmount'
+function jmount() {
+	'mount' "$@" |
+	highlight "\<rw\>" cyan |
+	highlight "\<ro\>" red |
+	highlight "\<bind\>" magenta
+	# highlight_words
+}
+
+# alias mount="'mount' | highlight_words"
 

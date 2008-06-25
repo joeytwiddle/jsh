@@ -116,6 +116,9 @@ else
 		# export PATH="$JPATH/tools:$HOME/bin:$PATH"
 		export PATH="$PATH:$JPATH/tools:$HOME/bin"
 
+		# $SHLVL|
+		echo -n "`cursegreen`[jsh...`cursenorm`" >&2
+
 		[ "$JSHDEBUG" ] && echo "Added $JPATH/tools to get new PATH=$PATH" >&2
 
 		## Dunno about below checks.  This is new:
@@ -186,6 +189,9 @@ else
 				if [ $ZSH_NAME ]
 				then
 					SHORTSHELL="zsh"
+					# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
+					## Nope better to have an alias source a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
+					. xttitleprompt
 					. zshkeys
 					. hwipromptforzsh
 					## TODO: problem, this can leave nonomatch in $1 of sourced scripts (in the interactive sh)
@@ -193,15 +199,13 @@ else
 				elif [ "$BASH" ]
 				then
 					SHORTSHELL="bash"
+					. xttitleprompt
 					. bashkeys
 					. hwipromptforbash
 					shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
 				fi
 				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt
 
-				# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
-				## Nope better to have an alias source a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
-				. xttitleprompt
 
 				. lscolsinit
 
@@ -267,6 +271,8 @@ else
 			fi # ! simple
 
 		fi # jwhich jwhich
+
+		echo "`cursegreen`started]`cursenorm`" >&2
 
 	fi # OKTOSTART
 

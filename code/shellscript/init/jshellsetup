@@ -44,7 +44,8 @@ export FIGNORE
 #echo -e "\033[01;31m\\ / \\\\\033[01;35m!\033[01;31m/ / \033[00;32mgreets thee"
 echo -en "\033[01;37m"
 
-xhost +
+## Disabled; was insecure
+# xhost +
 
 $JPATH/tools/fortune
 $JPATH/tools/automount
