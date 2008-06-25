@@ -16,7 +16,7 @@ else
 
 	## (No longer) stream-only version:
 	while read FILE
-	do find "$FILE" -maxdepth 0 -printf "%A@ %p\n"
+	do find "$FILE" -maxdepth 0 -printf "%T@ %p\n"
 	done |
 	sort -n -k 1 |
 	dropcols 1
