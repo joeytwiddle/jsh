@@ -6,8 +6,10 @@
 ## xttitle was bad; adding stuff to streams which scripts were using (verbosely); but tty check seems to have fix this ; no it hasn't :s (e.g. was steal_package_from_chroot.sh)
 # tty -s && xttitle "# $* [$PWD]" ## mmm; better than nothing, for bash, since i have not yet found a way to run xttitle automatically whenever a new user-command is executed
 
+# tty -s || SHOW_IO=" (<stdin)"
+
 ## TODO: it would really be rather nice if verbosely surrounded the arguments which contain spaces with qoutes when it prints them.
-[ "$NOEXEC" ] || echo "`cursecyan;cursebold`[EXEC]`cursewhite` %`cursegrey` $*`cursenorm`" >&2
+[ "$NOEXEC" ] || echo "`cursecyan;cursebold`[EXEC]`cursewhite` %`cursegrey` $*`cursenorm`$SHOW_IO" >&2
 
 if [ "$HIGHLIGHTSTDERR" ]
 then highlightstderr "$@"

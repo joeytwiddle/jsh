@@ -20,7 +20,7 @@ whichmediaplayer () {
 	# fuser -v /dev/dsp | drop 2 | head -n 1 | takecols 5
 	## New fuser appears to output on stderr?
 	fuser -v /dev/dsp 2>&1 |
-	# grep "^/dev/dsp" | ### turned this off, seems only the very first entry starts with /dev/dsp
+	grep "^/dev/dsp" | ### ignore any errors at the start
 	grep -v "\<ut-bin\>" | ## don't mistake the game for a media player!  (Alternatively, grep *for* the media players we recognise below)
 	grep -v "\<TeamSpeak.bin\>" | ## don't mistake this for a media player!  (Alternatively, grep *for* the media players we recognise below)
 	sed 's+.* ++' | grep -v "^COMMAND$" | grep -v "^$" | ## take the last col from each line, that isn't the leading blank or the header
@@ -39,7 +39,7 @@ case $PLAYER in
 		xmms -p
 	;;
 	mpg123|ogg123|mpg321)
-		killall -sINT $PLAYER ## send it something softer
+		killall -sINT $PLAYER ## send it something softer?  we assume they are being called in a loop ;)
 	;;
 	mplayer)
 		## No good, doesn't progress to next song.  Want to send it a signal!

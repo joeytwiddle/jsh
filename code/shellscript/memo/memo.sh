@@ -3,6 +3,10 @@
 # jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath debug
 # this-script-does-not-depend-on-jsh: arguments filename arguments todo mytest md5sum
 
+## TODO: an option to cache until condition expires: that date of memofile == date of specified file (in other words newer || older)
+
+export DEBUG_MEMO=true ## until i work out what memos are filling up /tmp (maybe 
+
 ## Note: if you see a script which does "cd /" and claims to do it for memoing, this is because it wants all its memo's to be "working-directory independent"
 ##       this might be solved in future by TODO: an option (or envvar) to specify that the working-directory is irrelevant to memo's output, and should be ignored in the hash
 
@@ -25,6 +29,7 @@ MEMODIR=$TOPTMP/memo
 ##       the checksumming : is there a quicker hash we can use in the shell?
 ## Afterthought: another factor may be the damn size of this script!
 ##               but DONE :) as far as checksumming is concerned, I think we should only try to include the command in the memofile name if we are in debug mode, because that may be slowing it down.
+## Could strip unneeded comments, and move then to after the end of the script (ahh there is no return or exit here)
 
 ## HOW-TO-SPEED-IT-UP-EXTERNALLY: Yes the re-parsing of this script does slow it down considerably; this can be improved by using ". importshfn rememo" and ". importshfn memo" before repeatedly using memo.  :)
 
@@ -176,10 +181,11 @@ then
 	then
 		if [ -f "$MEMOFILE" ]
 		then jshinfo "Replacing old memo: rememo $*" && SHOW_INFO_DONE=true
-		else jshinfo "Building new memo:  rememo $*" && SHOW_INFO_DONE=true
+		else jshinfo "Building new memo: rememo $*" && SHOW_INFO_DONE=true
 		fi
 	fi
 	rememo "$@"
+	## TODO CONSIDER: If we did . rememo "$@" here, maybe functions would get called :)  Although if we have done importshfn memo, then that might achieve the same.
 else
 	# [ "$DEBUG" ] && debug "memo: re-using com=\"$NICECOM\""
 	[ "$DEBUG" ] && debug "memo: re-using memofile=\"$MEMOFILE\""

@@ -21,7 +21,7 @@ while true
 do
 
 	# TRACK=`cat $JPATH/music/list.m3u | grep -i "$SEARCH" | chooserandomline`
-	TRACK=`memo updatemusiclist | grep -i "$SEARCH" | chooserandomline`
+	TRACK=`memo updatemusiclist | grep -i "$SEARCH" | grep -v -i "\<book\>" | chooserandomline`
 
 	[ ! -f "$TRACK" ] && continue
 
@@ -79,11 +79,21 @@ do
 	# sed "s+\(File:[^ ]* \)\(.*\)+`curseblue`\1 `curseblue`\2+"
 	cat
 
-	(
-		echo "randommp3: `mp3info -p "%a - %t" "$TRACK" 2>/dev/null` [`filename "$TRACK"`]"
-		echo "$MP3INFO"
-	) |
-	osd_cat -c green -f '-*-lucida-*-r-*-*-*-200-*-*-*-*-*-*'
+	# (
+		# echo "`mp3info -p "%a - %t" "$TRACK" 2>/dev/null` :: [`filename "$TRACK"`]"
+		# # echo "randommp3: `mp3info -p "%a - %t" "$TRACK" 2>/dev/null` [`filename "$TRACK"`]"
+		# # echo "$MP3INFO"
+	# ) |
+	# # osd_cat -c green -f '-*-lucida-*-r-*-*-*-200-*-*-*-*-*-*'
+	# osd_cat -c green -f '-*-lucida-*-r-*-*-*-200-*-*-*-*-*-*'
+	## This is now a duplicate of whatsplaying:
+	FILE="$TRACK"
+	NAME=` mp3info -p "%a - %t" "$FILE" `
+	TIME=` mp3info -p "%mm%ss" "$FILE" `
+	echo "$NAME
+	$TIME :: [$FILE]" |
+	# osd_cat -c green -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*' &
+	osd_cat -c green -f '-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*' & ## works inside my chroot
 
 	echo "`cursered`del \"$TRACK\"`cursenorm`""*" # * added for .mp3gain files :)
 
@@ -96,11 +106,11 @@ do
 	# echo "randommp3: `mp3info -p "%a - %t" "$TRACK" 2>/dev/null` [`filename "$TRACK"`]" | osd_cat -f '-*-lucida-*-r-*-*-*-440-*-*-*-*-*-*'
 	if [ "$USE_MP3GAIN" ]
 	then
-		playmp3andwait "$TRACKTOPLAY" &
+		playmp3andwait "$TRACKTOPLAY" >/dev/null 2>&1 &
 		## Gives mpg123 time to cache, so mp3gain doesn't steal vital CPU!  TODO: renice mpg123
 		sleep 10
 	else
-		playmp3andwait "$TRACKTOPLAY"
+		playmp3andwait "$TRACKTOPLAY" >/dev/null 2>&1
 	fi
 	echo
 

@@ -8,7 +8,7 @@
 	# madplay "$@"; exit
 # fi
 
-## See also: my gentoo version of mplayer has a -stop-xscreensaver option
+## See also: new versions of mplayer have a -stop-xscreensaver option
 ## consider: could killall -STOP it, then unhalt it at end.
 # killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
 

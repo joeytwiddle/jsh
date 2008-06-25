@@ -45,6 +45,7 @@ then
 	# exit 1
 	## FIXED BUG: doh, why don't we just do that here?!
 	verbosely memo -c true "$@"
+	## TODO CONSIDER export REMEMO=true ; memo ...
 	exit
 fi
 mkdir -p `dirname "$MEMOFILE"`
@@ -56,7 +57,7 @@ TMPFILE=`jgettmp tmprememo`
 
 ## Is stdin being piped?  If so, memo may not be doing what the user thought!  Warn them...
 if [ ! "$IKNOWIDONTHAVEATTY" ] && ! tty -s
-then jshwarn "rememo found no tty on \"$*\".  If different input streams can give different outputs, then memoing should not be employed.  This warning can currently be disabled by setting \$IKNOWIDONTHAVEATTY."
+then jshwarn "\"rememo $*\" found no tty (`tty`).  If different input streams can give different outputs, then memoing should not be employed.  This warning can currently be disabled by setting \$IKNOWIDONTHAVEATTY."
 fi
 
 ## This doesn't work if input is "x | y"

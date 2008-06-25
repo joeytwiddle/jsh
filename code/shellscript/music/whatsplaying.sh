@@ -7,7 +7,8 @@ FILES=`
 	for DEV in /dev/dsp /dev/sound/dsp
 	do [ -e $DEV ] && fuser -v $DEV 2>&1
 	done |
-	drop 2 |
+	# drop 2 | ## why did you want to drop 2?  i have only 1 header line :P
+	drop 1 |
 	# takecols 5 |
 	dropcols 1 2 3 4 | ## only the first line has something in first column, so this works better
 	removeduplicatelines |
@@ -18,7 +19,7 @@ FILES=`
 
 		# jshinfo "$PROGNAME"
 
-		/usr/sbin/lsof -c "$PROGNAME" 2>/dev/null |
+		/usr/*bin/lsof -c "$PROGNAME" 2>/dev/null |
 
 		## Negative match: (could be confirmed later eg. by file)
 		# grep -v /lib/ |
@@ -58,13 +59,25 @@ while read FILE
 do
 	DIR=`dirname "$FILE"`
 	NAME=`basename "$FILE"`
-(
+# (
 if xisrunning
 then
-echo "$DIR:
-$NAME
-` mp3info "$FILE" 2>/dev/null `" | osd_cat -c orange -f '-*-lucida-*-r-*-*-*-220-*-*-*-*-*-*'
+# echo "$DIR:
+# $NAME
+# ` mp3info "$FILE" 2>/dev/null `" |
+# osd_cat -c orange -f '-*-lucida-*-r-*-*-*-220-*-*-*-*-*-*'
+NAME=` mp3info -p "%a - %t" "$FILE" `
+TIME=` mp3info -p "%mm%ss" "$FILE" `
+# for COL in black green yellow red magenta blue cyan green black
+for COL in black green red blue black
+do
+	echo "$NAME
+  $TIME :: [$FILE]" |
+	# osd_cat -c "#"00"$COL$COL"00 -d 1 -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*'
+	# osd_cat -c "$COL" -d 1 -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*'
+	osd_cat -c "$COL" -d 2 -f '-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*' ## works inside my chroot
+done
 fi
-) &
+# ) &
 done
 

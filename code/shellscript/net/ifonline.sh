@@ -7,7 +7,7 @@
           # RX bytes:0 (0.0 b)  TX bytes:342 (342.0 b)
 ## The lack of IP addresses might be an indicator of a problem here!
 
-for INTERFACE in ppp0 eth1 eth0
+for INTERFACE in eth0 eth1 ppp0
 do
 	if /sbin/ifconfig "$INTERFACE" >/dev/null 2>&1
 	then

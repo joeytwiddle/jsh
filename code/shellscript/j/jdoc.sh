@@ -1,3 +1,5 @@
+## Should add detection of whether info file == man page ;p
+
 if [ "$1" = "" ] || [ "$1" = "--help" ]
 then
 

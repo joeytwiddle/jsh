@@ -281,7 +281,7 @@ case "$1" in
 			## Games:
 			## truff fun day was: 7300 7400 7500 7600 7700
 			##          unreal.prolly!.most...........................trufftruffopen.ec...another..whoshack.oneoff.for_server somewhere dutchnet temp..... iNz. anuva #ctfpug.. XP.. ?... jolt .... ....                          .deOF            nerdnetworkDM ezpug dns             pwa        wmc  spampug            jolt-iCTF multiplay                             testing: ecTS tacsu sa-pug pug2 mace nTo  face  dm-clan nTo   f1x2 TS(experiment!)     HT$  rubor                                         reb-siege
-			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900 7733 7766 7788 7080 8889     7767     6666   7787 28902 24777     1111     8000 7757 6100 27000 7040 8100 7807 7770 7897 8020 8420 7755 8888 7700 9977 5555 6200  3333 27800 9400 14000    7000  6600 8680 37420 27040 8430 7797 6400    7800 27215 7817      27606 7877 7977 8477 8859 27808 60000          9600 6300  7040   9200 7070 6500 21000 8000    23000 8177 8767 9018 4022 8900 2222 7707 7744 7020 9000 30200 8899 8450 4444 9500 2775      8500
+			for PORT in 5080 7775 7776 7777 7778 7779 7780 8777 27900 7733 7766 7788 7080 8889     7767     6666   7787 28902 24777     1111     8000 7757 6100 27000 7040 8100 7807 7770 7897 8020 8420 7755 8888 7700 9977 5555 6200  3333 27800 9400 14000    7000  6600 8680 37420 27040 8430 7797 6400    7800 27215 7817      27606 7877 7977 8477 8859 27808 60000          9600 6300  7040   9200 7070 6500 21000 8000    23000 8177 8767 9018 4022 8900 2222 7707 7744 7020 9000 30200 8899 8450 4444 9500 2775      8500 7010 7008 6150
 			do
 				filter_port batch$PORT sport $PORT 1
 				filter_port batch$PORT dport $PORT 1
@@ -464,6 +464,9 @@ case "$1" in
 			/sbin/route add -host 82.55.183.170 reject
 			/sbin/route add -host 70.84.152.52 reject
 			/sbin/route add -host 86.126.59.133 reject
+			## Search engines ignoring my robots.txt:
+			/sbin/route add -host inktomisearch.com reject
+			/sbin/route add -host crawl.yahoo.net reject
 
 			echo "startified"
 		;;

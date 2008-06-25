@@ -7,10 +7,10 @@ do
 	if [ "$CHECKFILE" ]
 	then
 		CHECK=`qkcksum "$FILE" | takecols 1 2`
-		SHOULDBE=`cat "$CHECKFILE" | takecols 1 2 2>/dev/null`
+		SHOULDBE=`cat "$CHECKFILE" 2>/dev/null | takecols 1 2`
 		if [ "$CHECK" = "$SHOULDBE" ] || [ "$SHOULDBE" = "" ]
 		then
-			jshinfo "Restored ok :)"
+			# jshinfo "Restored ok :)"
 			[ -f "$CHECKFILE" ] && del "$CHECKFILE"
 		else
 			error "Failed match:"
