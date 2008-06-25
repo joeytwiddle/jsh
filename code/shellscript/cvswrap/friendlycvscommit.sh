@@ -31,7 +31,12 @@ getfiles () {
 	# grep -v "^$" | grep -v "^#" |
 }
 
-[ "$DIFFCOM" ] || DIFFCOM="jdiff -infg"
+function mydiff () {
+	diff "$@" | diffhighlight | more
+}
+
+# [ "$DIFFCOM" ] || DIFFCOM="jdiff -infg"
+[ "$DIFFCOM" ] || DIFFCOM="mydiff"
 
 ## First, choose a figlet font:
 if [ ! "$DONT_USE_FIGLET" ]
@@ -65,9 +70,9 @@ do
 	(
 		## TODO: optionally use figlet with font here!
 		(
-		curseblue
+		# curseblue
 		## TODO: this is the cvs status that blocks, because it's directory is locked.
-		cvs status "$FILE"
+		cvs status "$FILE" | highlight "^File:.*" cyan
 		# cvs diff "$FILE"
 		cvs -q update -p "$FILE" > $TMPFILE 2>/dev/null
 		cursenorm
@@ -113,7 +118,9 @@ do
 				break
 			;;
 			c|C|.|????*)
-				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
+				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
+				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="Commited from `hostname`:`realpath "$FILE"`"
+				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
 				echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
 				echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 				cvscommit -m "$INPUT" "$FILE" ||

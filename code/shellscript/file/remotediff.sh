@@ -298,8 +298,8 @@ CKSUMCOM='
 		cksum "$X"
 		# /home/joey/j/jsh filesize -likecksum "$X"
 		## TODO: fix for dos/unix fs, dont know why it doesnt work
-		cat "$X" | dos2unix | cksum - | tr -d '\n' && echo " $X"
-		## Dunno why I thought it didn't work, or disabled it.  Test a bit more, then cleanup!
+		cat "$X" | dos2unix | cksum - | tr -d "\n" && echo " $X"
+		## Dunno why I thought it didnt work, or disabled it.  Test a bit more, then cleanup!
 	done |
 	tr "\t" " " |
 	grep -v "/CVS/"

@@ -17,7 +17,7 @@ IMAGE="$1"
 	if which convert >/dev/null 2>&1
 	then
 
-		SIZE=`imagesize "$IMAGE" # | pipeboth`
+		SIZE=`imagesize "$IMAGE"` # | pipeboth
 		XRES=`echo "$SIZE" | beforefirst x`
 		YRES=`echo "$SIZE" | afterfirst x`
 		ASPECT_PERCENT=$((XRES*100/YRES))

@@ -5,9 +5,9 @@
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
-	echo "renamefiles <search> <replace> [ |sh ]"
+	echo "renamefiles [-r] <search> <replace> [ |sh ]"
 	echo
-	echo "<command>... | renamefiles <search> <replace> [ |sh ]"
+	echo "<command>... | renamefiles <search_glob> <replace_regexp> [ |sh ]"
 	echo
 	echo "  allows you to easily rename a batch of files by simply providing"
 	echo "  a glob to match, and a regexp-style (\1,\2,...) replacement string."
@@ -19,6 +19,8 @@ then
 	echo "  grep and sed are used for the selection of files and their renaming,"
 	# echo "  but pre-processing auto-changes . to \. and * to (.*) and ? to . ."
 	echo "  but you should actually specify a glob for <search> and a regexp for <replace>."
+	echo
+	echo "  The option -r acts recursively, but do check that your search/replace acts on the filename and not the path."
 	echo
 	echo "  Pipe the output through |sh if you are happy."
 	echo
@@ -33,6 +35,11 @@ then
 	exit 1
 fi
 
+if [ "$1" = -r ]
+then MAXDEPTH="" ; shift
+else MAXDEPTH="-maxdepth 1"
+fi
+
 SEARCH="$1"
 REPLACE="$2"
 
@@ -45,7 +52,7 @@ SEARCH=`echo "$SEARCH" | sed 's+\.+\\\\.+g ; s+\\?+\\\\(.\\\\)+g ; s+\*+\\\\(.*\
 if ! tty >/dev/null
 then cat
 # else find . -type f -maxdepth 1
-else find . -maxdepth 1
+else find . $MAXDEPTH
 fi |
 grep "$SEARCH" |
 

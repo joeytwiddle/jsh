@@ -1,3 +1,7 @@
+if [ "" = "`which aumix`" ]
+then . errorexit "fadevolume cannot run: no aumix"
+fi
+
 ## First argument is seconds between each nudge down in volume.
 ## Defaults to 60 seconds (slow fade).
 if [ "$1" ]

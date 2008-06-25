@@ -1,3 +1,11 @@
+## TODO: i factored out reclaimfrom but didn't really modify it at all
+##       we never reclaim from $HOME/j/trash but we should!  (If we are on a nicely working system, or we are root, we can easily do this by doing del on those trash folders, before we start the reclaim ^^ )
+
+## TODO BUG:
+# Space increased to: 50692
+# But I failed to reclaim: ./tmp/jsh-256/memo/[]3328752869_54_-..jdoc_showjshtooldoc_unzipintodir..+home+joey+j+tools_.memo
+## Was this caused by the []s ?
+
 ## TODO: Allow user to specify two thresholds: one to try to clear past, another at which to warn user.
 ## TODO: What about prioritising which files are removed first?  What about allowing user to offer non-default reclaim directories?
 
@@ -87,7 +95,7 @@ SELECTIONREGEXP="$1"
 # do
 
 ## Like flatdf but better - only works on one mountpoint at a time.
-function spaceon () {
+function spaceon() {
 	MNTPNT="$1"
 	SPACE=`
 		df "$MNTPNT" |
@@ -99,45 +107,9 @@ function spaceon () {
 	echo "$SPACE"
 }
 
-mount |
-## If you are chrooted, but /proc has been mounted, this works much better (well it works!):
-# cat /proc/mounts |
+function reclaimfrom() {
 
-grep "^/dev" |
-
-grep "$SELECTIONREGEXP" |
-
-takecols 1 3 |
-
-while read DEVICE MNTPNT
-do
-
-	# SPACE=`flatdf | grep "^$DEVICE[ 	]" | takecols 4`
-	## TODO: the following method is duplicated below; should be migrated into flatdf.
-	SPACE=`spaceon "$MNTPNT"` ## Like flatdf but better - only works on one mountpoint at a time.
-	## But since we grep "^dev", we don't tend to get an overflowing field 1 anyway!
-	# SPACE=`df "$MNTPNT" | takecols 4`
-
-	# echo "Checking space on $DEVICE $MNTPNT $SPACE"k
-	# echo "[reclaimspace]  $MNTPNT     $SPACE"k
-	echo "[reclaimspace]	$MNTPNT	$((SPACE/1024))"M | expand -t 20
-
-	ATTEMPTSMADE=0
-
-	# [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM && find . -type f | countlines
-
-	if [ "$SPACE" -lt "$MINKBYTES" ]
-	then
-
-		echo "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
-
-		## Moving this find outside of the conditional while has made it more efficient (without memo) when many files need reclaiming, but very inefficient when 0 files need reclaiming.
-		## Ideally we wouldn't do this if we check before and space is ok.
-		# if [ -d "$MNTPNT"/RECLAIM ] && [ "$SPACE" -lt "$MINKBYTES" ] && cd "$MNTPNT"/RECLAIM
-		## I was using this mode for debug purposes:
-		if [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM
-		# if [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM && [ "$SPACE" -lt "$MINKBYTES" ]
-		then
+	# cd "$1"
 
 			## I had a lot of trouble if I broke out of the while loop, because the find was left dangling and still outputting (worse on Gentoo's bash).
 			## I did try cat > /dev/null to cleanup the end of the stream, but if I had already passed, the cat caused everything to block!
@@ -222,6 +194,55 @@ do
 				fi
 
 			done
+
+}
+
+
+mount |
+## If you are chrooted, but /proc has been mounted, this works much better (well it works!):
+# cat /proc/mounts |
+
+grep "^/dev" |
+
+grep "$SELECTIONREGEXP" |
+
+grep -v " (\<ro\>.*)$" | ## Excludes CD-drives and other read-only mounts
+
+takecols 1 3 |
+
+while read DEVICE MNTPNT
+do
+
+	# SPACE=`flatdf | grep "^$DEVICE[ 	]" | takecols 4`
+	## TODO: the following method is duplicated below; should be migrated into flatdf.
+	SPACE=`spaceon "$MNTPNT"` ## Like flatdf but better - only works on one mountpoint at a time.
+	## But since we grep "^dev", we don't tend to get an overflowing field 1 anyway!
+	# SPACE=`df "$MNTPNT" | takecols 4`
+
+	# echo "Checking space on $DEVICE $MNTPNT $SPACE"k
+	# echo "[reclaimspace]  $MNTPNT     $SPACE"k
+	echo "[reclaimspace]	$MNTPNT	$((SPACE/1024))"M | expand -t 20
+
+	ATTEMPTSMADE=0
+
+	# [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM && find . -type f | countlines
+
+	if [ "$SPACE" -lt "$MINKBYTES" ]
+	then
+
+		echo "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
+
+		# reclaimfrom "$MNTPNT"/RECLAIM
+
+		## Moving this find outside of the conditional while has made it more efficient (without memo) when many files need reclaiming, but very inefficient when 0 files need reclaiming.
+		## Ideally we wouldn't do this if we check before and space is ok.
+		# if [ -d "$MNTPNT"/RECLAIM ] && [ "$SPACE" -lt "$MINKBYTES" ] && cd "$MNTPNT"/RECLAIM
+		## I was using this mode for debug purposes:
+		if [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM
+		# if [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM && [ "$SPACE" -lt "$MINKBYTES" ]
+		then
+
+			reclaimfrom "$MNTPNT"/RECLAIM
 
 			## Recently(?) problems developed with this approach.  What if the last read reached end-of-stream?  Then cat probably blocks!
 			## Failed attempt solving with the echo above, so that loop will break out before reading EOS so we can read it here.
