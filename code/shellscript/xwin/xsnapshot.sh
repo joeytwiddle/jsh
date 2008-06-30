@@ -2,9 +2,12 @@
 # ## I think it would be good if:
 # echo /tmp/screenshot-$$.bmp
 
+DESTDIR=/tmp
+DESTDIR="$HOME/screenshots" ; mkdir -p "$DESTDIR" || exit 1
+
 if [ "$1" ]
 then DESTINATION="$1"
-else DESTINATION=/tmp/screenshot-$$.bmp
+else DESTINATION="$DESTDIR"/screenshot-$$.bmp
 fi
 
 TMPFILE=/tmp/screenshot-$$-tmp.bmp

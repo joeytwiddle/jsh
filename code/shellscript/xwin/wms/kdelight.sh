@@ -7,8 +7,7 @@
 # kicker > /tmp/kicker-$DISPLAY.log 2>&1 &
 # wait
 
-## This script was tested with kicker and konqueror already loading in the background.
-## TODO: Test without.
+## TODO: I reduced the sleep times on my faster machine.  Maybe I can detect the optimum time by looking at logfile/stdout of processes?
 
 jshinfo "[kdelight] Starting kdeinit"
 
@@ -17,7 +16,7 @@ kdeinit > /tmp/kdeinit-$DISPLAY.log 2>&1 &
 ## Otherwise klauncher doesn't work properly (although we don't need to load it):
 # klauncher > /tmp/klauncher-$DISPLAY.log 2>&1 &
 
-sleep 10
+sleep 5
 
 ## Finally the WM!:
 jshinfo "[kdelight] Starting kwin"
