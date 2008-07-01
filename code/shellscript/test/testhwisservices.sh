@@ -63,35 +63,37 @@ echo
 # 
 # echo
 
-checkWebPageForRegexp "http://hwi.ath.cx/" "How to contact Joey"
+checkWebPageForRegexp "http://hwi.ath.cx/" "How to contact Joey" &
 
 echo
 
-checkWebPageForRegexp "https://emailforever.net/cgi-bin/openwebmail/openwebmail.pl" "Open"
+checkWebPageForRegexp "https://emailforever.net/cgi-bin/openwebmail/openwebmail.pl" "Open" &
 
 echo
 
-checkWebPageForRegexp "http://generation-online.org/" "Generation"
+checkWebPageForRegexp "http://generation-online.org/" "Generation" &
 
 echo
 
 # doing "Checking hwi's port 5432 (postgres) is firewalled."
 # nmap -p 5432 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
 
-doing "Checking hwi's port 2049 (nfs) is firewalled."
-nmap -p 2049 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+check_firewall () {
+	doing "Checking hwi's port $2 ($1) is firewalled."
+	nmap -p "$2" hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+}
 
-doing "Checking hwi's port 139 (samba) is firewalled."
-nmap -p 139 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+check_firewall ftp 220
 
-doing "Checking hwi's port 445 (samba) is firewalled."
-nmap -p 445 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+check_firewall nfs 2049
 
-doing "Checking hwi's port 6000 (X:0) is firewalled."
-nmap -p 6000 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+check_firewall samba 139
 
-doing "Checking hwi's port 6001 (X:1) is firewalled."
-nmap -p 6001 hwi.ath.cx 2>/dev/null | grep "[Oo]pen" && bad "Port is open!" || good "Port is not open"
+check_firewall samba 445
+
+check_firewall "X:0" 6000
+
+check_firewall "X:1" 6001
 
 echo
 
