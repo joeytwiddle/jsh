@@ -42,7 +42,9 @@ done
 if test $COMMON; then
 
 		cat "$1" |
-		while read X; do
+		while read X
+		do
+			X="`toregexp "$X"`"
 			grep "^$X$" "$2"
 		done
 
