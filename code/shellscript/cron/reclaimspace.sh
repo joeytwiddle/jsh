@@ -38,7 +38,7 @@ then
 	echo
 	echo "  is intended to be run regularly as root, but can be run from the cmdline."
 	echo "  It scans all partitions (meeting the regexp if given),"
-	echo "  and on those for which free space deceeds MINKBYTES [default=51200 (50Meg)],"
+	echo "  and on those for which free space deceeds MINKBYTES [default=102400 (100Meg)],"
 	echo "  it tries to remove files from the partition's /RECLAIM directory."
 	echo "  You can also now export MINMEG=200 for example, to ensure 200 meg left free."
 	echo
@@ -65,7 +65,7 @@ fi
 
 [ "$MINMEG" ] && MINKBYTES=$((MINMEG*1024))
 # export MINKBYTES=10240 ## 10Meg
-[ "$MINKBYTES" ] || export MINKBYTES=51200 ## 50Meg
+[ "$MINKBYTES" ] || export MINKBYTES=102400 ## 100Meg
 
 SELECTIONREGEXP="$1"
 
@@ -207,8 +207,12 @@ grep "^/dev" |
 grep "$SELECTIONREGEXP" |
 
 grep -v " (\<ro\>.*)$" | ## Excludes CD-drives and other read-only mounts
+grep -v "(.*bind.*)$" |
 
 takecols 1 3 |
+
+# grep -v "/dev$" |
+# grep -v "/dev/pts$" |
 
 while read DEVICE MNTPNT
 do
@@ -221,7 +225,7 @@ do
 
 	# echo "Checking space on $DEVICE $MNTPNT $SPACE"k
 	# echo "[reclaimspace]  $MNTPNT     $SPACE"k
-	echo "[reclaimspace]	$MNTPNT	$((SPACE/1024))"M | expand -t 20
+	# echo "[reclaimspace]	$MNTPNT	$((SPACE/1024))"M | expand -t 20
 
 	ATTEMPTSMADE=0
 
@@ -230,7 +234,7 @@ do
 	if [ "$SPACE" -lt "$MINKBYTES" ]
 	then
 
-		echo "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
+		jshwarn "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
 
 		# reclaimfrom "$MNTPNT"/RECLAIM
 
