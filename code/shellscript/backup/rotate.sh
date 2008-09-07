@@ -23,6 +23,8 @@
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo "rotate [ -keep ] [ -nozip ] [ -max <num> ] [ -nodups ] <file/dir>*"
+	### TODO!
+	echo "  TODO: the default should be to have all these options ON!"
 	echo "  will compress each <file> to <file>.gz.N, and make <file> empty."
 	echo "  or compress each <dir> to <dir>.tgz.N, leaving it untouched."
 	echo "  -keep:  will not empty the file after rotation (via tmpfile <file>.keep)"
@@ -30,10 +32,10 @@ then
 	echo "  -max:   will rotate to ensure no more than <num> + 1 logs (default=infinity)"
 	echo "  never rotates <file>[.gz].0"
 	echo
-	echo "  it attempts to work on .tgz .gz .zip and .w/e files similary, but idk how well it works :P"
+	echo "  Actually if the zip method is asked to work on a folder, it leaves the original folder intact, regardless of -keep!"
 	echo
 	echo "You may also wish to investigate savelog(8), part of debianutils."
-	echo "jsh rotate appears to do the opposite of lograte.  Higher numbers are more recent."
+	echo "jsh rotate appears to do the opposite of lograte.  Higher numbers are more recent here."
 	exit 1
 fi
 
@@ -105,7 +107,7 @@ do
 		do
 			NEWN=$((OLDN+1))
 			# if shexec cmp "$FILE.$NEWN$EXT" "$FILE.$OLDNEXT" ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
-			if verbosely cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" 2>/dev/null ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
+			if cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" >/dev/null ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
 			then
 				SKIPNEXT=true
 				jshwarn "$NEWN$EXT = $OLDN$EXT so SKIPNEXT=true" #  verbosely mv -f \"$FILE.$NEWN$EXT\" \"$FILE.$OLDN$EXT\"" ||
@@ -122,14 +124,14 @@ do
 	## How will we compress it?
 	if [ ! "$ZIP" ]
 	then ## TODO: does this work if it's a dir, and is it logfriendly?
-		ZIPCOM="mv $FILE $FINALFILE"
+		ZIPCOM="mv \"$FILE\" \"$FINALFILE\""
 		FINALFILE="$FILE"
 	elif [ -f "$FILE" ]
 	then
-		ZIPCOM="logfriendly_gzip $FINALFILE $FILE"
+		ZIPCOM="logfriendly_gzip \"$FINALFILE\" \"$FILE\""
 	elif [ -d "$FILE" ]
 	then
-		ZIPCOM="tar cfz $FINALFILE $FILE" ## TODO: even without -keep, this will leave the $FILE (directory) intact =/
+		ZIPCOM="tar cfz \"$FINALFILE\" \"$FILE\"" ## TODO: even without -keep, this will leave the $FILE (directory) intact =/
 	else
 		echo "$FILE is not a file or a directory"
 		exit 1
@@ -140,7 +142,7 @@ do
 	then
 		# echo "rotate: $ZIPCOM \"$FILE\""
 		echo "rotate: $ZIPCOM"
-		$ZIPCOM || exit 1
+		eval "$ZIPCOM" || exit 1
 	fi
 
 	## If we wanted to keep the original file, but gzip has removed it:
