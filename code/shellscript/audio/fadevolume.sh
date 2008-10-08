@@ -16,7 +16,7 @@ do
   VOL=`expr "$VOL" - 1`
   echo "$VOL"
   aumix -v "$VOL"
-  if [ "$VOL" -lt 1 ]
+  if [ "$VOL" -lt 1 ] || [ ! "$VOL" ]
   then DONE=true
   else sleep $GAP
   fi
