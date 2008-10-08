@@ -65,7 +65,7 @@ function tinydiffsummary() {
 	then
 		COUNTREMOVED=`cat lastcvsdiff.out | grep "^<" | wc -l`
 		COUNTADDED=`cat lastcvsdiff.out | grep "^>" | wc -l`
-		echo "-$COUNTREMOVED +$COUNTADDED `date +"%Y/%m/%d %H:%M" -r "$1"`"
+		echo "-$COUNTREMOVED +$COUNTADDED `date +"%Y/%m/%d %H:%M %Z" -r "$1"`"
 	fi
 }
 
