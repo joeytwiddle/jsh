@@ -23,7 +23,7 @@ getfiles () {
 	## I use memo to avoid locking problems caused by two cvs's querying the same directory.  Ie. I get the cvsdiff saved to a file (thanks to memo) before I do any commits.
 	## TODO: this memo doesn't solve the problem!  cvs status: [07:42:00] waiting for joey's lock in /stuff/cvsroot/shellscript/memo
 	## TODO: does it only happen after a commit?  I added a sleep below to try to fix the BUG.
-		memo -t "30 seconds" cvsdiff "$@" |
+		memo -t "30 seconds" cvsdiff -all "$@" |
 			grep "^cvs commit " |
 			sed 's+^cvs commit ++' |
 			sed 's+[	 ]*#.*++'
@@ -32,7 +32,8 @@ getfiles () {
 }
 
 function mydiff () {
-	diff "$@" | diffhighlight | more
+	diff "$@" | tee lastcvsdiff.out | diffhighlight | more
+	# -C 1 is nice for some context but then we never get <red >green lines, only !yellow changes, although with extra processing we could colour the !s correctly.
 }
 
 # [ "$DIFFCOM" ] || DIFFCOM="jdiff -infg"
@@ -59,7 +60,16 @@ fi
 
 ## TODO: if a file needs /updating/ then just print a message saying so.  =)
 
-shift
+function tinydiffsummary() {
+	if [ -f lastcvsdiff.out ]
+	then
+		COUNTREMOVED=`cat lastcvsdiff.out | grep "^<" | wc -l`
+		COUNTADDED=`cat lastcvsdiff.out | grep "^>" | wc -l`
+		echo "-$COUNTREMOVED +$COUNTADDED `date +"%Y/%m/%d %H:%M" -r "$1"`"
+	fi
+}
+
+shift ## ?
 FILES=`getfiles "$@"`
 TMPFILE=`jgettmp "repository_version"`
 for FILE in $FILES
@@ -120,7 +130,8 @@ do
 			c|C|.|????*)
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="Commited from `hostname`:`realpath "$FILE"`"
-				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
+				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
+				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary "$FILE"`"
 				echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
 				echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 				cvscommit -m "$INPUT" "$FILE" ||
@@ -139,3 +150,5 @@ do
 	echo
 done
 jdeltmp $TMPFILE
+[ -f lastcvsdiff.out ] && rm -f lastcvsdiff.out
+
