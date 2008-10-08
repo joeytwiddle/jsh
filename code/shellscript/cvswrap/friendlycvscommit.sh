@@ -65,7 +65,7 @@ function tinydiffsummary() {
 	then
 		COUNTREMOVED=`cat lastcvsdiff.out | grep "^<" | wc -l`
 		COUNTADDED=`cat lastcvsdiff.out | grep "^>" | wc -l`
-		echo "-$COUNTREMOVED +$COUNTADDED `date +"%Y/%m/%d %H:%M %Z" -r "$1"`"
+		echo "-$COUNTREMOVED +$COUNTADDED"
 	fi
 }
 
@@ -131,7 +131,7 @@ do
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="Commited from `hostname`:`realpath "$FILE"`"
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
-				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary "$FILE"`"
+				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary "$FILE"` `date +"%Y/%m/%d %H:%M %Z" -r "$1"`"
 				echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
 				echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 				cvscommit -m "$INPUT" "$FILE" ||
