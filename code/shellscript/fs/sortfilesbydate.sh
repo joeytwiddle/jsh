@@ -8,6 +8,11 @@
 # else ls -rtd "$@"
 # fi
 
+[ "$SORTBY" ] || SORTBY=modify
+[ "$SORTBY" = access ] && SORTFORM="%A@"
+[ "$SORTBY" = modify ] && SORTFORM="%T@"
+[ "$SORTBY" = status ] && SORTFORM="%C@"
+
 if [ "$1" ]
 then
 	echolines "$@" | sortfilesbydate
@@ -16,7 +21,7 @@ else
 
 	## (No longer) stream-only version:
 	while read FILE
-	do find "$FILE" -maxdepth 0 -printf "%T@ %p\n"
+	do find "$FILE" -maxdepth 0 -printf "$SORTFORM %p\n"
 	done |
 	sort -n -k 1 |
 	dropcols 1
