@@ -1,6 +1,12 @@
-## A nice simple visual diff for the console.  See also: jdiff
-## It prints the file, with common lines in white, removed lines red, and added lines green.
-## So to "see" the original file, simply ignore all the green lines, or to "see" the new file, ignore only red lines.
+if [ ! "$*" ] || [ "$1" = --help ]
+then
+	echo "jdiffsimple [-fine] <files>"
+	echo "  A nice simple visual diff for the console.  See also: jdiff"
+	echo "  It prints the file, with common lines in white, removed lines red, and added lines green."
+	echo "  So to \"see\" the original file, simply ignore all the green lines, or to \"see\" the new file, ignore only red lines."
+	echo "  -fine will search for changes around words instead of at line breaks."
+	exit 0
+fi
 
 if [ "$1" = -fine ]
 then
