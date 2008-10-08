@@ -32,6 +32,8 @@ then
 	echo "  TODO: May need to implement extra escaping for really nasty chars."
 	echo "        Bugreports (example failure strings) are welcome."
 	echo
+	echo "  To override aborting when the destination file exists, export RF_OVERWRITE=anything."
+	echo
 	exit 1
 fi
 
@@ -60,7 +62,7 @@ grep "$SEARCH" |
 while read FILENAME
 do
 	RENAMEDFILE=`echo "$FILENAME" | sed "s$SEARCH$REPLACE"`
-	if [ -e "$RENAMEDFILE" ]
+	if [ -e "$RENAMEDFILE" ] && [ ! "$RF_OVERWRITE" ]
 	then jshwarn "Skipping \"$FILENAME\", target file already exists: \"$RENAMEDFILE\""
 	else echo "mv \"$FILENAME\" \"$RENAMEDFILE\""
 	fi
