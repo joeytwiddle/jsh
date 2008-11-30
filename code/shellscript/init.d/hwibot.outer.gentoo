@@ -1,0 +1,51 @@
+#!/sbin/runscript
+
+LOGFILE="/tmp/hwibout.outer.log"
+
+date >> "$LOGFILE"
+echo "Ran with >$*<" >> "$LOGFILE"
+echo >> "$LOGFILE"
+
+## TODO: Resolve duplicate definition of TARGET (with /etc config file?)
+
+start () {
+
+	TARGET=/mnt/debian
+
+	echo -n "hwibot: "
+	## Doesn't work?  Needs to be run from root directory?
+	# chroot "$TARGET" mount -t proc /proc proc
+	chroot "$TARGET" mount -t proc /proc /proc
+
+	## Doesn't work, inner mounts disappear in target.
+	# mount --bind /mnt "$TARGET"/mnt
+	## TODO: check originals are mounted on local machine!
+	for POINT in big data morphix floppy gentoo mandrake space
+	do mount --bind /mnt/"$POINT" "$TARGET"/mnt/"$POINT"
+	done
+	# mount --bind /mnt/mainhome "$TARGET"/home
+	mount --bind /home "$TARGET"/home
+
+	screen -wipe
+	# inscreendo hwibot chroot /mnt/debian /etc/init.d/hwibot.inner start
+	# bash -l -c "$JPATH/jsh inscreendo hwibot chroot '$TARGET' /bin/bash -- /etc/init.d/hwibot.inner -block start"
+	# bash -l -c "/usr/local/jsh/jsh inscreendo hwibot chroot '$TARGET' /bin/bash -- /etc/init.d/hwibot.inner -block start"
+	bash -l -c "/home/joey/j/jsh inscreendo hwibot chroot '$TARGET' /bin/bash -- /etc/init.d/hwibot.inner -block start"
+
+
+	echo "started"
+
+}
+
+stop () {
+
+	TARGET=/mnt/debian
+
+	echo -n "hwibot: "
+	chroot "$TARGET" /etc/init.d/hwibot.inner stop
+	## Should only do this if we are definitely the last chroot:
+	# umount "$TARGET"/mnt
+	# chroot "$TARGET" umount -lf /proc
+	echo "stopped"
+
+}

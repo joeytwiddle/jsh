@@ -1,0 +1,69 @@
+TARGET=/mnt/hwibot
+MNTPNTS="big data morphix floppy gentoo mandrake space hdb5 hdb6 hdb7 hdb8 win98"
+
+if [ "$1" = start ]
+then
+
+	echo -n "hwibot: "
+
+	## Doesn't work?  Needs to be run from root directory?
+	## DONE: This -t method wasn't working.  (When I ssh into the chroot the shell freezes!)  But now neither method is working!
+	##       However, if I jchroot into "$TARGET" and start sshd that way, it works fine!
+	##       Ahhh the problem was /dev/pts!
+	chroot "$TARGET" mount -t proc /proc /proc
+	# mount --bind /proc "$TARGET"/proc
+	mount --bind /dev "$TARGET"/dev
+	mount --bind /dev/pts "$TARGET"/dev/pts
+	## Doesn't work, inner mounts disappear in target.
+	# mount --bind /mnt "$TARGET"/mnt
+	## TODO: check originals are mounted on local machine (otherwise the binds are pointless)!
+	for POINT in $MNTPNTS
+	do mount --bind /mnt/"$POINT" "$TARGET"/mnt/"$POINT"
+	done
+	# mount --bind /mnt/mainhome "$TARGET"/home
+	mount --bind /home "$TARGET"/home
+
+	screen -wipe
+	# inscreendo hwibot chroot /mnt/debian /etc/init.d/hwibot.inner start
+	# bash -l -c "$JPATH/jsh inscreendo hwibot chroot '$TARGET' /bin/bash -- /etc/init.d/hwibot.inner -block start"
+	# bash -l -c "/usr/local/jsh/jsh inscreendo hwibot chroot '$TARGET' /bin/bash -- /etc/init.d/hwibot.inner -block start"
+	export SERVICES="" ## Overwrite the services set in game-interrupting-services!
+	# bash -l -c "/home/joey/j/jsh inscreendo hwibot chroot '$TARGET' /bin/bash -- /etc/init.d/hwibot.inner -block start"
+	## DONE: Rather than leaving a lame shell in a screen, maybe make hwibot.inner log somewhere, wait for the call to finish, then cat the log (or just show it inline here!).
+	chroot "$TARGET" /bin/bash -- /etc/init.d/hwibot.inner start &
+
+	# echo "started"
+	echo "forked"
+	# echo "started (results of start script should be available in screen \"hwibot\")"
+
+elif [ "$1" = stop ]
+then
+
+	echo -n "hwibot: "
+
+	chroot "$TARGET" /etc/init.d/hwibot.inner stop
+
+	## Should only do this if we are definitely the last chroot:
+	# chroot "$TARGET" umount -lf /proc
+	chroot "$TARGET" umount /proc
+	# umount "$TARGET"/proc
+	umount "$TARGET"/dev/pts
+	umount "$TARGET"/dev
+	for POINT in $MNTPNTS
+	do umount "$TARGET"/mnt/"$POINT"
+	done
+	umount "$TARGET"/home
+
+	echo "stopped"
+
+	# echo "Note: the shell started in screen may still be running (check with: listopenfiles | grep \"$TARGET\")"
+	# echo "Note: the shell started in screen may still be running (check with: screen -S hwibot -D -RR)"
+	# echo "This may also leave redundant $TARGET/proc mounts."
+	mount | grep "`realpath "$TARGET"`"/ && echo "I can see some mounts which were not cleanly unmounted!"
+
+else
+
+	echo "Don't understand \"$1\".  Try \"start\" or \"stop\"."
+	exit 1
+
+fi
