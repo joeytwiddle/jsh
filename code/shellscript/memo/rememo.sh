@@ -77,9 +77,13 @@ fi
 ## BUG: also can't handle 's in filenames
 
 ## DONE: I also had problems with spaces I think, hence yuk (" escaping??!)...
+CMD="$1" ; shift
+declare -a TOEVAL
 TOEVAL=""
 for ARG in "$@"
-do TOEVAL="$TOEVAL""\"$ARG\" "
+do
+	ARG=$(echo "$ARG" | sed 's+`+\\`+g')
+	TOEVAL=( ${TOEVAL[@]} "$ARG" )
 done
 # eval "$TOEVAL" > $TMPFILE
 # EXITWAS="$?"
@@ -91,7 +95,10 @@ done
 	## NOTE: It falsely thought it had completed one time (before I added jdeltmp)
 	##       Philosophy now is that $TMPFILE.result will be empty if the eval is interrupted and the (..) breaks out.
 	jdeltmp $TMPFILE.result
-	eval "$TOEVAL"
+	## FIXED BUG: We can get problems with expansion, e.g. the argument "`|Hybrid|`"
+	# eval "${TOEVAL[@]}"
+	"$CMD" "${TOEVAL[@]}"
+	# eval "$@"
 	echo "$?" > $TMPFILE.result
 ) | tee $TMPFILE
 ## TODO: can we prevent tee's 4k buffering when stdout is not direct to terminal?  (eg. if stdout is |ed to highlight)
