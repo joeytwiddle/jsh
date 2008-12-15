@@ -67,7 +67,7 @@ fi |
 ##  then '\''n'  into '\n',
 ##  then $UNIQUE into '\'.
 (
-UNIQUE="jadljfofjw90f02""4329r2934SFKSLFSL""s;kxc8DJknk4;lkkk09""DkSPlerA(3428*Kasd298jh"
-sed 's+\\\\+$UNIQUE+g;s+\\n+\
-+g;s+$UNIQUE+\\+g'
+UNIQUE="#slash1#unique_jadljfofjw90f02""4329r2934SFKSLFSL""skxc8DJknk4lkkk09""DkSPlerA3428Kasd298jh_unique#slash2#"
+sed 's+\\\\+'"$UNIQUE"'+g;s+\\n+\
++g;s+'"$UNIQUE"'+\\+g'
 )
