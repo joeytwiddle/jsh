@@ -38,12 +38,16 @@ elif [ "$1" = addfile ]
 then
 
 	FILE="$2"
+	FILE=`realpath "$FILE"`
 
 	FILENAME="`filename "$FILE"`"
 	echo "$FILE" | beforelast / | tr '/' '\n' |
 	while read DIRBIT
-	do tagdb addtolistonce "tag=$DIRBIT" "filename=$FILENAME"
+	do tagdb addtag "$DIRBIT" "filename=$FILENAME"
 	done
+
+elif [ "$1" = addtag ]
+then tagdb addtolistonce "$2".TAG "$3" # ... ?
 
 elif [ "$1" = addtolistonce ]
 then
@@ -56,12 +60,27 @@ then
 	( touch "$KEYFILE" ; cat "$KEYFILE" | grep -v "^$VALUERE$"; echo "$VALUE" ) | dog "$KEYFILE"
 	jshinfo "Added \"$VALUE\" to $KEYFILE"
 
+elif [ "$1" = listdb ]
+then
+
+	( cd "$TAGDBDIR" && find . -type f ) | afterfirst "^./" | tr -d / | highlight =
+
 else
 
-	echo "tagdb set <key> <value>"
-	echo "tagdb get <key>"
-	echo "tagdb addfile <file>"
-	echo "tagdb addtolistonce <list_key> <value>"
+	cat << !
+
+  tagdb set <key> <value>
+  tagdb get <key>
+  tagdb addtag <tag> <item_name>
+
+	tagdb addfile <file>   - Adds all the dirs in the file's path as tags to that
+	                         file
+
+  tagdb addtolistonce <list_key> <value>
+
+!
+
+	[ "$1" == --help ] ; exit
 
 fi
 
