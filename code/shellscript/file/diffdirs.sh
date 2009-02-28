@@ -15,7 +15,7 @@ DIRA="$1"
 DIRB="$2"
 
 findfiles () {
-	cd "$1"
+	cd "$1" || exit 1
 	# find . -type f
 	find . -type f -or -type l | sed 's+^\./++' | sort
 }

@@ -17,6 +17,9 @@ debug () {
 	# noop
 }
 
+SUGGEST_DEL=1
+# SUGGEST_LN=1 ## BUG TODO: creates a symlink to ./blah which is ONLY correct if the src link is in .
+
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
 	echo
 	echo "findduplicatefiles [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ] <path>s.."
@@ -181,7 +184,13 @@ fi |
       then break
       fi
       if test "$SUM" = "$SUM2" && test "$SIZE" = "$SIZE2"
-      then echo "del \"$FILE2\""
+      then
+        if [ "$SUGGEST_DEL" ]
+        then echo "del \"$FILE2\""
+        elif [ "$SUGGEST_LN" ]
+        then echo "ln -s -f \"$FILE\" \"$FILE2\""
+        else echo "echo dunno how to handle \"$FILE\""
+        fi
       else error "$SUM $SIZE for \"$FILE\" does not match $SUM2 $SIZE2 for \"$FILE2\""
       fi
     done
