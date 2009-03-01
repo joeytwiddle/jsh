@@ -1,5 +1,7 @@
 #!/bin/bash
 
+## TODO: Optionally, instead of showing 0 for closest, mark X as duplicates found, and list distance to non-0 neighbour (distance from rest of graph).
+
 ## Diffs each file in a bunch of files against every other to find which files
 #  are most similar.  Finally produces a graph showing relations between files.
 
