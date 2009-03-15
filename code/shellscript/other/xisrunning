@@ -1,10 +1,47 @@
+## xisrunning - check we have an accessible running X display
+
+
+
 ## This method wasn't entirely accurate; sometimes you can have a DISPLAY variable but that display cannot be reached.
 # [ ! "$DISPLAY" = "" ]
 
-## This method checks whether the display can actually be reached:
-jshinfo "xisrunning: testing xterm method"
-unj xterm -e touch /tmp/xisrunning."$$" 2>/dev/null
+# XTERME=`jwhich xterm`
+# [ "$XTERME" ] || XTERME=`jwhich konsole`
+# [ "$XTERME" ] || XTERME=`jwhich gnome-terminal`
+# 
+# ## This method checks whether the display can actually be reached:
+# jshinfo "xisrunning: testing xterm method (using $XTERME)"
+# 
+# if [ "$XTERME" = /usr/bin/gnome-terminal ]
+# then
+	# ## worked when XTERME=gnome-terminal
+	# "$XTERME" --command="touch /tmp/xisrunning.$$" 2>/dev/null
+# else
+	# ## worked when XTERME=xterm
+	# "$XTERME" -e touch /tmp/xisrunning."$$" 2>/dev/null
+# fi
+
+# [ "$XISRUNNING" ] && exit 0
+
+if xdpyinfo >/dev/null 2>&1
+then exit 0
+else exit 1
+fi
+
+
+
+## Old method - check we have a valid X display by spawning an xterm.
+## This was slow and messy.  Sometimes it closed so fast that it broke fluxbox.
+## TODO: If we do ever use this method again, consider starting xterm minimized - would be far better.
+
+# x-terminal-emulator -e touch /tmp/xisrunning."$$" 2>/dev/null
+# ## Unfortunately x-terminal-emulator backgrounds itself.  I haven't tested if wait can catch it.
+# sleep 2s &
+# wait
+xterm -e touch /tmp/xisrunning."$$"
+
 [ -f /tmp/xisrunning."$$" ] ; RESULT="$?"
 rm -f /tmp/xisrunning."$$"
+# [ "$RESULT" = 0 ] && XISRUNNING=true
 exit "$RESULT"
 # rm /tmp/xisrunning."$$" ## I thought this might give an exit code representing whether the file existed, but it didn't.
