@@ -111,6 +111,11 @@ if [ "$1" = -nd ]
 then MEMO_IGNORE_DIR=true; shift
 fi
 
+### How often should we re-generate the cached file?  We parse arguments to find out.
+## Set default REMEMOWHEN if none exist in env, and no options were given to memo.
+AGEFILE=`jgettmp check_age`
+[ "$REMEMOWHEN" ] || echo "$1" | grep "^-" >/dev/null || REMEMOWHEN='( touch -d "5 minutes ago" $AGEFILE ; newer $AGEFILE "$MEMOFILE" )' ## if there were no timeout options given and no REMEMOWHEN exported, we default to 5 minute cachefiles.
+## If we are about to add conditions, we do this with OR, so we must start with false.  TODO: what if no conditions are provided?  We will never rememo, since we don't drop back to the default.
 [ "$REMEMOWHEN" ] || REMEMOWHEN='false' ## or whatever we think the default should be: 1min, 5mins or 1hour; guess from files in arguments?!
 ## ah no but if any of the following cmdline options are used, then idd rememowhen *should* begin false (at least that's the way we are doing it atm)
 while true
@@ -120,7 +125,6 @@ do
       export TIME="$2"
       [ "$OVERRIDE_TIME" ] && TIME="$OVERRIDE_TIME"
       shift; shift
-      AGEFILE=`jgettmp check_age`
       REMEMOWHEN="$REMEMOWHEN"' || (
         touch -d "$TIME ago" $AGEFILE
         newer $AGEFILE "$MEMOFILE"
@@ -180,8 +184,10 @@ then
 	if [ "$MEMO_SHOW_INFO" ]
 	then
 		if [ -f "$MEMOFILE" ]
-		then jshinfo "Replacing old memo: rememo $*" && SHOW_INFO_DONE=true
-		else jshinfo "Building new memo: rememo $*" && SHOW_INFO_DONE=true
+		# then jshinfo "Replacing old memo: rememo $*" && SHOW_INFO_DONE=true
+		then jshinfo "Replacing old memo: $MEMOFILE"
+		# else jshinfo "Building new memo: rememo $*" && SHOW_INFO_DONE=true
+		else jshinfo "Output will be cached.  Retrieve with: memo $*" && SHOW_INFO_DONE=true
 		fi
 	fi
 	rememo "$@"
