@@ -44,7 +44,9 @@ then
 	# error "rememo can no longer be called directly; please use \"memo -c true\" instead."
 	# exit 1
 	## FIXED BUG: doh, why don't we just do that here?!
-	verbosely memo -c true "$@"
+	memo -c true "$@"
+	## This is still getting called, so it's still needed!
+	## Plenty of scripts (and users) use 'rememo' instead of 'memo -c true'.
 	## TODO CONSIDER export REMEMO=true ; memo ...
 	exit
 fi
