@@ -6,15 +6,26 @@ fi
 TMPFILE="/tmp/jsh.highlight_words.$$"
 cat "$@" > "$TMPFILE"
 
+# WORD_SPLITTING_CHARS=" "
+# WORD_SPLITTING_CHARS="- =:,	/._"
+# WORD_SPLITTING_CHARS="- 	_.,:;=|_/"
+WORD_SPLITTING_CHARS="^[:alpha:][:digit:]"
+
+# EXCLUDE_SINGLES=cat
+EXCLUDE_SINGLES="grep -v ^1:"
+
 WORDS=`
 # striptermchars |
 cat "$TMPFILE" |
 striptermchars |
-sed 's+ +\n+g' |
+# sed 's+ +\n+g' |
+# sed 's+[ =]+\n+g' |
+sed "s+[$WORD_SPLITTING_CHARS]+\n+g" |
 tr '/$,()' '\n\n\n\n\n' |
 grep -v "^ *$" |
 countduplicates |
 sort -n -k 1 |
+$EXCLUDE_SINGLES |
 unj $TAIL -n 16 |
 # pipeboth |
 sort -n -r -k 1 |
