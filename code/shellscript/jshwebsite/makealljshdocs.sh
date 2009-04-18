@@ -76,7 +76,7 @@ fi
 
 		## Add onelinedescription:
 		echo "<TD nowrap>"
-		onelinedescription "$SCRIPT"
+		onelinedescription "$SCRIPT" | tohtml
 		echo "</TD>"
 		
 		echo "</TR>"

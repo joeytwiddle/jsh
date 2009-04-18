@@ -1,6 +1,8 @@
 ## TODO: move deps_todo info next to compile link, where it is relevant meta-context!
 
-DEPENDENCY_DEBUG=2
+# DEPENDENCY_DEBUG=2
+DEPENDENCY_DEBUG=0
+## 0 = Shows no dependency info
 ## 1 = Shows dependency info in each script's view page
 ## 2 = Shows Todo column in index page
 ## 3 = Highlights unchecked dependencies in view page
