@@ -2,4 +2,4 @@
 
 # this-script-does-not-depend-on-jsh: edit
 
-cvs edit "$@" 2>/dev/null || cvs edit &
+cvs edit "$@" >/dev/null 2>&1 || cvs edit &
