@@ -4,6 +4,14 @@
 
 # . selfmemo -t 5minutes - "$0" "$@"; shift
 
+if [ "$*" = "" ]
+then
+	# cvs diff | diffhighlight | more
+	## cvs diff outputs progress on stderr, so we hide it
+	cvs diff 2>/dev/null | diffhighlight | more
+	exit 0
+fi
+
 CHECKALL=
 while true
 do
@@ -150,6 +158,7 @@ fi
 
 echo
 
-jdeltmp $REPOSLIST $LOCALLIST
+# jdeltmp $REPOSLIST $LOCALLIST
+jshinfo "REPOSLIST=$REPOSLIST LOCALLIST=$LOCALLIST"
 
 exit 0
