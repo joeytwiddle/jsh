@@ -12,6 +12,8 @@ then
 	echo
 	echo "    It attempts to highlight all added/removed/changed lines, but sometimes gets false positives."
 	echo
+	echo "    See also: jdiffsimple, diffhighlight"
+	echo
 	exit 1
 fi
 
@@ -36,8 +38,7 @@ then
 	shift; shift
 fi
 
-FILEA="$1"
-FILEB="$2"
+[ "$DIFFCOM" ] || DIFFCOM="diff"
 
 ## I thought tabs were causing jdiff output formatting problems, but it wasn't them!
 # FILEAx=`jgettmp "$FILEA"`
@@ -49,9 +50,10 @@ WSC="[	 ]"
 
 echo "diff $@:"
 # diff -W $COLUMNS -b --side-by-side "$FILEAx" "$FILEBx" |
-diff $DIFFOPTS -W $COLUMNS -b --side-by-side "$FILEA" "$FILEB" |
+$DIFFCOM $DIFFOPTS -W $COLUMNS -b --side-by-side "$@" |
 # tee /tmp/b4jdiff |
 ## These two break rarely:
+grep -C2 "\( |	\| >\| <$\)" |
 highlight -bold '^.* <$' red |
 highlight -bold '^[ 	][ 	]*>\(.*\| .*\|	.*\|\)$' green | ## eh?!
 ## I see no way of fixing this which breaks often, even by matching ~ COLUMNS/2 chars because diff -sbs outputs TABS!
