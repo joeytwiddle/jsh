@@ -1,6 +1,8 @@
 ## Appears stable =)
 
 ## BUG: if multiple txtfiles are given, VIMAFTER gets cleared if only *one* of them is vimdiffed, whereas it should only be cleared if all of them were vimdiffed
+## Will rarely fail on final dir if the file is a symlink elsewhere, but if we do realpath we may miss a swapfile at the given path or one in an intermediate directory.  Rather than checking all, we always use the local given path, and leave the handling of swapfiles in symlinked dirs to the user.
+## TODO: The intermediate swapfiles are relevant but the one that makes vim annoying is the final target, I suspect the vim executable ignores the others.  So just do a realpath.
 
 ## Runs a recovervimswap check, interactively, then runs vim afterwards.
 if [ "$1" = -thenvim ]
@@ -45,6 +47,8 @@ do
 	while read SWAPFILE
 	do
 
+		## We should do: SWAPFILE=`realpath "$SWAPFILE"` here?
+
 		if [ "$INTERACTIVE" ] && verbosely fuser -v "$SWAPFILE"
 		then
 			jshwarn "Swapfile is already open; quitting"
@@ -66,7 +70,7 @@ do
 
 		## TODO: Could grep following for "^Recovery completed"
 		SEND_ERR=/dev/null ## BUG: if there is more than 1 swapfile, vim may ask user to choose which one to recover (somehow it does read answer from terminal not stdin); but user cannot see message if we hide output!
-		if verbosely vim +":w $RECOVERFILE$NL:q" -r "$SWAPFILE" > "$SEND_ERR" 2>&1 &&
+		if verbosely vim -r "$SWAPFILE" -c ":w $RECOVERFILE$NL:q" > "$SEND_ERR" 2>&1 &&
 			 [ -f "$RECOVERFILE" ]
 		then
 			if [ "$INTERACTIVE" ]
@@ -136,7 +140,7 @@ then
 	jshinfo "[recovervimswap] running: vim $*"
 	vim "$@"
 else
-	jshinfo "[recovervimswap] no vim $*"
+	: # jshinfo "[recovervimswap] no vim $*"
 fi
 
 ## Doesn't work:
