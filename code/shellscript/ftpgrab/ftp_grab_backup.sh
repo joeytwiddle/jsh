@@ -1,18 +1,4 @@
-
 ## BUGS: On one server some text files appeared as 2 or 4 bytes longer remotely than the file we received locally, so these were always repeat-fetched. :|
-
-## TODO: sftp:// not yet working!  Here is output:
-# [INFO] Scanning for new/changed files...
-# [INFO] Local copy mismatches: /mnt/hdb6/kx_backup/./ut//
-# [EXEC] % mv /mnt/hdb6/kx_backup/./ut// /mnt/hdb6/kx_backup/./ut//.20080625
-# mv: cannot move `/mnt/hdb6/kx_backup/./ut//' to a subdirectory of itself, `/mnt/hdb6/kx_backup/./ut//.20080625'
-# [WARN] No suitable candidate for ./ut//
-# scp: ./ut: not a regular file
-# touch: invalid date format `2008-07-01 20:47 added_bt_files.list'
-# [INFO] Local copy mismatches: /mnt/hdb6/kx_backup/./ut//
-# [EXEC] % mv /mnt/hdb6/kx_backup/./ut// /mnt/hdb6/kx_backup/./ut//.20080625
-# mv: cannot move `/mnt/hdb6/kx_backup/./ut//' to a subdirectory of itself, `/mnt/hdb6/kx_backup/./ut//.20080625'
-## Well it just about worked for XOL.  Check for regexp issues: e.g. -)AO(-hayloft.unn
 
 function convert_ftp_response_to_filestats() {
 	## TODO: This does not do what it should if "$1" starts with "/"
@@ -22,7 +8,7 @@ function convert_ftp_response_to_filestats() {
 	) | ls-Rtofilelist -l
 }
 
-if [[ "$1" =~ "^sftp://" ]]
+if [[ "$1" =~ ^sftp:// ]]
 then
 	USE_SFTP=1
 	SSH_USERHOST=`echo "$1" | sed 's+sftp://\([^/]*\)/.*+\1+'`
@@ -62,13 +48,15 @@ FILELIST=filelist-"$REMOTEHOST-`echo "$REMOTEFOLDER" | tr / _`.`geekdate`"
 
 jshinfo "Getting remote file list..."
 
+## Now using ls -L remotely, so that symlinks appear as normal files.
+## Should work ok.  My scp was copying a remote symlink home as a file.
 if [ "$USE_SFTP" ]
-then memo -t "20 minutes" ssh "$SSH_USERHOST" ls -lR "$REMOTEFOLDER" > "$FILELIST".ncftp ## "$REMOTEFOLDER"/ was needed for kx, since ~/ut is actually a symlink!
+then memo -t "20 minutes" ssh "$SSH_USERHOST" ls -lRL "$REMOTEFOLDER" > "$FILELIST".ncftp ## "$REMOTEFOLDER"/ was needed for kx, since ~/ut is actually a symlink!
 else
 
 	echo "ls -l -R $REMOTEFOLDER" |
 	memo -t "20 minutes" verbosely ncftp -u "$USERNAME" -p "$PASSWORD" "$REMOTEHOST" |
-	# ssh "$USERNAME"@"$REMOTEHOST" "ls -l -R $REMOTEFOLDER" |
+	# memo -t "20 minutes" verbosely ssh "$USERNAME"@"$REMOTEHOST" "ls -l -R $REMOTEFOLDER" |
 	cat > "$FILELIST".ncftp
 
 fi
@@ -94,6 +82,7 @@ if [ "$IGNORE_REGEXP" ]
 then grep -v "$IGNORE_REGEXP"
 else cat
 fi |
+## This grep strips symlinks and any other special filetypes, leaving only ordinary files:
 grep "^-" > "$FILELIST"
 
 function download_file() {
@@ -102,8 +91,11 @@ function download_file() {
 		## TODO NASTY BUG: if i do the ssh in the foreground, the outermost while loop crashes.  The following is a nasty workaround with anti-flooding.
 		# while [ "`findjob "ssh $SSH_USERHOST" | wc -l`" -gt 20 ]; do sleep 3; done
 		# sleep 3 ; verbosely ssh "$SSH_USERHOST" cat "$1" > "$2" &
-		scp "$SSH_USERHOST":"$1" "$2"
-	else verbosely wget -nv --user="$USERNAME" --password="$PASSWORD" "ftp://$REMOTEHOST/$1" -O - > "$2"
+		scp "$SSH_USERHOST":"$1" "$2".tmp
+	else verbosely wget -nv --user="$USERNAME" --password="$PASSWORD" "ftp://$REMOTEHOST/$1" -O - > "$2".tmp
+	fi
+	if [ "$?" = 0 ]
+	then mv -f "$2".tmp "$2"
 	fi
 }
 
@@ -129,7 +121,7 @@ jshinfo "Scanning for new/changed files..."
 
 cat "$FILELIST" |
 
-catwithprogress |
+# catwithprogress |
 
 while read PERMS NODE OWNER GROUP REMOTE_FILE_SIZE DATE1 DATE2 DATE3 FILEPATH
 do
@@ -161,7 +153,7 @@ do
 	then
 		FILENAME=`echo "$FILEPATH" | afterlast /`
 		FILENAMEREGEXP=`toregexp "$FILENAME"`
-		find $SEARCH_FOLDERS_FOR_MATCH -type f | grep -i "/$FILENAMEREGEXP$" |
+		memo -t "5 minutes" find $SEARCH_FOLDERS_FOR_MATCH -type f | grep -i "/$FILENAMEREGEXP$" |
 		while read FILE
 		do
 			if [ "`filesize "$FILE"`" = "$REMOTE_FILE_SIZE" ]
@@ -188,11 +180,12 @@ do
 		if [ "$TEST" ]
 		then echo "Would download $FILEPATH to $TARGET_DIR/$FILEPATH"
 		else
+			[ "$DATE1" = "@" ] && DATE1=""
 			## TODO: optionally recycle (check-in) old file if it exists (we could check that it's not just a partial d/l)
 			jshwarn "No suitable candidate for $FILEPATH"
 			mkdir -p "`dirname "$TARGET_DIR/$FILEPATH"`" &&
 			cd "$TARGET_DIR" &&
-			download_file "$FILEPATH" "$TARGET_DIR/$FILEPATH"
+			download_file "$FILEPATH" "$TARGET_DIR/$FILEPATH" &&
 			touch -d "$DATE1 $DATE2 $DATE3" "$TARGET_DIR/$FILEPATH"
 		fi
 	fi
