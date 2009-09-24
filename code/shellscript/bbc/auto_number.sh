@@ -11,11 +11,20 @@ if [ "$1" = -run ]
 then shift ; RUN=true
 fi
 
+## No opt but can be provided:
+# FAST=true
+
 # LINENUM=10000
 # LINENUM=10000
 # LINENUM=00001 ## pretty-printing pre-padding with '0's is lost!
 # LINENUM=10001
 LINENUM=10010
+DELTANUM=10
+## I want to save space!
+LINENUM=1
+DELTANUM=1
+
+[ "$FAST" ] && echo 'MODE 7 : PRINT "Loading '"$*"'" : VDU 21'
 
 cat "$@" |
 
@@ -30,10 +39,12 @@ fi |
 ## Now add a line number to EVERY line!
 while read LINE
 do
-	echo "  $LINENUM $LINE"
+	## BUG TODO: \\s here will come out as \s
+	# echo "  $LINENUM $LINE"
+	echo "$LINENUM $LINE"
 	# LINENUM=`expr "$LINENUM" + 20`
 	# LINENUM=`expr "$LINENUM" + 1`
-	LINENUM=`expr "$LINENUM" + 10`
+	LINENUM=`expr "$LINENUM" + $DELTANUM`
 done |
 
 ## Now remove unwanted line numbers - when no '.' is present:
@@ -45,5 +56,17 @@ sed 's/^\([ ]*[[:digit:]][[:digit:]]* \)\./\1/' | ## Drop '.' from every line wi
 
 cat
 
-[ "$RUN" ] && echo "RUN"
+if [ "$FAST" ]
+then
+	echo 'VDU 6'
+	echo ': padding'
+	echo ': padding'
+	echo ': padding'
+	echo ': padding'
+	echo ''
+	echo 'VDU 6 : MODE 7 : PRINT "Running..."'
+	echo ''
+fi
+
+[ "$RUN" ] && echo 'RUN'
 
