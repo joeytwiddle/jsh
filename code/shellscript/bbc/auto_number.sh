@@ -32,7 +32,9 @@ cat "$@" |
 if [ "$NUMBER_ALL" ]
 then
 	# sed 's+.*+. \0+' ## Add .s to all lines
-	sed 's/^\([ ]*[[:digit:]][[:digit:]]*\( \|\)\|^\)/./' ## Add '.' to each line, stripping numbers from any lines which have them.
+	## We actually remove all line numbers, and add a . to all lines.
+	## Except lines starting '>', these are not numbered (do not get a '.')!
+	sed 's/^\([ ]*[[:digit:]][[:digit:]]*\( \|\)\|^\([^>]\)\)/.\3/' ## Add '.' to each line, stripping numbers from any lines which have them.
 else sed 's/^[ ]*[[:digit:]][[:digit:]]*\( \|\)/./' ## Add '.' to each line with a line number, and strip the line number.
 fi |
 
@@ -53,6 +55,9 @@ sed 's/^[ ]*[[:digit:]][[:digit:]]* \($\|[^.]\)/\1/' | ## Drop lines with line n
 ## And finally remove the '.' markers, now we are finished with them.
 sed 's/^\([ ]*[[:digit:]][[:digit:]]* \)\./\1/' | ## Drop '.' from every line with '.' (cleanup, leave just the line number, or nothing).
 # sed 's/^\([ ]*[[:digit:]][[:digit:]]*\) $/\1/' |
+
+## Remove '> ' from '> COMMAND' lines.
+sed 's+^[>] *++' |
 
 cat
 
