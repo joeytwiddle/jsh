@@ -1,4 +1,4 @@
-## This implementation cannot deal with more files that shell args can take:
+## This implementation cannot deal with more files than shell args can take:
 # if [ ! "$*" ]
 # ## We weren't given any args; so presumably we were streamed the files via our input stream...
 # ## WARNING: this infinitely recursive implementation will frag your system if input stream generates no args!:
