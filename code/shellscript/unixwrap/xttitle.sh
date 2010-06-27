@@ -1,7 +1,12 @@
 #!/bin/sh
 
-## EXPERIMENT:
-tty -s || exit 0 ## not in a terminal, let alone an xterm :P
+## FAILED EXPERIMENT:
+# tty -s || exit 0 ## not in a terminal, let alone an xterm :P
+# [ "$TTY" ] || exit 0 ## not in a terminal, let alone an xterm :P
+## THIS DOES NICELY DETECT when we are not directly in user shell.
+## But it's a problem if subscript wants to do something, e.g.
+## tarcfzwithprogress was dropping out here.
+
 ## EXPERIMENT 2:
 [ "$TERM" ] || exit 0
 ## EXPERIMENT 3:
@@ -33,10 +38,10 @@ else
 	# if xisrunning
 	if [ "$TERM" = xterm ]
 	then
-		# printf "]0;$X"
-		# echo -n "]0;$X"
-		# echo "]0;$X" | tr -d "\n"
-		printf "]0;%s" "$DISPLAY_STR" | tr '\n' '\\'
+		# printf "]0;""$DISPLAY_STR"""
+		# echo -n "]0;""$DISPLAY_STR"""
+		# echo "]0;""$DISPLAY_STR""" | tr -d "\n"
+		printf "%s" "]0;""$DISPLAY_STR""" | tr '\n' '\\' > /dev/stderr
 		## Note the version in xttitleprompt is a bit different:
 		# export XTTITLEBAR="\[\033]0;$TITLEBAR\007\]"
 	fi
