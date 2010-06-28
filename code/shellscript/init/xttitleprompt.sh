@@ -1,19 +1,22 @@
+## This script must be sourced!  E.g.: . xttitleprompt
+
 ## TODO: The default xttitle for a terminal window could be a sanitised version of the user's shell prompt (PS1/PROMPT) [remove colors+other escapes].  The current terminal is my own "traditional" shell prompt: the directory followed by a % (but for some reason I have them the other way around :P )
+## <greycat> hmm, my title() function uses echo -en "\e]2;$1\a"
 
 ## Now does screen titles as well; should rename to generic_shell_update_titler_thingy
 
 ### xterm title change
 # Requires SHORTSHELL from startj
 
-XTTITLEPROMPT_SIMPLER=true
+# XTTITLEPROMPT_SIMPLER=true
 
 ## Maybe too strict but this script is too heavy for low-spec machines.
-if [ "$TERM" = xterm ] || [ "$TERM" = screen ]
+if [ "$TERM" = xterm ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ]
 then
 
-	HEAD=""
+	# XTTITLE_HEAD=""
 	# if test "$TERM" = screen
-	# then export HEAD="[screen] "
+	# then export XTTITLE_HEAD="[screen] "
 	# fi
 
 	## If we are in a screen, but not on the local machine, we must have ssh'ed somewhere from within screen.
@@ -26,18 +29,13 @@ then
 		screentitle -remote "$SCRHEAD"
 	fi
 
-	## However, if we are in a local screen, ...
+	# [ "$USER" = foo ] && SHOWUSER= || SHOWUSER="$USER"
+	# [ "$HOST" = bar ] && SHOWHOST= || SHOWHOST="@$SHORTHOST"
+	# export SHOWUSER
+	# export SHOWHOST
+	# XTTITLE_HEAD="$XTTITLE_HEAD$SHOWUSER$SHOWHOST"
 
-	[ "$USER" = joey ] && SHOWUSER= || SHOWUSER="$USER"
-	[ "$HOST" = hwi ] && SHOWHOST= || SHOWHOST="@$SHORTHOST"
-	# could try using `logname`
-
-	export SHOWUSER # for d f b
-	export SHOWHOST
-	## Needed by others?
-
-	# HEAD="$HEAD$SHOWHOST$SHOWUSER"
-	HEAD="$HEAD$SHOWUSER$SHOWHOST"
+	# export XTTITLE_HEAD="<xterm> $XTTITLE_HEAD"
 
 	# if xisrunning; then
 
@@ -45,7 +43,7 @@ then
 		# if test "$0" = "bash"; then
 			# ## For bash, get prompt to send xttitle escseq:
 			# # export TITLEBAR=`xttitle "\u@\h:\w"`
-			# export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
+			# export TITLEBAR="\[\033]0;$XTTITLE_HEAD\u@\h:\w\007\]"
 			# export PS1="$TITLEBAR$PS1"
 		# fi
 
@@ -57,18 +55,18 @@ then
 	case $SHORTSHELL in
 
 		bash)
-			if [ "$0" = "bash" ]
-			then
+			# if [ "$0" = "bash" ]
+			# then
 				## For bash, get prompt to send xttitle escseq:
 				# export TITLEBAR=`xttitle "\u@\h:\w"`
 				## xterm title:
-				# export TITLEBAR="\[\033]0;$HEAD\u@\h:\w\007\]"
-				# jshinfo "Setting (bash) TITLEBAR=\"\[\033]0;$HEAD:\w\007\]\""
-				export TITLEBAR="\[\033]0;$HEAD:\w\007\]"
+				# export TITLEBAR="\[\033]0;$XTTITLE_HEAD\u@\h:\w\007\]"
+				# jshinfo "Setting (bash) TITLEBAR=\"\[\033]0;$XTTITLE_HEAD:\w\007\]\""
+				export TITLEBAR="\[\033]0;$XTTITLE_HEAD\w\007\]"
 				## removed \u and \h since they are in head already :P
-				# export TITLEBAR="\[\033]0;% $HEAD:\w/\007\]"
+				# export TITLEBAR="\[\033]0;% $XTTITLE_HEAD:\w/\007\]"
 				## do we really need to export it?
-				# export TITLEBAR="% $HEAD:\w/"
+				# export TITLEBAR="% $XTTITLE_HEAD:\w/"
 				## screen title: "[" <directory> "]"
 				# export TITLEBAR="$TITLEBAR\[k[\w]\\\\\]"
 				# if [ "$STY" ]
@@ -87,7 +85,7 @@ then
 				# export XTTITLEBAR="\[\033]0;$XTTITLE_PRESTRING$TITLEBAR\007\]"
 				# export PS1="$XTTITLEBAR$PS1"
 				export PS1="$TITLEBAR$PS1"
-			fi
+			# fi
 		;;
 
 		zsh)
@@ -101,23 +99,27 @@ then
 				# echo "$PWD" | sed "s|.*/.*/\(.*/.*\)|\.\.\./\1|"
 				# echo "$PWD" | sed "s|.*/.*\(/.*/.*/.*\)|\.\.\.\1|"
 				# echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|_/\1|;s|^$HOME|~|"
-				echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|.../\1|;s|^$HOME|~|"
+
+				## Nice, gives self and up to 2 parent folders:
+				# echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|.../\1|;s|^$HOME|~|"
+
+				## Just current folder name:
+				echo "$PWD" | sed 's+.*/++'
 			}
 			preexec () {
 				## $* repeats under zsh4 :-(
 				## $1 before alias expansion, $2 and $3 after
 				export LASTCMD="$1"
 
-				# xttitle "$HEAD# $LASTCMD [$SHOWUSER$SHOWHOST`swd`]"
-				XTTITLE_DISPLAY="$HEAD# $LASTCMD"
-				[ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY [$SHOWUSER$SHOWHOST`swd`]"
-				xttitle "$XTTITLE_DISPLAY"
+				# xttitle "$XTTITLE_HEAD# $LASTCMD [$SHOWUSER$SHOWHOST`swd`]"
+				# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY [$SHOWUSER$SHOWHOST`swd`]"
+				xttitle "$XTTITLE_HEAD<$HISTCMD> `swd`# $LASTCMD"
 
 				# echo ">$STY<" >> /tmp/123
-				# screentitle "$HEAD$SHOWUSER$SHOWHOST`swd` # $LASTCMD"
-				# screentitle "[$HEAD#`echo \"$LASTCMD\" | cut -c -10`]"
-				# screentitle "[$HEAD%`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
-				# [ "$SCREEN_TITLE_TMP" ] || SCREEN_TITLE_TMP="[$HEAD#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
+				# screentitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` # $LASTCMD"
+				# screentitle "[$XTTITLE_HEAD#`echo \"$LASTCMD\" | cut -c -10`]"
+				# screentitle "[$XTTITLE_HEAD%`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
+				# [ "$SCREEN_TITLE_TMP" ] || SCREEN_TITLE_TMP="[$XTTITLE_HEAD#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
 				[ "$SCREENTITLE" ] &&
 				SCREEN_TITLE_TMP="$SCREENTITLE" ||
 				SCREEN_TITLE_TMP="#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`"
@@ -126,21 +128,31 @@ then
 			precmd () {
 				# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
 
-				# xttitle "$HEAD$SHOWUSER$SHOWHOST`swd` % ($LASTCMD)"
-				# XTTITLE_DISPLAY="% $HEAD$SHOWUSER$SHOWHOST`swd`"
-				XTTITLE_DISPLAY="$HEAD:`swd` %"
-				# XTTITLE_DISPLAY="$HEAD:`swd` % ($LASTCMD)"
-				# XTTITLE_DISPLAY="$HEAD:`swd` % (`history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
-				# XTTITLE_DISPLAY="$HEAD:`swd` % ( `history | wc -l`: `history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
-				HISTNUM=`history | wc -l`
-				[ "$HISTNUM" -gt 1 ] && HISTSHOW=" ( ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
-				XTTITLE_DISPLAY="$HEAD:`swd` %$HISTSHOW"
-				[ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
-				xttitle "$XTTITLE_DISPLAY"
+				# xttitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` % ($LASTCMD)"
+				# XTTITLE_DISPLAY="% $XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd`"
+				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd`%"
+				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % ($LASTCMD)"
+				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % (`history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
+				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % ( `history | wc -l`: `history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
+				## This is madness it should be an add-on not part of or even an option to the default jsh :P (?)
+				# HISTNUM=`history 0 | wc -l`
+				HISTNUM="$((HISTCMD))"
+				# [ "$HISTNUM" -gt 1 ] && HISTSHOW=" ( ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
+				# [ "$HISTNUM" -gt 9 ] && HISTNUM="$HISTNUM:" || HISTNUM=
+				# HISTSHOW=" ( $HISTNUM ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
+				# HISTSHOW="<$HISTNUM...`history | tail -n 20 | takecols 2 | removeduplicatelinespo | tail -n 3 | tr '\n' ',' | sed 's+.$++'`>" || HISTSHOW=
+				## DONE: we actually want removeduplicatelinespo-reversed (reversed before input, and after output)
+				## ? should be exit code of last command
+				# [ "$HISTNUM" -gt 10 ] && HISTNUMBIT=",..$HISTNUM" || HISTNUMBIT=""
+				HISTNUMBIT=
+				[ "$HISTCMD" -gt 1 ] && HISTSHOW="(`history | tail -n 20 | takecols 2 | reverse | removeduplicatelinespo | head -n 5 | tr '\n' ',' | sed 's+.$++'`$HISTNUMBIT)" || HISTSHOW=
+				FAKESQUARE="	"
+				# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
+				xttitle "$XTTITLE_HEAD<$((HISTCMD-1))> `swd`%_   $HISTSHOW"
 
 				# echo ">$STY<" >> /tmp/123
-				# screentitle "[$HEAD$SHOWUSER$SHOWHOST%`swd | cut -c -10`]"
-				# screentitle "[$HEAD$SHOWUSER$SHOWHOST%`swd | sed 's+.*/\(.*/.*\)+\1+' | cut -c -10`]"
+				# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | cut -c -10`]"
+				# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | sed 's+.*/\(.*/.*\)+\1+' | cut -c -10`]"
 				[ "$SCREENTITLE" ] &&
 				SCREEN_TITLE_TMP="$SCREENTITLE" ||
 				SCREEN_TITLE_TMP="`swd | sed 's+.*/\(.*/.*\)+\1+ ; s+.*\(..........\)+\1+'`/"
@@ -152,7 +164,7 @@ then
 		## Doesn't actually appear 'cos tcsh can't exec this far!
 		## See .tcshrc for actual postcmd!
 		tcsh)
-			alias postcmd 'xttitle "${HEAD}${USER}@${SHORTHOST}:${PWD}%% \!#"'
+			alias postcmd 'xttitle "${XTTITLE_HEAD}${USER}@${SHORTHOST}:${PWD}%% \!#"'
 		;;
 
 		bash)
