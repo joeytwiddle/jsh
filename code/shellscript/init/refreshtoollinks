@@ -38,7 +38,7 @@ then
 			then $HOME/bin/catwithprogress
 			else cat
 			fi |
-		grep ".*/\([^\.]*\|.*\.\(sh\|hs\|zsh\|bash\|shlib\)\)$"
+		grep ".*/\([^\.]*\|.*\.\(sh\|hs\|zsh\|bash\|shlib\|init\)\)$"
 		# test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	/bin/grep -v "/.ignore/" |

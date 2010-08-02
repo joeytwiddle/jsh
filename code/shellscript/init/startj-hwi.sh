@@ -117,7 +117,8 @@ else
 		export PATH="$PATH:$JPATH/tools:$HOME/bin"
 
 		# $SHLVL|
-		echo -n "`cursegreen`[jsh...`cursenorm`" >&2
+		## The xterm check is actually to prevent stderr from firing error emails during cron scripts.  We might instead check we are in an interactive (or even better, "visible") shell.
+		[ "$TERM" = xterm ] && echo -n "`cursegreen`[jsh...`cursenorm`" >&2
 
 		[ "$JSHDEBUG" ] && echo "Added $JPATH/tools to get new PATH=$PATH" >&2
 
@@ -199,12 +200,15 @@ else
 				elif [ "$BASH" ]
 				then
 					SHORTSHELL="bash"
-					. xttitleprompt
 					. bashkeys
 					. hwipromptforbash
+					## Was not working when it was sourced before bashkeys.
+					. xttitleprompt
 					shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
 				fi
-				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt
+				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt.
+				##       for the moment, we don't start xttitleprompt
+				## SHORTSHELL is also used in joeysaliases (and term_state).
 
 
 				. lscolsinit
@@ -272,7 +276,7 @@ else
 
 		fi # jwhich jwhich
 
-		echo "`cursegreen`started]`cursenorm`" >&2
+		[ "$TERM" = xterm ] && echo "`cursegreen`started]`cursenorm`" >&2
 
 	fi # OKTOSTART
 

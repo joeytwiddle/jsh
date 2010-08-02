@@ -83,11 +83,14 @@ then
 			echo "A simple init script."
 			echo
 			echo "Required:"
-			declare -f start_service
-			declare -f stop_service
-			declare -f check_service
+			# declare -f start_service
+			# declare -f stop_service
+			# declare -f check_service
+			echo "function start_service"
+			echo "function stop_service"
 			echo
 			echo "Optional:"
+			echo "function check_service"
 			echo "SERVICE_NAME=$SERVICE_NAME"
 			echo "WORKING_DIR=$WORKING_DIR"
 			echo "RUNASUSER=$RUNASUSER"

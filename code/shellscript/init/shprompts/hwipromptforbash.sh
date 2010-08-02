@@ -1,3 +1,6 @@
+## TODO WARNING: This can often get ignored because xttitleprompt is in operation.
+
+
 
 # Seasonal Batman (like an easter egg):
 if date | grep "Oct 31" > /dev/null
@@ -120,7 +123,8 @@ else
 				DOLLARDOESNTDOMUCH="\\$" ## '#' for root, '$' for users - better as an end prompt
 				# DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell - almost always 0, got it confused with exit code :P
 				## TODO: can we find a more useful value for DOLLARDOESNTDOMUCH (especially given the on-the-fly evaluation above)?
-				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR\h $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
+				[ "$PROMPTHOST" ] || PROMPTHOST="\h" ## for jchroot.  CONSIDER: would hard-coding the PROMPTHOST, instead of \h, be more efficient?
+				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
 			fi
 		;;
 
@@ -138,10 +142,28 @@ else
 		PS1="[$SCREEN_NAME$WINDOW] $PS1"
 	fi
 
+	#### THIS is the one we are CURRENTLY USING / seeing for bash.
+	## xttitleprompt was not working for bash, so we do the little we can:
+	## TODO: This should be removed if we get bash to automatically update the title before/after each command.
+	# PS1="\\[`xttitle "\u@\h:\W\$ (\#)"`\\]""$PS1"
+	# PS1="\\[`xttitle "(\#) \u@\h:\w\$ [\A] \j"`\\]""$PS1"
+	# PS1="\\[`xttitle "(\#) \u@\h:\w\$   [\A]"`\\]""$PS1"
+	if [ "$DISPLAY" ] || [ "$TERM" = xterm ] # || [ "$TERM" = screen ]
+	then
+		SHOWUSERHOST="\u@\h:"
+		[ "$USER" = joey ] && [ "$HOSTNAME" = hwi ] && SHOWUSERHOST=
+		## I find the (17) really distracting in the window list, so am trying putting a % before it!
+		DISPLAY_STR="% (\#) $SHOWUSERHOST\w\$   [\A]"
+		# XTTSTR=`xttitle "$DISPLAY_STR"` ## fail
+		XTTSTR=`printf "]0;%s" "$DISPLAY_STR"` ## win
+		# PS1="$PS1""$XTTSTR"
+		PS1="$PS1""\[$XTTSTR\]"
+	fi
+
 	export PS1
 
 	## for sh -x debugging
 	# export PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ " ## see hwipromptforzsh
-	export PS4="+\[`cursegreen`\]\W\[`cursenorm`\][\[`cursered;cursebold`\]\s\[`cursenorm`\]]\$ "
+	export PS4="+[\[`cursered;cursebold`\]\s\[`cursenorm`\]]\[`cursegreen`\]\W\[`cursenorm`\]\$ "
 
 fi

@@ -118,9 +118,9 @@ else
 	# if test "`hostname`" = hwi && test $USER = joey; then
 	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
 	## Second line is a check because: jsh in zsh will only work if startj is sourced in .zshrc
-	if [ `which zsh` > /dev/null 2>&1 ] &&
+	if which zsh >/dev/null 2>&1 &&
 	   cat $HOME/.zshrc 2>/dev/null | grep -v "^[ 	]*#" | grep '^\(source\|\.\) .*/startj$' > /dev/null &&
-		[ ! "$USE_SHELL" = bash ] ## should come first, except when I'm testing the others ;)
+	   [ ! "$USE_SHELL" = bash ] ## should come first, except when I'm testing the others ;)
 	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )
 	then
 		## I believe zsh sources its own rc scripts automatically, so this is not needed:
@@ -146,6 +146,13 @@ else
 		## This is be triggered by:
 		export BASH_BASH=yes_please
 		$PRE bash --rcfile "$JPATH/startj"
+		## This was failing on gentoo.
+		# $PRE bash
 	fi
 
 fi
+
+# RES="$?"
+# ( tty >/dev/null && echo "[Leaving Jsh]" >&2 )
+# exit "$RES"
+

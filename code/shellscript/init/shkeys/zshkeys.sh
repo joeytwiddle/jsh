@@ -137,17 +137,17 @@ bindkey "^x" vi-backward-kill-word
 # bindkey "^v" kill-word # no vi-kill-forward!
 
 # The lot, spanning zxdfv nhjkl yuo
-bindkey "^z" vi-backward-kill-word
-bindkey "^x" backward-kill-word
+bindkey "^z" backward-kill-word
+bindkey "^x" vi-backward-kill-word
 bindkey "^d" backward-word
 bindkey "^f" forward-word
 bindkey "^r" vi-backward-word
 bindkey "^t" vi-forward-word
-bindkey "^v" kill-word
 # Solaris zsh complains (after all it don't exist!):
-# bindkey "^b" vi-kill-word
+# bindkey "^v" vi-kill-word
 # Unfortunately, there is no vi-kill-word, so we fake it:
-bindkey -s "^b" "^t^x"
+bindkey -s "^v" "^t^z"
+bindkey "^b" kill-word
 # and to keep inline, we fake the other too:
 bindkey -s "^z" "^r^v"
 

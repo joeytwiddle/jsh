@@ -103,60 +103,71 @@ then
 				## Nice, gives self and up to 2 parent folders:
 				# echo "$PWD" | sed "s|.*/.*/\(.*/.*/.*\)|.../\1|;s|^$HOME|~|"
 
-				## Just current folder name:
-				echo "$PWD" | sed 's+.*/++'
+				if [ "$PWD" = "$HOME" ]
+				then echo "~"
+				else
+					## Just current folder name:
+					echo "$PWD" | sed 's+.*/++'
+				fi
 			}
 			preexec () {
 				## $* repeats under zsh4 :-(
 				## $1 before alias expansion, $2 and $3 after
 				export LASTCMD="$1"
 
-				# xttitle "$XTTITLE_HEAD# $LASTCMD [$SHOWUSER$SHOWHOST`swd`]"
-				# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY [$SHOWUSER$SHOWHOST`swd`]"
-				xttitle "$XTTITLE_HEAD<$HISTCMD> `swd`# $LASTCMD"
+				if [ ! "$SUPPRESS_PREEXEC" ]
+				then
+					# xttitle "$XTTITLE_HEAD# $LASTCMD [$SHOWUSER$SHOWHOST`swd`]"
+					# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY [$SHOWUSER$SHOWHOST`swd`]"
+					xttitle "$XTTITLE_HEAD# `swd`/ $LASTCMD   ($HISTCMD)"
 
-				# echo ">$STY<" >> /tmp/123
-				# screentitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` # $LASTCMD"
-				# screentitle "[$XTTITLE_HEAD#`echo \"$LASTCMD\" | cut -c -10`]"
-				# screentitle "[$XTTITLE_HEAD%`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
-				# [ "$SCREEN_TITLE_TMP" ] || SCREEN_TITLE_TMP="[$XTTITLE_HEAD#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
-				[ "$SCREENTITLE" ] &&
-				SCREEN_TITLE_TMP="$SCREENTITLE" ||
-				SCREEN_TITLE_TMP="#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`"
-				screentitle "$SCRHEAD$SCREEN_TITLE_TMP"
+					# echo ">$STY<" >> /tmp/123
+					# screentitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` # $LASTCMD"
+					# screentitle "[$XTTITLE_HEAD#`echo \"$LASTCMD\" | cut -c -10`]"
+					# screentitle "[$XTTITLE_HEAD%`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
+					# [ "$SCREEN_TITLE_TMP" ] || SCREEN_TITLE_TMP="[$XTTITLE_HEAD#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`]"
+					[ "$SCREENTITLE" ] &&
+					SCREEN_TITLE_TMP="$SCREENTITLE" ||
+					SCREEN_TITLE_TMP="#`echo \"$LASTCMD\" | takecols 1 | cut -c -10`"
+					screentitle "$SCRHEAD$SCREEN_TITLE_TMP"
+				fi
 			}
 			precmd () {
-				# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
+				if [ ! "$SUPPRESS_PRECMD" ]
+				then
+					# xttitle "$SHOWHOST"`swd`" % ($LASTCMD)"
 
-				# xttitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` % ($LASTCMD)"
-				# XTTITLE_DISPLAY="% $XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd`"
-				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd`%"
-				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % ($LASTCMD)"
-				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % (`history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
-				# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % ( `history | wc -l`: `history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
-				## This is madness it should be an add-on not part of or even an option to the default jsh :P (?)
-				# HISTNUM=`history 0 | wc -l`
-				HISTNUM="$((HISTCMD))"
-				# [ "$HISTNUM" -gt 1 ] && HISTSHOW=" ( ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
-				# [ "$HISTNUM" -gt 9 ] && HISTNUM="$HISTNUM:" || HISTNUM=
-				# HISTSHOW=" ( $HISTNUM ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
-				# HISTSHOW="<$HISTNUM...`history | tail -n 20 | takecols 2 | removeduplicatelinespo | tail -n 3 | tr '\n' ',' | sed 's+.$++'`>" || HISTSHOW=
-				## DONE: we actually want removeduplicatelinespo-reversed (reversed before input, and after output)
-				## ? should be exit code of last command
-				# [ "$HISTNUM" -gt 10 ] && HISTNUMBIT=",..$HISTNUM" || HISTNUMBIT=""
-				HISTNUMBIT=
-				[ "$HISTCMD" -gt 1 ] && HISTSHOW="(`history | tail -n 20 | takecols 2 | reverse | removeduplicatelinespo | head -n 5 | tr '\n' ',' | sed 's+.$++'`$HISTNUMBIT)" || HISTSHOW=
-				FAKESQUARE="	"
-				# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
-				xttitle "$XTTITLE_HEAD<$((HISTCMD-1))> `swd`%_   $HISTSHOW"
+					# xttitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` % ($LASTCMD)"
+					# XTTITLE_DISPLAY="% $XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd`"
+					# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd`%"
+					# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % ($LASTCMD)"
+					# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % (`history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
+					# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % ( `history | wc -l`: `history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
+					## This is madness it should be an add-on not part of or even an option to the default jsh :P (?)
+					# HISTNUM=`history 0 | wc -l`
+					HISTNUM="$((HISTCMD))"
+					# [ "$HISTNUM" -gt 1 ] && HISTSHOW=" ( ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
+					# [ "$HISTNUM" -gt 9 ] && HISTNUM="$HISTNUM:" || HISTNUM=
+					# HISTSHOW=" ( $HISTNUM ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
+					# HISTSHOW="<$HISTNUM...`history | tail -n 20 | takecols 2 | removeduplicatelinespo | tail -n 3 | tr '\n' ',' | sed 's+.$++'`>" || HISTSHOW=
+					## DONE: we actually want removeduplicatelinespo-reversed (reversed before input, and after output)
+					## ? should be exit code of last command
+					# [ "$HISTNUM" -gt 10 ] && HISTNUMBIT=",..$HISTNUM" || HISTNUMBIT=""
+					HISTNUMBIT=
+					[ "$HISTCMD" -gt 1 ] && HISTSHOW="($((HISTCMD-1)):`history | tail -n 20 | takecols 2 | reverse | removeduplicatelinespo | head -n 5 | tr '\n' ',' | sed 's+.$++'`$HISTNUMBIT)" || HISTSHOW=
+					FAKESQUARE="	"
+					# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
+					# xttitle "$XTTITLE_HEAD<$((HISTCMD-1))> `swd`%_   $HISTSHOW"
+					xttitle "$XTTITLE_HEAD% `swd`/ _   $HISTSHOW"
 
-				# echo ">$STY<" >> /tmp/123
-				# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | cut -c -10`]"
-				# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | sed 's+.*/\(.*/.*\)+\1+' | cut -c -10`]"
-				[ "$SCREENTITLE" ] &&
-				SCREEN_TITLE_TMP="$SCREENTITLE" ||
-				SCREEN_TITLE_TMP="`swd | sed 's+.*/\(.*/.*\)+\1+ ; s+.*\(..........\)+\1+'`/"
-				screentitle "$SCRHEAD$SCREEN_TITLE_TMP"
+					# echo ">$STY<" >> /tmp/123
+					# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | cut -c -10`]"
+					# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | sed 's+.*/\(.*/.*\)+\1+' | cut -c -10`]"
+					[ "$SCREENTITLE" ] &&
+					SCREEN_TITLE_TMP="$SCREENTITLE" ||
+					SCREEN_TITLE_TMP="`swd | sed 's+.*/\(.*/.*\)+\1+ ; s+.*\(..........\)+\1+'`/"
+					screentitle "$SCRHEAD$SCREEN_TITLE_TMP"
+				fi
 			}
 		;;
 
@@ -165,10 +176,6 @@ then
 		## See .tcshrc for actual postcmd!
 		tcsh)
 			alias postcmd 'xttitle "${XTTITLE_HEAD}${USER}@${SHORTHOST}:${PWD}%% \!#"'
-		;;
-
-		bash)
-			noop ## should be already done above
 		;;
 
 		*)

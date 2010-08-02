@@ -8,10 +8,17 @@
 
 test "$COLUMNS" && export COLUMNS
 
+## We shouldn't modify shell behaviour unless this is a user shell.
+## e.g. FTPDrive was barfing because our ftpd was running our ls alias.
+if [ "$TERM" = linux ] || [ "$TERM" = xterm ] ## TODO: maybe more accurate to check for TTY?
+then
+
 . preventgreperrs
-alias grep='grep --line-buffered' ## This seems to add to the previous definition :)
+# alias grep='grep --line-buffered' ## This seems to add to the previous definition :)
+alias grep='grep --line-buffered --colour=auto' ## This seems to add to the previous definition :)
 alias sed='sed -u'
 
+## Actually my ls and l aliases are now overriden by myls later.
 if test $JM_COLOUR_LS; then
 	XARGS='h --color'
 	## We should share the following with getmachineinfo's JM_LS_OPTS
@@ -50,15 +57,28 @@ if test "$SHORTSHELL" = zsh
 then
 	# . pawan_zshrc_stripped
 	myhist() {
-		history 1 | grep "$*" | tail -n "$((LINES/2))"
+		if [ "$1" = 0 ] || [ "$1" = . ]
+		then history 0
+		else history 1 | grep "$*" | tail -n "$((LINES-2))"
+		fi
 	}
 elif test "$SHORTSHELL" = bash
 then
 	myhist() {
-		history | grep "$*" | tail -n "$((LINES/2))"
+		if [ "$1" = 0 ] || [ "$1" = . ]
+		then history 0
+		else history | grep "$*" | tail -n "$((LINES-2))"
+		fi
 	}
 fi
 alias hist=myhist
+alias h='hist'
+
+## histlist displays your history search results through less.
+# histlist() {
+	# history 0 | grep "$*" | less +G
+# }
+# alias h='histlist'
 
 myxv() {
 xv -perfect "$@" &
@@ -96,7 +116,8 @@ alias dusk="memo -t '1 hour' dusk"
 
 alias quiet='fadevolume 0'
 
-alias memo='memo -info'
+## TODO: If the user uses memo instead of rememo, should we re-use the memoed files even if it is "out of date" according to "default condition"?
+alias memo='memo -info -t "2 hours"'
 
 ## (Intended) for user only:
 alias mv='mv -i'
@@ -104,8 +125,6 @@ alias mv='mv -i'
 alias cp='cp -a -i'
 
 alias cal='cal | highlight "\<`date | takecols 3`\>"'
-
-alias h='hist'
 
 alias locate='memo -t "1 day" locate'
 
@@ -121,4 +140,28 @@ function jmount() {
 }
 
 # alias mount="'mount' | highlight_words"
+
+alias ssh='jshssh'
+function jshssh () {
+	xttitle "=< ssh $* >="
+	## This was supposed to prevent the remote server from changing the xttitle (altho if we ssh on from there we might want to).  But it made kx vi's PageUp/Down break: export TERM=vt100
+	'ssh' "$@"
+}
+
+# function jfluxbox () {
+	# . includepath /usr/local/fluxbox
+	# 'fluxbox' "$@"
+# }
+# alias fluxbox='jfluxbox'
+
+fi
+
+myls() {
+	## I always use -a *except* when in ~.  To -a my dotfiles, I cd into a symlink to ~.
+	if [ "$PWD" = "$HOME" ]
+	then 'ls' -lrtFh --color "$@"
+	else 'ls' -lartFh --color "$@"
+	fi
+}
+alias l='myls'
 
