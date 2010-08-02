@@ -22,6 +22,7 @@ then
 		# HEAD="%{[00;33m%}>%{[01;31m%}!%{[00;33m%}DANGER%{[01;31m%}!%{[00;33m%}<"
 		# HEAD="%{[00;33m%}>%{[01;31m%}!%{[00;33m%}ROOT%{[01;31m%}!%{[00;33m%}<"
 		# HEAD="%{[01;31m%}>%{[00;33m%}ROOT%{[01;31m%}<"
+		# declare -f swd >/dev/null && HEAD="" || ## Check if we are using xttitleprompt, and if so do not embed xterm title escape block.
 		HEAD="%{[00;33m%}>%{[01;31m%}ROOT%{[00;33m%}<"
 		# HEAD="ROOT"
 		export PROMPT="%{[01;31m%}$HEAD %{[01;33m%}%? %{[00;36m%}%~/%{[01;31m%} "
@@ -68,5 +69,6 @@ export PS4="(%?)%L%{`cursegreen`$}%c%{`cursemagenta`%}[%{`cursered``cursebold`%}
 # export PS4="+[bash] "
 # export PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ "
 # export PS4="+\[`cursegreen`\]\W\[`cursenorm`\][\[`cursered;cursebold`\]\s\[`cursenorm`\]]\$ "
-export PS4="+ \[`cursemagenta`\][\[`cursered;cursebold`\]\s\[`cursemagenta`\]]\[`cursegreen`\]\W\[`cursenorm`\]\[`cursenorm`\]# "
+# \[`cursemagenta`\]
+export PS4="\[`curseblue`\]+[\[`cursered;cursebold`\]\s\[`cursemagenta`\]]\[`cursegreen`\]\W\[`cursenorm`\]\[`cursenorm`\]# "
 

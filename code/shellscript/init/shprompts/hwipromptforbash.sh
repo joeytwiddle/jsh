@@ -153,7 +153,7 @@ else
 		SHOWUSERHOST="\u@\h:"
 		[ "$USER" = joey ] && [ "$HOSTNAME" = hwi ] && SHOWUSERHOST=
 		## I find the (17) really distracting in the window list, so am trying putting a % before it!
-		DISPLAY_STR="% (\#) $SHOWUSERHOST\w\$   [\A]"
+		DISPLAY_STR="% $SHOWUSERHOST\w/   (\#) [\A]"
 		# XTTSTR=`xttitle "$DISPLAY_STR"` ## fail
 		XTTSTR=`printf "]0;%s" "$DISPLAY_STR"` ## win
 		# PS1="$PS1""$XTTSTR"
