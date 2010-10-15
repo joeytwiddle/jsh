@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: drop pipeboth takecols
 if [ "$2" = "" ] || [ "$1" = --help ]
 then

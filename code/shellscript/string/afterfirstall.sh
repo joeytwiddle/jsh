@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: sed
 
 # WRONG: Actually does last per line

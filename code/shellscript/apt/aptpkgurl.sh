@@ -1,3 +1,4 @@
+#!/bin/sh
 ## This is much quicker than apt-get, but of course it doesn't resolve dependencies.
 ## Try doing this: aptpkgurl <pkgname> | striptermchars | grep -A3 "_testing_" | grep "^http"
 ## OK, so that gets us URLs to d/l from.

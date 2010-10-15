@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Still too high for Boris:
 # vncserver -geometry 980x680
 ## Better for Boris:
@@ -17,7 +18,8 @@ ADDRESS=`
 	## For 486:
 	# vncserver -depth 16 -geometry 800x600 -dpi 75 2>&1 |
 	## For Hwi:
-	vncserver -depth 16 -geometry 1280x1024 -dpi 100 2>&1 |
+	# vncserver -depth 16 -geometry 1280x1024 -dpi 100 2>&1 |
+	vncserver -depth 16 -geometry 1000x860 -dpi 72 2>&1 |
 	pipeboth |
 	grep "desktop is " | after "desktop is "
 `

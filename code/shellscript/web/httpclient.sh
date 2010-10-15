@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ ! "$*" ] || [ "$1" = --help ]
 then
 	echo "http_do [ -post ] <url>"

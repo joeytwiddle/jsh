@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: sed md5sum tty realpath
 # this-script-does-not-depend-on-jsh: cursemagenta cursenorm debug
 # jsh-depends: memo jdeltmp jgettmpdir jgettmp realpath md5sum error jshwarn

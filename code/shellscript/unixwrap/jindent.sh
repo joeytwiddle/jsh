@@ -1,3 +1,4 @@
+#!/bin/sh
 for X in "$@"; do
 	cp "$X" "$X".b4jind
 	if endswith "$X" "\.htm" || endswith "$X" "\.html"; then

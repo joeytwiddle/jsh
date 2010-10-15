@@ -1,3 +1,4 @@
+#!/bin/sh
 REPOS="$1"
 
 if test "$REPOS" = ""; then

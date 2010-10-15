@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: cable modem was not giving me a dhcp so I wasn't online but I had eth1 so this script thought I was.  :-/
 # eth1      Link encap:Ethernet  HWaddr 00:11:1A:D4:18:A5  
           # UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
@@ -7,7 +8,7 @@
           # RX bytes:0 (0.0 b)  TX bytes:342 (342.0 b)
 ## The lack of IP addresses might be an indicator of a problem here!
 
-for INTERFACE in eth0 eth1 ppp0
+for INTERFACE in eth0 eth1 eth2 eth3 ppp0
 do
 	if /sbin/ifconfig "$INTERFACE" >/dev/null 2>&1
 	then

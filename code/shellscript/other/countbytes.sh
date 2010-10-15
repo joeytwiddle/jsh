@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: sed
 # dd of=/dev/null bs=1 2>&1 | head -n 2 | tail -n 1 | sed 's/+.*//'
 

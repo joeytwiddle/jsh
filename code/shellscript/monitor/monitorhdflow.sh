@@ -1,3 +1,4 @@
+#!/bin/sh
 jwatchchanges -fine "cat /proc/partitions | columnise"
 
 exit

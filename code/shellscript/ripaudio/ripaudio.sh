@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: vsound
 # jsh-depends: rotate
 

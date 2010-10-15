@@ -1,3 +1,4 @@
+#!/bin/sh
 #/bin/sh
 
 if test "$USER" = joey && test "$SHORTHOST" = hwi

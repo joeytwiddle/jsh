@@ -1,7 +1,9 @@
+#!/bin/sh
+## Does a simple one-way jfc diff
+## See also: comm
 # jsh-depends: cursecyan centralise cursenorm jdeltmp jgettmp
-# Does a simple one-way jfc diff
-
 ## TODO: jfc / jfcsh bridge (has been tried somewhere...)
+## See other implementations: http://mywiki.wooledge.org/BashFAQ/036
 
 case "$1" in
 	""|-h|--help)

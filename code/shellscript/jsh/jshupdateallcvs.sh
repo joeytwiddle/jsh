@@ -1,3 +1,4 @@
+#!/bin/sh
 for X in *; do
 	if test -d $X/CVS; then
 

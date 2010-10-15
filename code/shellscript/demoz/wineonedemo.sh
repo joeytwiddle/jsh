@@ -1,7 +1,9 @@
+#!/bin/sh
 # this-script-does-not-depend-on-jsh: wine winealldemoz
 # jsh-depends: mykill waitforkeypress findjob curseblue curseyellow cursenorm
 # jsh-ext-depends: find wine unzip
 
+## I think I used to need this when I was running wine
 xset fp- unix/:7101 2>/dev/null
 
 curseyellow

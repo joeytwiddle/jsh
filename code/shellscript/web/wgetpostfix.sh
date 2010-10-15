@@ -1,3 +1,4 @@
+#!/bin/sh
 # This was needed for wget version 1.8.1
 # after mirroring with: wget -o fredart.log -p -m -k "http://www.fredart.com/"
 

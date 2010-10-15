@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: basename dirname
 
 ## An implementation of realpath(1,3) in sh.

@@ -12,6 +12,9 @@
 #	2) Not all sampling rates are good, so try to resample:
 #	-srate 48000 or -srate 22050 or -srate 32000.
 
+[ "$SRATE" ] || SRATE=48000
+[ "$VQSCALE" ] || VQSCALE=6 ## I tried 10 but the file was too large.  6 is reasonable
+
 for VIDEOFILE
 do
 
@@ -22,7 +25,7 @@ do
 	# nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6:acodec=mp2 $MP_CLIP || exit
 
 	## Reasonable quality:
-  nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 $MP_CLIP || exit
+  nice -n 16 mencoder -srate "$SRATE" -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=$VQSCALE $MP_CLIP || exit
 
 	## High quality (but large file!):
   # nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=2 $MP_CLIP || exit

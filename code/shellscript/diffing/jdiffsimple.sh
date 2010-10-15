@@ -1,3 +1,7 @@
+#!/bin/sh
+## TODO: jdiffsimple -fine sometimes seems to \r the last line (or few lines).  It also randomly prints 14+4 at the top!
+## TODO: Also -fine prints 4 removed spaces as "- - - - "!
+
 if [ ! "$*" ] || [ "$1" = --help ]
 then
 	echo "jdiffsimple [-fine] <files>"
@@ -19,10 +23,11 @@ then
 	shift; shift
 	cat "$FILEA" | escapenewlines -x > "$FILEA".xescaped
 	cat "$FILEB" | escapenewlines -x > "$FILEB".xescaped
-	jdiffsimple "$FILEA".xescaped "$FILEB".xescaped "$@" |
+	[ "$JDSCONTEXT" ] || JDSCONTEXT="-C20"
+	JDSCONTEXT="$JDSCONTEXT" jdiffsimple "$FILEA".xescaped "$FILEB".xescaped "$@" |
 	unescapenewlines -x
 
-	del "$FILEA".xescaped "$FILEB".xescaped
+	del "$FILEA".xescaped "$FILEB".xescaped >/dev/null
 
 else
 
@@ -32,8 +37,20 @@ else
 
 	## OK well the previous did sometimes manage to print old lines in both red and white, which wasn't good.
 	## This approach seems to work better:
-	diff --old-line-format="`cursered`%L`cursenorm`" --new-line-format="`cursegreen`%L`cursenorm`" "$@"
+	# diff --old-line-format="`cursered`%L`cursenorm`" --new-line-format="`cursegreen`%L`cursenorm`" "$@"
 
-	cursenorm # polite innit
+	[ "$JDSCONTEXT" ] || JDSCONTEXT="-C3"
+
+	## TODO: Might not work well with -fine
+	ADD_COL="`cursegreen`"
+	REMOVE_COL="`cursered`"
+	# PRE_ADD="`cursemagenta``cursebold`+" ## These are good for a few changes, but can be terrible when doing fine diffing, adding far more '+'s a nd '-'s than needed.
+	# PRE_REMOVE="`cursemagenta``cursebold`-"
+	RESET_COL="`cursenorm`"
+	diff --old-line-format="$PRE_REMOVE$REMOVE_COL%L$RESET_COL" --new-line-format="$PRE_ADD$ADD_COL%L$RESET_COL" "$@" |
+	grep "$JDSCONTEXT" "\(`toregexp "$PRE_REMOVE"`\|`toregexp "$PRE_ADD"`\)" |
+	sed "s|^--$|`curseblue` ... `cursenorm`|"
+
+	cursenorm # safe side
 
 fi

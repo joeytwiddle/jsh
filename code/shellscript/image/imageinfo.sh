@@ -1,3 +1,5 @@
-# convert -verbose "$@" $JPATH/tmp/tmp.jpg 2>&1
-convert -verbose "$@" $JPATH/tmp/tmp.jpg
-
+#!/bin/sh
+for FILE
+do convert -verbose "$FILE" /tmp/imageinfo-$$.jpg
+done
+rm -f /tmp/imageinfo-$$.jpg

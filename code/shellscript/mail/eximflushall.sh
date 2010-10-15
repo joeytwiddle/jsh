@@ -1,3 +1,4 @@
+#!/bin/sh
 ## See also: exim -qff
 
 EXIM=`which exim`
@@ -71,7 +72,7 @@ do
 
 			## TODO: Some exim commands (at least the next two) can fail if the message is currently undergoing processing.  What should we do about this?
 
-			### I ph34r this might cause exim to drop the mail immediately!
+			### I ph34r this might cause exim to drop the mail immediately (we can't do -reroute afterwards)!
 			-clearrecipients)
 				centralise '-' "Marking as delivered all recipients of $MSGID" | highlight ".*" cyan
 				$EXIM -Mmad "$MSGID"

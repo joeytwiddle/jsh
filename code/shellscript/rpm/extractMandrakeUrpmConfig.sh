@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: beforelast
 if test "$1" = ""; then
 	ROOT="/"

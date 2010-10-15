@@ -1,3 +1,4 @@
+#!/bin/sh
 # ls $1/. > firstdir
 # ls $2/. > seconddir
 

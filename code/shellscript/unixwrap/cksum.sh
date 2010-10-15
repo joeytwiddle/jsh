@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: write
 # jsh-ext-depends: dirname tee newer
 # jsh-depends: unj endswith filename newer

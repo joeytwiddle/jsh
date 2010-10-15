@@ -1,3 +1,4 @@
+#!/bin/sh
 TARGETARCHIVE="$1"
 shift
 

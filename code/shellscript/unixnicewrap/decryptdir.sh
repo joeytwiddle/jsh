@@ -1,3 +1,4 @@
+#!/bin/sh
 NOTAR=
 if test "$1" = "-notar"
 then

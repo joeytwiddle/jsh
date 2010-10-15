@@ -1,3 +1,4 @@
+#!/bin/sh
 REPORTFILE=`jgettmp "ping$*"`
 
 printf "" > $REPORTFILE

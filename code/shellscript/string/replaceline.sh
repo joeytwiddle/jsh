@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: Doesn't complain if search string is not there and hence replacement is not made!
 ##       Could grep but not if piping in->out
 
@@ -10,7 +11,8 @@ then
   echo 'replaceline "search string" "replacement line" [ <file> ]'
 	echo '  finds the line(s) containing "search string" and replaces it with "replacement line".'
 	echo '  If you want to repeat the process, naturally the "replacement line" should contain the "search string".'
-	echo '  Note you cannot use ^ or $ in "search string".'
+	## FIXED I THINK: echo '  Note you cannot use ^ or $ in "search string".'
+	echo '  "search string" is a regexp, except ^ and $ are interpreted literally.'
   exit 1
 fi
 

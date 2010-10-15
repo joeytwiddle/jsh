@@ -1,3 +1,4 @@
+#!/bin/sh
 ## I couldn't find a way for exim to accept the mail as if it was just received by exim and should be re-processed.
 ## I would have to talk SMTP for that, or maybe even that wouldn't work.  :-/
 

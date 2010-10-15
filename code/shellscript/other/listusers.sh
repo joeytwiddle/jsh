@@ -1,3 +1,4 @@
+#!/bin/sh
 #! /bin/sh
 count=0
 exec 3<&0 </etc/passwd

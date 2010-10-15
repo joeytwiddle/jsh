@@ -1,3 +1,4 @@
+#!/bin/sh
 # Apparently this can be achieved with dlocate, or dpkg-query ... ?
 # noop > totals.txt
 

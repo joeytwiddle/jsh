@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: it appears that awk has a limited line length (webscraping FlyBMI)
 ##       solution sedreplace the search string with a unique string the awk can handle
 ##       problem: what about later occurrences of the string in the stream, which we want to pass back without replacing?!

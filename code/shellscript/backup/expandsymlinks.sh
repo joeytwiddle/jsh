@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: del jdeltmp jgettmp
 ## Undoes contractsymlinks.
 ## Loses the dates on the symlinks, but I don't know how to set the symlink
@@ -5,14 +6,27 @@
 ## A tar can preserve symlink dates, but I want them to be diffable for makebackup.
 
 (
+
 	STARTDIR="$PWD"
-	TMPFILE=`jgettmp expandsymlinks`
+	echo 'TMPFILE=`jgettmp expandsymlinks`'
+
+	# echo 'find . -type l | foreachdo verbosely rmlink'
+	# find . -type l | while read X; do echo "rmlink \"$X\""; done
+	find . -type l | foreachdo verbosely rmlink
+
+	cat .symlinks.list |
+	removeduplicatelines |
+	dog .symlinks.list
+
 	cat .symlinks.list |
 	# sed 's+^\(.*\)/\(.*\)	->	\(.*\)$+cd ".\1"; ln -s "\3" "\2"; cd "'"$STARTDIR"'"+' |
 	## Now keeps the symlink's parent dir's original time (does not update it on creation of new symlink)
-	sed 's+^\(.*\)/\(.*\)	->	\(.*\)$+mkdir -p "\1"; touch -r "\1" '"$TMPFILE"'; cd "\1"; ln -s "\3" "\2"; cd "'"$STARTDIR"'"; touch -r '"$TMPFILE"' "\1"+'
-	echo "del .symlinks.list"
+	sed 's+^\(.*\)/\(.*\)	->	\(.*\)$+mkdir -p "\1"; touch -r "\1" "$TMPFILE"; cd "\1"; verbosely ln -s "\3" "\2"; cd "'"$STARTDIR"'"; touch -r "$TMPFILE" "\1"+'
+
+	# echo "del .symlinks.list"
+
 	echo "jdeltmp $TMPFILE"
-) | # pipeboth |
+
+) | # highlightstderr pipeboth |
 
 sh

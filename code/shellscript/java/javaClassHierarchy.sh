@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: removeduplicatelines takecols withalldo jgettmp extractregex treesh jreflect debug sedreplace
 
 ## TODO: options:

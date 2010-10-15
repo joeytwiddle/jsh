@@ -1,5 +1,7 @@
 # b: move back in directory history
 
+[ "$SUPPRESS_PREEXEC" = undo ] && SUPPRESS_PREEXEC=
+
 SEARCHDIR="$1"
 
 LAST=`grep "$SEARCHDIR" "$HOME/.dirhistory" | 'tail' -n 1`

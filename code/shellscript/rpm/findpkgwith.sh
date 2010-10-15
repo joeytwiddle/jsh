@@ -1,3 +1,7 @@
+#!/bin/sh
+## For Gentoo, this now appears to be: equery belongs <filename>
+## See also: apt-file search
+
 WEBSRCH=
 while test ! "$2" = ""; do
 	case "$1" in
@@ -14,7 +18,9 @@ done
 SEARCH="$1"
 
 if test $WEBSRCH; then
-	PAGE="http://packages.debian.org/cgi-bin/search_contents.pl?word=$SEARCH&case=insensitive&version=testing&directories=yes"
+	# PAGE="http://packages.debian.org/cgi-bin/search_contents.pl?word=$SEARCH&case=insensitive&version=testing&directories=yes"
+	# PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=$SEARCH"
+	PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=contents&keywords=$SEARCH"
 	if xisrunning; then
 		browse "$PAGE"
 		# newwin lynx "$PAGE"

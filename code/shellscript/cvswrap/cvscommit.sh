@@ -1,3 +1,4 @@
+#!/bin/sh
 ## jsh-help: Commits files to cvs respository, and immediately unlocks them.
 
 # OUT-OF-DATE: jsh-depends: cursebold cursecyan cursegreen curseyellow cursenorm cvsdiff cvsedit cvsvimdiff edit jdeltmp jgettmp jdiff newer error
@@ -22,6 +23,6 @@ else
 	cvs -q commit "$@"
 	# | grep -v "^? "
 	## caused: "Vim: Warning: Output is not to a terminal"
-	cvsedit "$@" 2> /dev/null
+	cvsedit "$@" >/dev/null 2>&1
 
 fi

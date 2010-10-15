@@ -1,3 +1,4 @@
+#!/bin/sh
 SEARCHDIR="$1"
 
 TMPF=`jgettmp`

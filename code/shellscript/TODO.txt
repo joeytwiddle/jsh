@@ -1,3 +1,13 @@
+
+
+
+Many jsh scripts will not run without $JPATH, or other things setup by jsh, or jsh-simple (which are many).
+Ofc these won't standalone.
+Other scripts making use of the usualy j/jsh initialiasation will not work when precompiled with compilejshscript.
+
+
+
+
 jsh needs to be broken into sensible modules
 it is bloated because it loads everything and repeats other things
 need to think about:

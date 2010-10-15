@@ -1,3 +1,4 @@
+#!/bin/sh
 # Sometimes processes start with PPID 1, hence this is irrelevant.
 
 if test "$1" = "" -o "$2" = ""; then

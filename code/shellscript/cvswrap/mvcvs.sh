@@ -1,3 +1,4 @@
+#!/bin/sh
 ## BUG TODO: mvcvs only works when recent version of file has been committed
 ##           otherwise changed checkout file gets deleted (retrievable)
 ##    SOLVE: check if checkout is committed / up-to-date, and warn if bad situation ; consider making a copy and putting it back after checkout of refactored files/folder
@@ -10,6 +11,8 @@
 echo "## If the following looks ok to you, run mvcvs again with | sh -e -x"
 
 echo "## TODO: check the file has been committed, otherwise it doesn't work!!!" >&2
+# jshwarn "If your checkout is not in sync, it will be committed and updated!"
+jshwarn "Please ensure you have done cvsupdate -AdP first!"
 
 # safe until you | sh
 
@@ -70,15 +73,16 @@ mvcvs1() {
 		fi
 
 		## Moving a directory:
-
-		echo "TODO: Create new directory tree, and add to CVS"
-		echo "TODO: mvcvs all the files from current tree to new tree"
-		echo "TODO: Remove local src tree and dirs from cvs."
-		echo "  or"
+		echo "How to move a folder in CVS:"
+		# echo "TODO: Create new directory tree, and add to CVS"
+		# echo "TODO: mvcvs all the files from current tree to new tree"
+		# echo "TODO: Remove local src tree and dirs from cvs."
+		# echo "  or"
 		echo "TODO: Copy tree over in cvs."
-		echo "TODO: Remove src tree from CVS and local checkout."
-		echo "TODO: Update local."
-	
+		# echo "TODO: Remove src tree from CVS and local checkout."
+		echo "TODO: Update local checkout to the new destination."
+		echo "TODO: Delete the source folder from the repository legally."
+
 	elif test -f "$LOCALSRC"
 	then
 
@@ -98,15 +102,25 @@ mvcvs1() {
 		# fi
 
 		## We can copy the file in the CVS repository to create the new entry
+		echo "set -e -x &&"
 		echo "cp \"$CVSFILE\" \"$CVSDESTDIR/$DESTFILENAME,v\" &&"
+
 		## To keep the client in sync, we remove the file and call "cvs remove", which will also remove it from the repository (when we commit later).
-		## Could be replaced with: rm -f "$LOCALSRC" ; cvs remove "$LOCALSRC"
-		echo "del -cvs \"$LOCALSRC\" &&" ## does cvs remove, and sends the file to trash
+		# echo "del -cvs \"$LOCALSRC\" &&" ## does cvs remove, and sends the file to trash
+		# echo "del \"$LOCALSRC\" &&"
+
+		## Maybe we should commit the working copy?
+		## At the moment we keep the local copy and rename it too.
+		echo "mv \"$LOCALSRC\" \"$LOCALSRC.mvcvs\" &&"
+		# echo "rm -f \"$LOCALSRC\" &&"
+
+		echo "cvs remove \"$LOCALSRC\" &&"
 
 		## Finalise changes
-		echo "cvsupdate -AdP &&"
-		echo "cvscommit -m \"MOVED to $LOCALDEST\" $LOCALSRC &&"
-		echo "cvscommit -m \"MOVED from $LOCALSRC\" $LOCALDEST"
+		# echo "cvsupdate -AdP &&" ## instead we ask user to do it
+		echo "cvscommit -m \"MOVED to $LOCALDEST\" \"$LOCALSRC\" &&"
+		echo "cvscommit -m \"MOVED from $LOCALSRC\" \"$LOCALDEST\" &&"
+		echo "mv -f \"$LOCALSRC.mvcvs\" \"$LOCALDEST\""
 
 	else
 

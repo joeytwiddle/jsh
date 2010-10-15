@@ -1,3 +1,8 @@
+#!/bin/sh
+## TODO: Does not cleanup sockets.
+
+## DONE: Now does clean up empty directories, as well as files and symlinks in /RECLAIM.
+
 ## TODO: i factored out reclaimfrom but didn't really modify it at all
 ##       we never reclaim from $HOME/j/trash but we should!  (If we are on a nicely working system, or we are root, we can easily do this by doing del on those trash folders, before we start the reclaim ^^ )
 
@@ -109,7 +114,7 @@ function spaceon() {
 
 function reclaimfrom() {
 
-	# cd "$1"
+	# cd "$1" ## Should have been done already
 
 			## I had a lot of trouble if I broke out of the while loop, because the find was left dangling and still outputting (worse on Gentoo's bash).
 			## I did try cat > /dev/null to cleanup the end of the stream, but if I had already passed, the cat caused everything to block!
@@ -194,6 +199,13 @@ function reclaimfrom() {
 				fi
 
 			done
+
+			# find . -type d | grep -v "^\.$" |
+			verbosely find "$1"/ -type d | grep -v "/$" |
+			reverse |
+			foreachdo verbosely rmdir 2>&1 |
+			# grep -v "^rmdir: failed to remove '.*': Directory not empty$"
+			grep -v "Directory not empty"
 
 }
 

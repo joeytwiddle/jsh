@@ -1,3 +1,4 @@
+#!/bin/sh
 COM="$@"
 
 TMPSH=`jgettmp "xtermsh.sh"`

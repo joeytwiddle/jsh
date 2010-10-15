@@ -1,3 +1,7 @@
+#!/bin/sh
+## TODO: Are we locking the mailbox properly?
+## If we can't perform the approriate locking, we could ask the user's permission to move the source file elsewhere, then process it, and then ask permission to move the cleaned file back where the original was placed.
+
 if [ "$#" -lt 3 ]
 then
 	echo "split_spam_from_mbox <input_mbox> <output_mbox> <spam_output_mbox>"

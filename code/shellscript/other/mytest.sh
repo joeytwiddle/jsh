@@ -1,3 +1,4 @@
+#!/bin/sh
 if "$@"; then
   echo "yes"
 	exit 0

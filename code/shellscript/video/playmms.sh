@@ -1,5 +1,7 @@
 ## This is useful for opening .wvx files,
 ## which appear to be xml formatted pointers to mms:// video streams.
+## But you can also use it to extract rtsp:// urls from .ram files, since we
+## simply extract matching regexps.
 
 ## TODO: may need -playlist sometimes, dunno, can we always add this option?  NO!
 ## DONE: I got an asx whose /only/ content was an mms: URL, so it failed the regexp below!  (OK so now I just use extracturls)

@@ -1,5 +1,19 @@
+### BEGIN INIT INFO
+## Provides:          hwibot.outer
+## Required-Start:    $remote_fs $syslog sshd_gentoo
+## Required-Stop:     $remote_fs $syslog
+## Default-Start:     2 3 4 5
+## Default-Stop:      0 1 6
+## Short-Description: hwibot
+## Description:       Enable hwi's services running in /mnt/hwibot chroot
+#### END INIT INFO
+# Requires sshd_gentoo for grimeape service
+
+# TODO for LSB: start, stop, restart, force-reload, and status; log_success_msg, log_failure_msg and log_warning_msg
+
 TARGET=/mnt/hwibot
-MNTPNTS="big data morphix floppy gentoo mandrake space hdb5 hdb6 hdb7 hdb8 win98"
+MNTPNTS="big data morphix floppy gentoo mandrake space hdb5 hda3 hdb7 hdb8 win98"
+NICE_THE_CHROOT="nice -n 8"
 
 if [ "$1" = start ]
 then
@@ -30,10 +44,12 @@ then
 	export SERVICES="" ## Overwrite the services set in game-interrupting-services!
 	# bash -l -c "/home/joey/j/jsh inscreendo hwibot chroot '$TARGET' /bin/bash -- /etc/init.d/hwibot.inner -block start"
 	## DONE: Rather than leaving a lame shell in a screen, maybe make hwibot.inner log somewhere, wait for the call to finish, then cat the log (or just show it inline here!).
-	chroot "$TARGET" /bin/bash -- /etc/init.d/hwibot.inner start &
+	$NICE_THE_CHROOT chroot "$TARGET" /bin/bash -- /etc/init.d/hwibot.inner start
+	# &
 
 	# echo "started"
-	echo "forked"
+	# sleep 5 ; echo "forked"
+	# echo "forking" ; sleep 5
 	# echo "started (results of start script should be available in screen \"hwibot\")"
 
 elif [ "$1" = stop ]
@@ -44,6 +60,8 @@ then
 	chroot "$TARGET" /etc/init.d/hwibot.inner stop
 
 	## Should only do this if we are definitely the last chroot:
+	## Some unmounts tend to fail if we don't give the services time to fully close.
+	sleep 5
 	# chroot "$TARGET" umount -lf /proc
 	chroot "$TARGET" umount /proc
 	# umount "$TARGET"/proc

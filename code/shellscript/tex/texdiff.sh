@@ -1,3 +1,4 @@
+#!/bin/sh
 DATE="$1"
 
 if test "$DATE" = ""; then

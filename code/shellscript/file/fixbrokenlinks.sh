@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo "fixbrokenlinks <in_dir> <scope_dirs>..."

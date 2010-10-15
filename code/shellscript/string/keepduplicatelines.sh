@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: docs
 ## TODO: preserve order (add index at front, increment fields (create fields if none), extract dups, sort by index, and remove index)
 ## TODO: use sort -n -k rather thank takecols then grep!

@@ -1,3 +1,4 @@
+#!/bin/sh
 cd $JPATH/code/c/tools/mail
 cp -f $HOME/nsmail/Resistance .
 rm -rf Resistance.ems

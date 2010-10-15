@@ -1,3 +1,4 @@
+#!/bin/sh
 # TODO:
 # There are some obvious problems resulting in Javascript being displayed in the text!
 # This turned out to be because of duplicate entries.

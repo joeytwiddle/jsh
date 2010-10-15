@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: file
 # jsh-ext-depends: sed
 # this-script-does-not-depend-on-jsh: after

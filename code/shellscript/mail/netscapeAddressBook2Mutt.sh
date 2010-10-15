@@ -1,3 +1,4 @@
+#!/bin/sh
 # Does not do groups:
 # abook --convert ldif /tmp/netadd.ldif  mutt tmp.txt
 

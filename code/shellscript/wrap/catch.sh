@@ -1,3 +1,4 @@
+#!/bin/sh
 export TMPFILE=`jgettmp caught-err`
 
 (

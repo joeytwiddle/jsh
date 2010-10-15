@@ -1,3 +1,4 @@
+#!/bin/sh
 EXTRAARGS="+0" ## (aiming for null)
 HIGHLIGHTSRC="$HOME/.vim/joey/joeyhighlight.vim"
 if test -f "$HIGHLIGHTSRC"

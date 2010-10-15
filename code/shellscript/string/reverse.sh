@@ -1,3 +1,4 @@
+#!/bin/sh
 ## NOTE BUG: inefficient on long lists
 # LIST=""
 # while read X; do

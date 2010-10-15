@@ -1,3 +1,4 @@
+#!/bin/sh
 ## very very naughty
 ## Disclaimer: Released so that people can be aware of just how easy it is for a naughty hacker to backdoor them if they leave their computer unlocked in an untrusted environment.
 ## If you experiment with these backdoors, please don't use my webserver and email address!

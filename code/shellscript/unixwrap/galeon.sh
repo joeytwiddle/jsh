@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Even without the crashfile removal, Galeon sometimes starts a new session instead of joining an existing one (notably when run from Evolution, different env because started from panel?)
 CRASHFILE="$HOME/.galeon/session_crashed.xml"
 if test -f "$CRASHFILE"; then

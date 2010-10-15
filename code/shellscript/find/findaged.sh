@@ -1,3 +1,4 @@
+#!/bin/sh
 AGEFILE=`jgettmp findaged`
 
 AGE="$1"

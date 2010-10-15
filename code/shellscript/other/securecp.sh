@@ -1,3 +1,4 @@
+#!/bin/sh
 for X in $1; do
   echo scp -B $X $2 $3
   scp $X $2

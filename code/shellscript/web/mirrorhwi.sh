@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "x$1" = "x"; then
   DESTDIR="/home/pgrad/pclark/public_html/hwimirror"
 else

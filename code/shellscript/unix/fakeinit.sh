@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$1" = -f ]
 then shift; FORCE=true
 else echo "# Just displaying needed commands; rerun with -f or | sh to execute."

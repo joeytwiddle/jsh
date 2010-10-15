@@ -1,3 +1,4 @@
+#!/bin/sh
 intersection () {
 	FILE="$1"; shift
 	cat "$@" |
@@ -42,5 +43,5 @@ echo
 echo "Generally, jsh only overrides an existing program when it improves the functionality of that program."
 echo "All jsh scripts live in $JPATH/tools, unless they are imported as shell functions or aliases."
 echo "You can see what these scripts do with: jdoc <script>"
-echo "NB: listoverrides probably failed to obtain your shell's aliases and functions, so check them yourself!"
+echo "NB: listoverrides probably failed to obtain your shell's aliases and functions, so check them yourself (declare -f in zsh)!"
 echo "Furthermore, I only checked $PATH, which only contain sbins's if you are currently root."

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Avoid "cannot grep directory" errors:
 
 if [ "$JM_UNAME" = "sunos" ]

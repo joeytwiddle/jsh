@@ -1,3 +1,4 @@
+#!/bin/sh
 # It runs with whatever shell you are using
 
 #!/bin/sh

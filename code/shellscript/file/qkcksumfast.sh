@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Like cksum but faster because only reads the start and end of each file
 ## Quick and useful for verification / indexing of written CDs
 

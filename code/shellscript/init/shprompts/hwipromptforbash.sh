@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO WARNING: This can often get ignored because xttitleprompt is in operation.
 
 

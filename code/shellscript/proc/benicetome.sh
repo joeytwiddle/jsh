@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "x$1" = "x"; then
   echo "benicetome \$\$"
   exit 1

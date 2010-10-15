@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: sed md5sum
 # jsh-depends: cursebold cursered curseyellow cursenorm filesize md5sum
 

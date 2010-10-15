@@ -1,3 +1,4 @@
+#!/bin/sh
 DIRA="`realpath \"$1\"`"
 DIRB="`realpath \"$2\"`"
 

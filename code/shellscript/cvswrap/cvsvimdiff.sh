@@ -1,3 +1,4 @@
+#!/bin/sh
 # this-script-does-not-depend-on-jsh: cvsdiff edit filename vimdiff check
 # jsh-depends: cvscommit getnumber after editandwait jgettmp jfcsh jdiff jwhich
 # Lets you do a diff against a file in CVS with
@@ -96,5 +97,5 @@ $DIFFCOM "$FILENAME" "$CKOUT"
 # $DIFFCOM "$DIFFCOMARG" "$FILENAME" "$CKOUT"
 # -c ':syn off<Enter>:set wrap<Enter>'
 
+# TODO: haven't handled second case, don't want to delete original file!!
 # jdeltmp "$CKOUT"
-# haven't handle'd second case, don't want to delete original file!!

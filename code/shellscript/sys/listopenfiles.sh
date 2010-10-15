@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Still getting duplicates, if process is reading file with multiple threads/PIDs:
 ## Use listopenfiles <whatever> | dropcols 2 | removeduplicatelines
 ## Make this an option defaulting to on (could call it "merge threads")
@@ -12,8 +13,9 @@ listopenfiles [ -allthreads | -mergethreads ] [ <start_of_process_name> ] [ <lso
   (TODO: fix this with lsof's +c <cols> option)
   If no regexp is given, or "", or ., then all processes are listed, which may take longer.
 
-  -allthreads will show every PID which is accessing a file, so may list files twice if more
-    than one thread is accessing it.  Use this if you want to know all the PIDs.
+  -allthreads will show every PID which is accessing a file, so may list files
+    twice if more than one thread is accessing it.  Use this if you want to
+    know all the PIDs, or because it is faster.
 
   -mergethreads will show each file only once, so some PIDs may not be listed.
     Use this if you just want to know the filenames.  (Currently the default.)

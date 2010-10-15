@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Could replace (/neaten) includepath and addclasspath
 
 . parseargs_base_impl << !

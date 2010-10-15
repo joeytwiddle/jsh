@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$1" = -rcs ]
 then RCS=true; shift
 fi

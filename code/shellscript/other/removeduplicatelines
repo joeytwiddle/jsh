@@ -1,4 +1,5 @@
-# jsh-ext-depends-ignore: from save line
+# jsh-depends-ignore: before
+# jsh-ext-depends-ignore: from save line stream
 # jsh-ext-depends: sort
 # this-script-does-not-depend-on-jsh: before removeduplicatelinespo
 ## Does not preserve order, which makes it a "set" function, whereas removeduplicatelinespo is the corresponding (slower) "list" fn.  Could rephrase / rename scripts to convey this concept.

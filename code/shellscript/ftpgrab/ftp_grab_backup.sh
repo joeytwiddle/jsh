@@ -51,12 +51,12 @@ jshinfo "Getting remote file list..."
 ## Now using ls -L remotely, so that symlinks appear as normal files.
 ## Should work ok.  My scp was copying a remote symlink home as a file.
 if [ "$USE_SFTP" ]
-then memo -t "20 minutes" ssh "$SSH_USERHOST" ls -lRL "$REMOTEFOLDER" > "$FILELIST".ncftp ## "$REMOTEFOLDER"/ was needed for kx, since ~/ut is actually a symlink!
+then memo -t "20 minutes" ssh $SSH_OPTIONS "$SSH_USERHOST" ls -lRL "$REMOTEFOLDER" > "$FILELIST".ncftp ## "$REMOTEFOLDER"/ was needed for kx, since ~/ut is actually a symlink!
 else
 
 	echo "ls -l -R $REMOTEFOLDER" |
 	memo -t "20 minutes" verbosely ncftp -u "$USERNAME" -p "$PASSWORD" "$REMOTEHOST" |
-	# memo -t "20 minutes" verbosely ssh "$USERNAME"@"$REMOTEHOST" "ls -l -R $REMOTEFOLDER" |
+	# memo -t "20 minutes" verbosely ssh $SSH_OPTIONS "$USERNAME"@"$REMOTEHOST" "ls -l -R $REMOTEFOLDER" |
 	cat > "$FILELIST".ncftp
 
 fi
@@ -89,9 +89,9 @@ function download_file() {
 	if [ "$USE_SFTP" ]
 	then
 		## TODO NASTY BUG: if i do the ssh in the foreground, the outermost while loop crashes.  The following is a nasty workaround with anti-flooding.
-		# while [ "`findjob "ssh $SSH_USERHOST" | wc -l`" -gt 20 ]; do sleep 3; done
-		# sleep 3 ; verbosely ssh "$SSH_USERHOST" cat "$1" > "$2" &
-		scp "$SSH_USERHOST":"$1" "$2".tmp
+		# while [ "`findjob "ssh $SSH_OPTIONS $SSH_USERHOST" | wc -l`" -gt 20 ]; do sleep 3; done
+		# sleep 3 ; verbosely ssh $SSH_OPTIONS "$SSH_USERHOST" cat "$1" > "$2" &
+		scp $SCP_OPTIONS "$SSH_USERHOST":"$1" "$2".tmp
 	else verbosely wget -nv --user="$USERNAME" --password="$PASSWORD" "ftp://$REMOTEHOST/$1" -O - > "$2".tmp
 	fi
 	if [ "$?" = 0 ]

@@ -1,3 +1,4 @@
+#!/bin/sh
 # TMPFILE=`jgettmp "mail.tmp"`
 # 
 # cat > "$TMPFILE"

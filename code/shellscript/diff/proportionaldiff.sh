@@ -1,3 +1,4 @@
+#!/bin/sh
 
 propdiff () {
 	# TOTALA=`countlines "$1"`

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## We try to use Lynx where possible because some sites reject wget requests :-(
 ## TODO: Set wget's Agent header.
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Big bug: telnet doesn't work properly (gets "connection lost") except when run from interactive sh
 ## Why/how?
 

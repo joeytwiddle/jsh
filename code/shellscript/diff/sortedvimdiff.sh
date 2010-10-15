@@ -1,3 +1,4 @@
+#!/bin/sh
 A="$1"
 B="$2"
 TMPA=`jgettmp "$A"`

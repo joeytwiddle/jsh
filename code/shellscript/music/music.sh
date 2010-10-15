@@ -1,3 +1,4 @@
+#!/bin/sh
 if xisrunning && test ! "$1" = "-inx"
 then
 

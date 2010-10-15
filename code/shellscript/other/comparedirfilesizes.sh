@@ -1,3 +1,4 @@
+#!/bin/sh
 # echo "Use comparedirsfilesize instead?"
 # This one does not recurse into directories, but will show if subdirectory size is different
 (

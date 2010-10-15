@@ -1,3 +1,4 @@
+#!/bin/sh
 halfway() {
 cat $JPATH/logs/df.log |
 grep -v "^Filesystem" |

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Er: this actually tries to do a patch...
 
 ## Trying to do it the wrong way

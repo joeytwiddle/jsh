@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+
+## WARNING: with /bin/sh -> dash these scripts forkbomb!
+
 # jsh-depends: jgettmpdir
 
 ## Gives you a temporary file you can use in your scripts.

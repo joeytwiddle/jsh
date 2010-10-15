@@ -7,9 +7,9 @@ TMPFILE="/tmp/jsh.highlight_words.$$"
 cat "$@" > "$TMPFILE"
 
 # WORD_SPLITTING_CHARS=" "
-# WORD_SPLITTING_CHARS="- =:,	/._"
 # WORD_SPLITTING_CHARS="- 	_.,:;=|_/"
-WORD_SPLITTING_CHARS="^[:alpha:][:digit:]"
+WORD_SPLITTING_CHARS=" 	,:;=|/" ## Not so much
+# WORD_SPLITTING_CHARS="^[:alpha:][:digit:]"
 
 # EXCLUDE_SINGLES=cat
 EXCLUDE_SINGLES="grep -v ^1:"
@@ -57,7 +57,7 @@ do
 	# [ "$NUM" = 7 ] && NUM=1
 	CURSECOL="$((31+((NUM+1)%7)))"
 	COL="$COLHEAD$CURSECOL""m"
-	[ "$NUM" -lt 8 ] && COL="$COL$COLBOLD"
+	[ "$NUM" -lt 8 ] || COL="$COL$COLBOLD"
 	echo -n "s+\<$WORD\>+$COL""\0""$COLNORM+g ; "
 	[ "$DEBUG" ] && echo -n "$WORD($CURSECOL) " >&2
 done

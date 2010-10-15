@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: migrate to options:
 # export MADPLAY_STANDIN_PLAYS_RANDOM_TUNE_TOO=true
 

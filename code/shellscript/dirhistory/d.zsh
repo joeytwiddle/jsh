@@ -16,6 +16,8 @@
 
 # xttitle "# d.zsh $*"
 
+[ "$SUPPRESS_PREEXEC" = undo ] && SUPPRESS_PREEXEC=
+
 # NEWDIR="`expandthreedots "$*"`" ||
 NEWDIR="$*"
 
@@ -67,7 +69,7 @@ else
 
 	# Problem: 'ls' does not seem to override fakels alias on Solaris :-(
 	NEWLIST=`
-		'ls' -d "$LOOKIN/$LOOKFOR"* |
+		'ls' -d "$LOOKIN/$LOOKFOR"* 2>/dev/null |
 		while read X
 		do [ -d "$X" ] && echo "$X"
 		done
@@ -75,17 +77,19 @@ else
 
 	if [ "$NEWLIST" = "" ]
 	then
-		# No directory found:
-		echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" # beep
+		## No directory found.
+		## NEW! Try anyway, quietly.  E.g. bash might find something with CDPATH.
+		'cd' "$NEWDIR" || echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" # beep
+		# false
 
 	elif [ `echo "$NEWLIST" | countlines` = 1 ]
 	then
-		# One unique directory found  :)
+		## One unique directory found  :)
 		echo ">"`curseyellow`" $NEWLIST"`cursenorm`
 		'cd' "$NEWLIST"
 
 	else
-		# Multiple possibilities, suggest them to the user.
+		## Multiple possibilities, suggest them to the user.
 		echo "$NEWLIST" |
 		sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`curseyellow`"\1"`curseyellow`"\2"`cursenorm`"+"
 

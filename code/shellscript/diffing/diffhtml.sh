@@ -1,5 +1,12 @@
+#!/bin/sh
 if [ "$1" = -fine ]
 then FINE_DIFFING=true; shift
+fi
+
+if [ "$1" = "" ] || [ "$2" = "" ] || [ "$1" = --help ]
+then
+	echo "diffhtml older.html newer.html > changes.html"
+	exit 0
 fi
 
 ## To display the diff, some style definitions must be made
@@ -28,20 +35,20 @@ NL='\
 	fi
 }
 
-## Used to use w3c tidy, but it didn't really do what was needed (or was it just too slow?)
-cat "$OLDFILE" | quicktidy > "$OLDFILE".tidy
-cat "$NEWFILE" | quicktidy > "$NEWFILE".tidy
-
 ## IMPORTANT: if you change these two lines, you should also change the "del" below...
-OLDFILE="$OLDFILE".tidy
-NEWFILE="$NEWFILE".tidy
+OLDFILE_TIDIED="$OLDFILE".tidy
+NEWFILE_TIDIED="$NEWFILE".tidy
+
+## Used to use w3c tidy, but it didn't really do what was needed (or was it just too slow?)
+cat "$OLDFILE" | quicktidy > "$OLDFILE_TIDIED"
+cat "$NEWFILE" | quicktidy > "$NEWFILE_TIDIED"
 
 PATCHEDFILE=`jgettmp diffhtml_diffed`
 
 ## Old method, only shows additions:
-# cp "$OLDFILE" "$PATCHEDFILE"
+# cp "$OLDFILE_TIDIED" "$PATCHEDFILE"
 # 
-# diff -U3 "$OLDFILE" "$NEWFILE" |
+# diff -U3 "$OLDFILE_TIDIED" "$NEWFILE_TIDIED" |
 # # sed 's|^+\(.*\)$|+<div class="added">\1</div>|' |
 # sed 's|^+\([^+].*\)$|+<div class="added">\1</div>|' |
 # ## This one causes problems, eg. with Bristol Indymedia:
@@ -56,10 +63,11 @@ PATCHEDFILE=`jgettmp diffhtml_diffed`
 # grep -v "^patching file $PATCHEDFILE$"
 
 ## New method:
-diff --old-line-format="<span class='removed'>%L</span>" --new-line-format="<span class='added'>%L</span>" "$OLDFILE" "$NEWFILE" > "$PATCHEDFILE"
+diff --old-line-format="<span class='removed'>%L</span>" --new-line-format="<span class='added'>%L</span>" "$OLDFILE_TIDIED" "$NEWFILE_TIDIED" > "$PATCHEDFILE"
 
 cat "$PATCHEDFILE" |
 sed "s+<[Hh][Ee][Aa][Dd]>+<head>$ADDTOHEAD+"
 
-jdeltmp "$PATCHEDFILE"
-# del "$OLDFILE" "$NEWFILE"
+jdeltmp "$PATCHEDFILE" >&2
+del "$OLDFILE_TIDIED" "$NEWFILE_TIDIED" >&2
+

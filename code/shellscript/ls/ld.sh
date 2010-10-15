@@ -1,3 +1,4 @@
+#!/bin/sh
 # Um, since aliasing l='ls -l', I have been tending to type 'ld' instead of 'l -d' when looking at directories.
 # This is rather dodgy if the first isn't a directory!
 

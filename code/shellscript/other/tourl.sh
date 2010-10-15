@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1x" = "x"; then
   echo "tourl <incomplete-url> [ <relative-to-url> ]"
   exit 1

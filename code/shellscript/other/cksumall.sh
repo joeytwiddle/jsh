@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1" = "--help"; then
 	echo "cksumall [ <directories> [ <find_options> ] ]"
 	exit 1

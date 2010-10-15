@@ -1,3 +1,4 @@
+#!/bin/sh
 # cksumall $* > tmp.txt
 
 cat tmp.txt | grep -v "/CVS/" | grep -v "\.b4sr$" > tmp2.txt

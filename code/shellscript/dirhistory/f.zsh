@@ -1,5 +1,7 @@
 # f: move forward in directory history
 
+[ "$SUPPRESS_PREEXEC" = undo ] && SUPPRESS_PREEXEC=
+
 SEARCHDIR="$1"
 
 LAST=`head -n 1 $HOME/.dirhistory`

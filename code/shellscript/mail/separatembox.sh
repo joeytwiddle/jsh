@@ -1,3 +1,4 @@
+#!/bin/sh
 echo "not written"
 exit 0
 

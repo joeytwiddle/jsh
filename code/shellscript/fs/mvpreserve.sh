@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Uses cp -a to preserve the files meta-info (e.g. last-modified date)
 
 ## Damn it doesn't work; better use touch instead to copy that info

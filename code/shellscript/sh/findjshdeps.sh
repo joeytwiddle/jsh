@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Lists all+ executables and jsh shellscripts which could be called by the target perl/shell/any-script.
 
 ## TODO: docs!  I think if you give it an absolute path it analyses that script, otherwise it tries to find the given jsh script.
@@ -19,6 +20,8 @@
 ## TODO: Somehow we want efficient lookup of which package binaries come from.
 
 ## BUGS: Try it on remotediff or another script containing "...".  The "..." is treated as regexp.  :-(
+
+export IKNOWIDONTHAVEATTY=1
 
 ## The use of PWDBEFORE gets us around the fact that selfmemo might change dir (to /) and then call this script again.
 [ "$PWDBEFORE" ] || export PWDBEFORE="$PWD"

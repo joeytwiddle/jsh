@@ -1,3 +1,4 @@
+#!/bin/sh
 FILEA="$1"
 FILEB="$2"
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Usage: hugswrap <modulename_to_import> <hugs_command_to_run>
 
 TMPFILE=`jgettmp baseconv`

@@ -1,3 +1,4 @@
+#!/bin/sh
 echo "mkdir -p \$HOME/0MailEvolution"
 
 echo "## Purge old:"

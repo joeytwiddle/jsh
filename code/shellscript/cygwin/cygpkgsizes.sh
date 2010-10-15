@@ -1,3 +1,4 @@
+#!/bin/sh
 cd /
 
 'ls' /etc/setup/*.lst.gz | sed 's+^/etc/setup/++;s+\.lst\.gz$++' |

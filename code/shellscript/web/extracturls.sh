@@ -1,3 +1,4 @@
+#!/bin/sh
 ## The final '+' (instead of '*') in each expression means we won't match the empty url "xyz://".
 
 ## From plain text:

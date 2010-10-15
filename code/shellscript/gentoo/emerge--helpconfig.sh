@@ -174,12 +174,15 @@ else
 		echo "  -check : informs you which old config files can be overridden with new ones"
 		echo "           because they haven't changed from the old default."
 		echo
-		echo "  You need to do -scan before you emerge, because it needs to record the"
-		echo "  default for the old config file, in order to know whether it can be replaced"
-		echo "  by the new version.  Run -check after an emerge, before the next -scan."
+		echo "I think you need to apply the changes in -check before you do a new -scan, or"
+		echo "you might lose the info about the old un-upgraded config file."
 		echo
-		echo "  If this doc is confusing, just try it.  It's harmless; it only reports."
-		echo "  If you are happy with the recommendations, run: emerge--helpconfig -scan | sh"
+		echo "But you should -scan before emerging (twice?), because it needs to record the"
+		echo "default for the old config file, in order to know whether it can be replaced"
+		echo "by the new version.  Run -check after an emerge, before the next -scan."
+		echo
+		echo "If this doc is confusing, just try it.  It's harmless; it only reports."
+		echo "If you are happy with the recommendations, run: emerge--helpconfig -scan | sh"
 	else	
 		echo "Don't understand: \"$1\".  Try \"--help\" then \"-check\" then \"-scan\""
 	fi	

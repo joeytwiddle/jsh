@@ -1,3 +1,4 @@
+#!/bin/sh
 USEDICT="$1"
 TITLE="$2"
 

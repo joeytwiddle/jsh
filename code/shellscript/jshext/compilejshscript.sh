@@ -14,6 +14,9 @@
 ## TODO: See the TODO in the help too!
 
 
+echo "`date` [compilejshscript] Doing: $*" >> /tmp/compilejshscript.log2
+
+
 if [ "$1" = --help ]
 then
 cat << !

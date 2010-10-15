@@ -1,16 +1,19 @@
+#!/bin/sh
+## Find your CD_DEVICE with: cdrecord [ dev=ATAPI ] -scanbus
+
 ## TODO: make this default, but also make it search beforehand, and warn if there are symlinks of big files already on the images, which would cause large duplicates.  Also run a df -L check.
 ## Pass -f to mkisofs to follow symlinks
 ## e.g.: MKISOFS_OPTS="-f" cdwritefiles <...>...
 
 ## Hwi Debian:
 # scanbus line:         0,0,0     0) 'ATAPI   ' 'CD-RW CW5201    ' '190C' Removable CD-ROM
-# DEVICE="0,0,0"
-DEVICE="ATAPI:/dev/ide/host0/bus1/target0/lun0/cd" ## hwi's debian changed
-CDMNTPNT=/mnt/cdrom
-
+# CD_DEVICE="0,0,0"
+# CD_DEVICE="ATAPI:/dev/ide/host0/bus1/target0/lun0/cd" ## hwi's debian changed
 ## Hwi Gentoo: (scanbus gets nothing useful)
-# DEVICE="ATAPI:/dev/ide/host0/bus1/target1/lun0/cd"
-# CDMNTPNT=/mnt/cdrom
+# CD_DEVICE="ATAPI:/dev/ide/host0/bus1/target1/lun0/cd"
+[ "$CD_DEVICE" ] || CD_DEVICE="1001,0,0" ## Result of -scanbus with no dev - worked!
+
+[ "$CD_MOUNTPOINT" ] || CD_MOUNTPOINT=/mnt/cdrom
 
 SPEED=8
 # SPEED=2
@@ -25,8 +28,8 @@ if [ "$1" = "-multi" ]
 then
 	shift
 	MULTICDRECORD="-multi -nofix -data"
-	# MULTIMKISOFS="-M $DEVICE" ## TODO: -M should be used for multiple sessions, but NOT used to create multiple-media (audio then isofs data) track
-	NEXT_TRACK=`cdrecord -msinfo dev="$DEVICE" 2>/dev/null`
+	# MULTIMKISOFS="-M $CD_DEVICE" ## TODO: -M should be used for multiple sessions, but NOT used to create multiple-media (audio then isofs data) track
+	NEXT_TRACK=`cdrecord -msinfo dev="$CD_DEVICE" 2>/dev/null`
 	if test "$NEXT_TRACK" = ""
 	then echo "Looks like a new disk to me."
 	else MULTIMKISOFS="$MULTIMKISOFS -C $NEXT_TRACK"
@@ -53,10 +56,10 @@ BUFFER_SIZE="96M" ## This is still huge; but not quite as long a delay for the b
 ## Removed inaccurate tsize=359232s (means 700, but did work!), may need to use mkisofs -print-size
 cursegreen
 echo "nice -n -20 $MKISOFS $MKISOFS_OPTS -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$TARGET" |"
-echo "nice -n -20 cdrecord $CDRECORD_OPTS dev=$DEVICE fs=$BUFFER_SIZE -v speed=$SPEED -pad $MULTICDRECORD -overburn -"
+echo "nice -n -20 cdrecord $CDRECORD_OPTS dev=$CD_DEVICE fs=$BUFFER_SIZE -v speed=$SPEED -pad $MULTICDRECORD -overburn -"
 cursenorm
       nice -n -20 $MKISOFS $MKISOFS_OPTS -r -J -jcharset default -f -l -D -L -V -P -p -abstract -biblio -copyright -graft-points /="$TARGET" |
-      nice -n -20 cdrecord $CDRECORD_OPTS dev=$DEVICE fs=$BUFFER_SIZE -v speed=$SPEED -pad $MULTICDRECORD -overburn -
+      nice -n -20 cdrecord $CDRECORD_OPTS dev=$CD_DEVICE fs=$BUFFER_SIZE -v speed=$SPEED -pad $MULTICDRECORD -overburn -
 
 ## From HOWTO (does multi)
 # $MKISOFS -R -o cd_image2 -C $NEXT_TRACK -M /dev/scd5 private_collection/
@@ -78,8 +81,8 @@ CDLDIR=/stuff/cdlistings
 
 ## Dunno why but my drive sometimes needs this as a sort of reset (it is done in parralel with directory checksum):
 (
-	eject $CDMNTPNT
-	uneject $CDMNTPNT
+	eject $CD_MOUNTPOINT
+	uneject $CD_MOUNTPOINT
 ) &
 
 centralise "Checksumming directory"
@@ -97,8 +100,8 @@ tee $CDLDIR/newcd.qkcksum.sb
 wait ## For the eject, uneject above.
 
 centralise "Checksumming cdrw"
-mount $CDMNTPNT
-cd $CDMNTPNT
+mount $CD_MOUNTPOINT
+cd $CD_MOUNTPOINT
 $CDLDIR/findaz.sh | tee $CDLDIR/newcd.qkcksum
 ## Not needed; fix above was needed instead:
 # $CDLDIR/findaz.sh | sed 's+ ./+ +' | tee $CDLDIR/newcd.qkcksum

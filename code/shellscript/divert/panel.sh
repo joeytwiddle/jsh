@@ -1,3 +1,4 @@
+#!/bin/sh
 PANEL=`jwhich panel`
 if [ ! "$PANEL" ]
 then PANEL=`jwhich gnome-panel`

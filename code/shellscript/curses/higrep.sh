@@ -1,7 +1,16 @@
 #!/bin/sh
 # this-script-does-not-depend-on-jsh: arguments
 
+## See also: Modern grep has --colour=auto, which only invokes when the output
+## is to terminal(tty/pts) (not piped).
+##
+## This might make higrep redundant.  However I am still using it on those
+## occasions when the output IS piped but I still want it highlighted.  So
+## let's never fix that 'not checking tty bug' in higrep.  ;)
+
 ## BUG TODO: Exit code does not perform like grep
+
+## TODO: Should process -i and set highlight correctly (maybe using caseinsensitiveregexp)
 
 ## Recommended usage:
 ## higrep <grepstring> [ <grepopts> ... ] [ <grepfiles> ... ]
@@ -9,6 +18,8 @@
 
 # jsh-ext-depends: sed
 # jsh-depends: curseblue highlight cursenorm countargs cursebold cursecyan
+
+# tty -s && echo "[higrep: `tty`]" >&2
 
 if [ ! "$*" ] || [ "$1" = --help ]
 then cat << !

@@ -2,6 +2,8 @@
 
 ## BUG: inefficient (runs a new sh+grep for every arg!)
 
+## NOTABUG: "mount | ungrep bind" was not working - ah this was because of colour highlighting, and ungrep expects word
+
 # Now changed to recursive method
 # multiple arguments are multiple ungreps, not classic grep arguments.
 

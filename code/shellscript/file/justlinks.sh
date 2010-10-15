@@ -1,6 +1,8 @@
+#!/bin/sh
 # jsh-depends: absolutepath takecols
 # jsh-ext-depends: sed dirname
 # jsh-ext-depends-ignore: symlinks
+# See also: readlink(1)
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then

@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1" = "--help"
 then
 	echo "worddiff <file1> <file2> [ <GNU diff options>... ]"

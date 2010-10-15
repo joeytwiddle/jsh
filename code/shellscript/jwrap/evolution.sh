@@ -1,3 +1,4 @@
+#!/bin/sh
 ## My evolution and eclipse look much nicer once my gnome fonts have been loaded:
 gnome-font-properties & PID=$! ; ( sleep 20s ; kill $PID ) &
 

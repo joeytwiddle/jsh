@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Output without the HACK below is usually 0-20 seconds below that reported by xmms.
 ## That is rather odd, since I would suspect this method to be
 ## slightly over, as it counts the tag data as taking up time as well.

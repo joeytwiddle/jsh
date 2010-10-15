@@ -1,3 +1,4 @@
+#!/bin/sh
 TMPDIR=`jgettmp unzip`
 rm -f "$TMPDIR"
 mkdir -p "$TMPDIR"

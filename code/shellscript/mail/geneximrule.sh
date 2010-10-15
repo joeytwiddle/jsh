@@ -1,3 +1,4 @@
+#!/bin/sh
 COMMAND="$1"
 
 ## BUG: can't handle really long lists of email addresses.  Needs fixing!  See below.
@@ -58,8 +59,10 @@ case "$COMMAND" in
 		for RULEBIT
 		do RULE="$RULE$NL"`eval geneximrule $RULEBIT`
 		done
+		curseblue
 		echo "New rule is:"
 		echo "$RULE"
+		cursenorm
 		REPLACE_STRING=" # DO NOT EDIT this line, it is the \"$RULENAME\" rule automatically updated by geneximrule"
 		LINE=` echo "$RULE" | tr '\n' ' ' | tr -d '\t' `"$REPLACE_STRING"
 		# echo "New line is: $LINE"

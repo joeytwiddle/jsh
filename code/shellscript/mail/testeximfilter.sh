@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$1" = --help ]
 then
 	echo "cat <email> | testeximfilter [ -results ] [ <filter_file> ]"

@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: diff vim
 # jsh-ext-depends-ignore: sed
 # jsh-depends: higrep bigwin dropcols takecols myps foreachdo jgettmp pipeboth
@@ -10,6 +11,8 @@
 
 ## BUGS: myps --forest somes does not show all the processes that myps does!
 ##       Not true!  The problem was COLUMNS was too low and forest pushes the process off the side of the screen into oblivion!
+
+## ps aux | grep "$SEARCH"   will often catch the grep and the findjob call!  We can avoid the grep by calling twice and keeping only processes that were there both times.
 
 if [ "$1" = -kidstoo ]
 then

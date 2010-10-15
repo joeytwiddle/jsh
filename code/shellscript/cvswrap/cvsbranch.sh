@@ -1,3 +1,4 @@
+#!/bin/sh
 # Note: rtag seems more sensible so use that in future
 
 if test "$1" = "" || test "$2" = ""; then

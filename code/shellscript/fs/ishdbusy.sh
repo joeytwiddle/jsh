@@ -1,3 +1,4 @@
+#!/bin/sh
 # this-script-does-not-depend-on-jsh: write
 # jsh-depends: takecols
 

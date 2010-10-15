@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # jsh-ext-depends: dirname
 # jsh-depends: jdeltmp jgettmp
 # this-script-does-not-depend-on-jsh: jsh debug

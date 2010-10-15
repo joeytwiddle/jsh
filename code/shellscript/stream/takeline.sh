@@ -1,3 +1,4 @@
+#!/bin/sh
 ## See also: getline (better+faster with sed)
 
 LINENUM=`expr "$1" - 1`

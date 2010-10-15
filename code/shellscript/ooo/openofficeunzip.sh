@@ -1,3 +1,4 @@
+#!/bin/sh
 FILE="$1"
 DIR="$1.unzipped"
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Like flatdf but better - only works on one mountpoint at a time.
 MNTPNT="$1"
 SPACE=`

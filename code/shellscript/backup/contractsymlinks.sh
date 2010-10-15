@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Collects all symlinks in the current directory tree into a single text file, and deletes them.
 ## They may be restored with expandsymlinks.
 
@@ -6,7 +7,8 @@ while read X
 do
 	'ls' -ld "$X"
 	# echo "$X" >&2
-	rm "$X"
+	# rm "$X"
+	# rmlink "$X"
 done |
 sed 's| -> |	->	|' |
 sed 's|.* \([^ 	]*	->	.*\)|\1|' |

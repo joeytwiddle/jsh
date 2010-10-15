@@ -1,3 +1,4 @@
+#!/bin/sh
 BLOCKSIZE=`expr 1024 '*' 1024 '*' 4`
 
 BLOCKNUM=0

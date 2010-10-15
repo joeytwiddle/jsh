@@ -1,3 +1,4 @@
+#!/bin/sh
 # Unfinished
 while ! "$PWD" = "/"; do
   echo "$pwd=$PWD"

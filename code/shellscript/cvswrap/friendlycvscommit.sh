@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$1" = --help ]
 then
 cat << !
@@ -11,14 +12,14 @@ friendlycvscommit
   to comment and commit changes.
 
   Users who do not like the default diff output, might like to try instead:
-
-    DIFFCOM=jdiffsimple friendlycvscommit
+    DIFFCOM="jdiffsimple -fine" friendlycvscommit
 
 !
 exit 1
 fi
 
 getfiles () {
+	#### Lists files which are handled by cvs (are in the repository).
 	## This is very slow, could try: cvs diff 2>/dev/null | grep "^Index:"
 	## I use memo to avoid locking problems caused by two cvs's querying the same directory.  Ie. I get the cvsdiff saved to a file (thanks to memo) before I do any commits.
 	## TODO: this memo doesn't solve the problem!  cvs status: [07:42:00] waiting for joey's lock in /stuff/cvsroot/shellscript/memo
@@ -36,8 +37,8 @@ function mydiff () {
 	# -C 1 is nice for some context but then we never get <red >green lines, only !yellow changes, although with extra processing we could colour the !s correctly.
 }
 
-# [ "$DIFFCOM" ] || DIFFCOM="jdiff -infg"
-[ "$DIFFCOM" ] || DIFFCOM="mydiff"
+[ "$DIFFCOM" ] || DIFFCOM="jdiff -infg"
+# [ "$DIFFCOM" ] || DIFFCOM="mydiff"
 
 ## First, choose a figlet font:
 if [ ! "$DONT_USE_FIGLET" ]
@@ -104,7 +105,7 @@ do
 		# echo "`curseyellow`Type: comment or [.] to [C]ommit, <Enter> to [S]kip, [E]dit [V]imdiff [R]ediff." #  (.=\"\").`cursenorm`"
 		echo "`cursecyan`$FILE`cursenorm`"
 		echo "`cursecyan;cursebold`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
-		echo "Or [U]ndo changes (retrieve previous version)`cursenorm`"
+		echo "Or [U]ndo changes (retrieve previous version) | [Q]uit`cursenorm`"
 		read INPUT
 		[ "$INPUT" = "" ] && INPUT=s
 		case "$INPUT" in
@@ -127,11 +128,15 @@ do
 				cvs edit "$FILE" # that's the way i like it ;)
 				break
 			;;
+			q|Q)
+				echo "Aborting friendlycvscommit at user request."
+				exit 0
+			;;
 			c|C|.|????*)
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="Commited from `hostname`:`realpath "$FILE"`"
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
-				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary "$FILE"` `date +"%Y/%m/%d %H:%M %Z" -r "$1"`"
+				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary "$FILE"` `date +"%Y/%m/%d %H:%M %Z" -r "$FILE"`"
 				echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
 				echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 				cvscommit -m "$INPUT" "$FILE" ||

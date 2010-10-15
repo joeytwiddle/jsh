@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Hmmm.  At very least this should call startj -simple, or startj should call this.
 
 ## Try to guess the top directory of j install

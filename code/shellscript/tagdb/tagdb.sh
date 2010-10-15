@@ -3,7 +3,33 @@
 ## symlinks, e.g. "\n"?  Maybe we should switch between symlink and file as and
 ## when needed, and check which type when reading...
 
+## TODO: tagdb addtag "tag://robots" "file://mnt/hda2/stuff/mp3s/wipeout/Wipeout OSTs/Wipeout Pulse/02 Steady Rush.mp3"
+##       We should add tag:// automatically?
+## BUG TODO: tag:// does not work in that the /s get lost - we need to encode
+##           them, or stop storing the data on a filesystem :P
+
 [ "$TAGDBDIR" ] || TAGDBDIR="$HOME/.tagdb"
+
+showhelp() {
+
+cat << !
+
+Usage:
+
+  tagdb set <key> <value>
+  tagdb get <key>
+  tagdb addtag <tag> <item_name>
+
+  tagdb addfile <file>   - Adds all the dirs in the file's path as tags to that
+                           file
+
+  tagdb addtolistonce <list_key> <value>
+
+  tagdb listdb
+
+!
+
+}
 
 ## TODO BUGS: If KEY contains a . we could end up with $TAGDBDIR/d/o/t/=/./.data where the /./ is wrong!
 getfilefromkey() {
@@ -12,75 +38,76 @@ getfilefromkey() {
 	[ -d "$KEYDIR" ] || verbosely mkdir -p "$KEYDIR"
 }
 
-if [ "$1" = set ]
-then
+case "$1" in
 
-	KEY="$2"
-	VALUE="$3"
-	getfilefromkey
+	set)
 
-	## jshinfo "KEYFILE=$KEYFILE"
-	jshinfo "$KEYFILE <- \"$VALUE\""
-	echo "$VALUE" > "$KEYFILE"
+		KEY="$2"
+		VALUE="$3"
+		getfilefromkey
 
-elif [ "$1" = get ]
-then
+		## jshinfo "KEYFILE=$KEYFILE"
+		jshinfo "$KEYFILE <- \"$VALUE\""
+		echo "$VALUE" > "$KEYFILE"
 
-	KEY="$2"
+	;;
 
-	getfilefromkey
-	jshinfo "$KEYFILE = \"$VALUE\""
-	# VALUE="`cat "$KEYFILE" 2>/dev/null`"
-	# echo "$VALUE"
-	touch "$KEYFILE" ; cat "$KEYFILE"
+	get)
 
-elif [ "$1" = addfile ]
-then
+		KEY="$2"
 
-	FILE="$2"
-	FILE=`realpath "$FILE"`
+		getfilefromkey
+		jshinfo "$KEYFILE = \"$VALUE\""
+		# VALUE="`cat "$KEYFILE" 2>/dev/null`"
+		# echo "$VALUE"
+		touch "$KEYFILE" ; cat "$KEYFILE"
 
-	FILENAME="`filename "$FILE"`"
-	echo "$FILE" | beforelast / | tr '/' '\n' |
-	while read DIRBIT
-	do tagdb addtag "$DIRBIT" "filename=$FILENAME"
-	done
+	;;
 
-elif [ "$1" = addtag ]
-then tagdb addtolistonce "$2".TAG "$3" # ... ?
+	addfile)
 
-elif [ "$1" = addtolistonce ]
-then
+		FILE="$2"
+		# FILE=`realpath "$FILE"`
 
-	KEY="$2"
-	VALUE="$3"
-	getfilefromkey
+		FILENAME="`filename "$FILE"`"
+		echo "$FILE" | beforelast / | tr '/' '\n' |
+		while read DIRBIT
+		do tagdb addtag "$DIRBIT" "filename=$FILENAME"
+		done
 
-	VALUERE="`toregexp "$VALUE"`"
-	( touch "$KEYFILE" ; cat "$KEYFILE" | grep -v "^$VALUERE$"; echo "$VALUE" ) | dog "$KEYFILE"
-	jshinfo "Added \"$VALUE\" to $KEYFILE"
+	;;
 
-elif [ "$1" = listdb ]
-then
+	addtag)
 
-	( cd "$TAGDBDIR" && find . -type f ) | afterfirst "^./" | tr -d / | highlight =
+		tagdb addtolistonce "$2".TAG "$3" # ... ?
+		
+	;;
 
-else
+	addtolistonce)
 
-	cat << !
+		KEY="$2"
+		VALUE="$3"
+		getfilefromkey
 
-  tagdb set <key> <value>
-  tagdb get <key>
-  tagdb addtag <tag> <item_name>
+		VALUERE="`toregexp "$VALUE"`"
+		( touch "$KEYFILE" ; cat "$KEYFILE" | grep -v "^$VALUERE$"; echo "$VALUE" ) | dog "$KEYFILE"
+		jshinfo "Added \"$VALUE\" to $KEYFILE"
 
-	tagdb addfile <file>   - Adds all the dirs in the file's path as tags to that
-	                         file
+	;;
 
-  tagdb addtolistonce <list_key> <value>
+	listdb)
 
-!
+		( cd "$TAGDBDIR" && find . -type f ) | afterfirst "^./" | sed 's+\.data$++' | tr -d / | highlight =
 
-	[ "$1" == --help ] ; exit
+	;;
 
-fi
+	*)
+
+		showhelp
+
+		[ "$1" == --help ] ; exit
+
+	;;
+
+esac
 

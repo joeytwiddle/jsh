@@ -1,4 +1,6 @@
+#!/bin/sh
 # Skips N lines from the end of a stream
+## See also: tail -n +5
 
 # jsh-depends: countlines jgettmp
 

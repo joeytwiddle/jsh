@@ -1,3 +1,4 @@
+#!/bin/sh
 # TODO
 # At the moment, we make a sed rule for every dict lookup of the character.
 # This results in only the first being displayed (or worse, mega-embedding!).

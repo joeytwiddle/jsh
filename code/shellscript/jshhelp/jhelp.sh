@@ -1,3 +1,4 @@
+#!/bin/sh
 if test ! "$*" = ""
 then jdoc "$@"
 else

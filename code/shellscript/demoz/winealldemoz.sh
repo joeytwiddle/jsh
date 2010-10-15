@@ -1,3 +1,4 @@
+#!/bin/sh
 # this-script-does-not-depend-on-jsh: wine xterm
 # jsh-ext-depends: find seq wine
 # jsh-depends: randomorder wineonedemo

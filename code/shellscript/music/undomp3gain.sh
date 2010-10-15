@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: qkcksum error
 for FILE
 do

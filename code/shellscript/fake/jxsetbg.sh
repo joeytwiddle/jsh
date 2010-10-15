@@ -1,3 +1,4 @@
+#!/bin/sh
 IMAGE="$1"
 
 # xv is centralised and smoothscales =) but non-free :-/
@@ -44,3 +45,4 @@ IMAGE="$1"
 
 ## xsetroot is just pants
 xsetroot -bitmap "$@" 1>&2
+

@@ -1,3 +1,4 @@
+#!/bin/sh
 # Originally in ~/.inputrc with ' 's instead of ':'s
 bind "\C-d":backward-word
 bind "\C-f":forward-word

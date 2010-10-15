@@ -1,3 +1,4 @@
+#!/bin/sh
 for X in "$@"; do
   DIR=`dirname "$X"`
   FILE=`filename "$X"`

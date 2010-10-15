@@ -1,3 +1,4 @@
+#!/bin/sh
 ## For really lazy people:
 ## when pointed at a file, it mounts the file in the default place
 ## when pointed at a samba share, it mounts it in the default place

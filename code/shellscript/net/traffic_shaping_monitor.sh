@@ -1,7 +1,9 @@
-#!/bin/bash
+#!/bin/zsh
 
 ## A simple visualisation for tc traffic
 ## Show bars representing the amount of traffic passed through each class, and highlights live changes.
+
+## zsh is needed to perform the real arithmetic to calculate DATEDIFF
 
 SEDSTR=`
 cat << ! |
@@ -36,6 +38,7 @@ add_levels_to_tc_output () {
 	## The first "Sent" number in the file should be the #bytes sent in the root class, i.e. the total bytes sent.
 	TOTAL=`cat "$TMPFILE" | grep "^ *Sent " | head -n 1 | beforefirst " bytes " | afterlast " "`
 	# [ "$LAST_TOTAL" ] && echo "$TOTAL - $LAST_TOTAL = $((TOTAL-LAST_TOTAL))"
+	TIME=$(date +%s.%N)
 	while read ARG1 ARG2 ARG3 REST
 	do
 		# lastSentRef="last_sent_$CURDISC"
@@ -52,8 +55,12 @@ add_levels_to_tc_output () {
 			done
 			echo "Sent $ARG2 $ARG3 $REST"
 			echo -n "[$BAR]"
-			if [[ ${new_sent[$CURDISC]} ]] && [[ ${last_sent[$CURDISC]} ]]
-			then DIFF="`expr ${new_sent[$CURDISC]} - ${last_sent[$CURDISC]}`" ; echo -n " [$DIFF bps]"
+			if [ "${new_sent[$CURDISC]}" ] && [ "${last_sent[$CURDISC]}" ]
+			then
+				DATEDIFF=$((TIME-LAST_TIME))
+				DIFF="$(( (${new_sent[$CURDISC]}-${last_sent[$CURDISC]}) / DATEDIFF ))"
+				DIFF=`echo "$DIFF" | beforelast "\."`
+				echo -n " [$DIFF bps]"
 			fi
 			echo
 			# unset "$lastSentRef"
@@ -69,11 +76,12 @@ add_levels_to_tc_output () {
 	done < "$TMPFILE"
 	# last_sent=${new_sent}
 	LAST_TOTAL="$TOTAL"
+	LAST_TIME="$TIME"
 }
 
 add_levels_to_tc_output
 
 . importshfn jwatchchanges
 
-jwatchchanges -fine add_levels_to_tc_output | highlight -bold '[^ ]*:[^ ]*~[^ ]*' blue
+jwatchchanges -fine -n 5 add_levels_to_tc_output | highlight -bold '[^ ]*:[^ ]*~[^ ]*' blue
 

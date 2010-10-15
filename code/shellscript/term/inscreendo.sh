@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: screen
 # jsh-depends: takecols xterm screen
 ## BUGS: Well, it's inconsistent: When rejoining an existing screen, it exits immediately.  But when creating a new screen, it blocks until the screen ends or is disconnected.  Behaviour should be made consistent, or optional.

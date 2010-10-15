@@ -1,3 +1,4 @@
+#!/bin/sh
 # xtermsh "cd \"$1\"; jsh"
 
 TODIR="$1"

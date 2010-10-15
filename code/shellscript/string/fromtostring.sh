@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Generically handles before / after.
 ## But doesn't handle both at the same time!
 ## Could also generically use grep or [ = ]

@@ -1,3 +1,4 @@
+#!/bin/sh
 # BLOCKSIZE=$((10*1024*1024)) ## 10 meg
 BLOCKSIZE=$((30*1024*1024)) ## 30 meg
 

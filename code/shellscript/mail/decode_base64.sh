@@ -1,3 +1,4 @@
+#!/bin/sh
 cat > /tmp/xyz
 
 perl -e '

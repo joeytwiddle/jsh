@@ -1,3 +1,4 @@
+#!/bin/sh
 WHERE="$@"
 ENQUEUE="" # "-e"
 if [ "$1" = "fresh" ]; then

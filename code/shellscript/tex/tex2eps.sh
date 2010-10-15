@@ -1,3 +1,4 @@
+#!/bin/sh
 # Oh dear apparently this outputs a raster!
 
 if test "$1" = "" || test "$2" = ""; then

@@ -1,5 +1,6 @@
+#!/bin/sh
 cvs -z 9 -q update "$@" |
-	grep -v "^\? "
+	grep -v "^\? " ## BUG: returns non-zero exit code, if the update had nothing to output
 # cvs update "$@" 2>&1 |
 	# grep -v "^? " |
 	# grep -v "^cvs update: Updating " |

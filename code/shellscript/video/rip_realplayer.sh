@@ -6,7 +6,7 @@
 # export DISPLAY=:0
 # br=8
 
-## NOTE: as of now I am changing it to rip all streams (currently starting to introduce mms: to this script)
+## NOTE: as of now I am changing it to rip all types of stream, not only realmedia (currently starting to introduce mms: to this script)
 ## TODO: I want it to provide options to watch and / or capture.  I also would like it to be a "Web TV tuner", and even allow it to get another channel in a multitasking type way.
 ##       I doubt Xdialog can be used in a multitasking way nicely (killing it and respawning to present update will prolly kill users current gui state).  Is there a better alternative?
 
@@ -82,8 +82,7 @@ do
 		TRPLAYER=`which trplayer`
 		if [ "$TRPLAYER" ]
 		then
-			jshinfo vsound -v -f $OUTFILE -d -t $TRPLAYER "'$RPURL'"
-			vsound -v -f $OUTFILE -d -t $TRPLAYER "$RPURL"
+			verbosely vsound -v -f $OUTFILE -d -t $TRPLAYER "$RPURL"
 		else false
 		fi
 	elif [ "$AUDIO_METHOD" = NO_VIDEO_realplay ]
@@ -92,14 +91,13 @@ do
 		REALPLAY=`which realplay`
 		if [ "$REALPLAY" ]
 		then
-			jshinfo vsound -v -f $OUTFILE -d -t $TRPLAYER "'$RPURL'"
-			vsound -v -f $OUTFILE -d -t $TRPLAYER "$RPURL"
+			verbosely vsound -v -f $OUTFILE -d -t $TRPLAYER "$RPURL"
 		else false
 		fi
 	else
 		OUTFILE="$FILENAME".avi
-		jshinfo mencoder "$RPURL" -of avi -o "$OUTFILE" $AUDIO_METHOD -ovc lavc -lavcopts vqscale=6 $PREVIEW
-		mencoder "$RPURL" -of avi -o "$OUTFILE" $AUDIO_METHOD -ovc lavc -lavcopts vqscale=6 $PREVIEW
+		## TODO: For audio only streams, this fails with "Video stream is mandatory!"
+		verbosely mencoder "$RPURL" -of avi -o "$OUTFILE" $AUDIO_METHOD -ovc lavc -lavcopts vqscale=6 $PREVIEW
 	fi
 
 	if [ "$?" = 0 ]

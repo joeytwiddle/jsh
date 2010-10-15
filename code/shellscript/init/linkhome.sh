@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: move unlinkhome into this script, keeping code in one place.
 
 if [ "$1" = "-diff" ]

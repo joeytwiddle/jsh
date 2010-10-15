@@ -1,3 +1,4 @@
+#!/bin/sh
 LINES="$1"
 shift
 

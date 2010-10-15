@@ -1,3 +1,4 @@
+#!/bin/sh
 echo "<HTML>"
 echo "<HEAD>"
 echo "<TITLE>$*</TITLE>"

@@ -121,6 +121,6 @@ then
 	exit 4
 fi
 
-( date && echo "$$IP" ) >> /home/joey/j/logs/iphistory.txt
+( date && echo "$IP" ) >> /home/joey/j/logs/iphistory.txt
 
 echo "$IP" > "$LAST"

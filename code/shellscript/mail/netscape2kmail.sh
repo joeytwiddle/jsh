@@ -1,3 +1,4 @@
+#!/bin/sh
 find $HOME/nsmail -type d -name "*.sbd" -follow |
 	grep -v ".directory" |
 	while read X; do

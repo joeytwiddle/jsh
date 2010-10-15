@@ -16,17 +16,19 @@ reencode_video_three_pass <video_file>
 
 No options at the moment, but you can pass the following variables:
 
-  SKIP_FIRST_PASS=anything   Set this if you have already done the audio pass
-                             (the frameno.avi file already exists from before).
   TARGET_SIZE=<megabytes>    Set this to override the default filesize (700MB),
   BITRATE=<bps>              or this to specify the bitrate yourself.
 
 And more...
 
+  SKIP_FIRST_PASS=anything   Set this if you have already done the audio pass
+                             (do not regenerate frameno.avi).
   PREVIEW="-ss 0:10:00 -endpos 0:10"  (requires a separate first pass)
   NEWSIZE="720:400"
   ALL_FILTERS=true   or   POSTPROC="de/hb/vb/dr/al/lb/tn:1:2:3"
   AUDIO_BITRATE=<kbps>       (default 128)
+  OAC="mp3lame -lameopts abr:br=$AUDIO_BITRATE"
+                             Use this if OAC=copy fails.
 
   PERFORM_AUTOMATIC_CROPPING=true   To strip black areas off the edges =)
     ( Warning: ATM kills others running copies of mplayer! )
@@ -37,6 +39,8 @@ And more...
 (If you lose a/v sync after re-encoding, try reencode_video_two_pass instead.)
 
 !
+#  OAC=pcm                    Use this if OAC=copy fails.
+#  OAC="lavc=1"               Use this if OAC=copy fails.
 exit 1
 fi
 
@@ -79,7 +83,7 @@ then
 	del frameno.avi divx2pass.log
 	jshinfo "############################ Audio pass"
 	jshinfo "## mencoder \"$INPUT\" $EXTRAOPTS $PREVIEW $AUDIODELAYFIX -ovc frameno -o frameno.avi -oac mp3lame -lameopts abr:br=$AUDIO_BITRATE -alang \"$LANG\""
-	nice -15    mencoder  "$INPUT"  $EXTRAOPTS $PREVIEW $AUDIODELAYFIX -ovc frameno -o frameno.avi -oac mp3lame -lameopts abr:br=$AUDIO_BITRATE -alang "$LANG" 2>&1 | tee "$SIZELOG" || exit
+	nice -n 12  mencoder  "$INPUT"  $EXTRAOPTS $PREVIEW $AUDIODELAYFIX -ovc frameno -o frameno.avi -oac mp3lame -lameopts abr:br=$AUDIO_BITRATE -alang "$LANG" 2>&1 | tee "$SIZELOG" || exit
 	## Added 2>&1 because recommended bitrate info was getting lost.  But that could have just be tee breaking out when mencoder finished, yuk!  (If this behaviour was consistent with earlier versions, which it isn't, we could ignore stdout which is big!)
 	jshinfo
 fi
@@ -109,8 +113,7 @@ else
 	if [ "$BITRATE" ] && [ "$BITRATE" -gt 2 ] && [ "$BITRATE" -lt 9999999 ]
 	then jshinfo "Using recommended bitrate $BITRATE"
 	else
-		jshwarn "Using fallback bitrate $BITRATE (because the recommended bitrate \"$BITRATE\" was dodgy)"
-		# BITRATE=2616
+		jshwarn "Using fallback bitrate 1000 (because the recommended bitrate \"$BITRATE\" was dodgy)"
 		BITRATE=1000
 	fi
 fi
@@ -158,9 +161,10 @@ addfilter () {
 [ "$NEWSIZE" ] && addfilter scale "$NEWSIZE"
 [ "$NEWSIZE" ] && addfilter dsize "$NEWSIZE" ## This overwrites old aspect ratio with one implied by new size. =)
 [ "$POSTPROC" ] && addfilter pp "$POSTPROC"
-## Does it really matter if the output of the first pass goes into the final file?  Probably not, if/since with this method, it's size is no larger than final file will be.  But /dev/null is faster!
-FIRST_VIDEO_PASS_GOES_TO=/dev/null
+## Does it really matter if the output of the first pass goes into the final file?  Probably not, if/since with this method, it's size is no larger than final file will be.  But /dev/null is slightly faster!
+# FIRST_VIDEO_PASS_GOES_TO=/dev/null
 # FIRST_VIDEO_PASS_GOES_TO=preview.avi
+FIRST_VIDEO_PASS_GOES_TO="$INPUT".reencoded.avi
 for PASS in 1 2
 do
 	[ $PASS = 1 ] && OUTPUT="$FIRST_VIDEO_PASS_GOES_TO" || OUTPUT="$INPUT".reencoded.avi
@@ -170,10 +174,11 @@ do
 	CODEC="mpeg4"
 	# CODEC="msmpeg4"
 	# CODEC="msmpeg4v2"
-	ENCODING="-oac copy -ovc lavc -lavcopts vcodec=$CODEC:vbitrate=$BITRATE:vhq:vpass=$PASS"
+	[ "$OAC" ] || OAC="copy"
+	ENCODING="-oac $OAC -ovc lavc -lavcopts vcodec=$CODEC:vbitrate=$BITRATE:vhq:vpass=$PASS"
 	jshinfo "############################ Pass $PASS / 2"
 	jshinfo "## mencoder \"$INPUT\" -o \"$OUTPUT\" $EXTRAOPTS $ENCODING $PREVIEW $AUDIODELAYFIX $FILTERS"
-	nice -15    mencoder  "$INPUT"  -o  "$OUTPUT"  $EXTRAOPTS $ENCODING $PREVIEW $AUDIODELAYFIX $FILTERS \
+	nice -n 12  mencoder  "$INPUT"  -o  "$OUTPUT"  $EXTRAOPTS $ENCODING $PREVIEW $AUDIODELAYFIX $FILTERS \
 		|| exit
 	[ "$PASS" = 1 ] && [ -f "$OUTPUT" ] && del "$OUTPUT" ## Cleanup if preview was created.
 	jshinfo

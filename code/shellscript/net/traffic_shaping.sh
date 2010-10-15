@@ -1,6 +1,19 @@
+#!/bin/sh
 ## traffic_shaping
 ## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
 ## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.
+
+if [ "$1" = "stop" ]
+then
+	/sbin/tc qdisc del dev eth2 root
+	/sbin/tc qdisc del dev eth2 ingress
+elif [ "$1" = "start" ] || [ "$1" = "restart" ]
+then
+	NYX="/root/j/code/shellscript/net/nyx.sh"
+	sh "$NYX"
+fi
+
+exit "$?"
 
 ## From Jim for fast ssh: tc filter add dev eth1 parent 1:0 protocol all prio 1 handle 22:0:1 u32 ht 22:0:0 match u16 0x16 0xffff at 2 classid 1:2
 
@@ -10,6 +23,7 @@
 ## It puts a constant reduction on your non-priority traffic (PROPORTION_TO_ALLOW).
 ## But since it works and can be used all the time, I find it means I can send more non-interactive traffic by leaving it running constantly through this form of shaping.
 ## A dynamic size pipe would be good though...
+## To achieve this we now use jim's nyx.tcc script.
 
 ## On my cable modem: monitoriflow reports the largest outgoing bytes per second at about 22000
 ##                    (actually it can reach 25000/26000 but above 22000 incoming appears to suffer!)
@@ -106,6 +120,7 @@ case "$1" in
 			SMALL_PIPE_BPS=`expr $BANDWIDTH_OUT '*' $PROPORTION_SMALL_PIPE / 100`
 			LARGE_PIPE_BPS=`expr $BANDWIDTH_OUT '*' $PROPORTION_LARGE_PIPE / 100`
 			WEBSERVER_BPS=`expr $BANDWIDTH_OUT '*' $PROPORTION_WEBSERVER / 100`
+			## These were causing the stream to block after some number of bytes were sent, so I removed them.
 			SMALL_PIPE_PEAKBPS=`expr $SMALL_PIPE_BPS '*' 5 / 4`
 			LARGE_PIPE_PEAKBPS=`expr $LARGE_PIPE_BPS '*' 5 / 4`
 			WEBSERVER_PEAKBPS=`expr $WEBSERVER_BPS '*' 5 / 4`
@@ -205,7 +220,7 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			echo "$REST_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$REST_DISC handle 1$REST_DISC: tbf rate $LARGE_PIPE_BPS""bps buffer 1600 peakrate $LARGE_PIPE_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
+			echo "$REST_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$REST_DISC handle 1$REST_DISC: tbf rate $LARGE_PIPE_BPS""bps buffer 1600 mtu 1518 mpu 64 latency 50ms"
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$REST_DISC handle 1$REST_DISC: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
@@ -218,11 +233,11 @@ case "$1" in
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
 
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 50kbit buffer 1600 peakrate 60kbit mtu 1518 mpu 64 latency 50ms
-			echo "$SMALL_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate $SMALL_PIPE_BPS""bps buffer 1600 peakrate $SMALL_PIPE_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
+			echo "$SMALL_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate $SMALL_PIPE_BPS""bps buffer 1600 mtu 1518 mpu 64 latency 50ms"
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 30kbit buffer 1600 peakrate 40kbit mtu 1518 mpu 64 latency 50ms
 			# /sbin/tc qdisc add dev "$INTERFACE" parent 1:$SMALL_DISC handle 1$SMALL_DISC: tbf rate 20kbit buffer 1600 peakrate 30kbit mtu 1518 mpu 64 latency 50ms
 
-			echo "$WEBSERVER_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$WEBSERVER_DISC handle 1$WEBSERVER_DISC: tbf rate $WEBSERVER_BPS""bps buffer 1600 peakrate $WEBSERVER_PEAKBPS""bps mtu 1518 mpu 64 latency 50ms"
+			echo "$WEBSERVER_DISC /sbin/tc qdisc add dev $INTERFACE parent 1:$WEBSERVER_DISC handle 1$WEBSERVER_DISC: tbf rate $WEBSERVER_BPS""bps buffer 1600 mtu 1518 mpu 64 latency 50ms"
 
 			### EXPERIMENT: Make the ssh disc limited like the webserver disc
 			echo "6 /sbin/tc qdisc add dev $INTERFACE parent 1:6 handle 16: pfifo"
@@ -459,14 +474,15 @@ case "$1" in
 
 			## Block telewest's scanner:
 			/sbin/route add -host scanner.abuse.blueyonder.co.uk reject
+			/sbin/route add -host abuse.blueyonder.co.uk reject
 			## Mo-fo was ssh-ing in with random passwords; got guest/guest
-			/sbin/route add -host 204.11.237.148 reject
-			/sbin/route add -host 82.55.183.170 reject
-			/sbin/route add -host 70.84.152.52 reject
-			/sbin/route add -host 86.126.59.133 reject
+			# /sbin/route add -host 204.11.237.148 reject
+			# /sbin/route add -host 82.55.183.170 reject
+			# /sbin/route add -host 70.84.152.52 reject
+			# /sbin/route add -host 86.126.59.133 reject
 			## Search engines ignoring my robots.txt:
-			/sbin/route add -host inktomisearch.com reject
-			/sbin/route add -host crawl.yahoo.net reject
+			# /sbin/route add -host inktomisearch.com reject
+			# /sbin/route add -host crawl.yahoo.net reject
 
 			echo "startified"
 		;;

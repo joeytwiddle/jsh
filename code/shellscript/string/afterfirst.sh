@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: sed
 
 ## I just cannot do it properly with sed.  :-(

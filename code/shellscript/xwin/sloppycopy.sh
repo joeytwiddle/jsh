@@ -1,3 +1,4 @@
+#!/bin/sh
 ## An alternative to scp, sloppycopy and sloppypaste allow you to transfer (small) files via two open xterms and unix copy/paste
 ## Files are checksummed in case of transfer-incompatability.
 ## But it should work fine because data will be (uu?) encoded to a generic charset.

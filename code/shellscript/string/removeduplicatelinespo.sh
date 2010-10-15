@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Removes any duplicate lines from the stream, preserving line order on output.
 ## Doesn't remove empty lines
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 EXCLUDE=
 if [ "$1" = -x ]
 then EXCLUDE=true; shift

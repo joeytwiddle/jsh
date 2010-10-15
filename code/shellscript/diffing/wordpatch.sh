@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1" = "--help" || test ! "$1"
 then
 	# echo "wordpatch <file1> [ -o <file2> ] [ <GNU diff options>... ]"

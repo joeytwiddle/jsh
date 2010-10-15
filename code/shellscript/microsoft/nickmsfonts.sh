@@ -1,3 +1,4 @@
+#!/bin/sh
 ## BBLUG suggests:
 ## Make static fonts with ttfmkdir OR serve fonts with xfstt
 

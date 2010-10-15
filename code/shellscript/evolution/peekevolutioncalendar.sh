@@ -1,3 +1,4 @@
+#!/bin/sh
 for DAYSAHEAD in `seq -7 30`; do
 	DATESTR="today + $DAYSAHEAD days"
 	UNIV=`date -d "$DATESTR" -I | tr -d "-"`

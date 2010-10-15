@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: cksum
 # jsh-depends: jwhich cksum
 MD5SUM=`jwhich md5sum`

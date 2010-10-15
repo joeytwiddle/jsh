@@ -24,7 +24,7 @@ if [ -f "$FILE" ] && [ ! `filesize "$FILE"` = "0" ]
 then
 
 	MAXVOL=`expr 140 "*" 50`
-	MAXCOLS=180
+	MAXCOLS=160
 	MAXROWS=50
 	MINCOLS=20
 	MINROWS=10
@@ -88,12 +88,24 @@ INTGEOM=`echo "$COLS"x"$ROWS" | sed 's|\..*x|x|;s|\..*$||'`
 
 ## This xterm title may eventually be overwritten by vim:
 # TITLE=`absolutepath "$1"`" [vim-never-shown]"
-TITLE="vim: `basename "$1"` (`dirname "$1"`)"
+TITLE="[Vim] `basename "$1"` (`dirname "$1"`)"
 
 # XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 # `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
 
 # xterm -bg "#000048" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
-xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
+# xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
+xterm -bg "#000000" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
+# # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM -title \"$TITLE\" "
+# XTERMOPTS=" -bg '#000040' -geometry $INTGEOM " ## TITLE caused problems in my chroot (XTERMOPTS is not quoted)!
+# if [ "`jwhich xterm`" ]
+# then
+	# `jwhich xterm` $XTERMOPTS -e recovervimswap -thenvim "$@" &
+# else
+	# [ "$XTERME" ] || XTERME=`jwhich konsole`
+	# [ "$XTERME" ] || XTERME=`jwhich gnome-terminal`
+	# # verbosely "$XTERME" -e "vim $*"
+	# "$XTERME" -e "recovervimswap -thenvim $*" &
+# fi
 

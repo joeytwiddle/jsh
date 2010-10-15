@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Actually implemented to append an email to a mailbox file
 ## Can be changed if joey's /etc/alises is updated accordingly.
 while test -f "$*.lock"; do

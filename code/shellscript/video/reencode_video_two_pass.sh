@@ -42,8 +42,10 @@ rm -f ./stream.yuv
 if [ ! "$AUDIO_BITRATE" ]
 then
 	## TODO: should make this 48 if it needs to be low.
+	## DONE: nah should default to 128 cos anything lower sucks!
 	jshinfo "Defaulting AUDIO_BITRATE of output to 64 kilobits per second."
-	AUDIO_BITRATE=64
+	# AUDIO_BITRATE=64
+	AUDIO_BITRATE=128
 fi
 # FUDGE_FACTOR=128
 # VIDEO_BITRATE=`expr "$TARGET_SIZE" '*' 1024 '*' 1024 / "$LENGTH_IN_SECONDS" / "$FUDGE_FACTOR" - "$AUDIO_BITRATE"`

@@ -1,3 +1,4 @@
+#!/bin/sh
 # TO TEST: sometimes the first completion i try to make on a file with " "s in its name appears to break the args?  Is this our fault?
 
 # TODO: Most annoying small bug is that occasionally we want to expand to a

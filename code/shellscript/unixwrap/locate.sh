@@ -1,3 +1,4 @@
+#!/bin/sh
 ## BUG: tty checks stdin, not out :S
 tty -s && PRETTY_PRINT_OK=true
 

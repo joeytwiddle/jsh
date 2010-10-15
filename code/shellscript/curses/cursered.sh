@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: Introduce cursewarn etc. meta-colours
 ##       Could be useful eg. to support highlight reversing if no colours available, or even some text (since curses are always user output anyway)
 

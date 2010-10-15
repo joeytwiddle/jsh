@@ -88,3 +88,4 @@ fi
 	endhtml
 
 ) | cat > "$OUTDIR/recent.html"
+

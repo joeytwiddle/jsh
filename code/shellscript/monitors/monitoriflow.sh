@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: over from display
 
 # jsh-depends: takecols nicedate error jshinfo

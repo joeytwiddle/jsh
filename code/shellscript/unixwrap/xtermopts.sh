@@ -1,3 +1,13 @@
+#!/bin/sh
+######################
+## DEPRECATED
+## This was inefficient, and only used in the 'xterm' script.
+## The best bits are now moved there, and this is no longer called, but may be useful for testing things.
+
+
+
+
+
 # jsh-ext-depends-ignore: linux
 # jsh-ext-depends: hostname
 # jsh-depends: endswith
@@ -36,5 +46,14 @@ else
 fi
 ## Big Courier:
 # FONT='-adobe-courier-medium-r-normal-*-*-140-*-*-p-*-iso8859-2'
+## Great small:
+# FONT='-*-clean-medium-r-*-*-*-120-*-*-*-*-*-*'
+## Thin big (wipeout):
+# FONT='-*-clean-medium-r-*-*-*-160-*-*-*-*-*-*'
+## Thin Lucida-style medium:
+# FONT="'-*-dejavu sans mono-medium-r-*-*-*-110-*-*-*-*-*-*'"
+FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1' ## My favourite for high dpi
+# FONT='-*-fixed-*-r-*-*-12-*-*-*-*-*-*-*' ## This one should work on all systems
 
-echo $ARGS $GEOM +sb -sl 5000 -vb -si -sk -bg black -fg white -font "$FONT" "$@"
+echo $ARGS $GEOM +sb -sl 5000 -vb -si -sk -bg black -fg white -font "$FONT" -rightbar -j -s "$@"
+

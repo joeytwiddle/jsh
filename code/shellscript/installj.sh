@@ -61,33 +61,39 @@ test -d "$JPATH" &&
 ## This pause is only useful if this script has been piped through wget.
 sleep 1
 
-CVSROOT=":pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
+if [ "$HWIUSER" = anonymous ]
+then CVSROOT=":pserver:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
+else CVSROOT=":ext:$HWIUSER@hwi.ath.cx:/stuff/cvsroot"
+fi ## Actually both can use pserver, but when pserver is DOWN, it's nice to leave users known to hwi the option of using ext.
 export CVSROOT
 
 ## Make initial CVS connection
-if [ "$HWIUSER" = anonymous ]
+if echo "$CVSROOT" | grep "^:pserver:" >/dev/null
 then
-	## Test if password already exists:
-	if grep "^$CVSROOT" "$HOME/.cvspass" > /dev/null 2>&1
+	if [ "$HWIUSER" = anonymous ]
 	then
-		echo "Found anonymous password in $HOME/.cvspass =)"
+		## Test if password already exists:
+		if grep "^$CVSROOT" "$HOME/.cvspass" > /dev/null 2>&1
+		then
+			echo "Found anonymous password in $HOME/.cvspass =)"
+		else
+			## This is a cheat way to give the user a cvspass:
+			echo "Adding anonymous password to $HOME/.cvspass"
+			echo "/1 (null) A" >> "$HOME/.cvspass"
+			echo "/1 $CVSROOT A" >> "$HOME/.cvspass"
+		fi
 	else
-		## This is a cheat way to give the user a cvspass:
-		echo "Adding anonymous password to $HOME/.cvspass"
-		echo "/1 (null) A" >> "$HOME/.cvspass"
-		echo "/1 $CVSROOT A" >> "$HOME/.cvspass"
+		## TODO: check for it as above
+		echo "First we need to login to Hwi's cvs as $HWIUSER,"
+		echo "to obtain ~/.cvspass."
+		test "$HWIUSER" = anonymous &&
+			echo "Please use the password \"anonymous\""
+		## Touch is important otherwise first time cvs(1.11.1p1debian-8.1)
+		## labels server as null!  :-P
+		touch $HOME/.cvspass
+		cvs login ||
+			exit 1
 	fi
-else
-	## TODO: check for it as above
-	echo "First we need to login to Hwi's cvs as $HWIUSER,"
-	echo "to obtain ~/.cvspass."
-	test "$HWIUSER" = anonymous &&
-		echo "Please use the password \"anonymous\""
-	## Touch is important otherwise first time cvs(1.11.1p1debian-8.1)
-	## labels server as null!  :-P
-	touch $HOME/.cvspass
-	cvs login ||
-		exit 1
 fi
 
 echo "WARNING: this software comes with no warranty; \

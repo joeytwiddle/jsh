@@ -1,3 +1,4 @@
+#!/bin/sh
 COMMAND=`which "$1"`
 shift
 

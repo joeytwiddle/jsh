@@ -1,3 +1,4 @@
+#!/bin/sh
 ## DONE: Problems under Gentoo because memo is not caching because man returns non-zero exit code.
 ##       OK added fix to rememo, so it cats the cache whether the command succeeded or not.  (Seems appropriate!)
 

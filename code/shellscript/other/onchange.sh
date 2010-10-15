@@ -1,3 +1,4 @@
+#!/bin/sh
 # Todo: Make it work on multiple files
 # er does work on multiple files but must be in quotes - fix?
 

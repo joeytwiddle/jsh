@@ -1,3 +1,4 @@
+#!/bin/sh
 ## See also: /bin/mountpoint -d (not available in morphix)
 # jsh-ext-depends: sort realpath
 # jsh-depends: takecols drop realpath

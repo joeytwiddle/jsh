@@ -1,3 +1,4 @@
+#!/bin/sh
 cd /
 
 if test "$1" = -all

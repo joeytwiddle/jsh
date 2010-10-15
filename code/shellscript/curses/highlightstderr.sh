@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Runs the command you provide, making standard error messages appear in red.
 ## Added ERRFILE fix to return exit code.
 
@@ -39,7 +40,7 @@ done >&2
 # sed -u "s+.*+$CURSERED\0$CURSENORM+" >&2 ## send the highlighted output back to stderr
 # doesn't work: sed -u "s+^[^`printf "\033["`].*+$CURSERED\0$CURSENORM+" >&2 ## send the highlighted output back to stderr
 
-printf "\033[00;36m"
+printf "\033[00;36m" >&2 ## I know this is meant for stdout, but I am printing it to stderr otherwise calling scripts can fail trying to parse it.
 
 ## NOTE: The redirection example I used also added 3>&- at the end of both the "$@" and sed lines, but this appears to me to be superflous.
 

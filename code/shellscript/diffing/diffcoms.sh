@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
   echo "diffcoms [ -color | -vimdiff | -worddiff | -diffwith <diffcommand> ] <command_a> <command_b>"

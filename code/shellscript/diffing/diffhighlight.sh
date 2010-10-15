@@ -1,3 +1,4 @@
+#!/bin/sh
 cat "$@" |
 ## Originally for svn diffs.
 ## Added regexps for cvs diffs.

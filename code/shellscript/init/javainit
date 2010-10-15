@@ -18,6 +18,10 @@
 	# CLASSPATH="$CLASSPATH:$X"
 # done
 
+# Java3D:
+export CLASSPATH="$CLASSPATH:/usr/local/install/java/j3d/lib/ext/j3dcore.jar:/usr/local/install/java/j3d/lib/ext/j3dutils.jar:/usr/local/install/java/j3d/lib/ext/vecmath.jar"
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/install/java/j3d/lib/i386"
+
 # Inspector
 # CLASSPATH=$CLASSPATH:$JPATH/install/lang/java/inspector/;
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: -safe should exec su - which will require password before commands can be execed
 ##       (not really safe since no encryption ... https?)
 ## TODO: Output should be clumped together, not one request per line

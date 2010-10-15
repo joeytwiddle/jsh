@@ -1,16 +1,26 @@
+#!/bin/sh
 ## BUG: doesn't work if you use a sound server (eg. artsd or esd).  Fixing that would probably require a different approach.
 
 # tail -n 1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
 
-FILES=`
+function find_open_music_files () {
 
-	for DEV in /dev/dsp /dev/sound/dsp
-	do [ -e $DEV ] && fuser -v $DEV 2>&1
-	done |
-	# drop 2 | ## why did you want to drop 2?  i have only 1 header line :P
-	drop 1 |
-	# takecols 5 |
-	dropcols 1 2 3 4 | ## only the first line has something in first column, so this works better
+	(
+		# for DEV in /dev/dsp /dev/sound/dsp
+		# do [ -e $DEV ] && fuser -v $DEV 2>&1
+		# done |
+		# # drop 2 | ## why did you want to drop 2?  i have only 1 header line :P
+		# drop 1 |
+		# # takecols 5 |
+		# dropcols 1 2 3 4 | ## only the first line has something in first column, so this works better
+		# This should be merged with nextsong's whichmediaplayers into list_running_media_processes
+		listopenfiles -allthreads xmms 2>/dev/null | grep "\(/dev/dsp\|/dev/snd/.\)" | grep -v "/dev/snd/control" | head -n 1 | takecols 1 |
+		grep . ||
+		listopenfiles -allthreads . 2>/dev/null | grep "\(/dev/dsp\|/dev/snd/.\)" | grep -v "/dev/snd/control" | takecols 1
+		## TODO: on some systems listopenfiles (lsof) runs slowly
+		##       this can be helped by specifying the process name to look for
+	) |
+
 	removeduplicatelines |
 	trimempty |
 
@@ -19,6 +29,8 @@ FILES=`
 
 		# jshinfo "$PROGNAME"
 
+		## Yep some systems use bin others sbin.
+		## -c is fast! :D
 		/usr/*bin/lsof -c "$PROGNAME" 2>/dev/null |
 
 		## Negative match: (could be confirmed later eg. by file)
@@ -34,8 +46,9 @@ FILES=`
 		removeduplicatelines
 
 	done
+}
 
-`
+FILES=` find_open_music_files `
 
 OUTPUT=`
 
@@ -53,31 +66,12 @@ OUTPUT=`
 
 echo "$OUTPUT"
 
-echo "$OUTPUT" |
-head -n 1 |
-while read FILE
-do
-	DIR=`dirname "$FILE"`
-	NAME=`basename "$FILE"`
-# (
-if xisrunning
+if [ ! "$NOEXTRAS" ] && xisrunning && which osd_cat >/dev/null && [ -z "$SKIP_OSD" ] 2>&1
 then
-# echo "$DIR:
-# $NAME
-# ` mp3info "$FILE" 2>/dev/null `" |
-# osd_cat -c orange -f '-*-lucida-*-r-*-*-*-220-*-*-*-*-*-*'
-NAME=` mp3info -p "%a - %t" "$FILE" `
-TIME=` mp3info -p "%mm%ss" "$FILE" `
-# for COL in black green yellow red magenta blue cyan green black
-for COL in black green red blue black
-do
-	echo "$NAME
-  $TIME :: [$FILE]" |
-	# osd_cat -c "#"00"$COL$COL"00 -d 1 -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*'
-	# osd_cat -c "$COL" -d 1 -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*'
-	osd_cat -c "$COL" -d 2 -f '-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*' ## works inside my chroot
-done
+	(
+		echo "$OUTPUT" |
+		head -n 1 |
+		foreachdo showsonginfo
+	) >&2
 fi
-# ) &
-done
 

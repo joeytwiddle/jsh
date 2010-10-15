@@ -1,3 +1,6 @@
+#!/bin/sh
+## CONSIDER: We can do "... | foreachdo echo", but if we do "... | foreachdo eval 'sleep 0.2 ; echo'" then it breaks on bin/org/neuralyte/irc/IRCBot$2.class .
+
 ## Oh dear ambigous naming!
 ## for is significantly different from while in sh
 ## because the latter means stdin is redirected whereas during the former it is not

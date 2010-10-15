@@ -1,3 +1,4 @@
+#!/bin/sh
 CACHEFILE="$HOME/.msgid_cache.formail"
 
 reusemsg() {

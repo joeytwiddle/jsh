@@ -1,3 +1,4 @@
+#!/bin/sh
 netstat --program |
 # grep "^tcp"
 toline -x "^Active UNIX domain sockets"

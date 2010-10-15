@@ -1,3 +1,4 @@
+#!/bin/sh
 # todo: rename posessive/ sec/
 
 ## todo: shield will chmod current directory and all below, then jump to shield user

@@ -1,3 +1,4 @@
+#!/bin/sh
 EXPR="\("
 for X
 do EXPR="$EXPR\<$X\>\|"

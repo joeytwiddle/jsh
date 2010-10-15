@@ -1,3 +1,4 @@
+#!/bin/sh
 DIR="$1"
 FILE=`echo "$1" | sed 's/.unzipped//'`
 while test -f "$FILE"; do

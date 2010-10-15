@@ -2,6 +2,8 @@
 
 # jsh-help: Skips N lines from the front of a stream.
 # jsh-help: Note: awkdrop is recommended for speed.
+# jsh-help: See also: head -n -10
+# jsh-help: See also: sed 1d
 
 ## TODO: I think a recent change may have caused drop to behave as such:
 ##       drop 20 on a 10 line file blocks for 10 lines of input...?!

@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: diff cksum host file time screen
 # jsh-ext-depends: sed tar find sort column ssh
 # jsh-depends: jfcsh debug cksum

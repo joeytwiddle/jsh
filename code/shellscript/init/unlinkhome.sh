@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Alternatively, we could grep the output of justlinks run on all the links.
 
 cd $HOME

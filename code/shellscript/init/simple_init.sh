@@ -1,3 +1,4 @@
+#!/bin/sh
 ## simple_init expects something like the following when it is run:
 
 ##  SERVICE_NAME=ut_server

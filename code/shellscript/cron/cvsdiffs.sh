@@ -1,3 +1,4 @@
+#!/bin/sh
 for X in c shellscript haskell java; do
 
   echo

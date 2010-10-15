@@ -1,3 +1,4 @@
+#!/bin/sh
 ## jsh-help: removes symlink(s), or produces error if non-symlink was provided
 
 ## TODO CONSIDER: should rmlink return true if target does not exist (already rm-ed)

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Sorts output of w by idle time.
 ## Rename: /usr/bin/jw is part of docbook-utils
 

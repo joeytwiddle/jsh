@@ -1,3 +1,4 @@
+#!/bin/sh
 ## jsh-help: unj <program> <args> runs the version of <program> outside of jsh, when otherwise (without unj) the jsh override version of <program> might have been run.
 ## jsh-help: The -quiet option will supress error messages if the <program> does not exist outside jsh, but at time of writing, there were no uses of it in jsh, and it seems pretty daft anyway, so I recommend this option should be removed.
 

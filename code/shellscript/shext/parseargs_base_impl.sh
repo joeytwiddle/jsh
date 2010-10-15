@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: doc storing
 ##       does user need / want help: show it
 ##       make this a compiler (or memoer!) for efficiency

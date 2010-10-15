@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: strlen
 PADLEFT=">"
 PADBRACE=" "

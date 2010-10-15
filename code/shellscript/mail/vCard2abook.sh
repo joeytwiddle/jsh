@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Note: whilst abook entries usually start with [n],
 ## the unnumbered generated entries are successfully
 ## read by abook=0.4.16-1

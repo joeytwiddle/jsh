@@ -1,3 +1,4 @@
+#!/bin/sh
 ## NOTE: When joeysaliases aliased tail=prettytail, it caused sourced scripts from user shell problems: eg. b.zsh used tail (->prettytail) but now uses 'tail'
 
 ## TODO: make it not repeat until file gets updated, then isn't changed for $SLEEPTIME seconds.

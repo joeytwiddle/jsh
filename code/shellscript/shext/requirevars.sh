@@ -1,3 +1,4 @@
+#!/bin/sh
 for VAR in "$@"
 do
 

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## For all files under working directory, compares to same file in path provided.
 ## If files match, displays command to remove it.
 

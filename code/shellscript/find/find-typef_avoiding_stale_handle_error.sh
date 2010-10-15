@@ -1,3 +1,4 @@
+#!/bin/sh
 ## jsh-help: Like find "$1" -type f, but does not bomb when encountering "Stale NFS file handle"
 ## jsh-help: I used to get that problem occasionally on a vfat mount I used.
 

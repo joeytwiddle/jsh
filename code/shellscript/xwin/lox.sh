@@ -1,3 +1,4 @@
+#!/bin/sh
 # startx -- -bpp 24
 
 #newback

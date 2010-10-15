@@ -1,3 +1,4 @@
+#!/bin/sh
 # In 256 colour mode xplanet does rubbish dithering:
 # xplanet -root -projection orthographic -body Earth -blend &
 # Instead we can force it to render outside X and dither with xv ...

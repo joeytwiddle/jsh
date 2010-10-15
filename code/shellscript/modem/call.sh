@@ -1,3 +1,4 @@
+#!/bin/sh
 TARGET="$*"
 
 ## Did the user give a number, or a name to look up?

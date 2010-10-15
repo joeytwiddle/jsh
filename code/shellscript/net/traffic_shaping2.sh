@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: we really need to allow trees of pipes, so we can make really nice shaping rules
 
 clear_all_shaping () {

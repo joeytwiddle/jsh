@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$2" = "" ]
 then
         echo "datediff [-secs] <earlierdate> <laterdate>"

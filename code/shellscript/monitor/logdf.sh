@@ -1,3 +1,4 @@
+#!/bin/sh
 (
 printf "TIME="
 date "+%s"

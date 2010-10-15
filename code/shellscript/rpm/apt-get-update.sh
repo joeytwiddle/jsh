@@ -1,3 +1,4 @@
+#!/bin/sh
 FILE=/etc/apt/all-sources.list
 
 if [ ! -f "$FILE" ] || [ "$1" = --help ]

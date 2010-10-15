@@ -1,3 +1,5 @@
+## Should show us #bytes, not human readable!
+
 ## For Linux:
 ls -ahlrSF --color "$@"
 

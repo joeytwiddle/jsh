@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$3x" = "x"; then
   echo "soundcardinit <baseio> <irq> <dma>"
   exit 1

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## The problem with all these "removing duplicates" scripts is verify whether or not the file is the same actual file.
 ## On Unix confusions with symlinks can be resolved using realpath.
 ## But with mounted networked computers, and virtual filesystems, this will be harder to verify.
@@ -23,7 +24,7 @@ fi
 SRC=`absolutepath "$SRC"`
 DEST=`absolutepath "$DEST"`
 
-cd "$SRC"
+cd "$SRC" || exit 3
 find . -not -type d |
 while read FILE
 do

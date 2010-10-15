@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: cursemagenta cursenorm memo removeduplicatelines takecols jdeltmp jgettmp drop error
 # this-script-does-not-depend-on-jsh: arguments pkgversions
 # jsh-ext-depends: sed apt-cache apt-get dpkg column
@@ -68,7 +69,7 @@ DPKGMEMOCOM="$MEMOCOM"
 if [ "$1" = --help ]
 then
 
-cat << ! | more
+cat << !
 
 Usage:
 
@@ -82,15 +83,21 @@ Commands:
   apt-list from <source/distro> : list packages in source or distro
   apt-list pkg <package>        : list available versions of package
 
+  apt-list is an efficient way to make repeated queries about your apt
+  database.  Although the first query may be slow, subsequent queries
+  should be much faster than using apt-cache or dpkg.
+
+  The <source/distro> and <package> arguments are regular expressions.
+
 Options:
 
   -installed           : trims results to show installed packages only
-  --source-list <file> : use alternative sources list
+  --source-list <file> : use alternative sources.list file
 
 Note:
 
-  apt-list is responsive to the sources in your current sources.list,
-  so if like me you apt-get update using a broader sources file, you
+  apt-list is responsive to the sources in your current sources.list.
+  If you like to run apt-get update using a broader .sources file, you
   should use the --source-list option to specify it.
 
 Examples:
@@ -110,10 +117,11 @@ Examples:
 ## There is also the command apt-list generate, but that is meant for internal use only.
 
 ## Since we are taking some time anyway, pre-generate (aka show summary, aka pre-load cache, aka test generation speed):
+echo "Auto-querying now... (Ctrl+C to abort)"
+echo "Sources: "`apt-list sources` # | tr '\n' " " ; echo
+echo "Distros: "`apt-list distros` # | tr '\n' " " ; echo
 echo "Packages: "`apt-list all | wc -l`
 echo "Installed: "`apt-list -installed all | wc -l`
-echo "Distros: "`apt-list distros` # | tr '\n' " " ; echo
-echo "Sources: "`apt-list sources` # | tr '\n' " " ; echo
 echo
 
 exit 0
@@ -181,6 +189,7 @@ then
       error "Could not find $PKGNAME ver $PKGVER (which dpkg reports installed) in cache $LIST !"
     done |
     column -t
+    echo "`cursemagenta`apt-list: cache built.`cursenorm`" >&2
 
     jdeltmp $LIST
 
@@ -191,7 +200,7 @@ then
       echo "PACKAGE	VERSION	DISTRO	SOURCE"
       ## This memo file is too large, and we cache the output anyway!
       apt-cache $APT_EXTRA_ARGS dump |
-			catwithprogress |
+      catwithprogress |
       grep "^\(Package\| Version\|[ ]*File\): " |
       # This sed fails for non-traditional archives (lacking dist/ dir):
       sed "s|File: .*/\([^_]*\).*dists_\([^_]*\).*|File: \1 \2|" |
@@ -206,7 +215,9 @@ then
         if ( $1 == "File:" )
           { PROVIDER=$2 ; STAT=$3; print PACK "\t" VER "\t" STAT "\t" PROVIDER }
       } ' |
-      cat
+      ## Some systems start listing packages multiple times, I don't know why.
+      ## We simply trim them here.
+      removeduplicatelines | sort
     ) |
     column -t
 
@@ -215,9 +226,9 @@ then
 elif [ "$1" = "" ]
 then
 
-		# echo "[TODO] apt-list called with no args: should show help."
-		apt-list --help
-		exit
+  # echo "[TODO] apt-list called with no args: should show help."
+  apt-list --help
+  exit
 
 else
 

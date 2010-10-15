@@ -1,3 +1,4 @@
+#!/bin/sh
 for X in "$@"; do
   if test -f $X; then
     setfacl -f $HOME/facl.file $X

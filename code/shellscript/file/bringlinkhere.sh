@@ -1,3 +1,4 @@
+#!/bin/sh
 case "$1" in
 	"-h"|"--help")
 		echo "bringlinkhere [-nolink] [<files/dirs>]"

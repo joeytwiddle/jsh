@@ -1,7 +1,29 @@
 #!/bin/sh
-if test "$1" = ""; then
-  echo "findpkg [-all] [-web] [-big] <part-of-package-name>"
-  exit 1
+
+## BUG: dpkg does not display all packages, e.g. meta-packages used by apt.
+## So rather than using dpkg -all, I recommend aptitude search.
+
+if [[ "$1" = "" ]]
+then
+cat << '!'
+
+findpkg [-all] [-web] [-big] <part-of-package-name>
+
+  will list any packages you have installed matching "*<part-of-package-name>*".
+
+    -all   will try to show matching uninstalled packages also.  But it does NOT
+           actually show ALL under Debian (maybe it neglects virtual packages).
+
+    -web   will open a browser to search the Debian package archive website.
+           (Good alternative to -all.)
+
+    -big   will set COLUMNS to something large, so that dpkg will produce full
+           packagenames.
+
+  findpkg currently supports dpkg systems (e.g. Debian and Ubuntu).
+
+!
+exit 1
 fi
 
 ## Somehow the values set in the while loop get preserved by the variables, even with /bin/sh above.

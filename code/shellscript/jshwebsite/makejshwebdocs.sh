@@ -15,6 +15,7 @@ fi
 if [ "$1" ]
 then
 	OUTDIR="$1"
+	[ -d "$OUTDIR" ] || verbosely mkdir -p "$OUTDIR"
 	if [ ! -d "$OUTDIR" ] || [ ! -w "$OUTDIR" ]
 	then
 		echo "$OUTDIR is not writeable."
@@ -24,6 +25,8 @@ else
 	OUTDIR=/tmp/jshdocs
 fi
 
+## TODO: Current: deletes itself before starting the new build.
+##       Better to: make new build, then replace old build.
 OUTDIR=`absolutepath "$OUTDIR"`
 echo "Creating docs in $OUTDIR ..."
 if [ -e "$OUTDIR" ]
@@ -41,21 +44,21 @@ cat > "$TMPINDEXFILE" << !
 <BODY>
 <TABLE cellpadding='4'>
 <TR bgcolor='#ffe0e0'>
-<TD width="20%"><B>Script category / name</B></TD>
-<!-- <TD><B>Links</B></TD> -->
-<TD><font color="#ffe0e0">(compile)</font></TD> <!-- makes konqueror happy -->
-<!-- <TD><font color="#ffe0e0">(compile)</font></TD> --> <!-- makes konqueror happy -->
+<TH width="20%"><B>Script category / name</B></TH>
+<!-- <TH><B>Links</B></TH> -->
+<TH><font color="#ffe0e0">(compile)</font></TH> <!-- makes konqueror happy -->
+<!-- <TH><font color="#ffe0e0">(compile)</font></TH> --> <!-- makes konqueror happy -->
 `
 [ $DEPENDENCY_DEBUG -gt 3 ] &&
 	echo "
-<TD width="8%"><B>Jsh</B></TD>
-<TD width="8%"><B>Ext</B></TD>
-<TD width="8%"><B>???</B></TD>
+<TH width="8%"><B>Jsh</B></TH>
+<TH width="8%"><B>Ext</B></TH>
+<TH width="8%"><B>???</B></TH>
 " ||
 [ $DEPENDENCY_DEBUG -gt 1 ] &&
-	echo "<TD width="8%"><B>deps?</B></TD>"
+	echo "<TH width="8%"><B>deps?</B></TH>"
 `
-<TD width="35%"><B>Documentation / description</B></TD>
+<TH width="45%"><B>Documentation / description</B></TH>
 </TR>
 !
 
@@ -68,6 +71,12 @@ COLOR=0
 
 cd "$JPATH/tools"
 find . -type l | sed 's+^\./++' | randomorder |
+# grep apt-list |
+
+if [ "$SHOW_PROGRESS" ]
+then catwithprogress
+else cat
+fi |
 
 while read SCRIPT
 do
@@ -96,12 +105,12 @@ do
 		if true
 		then
 
-			echo "<TT>"
+			echo "<PRE>"
 			memo jdoc showjshtooldoc "$SCRIPT" |
 			striptermchars |
 			tohtml |
-			sed 's+<P>+<BR>+g' ## <P> tags kill <TT>
-			echo "</TT>"
+			sed 's+<P>+<BR>+g' ## <P> tags kill <PRE>
+			echo "</PRE>"
 
 			echo "<HR>"
 
@@ -117,7 +126,7 @@ do
 				then
 					CHANGERE="\<\("`echo "$UNRESOLVED" | sed 's+\?[ ]*+\\\|+g' | sed 's+\\\\|$++'`"\)\>"
 					echo "$CHANGERE" >&2
-					sed "s+$CHANGERE+</TT><font color='red'><B><TT>\1</TT></B></font><TT>+g"
+					sed "s+$CHANGERE+</PRE><font color='red'><B><PRE>\1</PRE></B></font><PRE>+g"
 				else
 					cat
 				fi
@@ -141,10 +150,10 @@ do
 			echo "External dependencies:<BR>"
 			jshdepwiz getextdeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
 			echo "<BR>"
-			echo "Unchecked dependencies:<BR><font color='red'><B><TT>"
+			echo "Unchecked dependencies:<BR><font color='red'><B><PRE>"
 			jshdepwiz gendeps "$SCRIPT" 2>&1 | striptermchars | grep -v "jshdepwiz: Checking dependencies for" | tohtml
 			# echo "<!-- to help the anchor tag: -->"
-			echo "</TT></B></font>"
+			echo "</PRE></B></font>"
 			echo "<BR>"
 			echo "&nbsp;"
 			echo "<BR>"
@@ -167,8 +176,9 @@ do
 	fi
 
 	(
+		SHOWPATH="`echo "$SCRIPTPATH" | sed 's+\(........................................\)+\1<BR>+g'`"
 		echo "$ROW<TD align='left'>"
-		echo "$SCRIPTPATH"
+		echo "$SHOWPATH"
 		echo "</TD><TD align='center'>"
 		echo "(<A href=\"$SCRIPTPATH.html\">view</A>)"
 		# echo "</TD><TD align='center'>"
@@ -197,14 +207,21 @@ do
 		# then echo "(has docs)"
 		then
 			# jdoc showjshtooldoc "$SCRIPT" | drop 3 | striptermchars | trimempty | head -2 | tohtml
-			memo jdoc showjshtooldoc "$SCRIPT" | striptermchars |
-			fromline -x "^::::::::" |
-			fromline -x "^::::::::" |
-			toline -x "^::::::::" |
-			head -20 |
-			trimempty |
-			tohtml |
-			sed 's/ /\&nbsp;/g'
+			DOC="` memo jdoc showjshtooldoc "$SCRIPT" `"
+			if [ "$DOC" ]
+			then
+				echo "$DOC" |
+				striptermchars |
+				fromline -x "^::::::::" |
+				fromline -x "^::::::::" |
+				toline -x "^::::::::" |
+				head -20 |
+				trimempty |
+				tohtml |
+				sed 's/ /\&nbsp;/g'
+			else
+				echo "Doc search failed."
+			fi
 		fi
 		echo "</TD></TR>"
 		# echo "<BR>"
@@ -218,4 +235,5 @@ cat >> "$TMPINDEXFILE" << !
 </HTML>
 !
 
-mv "$TMPINDEXFILE" "$INDEXFILE"
+verbosely mv "$TMPINDEXFILE" "$INDEXFILE"
+

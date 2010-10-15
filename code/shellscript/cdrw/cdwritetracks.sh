@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Yes I'm afraid this script is still broken (at least, I still get double-speed audio when I burn a CD) :-(
 ## Try k3b! ;)
 

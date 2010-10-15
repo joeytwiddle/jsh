@@ -1,3 +1,4 @@
+#!/bin/sh
 # Nicked off Deja from Larry G. Starr  - starrl@globaldialog.com
 # Should now work but should use a temp file and split columns
 # to avoid re-running the find/ls business.

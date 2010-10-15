@@ -1,3 +1,4 @@
+#!/bin/sh
 ## This script checks folder size/date before and after running mutt.
 ## If there was a change, it prompts you to remove mbox.* files,
 ## which (for Evolution at least) are (now out of date) index files

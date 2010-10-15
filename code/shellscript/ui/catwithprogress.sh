@@ -1,14 +1,19 @@
+#!/bin/sh
 ## If the time is spent reading (piping/processing) the stream (as opposed to creating it), then this cat will show progress.
 ## This script assumes dd blocks.  Fortunately it does, although there may be buffers which offset the info :/ .
 ## If the input is from a stream (as opposed to file(s)), and -size is not specified, then this script saves a temporary copy of the stream contents, so don't use it if the stream is very long or unbounded.
 ## If the full contents of the stream is too large, this script is not suitable, since it must temporarily save the stream contents in a file.
 
-# jsh-depends: cursebold cursewhite cursenorm filesize awksum countbytes datediff jdeltmp jgettmp striptermchars
+## TODO: Would better be wrapped in: do_this_command_line_with_output_progressbar
+
+# jsh-depends: cursebold cursenorm filesize awksum countbytes datediff jdeltmp jgettmp striptermchars
 # jsh-ext-depends: sed seq dd cat
 
 ## TODO: add option -byline, so progress is measured by line-progress through stream, rather than byte-progress.
 
 ## TODO: bug when compilejshscript was used on catwithprogress: did not recognise dd as an external dependency (probably filename too small)
+
+# TO_XTTITLE=1
 
 ## DONE: added ETA.
 ## CONSIDER: separate progress code from catwith code.
@@ -54,7 +59,7 @@ else
 fi
 
 # CURSEMESSAGECOL=`cursemagenta`
-CURSEMESSAGECOL=`cursewhite;cursebold`
+CURSEMESSAGECOL=`cursenorm;cursebold`
 CURSENORM=`cursenorm`
 
 DDTMPFILE=`jgettmp catwithprogress_dderr`
@@ -102,7 +107,6 @@ do
 	# then
 
 		# SOFAR=`expr $SOFAR + $BLOCKSIZE`
-		SOFAR=`expr $SOFAR + $ADDED`
 		[ "$SOFAR" -gt "$SIZE" ] && SIZE="$SOFAR"
 		## But I think we fill up a buffer pretty quick before we start blocking sufficiently to truly ETA.  So I remove the size of this buffer from the calculation of progress.
 		SOFARRESERVED=`expr "$SOFAR" - 4096`
@@ -139,18 +143,29 @@ do
 			CLEARANCE=`seq 1 "$LASTPRINTLENGTH" | while read N; do echo -n " "; done`
 			# printf "\r%s" "$CLEARANCE" >&2
 		fi
-		printf "\r%s\r%s" "$CLEARANCE" "$STRINGTOPRINT" >&2
-		LASTPRINTLENGTH=`
-			printf "\r%s" "$STRINGTOPRINT" | striptermchars | countbytes
-		`
-		# printf "\r%s" "$CURSEMESSAGECOL$STATE [+$ADDED/$BLOCKSIZE] $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM" >&2
-		# +$ADDED/$BLOCKSIZE 
+
+		if [ "$TO_XTTITLE" ]
+		then
+			## There were problems with jsh's printf implementation of xttitle.
+			## Stdout was busy, stderr caused nasty flashes :P
+			# xttitle "$STRINGTOPRINT"
+			xttitle "$STRINGTOPRINT"
+		else
+			printf "\r%s\r%s" "$CLEARANCE" "$STRINGTOPRINT" >&2
+			LASTPRINTLENGTH=`
+				printf "\r%s" "$STRINGTOPRINT" | striptermchars | countbytes
+			`
+			# printf "\r%s" "$CURSEMESSAGECOL$STATE [+$ADDED/$BLOCKSIZE] $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM" >&2
+			# +$ADDED/$BLOCKSIZE 
+		fi
 
 		## CONSIDER: should really count length of printed string
 		##           (either printed length, or blank string including irrelevant colours)
 		##           so it can ^H (backspace) over them to cleanup, or print that many spaces to blank them on next run
 
 	# fi
+
+	SOFAR=`expr $SOFAR + $ADDED`
 
 	grep "^0+0" "$DDTMPFILE" >/dev/null && break
 

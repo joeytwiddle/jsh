@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Occasionally (in emergencies) I startx from within a screen.
 ## In these cases, I want X progs to "escape" the screen.
 export STY=

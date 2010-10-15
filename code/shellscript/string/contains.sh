@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Note now different syntax to endswith.
 
 if test "$1" = "" || test "$1" = "--help"

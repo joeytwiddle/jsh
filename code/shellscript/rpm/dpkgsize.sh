@@ -1,5 +1,7 @@
+#!/bin/sh
 PKGNAME="$1"
-VERSION=`apt-list -installed pkg "$PKGNAME" | head -n 1 | takecols 2`
+# VERSION=`apt-list -installed pkg "$PKGNAME" | head -n 1 | takecols 2`
+VERSION=`pkgversions "$PKGNAME" | striptermchars | grep "(installed)" | afterfirst '=' | beforefirst '[ 	]'`
 if [ "$VERSION" ]
 then
 	VERSION_EXPR=`echo "$VERSION" | sed 's/+/\\+/g'`

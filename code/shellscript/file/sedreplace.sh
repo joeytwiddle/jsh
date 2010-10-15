@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: jdeltmp jgettmp
 # this-script-does-not-depend-on-jsh: filename
 if [ "$*" = "" ] || [ "$1" = --help ]
@@ -52,9 +53,11 @@ else
 			jdeltmp "$TMPFILE"
 		else
 			## TODO: sometimes we move it sometimes we don't!
-			if test $DOBACKUP; then
-				cp "$FILE" "$FILE.b4sr" ||
-				if test ! "$?" = 0; then
+			if [ "$DOBACKUP" ]
+			then
+				cp "$FILE" "$FILE.b4sr"
+				if [ ! "$?" = 0 ]
+				then
 					echo "sedreplace: problem moving \"$FILE\" to \"$FILE.b4sr\"" >&2
 					echo "Aborting!"
 					exit 1

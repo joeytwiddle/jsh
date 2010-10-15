@@ -1,3 +1,4 @@
+#!/bin/sh
 ARGS="$@"
 if [ "$ARGS" = "" ]; then
   IMAGES="*.jpg *.jpeg *.bmp *.xpm *.gif *.pgm *.ppm *.pcx *.png"

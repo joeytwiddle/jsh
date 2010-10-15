@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: shellscripts will be able to call this
 ## this performs the common operation of showing help if "--help" is the first argument, and exiting.
 

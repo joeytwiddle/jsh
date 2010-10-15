@@ -1,4 +1,8 @@
+#!/bin/sh
 ## See also: joey/project/gentoo/chroot_into_gentoo.sh which has isActiveMountPoint().
+
+## TODO: jchroot should do something like:
+##       echo "From $SOURCE at `date`" > $TARGET/tmp/chrooted_from.last
 
 ## TODO: it is safer to do a bind mount than to do a mount from within the chroot.  Therefore we should always mount a partition if it is listed in the chroot's fstab, and any partitions which are not listed should have a mountpoint (e.g. /mnt/hdb2) created in the chroot, and then bind mounted, to avoid the need to mount them in the chroot.
 ## TODO: optionally bind-mount /proc and/or /dev
@@ -32,20 +36,16 @@ export HIGHLIGHTSTDERR=true
 fix_proc () {
 	verbosely chroot "$TARGET" mount -t proc /proc proc ||
 	verbosely mount --bind /proc "$TARGET"/proc
+	## TODO: We should test if $TARGET/proc is a folder, otherwise bind mount will fail.
 }
 
 undo_fix_proc () {
-	mount | grep "^/dev on $TARGET/dev .*bind" ||
+	mount | grep "^/proc on $TARGET/proc .*bind" ||
 	verbosely chroot "$TARGET" umount -lf /proc
 	verbosely umount "$TARGET"/proc
 }
 
 ## TODO: why is this declared twice?!
-
-fix_dev () {
-	mount | grep "^/dev on $TARGET/dev .*bind" ||
-	verbosely mount --bind /dev "$TARGET"/dev
-}
 
 fix_dev () {
 	mount | grep "^/dev on $TARGET/dev .*bind" ||
@@ -138,6 +138,7 @@ fix_mounts_many_binds () {
 }
 
 undo_fix_mounts_simple_bind () {
+	## Unfortunately, I think this methods leaves the subdirs under the target chroot empty!
 	verbosely umount "$TARGET"/mnt
 }
 
@@ -183,7 +184,8 @@ undo_fix_mounts_check_fstab () {
 # [ "$FIXMOUNTS" ] && fix_mounts_original_hack
 
 
-# fix_proc ; fix_dev ; fix_mounts_check_fstab
+fix_proc ## This was disabled, but we want it, provided it doesn't keep causing mess.
+# fix_dev ; fix_mounts_check_fstab
 ## Was fix_proc causing the "not enough t/ptys" error?
 fix_dev ; fix_mounts_check_fstab
 fix_parent
@@ -206,7 +208,8 @@ check_exec
 # xttitle "chroot: $*"
 XTTITLE_PRESTRING_BEFORE="$XTTITLE_PRESTRING"
 export XTTITLE_PRESTRING="$XTTITLE_PRESTRING""jchroot[$*]: "
-xttitle "..."
+
+xttitle "chroot-$TARGET $XTTITLE_PRESTRING_BEFORE" ## hardly needed; if xttitle is working, then jsh will probably apply it soon in the shell prompt
 
 jshinfo "Entering chroot $TARGET"
 # chroot "$@"
@@ -215,15 +218,10 @@ chroot "$@" env XTTITLE_PRESTRING="$XTTITLE_PRESTRING" bash
 # verbosely chroot "$@" env XTTITLE_PRESTRING="$XTTITLE_PRESTRING" bash
 jshinfo "Leaving chroot $TARGET"
 
-undo_fix_proc ; undo_fix_dev ; undo_fix_mounts_check_fstab
-undo_fix_parent
-
-xttitle "chroot-$TARGET $XTTITLE_PRESTRING_BEFORE" ## hardly needed; if xttitle is working, then jsh will probably apply it soon in the shell prompt
-
-
 ### Cleanup (should only do this if we are the last chroot to leave this TARGET)
 
-# undo_fix_proc
+undo_fix_proc ; undo_fix_dev ; undo_fix_mounts_check_fstab
+undo_fix_parent
 
 # [ "$FIXDEV" ] && undo_fix_dev_null_zero_hack
 # [ "$FIXMOUNTS" ] && undo_fix_mounts_original_hack

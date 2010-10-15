@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Intention: Given an artist and track name, find the lyrics
 ##   for the song by searching Google, and trying to find concensus
 ##   on the lyrics from a number of pages.

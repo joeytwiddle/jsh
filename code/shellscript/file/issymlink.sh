@@ -1,3 +1,4 @@
+#!/bin/sh
 RES=`find "$1" -type l`
 test "$RES" = "$1"
 exit

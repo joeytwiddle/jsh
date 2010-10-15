@@ -1,3 +1,11 @@
+## XOL had a cronjob like this:
+# */10 * * * * renice -20 -u utserver >/dev/null
+## How does that work?  Is myrenice redundant?!
+
+if [ "$1" = -n ] ## originally not expected
+then shift
+fi
+
 PRI="$1"
 shift
 

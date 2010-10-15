@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "x$1" = "x"; then
   echo "undel1 <filesystem-device> [ > <file_to_edit> ]"
   echo "provides recent inode deletions from filesystem."

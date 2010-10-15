@@ -1,3 +1,4 @@
+#!/bin/sh
 TMPA=`jgettmp splicewith`
 TMPB=`jgettmp splicewith`
 

@@ -1,7 +1,10 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: savelog file
 # jsh-ext-depends: gzip tar cmp
 # jsh-depends: del
 # this-script-does-not-depend-on-jsh: after before
+
+## TODO CONSIDER: Never overwrite the .0 backup?
 
 ## TODO: allow one environment variable which determines whether number comes after extension or before it
 ## TODO: allow another which determines whether a number, or a geekdate is used (and how fine it needs to be)
@@ -121,28 +124,41 @@ do
 		FINALFILE="$FILE.$N$EXT"
 	done
 
+	DOZIPCOM=""
 	## How will we compress it?
 	if [ ! "$ZIP" ]
-	then ## TODO: does this work if it's a dir, and is it logfriendly?
-		ZIPCOM="mv \"$FILE\" \"$FINALFILE\""
-		FINALFILE="$FILE"
+	then
+		## TODO: does this work if it's a dir, and is it logfriendly?
+		DOZIPCOM="move file"
+		function zipcom() {
+			mv "$FILE" "$FINALFILE"
+		}
 	elif [ -f "$FILE" ]
 	then
-		ZIPCOM="logfriendly_gzip \"$FINALFILE\" \"$FILE\""
+		DOZIPCOM="logfriendly_gzip"
+		function zipcom() {
+			logfriendly_gzip "$FINALFILE" "$FILE"
+		}
 	elif [ -d "$FILE" ]
 	then
-		ZIPCOM="tar cfz \"$FINALFILE\" \"$FILE\"" ## TODO: even without -keep, this will leave the $FILE (directory) intact =/
+		DOZIPCOM="gzipped-tarball"
+		function zipcom() {
+			tar cfz "$FINALFILE" "$FILE"
+		}
+		## BUG TODO: even without -keep, this will leave the $FILE (directory) intact =/
 	else
 		echo "$FILE is not a file or a directory"
 		exit 1
 	fi
 
 	## Do the compression, if needed:
-	if [ "$ZIPCOM" ]
+	if [ "$DOZIPCOM" ]
 	then
 		# echo "rotate: $ZIPCOM \"$FILE\""
-		echo "rotate: $ZIPCOM"
-		eval "$ZIPCOM" || exit 1
+		# echo "rotate: $ZIPCOM"
+		# echo "Rotating $FILE to $FINALFILE with `declare -f zipcom | tr '\n\t' '  '`"
+		echo "Rotating $FILE to $FINALFILE with $DOZIPCOM"
+		zipcom || exit 1
 	fi
 
 	## If we wanted to keep the original file, but gzip has removed it:

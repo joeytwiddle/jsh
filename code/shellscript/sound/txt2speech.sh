@@ -1,3 +1,4 @@
+#!/bin/sh
 ## WISHLIST: Rather than buffering by line, it'd be nice to read all available, then send to txt2speech, then read again...
 
 ## Don't wait for whole block, speak each line as it arrives:

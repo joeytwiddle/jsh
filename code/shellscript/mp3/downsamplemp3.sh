@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Defaults 48khz out
 mpg123 -w - "$1" |
 ## Defaults 48khz in

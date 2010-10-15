@@ -1,3 +1,4 @@
+#!/bin/sh
 wall << !
 Killing pppd
 !

@@ -1,4 +1,9 @@
-## Why did I write this, instead of using xargs?  Was there some problem being reached with xargs?
+#!/bin/sh
+xargs -d '\n' "$@"
+exit
+# Maybe also: xargs -0 "$@"
+
+## I wrote this solution before I learned about xargs.
 
 # jsh-depends: error
 
@@ -36,6 +41,7 @@ COMMAND=""
 
 for ARG
 do
+	## NOTE: There are currently no scripts in jsh using the --- argument.  I recommend it be dropped.
 	if [ "$ARG" = --- ]
 	then
 		shift
@@ -59,6 +65,7 @@ fi
 ## Failed fix for: ~/.xchat2.nogginBasher/xchatlogs/ % echolines * | grep -v "#" | withalldo jzcat
 
 # slashescape '`' |
+# sed 's+`+\\`+g' |
 
 while read LINE
 do

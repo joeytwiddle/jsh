@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1" = ""; then
 	echo "findclosestdiff <file> [<files_to_diff_against>]"
 	exit 1

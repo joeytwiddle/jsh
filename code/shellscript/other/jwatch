@@ -9,8 +9,9 @@ then
 	echo
 	echo "  -oneway: does not show dropped lines (red), only shows new lines (white)."
 	echo "  -quiet:  does not do initial verbose command check" ## CONSIDER: alternatively, -verbose could be a recommended sh alias, and quiet the default
-	echo "  -direct: executes the command inline rather than piping to a new sh"
 	echo "  -delay:  pauses for given period between calls to <command> (defaults to 5s)"
+	echo "  -direct: executes the command inline rather than piping to a new sh"
+	echo "           (bad - breaks args into words)"
 	echo
 	exit 1
 fi
@@ -23,12 +24,12 @@ if [ "$1" = -quiet ]
 then QUIET=true; shift
 fi
 
-DELAY=5
 if [ "$1" = -delay ]
 then
 	DELAY="$2"
 	shift; shift
 fi
+[ "$DELAY" ] || DELAY=5
 
 if [ "$1" = -direct ]
 then

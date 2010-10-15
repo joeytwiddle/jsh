@@ -1,3 +1,4 @@
+#!/bin/sh
 TMPFILE=`jgettmp "$1"`
 
 cat > $TMPFILE

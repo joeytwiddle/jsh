@@ -1,6 +1,12 @@
+#!/bin/sh
+JMAN_SPECIAL_COLORS=1
+
 ## Popup the man window first if running in X:
 if xisrunning
-then manpopup "$@"
+then
+	[ "$JMAN_SPECIAL_COLORS" ] && echo -e "*colorBDMode: on\n*colorULMode: on\n*colorBD: blue\n*colorUL: brown" | xrdb -merge
+	manpopup "$@"
+	[ "$JMAN_SPECIAL_COLORS" ] && ( sleep 5 ; echo -e "*colorBDMode: off\n*colorULMode: off" | xrdb -merge ) &
 fi
 
 ## If the command is a jsh script, show jsh documentation (may popup, but always asks questions in the terminal):

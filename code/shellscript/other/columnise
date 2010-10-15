@@ -18,6 +18,9 @@ then
 	UPTO="$2"
 	shift; shift
 fi
+## One way of achieving this is to split the data into two files, left and
+## right, (e.g. using takecols 1 2 3 and dropcols 1 2 3) then process the left
+## file only, then use paste -d ' ' to re-merge them.
 
 # column -t -s '	 ' "$@"
 # -x ?
@@ -25,7 +28,7 @@ fi
 
 column -t -s "$ON" "$@" |
 ## Turns column spacing of "  " into " " or $ON:
-# sed 's+  \([^ ]\)+ \1+g' ## remove one space from each sequence of spaces encountered
+sed 's+  \([^ ]\)+ \1+g' ## remove one space from each sequence of spaces encountered
 cat
 # if [ "$ON" ]
 # then sed "s+  \([^ ]\)+$ON\1+g"

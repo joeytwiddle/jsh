@@ -1,3 +1,4 @@
+#!/bin/sh
 # Lists most recent date of access to files of
 # each package on a Debian system.
 

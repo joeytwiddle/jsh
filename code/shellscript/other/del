@@ -6,6 +6,8 @@
 
 ## TODO: doesn't work well under chroot (cannot determine which partition the file is on).
 
+## BUG TODO: del really is rubbish, sometimes it can't move a file to trash or delete it because the disk is full!
+
 ## Deletes a file or files in a recoverable way (by moving them to a "RECLAIM" directory).
 ## If reclaimspace is setup (in cron), it will remove some of the "deleted" files when more disk space it needed.
 ## WARNING: This setup /can/ cause problems if you write large files to disk very quickly, and cron isn't called in time to reclaim the space necessary to finish writing the file.  Easily solved by deleting files from RECLAIM directory when you know you need space now/soon.  (Or you could call "reclaimspace 1000000" to ensure ~1Gig is reclaimed).
@@ -64,7 +66,7 @@ try_del () {
 		PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
 
 		# Create destination directory
-		while [ -f "$DESTDIR" ]
+		while [ -f "$DESTDIR" ] || [ -L "$DESTDIR" ]
 		do
 			echo "$DESTDIR is a file - using $DESTDIR.dir"
 			DESTDIR="$DESTDIR.dir"
@@ -92,7 +94,7 @@ try_del () {
 
 		FILENAME=`basename "$FILE"`
 
-		while [ -f "$DESTDIR/$FILENAME" ] || [ -d "$DESTDIR/$FILENAME" ]
+		while [ -f "$DESTDIR/$FILENAME" ] || [ -d "$DESTDIR/$FILENAME" ] || [ -L "$DESTDIR/$FILENAME" ]
 		# do FILENAME="$FILENAME"_
 		do FILENAME="$FILENAME"."`geekdate -fine`"."$$" ## even if geekdate fails, we will at least append with a '.'
 		done ## this could infloop if the previous check failed
@@ -156,6 +158,7 @@ do
 					verbosely mkdir "$TRASHDIR"
 					# chmod ugo+w "$TRASHDIR" ## Not secure.  Shared RECLAIM dirs should be created by root.
 					chmod go-rwx "$TRASHDIR" ## Secure.  Other users can create their own TRASHDIR!  TODO: could act differently if we are root.
+					# chmod go+rwx "$TRASHDIR" ## Insecure trashdir, but at least others can use it!
 					## Only finish if we succeeded in creating a writeable trashdir:
 					[ -w "$TRASHDIR" ] && try_del && break
 				# else echo "not writeable: `dirname \"$TRASHDIR\"`" >&2
@@ -180,6 +183,8 @@ do
 	fi
 
 done
+
+[ "$TRASHDIR" ] && dfh "$TRASHDIR" ## Your trashdir $TRASHDIR is size NNN meg.
 
 exit $ALLOK
 

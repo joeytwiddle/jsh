@@ -1,3 +1,4 @@
+#!/bin/sh
 ## From: http://lartc.org/lartc.html#AEN1072
 
 tc qdisc add dev eth1 root handle 1: htb default 30

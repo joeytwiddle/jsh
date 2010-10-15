@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$1" = -check ]
 then CHECK=true; shift
 else CHECK=

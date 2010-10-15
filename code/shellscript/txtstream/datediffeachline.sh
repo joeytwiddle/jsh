@@ -4,21 +4,37 @@
 
 LAST_LINE_SECONDS=
 
-"$@" | dateeachline -fine |
-sed 's+^\[\([^.]*\)\.[^]]*\]+\1+' | ## extract just seconds as first field
+export FORMAT="%s%N"
+
+if [ "$*" ]
+then "$@"
+else cat
+fi |
+
+# dateeachline -fine |
+# sed 's+^\[\([^.]*\)\.[^]]*\]+\1+' | ## extract just seconds as first field
 # sed 's+^\[\([^.]*\)\.\([^]]*\)\]+\1\2+' | ## seconds and nanos
 
-while read SECONDS LINE
+# while read SECONDS LINE
+while read LINE
 do
 
-	if [ ! "$LAST_LINE_SECONDS" ]
+	if [ "$LAST_LINE_SECONDS" ]
 	then
-		echo "...	$LINE"
+		SECONDS=`date +"$FORMAT"`
+		SECONDS_SINCE_LAST_LINE=$((50*(SECONDS-LAST_LINE_SECONDS)/100000000))
+		# echo "$SECONDS_SINCE_LAST_LINE	$LAST_LINE"
+		DOTS="" ; for I in `seq 1 $SECONDS_SINCE_LAST_LINE`; do DOTS="$DOTS""."; done
+		echo "$DOTS"
 	else
-		SECONDS_SINCE_LAST_LINE=$((SECONDS-LAST_LINE_SECONDS))
-		echo "$SECONDS_SINCE_LAST_LINE	$LINE"
+		echo "...	$LINE"
 	fi
 
-	LAST_LINE_SECONDS="$SECONDS"
+	echo -n "$LINE"
+
+	LAST_LINE_SECONDS=`date +"$FORMAT"`
+	LAST_LINE="$LINE"
 
 done
+
+echo "$DOTS?"

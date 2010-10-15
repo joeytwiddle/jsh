@@ -7,7 +7,7 @@ then
 NL="\\
 "
 	shift
-	links -source `googlesearch "$@"` |
+	memo -t 2d links -source `googlesearch "$@"` |
 	sed "s+><+>$NL<+g" |
 	grep "^<a href=http://" |
 	afterfirst "href=" |

@@ -1,3 +1,5 @@
+## This is a very bad use of 'x'.  But it is needed to compile some old C packages of mine.
+## I prefer to use 'x' as an alias for xterm&
 echo ""
 echo The compiler is your friend ----------------------------------------
 echo ""

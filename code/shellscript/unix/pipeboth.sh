@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: jdeltmp jgettmp
 
 ## Takes input on stdin (stdout), echos output on both stdout and stderr

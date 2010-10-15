@@ -1,4 +1,4 @@
-# jsh-depends: cursebold cursecyan cursegrey cursewhite cursenorm
+# jsh-depends: cursebold cursecyan cursegrey cursenorm
 # jshinfo "$@"
 # echo "`curseyellow;cursebold`[EXEC]`cursecyan` $PWD %`cursegrey` $*`cursenorm`" >&2
 # echo "`curseyellow`[EXEC]`cursecyan` %`cursegrey` $*`cursenorm`" >&2
@@ -9,7 +9,7 @@
 # tty -s || SHOW_IO=" (<stdin)"
 
 ## TODO: it would really be rather nice if verbosely surrounded the arguments which contain spaces with qoutes when it prints them.
-[ "$NOEXEC" ] || echo "`cursecyan;cursebold`[EXEC]`cursewhite` %`cursegrey` $*`cursenorm`$SHOW_IO" >&2
+[ "$NOEXEC" ] || echo "`cursecyan;cursebold`[EXEC]`cursenorm;cursebold` %`cursenorm` $* $SHOW_IO" >&2
 
 if [ "$HIGHLIGHTSTDERR" ]
 then highlightstderr "$@"
@@ -18,7 +18,7 @@ fi
 ERR="$?"
 
 ## This can be useful sometimes, when the statement is expected to succeed, but this is not always the case!
-# [ "$ERR" = 0 ] || [ "$DONT_REPORT_FAILURE" ] || echo "`curseyellow;cursebold`[`cursered;cursebold`EXEC`curseyellow;cursebold`]`cursewhite` !`cursered;cursebold` $* `curseyellow`had error `cursered;cursebold`$ERR`cursenorm` (`tty`)" >&2
+# [ "$ERR" = 0 ] || [ "$DONT_REPORT_FAILURE" ] || echo "`curseyellow;cursebold`[`cursered;cursebold`EXEC`curseyellow;cursebold`]`cursenorm;cursebold` !`cursered;cursebold` $* `curseyellow`had error `cursered;cursebold`$ERR`cursenorm` (`tty`)" >&2
 
 reply $ERR
 

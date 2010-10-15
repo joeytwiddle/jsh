@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "x$1" = "x"; then
   echo "check4duplicates [remove] <other-dir>"
   exit 1

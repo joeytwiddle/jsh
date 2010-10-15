@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: time
 # this-script-does-not-depend-on-jsh: pid
 ## pcpu and pmem are used by wotgobblecpu and wotgobblemem, but are variable, so are not useful for watching!

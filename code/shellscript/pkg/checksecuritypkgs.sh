@@ -3,6 +3,9 @@
 ## For Debian/apt-based-systems, lists those packages you have installed for which a newer version is available in the security repository.
 ## I.e. it suggests to you what security upgrades you should make.
 
+## TODO: apt-list does not appeat to be memoing correctly!
+## Also, this earlier version looked more efficient.
+
 # ## List all packages from Debian's security archive site:
 # apt-list from security.debian.org |
 # takecols 1 |
@@ -29,13 +32,23 @@ while read PKG CURRENT_VERSION CURRENT_DISTRO CURRENT_SOURCE
 do
 
 	## Does it have a security version at same stability, but not same version?
-	if \
-		apt-list from security.debian.org |
-		grep "^\<$PKG\> " | grep "\<$CURRENT_DISTRO\>" | grep -v "\<$CURRENT_VERSION\>" > /dev/null
+	NON_SELF_SECURITY_VERSIONS_OF_PKG="`
+		# IKNOWIDONTHAVEATTY=1 memo apt-list from security.debian.org |
+		IKNOWIDONTHAVEATTY=1 memo apt-list from security.debian.org |
+		# grep "\<security.debian.org\>" |
+		# IKNOWIDONTHAVEATTY=1 memo apt-list pkg "$PKG" |
+		grep "^\<$PKG\> " |
+		grep "\<$CURRENT_DISTRO\>" |
+		grep -v "\<$CURRENT_VERSION\>" |
+		grep . # > /dev/null
+	`"
+
+	if [ "$NON_SELF_SECURITY_VERSIONS_OF_PKG" ]
 	then
 		echo
-		echo "$PKG `cursered;cursebold`needs updating.`cursenorm`"
-		pkgversions "$PKG"
+		echo "$PKG ($CURRENT_VERSION/$CURRENT_DISTRO[$CURRENT_SOURCE]) `cursered;cursebold`needs updating.`cursenorm`"
+		# pkgversions "$PKG"
+		echo "$NON_SELF_SECURITY_VERSIONS_OF_PKG"
 		# echo
 	else
 		# echo "$PKG `cursegreen`is up-to-date (or later version than security version)`cursenorm`"

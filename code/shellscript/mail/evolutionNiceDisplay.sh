@@ -1,3 +1,4 @@
+#!/bin/sh
 ### Basically sets your evolution config files to present:
 ### Fields: Sender Subject Date Size
 ### Descending by Date, or Ascending for Lists (if filename contains "_Lists_"!)

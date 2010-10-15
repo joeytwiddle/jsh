@@ -1,8 +1,10 @@
-SUPPORTING_FILE_DIRS=/mnt/space/stuff/software/games/unreal/server/
+# SUPPORTING_FILE_DIRS=/mnt/space/stuff/software/games/unreal/server/
+SUPPORTING_FILE_DIRS=/stuff/ut/files/
 
 [ "$SKIP_DEPENDENCIES" ] || CHECK_SUB_DEPENDENCIES=true
 
-IGNORE_PKGS="\(MyLevel\|Color\|BotPack\|GenFX\|GenFluid\|LavaFX\)" ## anything in ut_win_pure
+DEFAULT_PACKAGES="Botmca9.umx\|Botpck10.umx\|Cannon.umx\|Colossus.umx\|Course.umx\|Credits.umx\|Ending.umx\|Enigma.umx\|firebr.umx\|Foregone.umx\|Godown.umx\|Lock.umx\|Mech8.umx\|Mission.umx\|Nether.umx\|Organic.umx\|Phantom.umx\|Razor-ub.umx\|Run.umx\|SaveMe.umx\|Savemeg.umx\|Seeker.umx\|Seeker2.umx\|Skyward.umx\|Strider.umx\|Suprfist.umx\|UnWorld2.umx\|utmenu23.umx\|Uttitle.umx\|Wheels.umx\|Activates.uax\|Addon1.uax\|AmbAncient.uax\|AmbCity.uax\|AmbModern.uax\|AmbOutside.uax\|Announcer.uax\|BossVoice.uax\|DDay.uax\|DMatch.uax\|DoorsAnc.uax\|DoorsMod.uax\|Extro.uax\|Female1Voice.uax\|Female2Voice.uax\|FemaleSounds.uax\|LadderSounds.uax\|Male1Voice.uax\|Male2Voice.uax\|MaleSounds.uax\|noxxsnd.uax\|openingwave.uax\|Pan1.uax\|rain.uax\|ResurrectAux.uax\|TutVoiceAS.uax\|TutVoiceCTF.uax\|TutVoiceDM.uax\|TutVoiceDOM.uax\|VRikers.uax\|BotPack.u\|Core.u\|Editor.u\|Engine.u\|Fire.u\|IpDrv.u\|IpServer.u\|UBrowser.u\|UMenu.u\|UnrealI.u\|UnrealShare.u\|UTBrowser.u\|UTMenu.u\|UTServerAdmin.u\|UWeb.u\|UWindow.u\|relics.u\|multimesh.u\|de.u"
+IGNORE_PKGS="\($DEFAULT_PACKAGES\|MyLevel\|Color\|BotPack\|GenFX\|GenFluid\|LavaFX\)" ## anything in ut_win_pure
 ## See ut_finddeps for a better version
 
 [ "$DO_LINK" ] || DO_LINK="verbosely ln -s"
@@ -78,7 +80,8 @@ do
 	PACKAGE_NAME="`echo "$UTFILE" | afterlast / | beforelast '\.'`"
 
 	# DEPSTODO=`verbosely memo -t "1 week" ut_finddeps "$UTFILE"`
-	DEPSTODO=`memo -t "1 week" ut_finddeps "$UTFILE"`
+	# DEPSTODO=`memo -t "1 week" ut_finddeps "$UTFILE"`
+	DEPSTODO=`utdep.pl "$UTFILE" | grep -iv "^$IGNORE_PKGS$"`
 	# DEPSTODO="$PACKAGE_NAME"
 
 	while [ "$DEPSTODO" ]
@@ -100,9 +103,14 @@ do
 		# verbosely memo find $SUPPORTING_FILE_DIRS -iname "$DEP.u*" |
 		# while read FILE
 
+		# jshinfo "Seeking dependency $DEP for $PACKAGE_NAME"
+
+		FOUND=0
+
 		# for FILE in ` verbosely memo find $SUPPORTING_FILE_DIRS -iname "$DEP.u*" `
-		for FILE in ` memo find $SUPPORTING_FILE_DIRS -iname "$DEP.u*" `
+		for FILE in ` memo find $SUPPORTING_FILE_DIRS -iname "$DEP" `
 		do
+			FOUND=$((FOUND+1))
 			link_ut_file "$FILE"
 			if [ "$CHECK_SUB_DEPENDENCIES" ]
 			then
@@ -114,7 +122,8 @@ do
 					: # jshinfo "Skipping scan of audio/texture file $FILE"
 				else
 					# for NEWDEP in ` verbosely memo -t "1 week" ut_finddeps "$FILE" ` # | pipeboth 
-					for NEWDEP in ` memo -t "1 week" ut_finddeps "$FILE" ` # | pipeboth 
+					# for NEWDEP in ` memo -t "1 week" ut_finddeps "$FILE" ` # | pipeboth 
+					for NEWDEP in ` utdep.pl "$FILE" | grep -iv "^$IGNORE_PKGS$"` # | pipeboth 
 					do
 						# jshinfo "Considering: $NEWDEP (required by $DEP)"
 						# echo "$DEPSDONE$NL$DEPSTODO" | grep "^$NEWDEP\$" >/dev/null || DEPSTODO="$DEPSTODO""$NL""$NEWDEP"
@@ -124,6 +133,10 @@ do
 				fi
 			fi
 		done
+
+		if [ "$FOUND" = 0 ]
+		then jshwarn "Failed to find dependency $DEP for $PACKAGE_NAME"
+		fi
 
 	done
 

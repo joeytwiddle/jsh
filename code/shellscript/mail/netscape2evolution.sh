@@ -1,3 +1,4 @@
+#!/bin/sh
 makefolder () { # Takes absolute nsmail path to file, name, and path to subdir
 
 	echo "# Doing $1"

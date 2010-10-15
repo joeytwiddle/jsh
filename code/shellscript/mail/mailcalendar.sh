@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: doesn't recognise:
 ## 1:00pm Friday Feb. 15th, 2002. Room 4.01 Merchant Venturers Building
 ## (Wed 9th / 8pm / =A33/2

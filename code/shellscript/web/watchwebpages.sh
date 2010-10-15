@@ -1,3 +1,4 @@
+#!/bin/sh
 ## watchwebpages could watch whole website, but it would have to use -mirror or something (really only html wanted)
 
 ## TODO: If we perform two immediately successive queries, and compare the result, then the script can make a quick estimate as to the default # changes chars / words caused by eg. advert banners and other non-static elements of the page.

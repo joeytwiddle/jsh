@@ -1,3 +1,4 @@
+#!/bin/sh
 . jgettmpdir -top
 MEMODIR=$TOPTMP/memo
 

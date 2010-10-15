@@ -1,3 +1,4 @@
+#!/bin/sh
 # Key bindings for zsh
 
 # Note already reserved:

@@ -1,3 +1,4 @@
+#!/bin/sh
 # Purges Kmail cache and links to ns folders
 
 echo "# Symlinks"

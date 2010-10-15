@@ -1,3 +1,4 @@
+#!/bin/sh
 # cursebold
 setterm -reverse
 # tput -rev

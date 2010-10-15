@@ -1,3 +1,4 @@
+#!/bin/sh
 if [ "$1" = -r ]
 then
 	shift

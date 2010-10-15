@@ -1,3 +1,4 @@
+#!/bin/sh
 INFG=""
 if test "$1" = -fg
 then INFG=true; shift

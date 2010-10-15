@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ## useless_unless_sourced
 ls -lartFh --color "$@"
 

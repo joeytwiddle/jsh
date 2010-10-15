@@ -1,3 +1,4 @@
+#!/bin/sh
 # #!/bin/bash -x
 ## TODO: Output should be clumped together, not one request per line
 ##       Could we use HTML upload instead of post/get?

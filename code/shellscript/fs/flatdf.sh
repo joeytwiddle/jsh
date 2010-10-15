@@ -1,3 +1,4 @@
+#!/bin/sh
 ## jsh-help: Reformats df output to deal with long lines which can throw it off
 ## jsh-help: Maybe we should be using mtab instead.
 

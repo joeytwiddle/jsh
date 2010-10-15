@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Converts: .../hello/../goodbye/..../end (win9x+)
 ##     into: ./../..//hello/..//goodbye/../../..//end (unix)
 echo "$*" |

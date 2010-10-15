@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1" = ""; then
 	echo 'getppid $$'
 	echo '	gets parent id of current shell'

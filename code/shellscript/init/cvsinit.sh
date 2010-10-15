@@ -1,3 +1,4 @@
+#!/bin/sh
 export PRCS_REPOSITORY=/stuff/PRCS
 
 export CVSROOT=/stuff/cvsroot

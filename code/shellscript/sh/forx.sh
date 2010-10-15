@@ -1,3 +1,4 @@
+#!/bin/sh
 LIST=""
 while test ! "x$2" = "x"; do
 	LIST=$LIST" ""$1"

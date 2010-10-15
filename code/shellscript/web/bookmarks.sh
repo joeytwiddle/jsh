@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-depends: startswith
 ## Returns you a long list of URLs from all your browsers,
 ## in the format: <url> <description>
@@ -8,7 +9,8 @@ function isurl () {
 		startswith "$URL" "http://" ||
 		startswith "$URL" "https://" ||
 		startswith "$URL" "ftp://" ||
-		startswith "$URL" "file://"
+		startswith "$URL" "file://" ||
+		startswith "$URL" "javascript://"
 }
 
 
@@ -39,6 +41,7 @@ KDEBOOKMARKS="$HOME/.kde/share/apps/konqueror/bookmarks.xml"
 if [ -f "$KDEBOOKMARKS" ]
 then
 
+	jshinfo "Reading $KDEBOOKMARKS ..."
 	cat "$KDEBOOKMARKS" |
 	grep  "^[ 	]*<\(folder\|bookmark\|title\)[ >]" |
 	sed 's+^[ 	]*<folder.*+FOLDER+' |
@@ -73,13 +76,11 @@ fi
 
 # MOZBOOKMARKS="$HOME/.mozilla/*/*/bookmarks.html"
 # $HOME/.firebird
-find $HOME/.mozilla $HOME/.firefox $HOME/.phoenix -name bookmarks.html |
+find $HOME/.mozilla/ $HOME/.phoenix/ $HOME/.firefox/ $HOME/.icedove/ -name bookmarks.html |
 while read MOZBOOKMARKS
 do
-	if echo "$MOZBOOKMARKS" | grep "\.mozilla" >/dev/null
-	then SOURCE=Mozilla
-	else SOURCE=Firebird
-	fi
+	jshinfo "Reading $MOZBOOKMARKS ..."
+	SOURCE="`echo "$MOZBOOKMARKS" | afterfirst "\." | beforefirst "/"`"
 	cat "$MOZBOOKMARKS" |
 	grep "HREF=" |
 	sed 's+.*HREF="\([^"]*\)"[^>]*>\([^<]*\)<.*+\1 ['"$SOURCE"'] \2+'
@@ -92,6 +93,7 @@ done
 find $HOME/.galeon -name bookmarks.xbel |
 while read GALBOOKMARKS
 do
+	jshinfo "Reading $GALBOOKMARKS ..."
 	cat "$GALBOOKMARKS" |
 	grep "\(<title>\|<bookmark \)" |
 	sed 's+.*<title>\(.*\)</title>+\1+' |
@@ -122,33 +124,41 @@ done
 
 ### Opera:
 
+## @DISABLED was broken aka stalling
 OPERAFILE="$HOME"/.opera/opera6.adr
 if [ -f "$OPERAFILE" ]
 then
 
 	INFOLDER="(none)"
 
+	jshinfo "Reading $OPERAFILE ..."
 	cat "$OPERAFILE" |
+	(
 	while read LINE
 	do
 
+		jshinfo "LINE=$LINE"
+
 		if [ "$LINE" = "#FOLDER" ]
 		then
-			read IDLINE
-			read LINE
+			read IDLINE || exit
+			read LINE || exit
 			INFOLDER=`echo "$LINE" | after "NAME="`
 
 		elif [ "$LINE" = "#URL" ]
 		then
-			read IDLINE
-			read LINE
+			read IDLINE || exit
+			read LINE || exit
 			NAME=`echo "$LINE" | after "NAME="`
-			read LINE
+			read LINE || exit
 			URL=`echo "$LINE" | after "URL="`
 			echo "$URL [Opera/$INFOLDER] $NAME"
 
 		fi
 	
 	done
+	)
 
 fi
+
+

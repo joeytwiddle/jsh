@@ -1,7 +1,8 @@
+#!/bin/sh
 if [ "$1" = --help ]
 then
 
-	echo "df [ <path>s ]"
+	echo "dfh [ <path>s.. ]"
 	exit 1
 
 fi

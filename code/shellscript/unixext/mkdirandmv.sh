@@ -1,3 +1,6 @@
+#!/bin/sh
+## BUG TODO: If second arg is a non-existent directory, it moves the file to that name rather than creating a folder and moving the file into it!
+
 TARGET=`lastarg "$@"`
 
 ## TARGET will be a file if src is just 1 file.

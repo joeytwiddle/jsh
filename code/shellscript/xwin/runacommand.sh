@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Provides functionality like F2 in KDE and Gnome.
 ## I use "Mod1 F2 :ExecCommand runacommand" in my ~/.fluxbox/keys
 

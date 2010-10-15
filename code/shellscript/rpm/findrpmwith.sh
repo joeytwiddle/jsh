@@ -1,3 +1,4 @@
+#!/bin/sh
 rpm -qa |
 while read X
 do

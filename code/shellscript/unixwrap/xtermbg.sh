@@ -1,1 +1,2 @@
-xterm "$@" &
+#!/bin/sh
+"$JPATH"/tools/xterm "$@" &

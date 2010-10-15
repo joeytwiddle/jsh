@@ -1,3 +1,4 @@
+#!/bin/sh
 # Displays what needs to be done to remove all symlinks
 # in current / specified directory.
 

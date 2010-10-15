@@ -1,3 +1,4 @@
+#!/bin/sh
 for x in "$@"; do
 	if isabsolutepath $x; then
 		SRCDIR=`dirname $x`

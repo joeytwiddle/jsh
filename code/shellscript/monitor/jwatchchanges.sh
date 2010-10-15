@@ -1,3 +1,7 @@
+#!/bin/sh
+## TODO: If the output is too long for the screen, and $LINES exists, we should
+## trim with: `| head -n "$((LINES-5))"` and also inform the user.
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 cat << !
@@ -52,13 +56,17 @@ OUTPUTLAST=`jgettmp jwatchchanges last_"$COM"`
 OUTPUTNOW=`jgettmp jwatchchanges now_"$COM"`
 
 ## CONSIDER: Should I use sh -c like watch(1)?
-eval "$COM" | $STRIP | $RESONREAD > $OUTPUTLAST
+eval "$COM" | $STRIP | eval "$RESONREAD" > $OUTPUTLAST
 
 while true
 do
 
 	## Get command's output:
-	eval "$COM" | $STRIP | $RESONREAD > $OUTPUTNOW
+	# eval "$COM" | $STRIP | $RESONREAD > $OUTPUTNOW
+	## Doing it this way means if $COM is a function, then vars set inside it will remain set for the next iteration.
+	## Actually it's more fiddly than that.  They were being set before, but only the first time, not updated after!
+	eval "$COM" > $OUTPUTNOW
+	cat $OUTPUTNOW | $STRIP | eval "$RESONREAD" | dog $OUTPUTNOW
 
 	## Find changes using diff and add colour to any new lines in the diff:
 	diff -U0 $OUTPUTLAST $OUTPUTNOW |
@@ -71,7 +79,7 @@ do
 	## Pipe nowhere or to a file instead if you want to debug/check that patch is working.
 
 	## Reduce flicker by putting clear-screen and header info right in the file:
-	cat $OUTPUTLAST | $RESONWRITE | (
+	cat $OUTPUTLAST | eval "$RESONWRITE" | (
 		clear
 		echo "Every $DELAY: $COM     `date`"
 		echo

@@ -1,22 +1,49 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: apt-cache dpkg find dirname last sort from file time realpath
 # jsh-ext-depends: sed md5sum newer
 # jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath debug
 # this-script-does-not-depend-on-jsh: arguments filename arguments todo mytest md5sum
 
+## TODO: getmemofile should be refactored out of memo and rememo, so that apps
+##       can get it if needed.
+##       For example, that app can be much faster directly grepping the file,
+##       rather than asking memo for the file contents, and grepping the stream
+##       In this respect, the caller might want memo to generate the file if
+##       none exists.
+
+## TODO: By default jsh should import these scripts as functions on startup.
+##       But they should still work properly even if they were not sourced.
+
 ## TODO: an option to cache until condition expires: that date of memofile == date of specified file (in other words newer || older)
 
-export DEBUG_MEMO=true ## until i work out what memos are filling up /tmp (maybe 
+export DEBUG_MEMO=true ## TODO DEV TOREMOVE: until i work out what memos are filling up /tmp
 
 ## Note: if you see a script which does "cd /" and claims to do it for memoing, this is because it wants all its memo's to be "working-directory independent"
 ##       this might be solved in future by TODO: an option (or envvar) to specify that the working-directory is irrelevant to memo's output, and should be ignored in the hash
+##       Surely DONE by passing -nd or setting MEMO_IGNORE_DIR
 
 ## TODO: I don't think there is an option (eg. exported env var) to force execution of the command directly without creating the cachefile, but there should be.
 
 ## Consider: memo is currently responds like dog, outputting nothing until the process has finished running.  It might be desirable to change this in the future, so that it outputs while it receives input (maybe buffered at each line), in which case an option should be made (and used elsewhere) now to force the dog-like behaviour.  And btw, should dog or pipebackto have this behaviour changed?
 
+### BUG: $USER should be the owner of $MEMODIR, and everything below it.  The MEMODIR of barry should never be exported to and used by root (can happen sometimes through su).
 ## DONE: added efficiency here if . jgettmpdir -top is run before using memo
-[ -w "$TOPTMP" ] || . jgettmpdir -top
-MEMODIR=$TOPTMP/memo
+# [ -w "$TOPTMP" ] || . jgettmpdir -top
+# MEMODIR=$TOPTMP/memo
+for MEMODIR in "$MEMODIR" "$HOME/.memos" "/tmp/memodir-`whoami`" ""
+do
+	[ "$MEMODIR" ] || continue
+	if [ -w "$MEMODIR" ]
+	then break
+	fi
+	mkdir -p "$MEMODIR" 2>/dev/null && break
+done
+
+if [ ! "$MEMODIR" ] || [ ! -w "$MEMODIR" ]
+then
+	jshwarn "Can not performing memoing - No writeable MEMODIR!  ($MEMODIR)"
+	exit 2
+fi
 
 ## TODO:
 #  - Allow user to specify their own hash (essentially making memo a hashtable)
@@ -79,7 +106,7 @@ Options:
   -f <filename>     : force refresh if file has changed since last caching
   -d <dirname>      : force refresh if any file in given directory has changed
   -c <test_command> : force refresh if command returns true
-                      (the command is evaluated with the memo file in $MEMOFILE)
+                      (the command is passed \$MEMOFILE as its argument)
 
   If the command+args and directory alone do not distinguish two distinct memos,
   you can export further details about the memo's environment in MEMOEXTRA.
@@ -89,7 +116,7 @@ Examples:
   memo -f /var/lib/dpkg/status dpkg -l
   memo -d /var/lib/apt apt-cache dump
   memo -t '1 day' eval "du -sk /* | sort -n -k 1"   (using eval the | is memoed)
-  memo -c <check_com>  (eh what's this for?)
+  memo -c <check_com>  (eh what's this for?)     NOTE: rememo='memo -c true'
 
 Todo:
 
@@ -152,22 +179,20 @@ done
 
 
 
+### {{{ Generate MEMOFILE
 ### Work out the name for the cachefile:
-
 if [ "$MEMO_IGNORE_DIR" ] || [ "$PWD" = / ] ## for speed or wider memoing (if cwd is irrelevant to result)
 then REALPWD=/
 else REALPWD=`realpath "$PWD"`
 fi
-# CKSUM=`echo "$REALPWD/$*" | /usr/bin/md5sum`
-CKSUM=`echo "[$MEMOEXTRA]$REALPWD/$*" | /usr/bin/cksum -` ## seems minutely faster to me
+CKSUM=`echo "[$MEMOEXTRA]$REALPWD/$*" | /usr/bin/md5sum -` ## seems minutely faster to me
 if [ "$DEBUG_MEMO" ]
-then NICECOM=`echo "[$MEMOEXTRA]$CKSUM..$*..$REALPWD" | tr " \n/" "__+" | sed 's+\(................................................................................\).*+\1+'`
-else NICECOM="$CKSUM"
+then CKSUM="` echo -n "$MEMOEXTRA[$*][$REALPWD" | tr " \n/" "_|#" | sed 's+^\(.\{80\}\).*+\1...+' `].$CKSUM"
 fi
-MEMOFILE="$MEMODIR/$NICECOM.memo"
+MEMOFILE="$MEMODIR/$CKSUM.memo"
 export CHECKDIR CHECKFILE REMEMOWHEN MEMOFILE AGEFILE
-
 # [ "$DEBUG" ] && debug "memo:     `cursemagenta`checking: $REMEMOWHEN (MEMOFILE=$MEMOFILE)`cursenorm`"
+### }}}
 
 
 

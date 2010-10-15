@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends-ignore: start-stop-daemon
 # this-script-does-not-depend-on-jsh: pid jdeltmp jgettmp
 ## TODO:

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Should add detection of whether info file == man page ;p
 
 if [ "$1" = "" ] || [ "$1" = "--help" ]
@@ -56,18 +57,25 @@ then
 				barline
 
 				cat "$LINKTOCOM" |
-
-				## Pretty print it
-				## (I'd like to use a dedicated program with syntax highlighting)
-				## (Nah actually I quite like this implementation, it matches my coding policies!)
-				highlight -bold "^[ 	]*\#\#.*" yellow | ## BRIGHT double-hashed comment, probable documentation
-				# highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
-				highlight "^[ 	]*\# .*" magenta | ## DARK single-hashed comment, probably commented out code
-				# highlight "	" blue | ## tabs
-				# sed 's+	+|--+g' | ## tabs
-				# verbosely highlight "^\\(TODO\|DONE\|WARN\|BUG\\).*" red |
-				verbosely highlight -bold "\\(TODO\|DONE\|WARN\|BUG\\).*" red |
-				cat
+				### Pretty print shellscript documentation (add colours)
+				(
+					## (I'd like to use a dedicated program with syntax highlighting)
+					## (Nah actually I quite like this implementation, it matches my coding policies!)
+					## Variables:
+					highlight -bold "[$]*[A-Z0-9_][A-Z0-9_]*" cyan |
+					## Comments:
+					highlight -bold "^[ 	]*\#\#.*" yellow | ## BRIGHT double-hashed comment, probable documentation
+					## Special comments:
+					# highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
+					## Normal comments (single #), coloured dark.  Possibly code which was commented out.  Is hash followed by space?
+					highlight "^[ 	]*\# .*" magenta |
+					# highlight "	" blue | ## tabs
+					# sed 's+	+|--+g' | ## tabs
+					## Special comments:
+					# highlight "^\\(TODO\|DONE\|WARN\|BUG\\).*" red |
+					highlight -bold "\\(TODO\|DONE\|WARN\|BUG\\).*" red |
+					cat
+				)
 
 				echo
 				barline
@@ -115,14 +123,17 @@ else
 
 			y|Y)
 
-				TABCHAR=`echo -e "\011"`
-				cd $JPATH/tools/
-				higrep "\<$1\>" -C2 * |
-				more
-				# BEGIN=`printf "\r"`
-				# UP=`printf "\005"`
+				# cd $JPATH/tools/
 				# higrep "\<$1\>" -C2 * |
-				# sed "s+^+$BEGIN$UP+"
+				# more
+				# # BEGIN=`printf "\r"`
+				# # UP=`printf "\005"`
+				# # higrep "\<$1\>" -C2 * |
+				# # sed "s+^+$BEGIN$UP+"
+				## I wanted to add the ability to search more than just the local jsh tools.
+				## But actually there are shellscripts scattered all over my other-language projects.  We would need a sophisticated index to find them all in order to do a full search.
+				SCRIPT_PATH_SEARCH="$JPATH/tools/ $JPATH/code/other/cgi/ $JPATH/code/other/web/ /mnt/hwibot/usr/lib/cgi-bin/"
+				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 | sed -u "s+^$JPATH/++" | highlight "\<$1\>" | highlight -bold "^[^ :-]*" cyan | more
 
 				echo
 				echo -n "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "

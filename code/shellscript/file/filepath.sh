@@ -1,3 +1,4 @@
+#!/bin/sh
 # local path to file/dir
 
 FILE="$@"

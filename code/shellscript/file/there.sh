@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$JM_UNAME" = "linux"; then
   test -e "$1"
 else

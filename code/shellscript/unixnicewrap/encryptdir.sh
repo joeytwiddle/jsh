@@ -1,3 +1,4 @@
+#!/bin/sh
 ## If you do not yet have a public/private key pair, run: gpg --gen-key
 
 NOTAR=
@@ -10,7 +11,7 @@ fi
 DIR="$1"
 FILE="$DIR.tgz.encrypted"
 
-test -f "$FILE" &&
+test -f "$FILE" && [ ! "$NOBACKUP" ] &&
 mv "$FILE" "$FILE.bak"
 
 touch "$FILE"

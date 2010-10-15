@@ -1,3 +1,4 @@
+#!/bin/sh
 ## TODO: disclaimer
 LASTFILE=/tmp/$1.spy
 if test ! -f "$LASTFILE"

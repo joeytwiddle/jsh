@@ -1,3 +1,4 @@
+#!/bin/sh
 DIR_A="$1"
 DIR_B="$2"
 shift

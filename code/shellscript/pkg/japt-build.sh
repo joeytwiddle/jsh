@@ -1,8 +1,8 @@
-[ "$BUILDDIR" ] || BUILDDIR=/mnt/space/apt-build-tmp
-[ -w "$BUILDDIR" ] || BUILDDIR=/tmp
+[ "$BUILDDIR" ] || BUILDDIR=/var/cache/japt-build/build
+[ -w "$BUILDDIR" ] || BUILDDIR=/tmp/japt-build/build
 
-CPU=k6
-ARCH=k6
+CPU=`uname -m` ## Some examples: k6, i686
+ARCH=$CPU
 DEBIANARCH=i386
 GNUSYSTYPE=i686-linux
 # GNUSYSTYPE=i386-pc-linux-gnu
@@ -16,9 +16,10 @@ GNUSYSTYPE=i686-linux
 CFLAGS="-O3 -mcpu=$CPU -march=$ARCH -funroll-loops -pipe"
 
 ## The wrapper is what ensures we use optimisation during compilation:
-# export WRAP_GCC=true
+export WRAP_GCC=true
 ## Or the alternative (if you have pentium-builder installed):
-export DEBIAN_BUILDARCH=i686
+# export DEBIAN_BUILDARCH=i686
+export DEBIAN_BUILDARCH=pentium
 
 ## A good package to test it on is sed.  (Although if you have a genuine 386, it /might/ break it and if sed is needed to fix things you might get annoyed!)
 ## I don't know why Debian doesn't recognise I have a k7, and why debuild won't just build and install for that architecture when asked to.
@@ -61,21 +62,28 @@ fi
 for PACKAGE
 do
 
-	WORKDIR="$BUILDDIR"/japt-build-$PACKAGE
+	WORKDIR="$BUILDDIR"/$PACKAGE
 	mkdir -p "$WORKDIR"
+	echo "Working in $WORKDIR"
 	cd "$WORKDIR"
 
-	section "Getting build dependencies"
-	apt-get build-dep "$PACKAGE" || exit 2
+	if [ ! "$SKIP_SETUP" ]
+	then
 
-	section "Getting source"
-	apt-get source "$PACKAGE" || exit 3
+		section "Getting build dependencies"
+		apt-get build-dep "$PACKAGE" || exit 2
+
+		section "Getting source"
+		apt-get source "$PACKAGE" || exit 3
+
+	fi
 
 	cd ./*-*/ || exit 4
 
 	section "Building (with gcc wrapper)"
 
 	## Failed attempts:
+	## I expect this gets cleared/reset by the builder.
 	# export CFLAGS
 	# eval `cat /etc/apt/apt-build.conf | tr -d ' '`
 	# export APT_BUILD_WRAPPER=1 ## well, this one works if you have the apt-build wrapper diverting gcc!
@@ -102,7 +110,7 @@ $REALGCC "\$@" $CFLAGS
 		export PATH="$WORKDIR/bin:$PATH"
 	fi
 	## Now do the build using our $PATH:
-	debuild --preserve-env --preserve-envvar PATH -b -a$DEBIANARCH -t$GNUSYSTYPE -us -uc || exit 5
+	jtime nice -n 8 debuild --preserve-env --preserve-envvar PATH -b -a$DEBIANARCH -t$GNUSYSTYPE -us -uc || exit 5
 
 	section "Installing"
 

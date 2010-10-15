@@ -1,3 +1,5 @@
+OLD_PWD="$PWD"
+
 for FILE
 do
 
@@ -10,7 +12,8 @@ do
 	cp -a "$REALFILE" "$PWD"/
 	FILE="$PWD"/"$FILENAME"
 
-	/home/oddjob2/ut_server/ut-server/ucc compress "$FILE"
+	# /stuff/ut/servers/ut_server/ut-server/ucc compress "$FILE"
+	wine /stuff/ut/dev/System/ucc.exe compress "$FILE"
 	if [ -f "$COMPRESSED_FILE" ]
 	then
 		OLDSIZE=`filesize "$FILE"`
@@ -18,5 +21,7 @@ do
 		PERCENT=`expr "$NEWSIZE" '*' 100 / "$OLDSIZE"`
 		echo "Compressed to $PERCENT%"
 	fi
+
+	cd "$OLD_PWD"
 
 done

@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1" = "-h" || test "$1" = "--help"; then
 	echo "chinesedictionary [-k|-c] [g|b]"
 	echo "  where g means use GB dictionary,"

@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "x$SHRINKTO" = "x"; then
   SHRINKTO="10"
 fi

@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Streams standard in to standard out, until given awk regexp is reached (inclusive).
 
 ## Consider: Renaming it grepto, or maybe awkto now!

@@ -1,3 +1,7 @@
+#!/bin/sh
+## Decrypts a folder, starts a shell, then re-encrypts the folder.
+## Beware overlap when running two sessions.  We could automatically start the sbash session in a screen.  Later calls could join the screen, so it is the only one left to close.
+
 # set -e
 # set -x
 
@@ -55,6 +59,7 @@ fi
 
 cd "$PRIVFILEDIR"
 jshinfo "[sbash] Invoking shell in $PRIVFILEDIR/$PRIVFILEBASE"
+export PS1='[SBASH!]'" $PS1" ## TODO: does not work
 cd "$PRIVFILEBASE" &&
 bash ||
 exit 4

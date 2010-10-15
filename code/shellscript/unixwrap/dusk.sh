@@ -1,9 +1,10 @@
+#!/bin/sh
 # Breaks on Unix:
 
 # if test $JM_ADVANCED_DU; then
 	# DUCOM="du -skx"
 # else
-	DUCOM="du -sk"
+	DUCOM="du -skx"
 # fi
 
 if test $JM_COLOUR_LS; then
@@ -19,7 +20,8 @@ fi
 (
 
 	ARGS="$@";
-	if test "x$ARGS" = "x"; then
+	if [ "$ARGS" = "" ]
+	then
 	  # ARGS="* .*";
 	  # Yuk we need to strip out . and ..!
 	  ARGS=""
@@ -30,7 +32,8 @@ fi
 					echo "$X"
 				fi
 			fi
-		done | while read X; do
+		done |
+		while read X; do
 			$DUCOM "$X"
 		done
 	else

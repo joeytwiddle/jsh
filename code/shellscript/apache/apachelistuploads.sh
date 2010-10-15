@@ -15,4 +15,15 @@
 # grep -v "\<CHR\>"
 
 ## Watcher:
-jwatchchanges -fine -n 10 listopenfiles apache -u www-data
+# jwatchchanges -fine -n 10 listopenfiles apache -u www-data
+
+## TODO: I think often things are repeated 3 times, because of all our chroot bind-mounts.
+
+listopenfiles apache 2>/dev/null |
+grep -v "\<cwd\>" | ## new
+grep -v "\.so\($\|\.\)" |
+grep -v "\.log$" |
+grep -v "\(/usr/sbin/apache\|/mnt/hdb3$\|/SYSV0*$\|/dev/null$\|TCP \*\|can't identify protocol\)" |
+grep -v " /$" |
+grep -v "\[heap\] (stat: No such file or directory)$"
+

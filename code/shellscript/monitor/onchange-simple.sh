@@ -1,3 +1,4 @@
+#!/bin/sh
 # Still depends on Unix diff!
 
 TMPFILE=/tmp/onchange.tmp

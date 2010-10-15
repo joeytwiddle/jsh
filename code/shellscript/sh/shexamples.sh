@@ -1,3 +1,4 @@
+#!/bin/sh
 ## A stream piped in a loop:
 (echo 0; sleep 1; tail -f /tmp/looped.stream) |
 while read N; do

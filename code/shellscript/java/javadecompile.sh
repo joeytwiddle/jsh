@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Check the jad exe is available:
 which jad > /dev/null || exit 1
 

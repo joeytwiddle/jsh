@@ -1,15 +1,19 @@
-# The new VNC has broken this script.  But VNC now provides its own jvncviewer.  =)
+if [ "$1" ]
+then ADDRESS="$1"
+else ADDRESS=":1"
+fi
 
-unj jvncviewer "$@"
+[[ "$ADDRESS" =~ ":.*" ]] && ADDRESS="localhost$ADDRESS"
+
+# VNC now provides its own jvncviewer.  =)
+
+unj jvncviewer "$ADDRESS"
 
 exit
 
 
 
-if [ "$1" ]
-then ADDRESS="$1"
-else ADDRESS=":1"
-fi
+## OLD:
 
 DIR="/stuff/joey/src/deb/vnc-java-3.3.3r2/"
 # DIR="/usr/share/vnc-java/"

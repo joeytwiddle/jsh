@@ -1,3 +1,4 @@
+#!/bin/sh
 ## jsh
 ## An alternative to using source startj to add J environment to your current
 ## shell, jsh will start a new shell with J environment.

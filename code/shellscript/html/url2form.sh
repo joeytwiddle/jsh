@@ -1,3 +1,4 @@
+#!/bin/sh
 METHOD=GET
 
 while true

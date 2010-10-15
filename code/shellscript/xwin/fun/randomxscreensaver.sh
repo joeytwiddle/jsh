@@ -1,3 +1,4 @@
+#!/bin/sh
 # jsh-ext-depends: find seq xscreensaver
 # jsh-depends: chooserandomline execgetpid mykill takecols psforkillchild mykillps
 ## Problems:

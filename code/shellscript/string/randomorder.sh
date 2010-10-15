@@ -1,10 +1,30 @@
 #!/bin/sh
+## randomorder [ <files> ] prints the lines in a random order.
+## For other implementations, see: http://wooledge.org:8000/BashFAQ/026
 # jsh-ext-depends: sort
 # jsh-depends: afterfirstall
 
-[ -e /dev/urandom ] && export USE_RND_DEV=true
+# [ -e /dev/urandom ] && export USE_RND_DEV=true
+
+## Fast.  $$ can seed even if sh has no RANDOM.
+## Maaaaaan it's still not random.  I think seed is too large for awk.
+# SEED="$$""$RANDOM"
+## OK just $RANDOM is small enough.
+SEED="$RANDOM"
+[ "$SEED" ] || SEED="$$"
+jshinfo "Using SEED=$SEED"
+awk '
+	BEGIN { srand("'"$SEED"'") }
+	{ print rand() "\t" $0 }
+' "$@" |
+sort -n -k 1 |    # Sort numerically on first (random number) column
+cut -f2-     # Remove sorting column
+exit
+
+
 
 ### === bash method ===
+## Slow but appears at least to re-seed properly.
 while IFS="" read LINE
 do
 	printf "%s\n" "$RANDOM $LINE"
@@ -14,8 +34,9 @@ do
 done |
 sort -n -k 1 |
 afterfirst ' '
-
 exit
+
+
 
 ### === awk method ===
 

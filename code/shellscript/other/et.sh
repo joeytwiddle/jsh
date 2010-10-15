@@ -37,9 +37,15 @@ else
 fi
 
 echo "$TOOL"
-edit $FORCE "$TOOL"
+
+# jsh edit $FORCE "$TOOL"
 
 ## Actually, in jsh, we might want to do: editandwait $FORCE "$TOOL"
+
+if xisrunning
+then editandwait $FORCE "$TOOL" &
+else editandwait $FORCE "$TOOL"
+fi
 
 # A quick check to inform the user if this command already exists on system.
 # which, where, and whereis are never guaranteed:

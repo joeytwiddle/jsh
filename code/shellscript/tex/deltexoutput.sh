@@ -1,3 +1,4 @@
+#!/bin/sh
 OUTPUTEXTS="bbl aux log blg dvi"
 
 # find

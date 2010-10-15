@@ -1,3 +1,7 @@
+#!/bin/sh
+jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles.  You are recommended to use that until they are merged."
+# jshwarn "Ofc scripting makes sense with findduplicatefiles, providing we will keep the I/O similar."
+
 ## WISHLIST:
 ## - instead of just deleting duplicates, also create a symlink in their place so they still function
 
@@ -21,8 +25,12 @@ SUGGEST_DEL=1
 # SUGGEST_LN=1 ## BUG TODO: creates a symlink to ./blah which is ONLY correct if the src link is in .
 
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
+	(
 	echo
-	echo "findduplicatefiles [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ] <path>s.."
+	# echo "findduplicatefiles [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ] <find_path>s.. [ <find_option>s.. ]"
+	echo "findduplicatefiles [ <options> ] <find_path>s.. [ <find_option>s.. ]"
+	echo "  where"
+	echo "  <options> = [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ]"
 	echo
 	echo "The search has three stages:"
 	echo
@@ -42,8 +50,11 @@ if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
 	# echo "    TODO: output formats.  <-- ???!"
 	echo "    Note: ATM it outputs results, but doesn't delete anything, so ph34r not!"
 	echo
-	echo "  You may wish to temporarily rename, move, or symlink the directories under analysis into some alphanumeric order; since the first duplicate found is kept; and all later duplicates are nominated for removal."
+	echo "  You may wish to temporarily rename, move, or symlink the directories under"
+	echo "  analysis into some alphanumeric order; since the first duplicate found is"
+	echo "  kept; and all later duplicates are nominated for removal.  (See SORT_METHOD.)"
 	echo
+	) | more
 	exit 1
 fi
 
@@ -137,6 +148,9 @@ fi |
 # sed 's|\([0-9]+[ 	]+[0-9]+\)[ 	]+\(.+\)|\1: del "\2"|'
 # cat
 
+# SORT_METHOD="sortbydirdepth" ## The one with the shorter dir depths (num of /s) gets kept.
+SORT_METHOD="sort" ## Alphanumeric
+
 ## Sort each group by directory depth, so that lowest file is the one kept:
 (
 
@@ -157,7 +171,7 @@ fi |
       done
     ) |
     ## The sorting method decides which one gets kept and which deleted:
-    sortbydirdepth ## The one with the shorter dir depths (num of /s) gets kept.
+    $SORT_METHOD
     echo
   done
 
@@ -207,6 +221,8 @@ fi |
 # done
 
 exit
+
+
 
 ## OLD: A simple version which just sorts by checksum, then looks for adjacent duplicates.
 

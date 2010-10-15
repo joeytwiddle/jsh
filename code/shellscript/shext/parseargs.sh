@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Observed that passing no args to . parseargs_base_impl, actually means current get passed.
 ## Observed that shifting in . parseargs_base_impl gets passed back.  =)
 ## TODO: check this is true for all sh's

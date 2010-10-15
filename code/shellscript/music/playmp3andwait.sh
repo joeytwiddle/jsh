@@ -1,3 +1,4 @@
+#!/bin/sh
 if endswith "$1" "\.ogg" && which ogg123 >/dev/null 2>&1
 then ogg123 "$@" ; exit
 # # else mpg123 -b 10000 "$@" > /dev/null 2>&1
@@ -16,7 +17,7 @@ function find_exe() {
 ## totem doesn't exit after it's played (but we could watch for it) - it probably won't work without X
 ## noatun dunno... :)
 
-PLAYER=`find_exe mplayer totem noatun`
+PLAYER=`find_exe mplayer-minixterm mplayer totem noatun`
 unj "$PLAYER" "$@"
 
 # mplayer "$@" |

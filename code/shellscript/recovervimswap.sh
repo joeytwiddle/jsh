@@ -1,3 +1,4 @@
+#!/bin/sh
 ## Appears stable =)
 
 ## BUG: if multiple txtfiles are given, VIMAFTER gets cleared if only *one* of them is vimdiffed, whereas it should only be cleared if all of them were vimdiffed
@@ -21,7 +22,7 @@ do
 		continue
 	fi
 
-	DIR=`dirname "$X"`
+	DIR=`dirname \`realpath "$X"\``
 	FILE=`basename "$X"`
 	# SWAPS=`countargs $DIR/.$FILE.sw?`
 	## TODO: The leading . is not necessary if file is a .file
@@ -43,7 +44,7 @@ do
 
 	## BUG: changes to VIMAFTER are lost due to |while, so avoid this somehow with exec.
 	
-	find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" |
+	verbosely find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" |
 	while read SWAPFILE
 	do
 
@@ -69,9 +70,12 @@ do
 		jshinfo "Recovering swapfile $SWAPFILE to $RECOVERFILE"
 
 		## TODO: Could grep following for "^Recovery completed"
-		SEND_ERR=/dev/null ## BUG: if there is more than 1 swapfile, vim may ask user to choose which one to recover (somehow it does read answer from terminal not stdin); but user cannot see message if we hide output!
-		if verbosely vim -r "$SWAPFILE" -c ":w $RECOVERFILE$NL:q" > "$SEND_ERR" 2>&1 &&
-			 [ -f "$RECOVERFILE" ]
+		SEND_ERR=/dev/null ## FIXED: I think we fixed this by specifying the swapfile~ If there is more than 1 swapfile, vim may ask user to choose which one to recover (somehow it does read answer from terminal not stdin); but user cannot see message if we hide output!
+		## This can give errors for other reasons (e.g. "cannot write .viminfo") even if the recovery went fine.
+		## In that case, the old method would keep creating identical recover files but never deleting the swapfile!
+		## So we don't check vim's exit code (until I fix this problem on my gentoo!)
+		verbosely vim -r "$SWAPFILE" -c ":wq $RECOVERFILE" > "$SEND_ERR" 2>&1
+		if [ -f "$RECOVERFILE" ] && [ `filesize "$RECOVERFILE"` -gt 0 ]
 		then
 			if [ "$INTERACTIVE" ]
 			then

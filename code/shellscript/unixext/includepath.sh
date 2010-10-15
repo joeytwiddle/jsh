@@ -1,3 +1,4 @@
+#!/bin/sh
 # Usage: . includepath <root-prefix>
 
 ## TODO: maybe rename or alias it to "addroot", to re-use chroot terminology.

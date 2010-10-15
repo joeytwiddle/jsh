@@ -9,12 +9,15 @@
 
 CACHEDIR="$HOME/.loki/ut/Cache"
 
-DESTMAPDIR=/stuff/software/games/unreal/server/maps
-DESTFILEDIR=/stuff/software/games/unreal/server/files/new
+# DESTMAPDIR=/stuff/software/games/unreal/server/maps
+# DESTFILEDIR=/stuff/software/games/unreal/server/files/new
+DESTMAPDIR=/mnt/big/ut/files/maps/
+DESTFILEDIR=/mnt/big/ut/files/
 
 # FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut/ut_win_pure"
 ## Added ut_win so I can create symlinks to my own custom maps.
-FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut/ut_win_pure /mnt/big/ut/ut_win"
+FILEDIRS="$DESTFILEDIR /stuff/software/games/unreal/server/files /mnt/big/ut/ut_win_pure /mnt/big/ut/ut_win"
+verbosely find $FILEDIRS -type f >/dev/null ## get OS cache ready
 
 # ADD_DATE_TO_DESTINATION=
 # ADD_DATE_TO_DESTINATION="/`geekdate -fine`/"
@@ -44,7 +47,7 @@ cat "$CACHEDIR"/cache.ini |
 dos2unix | grep = | sed 's+=+ +' |
 
 # reverse |
-# randomorder |
+randomorder | ## helps progress meter
 catwithprogress | ## later = better = more representative and fewer buffers; but better representation might be by line progress rather than byte progress...
 
 ## For debugging:

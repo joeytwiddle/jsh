@@ -1,3 +1,4 @@
+#!/bin/sh
 . mailtools.shlib "$@"
 
 NUM=`mailcount`

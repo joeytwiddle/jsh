@@ -1,3 +1,4 @@
+#!/bin/sh
 ### B # l # o # a # t # e # d # ! #
 ## TODO: Offer config.global and config.local config files to ease customization and speed up startup
 ##       Create ". requiresenv <varname>..." script for checking for existence of neccessary shell environment variables, or exit with error.

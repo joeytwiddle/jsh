@@ -1,3 +1,4 @@
+#!/bin/sh
 # This addition not documented,
 # and not really needed since we have imageinfo
 MULTIPLE=

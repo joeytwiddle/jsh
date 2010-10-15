@@ -1,3 +1,4 @@
+#!/bin/sh
 if test "$1" = ""; then
 	echo "changewm <name_of_next_window_manager>"
 	echo "  only works if you are using Joey's .xinitrc"

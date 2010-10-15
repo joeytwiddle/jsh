@@ -1,3 +1,4 @@
+#!/bin/sh
 cd $JPATH/data
 cp jsync.conf.default jsync.conf
 sreplace jsync.conf \@maxx \@"$HOST"
