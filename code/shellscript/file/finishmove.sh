@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## The problem with all these "removing duplicates" scripts is verify whether or not the file is the same actual file.
 ## On Unix confusions with symlinks can be resolved using realpath.
 ## But with mounted networked computers, and virtual filesystems, this will be harder to verify.

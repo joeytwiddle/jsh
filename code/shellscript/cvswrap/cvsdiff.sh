@@ -1,5 +1,5 @@
 #!/bin/sh
-# this-script-does-not-depend-on-jsh: after
+# jsh-depends-ignore: after
 # jsh-depends: cursecyan cursenorm cvsvimdiff afterlast jdeltmp jgettmp jfcsh jwhich
 
 # . selfmemo -t 5minutes - "$0" "$@"; shift
@@ -146,13 +146,14 @@ then
 		sed "s+^+cvs add +"
 
 	echo
-	printf "# "
-	cursecyan
-	printf "Repository files missing locally:"
-	cursenorm
-	printf "\n"
-	jfcsh $REPOSLIST $LOCALLIST |
-		sed "s+^+cvs $SUGGEST +"
+	echo "You might need to do cvsupdate or cvsupdate -AdP"
+	# printf "# "
+	# cursecyan
+	# printf "Repository files missing locally:"
+	# cursenorm
+	# printf "\n"
+	# jfcsh $REPOSLIST $LOCALLIST |
+		# sed "s+^+cvs $SUGGEST +"
 
 fi
 

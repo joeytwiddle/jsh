@@ -4,7 +4,7 @@
 # jsh-ext-depends: diff find
 # jsh-depends-ignore: findfiles
 # jsh-ext-depends-ignore: sort sed
-# this-script-does-not-depend-on-jsh: findfiles
+# jsh-depends-ignore: findfiles
 
 ## Consider: Instead of "Only in ..." use "Missing" and "Added" when comparing state of second wrt first.
 
@@ -66,7 +66,7 @@ findfiles () {
 
 IDCNT=0
 
-function report() {
+report() {
 	if [ "$IDCNT" -gt 0 ]
 	then
 		[ "$IDCNT" -gt 1 ] && /bin/echo -n " [$IDCNT files]"
@@ -76,7 +76,7 @@ function report() {
 	/bin/echo "$@"
 }
 
-function identical() {
+identical() {
   [ "$NOMATCHES" ] && return
 	if [ "$IDCNT" = 0 ]
 	then /bin/echo -n "Identical:" "$@"
@@ -112,7 +112,7 @@ do
 	else
 		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
 		## These are faster alternatives, but not as thorough:
-		if [[ $(filesize "$DIRA/$FILE") = $(filesize "$DIRB/$FILE") ]] ## Note: this detects a symlink to an identical file as different!
+		if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ] ## Note: this detects a symlink to an identical file as different!
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		## This was no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
 		## This doesn't work on files with spaces: # if test "`qkcksum \`realpath "$DIRA/$FILE"\` | takecols 1 2`" = "`qkcksum \`realpath "$DIRB/$FILE"\` | takecols 1 2`" ## only faster for bigger files!

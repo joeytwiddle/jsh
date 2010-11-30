@@ -5,3 +5,4 @@ cvs -z 9 -q update "$@" |
 	# grep -v "^? " |
 	# grep -v "^cvs update: Updating " |
 	# grep -v "^cvs server: Updating "
+cvsedit

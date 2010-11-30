@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## TODO: Does not cleanup sockets.
 
 ## DONE: Now does clean up empty directories, as well as files and symlinks in /RECLAIM.
@@ -32,7 +32,7 @@
 ## Fri Jun 15 15:00:36 BST 2007: That's fucking hilarious.  I'm working on my latest most stable version of reclaimspace, and I've run out of diskspace.  :P
 
 # jsh-ext-depends: find
-# this-script-does-not-depend-on-jsh: randomorder there flatdf
+# jsh-depends-ignore: randomorder there flatdf
 # jsh-depends: takecols drop error issymlink
 
 if [ "$1" = --help ]

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## Unlike linkhome (and stow), never links to dirs, always creates its own full dir tree.
 
 ## BUG: does not follow symlinks in the target though, so symlinks which are actually links to dirs are linked not built.

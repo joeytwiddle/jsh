@@ -1,10 +1,11 @@
+## You can use . lscolsinit to do a live update from ~/.dircolors
 export SHELL ## dircolors wants this
 if [ -f $HOME/.lscols ]
 then . $HOME/.lscols
-elif test -f "$HOME/.dircolors"
+elif test -f "$HOME/.dircolors" ## Your config
 then eval `dircolors $HOME/.dircolors`
-elif test -f "$JPATH/code/home/.dircolors"
+elif test -f "$JPATH/code/home/.dircolors" ## Work in jsh if not linked
 then eval `dircolors $JPATH/code/home/.dircolors`
-else eval `dircolors -p | dircolors`
+else eval `dircolors -p | dircolors` ## Default
 fi
 export LS_COLORS

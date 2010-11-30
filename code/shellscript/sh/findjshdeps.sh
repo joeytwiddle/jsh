@@ -54,7 +54,7 @@ if test ! $BOTHER_JSH; then DISCRIMINATE_JSH=; fi
 
 
 
-function trimsmall () {
+trimsmall () {
   grep -v '^.$' |
   grep -v '^..$'
 }

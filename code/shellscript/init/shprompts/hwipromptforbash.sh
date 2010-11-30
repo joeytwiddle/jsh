@@ -168,3 +168,4 @@ else
 	export PS4="+[\[`cursered;cursebold`\]\s\[`cursenorm`\]]\[`cursegreen`\]\W\[`cursenorm`\]\$ "
 
 fi
+

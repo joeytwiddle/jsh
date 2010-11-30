@@ -1,4 +1,3 @@
-#!/bin/sh
 # . importshfn <jtoolname> | <shellscript> ...
 
 ## TODO: optionally grep the script for potential problems (as bughunt clues for developer)

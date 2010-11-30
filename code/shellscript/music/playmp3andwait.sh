@@ -5,7 +5,7 @@ then ogg123 "$@" ; exit
 # else unj mplayer "$@" > /dev/null 2>&1
 fi
 
-function find_exe() {
+find_exe() {
 	for X
 	do
 		if jwhich "$X" >/dev/null 2>&1

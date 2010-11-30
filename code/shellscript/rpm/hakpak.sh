@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## I want hakpak to be able to:
 ##   Keep a particular non-rpm'ed package up-to-date by re-performing install tasks when new version appears on website
 ##   Keep a particular patch applied when the next version is installed.

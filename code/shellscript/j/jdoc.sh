@@ -62,7 +62,8 @@ then
 					## (I'd like to use a dedicated program with syntax highlighting)
 					## (Nah actually I quite like this implementation, it matches my coding policies!)
 					## Variables:
-					highlight -bold "[$]*[A-Z0-9_][A-Z0-9_]*" cyan |
+					highlight -bold "[$][A-Za-z0-9_][A-Za-z0-9_]*" cyan |
+					highlight '"' green |
 					## Comments:
 					highlight -bold "^[ 	]*\#\#.*" yellow | ## BRIGHT double-hashed comment, probable documentation
 					## Special comments:
@@ -91,7 +92,6 @@ else
 	# info "$@"
 
 	## Compromise with failed attempt below:
-	l "$JPATH/tools"/$1
 
 	LINKTOCOM="$JPATH/tools/$1"
 
@@ -102,6 +102,8 @@ else
 		if [ -f "$LINKTOCOM" ]
 		then
 
+			l "$LINKTOCOM"
+
 			## I decided popping up was not always desirable behaviour; so shifted it into manpoup.
 			# if xisrunning
 			# then
@@ -109,6 +111,10 @@ else
 			# else
 				jdoc showjshtooldoc "$LINKTOCOM"
 			# fi
+
+		else
+
+			jshwarn "No jsh script found at '$LINKTOCOM'"
 
 		fi
 
@@ -136,7 +142,7 @@ else
 				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 | sed -u "s+^$JPATH/++" | highlight "\<$1\>" | highlight -bold "^[^ :-]*" cyan | more
 
 				echo
-				echo -n "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "
+				jshquestion "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "
 				read KEY
 				case "$KEY" in
 					y|Y)

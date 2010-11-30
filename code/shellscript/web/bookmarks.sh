@@ -5,7 +5,7 @@
 ## Currently implemented: Konqueror, Mozilla, Mozilla Firebird.
 ## I didn't bother trying to retain folder name/path, but Galeon made me!
 
-function isurl () {
+isurl () {
 		startswith "$URL" "http://" ||
 		startswith "$URL" "https://" ||
 		startswith "$URL" "ftp://" ||

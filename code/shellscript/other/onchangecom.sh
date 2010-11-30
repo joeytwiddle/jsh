@@ -2,7 +2,7 @@
 # Todo: Make it work on multiple files
 
 # This is OK on Linux but not Unix:
-# function littletest() {
+# littletest() {
 #   newer "$file" "$COMPFILE"
 # }
 

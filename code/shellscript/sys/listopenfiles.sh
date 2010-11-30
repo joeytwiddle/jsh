@@ -43,46 +43,49 @@ if [ "$1" = -mergethreads ]
 then shift; MERGE_THREADS=true
 fi
 
-function column5not () {
+column5not () {
 	WORD="$1"
 	FIELD="[^ 	]*"
 	GAP="[ 	]*"
 	grep -v "^$FIELD$GAP$FIELD$GAP$FIELD$GAP$FIELD$GAP$WORD$GAP"
 }
 
-function column4not () {
+column4not () {
 	WORD="$1"
 	FIELD="[^ 	]*"
 	GAP="[ 	]*"
 	grep -v "^$FIELD$GAP$FIELD$GAP$FIELD$GAP$WORD$GAP"
 }
 
-function column5regexp () {
+column5regexp () {
 	WORD="$1"
 	FIELD="[^ 	]*"
 	GAP="[ 	]*"
 	echo "^$FIELD$GAP$FIELD$GAP$FIELD$GAP$FIELD$GAP$WORD$GAP"
 }
 
-function column5is () {
+column5is () {
 	REGEXP=`column5regexp "$@"`
 	grep "$REGEXP"
 }
 
-function column4regexp () {
+column4regexp () {
 	WORD="$1"
 	FIELD="[^ 	]*"
 	GAP="[ 	]*"
 	echo "^$FIELD$GAP$FIELD$GAP$FIELD$GAP$WORD$GAP"
 }
 
-function column4color () {
+column4color () {
 	REGEXP=`column4regexp "$1"`
 	sed "s+$REGEXP.*+$2\0`cursenorm`+"
 }
 
-PROCESS_NAME="$1"
-shift
+if [ "$1" ]
+then
+	PROCESS_NAME="$1"
+	shift
+fi
 
 ## Find the lsof executable:
 if [ ! -x "$LSOF" ]

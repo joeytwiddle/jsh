@@ -1,4 +1,3 @@
-#!/bin/sh
 ## makeshfunction `find ~/j/code/shellscript -type f | grep -v /CVS/ | grep -v "\.hs" | grep -v "\.c" | grep -v "\.swp" | grep -v "\.txt$"` > allj.sh
 
 # jsh-depends: endswith filename startswith error

@@ -3,7 +3,7 @@
 ## BUG: dpkg does not display all packages, e.g. meta-packages used by apt.
 ## So rather than using dpkg -all, I recommend aptitude search.
 
-if [[ "$1" = "" ]]
+if [ "x$1" = "x" ]
 then
 cat << '!'
 

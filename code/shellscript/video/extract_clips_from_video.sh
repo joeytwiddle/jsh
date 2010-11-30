@@ -1,6 +1,6 @@
 # jsh-ext-depends: mplayer
 # jsh-ext-depends-ignore: script last from make file time clip play
-# this-script-does-not-depend-on-jsh: before mplayer
+# jsh-depends-ignore: before mplayer
 # jsh-depends: cursecyan cursegreen curseyellow cursenorm afterfirst beforefirst beforelast rotate extract_marked_clips_from_video
 
 ## TODO: allow interactive labelling of marks -> filename, or optionally undo the last unwanted mark.
@@ -55,7 +55,7 @@ LASTMARKERPOS=not_yet_set
 
 ## gmplyer doesn't give the output!
 ## Oh well it does now on my sys so now it's back in:
-MPLAYER=`which gmplayer`
+# [ "$MPLAYER" ] || MPLAYER=`which gmplayer`
 [ "$MPLAYER" ] || MPLAYER=`which mplayer`
 
 $MPLAYER "$@" "$VIDEOFILE" 2>&1 |

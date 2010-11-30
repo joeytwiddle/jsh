@@ -2,8 +2,8 @@
 # Todo: Make it work on multiple files
 # er does work on multiple files but must be in quotes - fix?
 
-# This is OK on Linux but not Unix:
-# function littletest() {
+## This is OK on Linux but not Unix (Why? ...)
+# littletest() {
 #   newer "$file" "$COMPFILE"
 # }
 
@@ -11,21 +11,23 @@
 # Difference appears to be all files in dir
 # as opposed to files provided in list
 
-if test "$1" = "-nowinxterm"; then
-	shift
-else
-	if xisrunning; then
-		xterm -e onchange -nowinxterm "$@" &
-		exit
-	fi
-fi
-
-if test "$1" = "" -o "$2" = ""; then
+if test "$1" = "--help" -o "$1" = "" -o "$2" = ""; then
 	echo 'onchange [-ignore] "<files>.." [do] <command>'
 	echo '  Multiple files must be contained in "quotes".'
 	echo '  There is currently no support for the command to know which file changed, but there could be...'
 	# NO!  echo '  If you are really cunning, you could use "\$file" in your command!'
 	exit 1
+fi
+
+if test "$1" = "-nowinxterm"; then
+	shift
+else
+	if xisrunning; then
+		xterm -e onchange -nowinxterm "$@" &
+	else
+		onchange -nowinxterm "$@" &
+	fi
+	exit
 fi
 
 if test "$1" = "-ignore"; then

@@ -11,6 +11,9 @@ fi
 if [ ! -w "$OUTPUTDIR" ]
 then OUTPUTDIR=/tmp
 fi
+if [ "$EXTRACT_IN" ]
+then OUTPUTDIR="$EXTRACT_IN"
+fi
 
 CLIPNUM=1
 

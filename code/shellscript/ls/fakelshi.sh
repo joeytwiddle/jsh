@@ -12,7 +12,6 @@ ENDCURSE=`printf "m"`
 # FILL=''
 FILL=' .*'
 
-# Note [ function ] not compatible with /bin/ash
 replace () {
 	sed "s+$1+$2+g"
 }

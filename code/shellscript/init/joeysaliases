@@ -116,8 +116,14 @@ alias dusk="memo -t '1 hour' dusk"
 
 alias quiet='fadevolume 0'
 
-## TODO: If the user uses memo instead of rememo, should we re-use the memoed files even if it is "out of date" according to "default condition"?
-alias memo='memo -info -t "2 hours"'
+## TODO: If the user uses memo instead of rememo, should we re-use the memoed file even if it is "out of date" according to "default condition"?
+# alias memo='memo -info -t "2 hours"'
+
+## No it's not good to have memo on an alias, because sometimes I want to pass it arguments!
+export MEMO_SHOW_INFO=true
+## Better might be:
+export MEMO_DEFAULT_CONDITION='( touch -d "2 hours ago" $AGEFILE ; newer $AGEFILE "$MEMOFILE" )'
+## but this is not yet supported by the memo script :P
 
 ## (Intended) for user only:
 alias mv='mv -i'

@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 # jsh-ext-depends-ignore: savelog file
 # jsh-ext-depends: gzip tar cmp
 # jsh-depends: del
-# this-script-does-not-depend-on-jsh: after before
+# jsh-depends-ignore: after before
 
 ## TODO CONSIDER: Never overwrite the .0 backup?
 

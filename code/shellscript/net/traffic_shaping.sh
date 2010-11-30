@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## traffic_shaping
 ## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
 ## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.

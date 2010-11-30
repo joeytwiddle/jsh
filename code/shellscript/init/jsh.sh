@@ -76,7 +76,7 @@ then
 	## We need only load a light (non-user) jsh environment, and execute the command
 
 	## Non-interactive shell: start jenv then run command.
-	source "$JPATH"/startj-simple
+	. "$JPATH"/startj-simple
 	## This "jsh -c <command>" option is useful for eg. pipes, especially when we can't "| jsh".
 	if [ "$1" = -c ]
 	then

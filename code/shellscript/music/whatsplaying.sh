@@ -1,9 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 ## BUG: doesn't work if you use a sound server (eg. artsd or esd).  Fixing that would probably require a different approach.
 
 # tail -n 1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
 
-function find_open_music_files () {
+find_open_music_files () {
 
 	(
 		# for DEV in /dev/dsp /dev/sound/dsp
@@ -72,6 +72,7 @@ then
 		echo "$OUTPUT" |
 		head -n 1 |
 		foreachdo showsonginfo
+		## No good putting these in parallel - they kill each other :P
 	) >&2
 fi
 

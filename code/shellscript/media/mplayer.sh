@@ -30,11 +30,18 @@ FAST=1
 # [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all"
 ## But I found this was enough for me and not so bad quality (autoq/sync may not be needed):
 ## G's A:
-[ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts fast -autoq 5 -autosync 5"
+# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -autoq 5 -autosync 5"
+## KMD under Compiz:
+# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -autoq 5 -autosync 5 -framedrop -hardframedrop"
 ## BSG S3:
-#[ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=1:fast -autoq 5 -autosync 5"
+# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=1:fast -autoq 5 -autosync 5"
 ## Enterprise:
-#[ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=2:fast -autoq 5 -autosync 5"
+# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=2:fast -autoq 5 -autosync 5"
+## BSG S4.  lowres has no affect, -vo sdl helped SMPlayer under a busy compiz
+## but prevents gamma correction (works ok in smplayer anyway):
+## -vo x11 appears to work better than -vo xv under compiz.  sometimes with xv
+## we get "X11 error: BadAlloc (insufficient resources for operation)"
+[ "$FAST" ] && OPTS="$OPTS -ao sdl -vo x11 -vfm ffmpeg -autoq 5 -autosync 5 -framedrop"
 
 while true
 do

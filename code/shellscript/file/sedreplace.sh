@@ -1,6 +1,6 @@
 #!/bin/sh
 # jsh-depends: jdeltmp jgettmp
-# this-script-does-not-depend-on-jsh: filename
+# jsh-depends-ignore: filename
 if [ "$*" = "" ] || [ "$1" = --help ]
 then
 	echo 'sedreplace [ <options> ] "search_string" "replace_string" [ <filename>... ]'
@@ -44,6 +44,7 @@ else
 			echo "sedreplace: $FILE is not a file" >&2
 			continue
 		fi
+		preserveDate="`date -r "$FILE"`"
 		cat "$FILE" | sed "s$FROM$TOg" > "$TMPFILE"
 		## TODO: what about symlinks?  Is it better to cat over?
 		chmod --reference="$FILE" "$TMPFILE"
@@ -69,6 +70,7 @@ else
 				jdeltmp "$TMPFILE" ||
 				echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >&2
 		fi
+		touch -d "$preserveDate" "$FILE"
 	done
 
 fi

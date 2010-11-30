@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## Note - this script shares files with the revssh CGI script.
 ## On my sys, this means it must run as www-data.
 ## No longer true - they work together fine now, because the files are

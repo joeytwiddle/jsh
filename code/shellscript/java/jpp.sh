@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # -C : don't discard comments
 # -H : show files being #included
 # -P : don't add #lines
