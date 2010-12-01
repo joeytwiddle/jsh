@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-ext-depends: xdotool xwininfo sed cut xdpyinfo
 ## Moves your current window to corner/edge/center of screen.
 ## Provide one of these as the argument:
 ## nw,top,ne,left,center,right,sw,bottom,se,center_x,center_y
@@ -23,7 +24,7 @@ winid=`xdotool getwindowfocus`
 ## so we get the x/y/width/height a different way:
 xwininfo=`xwininfo -id "$winid"`
 extract_window_property () {
-	echo "$xwininfo" | grep "^  $1: " | sed 's+.*: *++'
+	printf "%s" "$xwininfo" | grep "^  $1: " | sed 's+.*: *++'
 }
 width=`extract_window_property "Width"`
 height=`extract_window_property "Height"`
@@ -39,8 +40,9 @@ yoffset=`extract_window_property "Relative upper-left Y"`
 oldwidth="$width" ; oldheight="$height"
 [ "$width" -lt 80 ] && width=`expr "$width" '*' 8` && height=`expr "$height" '*' 8`
 
-scrwidth="`getxwindimensions | cut -d x -f 1`"
-scrheight="`getxwindimensions | cut -d x -f 2`"
+xwindimensions=`xdpyinfo | grep dimensions: | sed 's+.*dimensions:[ ]*++ ; s+ .*++'`
+scrwidth="`echo "$xwindimensions" | cut -d x -f 1`"
+scrheight="`echo "$xwindimensions" | cut -d x -f 2`"
 
 ## "Unchanged" positions:
 left=`expr "$left" - "$xoffset"`
