@@ -1,11 +1,5 @@
-#!/bin/sh
+#!/bin/bash
 # jsh-ext-depends: xdotool xwininfo sed cut xdpyinfo
-
-## NOTE: It is preferable to use the ported version put_current_xwindow.bash
-## because it is faster.
-## It is sometimes slow for bash too - perhaps when the scripts file is not
-## cached.  TODO: use importshfn to preload it into the shell.  zsh at least
-## doesn't seem to mind that it contains inner functions.
 
 ## Moves your current window to corner/edge/center of screen.
 ## Provide one of these as the argument:
@@ -48,35 +42,34 @@ yoffset=`extract_window_property "Relative upper-left Y"`
 # width=`echo "$geometry" | sed 's/\([0-9]*\)x\([0-9]*\)+.*/\1/'`
 
 oldwidth="$width" ; oldheight="$height"
-[ "$width" -lt 80 ] && width=`expr "$width" '*' 8` && height=`expr "$height" '*' 8`
+[ "$width" -lt 80 ] && width=$(( $width * 8 ) && height=$( $height * 8 ))
 
-xwindimensions=`xdpyinfo | grep dimensions: | sed 's+.*dimensions:[ ]*++ ; s+ .*++'`
-scrwidth="`echo "$xwindimensions" | cut -d x -f 1`"
-scrheight="`echo "$xwindimensions" | cut -d x -f 2`"
+scrwidth="`getxwindimensions | cut -d x -f 1`"
+scrheight="`getxwindimensions | cut -d x -f 2`"
 
 ## "Unchanged" positions:
-left=`expr "$left" - "$xoffset"`
-top=`expr "$top" - "$yoffset"`
+left=$(( $left - $xoffset ))
+top=$(( $top - $yoffset ))
 
 push_left () {
 	left=8
 }
 push_right () {
-	left=`expr "$scrwidth" - 8 - "$width" - "$xoffset"`
+	left=$(( $scrwidth - 8 - $width - $xoffset ))
 }
 push_top () {
 	top=8
 }
 push_bottom () {
-	top=`expr "$scrheight" - 8 - "$height" - "$yoffset" - 8`
+	top=$(( $scrheight - 8 - $height - $yoffset - 8 ))
 	## For some reason we need an extra -8 here
 	## This may mean we need an extra -4 for centrey.
 }
 push_centerx () {
-	left=`expr "$scrwidth" / 2 - "$width" / 2 - "$xoffset"`
+	left=$(( $scrwidth / 2 - $width / 2 - $xoffset ))
 }
 push_centery () {
-	top=`expr "$scrheight" / 2 - "$height" / 2 - "$yoffset"`
+	top=$(( $scrheight / 2 - $height / 2 - $yoffset ))
 }
 
 case "$putWhere" in
