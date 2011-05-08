@@ -1,5 +1,5 @@
 #!/bin/sh
-## Will play the video specified, and output ./audiodump.wav
-## -vo null hides the window, -vc dummy greatly improve speed
-## Should work on any video or audio input data
-mplayer -vo null -vc dummy -ao pcm "$@"
+## Uses mplayer to extract a wav/pcm file from the video/audio file.
+## -vo null hides the window, -vc dummy greatly improves speed
+outfile="$1.wav"
+mplayer -vc null -vo null -ao pcm:fast:file="$outfile" "$@"
