@@ -33,14 +33,21 @@ export PROMPTHOST="chroot:`echo "$1" | afterlast /`"
 
 export HIGHLIGHTSTDERR=true
 
+jbindmount () {
+	if mount | grep "^$1 on $2 type none (.*,bind)$" >/dev/null
+	then echo "$1 is already bind-mounted on $2"
+	else verbosely mount --bind "$1" "$2"
+	fi
+}
+
 fix_proc () {
 	verbosely chroot "$TARGET" mount -t proc /proc proc ||
-	verbosely mount --bind /proc "$TARGET"/proc
+	jbindmount /proc "$TARGET"/proc
 	## TODO: We should test if $TARGET/proc is a folder, otherwise bind mount will fail.
 }
 
 undo_fix_proc () {
-	mount | grep "^/proc on $TARGET/proc .*bind" ||
+	mount | grep "^/proc on $TARGET/proc .*bind" >/dev/null ||
 	verbosely chroot "$TARGET" umount -lf /proc
 	verbosely umount "$TARGET"/proc
 }
@@ -48,9 +55,9 @@ undo_fix_proc () {
 ## TODO: why is this declared twice?!
 
 fix_dev () {
-	mount | grep "^/dev on $TARGET/dev .*bind" ||
-	verbosely mount --bind /dev "$TARGET"/dev
-	verbosely mount --bind /dev/pts "$TARGET"/dev/pts
+	mount | grep "^/dev on $TARGET/dev .*bind" >/dev/null ||
+	jbindmount /dev "$TARGET"/dev
+	jbindmount /dev/pts "$TARGET"/dev/pts
 }
 
 undo_fix_dev () {
@@ -60,7 +67,7 @@ undo_fix_dev () {
 
 fix_parent () {
 	[ -d "$TARGET"/CHROOT_PARENT ] || verbosely mkdir -p "$TARGET"/CHROOT_PARENT
-	verbosely mount --bind / "$TARGET"/CHROOT_PARENT
+	jbindmount / "$TARGET"/CHROOT_PARENT
 }
 
 undo_fix_parent () {
@@ -109,7 +116,7 @@ fix_mounts_original_hack () {
 		if [ ! "$MNTPNT" = "$TARGET" ] && [ -d "$MNTPNT" ] && [ -d "$TARGET"/"$MNTPNT" ] && ! cat /etc/mtab | grep "$REGEXP"
 		then
 			jshinfo "Mounting (regexp was \"$REGEXP\") ..."
-			verbosely mount --bind "$MNTPNT" "$TARGET"/"$MNTPNT"
+			jbindmount "$MNTPNT" "$TARGET"/"$MNTPNT"
 		fi
 	done
 }
@@ -126,14 +133,14 @@ undo_fix_dev_null_zero_hack () {
 }
 
 fix_mounts_simple_bind () {
-	verbosely mount --bind /mnt "$TARGET"/mnt
+	jbindmount /mnt "$TARGET"/mnt
 }
 
 fix_mounts_many_binds () {
 	for MNTPNT in /mnt/*
 	do
 		mount | takecols 3 | grep "^$MNTPNT$" &&
-		verbosely mount --bind "$MNTPNT" "$TARGET"/"$MNTPNT"
+		jbindmount "$MNTPNT" "$TARGET"/"$MNTPNT"
 	done
 }
 
@@ -167,7 +174,7 @@ fix_mounts_check_fstab () {
 			# then verbosely mount -o umount --bind "$LMNTPNT" "$TARGET"/"$MNTPNT"
 			else
 				jshinfo "Device $LDEV on $LMNTPNT should appear at $TARGET/$MNTPNT"
-				verbosely mount --bind "$LMNTPNT" "$TARGET"/"$MNTPNT"
+				jbindmount "$LMNTPNT" "$TARGET"/"$MNTPNT"
 			fi
 			break
 		done
