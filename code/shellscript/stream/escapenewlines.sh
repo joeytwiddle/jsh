@@ -1,7 +1,7 @@
 #!/bin/sh
 # jsh-ext-depends-ignore: file
 # jsh-ext-depends: sed
-# this-script-does-not-depend-on-jsh: after
+# jsh-depends-ignore: after
 # unj escapenewlines "$@"
 
 ## This tty call might slow things down, but it's my first attempt at using tty to check whether
@@ -38,7 +38,7 @@ if [ "$EXPAND_WORDS" ]
 then
 	## NOTE: we will interpret some 'n's wrong, namely this one: "...\\n..."
 	#   whole-word whitespace+special-chars escaped-newline  ## Sufficient for my HTML purposes
-	sed "s=\([a-zA-Z]+\|\[0-9\.]+\|[ \=\./;\"'<>]\|\\\\n\)=\\$NL\1\\$NL=g" |
+	sed "s=\([ \t][ \t]*\|[a-zA-Z]+\|\[0-9\.]+\|[][ \=\.,/;\"'*<>(){}]\|\\\\n\)=\\$NL\1\\$NL=g" |
 	tr -s '\n'
 	# sed "s=\([a-zA-Z]+\|\[0-9\.]+\|[ 	]+\|[\=\./;\"'<>]\|\\\\n\)=\\$NL\1\\$NL=g" |
 	## Others (testing):
