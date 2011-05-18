@@ -120,7 +120,13 @@ then
 				then
 					# xttitle "$XTTITLE_HEAD# $LASTCMD [$SHOWUSER$SHOWHOST`swd`]"
 					# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY [$SHOWUSER$SHOWHOST`swd`]"
-					xttitle "$XTTITLE_HEAD# `swd`/ $LASTCMD   ($HISTCMD)"
+
+					HISTNUM="$((HISTCMD))"
+					if [ "$SAVEHIST" ] && [ ! "$HISTNUM" -lt "$SAVEHIST" ]
+					then HISTNUM=$((HISTNUM-SAVEHIST))
+					fi
+
+					xttitle "$XTTITLE_HEAD# `swd`/ $LASTCMD   ($HISTNUM)"
 
 					# echo ">$STY<" >> /tmp/123
 					# screentitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` # $LASTCMD"
@@ -146,7 +152,12 @@ then
 					# XTTITLE_DISPLAY="$XTTITLE_HEAD:`swd` % ( `history | wc -l`: `history | takecols 2 | tail -n 3 | tr '\n' ' '`)"
 					## This is madness it should be an add-on not part of or even an option to the default jsh :P (?)
 					# HISTNUM=`history 0 | wc -l`
-					HISTNUM="$((HISTCMD))"
+					HISTNUM="$((HISTCMD-1))"
+					## Unfortunately HISTNUM starts reporting at 1000 if SAVEHIST=1000, but I want to start reporting from 0!
+					## LINENO works in the shell but not in a script file
+					if [ "$SAVEHIST" ] && [ ! "$HISTNUM" -lt "$SAVEHIST" ]
+					then HISTNUM=$((HISTNUM-SAVEHIST))
+					fi
 					# [ "$HISTNUM" -gt 1 ] && HISTSHOW=" ( ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
 					# [ "$HISTNUM" -gt 9 ] && HISTNUM="$HISTNUM:" || HISTNUM=
 					# HISTSHOW=" ( $HISTNUM ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
@@ -155,7 +166,7 @@ then
 					## ? should be exit code of last command
 					# [ "$HISTNUM" -gt 10 ] && HISTNUMBIT=",..$HISTNUM" || HISTNUMBIT=""
 					HISTNUMBIT=
-					[ "$HISTCMD" -gt 1 ] && HISTSHOW="($((HISTCMD-1)):`history | tail -n 20 | takecols 2 | reverse | removeduplicatelinespo | head -n 5 | tr '\n' ',' | sed 's+.$++'`$HISTNUMBIT)" || HISTSHOW=
+					[ "$HISTCMD" -gt 1 ] && HISTSHOW="($HISTNUM:`history | tail -n 20 | takecols 2 | reverse | removeduplicatelinespo | head -n 5 | head -n "$HISTNUM" | tr '\n' ',' | sed 's+.$++'`$HISTNUMBIT)" || HISTSHOW=
 					FAKESQUARE="	"
 					# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
 					# xttitle "$XTTITLE_HEAD<$((HISTCMD-1))> `swd`%_   $HISTSHOW"
