@@ -1,6 +1,7 @@
 #!/bin/sh
 ## Removes any duplicate lines from the stream, preserving line order on output.
-## Doesn't remove empty lines
+## Doesn't remove empty lines.
+## Keeps the first occurrence of a line, and drops any later occurrences.
 
 LAST=""
 cat "$@" |
@@ -12,9 +13,12 @@ awk ' {
         printf("%s","\n");
       }
     ' |
-sort -k 2 |
+# tee all |
+## We do a stable sort so that the first column is not sorted
+sort -s -k 2 |
 
 escapeslash | ## echo "$LINE" below will lose any \s unless they are doubled up.  BUG: echo "$LINE" may lose other stuff too
+tee all_sorted |
 
 while read N LINE
 do
@@ -28,5 +32,6 @@ do
     LAST="$LINE"
   fi
 done |
-sort -n -k 1,1 |
+# tee final |
+sort -n -k 1 |
 afterfirst " "
