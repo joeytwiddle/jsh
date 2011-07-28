@@ -1,0 +1,1 @@
+git diff "$@" | diffhighlight | more
