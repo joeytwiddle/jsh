@@ -1,4 +1,6 @@
-# this-script-does-not-depend-on-jsh: jsh
+#!/bin/sh
+
+# jsh-depends-ignore: jsh
 # jsh-depends: cursecyan curseyellow cursenorm makeshfunction contains jdeltmp jgettmp
 
 ## CONSIDER: Is there a better word than "compile"?
@@ -14,13 +16,18 @@
 ## TODO: See the TODO in the help too!
 
 
+## TODO: Check JPATH and other folders are present
+
+
+
 echo "`date` [compilejshscript] Doing: $*" >> /tmp/compilejshscript.log2
 
 
-if [ "$1" = --help ]
+if [ "$1" = "" ] || [ "$1" = --help ]
 then
 cat << !
-compilejshscript [ -vigilant | -nonint ]
+
+compilejshscript [ -vigilant | -nonint ] <script_name>
 
   Will compile all the dependencies of a jsh script into one standalone script.
 
@@ -50,9 +57,9 @@ fi
 
 
 if [ "$1" = -vigilant ]
-then export DEPWIZ_VIGILANT=true; shift
+then export DEPWIZ_VIGILANT=true ; shift
 elif [ "$1" = -nonint ]
-then export DEPWIZ_NON_INTERACTIVE=true
+then export DEPWIZ_NON_INTERACTIVE=true ; shift
 fi
 
 
@@ -87,6 +94,17 @@ do
   for SCRIPT in $TODOLAST
   do
 
+		if [ ! -f "$JPATH/tools/$SCRIPT" ]
+		then
+			if [ -f "$SCRIPT" ]
+			then
+				:
+			else
+				echo "## Warning: Could not find file $SCRIPT"
+				continue
+			fi
+		fi
+
     ## Find dependencies of script:
     # ADDJSH=`memo -d $JPATH/code/shellscript jshdepwiz getjshdeps "$SCRIPT"`
     # ADDEXT=`memo -d $JPATH/code/shellscript jshdepwiz getextdeps "$SCRIPT"`
@@ -95,6 +113,8 @@ do
     # ADDEXT=`memo -f "$REALSCRIPT" jshdepwiz getextdeps "$SCRIPT"`
     ## Fastest but misses changes:
     # export DEPWIZ_VIGILANT=
+		# SCRIPTNAME="`basename "$SCRIPT"`"
+		SCRIPTNAME="$SCRIPT"
     ADDJSH=`jshdepwiz getjshdeps "$SCRIPT"`
     ADDEXT=`jshdepwiz getextdeps "$SCRIPT"`
 
@@ -143,8 +163,8 @@ do
 done
 
 echo >&2
-echo "`curseyellow`All jsh dependencies:`cursenorm`" $JSHDEPS >&2
-echo "`curseyellow`All external dependencies:`cursenorm`" $EXTDEPS >&2
+echo "`cursegreen`All jsh dependencies:`cursenorm`" $JSHDEPS >&2
+echo "`cursegreen`All external dependencies:`cursenorm`" $EXTDEPS >&2
 
 
 
