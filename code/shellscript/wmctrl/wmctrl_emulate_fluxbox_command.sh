@@ -1,10 +1,14 @@
 #!/bin/bash
 
-## From: http://sourceforge.net/tracker/?func=detail&aid=3190205&group_id=35398&atid=413960
-
 if [[ -z "$1" ]]; then
 	exit 1
 fi
+
+## Multiple switch requests have a tendency to undo each other if performed too
+## rapidly.  We use a lockfile to slow down the processing of requests.
+## BUG: the process order is likely to be non-deterministic for 3 or more requests.
+lockfile=/tmp/wmctrl_emulate_fluxbox_command.$USER.lock
+lockfile -1 -r 99 -l 15 "$lockfile"
 
 case "$1" in
 	":Workspace")
@@ -17,36 +21,42 @@ case "$1" in
 		target_workspace=$(wmctrl -d | grep -B1 '[[:digit:]]\+ \+\*' | head -n 1 | cut -f1 -d ' ')
 		;;
 	":NextWorkspace")
-		wsps=$(wmctrl -d | grep -A1 '[[:digit:]]\+ \+\*')
-		case $(echo "$wsps" | wc -l) in
-			1)
-				target_workspace=$(wmctrl -d | head -n 1 | cut -f1 -d ' ')
-				;;
-			2)
-				target_workspace=$(echo "$wsps" | tail -n 1 | cut -f1 -d ' ')
-				;;
-			*)
-				echo "Weird wc output" > /dev/stderr
-				exit 1
-				;;
-		esac
+		howFar="$2"
+		[[ -z $howFar ]] && howFar=1
+		wsps=$(wmctrl -d | grep -A"$howFar" '[[:digit:]]\+ \+\*')
+		count=$(echo "$wsps" | wc -l)
+		expected=$((howFar+1))
+		if [[ $count < $expected ]]
+		then
+			## We are probably near the end of the list, so we need to look from the top
+			missing=$((expected-count))
+			target_workspace=$(wmctrl -d | head -n $missing | tail -n 1 | cut -f1 -d ' ')
+		elif [[ $count = $expected ]]
+		then
+			target_workspace=$(echo "$wsps" | tail -n 1 | cut -f1 -d ' ')
+		else
+			echo "Weird wc output" > /dev/stderr
+			exit 1
+		fi
 		;;
 	":PrevWorkspace")
-		wsps=$(wmctrl -d | grep -B1 '[[:digit:]]\+ \+\*')
-		case $(echo "$wsps" | wc -l) in
-			1)
-				target_workspace=$(wmctrl -d | tail -n 1 |
-				cut -f1 -d ' ')
-				;;
-			2)
-				target_workspace=$(echo "$wsps" | head -n
-				1 | cut -f1 -d ' ')
-				;;
-			*)
-				echo "Weird wc output" > /dev/stderr
-				exit 1
-				;;
-		esac
+		howFar="$2"
+		[[ -z $howFar ]] && howFar=1
+		wsps=$(wmctrl -d | grep -B"$howFar" '[[:digit:]]\+ \+\*')
+		count=$(echo "$wsps" | wc -l)
+		expected=$((howFar+1))
+		if [[ $count < $expected ]]
+		then
+			## We are probably near the beginning of the list, so we need to look from the bottom
+			missing=$((expected-count))
+			target_workspace=$(wmctrl -d | tail -n $missing | head -n 1 | cut -f1 -d ' ')
+		elif [[ $count = $expected ]]
+		then
+			target_workspace=$(echo "$wsps" | head -n 1 | cut -f1 -d ' ')
+		else
+			echo "Weird wc output" > /dev/stderr
+			exit 1
+		fi
 		;;
 	*)
 		echo "Command $1 not yet implemented" > /dev/stderr
@@ -54,5 +64,8 @@ case "$1" in
 		;;
 esac
 
-wmctrl -s $target_workspace
+[[ ! -z $target_workspace ]] && wmctrl -s $target_workspace
+
+# sleep 0.5
+rm -f "$lockfile"
 
