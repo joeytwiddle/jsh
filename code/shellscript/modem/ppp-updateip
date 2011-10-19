@@ -21,12 +21,16 @@ IP=`ppp-getip`
 ## Note: If an update fails, the IP address is not recorded as update =) but if you add an update and re-run it will skip.
 ## Ideally we would like other puters on the net to tell us when our ip is wrong.  (By connecting to them and asking them presumably.)
 
-LASTIP=`cat "$LAST"`
-if test "$LASTIP" = "$IP"
-then
-	# echo "$0: Last time we did an update, ip $IP was the same, so skipping."
-	echo "$0: IP $IP has not changed since last update; skipping."
-	exit 0
+if [ "$1" = -f ]
+then shift
+else
+	LASTIP=`cat "$LAST"`
+	if test "$LASTIP" = "$IP"
+	then
+		# echo "$0: Last time we did an update, ip $IP was the same, so skipping."
+		echo "`date` [$0] IP $IP has not changed since last update; skipping."
+		exit 0
+	fi
 fi
 
 ## This bit is a check to ensure we didn't update already in the last 15 minutes.

@@ -16,18 +16,20 @@ fi
 if [ ! "$1" ] || [ "$1" = --help ]
 then cat << !
 
-eximflushall [ -test ] <command> [ <command>s.. ]
+eximflushall [ -test ] <commands>...
 
-  where each <command> can be one of:
+  performs a few useful actions on emails in the mailq.
+
+  The -test option performs the action only on the first mail in the queue.
+  Without it all mails in the queue are processed!
+
+  The available <commands> are:
 
     -peek        Print out email body
     -clearrecipients
     -reroute     Adds debug@hwi.ath.cx to recipients
     -flush       Attempts to send the email
     -remove      Removes the mail
-
-  The -test option forces the script to exit after
-  one email has been processed.
 
 !
 # -status      Print out email details

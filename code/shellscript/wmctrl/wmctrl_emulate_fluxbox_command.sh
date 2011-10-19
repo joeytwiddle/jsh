@@ -9,13 +9,14 @@ fi
 ## BUG: the process order is likely to be non-deterministic for 3 or more requests.
 lockfile=/tmp/wmctrl_emulate_fluxbox_command.$USER.lock
 
-lockfile -1 -r 99 -l 15 "$lockfile"
+# lockfile -1 -r 99 -l 15 "$lockfile"
 
-# n=0
-# while [[ -f "$lockfile" && $n < 99 ]]
-# do sleep 0.1 ; n=$((n+1))
-# done
-# touch "$lockfile"
+## Might respond slightly faster.  Might also be buggy.
+n=0
+while [[ -f "$lockfile" && $n < 99 ]]
+do sleep 0.1 ; n=$((n+1))
+done
+touch "$lockfile"
 
 case "$1" in
 	":Workspace")

@@ -158,7 +158,10 @@ do
 		# echo "rotate: $ZIPCOM"
 		# echo "Rotating $FILE to $FINALFILE with `declare -f zipcom | tr '\n\t' '  '`"
 		echo "Rotating $FILE to $FINALFILE with $DOZIPCOM"
+		oldSize=`filesize "$FILE"`
 		zipcom || exit 1
+		newSize=`filesize "$FINALFILE"`
+		echo "Size changed from $oldSize to $newSize"
 	fi
 
 	## If we wanted to keep the original file, but gzip has removed it:

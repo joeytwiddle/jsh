@@ -1,6 +1,6 @@
 #!/bin/sh
 # jsh-depends: playmp3andwait takecols chooserandomline filename
-# this-script-does-not-depend-on-jsh: music del
+# jsh-depends-ignore: music del
 
 ## Create playlist.last as we go, so we can look back in history.
 ## Also create playlist.potential at the start (the filtered/grepped memo) so that audacious can do something similar if we need to drop randommp3.
@@ -56,8 +56,9 @@ do
 	then
 		# echo "`curseblue`Normalising next track: `cursemagenta`$TRACK`cursenorm`" >&2
 
+		## TODO: This block can be removed once i've un-mp3gained my collection!
 		curseblue
-		undomp3gain "$TRACK" # >/dev/null 2>&1 ## can be removed once i've un-mp3gained my collection!
+		undomp3gain "$TRACK" # >/dev/null 2>&1
 		cursenorm
 
 		TMPFILE="$NORMALISEDTRACK"
@@ -119,7 +120,7 @@ do
 	# osd_cat -c green -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*' &
 	osd_cat -c green -f '-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*' & ## works inside my chroot
 
-	echo "`cursered`del \"$TRACK\"`cursenorm`""*" # * added for .mp3gain files :)
+	echo "`cursered`del \"$TRACK\"`cursenorm`""(|.mp3gain)" # also cleans up any associated mp3gain file :)
 
 	# [ "$USE_MP3GAIN" ] && [ ! "$FIRSTLOOP" ] && TRACK="$NORMALISEDTRACK"
 

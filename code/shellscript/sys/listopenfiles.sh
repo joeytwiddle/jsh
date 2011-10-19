@@ -6,41 +6,53 @@
 if [ "$1" = --help ]
 then cat << !
 
-listopenfiles [ -allthreads | -mergethreads ] [ <start_of_process_name> ] [ <lsof_options> ]
+listopenfiles [ -allthreads | -mergethreads | -mergeprocesses ] [ <start_of_process_name> ] [ <lsof_options> ]
 
   will list all files the process currently has opened for reading or writing.
   <start_of_process_name> is a regexp, but don't try to match more than 8 chars!
   (TODO: fix this with lsof's +c <cols> option)
-  If no regexp is given, or "", or ., then all processes are listed, which may take longer.
+  If no regexp is given, or "", or ., then all processes are listed, which may
+  take longer.
 
-  -allthreads will show every PID which is accessing a file, so may list files
-    twice if more than one thread is accessing it.  Use this if you want to
-    know all the PIDs, or because it is faster.
+  -allthreads will show every file access by every thread, it is fast but long.
 
-  -mergethreads will show each file only once, so some PIDs may not be listed.
-    Use this if you just want to know the filenames.  (Currently the default.)
+  -mergethreads will hide duplicate file accesses from the same process (PID).
+    This is the default.
 
-  If a process has more than one file open, its PID will be listed more than once.
+  -mergeprocesses will hide duplicates files accesses from the same
+    application, by removing the PIDs from the output.
+
+  NOTE: The fourth column has flags describing the type of access the thread is
+  making, e.g. u/ur/uw.  We may want to drop that column for mergethreads and
+  mergeprocesses.
 
   Try: export ENABLE_COLOUR=true
 
-  (We could default to showing only the first PID in each otherwise identical group.)
-  (Idk what that meant! :p We could drop all the extra info, and list each file only once,
-    but with a comma-separated list of all the PIDs :)
-  (listopenfiles is a friendly wrapper for lsof, which strips some but not all of lsof's
-    listings, and currently still retains some of lsof's meta-info about each access,
-    which it might be better to strip.)
+  To list normal files opened for reading, excluding libraries:
+
+    listopenfiles chrome | grep "\<REG\>" | grep -v "\<mem\>"
 
 !
 exit 1
 fi
 
-MERGE_THREADS=true
+##  If a process has more than one file open, its PID will be listed more than once.
+##  (We could default to showing only the first PID in each otherwise identical group.)
+##  (Idk what that meant! :p We could drop all the extra info, and list each file only once,
+##    but with a comma-separated list of all the PIDs :)
+##  (listopenfiles is a friendly wrapper for lsof, which strips some but not all of lsof's
+##    listings, and currently still retains some of lsof's meta-info about each access,
+##    which it might be better to strip.)
+
+MERGE_THREADS=true ; MERGE_PROCESSES=
 if [ "$1" = -allthreads ]
-then shift; MERGE_THREADS=
+then shift; MERGE_PROCESSES= ; MERGE_THREADS=
 fi
 if [ "$1" = -mergethreads ]
-then shift; MERGE_THREADS=true
+then shift; MERGE_THREADS=true ; MERGE_PROCESSES=
+fi
+if [ "$1" = -mergeprocesses ]
+then shift; MERGE_THREADS=true ; MERGE_PROCESSES=true
 fi
 
 column5not () {
@@ -124,10 +136,20 @@ grep "^$PROCESS_NAME" |
 # column5is "REG" |
 # grep -v "/lib/" | ## Because libraries still crop up despite above (for vim at least)
 
-# dropcols 2 | We used to drop the PID - this was better for watching / ignoring threads which kept refreshing (apachelistuploads and monitor_disk_usage and monitorfileaccess)
-
+## The output may contain multiple entries for the same file and app, if:
+##   - it is opened by multiple PIDs of the same application
+## or
+##   - it is opened by multiple threads of the same application
+## so here we perform merging of redundant data.
 if [ "$MERGE_THREADS" ]
-then removeduplicatelines
+then
+  dropcols 7 8 |
+  if [ "$MERGE_PROCESSES" ]
+  then dropcols 2
+  else cat
+  fi |
+  removeduplicatelines |
+  columnise
 else cat
 fi |
 

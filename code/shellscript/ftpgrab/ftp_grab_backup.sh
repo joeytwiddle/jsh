@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ## BUGS: On one server some text files appeared as 2 or 4 bytes longer remotely than the file we received locally, so these were always repeat-fetched. :|
 
 function convert_ftp_response_to_filestats() {
@@ -91,7 +93,7 @@ function download_file() {
 		## TODO NASTY BUG: if i do the ssh in the foreground, the outermost while loop crashes.  The following is a nasty workaround with anti-flooding.
 		# while [ "`findjob "ssh $SSH_OPTIONS $SSH_USERHOST" | wc -l`" -gt 20 ]; do sleep 3; done
 		# sleep 3 ; verbosely ssh $SSH_OPTIONS "$SSH_USERHOST" cat "$1" > "$2" &
-		scp $SCP_OPTIONS "$SSH_USERHOST":"$1" "$2".tmp
+		verbosely scp $SCP_OPTIONS "$SSH_USERHOST":"$1" "$2".tmp
 	else verbosely wget -nv --user="$USERNAME" --password="$PASSWORD" "ftp://$REMOTEHOST/$1" -O - > "$2".tmp
 	fi
 	if [ "$?" = 0 ]
@@ -100,11 +102,13 @@ function download_file() {
 }
 
 function recycle() {
-	if [ "$KEEP_OLD_VERSIONS" ]
+	## We never keep broken links - we always delete them
+	if [ "$KEEP_OLD_VERSIONS" ] && ! ( [ -L "$1" ] && [ ! -f "$1" ] )
 	then
 		# verbosely mv "$1" "$1".$GEEKDATE
 		# GEEKDATE=`date -r "$1" +"%Y%m%d-%H%M"` ## we don't actually have hours and minutes
 		GEEKDATE=`date -r "$1" +"%Y%m%d"`
+		[ "$GEEKDATE" = "" ] && GEEKDATE="DELETED"
 		if [ "$TEST" ]
 		then echo "Would move $1 to $1.$GEEKDATE"
 		else verbosely mv "$1" "$1".$GEEKDATE
@@ -182,7 +186,7 @@ do
 		else
 			[ "$DATE1" = "@" ] && DATE1=""
 			## TODO: optionally recycle (check-in) old file if it exists (we could check that it's not just a partial d/l)
-			jshwarn "No suitable candidate for $FILEPATH"
+			jshinfo "No suitable candidate for $FILEPATH"
 			mkdir -p "`dirname "$TARGET_DIR/$FILEPATH"`" &&
 			cd "$TARGET_DIR" &&
 			download_file "$FILEPATH" "$TARGET_DIR/$FILEPATH" &&

@@ -1,3 +1,9 @@
+#!/bin/bash
+## Added shebang to see if it helps processing at all.
+## Processing is very slow due to the huge number of forks this script performs!
+## In fact it can show 80% CPU without any individual processes hogging the CPU,
+## but lots of forks.
+
 OUTDIR=/var/www/jsh
 mkdir -p "$OUTDIR"
 

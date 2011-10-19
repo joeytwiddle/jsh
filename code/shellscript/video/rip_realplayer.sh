@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ## BBC news:      http://www.bbc.co.uk/newsa/n5ctrl/tvseq/bb_news_ost.ram
 ## Newsnight:     http://www.bbc.co.uk/newsa/n5ctrl/tvseq/newsnight/newsnight.ram
 ## Question time: http://www.bbc.co.uk/newsa/n5ctrl/progs/question_time/latest.ram

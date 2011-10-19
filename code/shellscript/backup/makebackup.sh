@@ -1,7 +1,7 @@
 #!/bin/sh
 ## TODO: As well as symlink list, also make a list of all files, so that after patch-expand, it can be determined which of the new empty files should remain or be removed.
 ##       Of course this assumes we use a special script to unpack the old patches.
-# this-script-does-not-depend-on-jsh: before new filename
+# jsh-depends-ignore: before new filename
 # jsh-depends: filesize jdeltmp jgettmpdir contractsymlinks expandsymlinks
 ## Example recovery:
 ## mkdir /tmp/recover; cd /tmp/recover
@@ -50,7 +50,7 @@ makebackup [-efficient] <dir/file_to_backup> <storage_dir> [<storage_prefix>]
   Lacking features: Well it takes a lot of space (~ 2 x target size) to create
    the patches (current and previous copies in /tmp, with contractsymlinks run).
    It creates a full tarball of the current target each time.  A truly space-
-	 efficient method would need only 1 initial tarball and the patches from there.
+   efficient method would need only 1 initial tarball and the patches from there.
 
 !
 exit 1

@@ -1,3 +1,9 @@
 #!/bin/sh
-# lsof -P -S 2 -n -V | grep ":" | grep -v "\<REG\>"
-lsof -P -S 2 -V | grep ":" | grep -v "\<REG\>"
+optionalProcessName="$1"
+# Don't lookup hostnames: -n
+lsof -P -S 2 -V |
+grep "^$optionalProcessName" |
+grep ":" |
+grep -v "\<REG\>" |
+grep -v "Permission denied"
+# highlight blue ".*Permission denied.*"

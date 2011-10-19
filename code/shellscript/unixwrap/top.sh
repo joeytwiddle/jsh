@@ -3,7 +3,7 @@
 unset COLUMNS
 
 ## The problem with top c, is if the user writes c mode to their .toprc with W, then this will undo that!
-unj top c "$@"
+unj top -n 200 "$@"
 # unj top "$@"
 ## They can get round it by saving the default non-c mode to their .toprc again.
 

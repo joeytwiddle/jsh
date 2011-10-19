@@ -22,29 +22,37 @@
 ## Should jsh boot clear all tmp files older than 1 day?  <-- my favourite
 ## What if the computer's date is wrong?!
 
+## TODO: This scrip tis very inefficient!
+## Two calls to jgettmp and two to jdeltmp cost ~32 forks!
+## I shaved this down to 28.
+
 ## Choosing suitable top tmp directory has been abstracted out (at cost!) for memoing (boris)
 
-test -w "$TOPTMP" ||
+if [ "$TOPTMP" = "" ] || [ ! -w "$TOPTMP" ]
+then
 ## Note: need this . at start of line, or makeshfunction will miss it.
 . jgettmpdir -top ||
 exit 1
+fi
 
 # Neaten arguments (to string not needings ""s *)
 ARGS=`printf "%s" "$*" | tr -d "\n" | tr " /" "_-"`
-if test "x$ARGS" = "x"; then
-  ARGS="$$"
+if [ "x$ARGS" = "x" ]
+then ARGS="$$"
 fi
 
 ## Because we don't do any locking, I start tmpfile on $$ to avoid collision.
 X=$$;
 TMPFILE="$TOPTMP/$ARGS.$X.tmp"
-while test -f "$TMPFILE" || test -d "$TMPFILE"; do
+while [ -f "$TMPFILE" ] || [ -d "$TMPFILE" ]
+do
   # X=$(($X+1));
   # If already exists, choose a larger ver number!
   X=`expr "$X" + $$`; ## Much better at avoiding buildups.
   TMPFILE="$TOPTMP/$ARGS.$X.tmp"
 done
 
-touch "$TMPFILE" &&
-chmod go-rwx "$TMPFILE" || exit 1
+if touch "$TMPFILE"
+then chmod go-rwx "$TMPFILE" || exit 1
+fi
 echo "$TMPFILE"

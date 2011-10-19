@@ -37,7 +37,7 @@ function mydiff () {
 	# -C 1 is nice for some context but then we never get <red >green lines, only !yellow changes, although with extra processing we could colour the !s correctly.
 }
 
-[ "$DIFFCOM" ] || DIFFCOM="jdiff -infg"
+[ "$DIFFCOM" ] || DIFFCOM="jdiff"
 # [ "$DIFFCOM" ] || DIFFCOM="mydiff"
 
 ## First, choose a figlet font:

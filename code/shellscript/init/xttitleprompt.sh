@@ -56,6 +56,7 @@ then
 	case $SHORTSHELL in
 
 		bash)
+			## TODO: bash now has PROMPT_COMMAND - we could use that to set a more advanced title
 			# if [ "$0" = "bash" ]
 			# then
 				## For bash, get prompt to send xttitle escseq:

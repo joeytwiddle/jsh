@@ -126,6 +126,7 @@ do
 		## Also, conversion is slow!  memoing won't really work (just double the size of DB!)  But if the created image file is significantly smaller than the original, let's replace the original by our new version!  We should only do this e.g. if we are converting from 1280x1024 bitmap to 1280x1024 png, and not doing any pixel value processing.
 
 		xsetbg "$FILE"   ## Preview
+		[ "$FAST" ] && break
 		(
 			MODDED_FILE="$HOME/j/background1.modulated.jpg"
 			## Darken image: bri,sat,hue

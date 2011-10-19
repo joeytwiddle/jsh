@@ -32,8 +32,8 @@ INTERFACE=`ifonline`
 
 # jwatchchanges -fine /sbin/tc -s qdisc ls dev $INTERFACE "|" trimempty "|" sed "\"$SEDSTR\"" | highlight '[^ ]*:'
 
+TMPFILE=/tmp/tc_output.$USER.$$
 add_levels_to_tc_output () {
-	TMPFILE=/tmp/tc_output.tmp
 	/sbin/tc -s qdisc ls dev $INTERFACE | trimempty | sed "$SEDSTR" > "$TMPFILE"
 	## The first "Sent" number in the file should be the #bytes sent in the root class, i.e. the total bytes sent.
 	TOTAL=`cat "$TMPFILE" | grep "^ *Sent " | head -n 1 | beforefirst " bytes " | afterlast " "`
@@ -74,6 +74,7 @@ add_levels_to_tc_output () {
 			echo "$ARG1 $ARG2 $ARG3 $REST"
 		fi
 	done < "$TMPFILE"
+	rm -f "$TMPFILE"
 	# last_sent=${new_sent}
 	LAST_TOTAL="$TOTAL"
 	LAST_TIME="$TIME"

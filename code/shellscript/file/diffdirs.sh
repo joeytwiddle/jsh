@@ -7,6 +7,7 @@
 # jsh-depends-ignore: findfiles
 
 ## Consider: Instead of "Only in ..." use "Missing" and "Added" when comparing state of second wrt first.
+## BUG TODO: Does not do the right thing with broken symlinks - spews errors instead.
 
 ## BUG: -showdiffswith doesn't work for eg. vimdiff, because stdin terminal has already been stolen :(  (xterm -e vimdiff is ok though :)
 if [ "$1" = -showdiffswith ]
@@ -85,6 +86,10 @@ identical() {
 	IDCNT=$((IDCNT+1))
 }
 
+isbrokenlink() {
+	[ -L "$1" ] && ! [ -d "$1" ] && ! [ -f "$1" ]
+}
+
 
 
 (
@@ -102,6 +107,18 @@ removeduplicatelines |
 
 while read FILE
 do
+
+	## Avoids errors, but doesn't actually compare the links!  (Sometimes the other one does not exist at all.)
+	if isbrokenlink "$DIRA/$FILE"
+	then
+		report "${CURSEYELLOW}Is a broken symlink:${CURSENORM} $DIRA/$FILE"
+		continue
+	fi
+	if isbrokenlink "$DIRB/$FILE"
+	then
+		report "${CURSEYELLOW}Is a broken symlink:${CURSENORM} $DIRB/$FILE"
+		continue
+	fi
 
 	if [ ! -f "$DIRA/$FILE" ] && [ -f "$DIRB/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then

@@ -114,8 +114,10 @@ else
 		[ "$JSHDEBUG" ] && echo "startj: starting jsh system" >&2
 
 		PATHBEFORE="$PATH"
+		## Not everyone wants $HOME/bin
 		# export PATH="$JPATH/tools:$HOME/bin:$PATH"
-		export PATH="$PATH:$JPATH/tools:$HOME/bin"
+		# export PATH="$PATH:$JPATH/tools:$HOME/bin"
+		export PATH="$PATH:$JPATH/tools"
 
 		# $SHLVL|
 		## The xterm check is actually to prevent stderr from firing error emails during cron scripts.  We might instead check we are in an interactive (or even better, "visible") shell.

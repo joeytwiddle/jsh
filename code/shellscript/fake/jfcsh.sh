@@ -41,10 +41,11 @@ while true; do
 	shift
 done
 
-if test $COMMON; then
+if [ "$COMMON" ]
+then
 
 		cat "$1" |
-		while read X
+		while IFS="" read X
 		do
 			X="`toregexp "$X"`"
 			grep "^$X$" "$2"
@@ -58,30 +59,35 @@ else
 	## including unpaired duplicates of already matched lines, wheras before
 	## only unique lines were shown.
 
-	A=`jgettmp "$1"`
-	B=`jgettmp "$2"`
+	## jgettmp causes a huge number of forks (~32)!  I shaved this down to 28.
+	# A=`jgettmp "$1"`
+	# B=`jgettmp "$2"`
+	A="$1.jfcsh_sorted"
+	B="$2.jfcsh_sorted"
 
-	$SORT "$1" > $A
-	$SORT "$2" > $B
+	$SORT "$1" > "$A"
+	$SORT "$2" > "$B"
 
-	test $BOTHWAYS && (
+	if [ "$BOTHWAYS" ]
+	then
 		cursecyan
 		centralise -pad "v" " " "v" "Lines only in $1"
 		cursenorm
 		echo
-	)
+	fi
 
-	diff $A $B |
+	diff "$A" "$B" |
 		grep "^< " | sed "s/^< //"
 
-	test $BOTHWAYS && (
+	if [ "$BOTHWAYS" ]
+	then
 
 		cursecyan
 		centralise -pad "-" "-" "-" ""
 		cursenorm
 		echo
 
-		diff $B $A |
+		diff "$B" "$A" |
 			grep "^< " | sed "s/^< //"
 
 		## Or equivalently:
@@ -93,9 +99,10 @@ else
 		cursenorm
 		echo
 
-	)
+	fi
 
-	jdeltmp $A
-	jdeltmp $B
+	# jdeltmp $A
+	# jdeltmp $B
+	rm -f "$A" "$B"
 
 fi

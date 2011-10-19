@@ -1,4 +1,7 @@
-# jsh-depends: cursebold cursecyan cursegrey cursenorm
+# jsh-depends: cursebold cursecyan cursegrey cursenorm reply
+# jsh-depends-ignore: highlightstderr
+# jsh-suggests: highlightstderr
+
 # jshinfo "$@"
 # echo "`curseyellow;cursebold`[EXEC]`cursecyan` $PWD %`cursegrey` $*`cursenorm`" >&2
 # echo "`curseyellow`[EXEC]`cursecyan` %`cursegrey` $*`cursenorm`" >&2

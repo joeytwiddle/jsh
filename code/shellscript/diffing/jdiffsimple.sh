@@ -15,8 +15,6 @@ fi
 if [ "$1" = -fine ]
 then
 
-	## TODO: Should really implement "$FILEA".xescaped etc. as tmpfiles
-
 	shift
 	FILEA="$1"
 	FILEB="$2"
@@ -27,7 +25,7 @@ then
 	JDSCONTEXT="$JDSCONTEXT" jdiffsimple "$FILEA".xescaped "$FILEB".xescaped "$@" |
 	unescapenewlines -x
 
-	del "$FILEA".xescaped "$FILEB".xescaped >/dev/null
+	rm -f "$FILEA".xescaped "$FILEB".xescaped
 
 else
 

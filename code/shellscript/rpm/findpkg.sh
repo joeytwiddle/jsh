@@ -1,7 +1,9 @@
 #!/bin/sh
 
 ## BUG: dpkg does not display all packages, e.g. meta-packages used by apt.
-## So rather than using dpkg -all, I recommend aptitude search.
+## So rather than using dpkg -all, I recommend instead using: aptitude --disable-columns search <part-of-package-name> | grep ^i
+## I think this bug applies to dlocate as well as dpkg.
+## I don't know what is the pattern of packages that don't show.
 
 if [ "x$1" = "x" ]
 then
@@ -33,7 +35,8 @@ fi
 SHOWALL=
 WEBSRCH=
 HEAD=
-while test ! "$2" = ""; do
+while test ! "$2" = ""
+do
 	case "$1" in
 		-all)
 			SHOWALL=true
@@ -54,9 +57,11 @@ while test ! "$2" = ""; do
 done
 SEARCH="$1"
 
-if test $WEBSRCH; then
+if test $WEBSRCH
+then
 	PAGE="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all"
-	if xisrunning; then
+	if xisrunning
+	then
 		browse "$PAGE"
 		# newwin lynx "$PAGE"
 	else
@@ -66,13 +71,47 @@ fi
 
 # use dlocate if it's available
 BIN=`jwhich dlocate`
-## NO don't, because it stopped working properly on my system!
-BIN=""
 SEARCHEXP="$SEARCH"
-if test "$USEDPKGOVERDLOCATE" || test ! -x "$BIN"; then
+if [ "$USEDPKGOVERDLOCATE" ] || [ ! -x "$BIN" ]
+then
   BIN=`jwhich dpkg`
   SEARCHEXP="*$SEARCH*"
 fi
+
+
+
+
+
+## Simple method:
+# dpkg -l "*$@*" | egrep -v "^?n"
+# dpkg -l "*$@*" | grep "^[hi]"
+
+
+
+## Old method; presents output much like dpkg, but optionally with highlighting.
+#
+# Without the grep, both dpkg and dlocate used to find some non-installed
+# packages, but didn't search all of them!  So we have stopped using it for
+# SHOWALL, and switched to aptitude instead.
+#
+# apt-cache ia faster and available on more systems, but aptitude's output is
+# more interesting (p/c/i).  Also apt-cache produces extra unwanted results
+# (packages without kde in the name or the description!)
+#
+if [ $SHOWALL ]
+then
+	## Old: $HEAD $BIN -l "$SEARCHEXP" | drop 5
+	## Aptitude does not like *pkg* so we just use pkg
+	if which aptitude >/dev/null
+	then aptitude search "$SEARCH"
+	else apt-cache search "$SEARCH"
+	fi
+else
+	$HEAD $BIN -l "$SEARCHEXP" |
+	drop 5 |   ## My dpkg's first five lines are headers
+	grep -v "no description available"   ## skip this for SHOWALL
+fi |
+highlight "$SEARCH"
 
 
 
@@ -84,24 +123,11 @@ fi
 # takecols 2 |
 # withalldo apt-cache show |
 # grep "^\(Package\|Description\):" |
-# while read HEAD REST
+# while read HEADER REST
 # do
-	# [ "$HEAD" = "Package:" ] && PACKAGE="$REST"
-	# [ "$HEAD" = "Description:" ] && echo "$PACKAGE	$REST"
+	# [ "$HEADER" = "Package:" ] && PACKAGE="$REST"
+	# [ "$HEADER" = "Description:" ] && echo "$PACKAGE	$REST"
 # done | column -t -s "	" | removeduplicatelines
 # 
 # exit
 
-
-
-## Old method; presents output much like dpkg, but optionally with highlighting.
-
-$HEAD $BIN -l "$SEARCHEXP" |
-drop 5 | ## My dpkg's first five lines are headers
-if [ $SHOWALL ]
-then cat
-else grep -v "no description available"
-fi | highlight "$SEARCH"
-
-# dpkg -l "*$@*" | egrep -v "^?n"
-# dpkg -l "*$@*" | grep "^[hi]"

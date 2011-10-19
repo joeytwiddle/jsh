@@ -1,11 +1,14 @@
-## You can use . lscolsinit to do a live update from ~/.dircolors
+## Load pretty colors for ls into the shell.  Source me!
 export SHELL ## dircolors wants this
+## You can make local cache .lscols by running lscolsrefresh but it will
+## prevent updates!
+## TODO: We could be clever and do lscolsrefresh if we detect a .dircolors newer than .lscols!
 if [ -f $HOME/.lscols ]
 then . $HOME/.lscols
-elif test -f "$HOME/.dircolors" ## Your config
+elif [ -f "$HOME/.dircolors" ] ## Your config - edit this
 then eval `dircolors $HOME/.dircolors`
-elif test -f "$JPATH/code/home/.dircolors" ## Work in jsh if not linked
+elif [ -f "$JPATH/code/home/.dircolors" ] ## Work in jsh if not linked
 then eval `dircolors $JPATH/code/home/.dircolors`
-else eval `dircolors -p | dircolors` ## Default
+else eval `dircolors -p | dircolors` ## Default - use this to seed your own config
 fi
 export LS_COLORS

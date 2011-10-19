@@ -1,10 +1,17 @@
+#!/bin/bash
+
+## With /bin/sh we sometimes get:
+##   sed: -e expression #1, char 27: unknown option to `s'
+
+
 TAIL=tail
 if [ "$1" = -rare ]
 then TAIL=head ; shift ## Often (but not always) one colour for 16 unique words.
 fi
 
 TMPFILE="/tmp/jsh.highlight_words.$$"
-cat "$@" > "$TMPFILE"
+# cat "$@" > "$TMPFILE"
+cat "$@" | tee "$TMPFILE"   ## Show to user wile he's waiting
 
 # WORD_SPLITTING_CHARS=" "
 # WORD_SPLITTING_CHARS="- 	_.,:;=|_/"
@@ -71,6 +78,9 @@ done
 # echo "WORDS=[" $WORDS "]"
 # echo "SEDEXPR=$SEDEXPR"
 
-cat "$TMPFILE" | sed "$SEDEXPR"
+cat "$TMPFILE" | sed "$SEDEXPR" |
 # cat "$TMPFILE" | unj tail -n 20 | sed "$SEDEXPR"
+
+## This is a terminal pretty-printer, so make it friendly too:
+more
 

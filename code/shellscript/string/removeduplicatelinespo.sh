@@ -18,7 +18,7 @@ awk ' {
 sort -s -k 2 |
 
 escapeslash | ## echo "$LINE" below will lose any \s unless they are doubled up.  BUG: echo "$LINE" may lose other stuff too
-tee all_sorted |
+# tee all_sorted |
 
 while read N LINE
 do

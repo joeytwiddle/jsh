@@ -1,19 +1,39 @@
 #!/bin/bash
+
+### BEGIN INIT INFO
+# Provides:          shaping
+# Required-Start:    $network
+# Required-Stop:     $network
+# Should-Start:      
+# Should-Stop:       
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: traffic shaping
+# Description:       traffic shaping script to prioritise some packets over others
+### END INIT INFO
+
 ## traffic_shaping
 ## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
 ## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.
 
-if [ "$1" = "stop" ]
+if [ "$1" = "stop" ] || [ "$1" = "restart" ]
 then
 	/sbin/tc qdisc del dev eth2 root
-	/sbin/tc qdisc del dev eth2 ingress
-elif [ "$1" = "start" ] || [ "$1" = "restart" ]
+	/sbin/tc qdisc del dev eth2 ingress 2>/dev/null ## we probably don't have any incoming rules
+fi
+
+if [ "$1" = "start" ] || [ "$1" = "restart" ]
 then
 	NYX="/root/j/code/shellscript/net/nyx.sh"
 	sh "$NYX"
 fi
 
 exit "$?"
+
+
+
+
+## == OLD ==
 
 ## From Jim for fast ssh: tc filter add dev eth1 parent 1:0 protocol all prio 1 handle 22:0:1 u32 ht 22:0:0 match u16 0x16 0xffff at 2 classid 1:2
 

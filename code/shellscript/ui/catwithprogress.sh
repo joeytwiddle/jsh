@@ -109,7 +109,7 @@ do
 		# SOFAR=`expr $SOFAR + $BLOCKSIZE`
 		[ "$SOFAR" -gt "$SIZE" ] && SIZE="$SOFAR"
 		## But I think we fill up a buffer pretty quick before we start blocking sufficiently to truly ETA.  So I remove the size of this buffer from the calculation of progress.
-		SOFARRESERVED=`expr "$SOFAR" - 4096`
+		SOFARRESERVED=`expr "$SOFAR" - 65536`
 		[ "$SOFARRESERVED" -lt 0 ] && SOFARRESERVED=0
 		[ "$SIZE" = 0 ] && SIZE=1
 		PERCENTAGE=`expr 100 '*' $SOFAR / $SIZE` ## otherwise could do $SOFARRESERVED / ($SIZE - 4096)
@@ -121,8 +121,9 @@ do
 			TIMENOW=`date +"%s"`
 			TIMETAKEN=`expr "$TIMENOW" - "$STARTTIME"`
 			# ESTTOTTIME=`expr "$TIMETAKEN" '*' "$SIZE" / "$SOFARRESERVED"`
-			ESTTOTTIME=`expr "$TIMETAKEN" '*' '(' "$SIZE" - 4096 ')' / "$SOFARRESERVED"`
+			ESTTOTTIME=`expr "$TIMETAKEN" '*' '(' "$SIZE" - 65536 ')' / "$SOFARRESERVED"`
 			ESTREMTIME=`expr "$ESTTOTTIME" - "$TIMETAKEN"`
+			# ETAMSG="   ETA: $ESTREMTIME seconds"
 			# ETAMSG="   ETA: $ESTREMTIME seconds ("`date -d "$ESTREMTIME seconds"`")"
 			# ETAMSG="   ETA: `datediff -english $ESTREMTIME` ("`date -d "$ESTREMTIME seconds"`")"
 			ETAMSG=" ETA: `datediff -english $ESTREMTIME`" ## Trailing space since datediff's output was not fixed-length
@@ -140,7 +141,8 @@ do
 		STRINGTOPRINT="$CURSEMESSAGECOL$STATE $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM"
 		if [ "$LASTPRINTLENGTH" ]
 		then
-			CLEARANCE=`seq 1 "$LASTPRINTLENGTH" | while read N; do echo -n " "; done`
+			# CLEARANCE=`seq 1 "$LASTPRINTLENGTH" | while read N; do echo -n " "; done`
+			CLEARANCE=`seq 1 "$LASTPRINTLENGTH" | sed 's+.*++' | tr '\n' ' '`
 			# printf "\r%s" "$CLEARANCE" >&2
 		fi
 
@@ -153,7 +155,7 @@ do
 		else
 			printf "\r%s\r%s" "$CLEARANCE" "$STRINGTOPRINT" >&2
 			LASTPRINTLENGTH=`
-				printf "\r%s" "$STRINGTOPRINT" | striptermchars | countbytes
+				printf "\r%s" "$STRINGTOPRINT" | striptermchars | wc -c
 			`
 			# printf "\r%s" "$CURSEMESSAGECOL$STATE [+$ADDED/$BLOCKSIZE] $SOFAR/$SIZE ($PERCENTAGE%)$ETAMSG $CURSENORM" >&2
 			# +$ADDED/$BLOCKSIZE 

@@ -10,7 +10,7 @@
 
 ## OLD:
 
-FAVOURITE_BROWSERS='konqueror opera encompass firefox firebird phoenix mozilla galeon skipstone netscape amaya links lynx w3m w3c jazilla'
+FAVOURITE_BROWSERS='chromium-browser google-chrome konqueror-trinity konqueror opera encompass firefox firebird phoenix mozilla galeon skipstone netscape amaya links lynx w3m w3c jazilla'
 FAVOURITE_TERM_BROWSERS='links lynx w3m w3c'
 
 ARGS="$@"

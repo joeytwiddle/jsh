@@ -50,12 +50,18 @@ find . -maxdepth $DEPTH |
 		NICEDEST="~/$X"
 		if [ ! -d "$DEST" ] && [ ! -f "$DEST" ]
 		then
-			echo "`cursegreen`linking`cursenorm`: ~/$X `cursegreen`<-`cursenorm` $SOURCE"
-			ln -sf "$SOURCE" "$DEST"
+			DESTDIR=`dirname "$DEST"`
+			if [ ! -d "$DESTDIR" ]
+			then
+				echo "`cursered;cursebold`cannot link`cursenorm` no folder `cursegreen`$DESTDIR`cursenorm` for $SOURCE"
+			else
+				echo "`curseyellow`linking`cursenorm` ~/$X `cursegreen`->`cursenorm` $SOURCE"
+				ln -sf "$SOURCE" "$DEST"
+			fi
 		else
 			if [ ! `realpath "$DEST"` = `realpath "$SOURCE"` ]
 			then
-				echo "`cursered;cursebold`problem:`cursenorm` $NICEDEST `cursered;cursebold`is in the way of`cursenorm` $SOURCE"
+				echo "`cursered;cursebold`problem`cursenorm` $NICEDEST `cursered;cursebold`is in the way of`cursenorm` $SOURCE"
 				if [ -f "$DEST" ] && [ -f "$SOURCE" ] && cmp "$DEST" "$SOURCE"
 				then echo "         but they are identical, so why not: del \"$NICEDEST\""
 				fi
@@ -64,7 +70,7 @@ find . -maxdepth $DEPTH |
 					gvimdiff "$DEST" "$SOURCE"
 				fi
 			else
-				echo "`cursegreen`ok:`cursenorm` $NICEDEST"
+				echo "`cursegreen`ok`cursenorm` $NICEDEST"
 			fi
 		fi
 	done

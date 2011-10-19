@@ -48,7 +48,7 @@ then
 	fi
 
 	## Expand the perceived dimensions of the file, so that the editor will show a little gap at the sides
-	ROWSINFILE=`expr '(' $ROWSINFILE '+' 2 ')' '*' 11 '/' 10`;
+	ROWSINFILE=`expr '(' $ROWSINFILE '+' 2 ')' '*' 12 '/' 10`   ## More so for ROWS now my Vim has MinBufExplorer at the top
 	COLSINFILE=`expr '(' $COLSINFILE '+' 2 ')' '*' 11 '/' 10`
 
 	## Determine desired height, without exceeding needed height, or maximum allowed height
@@ -93,10 +93,11 @@ TITLE="[Vim] `basename "$1"` (`dirname "$1"`)"
 # XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 # `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
 
+## My personal preference is a classic x-terminal with a dark-grey/blue background.
 # xterm -bg "#000048" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
-xterm -bg "#000000" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
+xterm -bg "#223330" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
 # # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM -title \"$TITLE\" "
 # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM " ## TITLE caused problems in my chroot (XTERMOPTS is not quoted)!
 # if [ "`jwhich xterm`" ]

@@ -1,58 +1,78 @@
-## TODO: maybe this should be renamed to jshaliases
+## TODO: split this into jshaliases and a personal config
 ## aliases are worth keeping in one place because they are so fundamental to the user's shell that
 ## they should be easy to find if they prove troublesome
 ## new jsh users should be warned about shell aliases
 ## which or something nicer like whatis (ah that's already taken) should info of aliases before informing about cmd-line programs
 
-# Note: other aliases are initialised in dirhistorysetup
+# Note: some other aliases are initialised in dirhistorysetup
 
-test "$COLUMNS" && export COLUMNS
+## TODO CONSIDER: When should we make a command:
+#    - an Alias : [+] acts like a replacement, no need to pass args explicitly;
+#                 [-] one-liners only.
+#    - a Function : [+] multi-line, fast; [-] hog memory, global state.
+#    - a Shellscript on the PATH : [+] separated, manageable; [-] slower.
+## The answer is that rarely used scripts should be shellscripts, but very
+## frequently used scripts/commands should be aliases and functions.
+## So really we should load the core jsh commands as functions which should be
+## accessible to scripts.
+## TODO: Migrate the obscure stuff here the "rare" yard or joey's personal config.
 
 ## We shouldn't modify shell behaviour unless this is a user shell.
 ## e.g. FTPDrive was barfing because our ftpd was running our ls alias.
 if [ "$TERM" = linux ] || [ "$TERM" = xterm ] ## TODO: maybe more accurate to check for TTY?
 then
 
+
+
+## == JSH Aliases: Settings ==
+
+## Without this, top can respond when the xterm is resized.
+## I don't remember why I enabled it.
+# test "$COLUMNS" && export COLUMNS
+
+
+
+## == JSH Aliases: Overrides ==
+
+## Most lusers want this:
+alias mv='mv -i'
+
+alias man='jman'
+
+## Because it's nice for the user, but overriding is bad for scripts:
+# alias apropos=japropos
+alias apropos='NOPROGRESS=true catch japropos'
+
+HIGHESTPRIORITYPROGS="cdrecord mkisofs xcdroast"
+# HIGHPRIORITYPROGS='xmms mplayer mpg123'
+## don't usually have root for these, but could sudo them
+for PROG in $HIGHESTPRIORITYPROGS
+do [ "$UID" = 0 ] && alias "$PROG"="nice -n -20 $PROG"
+done
+
 . preventgreperrs
 # alias grep='grep --line-buffered' ## This seems to add to the previous definition :)
 alias grep='grep --line-buffered --colour=auto' ## This seems to add to the previous definition :)
 alias sed='sed -u'
 
-## Actually my ls and l aliases are now overriden by myls later.
-if test $JM_COLOUR_LS; then
-	XARGS='h --color'
-	## We should share the following with getmachineinfo's JM_LS_OPTS
-	alias ls="ls -atrFb$XARGS --time-style=long-iso"
-elif test $JM_DOES_COLOUR; then
-	alias ls='fakels'
-else
-	alias ls='ls -atrF'
-fi
 
-# alias l='ls -l'
-## superceded by the l shellscript:
-alias l='. l'
-alias dl='ls -ld'
 
-## This has somem nasty problems - put it in config/auto.sh until it's fixed!
-# alias tail=prettytail
-### e.g.:
-### /home/joey/linux/j/tools/prettytail: line 40: 22909 Terminated              ( SLEEPTIME=15; while true; do
-### sleep $SLEEPTIME; echo "[tail] ... $SLEEPTIME seconds passed" | highlight ".*" blue 1>&2;
-### done )
+## == JSH Aliases: Additions ==
 
-## Note: it's rather important that aliases don't get passed
-## down to child shells / processes, because this would likely
-## result in infinite loops.
-### Er, I think that might be the default anyway!
+alias igrep='grep -i'
 
-alias xterm='xtermbg'
+# alias jhelp="$JPATH/tools/help" ## Because bash went and used it!
+# alias help='jhelp' ## Hehe I stole it back! (U can still type 'help' for bash's)
+## Hmm, seems rude, so leaving help as it was.
 
-alias man='jman'
+## We should do this for everything (no reason why not to, apart from memo diskspace usage I guess):
+# alias dusk="rememo dusk"
+# alias dusk="memo -c true dusk"
+# alias dusk="memo -t '1 minute' dusk"
+alias dusk="memo -t '1 hour' dusk"
+## BUG: Unfortunately we can't use -f or -t because there may be multiple arguments :f
 
-alias mykilljob=". 'mykilljob' -jc"
-
-## I guess we need this as an aliased function because a script would lost the history!
+## I guess we need this as an aliased function because a script would lose the history!
 if test "$SHORTSHELL" = zsh
 then
 	# . pawan_zshrc_stripped
@@ -80,44 +100,12 @@ alias h='hist'
 # }
 # alias h='histlist'
 
-myxv() {
-xv -perfect "$@" &
-}
-alias xv=myxv
-
-alias igrep='grep -i'
-
-HIGHESTPRIORITYPROGS="cdrecord mkisofs xcdroast"
-# HIGHPRIORITYPROGS='xmms mplayer mpg123'
-## don't usually have root for these, but could sudo them
-
-## I don't know why I had to `echo _`
-for PROG in `echo $HIGHESTPRIORITYPROGS`
-do alias "$PROG"="nice -n -20 $PROG"
-done
-
-# alias jhelp="$JPATH/tools/help" ## Because bash went and used it!
-# alias help='jhelp' ## Hehe I stole it back! (U can still type 'help' for bash's)
-## Hmm, seems rude, so leaving help as it was.
-
-## Because it's nice for the user, but overriding is bad for scripts:
-# alias apropos=japropos
-alias apropos='NOPROGRESS=true catch japropos'
-
-## We should do this for everything (no reason why not to, apart from memo diskspace usage I guess):
-# alias dusk="rememo dusk"
-# alias dusk="memo -c true dusk"
-# alias dusk="memo -t '1 minute' dusk"
-alias dusk="memo -t '1 hour' dusk"
-
-# alias wget='screen wget'
-
-## Shellscripts in their own right, but oneliners: (could make functions)
-
 alias quiet='fadevolume 0'
 
-## TODO: If the user uses memo instead of rememo, should we re-use the memoed file even if it is "out of date" according to "default condition"?
-# alias memo='memo -info -t "2 hours"'
+
+
+
+## == Joey's Aliases: Settings ==
 
 ## No it's not good to have memo on an alias, because sometimes I want to pass it arguments!
 export MEMO_SHOW_INFO=true
@@ -125,18 +113,43 @@ export MEMO_SHOW_INFO=true
 export MEMO_DEFAULT_CONDITION='( touch -d "2 hours ago" $AGEFILE ; newer $AGEFILE "$MEMOFILE" )'
 ## but this is not yet supported by the memo script :P
 
-## (Intended) for user only:
-alias mv='mv -i'
+
+
+## == Joey's Aliases: Overrides ==
+
 ## -a is nice, it will copy directories recursively; -i because i don't want to overwrite stuff by accident
 alias cp='cp -a -i'
 
-alias cal='cal | highlight "\<`date | takecols 3`\>"'
-
 alias locate='memo -t "1 day" locate'
+alias locateonly='memo -t "1 day" locateonly'
+alias locateend='memo -t "1 day" locateend'
+alias locateword='memo -t "1 day" locateword'
+
+## Actually my ls and l aliases are now overriden by myls later.
+if test $JM_COLOUR_LS; then
+	XARGS='h --color'
+	## We should share the following with getmachineinfo's JM_LS_OPTS
+	alias ls="ls -atrFb$XARGS --time-style=long-iso"
+elif test $JM_DOES_COLOUR; then
+	alias ls='fakels'
+else
+	alias ls='ls -atrF'
+fi
+
+## This has some nasty problems - put it in config/auto.sh until it's fixed!
+# alias tail=prettytail
+### e.g.:
+### /home/joey/linux/j/tools/prettytail: line 40: 22909 Terminated              ( SLEEPTIME=15; while true; do
+### sleep $SLEEPTIME; echo "[tail] ... $SLEEPTIME seconds passed" | highlight ".*" blue 1>&2;
+### done )
+
+alias xterm='xtermbg'
+
+## TODO: If the user uses memo instead of rememo, should we re-use the memoed file even if it is "out of date" according to "default condition"?
+# alias memo='memo -info -t "2 hours"'
 
 ## Should not be called by shellscripts:
 ## Problem: should be called: mount "$@"
-alias mount='jmount'
 function jmount() {
 	'mount' "$@" |
 	highlight "\<rw\>" cyan |
@@ -144,23 +157,16 @@ function jmount() {
 	highlight "\<bind\>" magenta
 	# highlight_words
 }
+alias mount='jmount'
 
 # alias mount="'mount' | highlight_words"
 
-alias ssh='jshssh'
 function jshssh () {
 	xttitle "=< ssh $* >="
 	## This was supposed to prevent the remote server from changing the xttitle (altho if we ssh on from there we might want to).  But it made kx vi's PageUp/Down break: export TERM=vt100
 	'ssh' "$@"
 }
-
-# function jfluxbox () {
-	# . includepath /usr/local/fluxbox
-	# 'fluxbox' "$@"
-# }
-# alias fluxbox='jfluxbox'
-
-fi
+alias ssh='jshssh'
 
 myls() {
 	## I always use -a *except* when in ~.  To -a my dotfiles, I cd into a symlink to ~.
@@ -170,4 +176,45 @@ myls() {
 	fi
 }
 alias l='myls'
+
+# function jfluxbox () {
+	# . includepath /usr/local/fluxbox
+	# 'fluxbox' "$@"
+# }
+# alias fluxbox='jfluxbox'
+
+function jcal() {
+	## Highlight the current day (must strip underline termcodes to find it!)
+	cal "$@" | sed 's+_++g' | highlight "\<`date | takecols 3`\>"
+}
+alias cal='jcal'
+
+myxv() {
+	xv -perfect "$@" &
+}
+alias xv=myxv
+
+
+
+## == Joey's Aliases: Additions ==
+
+# alias l='ls -l'
+## superceded by the l shellscript:
+alias l='. l'
+
+## Haven't got used to this shortcut.  'ld' is already taken!
+alias dl='ls -ld'
+
+## Note: it's rather important that aliases don't get passed
+## down to child shells / processes, because this would likely
+## result in infinite loops.
+### Er, I think that might be the default anyway!
+
+alias mykilljob=". 'mykilljob' -jc"
+
+# alias wget='screen wget'
+
+
+
+fi
 

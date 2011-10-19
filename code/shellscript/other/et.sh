@@ -18,7 +18,9 @@ else
 	TOOL="$PWD/$NAME.sh"
 
 	echo "Tool not found.  Please enter $JPATH/code/shellscript/<path>/$NAME.sh"
+	sleep 1
 	echo "Suggested directories:"
+	sleep 2   ## Pause so messages don't scroll away too fast!
 	( cd $JPATH/code/shellscript/ &&
 	# ls -d `find . -type d | grep -v "/CVS"` )
 	# ls -d */ )

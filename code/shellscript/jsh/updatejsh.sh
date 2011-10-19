@@ -14,13 +14,13 @@ echo
 if [ ! "$1" = "-quick" ]
 then
 
-	echo "Regenerating links from $JPATH/tools to $JPATH/code/shellscript/*"
+	echo "Regenerating links from $JPATH/tools to $JPATH/code/shellscript/* ..."
 	refreshtoollinks
 	echo
 
 	if [ -d "$JPATH/code/home/" ]
 	then
-		echo "Updating .rc scripts in $JPATH/code/home from CVS"
+		echo "Updating dotconfig scripts in $JPATH/code/home from CVS ..."
 		cd "$JPATH/code/home/"
 		cvsupdate -AdP || exit
 		echo
@@ -29,7 +29,7 @@ then
 			echo "Regenerating links from $HOME to $JPATH/code/home/* ..."
 			linkhome
 		else
-			echo "Not auto-linking .rc scripts unless you touch $JPATH/code/home/.linkhome_auto"
+			echo "Not auto-linking dotconfig scripts until you touch $JPATH/code/home/.linkhome_auto"
 		fi
 		echo
 	fi

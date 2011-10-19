@@ -5,11 +5,41 @@
 ## Will rarely fail on final dir if the file is a symlink elsewhere, but if we do realpath we may miss a swapfile at the given path or one in an intermediate directory.  Rather than checking all, we always use the local given path, and leave the handling of swapfiles in symlinked dirs to the user.
 ## TODO: The intermediate swapfiles are relevant but the one that makes vim annoying is the final target, I suspect the vim executable ignores the others.  So just do a realpath.
 
+## VIMAFTER may need updating for diffandask - where it was muting unneccessary vim after a vimdiff, there may now have been no vimdiff!
+## I have actually got used to VIMAFTER not working anyway, so we could just remove it altogether.
+## I kind of like that there are two processes: fixing the swapfiles, then opening the original requested set; since vimdiff's colors are distracting, once I have fixed any diffs, I am happy to reset vim (I quit vimdiff, so then vim runs)!
+
 ## Runs a recovervimswap check, interactively, then runs vim afterwards.
 if [ "$1" = -thenvim ]
 then VIMAFTER=true; INTERACTIVE=true; shift
 # then INTERACTIVE=true; shift
 fi
+
+# [ ! "$DIFFCOM" ] && DIFFCOM=vimdiff
+
+## Did not work!  Because we were doing while read SWAPFILE from the find.
+## TESTING: Now we are trying a for instead.
+[ ! "$DIFFCOM" ] && DIFFCOM=diffandask
+diffandask() {
+	echo "The swapfile has the following changes:"
+	diff "$1" "$2" | diffhighlight
+	echo -n "Do you want to (U)se these changes, (D)rop these changes, or (V)imdiff them? "
+	read userSays
+	case "$userSays" in
+		U|u)
+			cp -f "$2" "$1"
+		;;
+		D|d)
+			del "$2"
+		;;
+		V|v)
+			vimdiff "$1" "$2"
+		;;
+		*)
+			echo "Doing nothing.  Recovered file is left: $2"
+		;;
+	esac
+}
 
 NL="
 "
@@ -26,7 +56,7 @@ do
 	FILE=`basename "$X"`
 	# SWAPS=`countargs $DIR/.$FILE.sw?`
 	## TODO: The leading . is not necessary if file is a .file
-	LOOKFOR=`echo ".$FILE"'.sw?' | sed 's+^\.\.+.+'`
+	LOOKFOR="$DIR/`echo ".$FILE"'.sw?' | sed 's+^\.\.+.+'`"
 
 	# # SWAPS=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" | countlines `
 	# SWAPFILES=` find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" `
@@ -44,9 +74,12 @@ do
 
 	## BUG: changes to VIMAFTER are lost due to |while, so avoid this somehow with exec.
 	
-	verbosely find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" |
-	while read SWAPFILE
+	# find "$DIR"/ -maxdepth 1 -name "$LOOKFOR" |
+	# while read SWAPFILE
+	for SWAPFILE in $LOOKFOR
 	do
+
+		[ -e "$SWAPFILE" ] || continue
 
 		## We should do: SWAPFILE=`realpath "$SWAPFILE"` here?
 
@@ -77,26 +110,15 @@ do
 		verbosely vim -r "$SWAPFILE" -c ":wq $RECOVERFILE" > "$SEND_ERR" 2>&1
 		if [ -f "$RECOVERFILE" ] && [ `filesize "$RECOVERFILE"` -gt 0 ]
 		then
-			if [ "$INTERACTIVE" ]
-			then
-				echo "Successfully recovered $SWAPFILE to $RECOVERFILE, so deleting former:"
-				# verbosely touch -r "$SWAPFILE" "$RECOVERFILE"
-				touch -r "$SWAPFILE" "$RECOVERFILE"
-				# verbosely del "$SWAPFILE"
-				del "$SWAPFILE"
-				VIMAFTER=true
-			else
-				echo "Successfully recovered $SWAPFILE to $RECOVERFILE, so you can:"
-				# echo del $DIR/.$FILE.sw?
-				# echo del "$DIR/.$FILE.swp"
-				# echo del "$DIR/$LOOKFOR"
-				echo `cursecyan`del "$SWAPFILE"`cursenorm`
-				## Could probably delete swapfile now, if we only knew its name!  (Use del)
-				VIMAFTER=true
-			fi
+			## Recovery succeeded.  Let's give the recovered file the date it should have:
+			touch -r "$SWAPFILE" "$RECOVERFILE"
+			# echo "Successfully recovered $SWAPFILE to $RECOVERFILE, so deleting former:"
+			# del "$SWAPFILE"
+			echo "Successfully recovered $SWAPFILE to $RECOVERFILE"
+			del "$SWAPFILE" >/dev/null
 			if cmp "$X" "$RECOVERFILE" > /dev/null
 			then
-				echo "Recovered swap $RECOVERFILE is identical to original, so removing."
+				echo "Recovered file $RECOVERFILE is identical to original, so removing."
 				rm "$RECOVERFILE" ## remove temp file
 				## Now if we are really confident about this script, we could
 				## delete the swapfile, or get vim to.
@@ -105,17 +127,17 @@ do
 			else
 				if [ "$INTERACTIVE" ]
 				then
-					jshinfo "Recovered non-identical swapfile; running vimdiff..."
+					jshinfo "Recovered non-identical swapfile; running $DIFFCOM ..."
 					## Hmmm vim doesn't really like running whilst inside a while read loop!  ("not a terminal")
 					jshwarn "If you fix the problem now, please delete the recovered file:"
 					echo "del \"`realpath "$RECOVERFILE"`\""
 					# sleep 30
-					verbosely vimdiff "$X" "$RECOVERFILE"
+					"$DIFFCOM" "$X" "$RECOVERFILE"
 					# verbosely xterm -e vimdiff "$X" "$RECOVERFILE" &
 					## We don't really want it to become a background process!
 					# verbosely unj vimdiff "$X" "$RECOVERFILE"
 					wait
-					VIMAFTER=
+					## Why was this here?  VIMAFTER=
 					# jshwarn "Vimdiff complete; deleting recoverfile; undelete it if you wanted it!!"
 					# verbosely del "$RECOVERFILE"
 				else
@@ -127,7 +149,7 @@ do
 					# vimdiff "$X" "$RECOVERFILE"
 					echo "vimdiff $X $RECOVERFILE"
 					echo "del $RECOVERFILE"
-					VIMAFTER=
+					## Why was this here?  VIMAFTER=
 				fi
 			fi
 			cursenorm

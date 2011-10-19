@@ -38,7 +38,7 @@ find_open_music_files () {
 		# grep -v "\(/tmp\|/dev/null\|/usr/bin/xmms\|/dev/dsp.\|/dev/pts.\|/dev/pts..\|pipe\|socket\|/\|/tmp/xmms_[^ ]*\)$" |
 
 		## Positive match:
-		grep -i '\.\(mp3\|ogg\|avi\|mov\|wav\|pcm\|raw\|mpg\|mpeg\|rm\|wmv\|mod\|xm\)$' |
+		grep -i '\.\(mp3\|ogg\|wav\|pcm\|raw\|mpg\|mpeg\|avi\|mov\|mp4\|m4a\|rm\|wmv\|mod\|xm\|it\)$' |
 
 		# pipeboth |
 
@@ -71,7 +71,7 @@ then
 	(
 		echo "$OUTPUT" |
 		head -n 1 |
-		foreachdo showsonginfo
+		foreachdo showsonginfo 2>/dev/null
 		## No good putting these in parallel - they kill each other :P
 	) >&2
 fi

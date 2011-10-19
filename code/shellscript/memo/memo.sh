@@ -1,8 +1,15 @@
 #!/bin/sh
-# jsh-ext-depends-ignore: apt-cache dpkg find dirname last sort from file time realpath
-# jsh-ext-depends: sed md5sum newer
-# jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer realpath debug
-# this-script-does-not-depend-on-jsh: arguments filename arguments todo mytest md5sum
+
+# jsh-ext-depends: sed md5sum newer find realpath
+# jsh-ext-depends-ignore: apt-cache dpkg dirname last sort from file time
+# jsh-depends: cursebold cursecyan cursemagenta cursenorm rememo datediff jdeltmp jgettmpdir jgettmp newer debug
+# jsh-depends-ignore: arguments filename arguments todo mytest md5sum realpath
+
+## TODO: Needs an overhaul.  Far too slow.
+##       Should take fast branches more often.
+##       Don't use md5sum if we're already creating unique human-readable label.
+##       rememo should do nothing except call memo; memo should build, read and cleanup cachefiles.
+##       the sh can be improved, but a bash fork might go faster
 
 ## TODO: getmemofile should be refactored out of memo and rememo, so that apps
 ##       can get it if needed.
@@ -149,13 +156,12 @@ while true
 do
   case "$1" in
     -t)
+      ## TODO: The default rule might be time-based.  If so, we want to override it with this user (dev) supplied value.
+      ## AFAIK TIME and OVERRIDE_TIME are never used!
       export TIME="$2"
       [ "$OVERRIDE_TIME" ] && TIME="$OVERRIDE_TIME"
       shift; shift
-      REMEMOWHEN="$REMEMOWHEN"' || (
-        touch -d "$TIME ago" $AGEFILE
-        newer $AGEFILE "$MEMOFILE"
-      )'
+      REMEMOWHEN="$REMEMOWHEN"' || ( touch -d "$TIME ago" $AGEFILE ; newer $AGEFILE "$MEMOFILE")'
     ;;
     -f)
       export CHECKFILE="$2"
@@ -231,17 +237,14 @@ then
 
 	if [ -f "$MEMOFILE" ]
 	then
-		TMPF=`jgettmp` ## make a temporary "now" file
+		# TMPF=`jgettmp`   ## make a temporary "now" file
+		TMPF="/tmp/now.$USER"   ## use the same file always, don't bother deleting it
 		touch "$TMPF"
-		(
-			cursecyan
-			# echo "as of "`date -r "$MEMOFILE"`
-			# echo "% $@"
-			TIMEAGO=`datediff -files "$MEMOFILE" "$TMPF"`
-			echo "\"$*\" cached $TIMEAGO ago, in file \"$MEMOFILE\""
-			cursenorm
-		) >&2
-		jdeltmp "$TMPF"
+		# echo "as of "`date -r "$MEMOFILE"`
+		# echo "% $@"
+		TIMEAGO=`datediff -files "$MEMOFILE" "$TMPF"`
+		echo "`cursecyan`\"$*\" cached $TIMEAGO ago, in file \"$MEMOFILE\"`cursenorm`" >&2
+		# jdeltmp "$TMPF"
 	else
 		: ## memo failed to produce a file; due to invalid command?
 	fi

@@ -7,13 +7,16 @@
 if [ "$1" = --help ] || [ ! "$*" ]
 then
 	echo
-	echo "jdiff [ -infg ] [ -diffopts <opts_for_gnu_diff> ] <filea> <fileb>"
+	echo "jdiff [ -bg ] [ -diffopts <opts_for_gnu_diff> ] <filea> <fileb>"
 	echo
-	echo "    It's just a nice human way of seeing diffs, using console/terminal colours."
+	echo "  Display a side-by-side diff, using green/red/yellow terminal colours."
 	echo
-	echo "    It attempts to highlight all added/removed/changed lines, but sometimes gets false positives."
+	echo "  -bg opens the output in a new window."
 	echo
-	echo "    See also: jdiffsimple, diffhighlight"
+	echo "  It attempts to highlight all added/removed/changed lines, but occasionally"
+	echo "  highlights false positives."
+	echo
+	echo "  See also: jdiffsimple, diffhighlight"
 	echo
 	exit 1
 fi
@@ -27,10 +30,10 @@ else
 fi
 export COLUMNS
 
-if [ "$1" = "-infg" ]
-then shift
-elif xisrunning
-then bigwin "jdiff -infg $@ | more" && exit
+if [ "$1" = "-bg" ] && xisrunning
+then
+	shift
+	bigwin "jdiff -infg $@ | more" && exit
 fi
 
 if [ "$1" = -diffopts ]

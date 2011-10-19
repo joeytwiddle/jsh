@@ -27,7 +27,11 @@ NL="
 
 (
 
-	echo "("
+	## Switch to the English(GB) voice if it is available:
+	voiceDir="/usr/share/festival/voices/"
+	[ -d "$voiceDir"/english/rab_diphone ] && echo "(voice_rab_diphone)"
+
+	# echo "("
 
 	## Can't
 	# cat "$@" |
@@ -39,8 +43,9 @@ NL="
 
 	## For IRC logs:
 	# sed 's+\[\(..\):\(..\)\] <\([^>]*\)>+At \1 \2 user \3 said +' |
-	sed "s+\[\(..\):\(..\)\] <\([^>]*\)>+ . \\
-\3 says +" |
+	sed "s+\[\(..\):\(..\)\] <\([^>]*\)>+ . \n \3 says +" |
+	## For pasted IRC channels:
+	sed "s+<\([^>]*\)>+ . \n \1 - . - +" |
 
 	## For tail:
 	sed 's+^==> \(.*\) <==$+Appended to file \1:+' |
@@ -48,8 +53,10 @@ NL="
 	## for debugging:
 	# tee /tmp/tmp-tts.txt |	
 
-	sed "s/--/, /g" |
-	sed "s/-/ dash /g" |
+	## Festival already handles dashes with a brief pause, if they are surrounded by spaces (not a hyphen directly between two words)
+	# sed "s/--/, /g" |
+	# sed "s/-/ dash /g" |
+	# sed "s/-/ /g" |
 	# sed "s/\./ dot /g" |
 	# sed "s/^$/\\
 # . new paragraph.\\
@@ -72,17 +79,26 @@ NL="
 	sed "s/\?/./g" |
 	sed "s/^ /\\
 /" |
-	sed 's|\"\([^"]*\)\"| quote \1 unquote |g' |
-	# sed 's|(\([^)]*\))| open-bracket \1 close-bracket |g' |
-	sed 's|(| open-bracket |g' |
-	sed 's|)| close-bracket |g' |
-	sed 's|\"| unmatched-quote |g' |
+	# sed 's|\"\([^"]*\)\"| quote \1 unquote |g' |
+	# # sed 's|(\([^)]*\))| open-bracket \1 close-bracket |g' |
+	# sed 's|(| open-bracket |g' |
+	# sed 's|)| close-bracket |g' |
+	# sed 's|\"| unmatched-quote |g' |
+	## Do not speak brackets or colons, but slow down on them
+	sed 's|[():]| \n . : . |g' |
+	tr -d '"' |
+
+	## Remove [12] citations from wikipedia pages
+	sed 's|\[[0-9]*\]||g' |
+	sed 's|\[edit\]||g' |
 
 	sed 's|\<US\>|U S|g' |
 	# sed 's|\<of\>|orve|g' |
+
+	sed 's+^+(SayText "+ ; s+$+")+' |
 	cat
 
-	echo ")"
+	# echo ")"
 
 ) |
 
@@ -98,6 +114,6 @@ mv /tmp/festival-out.mp3 /tmp/tts.mp3
 
 else
 
-festival --tts
+festival # --tts
 
 fi

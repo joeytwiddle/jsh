@@ -201,11 +201,11 @@ function addnewdeps () {
 		else
 			# echo "`curseyellow`jshdepwiz: These might be calls to `cursered;cursebold`$DEP`curseyellow` made from `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
 			DEPBIN=`which "$DEP"`
-			echo "`curseyellow`jshdepwiz: It looks like `cursecyan`$SCRIPT`curseyellow` might be using `cursered;cursebold`$DEPBIN`curseyellow`:`cursenorm`" >&2
+			echo "`curseyellow`[jshdepwiz] `cursenorm`It looks like `cursecyan`$SCRIPT`cursenorm` might be using `cursered;cursebold`$DEPBIN`cursenorm`:`cursenorm`" >&2
 			higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
 			[ "$DEFAULT_TO_YES" ] && OPTIONS="Y/n/skip" || OPTIONS="Skip/y/n"
 			# echo -n "`curseyellow`jshdepwiz: Do you think `cursered;cursebold`$DEP`curseyellow` is a real `cursemagenta`jsh-$TYPE`curseyellow`? [$OPTIONS] `cursenorm`" >&2
-			echo -n "`curseyellow`jshdepwiz: Shall I mark `cursecyan`$SCRIPT`curseyellow` as `cursemagenta`jsh-$TYPE`curseyellow` on `cursered;cursebold`$DEP`curseyellow`? [$OPTIONS] `cursenorm`" >&2
+			echo -n "`curseyellow`[jshdepwiz] `cursenorm`Shall I mark `cursecyan`$SCRIPT`cursenorm` as `cursemagenta`jsh-$TYPE`cursenorm` on `cursered;cursebold`$DEP`cursenorm`? [$OPTIONS] `cursenorm`" >&2
 			read USER_SAYS
 			[ "$DEFAULT_TO_YES" ] && [ "$USER_SAYS" = "" ] && USER_SAYS=y
 			case "$USER_SAYS" in

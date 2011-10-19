@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## TODO: use of TMPDIR is dodgy!  (to save dependency hugeness?)
 ## "mel and kim" "respectable" came back wrong!
 

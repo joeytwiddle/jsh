@@ -1,13 +1,14 @@
 #!/bin/sh
-# Breaks on Unix:
 
-# if test $JM_ADVANCED_DU; then
-	# DUCOM="du -skx"
-# else
-	DUCOM="du -skx"
-# fi
+## Simple version:
+# du -sk * ; exit
 
-if test $JM_COLOUR_LS; then
+SHOWSCAN=true
+
+DUCOM="du -skx"
+
+if test $JM_COLOUR_LS
+then
 	# This is bad if the output is being streamed through autoamtion!
 	LSCOM="ls -artFd --color"
 else
@@ -19,34 +20,41 @@ fi
 
 (
 
-	ARGS="$@";
-	if [ "$ARGS" = "" ]
+	[ "$SHOWSCAN" ] && echo -n "Scanning: " >&2
+
+	## Output a list of files/folders to scan:
+	if [ "$*" = "" ]
 	then
-	  # ARGS="* .*";
 	  # Yuk we need to strip out . and ..!
-	  ARGS=""
-	  for X in * .*; do
-			if test ! "$X" = ".."; then
+	  for X in * .*
+		do
+			if test ! "$X" = ".."
+			then
 				# Uncomment this next if to keep this dir . (total)
-				if test ! "$X" = "."; then
-					echo "$X"
+				if test ! "$X" = "."
+				then echo "$X"
 				fi
 			fi
-		done |
-		while read X; do
-			$DUCOM "$X"
 		done
 	else
-		$DUCOM "$@"
-	fi
+		echolines "$@"
+	fi |
+
+	## Actually scan them:
+	while read X
+	do
+		[ "$SHOWSCAN" ] && echo -n "$X " >&2
+		$DUCOM "$X"
+	done
+
+	[ "$SHOWSCAN" ] && echo "" >&2
 
 ) | sort -n -k 1 |
 
 # Pretty printing
-while read X Y; do
-	printf "$X\t"
-	$LSCOM "$Y"
+while read SIZE FILE
+do
+	printf "$SIZE\t"
+	$LSCOM "$FILE"
 done
 
-# files
-# du -sk *

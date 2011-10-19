@@ -30,7 +30,7 @@ fi
 OUTDIR=`absolutepath "$OUTDIR"`
 echo "Creating docs in $OUTDIR ..."
 if [ -e "$OUTDIR" ]
-then del "$OUTDIR"
+then rm -rf "$OUTDIR"   ## Used to del but too many small files!
 fi
 
 mkdir -p "$OUTDIR"

@@ -17,7 +17,8 @@ export DISPLAY=
 ## Actually you are not recommended to export SCREEN_COMMAND_CHARS,
 ## unless you are happy for them to be applied to new/resumed child screens too.
 [ "$SCREEN_COMMAND_CHARS" ] || SCREEN_COMMAND_CHARS="^k^l"
-DEFAULT_SCREEN_OPTIONS="-h 10000 -a -e$SCREEN_COMMAND_CHARS"
+# DEFAULT_SCREEN_OPTIONS="-h 10000 -a -e$SCREEN_COMMAND_CHARS"
+DEFAULT_SCREEN_OPTIONS="-h 1200 -a -e$SCREEN_COMMAND_CHARS"
 unset SCREEN_COMMAND_CHARS
 
 if test "$*"
@@ -42,6 +43,6 @@ else
 	screentitle -remote "[$SHORTHOST:$SCREENNAME]"
 	screen $DEFAULT_SCREEN_OPTIONS -S "$NAME" -D -RR
 	## Multi-session, but fails if doesn't exist :-(
-	# screen -h 10000 -a "-e^k^l" -S "$NAME" -x
+	# screen -h 1200 -a "-e^k^l" -S "$NAME" -x
 
 fi

@@ -1,10 +1,28 @@
 #!/bin/bash
 
+## We could be using a much shorter version:
+# if [ "$TOPTMP" ]
+# then
+	# [ "$DEBUG" ] && jshinfo "jgettmpdir called when TOPTMP already known."
+# else
+	# export TOPTMP
+	# TOPTMP=/tmp/jsh-"$USER"
+	# mkdir -p "$TOPTMP"
+	# chmod go-rwx "$TOPTMP"
+	# ## Done
+# fi
+
 # jsh-ext-depends: dirname
 # jsh-depends: jdeltmp jgettmp
-# this-script-does-not-depend-on-jsh: jsh debug
+# jsh-depends-ignore: jsh debug
 
-## TODO: the other day, unfortunately, /tmp/jsh-joey was owned by and private to root.  This script tried to re-create it.  Did it then try to use it?!  This behaviour is bad.  It should just find an alternative.
+## It would be quite nice to have a tmpdir at /dev/shm/something so that we can
+## change the permissions of something.  But we really ensure scripts perform
+## cleanup, or at least have some auto-cleaning.
+
+## TODO: the other day, unfortunately, /tmp/jsh-joey was owned by and private
+## to root.  This script tried to re-create it.  Did it then try to use it?!
+## This behaviour is bad.  It should just find an alternative.
 
 if [ "$1" = -top ]
 then
@@ -24,6 +42,7 @@ then
 		## Ah no, USER was fine, the problem was that we had already exported TOPTMP, so we never got here to reset it! "/tmp/jsh-$USER.$UID" 
 		[ "$USER" ] && JSHTMP=/tmp/jsh-"$USER"
 		[ "$USER" ] || JSHTMP=/tmp/jsh-"$UID"
+
 		## OK so we won't use TOPTMP, in case that was exported by a different user before we su-ed:
 		for TOPTMP in "$TMPDIR" "$JSHTMP" "$HOME/.jshtmp" "$JPATH/tmp" "$HOME/tmp" "$PWD/.tmp" NO_DIR_WRITEABLE
 		do
@@ -61,7 +80,7 @@ then
 
 	export TOPTMP
 
-	[ "$DEBUG" ] && debug "export TOPTMP=$TOPTMP" # || true ## || true ensures this script exits/returns 0 (because it is sometimes sourced, and its exit code is checked)!
+	[ "$DEBUG" ] && debug "[jgettmpdir] export TOPTMP=$TOPTMP" # || true ## || true ensures this script exits/returns 0 (because it is sometimes sourced, and its exit code is checked)!
 
 	## Even better exit code:
 	[ -d "$TOPTMP" ] && [ -w "$TOPTMP" ]

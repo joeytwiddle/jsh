@@ -16,7 +16,7 @@ DESTFILEDIR=/mnt/big/ut/files/
 
 # FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut/ut_win_pure"
 ## Added ut_win so I can create symlinks to my own custom maps.
-FILEDIRS="$DESTFILEDIR /stuff/software/games/unreal/server/files /mnt/big/ut/ut_win_pure /mnt/big/ut/ut_win"
+FILEDIRS="$DESTFILEDIR /stuff/software/games/unreal/server/files/ /mnt/big/ut/ut_win_pure /mnt/big/ut/ut_win"
 verbosely find $FILEDIRS -type f >/dev/null ## get OS cache ready
 
 # ADD_DATE_TO_DESTINATION=
@@ -47,8 +47,8 @@ cat "$CACHEDIR"/cache.ini |
 dos2unix | grep = | sed 's+=+ +' |
 
 # reverse |
-randomorder | ## helps progress meter
-catwithprogress | ## later = better = more representative and fewer buffers; but better representation might be by line progress rather than byte progress...
+# randomorder | ## helps progress meter
+# catwithprogress | ## later = better = more representative and fewer buffers; but better representation might be by line progress rather than byte progress...
 
 ## For debugging:
 # grep BDBMapVote302.u |
@@ -85,7 +85,7 @@ do
 				then
 					jshwarn "More than 1 option for $FNAME"
 					# echo "$TARGETS" >&2
-					echo "$TARGETS" | foreachdo jshinfo >&2
+					echo "$TARGETS" >&2
 					# echo "$TARGETS" | withalldo cmp >&2 ||
 					# error "The different options differ!"
 					# if ! echo "$TARGETS" | withalldo cmp >&2
@@ -115,12 +115,13 @@ do
 							echo "verbosely ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
 						fi
 					else
-						jshwarn "New cachefile: $BOWFILE"
-						jshwarn "mismatches existing: $TARGET_TO_USE"
+						jshinfo "New cachefile: $BOWFILE"
+						jshinfo "mismatches existing: $TARGET_TO_USE"
 					fi
 				fi
 			else
-				jshinfo "Could not find existing target for $FNAME ; new file?!"
+				# jshinfo "Could not find existing target for $FNAME ; new file?!"
+				jshwarn "Could not find existing target for `cursegreen;cursebold`$FNAME`curseyellow` - new file!"
 				# jshinfo "TODO: check cos it might be in server dir"
 				[ "$ADD_DATE_TO_DESTINATION" ] && ADD_DATE_TO_DESTINATION="/`geekdate -fine -r "$BOWFILE"`/"
 				if echo "$FNAME" | grep "^CTF" >/dev/null

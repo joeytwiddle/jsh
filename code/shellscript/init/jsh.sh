@@ -55,12 +55,12 @@ then
 fi
 
 ## Check that we have a valid JPATH environment variable:
-if [ ! -d "$JPATH/tools" ]  ## the definitive proof no doubt!
+if [ "$JPATH" = "" ] || [ ! -d "$JPATH/tools" ]  ## the definitive proof no doubt!
 then
 	## If not, we examine $0th arg and assume user called $JPATH/jsh
 	if echo "$0" | grep "^/" > /dev/null
-	then export JPATH=`dirname "$0"`        ## absolute
-	else export JPATH="$PWD/"`dirname "$0"` ## relative
+	then export JPATH="`dirname "$0"`"        ## absolute
+	else export JPATH="$PWD/"`dirname "$0"`   ## relative
 	fi
 	if [ ! -d "$JPATH/tools" ]
 	then

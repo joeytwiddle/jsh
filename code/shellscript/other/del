@@ -1,4 +1,8 @@
 #!/bin/sh
+# jsh-ext-depends-ignore: from file cvs
+# jsh-ext-depends: sed basename dirname realpath
+# jsh-depends-ignore: reclaimspace
+# jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted
 
 ## TODO: might be nice to do a quick check to see if any processes have a handle on (or are opening) each file before we delete it.
 
@@ -11,11 +15,6 @@
 ## Deletes a file or files in a recoverable way (by moving them to a "RECLAIM" directory).
 ## If reclaimspace is setup (in cron), it will remove some of the "deleted" files when more disk space it needed.
 ## WARNING: This setup /can/ cause problems if you write large files to disk very quickly, and cron isn't called in time to reclaim the space necessary to finish writing the file.  Easily solved by deleting files from RECLAIM directory when you know you need space now/soon.  (Or you could call "reclaimspace 1000000" to ensure ~1Gig is reclaimed).
-
-# jsh-ext-depends-ignore: from file cvs
-# jsh-ext-depends: sed basename dirname realpath
-# this-script-does-not-depend-on-jsh: reclaimspace
-# jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted
 
 ## TODO: to make it more like windows recycle dir, we should rm a file if it is deleted from /RECLAIM or $JPATH/trash
 ## TODO: check for reclaimspace in crontab or otherwise, and warn if not present!
@@ -88,6 +87,7 @@ try_del () {
 			error "del: not moved to trash: $FILE"
 			# waitforkeypress
 			# exit 1
+			# return 1
 			# ALLOK=1 ## another attempt might work ... :)
 			break ## continue ## TODO CHECK: does this break work now that we are inside the try_del fn?
 		fi

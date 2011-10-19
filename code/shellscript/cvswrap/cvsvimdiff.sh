@@ -1,8 +1,10 @@
 #!/bin/sh
-# this-script-does-not-depend-on-jsh: cvsdiff edit filename vimdiff check
-# jsh-depends: cvscommit getnumber after editandwait jgettmp jfcsh jdiff jwhich
+
 # Lets you do a diff against a file in CVS with
 # vimdiff instead of diff.
+
+# jsh-depends: cvscommit getnumber after editandwait jgettmp jfcsh jdiff jwhich
+# jsh-depends-ignore: cvsdiff edit filename vimdiff check
 
 FILENAME="$1"
 REV="$2"
@@ -21,11 +23,13 @@ then
 	echo "cvsvimdiff -all"
 	echo
 	echo "  Will vimdiff all uncommitted files, and commit those you confirm with :w ."
-	echo "  (Hence \$DIFFCOM must not bg itself.)"
+	echo "  (Hence \$DIFFCOM must not background itself!)"
 	echo
 	echo "  See also: cvscommit -diff"
 	echo
-	echo "  Example: env DIFFCOM=jdiff cvsvimdiff ./src/file.c"
+	echo "  Different look: env DIFFCOM=jdiff cvsvimdiff ./src/file.c"
+	echo
+	echo '  Unordered lines: env DIFFCOM="jfcsh -bothways" cvsvimdiff init'
 	echo
 	exit 1
 fi
@@ -97,5 +101,6 @@ $DIFFCOM "$FILENAME" "$CKOUT"
 # $DIFFCOM "$DIFFCOMARG" "$FILENAME" "$CKOUT"
 # -c ':syn off<Enter>:set wrap<Enter>'
 
-# TODO: haven't handled second case, don't want to delete original file!!
-# jdeltmp "$CKOUT"
+# Don't think this is a problem: haven't handled second case, don't want to delete original file!!
+jdeltmp "$CKOUT"
+[ "$CKOUT2" ] && jdeltmp "$CKOUT2"

@@ -1,5 +1,8 @@
 #!/bin/sh
+# for FILE
+# do convert -verbose "$FILE" /tmp/imageinfo-$$.jpg
+# done
+# rm -f /tmp/imageinfo-$$.jpg
 for FILE
-do convert -verbose "$FILE" /tmp/imageinfo-$$.jpg
+do identify "$FILE"
 done
-rm -f /tmp/imageinfo-$$.jpg

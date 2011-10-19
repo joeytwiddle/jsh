@@ -29,7 +29,7 @@ find . -not -type d |
 while read FILE
 do
 	DIR=`dirname "$FILE"`
-	mkdir -p "$DEST/$DIR"
+	[ -d "$DEST/$DIR" ] || jshsuggest mkdir -p "$DEST/$DIR"
 	DESTFILE="$DEST/$FILE"
 	if [ -e "$DESTFILE" ] || [ -f "$DESTFILE" ]
 	then
@@ -39,16 +39,16 @@ do
 			# echo "Could delete $FILE since $DESTFILE is the same (but be sure it's not a symlink!)"
 			# cksum "$FILE" "$DESTFILE"
 			# ls -l "$FILE" "$DESTFILE"
-			echo "Deleting $FILE"
-			rm "$FILE"
-			del "$FILE"
+			jshinfo "Matches target.  Deleting: $FILE"
+			jshsuggest rm "$FILE"
+			jshsuggest del "$FILE"
 		elif [[ "$CMP" =~ "^cmp: EOF on $DESTFILE$" ]]
 		then
-			echo "Finishing $FILE"
-			mv "$FILE" "$DESTFILE"
+			jshinfo "Does not match!  Overwriting: $FILE"
+			jshsuggest mv "$FILE" "$DESTFILE"
 		fi
 	else
-		echo "Moving $FILE"
-		mv "$FILE" "$DESTFILE"
+		jshinfo "Target missing!  Moving: $FILE"
+		jshsuggest mv "$FILE" "$DEST/$DIR/"
 	fi
 done

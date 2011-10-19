@@ -2,7 +2,7 @@
 # jsh-ext-depends: diff vim
 # jsh-ext-depends-ignore: sed
 # jsh-depends: higrep bigwin dropcols takecols myps foreachdo jgettmp pipeboth
-# this-script-does-not-depend-on-jsh: highlight
+# jsh-depends-ignore: highlight
 # This is pretty nice (although it gets itself sometimes :-/ )
 
 ## TODO: optionally allow user to edit process list.  Those lines which are deleted, means the process is killed.  =)
@@ -75,7 +75,7 @@ then
 	fi > $KILLFILEA
 
 	cp $KILLFILEA $KILLFILEB
-	bigwin -fg "vim $KILLFILEB -c ?$@"
+	bigwin -fg "vim $KILLFILEB -c ?$@" &
 
 	if [ "$KILL" ]
 	then

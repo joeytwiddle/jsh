@@ -1,5 +1,7 @@
+#!/bin/bash
+
 # jsh-ext-depends-ignore: sync file from size strip
-# this-script-does-not-depend-on-jsh: exists after before del off reencode_video_two_pass
+# jsh-depends-ignore: exists after before del off reencode_video_two_pass
 ## After the first audio pass, you can rerun with SKIP_FIRST_PASS=true.
 
 ## Note afterwards, leftover files are: sizes.log divx2pass.log frameno.avi (and of course the video file you started with!).
@@ -93,6 +95,11 @@ if [ "$BITRATE" ]
 then jshinfo "Using user supplied bitrate $BITRATE"
 else
 	BITRATE=`tail -50 "$SIZELOG" | grep "Recommended video bitrate for 700MB CD: " | afterlast ": "`
+	if [ ! "$BITRATE" ]
+	then
+		BITRATE=4000
+		jshwarn "No bitrate recommended in $SIZELOG, so using default $BITRATE."
+	fi
 	if [ "$TARGET_SIZE" ] && [ "$TARGET_SIZE" -gt 0 ]
 	then
 		AUDIOSIZE=`filesize "frameno.avi"`
@@ -123,6 +130,7 @@ fi
 
 # PREVIEW="-ss 0:13:30 -endpos 0:15"
 
+# NEWSIZE="800:600"
 # NEWSIZE="720:400"
 # BITRATE=`expr "$BITRATE" / 2` ## For BotB
 # EXTRAOPTS="-ni -nobps"                      ## For Dune sync I hope!
@@ -170,11 +178,14 @@ do
 	[ $PASS = 1 ] && OUTPUT="$FIRST_VIDEO_PASS_GOES_TO" || OUTPUT="$INPUT".reencoded.avi
 	# vqmin=2:vqmax=31:
 	# ENCODING="-oac copy -ovc lavc -lavcopts vcodec=mpeg4:vbitrate=$BITRATE:vhq:vpass=$PASS"
+	## vcodec=msmpeg4v2 makes slightly larger videos than mpeg4, but they should work on all Microsoft Windows systems
 	[ "$CODEC" ] ||
-	CODEC="mpeg4"
+	# CODEC="mpeg4"
 	# CODEC="msmpeg4"
-	# CODEC="msmpeg4v2"
-	[ "$OAC" ] || OAC="copy"
+	CODEC="msmpeg4v2"
+	# [ "$OAC" ] || OAC="copy"   ## This was failing too often
+	[ "$OAC" ] || OAC="lavc"
+	## Users may sometimes need OAC=pcm or better OAC=lavc
 	ENCODING="-oac $OAC -ovc lavc -lavcopts vcodec=$CODEC:vbitrate=$BITRATE:vhq:vpass=$PASS"
 	jshinfo "############################ Pass $PASS / 2"
 	jshinfo "## mencoder \"$INPUT\" -o \"$OUTPUT\" $EXTRAOPTS $ENCODING $PREVIEW $AUDIODELAYFIX $FILTERS"

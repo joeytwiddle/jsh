@@ -9,6 +9,14 @@
 
 ## Alternatives: you could: tee -a /dev/stderr
 
+# [ "$1" = --line-buffered ] && shift
+tee /dev/stderr
+exit
+
+
+
+## OLD IMPLEMENTATIONS
+
 # cat |
 
 if [ "$1" = --line-buffered ]

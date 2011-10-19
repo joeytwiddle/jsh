@@ -1,5 +1,5 @@
 #!/bin/sh
-# this-script-does-not-depend-on-jsh: arguments
+# jsh-depends-ignore: arguments
 
 ## See also: Modern grep has --colour=auto, which only invokes when the output
 ## is to terminal(tty/pts) (not piped).
@@ -19,7 +19,15 @@
 # jsh-ext-depends: sed
 # jsh-depends: curseblue highlight cursenorm countargs cursebold cursecyan
 
-# tty -s && echo "[higrep: `tty`]" >&2
+## DONE: Detect if we are outputting to pts or to another pipe, and decide
+## whether to add highlight colors or not.
+# if isatty
+# then doHighlight=1
+# else doHighlight=""
+# fi
+## Sod that.  higrep is explicit, and I want to use it with 'more'!
+doHighlight=1
+
 
 if [ ! "$*" ] || [ "$1" = --help ]
 then cat << !
@@ -46,32 +54,38 @@ fi
 ## Since we are outputting coloured text, output coloured errors too:
 highlightstderr grep --line-buffered -d skip "$@" |
 
-## Special highlighting for multiple-file and context greps,
-## but it can false-positive, so we don't do it if there is only one arg.
-## You might want to disable this if you find them Too annoying, or we could try to firmly establish whether multiple file input or -r, and only enable them then...
-if [ "$2" ] && [ ! "$HIGREP_NO_CONTEXT" ]
+if [ "$doHighlight" ]
 then
 
-	## Um I'm not sure what this one is for:
-	## Oh it's for the marker lines in context, that says we skipped some lines
-	sed -u "s|^--$|`curseblue`--`cursenorm`|" | ## And I don't know why it doesn't prevent later ^ regexps from failing!
+	## Special highlighting for multiple-file and context greps,
+	## but it can false-positive, so we don't do it if there is only one arg.
+	## You might want to disable this if you find them Too annoying, or we could try to firmly establish whether multiple file input or -r, and only enable them then...
+	if [ "$2" ] && [ ! "$HIGREP_NO_CONTEXT" ]
+	then
 
-	## Render lines beginning <filename>: or <filename>-
-	## BUG (nasty): highlighting match can end too early if the actual filename matches the seach expr!
-	## Highlight filenames (up to ':'):
-	sed -u "s|^\([^:-]*\)\(:\)|`cursecyan;cursebold`\1\2`cursenorm`$TABCHAR|" |
-	## Highlight -A -B or -C filenames (up to '-'):  KNOWN (UNFIXABLE) BUG: higlight stops early if filename contains '-'!
-	# sed -u "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
-	## If no filenames were generated, the - may be matched in the text; breaking proper highlighting matches; this avoids line starting with whitespace; but really we should determine whether filenames are expected or not:
-	sed -u "s|^\([^ 	][^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
+		## Color the marker lines in context greps, that say we skipped some lines
+		sed -u "s|^--$|`curseblue`--`cursenorm`|" | ## And I don't know why it doesn't prevent later ^ regexps from failing!
 
-	cat
+		## Render lines beginning <filename>: or <filename>-
+		## BUG (nasty): highlighting match can end too early if the actual filename matches the seach expr!
+		## Highlight filenames (up to ':'):
+		sed -u "s|^\([^:-]*\)\(:\)|`cursecyan;cursebold`\1\2`cursenorm`$TABCHAR|" |
+		## Highlight -A -B or -C filenames (up to '-'):  KNOWN (UNFIXABLE) BUG: higlight stops early if filename contains '-'!
+		# sed -u "s|^\([^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
+		## If no filenames were generated, the - may be matched in the text; breaking proper highlighting matches; this avoids line starting with whitespace; but really we should determine whether filenames are expected or not:
+		sed -u "s|^\([^ 	][^:-]*\)\(-\)|`cursecyan`\1\2`cursenorm`$TABCHAR|" |
 
-else
+		cat
 
-	cat
+	else
 
-fi |
+		cat
 
-## Finally we will highlight the expression you wanted:
-highlight "$1"
+	fi |
+
+	## Finally we will highlight the expression you wanted:
+	highlight "$1"
+
+else cat
+fi
+

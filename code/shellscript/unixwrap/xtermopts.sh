@@ -2,7 +2,7 @@
 ######################
 ## DEPRECATED
 ## This was inefficient, and only used in the 'xterm' script.
-## The best bits are now moved there, and this is no longer called, but may be useful for testing things.
+## The best bits are now back in the 'xterm' script, and this is no longer called, but may be useful for testing things.
 
 
 
@@ -44,16 +44,23 @@ then
 else
 	FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
 fi
-## Big Courier:
+## Big:
 # FONT='-adobe-courier-medium-r-normal-*-*-140-*-*-p-*-iso8859-2'
-## Great small:
-# FONT='-*-clean-medium-r-*-*-*-120-*-*-*-*-*-*'
 ## Thin big (wipeout):
 # FONT='-*-clean-medium-r-*-*-*-160-*-*-*-*-*-*'
+## Medium:
+# FONT='-*-terminus-*-*-*-*-16-*-*-*-*-*-*-*' ## not so good bold
 ## Thin Lucida-style medium:
 # FONT="'-*-dejavu sans mono-medium-r-*-*-*-110-*-*-*-*-*-*'"
-FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1' ## My favourite for high dpi
-# FONT='-*-fixed-*-r-*-*-12-*-*-*-*-*-*-*' ## This one should work on all systems
+## Great small:
+# FONT='-*-clean-medium-r-*-*-*-120-*-*-*-*-*-*'
+# FONT='-*-terminus-*-*-*-*-12-*-*-*-*-*-*-*' ## taller with no cost to rowcount
+## Some alternatives to "clean":
+# FONT='-*-fixed-*-r-*-*-12-*-*-*-*-*-*-*' ## This one should work on all systems?
+# FONT='-*-proggysmalltt-*-*-*-*-*-120-*-*-*-*-*-*'   ## wider and shorter than clean
+# FONT='-*-montecarlo fixed 12-medium-r-*-*-*-120-*-*-*-*-*-*'   ## small and neat (1 pixel shorter than clean!), good bold, but weak 'a'
+## My favourite:
+FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
 
 echo $ARGS $GEOM +sb -sl 5000 -vb -si -sk -bg black -fg white -font "$FONT" -rightbar -j -s "$@"
 

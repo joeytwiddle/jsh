@@ -3,6 +3,11 @@
 # jsh-depends-ignore: cursemagenta cursenorm debug
 # jsh-depends: memo jdeltmp jgettmpdir jgettmp realpath md5sum error jshwarn
 
+## FEATURE ISSUE: rememo does not actually replace the old stored memo, so the
+## cache is often the first output, not the last output.  Sometimes this is
+## desirable (being lazy in a shell), sometimes this is not desirable (watching
+## something for changes).
+
 ## TODO: I think md5sum is more CPU intensive than cksum, so we should probably use the latter.  The only reason is so that really long lines which we have to shorted in order to make files, might have different parameters beyond the clipped point, so we must somehow include these.
 
 ## TODO: Useful realisation.
@@ -80,16 +85,16 @@ fi
 ## BUG: also can't handle 's in filenames
 
 ## DONE: I also had problems with spaces I think, hence yuk (" escaping??!)...
-CMD="$1" ; shift
-declare -a TOEVAL
-TOEVAL=""
-for ARG in "$@"
-do
-	ARG=$(echo "$ARG" | sed 's+`+\\`+g')
-	TOEVAL=( ${TOEVAL[@]} "$ARG" )
-done
-# eval "$TOEVAL" > $TMPFILE
-# EXITWAS="$?"
+# CMD="$1" ; shift
+# declare -a TOEVAL
+# TOEVAL=""
+# for ARG in "$@"
+# do
+	# ARG=$(echo "$ARG" | sed 's+`+\\`+g')
+	# TOEVAL=( ${TOEVAL[@]} "$ARG" )
+# done
+# # eval "$TOEVAL" > $TMPFILE
+# # EXITWAS="$?"
 
 # eval "$TOEVAL" | tee $TMPFILE ## no need to wait before catting; better for streaming :) , although tee seems to buffer at 4k, but only when |ed :/
 ## DONE: tee loses the exit code, but if we could send that as a separate message (eg. via a file, or using exec), we could use tee :)
@@ -99,9 +104,10 @@ done
 	##       Philosophy now is that $TMPFILE.result will be empty if the eval is interrupted and the (..) breaks out.
 	jdeltmp $TMPFILE.result
 	## FIXED BUG: We can get problems with expansion, e.g. the argument "`|Hybrid|`"
-	# eval "${TOEVAL[@]}"
-	"$CMD" "${TOEVAL[@]}"
-	# eval "$@"
+	"$@"   ## Why wasn't this the default?
+	# # eval "${TOEVAL[@]}"
+	# "$CMD" "${TOEVAL[@]}"   ## This was the default (with the CMD="$1" paragraph above also uncommented)
+	# # eval "$@"
 	echo "$?" > $TMPFILE.result
 ) | tee $TMPFILE
 ## TODO: can we prevent tee's 4k buffering when stdout is not direct to terminal?  (eg. if stdout is |ed to highlight)

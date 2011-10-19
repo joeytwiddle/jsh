@@ -1,5 +1,15 @@
 # jsh-ext-depends: sed column
 
+if [ "$1" = --help ]
+then
+cat << !
+
+columnise [ -on <delims> ] [ -upto <regexp> ] [ <column_opts> ] <file>s..
+
+!
+exit 0
+fi
+
 ## TODO: to make it more useful for formatting code from within vim, have it (optionally/by default?) detect if text block is indented, and preserve that indent after formatting columns.
 
 if [ "$1" = -on ]

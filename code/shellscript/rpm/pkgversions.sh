@@ -32,7 +32,7 @@ do
 	grep "/var/lib/\(apt\|dpkg\)/" |
 	grep -v "^[ 	]*File: " |
 	sed 's+/var/lib/dpkg/status+installed+' |
-	sed 's+/var/lib/apt/lists/++' |
+	sed 's+/var/lib/apt/lists/++g' |
 	sed 's+\(dists_\|debian_\|_binary-i386_Packages\)++g' |
 
 	# ( [ "$1" != "$*" ] && prepend_each_line "$PKG=" || cat ) |

@@ -1,4 +1,5 @@
 #!/bin/sh
+## Pass -r option to ignore empty input (run nothing)
 xargs -d '\n' "$@"
 exit
 # Maybe also: xargs -0 "$@"

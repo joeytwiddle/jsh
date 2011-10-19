@@ -1,11 +1,15 @@
-# this-script-does-not-depend-on-jsh: check new
+#!/bin/sh
+# jsh-depends-ignore: check new
 # jsh-depends: cursecyan cursemagenta cursenorm jwatchcomp breakonctrlc jdeltmp jgettmp
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
 	echo 'jwatch [ -oneway ] [ -quiet ] [ -delay <seconds> ] [ -direct ] ... "<command>"'
 	echo
 	echo "  Executes the given command every 5 seconds, and reports changed lines."
+	echo
+	echo "  Options must be given in order!"
 	echo
 	echo "  -oneway: does not show dropped lines (red), only shows new lines (white)."
 	echo "  -quiet:  does not do initial verbose command check" ## CONSIDER: alternatively, -verbose could be a recommended sh alias, and quiet the default
@@ -54,8 +58,14 @@ fi
 
 # METHOD="$METHOD | striptermchars"
 
-NEW=`jgettmp "new-$1"`
-OLD=`jgettmp "old-$1"`
+# NEW=`jgettmp "new-$1"`
+# OLD=`jgettmp "old-$1"`
+NEW=/tmp/"$1".jwatch_new
+OLD=/tmp/"$1".jwatch_old
+touch "$NEW"
+touch "$OLD"
+chmod go-rwx "$NEW"
+chmod go-rwx "$OLD"
 
 ## Optionally, display the results once (in case user assumed aliases would work!)
 if [ ! "$QUIET" ]
@@ -77,19 +87,20 @@ then
 fi
 
 ## Strange: I was getting a bail on this line doing "jwatch findjob sleep" with error "/home/joey/linux/j/tools/jwatch: line 78: 1: ambiguous redirect" but then it stopped!
-eval "$METHOD" > $NEW
+eval "$METHOD" > "$NEW"
 
 sleep $DELAY
 
 while [ true ]; do
 
-	mv $NEW $OLD
+	## We dont't do mv -f here, because we want $NEW to keep its permissions.
+	cat "$NEW" > "$OLD"
 
-	# $EXECSH > $NEW
-	# echo "$EXECSTR" | sh > $NEW
-	eval "$METHOD" > $NEW
+	# $EXECSH > "$NEW"
+	# echo "$EXECSTR" | sh > "$NEW"
+	eval "$METHOD" > "$NEW"
 
-	$JWATCHCOMPCOM $NEW $OLD
+	$JWATCHCOMPCOM "$NEW" "$OLD"
 
 	sleep $DELAY
 	## If we want jwatch to keep in time, ie. run exactly every 5 seconds,
@@ -101,8 +112,11 @@ while [ true ]; do
 
 	## Not sure this really works:
 	# `breakonctrlc`
-	`breakonctrlc` || exit
+	# `breakonctrlc` || exit
 
 done
 
-jdeltmp "$NEW" "$OLD" "$EXECSH"
+## Duh - These never run! :P
+# jdeltmp "$NEW" "$OLD" # "$EXECSH"
+rm -f "$NEW" "$OLD"
+

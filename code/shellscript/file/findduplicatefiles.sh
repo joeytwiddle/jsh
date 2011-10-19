@@ -1,5 +1,6 @@
 #!/bin/sh
-jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles.  You are recommended to use that until they are merged."
+
+[ "$1" = "" ] && jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles without options.  You are recommended to use that until they are merged."
 # jshwarn "Ofc scripting makes sense with findduplicatefiles, providing we will keep the I/O similar."
 
 ## WISHLIST:
@@ -96,15 +97,19 @@ then
 	# echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done' >> /dev/stderr
 fi
 
-WHERE="$*"
-test "$WHERE" || WHERE="."
+# SORT_METHOD="sortbydirdepth" ## The one with the shorter dir depths (num of /s) gets kept.
+SORT_METHOD="sort" ## Alphanumeric
 
-if test $SAMENAME
+# WHERE="$*"
+# [ "$WHERE" ] || WHERE="."
+## Better to use "$@" (prevents premature evaluation of glob, if user specified -name "*something*")
+
+if [ "$SAMENAME" ]
 then
 
 	## Faster, because initially extracts duplicated filenames
 	## If only two same-named files are grouped, they could be cmp-ed rather than hashed.
-	find $WHERE -type f |
+	find "$@" -type f |
 	afterlast '/' |
 	stripexcluded |
 	# sed "s+\(.*\)/\(.*\)+\2 \1/\2+" |  ## More similar to other method (wouldn't need the inner find =) but would have a problem with spaced filenames
@@ -112,7 +117,7 @@ then
 	while read X
 	do
 		debug "Group $X"
-		find $WHERE -name "$X" |
+		find "$@" -name "$X" |
 	stripexcluded |
 		while read Y
 		do
@@ -129,7 +134,7 @@ else
 	## Whatever later we use (unless optimising with -samename), we first group by filesize.
 	## This is different from the -filesize option which *matches* on filesize!
 	## CONSIDER: If we replace %s with <filename> then we could do -samename in one method =)
-	find $WHERE -type f -printf "%s %p\n" |
+	find "$@" -type f -printf "%s %p\n" |
 	stripexcluded |
 	keepduplicatelines 1 |
 	sort -n -r -k 1 | ## optional; NO undesirable; it mucks up ordering!  Eh, how so?
@@ -147,9 +152,6 @@ fi |
 # dropcols 1 2 | sed 's|^\(.\+\)|del "\1"|'
 # sed 's|\([0-9]+[ 	]+[0-9]+\)[ 	]+\(.+\)|\1: del "\2"|'
 # cat
-
-# SORT_METHOD="sortbydirdepth" ## The one with the shorter dir depths (num of /s) gets kept.
-SORT_METHOD="sort" ## Alphanumeric
 
 ## Sort each group by directory depth, so that lowest file is the one kept:
 (
@@ -202,7 +204,7 @@ SORT_METHOD="sort" ## Alphanumeric
         if [ "$SUGGEST_DEL" ]
         then echo "del \"$FILE2\""
         elif [ "$SUGGEST_LN" ]
-        then echo "ln -s -f \"$FILE\" \"$FILE2\""
+        then echo "ln -s -f \"$PWD/$FILE\" \"$FILE2\""
         else echo "echo dunno how to handle \"$FILE\""
         fi
       else error "$SUM $SIZE for \"$FILE\" does not match $SUM2 $SIZE2 for \"$FILE2\""

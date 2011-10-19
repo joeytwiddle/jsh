@@ -12,22 +12,37 @@
 # as opposed to files provided in list
 
 if test "$1" = "--help" -o "$1" = "" -o "$2" = ""; then
-	echo 'onchange [-ignore] "<files>.." [do] <command>'
+	echo
+	echo 'onchange [-fg] [-d] [ -ignore do | "<files>.." [do] ] <command>'
+	echo
 	echo '  Multiple files must be contained in "quotes".'
+	echo
+	echo '  -ignore means you need not provide a file list, the current folder will be scanned'
+	echo
+	echo '  -d is "desensitize" - we will not re-trigger on any files changed during the build process (command)'
+	echo
+	echo '  -fg runs in the current shell instead of popping up a new terminal.  It is also used internally.'
+	echo
 	echo '  There is currently no support for the command to know which file changed, but there could be...'
 	# NO!  echo '  If you are really cunning, you could use "\$file" in your command!'
+	echo
 	exit 1
 fi
 
-if test "$1" = "-nowinxterm"; then
+if test "$1" = "-fg"; then
 	shift
 else
 	if xisrunning; then
-		xterm -e onchange -nowinxterm "$@" &
+		xterm -e onchange -fg "$@" &
 	else
-		onchange -nowinxterm "$@" &
+		onchange -fg "$@" &
 	fi
 	exit
+fi
+
+if test "$1" = "-d"; then
+	DESENSITIZE=true
+	shift
 fi
 
 if test "$1" = "-ignore"; then
@@ -75,6 +90,7 @@ while true; do
 				cursecyan
 				echo "Done."
 				cursenorm
+				[ "$DESENSITIZE" ] && sleep 2 && touch "$COMPFILE"
 				xttitle "# onchange watching $FILES ($file changed last)"
 				# break
 			fi

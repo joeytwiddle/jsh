@@ -1,11 +1,10 @@
 # jsh-depends: cursebold cursered cursenorm jfcsh
+
 ## Default behaviour is to display dropped lines in red, and new lines in white
 ## The option -oneway means dropped lines will not be reported.
 
-## TODO: rename this script: it not proc related
-
 BOTHWAYS=true
-if test "$1" = -oneway
+if [ "$1" = -oneway ]
 then BOTHWAYS=; shift
 fi
 
@@ -25,8 +24,9 @@ JFCCOM="jfcsh -sorted"
 
 if [ "$BOTHWAYS" ]
 then
-	OTHER=`$JFCCOM "$FILEB" "$FILEA"`
-	if ! test "$OTHER" = ""; then
+	OTHER="`$JFCCOM "$FILEB" "$FILEA"`"
+	if [ ! "$OTHER" = "" ]
+	then
 		# echo
 		# echo `cursered``cursebold`"<<< DIED:"
 		echo "$OTHER" |

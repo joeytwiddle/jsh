@@ -3,7 +3,7 @@
 
 # jsh-depends-ignore: edit
 
-## Might not always work?
+## BUG: Does not work on files on a different part of FS tree from cwd.
 cvs edit "$@" >/dev/null 2>&1 || cvs edit
 
 ## Should do something:

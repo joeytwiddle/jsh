@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## Lists all+ executables and jsh shellscripts which could be called by the target perl/shell/any-script.
 
 ## TODO: docs!  I think if you give it an absolute path it analyses that script, otherwise it tries to find the given jsh script.

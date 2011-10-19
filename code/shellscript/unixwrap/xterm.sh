@@ -33,10 +33,10 @@ done
 ## This still does tho:
 XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
 
-# XTERM_OPTS="$XTERM_OPTS -bg black -fg white"
-# XTERM_OPTS="$XTERM_OPTS -bg black -fg #e0e0e0"
-XTERM_OPTS="$XTERM_OPTS -bg black -fg #ffffe0"
-# XTERM_OPTS="$XTERM_OPTS -bg black -fg #ccccaa"
+## Gives me a nice orange/peach cursor!
+# XTERM_OPTS="$XTERM_OPTS -bg black -fg #ffffe0"
+## But my monitor is a bit knackered, making thin lines hard to see, so I lighten my background a bit.
+XTERM_OPTS="$XTERM_OPTS -bg #081410 -fg #ffffe0"
 
 if [ "$XTERME" = xterm ]
 then

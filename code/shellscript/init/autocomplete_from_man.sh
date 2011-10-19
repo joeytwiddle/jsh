@@ -93,7 +93,7 @@ then
 		show_command_info
 		CURRENT=${COMP_WORDS[COMP_CWORD]}
 		WORDS="--help "`
-			MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 MEMOFILE="$BASH_COMPLETION_STORAGE_DIR"/"$COMMAND".cached 'memo' -t '1 month' extractpossoptsfrommanpage "$COMMAND"
+			MEMO_SHOW_INFO= NOINFO=1 MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 MEMOFILE="$BASH_COMPLETION_STORAGE_DIR"/"$COMMAND".cached 'memo' -t '1 month' extractpossoptsfrommanpage "$COMMAND"
 		`
 		## Fix for bug: "it shows you the options, but doesn't let you complete them!" (because it's returning all options, not those which apply to $CURRENT)
 		## Also acts as a cache, so future calls are faster:
@@ -132,7 +132,7 @@ then
 			if [ ! -f "$MEMOFILE" ] || [ "$REMEMO" ]
 			then
 				mkdir -p `dirname "$MEMOFILE"` ## This works even if COMMAND is an alias with '/'s in path.
-				MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 'memo' extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
+				MEMO_SHOW_INFO= NOINFO=1 MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 'memo' extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
 			fi
 			# AC_CHECK_ALIASES=true
 			## Annoying - occurs more than once!

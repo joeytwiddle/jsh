@@ -52,8 +52,8 @@ export LINES=`expr "$LINES" - 3` ## -2 for header.  BUG: Won't be enough if head
 ## TODO: CONSIDER: Could (optionally) strip height and width to those in COLUMNS/LINES, for lists with long output.
 ##                 in that case, ideally we would not change and export them here, but read it them realtime (xterm => COLUMNS,LINES volatile), and -1 then.
 
-OUTPUTLAST=`jgettmp jwatchchanges last_"$COM"`
-OUTPUTNOW=`jgettmp jwatchchanges now_"$COM"`
+OUTPUTLAST=`jgettmp jwatchchanges last_"$COM".$USER`
+OUTPUTNOW=`jgettmp jwatchchanges now_"$COM".$USER`
 
 ## CONSIDER: Should I use sh -c like watch(1)?
 eval "$COM" | $STRIP | eval "$RESONREAD" > $OUTPUTLAST

@@ -62,10 +62,14 @@ then
 					## (I'd like to use a dedicated program with syntax highlighting)
 					## (Nah actually I quite like this implementation, it matches my coding policies!)
 					## Variables:
-					highlight -bold "[$][A-Za-z0-9_][A-Za-z0-9_]*" cyan |
+					## A shell variable, declaration or usage (-bold for BRIGHT)
+					highlight "[$][A-Za-z0-9_][A-Za-z0-9_]*" cyan |
+					highlight "^[A-Za-z0-9_][A-Za-z0-9_]*=" cyan |
+					## Strings:
 					highlight '"' green |
 					## Comments:
-					highlight -bold "^[ 	]*\#\#.*" yellow | ## BRIGHT double-hashed comment, probable documentation
+					## Double-hashed comment, probable documentation (-bold for BRIGHT)
+					highlight "^[ 	]*\#\#.*" yellow |
 					## Special comments:
 					# highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
 					## Normal comments (single #), coloured dark.  Possibly code which was commented out.  Is hash followed by space?

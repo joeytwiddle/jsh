@@ -43,9 +43,9 @@ if [ ! "$AUDIO_BITRATE" ]
 then
 	## TODO: should make this 48 if it needs to be low.
 	## DONE: nah should default to 128 cos anything lower sucks!
-	jshinfo "Defaulting AUDIO_BITRATE of output to 64 kilobits per second."
 	# AUDIO_BITRATE=64
 	AUDIO_BITRATE=128
+	jshinfo "Defaulting AUDIO_BITRATE of output to $AUDIO_BITRATE kilobits per second."
 fi
 # FUDGE_FACTOR=128
 # VIDEO_BITRATE=`expr "$TARGET_SIZE" '*' 1024 '*' 1024 / "$LENGTH_IN_SECONDS" / "$FUDGE_FACTOR" - "$AUDIO_BITRATE"`
@@ -59,6 +59,11 @@ then
 	fi
 	VIDEO_BITRATE=`expr "$TARGET_SIZE" '*' 1024 '*' 1024 '*' 8 / "$LENGTH_IN_SECONDS" / 1024 - "$AUDIO_BITRATE"`
 	jshinfo "For target size $TARGET_SIZE""Mb, required video bitrate is ~ $VIDEO_BITRATE"
+fi
+if [ "$VIDEO_BITRATE" -lt 7000 ]
+then
+	VIDEO_BITRATE=7000
+	jshinfo "Adjusted VIDEO_BITRATE to $VIDEO_BITRATE to avoid \"requested bitrate is too low\" error on second pass"
 fi
 
 OUTPUT_CODEC="-y ffmpeg,mjpeg -F mpeg4" ## Tried some others because this one was slow to playback at 1024x576 but it beat them all (very slightly)!

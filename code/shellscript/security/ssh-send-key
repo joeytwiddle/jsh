@@ -1,8 +1,6 @@
-USER_HOST="$1"
-
-if [ ! "$USER_HOST" ]
+if [ ! "$*" ]
 then
-	echo "ssh-send-key <user>@<host>"
+	echo "ssh-send-key [ssh_options] <user>@<host>"
 	exit 1
 fi
 
@@ -25,7 +23,7 @@ fi
 
 cat "$KEYFILE" |
 
-ssh-agent verbosely ssh "$USER_HOST" eval "cat >> ./.ssh/authorized_keys"
+ssh-agent verbosely ssh "$@" eval "cat >> ./.ssh/authorized_keys"
 ## The ssh-agent is a weak attempted fallback if the key sending fails; i'm not sure i have ever got ssh-agent to do anything useful
 
 

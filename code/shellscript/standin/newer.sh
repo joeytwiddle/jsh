@@ -1,6 +1,24 @@
 #!/bin/bash
+
+## Problem: many filesystems do not hold accurate enough dates that allow us to
+## notice two writes in one second.
+## Therefore 'find -newer' acts paranoid, and actually reports files written to
+## in the same second as newer than each other!
+## In some jsh applications this is useful/essential (vfs), in others it is
+## problematic.
+## TODO: We must adopt a default behaviour, and an override option.
+##       What does the original 'newer' do?  I think we have matched its
+##       behaviour.
+
+## This does not work!
+# find "$2" -maxdepth 0 -newer "$1" >/dev/null
+
+## This does
 [[ "$(find "$2" -maxdepth 0 -newer "$1")" = "" ]]
-# exit "$?"
+
+exit "$?"
+
+
 
 ## Older:
 # N=`jwhich newer`

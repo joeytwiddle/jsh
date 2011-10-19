@@ -25,22 +25,27 @@ CURSEYELLOWBOLD=`curseyellow;cursebold`
 
 exec 3>&1 ## save stdout in 3 (make 3 point at original stdout)
 
-## send stderr to new (local,piped) stdout, and stdout to 3 (original stdout)
+## Send stderr to new (local,piped) stdout &1, and stdout to &3 (original stdout)
 # "$@" 2>&1 >&3 |
 ERRFILE=/tmp/highlightstderr_errfile.$$
 ( "$@" ; echo "$?" > "$ERRFILE" ) 2>&1 >&3 |
 
-## TODO: only affect non-coloured lines; lines with colour-coding (at the start (and norm at the end?)) are not highlighted or added to
-while read X
-do
-	printf "%s\n" "$CURSERED$X$CURSENORM"
-	# printf "%s\r" "$CURSEREDBOLD$X$CURSENORM" ; printf "%s\r" "$CURSEYELLOW$X$CURSENORM" ; printf "%s\n" "$CURSERED$X$CURSENORM"
-	# printf "%s\n" "$CURSEYELLOWBOLD""!x!"" $CURSEREDBOLD$X $CURSEYELLOWBOLD""!x!""$CURSENORM"
-done >&2
-# sed -u "s+.*+$CURSERED\0$CURSENORM+" >&2 ## send the highlighted output back to stderr
-# doesn't work: sed -u "s+^[^`printf "\033["`].*+$CURSERED\0$CURSENORM+" >&2 ## send the highlighted output back to stderr
+## Send the highlighted output back to stderr (&2).
 
-printf "\033[00;36m" >&2 ## I know this is meant for stdout, but I am printing it to stderr otherwise calling scripts can fail trying to parse it.
+# while read X
+# do
+	# printf "%s\n" "$CURSERED$X$CURSENORM"
+	# # printf "%s\r" "$CURSEREDBOLD$X$CURSENORM" ; printf "%s\r" "$CURSEYELLOW$X$CURSENORM" ; printf "%s\n" "$CURSERED$X$CURSENORM"
+	# # printf "%s\n" "$CURSEYELLOWBOLD""!x!"" $CURSEREDBOLD$X $CURSEYELLOWBOLD""!x!""$CURSENORM"
+# done >&2
+
+# sed -u "s+.*+$CURSERED\0$CURSENORM+" >&2
+sed -u "s+^+$CURSERED+ ; s+$+$CURSENORM+" >&2
+
+## TODO: only affect non-coloured lines; lines with colour-coding (at the start (and norm at the end?)) are not highlighted or added to
+# Doesn't work: sed -u "s+^[^`printf "\033["`].*+$CURSERED\0$CURSENORM+" >&2 ## send the highlighted output back to stderr
+
+printf "\033[00;36m" >&2 ## Reset color - grey for joey ?
 
 ## NOTE: The redirection example I used also added 3>&- at the end of both the "$@" and sed lines, but this appears to me to be superflous.
 

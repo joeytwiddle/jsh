@@ -1,3 +1,5 @@
+#!/bin/bash
+
 ## See also: slowcp, catslowly
 
 ## TODO: catslowly should really work if provided a file as args!  Maybe this could too.
@@ -27,7 +29,7 @@ do
 	[ "$SOFAR" ] && SOFAR=`expr $SOFAR + '(' $SPEED '*' $COUNT ')'` || SOFAR=
 	# [ "$SOFAR" ] &&
 
-	echo -e -n "\r[ " >&2
+	echo -e -n '\r[ ' >&2
 	echo -n "$SOFAR / $KNOWN_TOTAL_SIZE" >&2
 	[ "$SOFAR" ] && [ "$KNOWN_TOTAL_SIZE" ] && echo -n " : `expr 100 '*' $SOFAR / $KNOWN_TOTAL_SIZE` %" >&2
 	echo -n " ]  " >&2

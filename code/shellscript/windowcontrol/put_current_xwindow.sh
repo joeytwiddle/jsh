@@ -14,6 +14,9 @@
 ## BUG: It doesn't move the mouse pointer; in Fluxbox this might mean that your
 ## focus will switch to the window now under the pointer.
 
+## Config:
+[ "$put_xwindow_padding" ] || put_xwindow_padding=5
+
 putWhere="$1"
 
 winid=`xdotool getwindowfocus`
@@ -50,6 +53,8 @@ yoffset=`extract_window_property "Relative upper-left Y"`
 oldwidth="$width" ; oldheight="$height"
 [ "$width" -lt 80 ] && width=`expr "$width" '*' 8` && height=`expr "$height" '*' 8`
 
+# scrwidth="`getxwindimensions | cut -d x -f 1`"
+# scrheight="`getxwindimensions | cut -d x -f 2`"
 xwindimensions=`xdpyinfo | grep dimensions: | sed 's+.*dimensions:[ ]*++ ; s+ .*++'`
 scrwidth="`echo "$xwindimensions" | cut -d x -f 1`"
 scrheight="`echo "$xwindimensions" | cut -d x -f 2`"
@@ -59,16 +64,16 @@ left=`expr "$left" - "$xoffset"`
 top=`expr "$top" - "$yoffset"`
 
 push_left () {
-	left=8
+	left=$put_xwindow_padding
 }
 push_right () {
-	left=`expr "$scrwidth" - 8 - "$width" - "$xoffset"`
+	left=`expr "$scrwidth" - "$width" - "$xoffset" - $put_xwindow_padding`
 }
 push_top () {
-	top=8
+	top=$put_xwindow_padding
 }
 push_bottom () {
-	top=`expr "$scrheight" - 8 - "$height" - "$yoffset" - 8`
+	top=`expr "$scrheight" - "$height" - "$yoffset" - $put_xwindow_padding - 8`
 	## For some reason we need an extra -8 here
 	## This may mean we need an extra -4 for centrey.
 }

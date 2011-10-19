@@ -1,4 +1,4 @@
-#!/bin/sh
+## No shebang.  I should be sourced from bash (or perhaps zsh) but not POSIX sh (fails with dash - the args are not passed when sourcing).
 ## To use selfmemo, make the following the first command in your script:
 # . selfmemo [ -nodir ] [ <memo_opts>... ] - "$0" "$@"; shift
 ## Note: there appears to be a BUG, you cao do -t 20 but -t "1 minute" doesn't work.  Hmm -t 20 doesn't work for me either

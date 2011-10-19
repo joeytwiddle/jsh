@@ -21,6 +21,6 @@ import -window root "$TMPFILE"
 # then mv "$TMPFILE" "$DESTINATION"
 # else convert "$TMPFILE" "$DESTINATION"
 # fi
-nice -n 5 convert "$TMPFILE" "$DESTINATION"
+nice -n 5 convert "$TMPFILE" "$DESTINATION" && rm -f "$TMPFILE"
 
 echo "$DESTINATION"

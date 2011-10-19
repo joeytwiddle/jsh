@@ -203,7 +203,8 @@ function reclaimfrom() {
 			# find . -type d | grep -v "^\.$" |
 			verbosely find "$1"/ -type d | grep -v "/$" |
 			reverse |
-			foreachdo verbosely rmdir 2>&1 |
+			# catwithprogress |
+			verbosely foreachdo rmdir 2>&1 |
 			# grep -v "^rmdir: failed to remove '.*': Directory not empty$"
 			grep -v "Directory not empty"
 

@@ -1,8 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 ## jsh-help: Commits files to cvs respository, and immediately unlocks them.
 
 # OUT-OF-DATE: jsh-depends: cursebold cursecyan cursegreen curseyellow cursenorm cvsdiff cvsedit cvsvimdiff edit jdeltmp jgettmp jdiff newer error
-# this-script-does-not-depend-on-jsh: vimdiff
+# jsh-depends-ignore: vimdiff
 
 ## If we can leave it out, it lets us resize during run:
 # export COLUMNS
@@ -11,11 +11,11 @@
 if [ "$1" = "-diff" ]
 then
 	shift
-	deprecated friendlycvscommit "$@"
+	deprecated -by "$0" friendlycvscommit "$@"
 elif [ "$1" = "-vimdiff" ]
 then
 	shift
-	deprecated cvsvimdiffall "$@"
+	deprecated -by "$0" cvsvimdiffall "$@"
 else
 
 	## Default: just commit quietly, and cvsedit to make files writeable.

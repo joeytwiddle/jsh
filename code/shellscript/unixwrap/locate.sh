@@ -4,7 +4,8 @@ tty -s && PRETTY_PRINT_OK=true
 
 [ "$1" = -pretty ] && shift && VERYPRETTY=true
 
-`jwhich locate` "$@" |
+# "`jwhich locate`" "$@" |
+unj locate "$@" |
 
 if [ "$PRETTY_PRINT_OK" ]
 then

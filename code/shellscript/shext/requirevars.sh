@@ -1,4 +1,5 @@
-#!/bin/sh
+## Source me from a bash-shebanged script (will not work from an sh-shebanged script)
+
 for VAR in "$@"
 do
 

@@ -54,7 +54,11 @@ do
 	SEDSTRINGPARTA="$SEDSTRINGPARTA$SEDSTRINGBITA"
 	## But only sometimes prints it back out:
 	if test "$KEEPCOL"
-	then SEDSTRINGPARTB="$SEDSTRINGPARTB\\$COLN "
+	then
+		SEDSTRINGPARTB="$SEDSTRINGPARTB\\$COLN "
+		if [ "$COLN" -gt 9 ]
+		then jshwarn "Failure imminent - trying to use replacement $COLN but only 1-9 are supported by sed!"
+		fi
 	else SEDSTRINGPARTB="$SEDSTRINGPARTB"
 	fi
 

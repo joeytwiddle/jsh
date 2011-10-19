@@ -1,4 +1,4 @@
 if [ "$DO" ]
 then verbosely "$@"
-else echo "Suggest: `cursebold`$*`cursebold` - retry with DO=1"
+else echo "`cursegreen;cursebold`[Suggestion]`cursebold` % `cursecyan`$*   `curseyellow;cursebold`(rerun with DO=1)`cursenorm`"
 fi

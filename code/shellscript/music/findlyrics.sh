@@ -1,4 +1,7 @@
 #!/bin/sh
+
+## This script has been superceded by: seeklyrics
+
 ## Intention: Given an artist and track name, find the lyrics
 ##   for the song by searching Google, and trying to find concensus
 ##   on the lyrics from a number of pages.
@@ -6,8 +9,6 @@
 ##   the Google search.
 ## TODO: Cannot take every 3rd link because there is
 ##   occasionally extra links like "More results from X"
-
-## I think this has now been superceded by seeklyrics
 
 if test "$*" = ""; then
 	echo "findlyrics <artist> <song_name>"

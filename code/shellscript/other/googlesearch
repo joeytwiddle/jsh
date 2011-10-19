@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # jsh-depends: afterfirst beforefirst debug
 # jsh-ext-depends: links
 ## TODO: See seeklyrics syntax.  We should surround each argument passed with ""s in the google query, or %whatevers.
@@ -7,12 +9,14 @@ then
 NL="\\
 "
 	shift
-	memo -t 2d links -source `googlesearch "$@"` |
+	memo -t "2 days" links -source `googlesearch "$@"` |
 	sed "s+><+>$NL<+g" |
-	grep "^<a href=http://" |
-	afterfirst "href=" |
-	grep -v "^http://www.google.com" |
-	beforefirst ">"
+	pipeboth 2> /tmp/xy |
+	grep "^<a href=['\"]*http://" |
+	afterfirst "href=['\"]*" |
+	grep -v "^http://www.google.com/" |
+	grep -v "^http://webcache.googleusercontent.com/" |
+	beforefirst "['\" >]"
 	exit
 fi
 

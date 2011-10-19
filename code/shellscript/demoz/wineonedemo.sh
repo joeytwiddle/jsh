@@ -1,5 +1,5 @@
 #!/bin/sh
-# this-script-does-not-depend-on-jsh: wine winealldemoz
+# jsh-depends-ignore: wine winealldemoz
 # jsh-depends: mykill waitforkeypress findjob curseblue curseyellow cursenorm
 # jsh-ext-depends: find wine unzip
 
@@ -16,11 +16,11 @@ rm -rf /tmp/demotmp
 mkdir -p /tmp/demotmp
 cd /tmp/demotmp
 
-unzip "$1"
+unzip "$1" >/dev/null
 
 echo
-ls -l -h
-echo
+# ls -l -h
+# echo
 
 ## Didn't really work (so should at least randomorder them!)
 ## Probably something was stealing and eating stdin!
@@ -59,6 +59,8 @@ do
 	sleep 2
 
 
+
+	xttitle "`basename "$EXECUTABLE_FILE"` ("`filesize "$EXECUTABLE_FILE"`" bytes) from $1"
 
 	curseyellow
 	echo
