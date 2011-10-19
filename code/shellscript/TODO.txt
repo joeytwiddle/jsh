@@ -37,3 +37,14 @@ TODO: remove ppp-updateip because it gives too much of my security away!
 
 replace all checks which call tty with checks that use [ -t 0 ]
 (that is, checking whether stdin/term is a user-term or if we are part of a pipe)
+
+
+
+Some jsh scripts are mature and ready for release to the community.  Others are
+an experimental mess, and should be avoided by non-experts!
+It might be nice for a jsh script to have a jsh tag representing its status,
+e.g.:
+  prototype
+  mature (free of bugs, finished or at least fully functional)
+  dev (not recommended for use yet, unless you are a developer who wants the latest version)
+
