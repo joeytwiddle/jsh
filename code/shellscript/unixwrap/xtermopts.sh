@@ -61,6 +61,9 @@ fi
 # FONT='-*-montecarlo fixed 12-medium-r-*-*-*-120-*-*-*-*-*-*'   ## small and neat (1 pixel shorter than clean!), good bold, but weak 'a'
 ## My favourite:
 FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
+if [ "$HOSTNAME" = "pod" ]
+then FONT='-*-terminus-*-*-*-*-*-140-*-*-*-*-*-*'
+fi
 
 echo $ARGS $GEOM +sb -sl 5000 -vb -si -sk -bg black -fg white -font "$FONT" -rightbar -j -s "$@"
 
