@@ -1,7 +1,8 @@
 #!/bin/sh
-if test "$2" = ""; then
+if [ "$2" = "" ]
+then
 	echo "cvsreplaceserver <original_server_name> <new_server_name>"
-	echo "  Your current server is: `cat CVS/Root`"
+	echo "  e.g.: cvsreplaceserver `cat CVS/Root` :ext:joey@hwi.ath.cx:/stuff/cvsroot"
 	exit 1
 fi
 
