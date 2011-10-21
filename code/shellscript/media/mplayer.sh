@@ -74,6 +74,7 @@ done
 ## h264 - it will cause us to frequently lose large chunks!
 ## A heavy flv from YouTube (crashes on HTLGI video!):
 [ "$FAST" = 2 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all"
+[ "$FAST" = 3 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all -ao sdl -framedrop -autoq 5 -autosync 5 -nobps -ni -mc 0 -vo sdl"
 
 ## AFAIK VNC only works with the x11 vo:
 if [ "$VNCDESKTOP" = "X" ]
