@@ -1,6 +1,8 @@
 #!/bin/sh
 ## See also: joey/project/gentoo/chroot_into_gentoo.sh which has isActiveMountPoint().
 
+## TODO: Auto-configure network.  For me requires doing ifconfig up on relevant interfaces, and dhclient on the main one.
+
 ## TODO: jchroot should do something like:
 ##       echo "From $SOURCE at `date`" > $TARGET/tmp/chrooted_from.last
 
