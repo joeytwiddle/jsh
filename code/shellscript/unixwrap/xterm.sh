@@ -32,6 +32,18 @@ done
 # XTERM_OPTS="$XTERM_OPTS -fa lucidatypewriter-8"
 ## This still does tho:
 XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
+## For Pod:
+if [ "$HOSTNAME" = pod ]
+then
+	## Clean, like Terminus, is a cool/blocky shape.
+	## At higher res I prefer fixed.
+	## It uses more curves, which help the eye.
+	# XTERM_FONT='-*-clean-medium-r-*-*-12-*-*-*-*-*-*-*'
+	# XTERM_FONT='-*-clean-bold-r-*-*-13-*-*-*-*-*-*-*'   ## blocky - looks cool but bold is too bold
+	# XTERM_FONT='-*-terminus-medium-r-*-*-*-140-*-*-*-*-*-*'   ## clean-15 looks cooler than terminus!
+	# XTERM_FONT='-*-clean-medium-r-*-*-15-*-*-*-*-*-*-*' ## blocky - looks cool but not so easy on the eye
+	XTERM_FONT='-*-fixed-medium-r-*-*-15-*-*-*-*-*-*-*'
+fi
 
 ## Gives me a nice orange/peach cursor!
 # XTERM_OPTS="$XTERM_OPTS -bg black -fg #ffffe0"
