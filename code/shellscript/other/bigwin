@@ -1,4 +1,4 @@
-# this-script-does-not-depend-on-jsh: xterm jsh
+# jsh-depends-ignore: xterm jsh
 # jsh-depends: waitforkeypress xisrunning jdeltmp jgettmp
 ## Based on xtermsh
 
@@ -10,7 +10,7 @@ COM="$@"
 
 if [ "$COM" = "" ]; then COM="jsh"; fi
 
-TMPSH=`jgettmp "bigwin: $*"`
+TMPSH=`jgettmp "bigwin.$$"`
 (
 	echo "export COLUMNS=120"
 	echo "$COM"
