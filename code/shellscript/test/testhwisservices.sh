@@ -18,10 +18,11 @@ function bad () {
 
 function checkWebPageForRegexp () {
 	doing "Checking URL $1 for string \"$2\" ..."
-	OUTPUT=`
-		wget -nv -O - "$1" & wgpid=$!
-		sleep 10 ; kill $wgpid 2>/dev/null ## 5 seconds didn't give slow hwi enough time!
-	`
+	# OUTPUT=`
+		# wget -nv -O - "$1" & wgpid=$!
+		# sleep 10 ; kill $wgpid 2>/dev/null ## 5 seconds didn't give slow hwi enough time!
+	# `
+	OUTPUT=` wget -nv -O - "$1" `
 	if echo "$OUTPUT" | grep "$2" > /dev/null
 	then good "`cursegreen;cursebold`OK: Found \"$2\" in \"$1\" ok.`cursenorm`"
 	else bad "FAILED to find \"$2\" in \"$1\"!"
@@ -31,7 +32,7 @@ function checkWebPageForRegexp () {
 function askPortExpect () {
 	doing "Connecting to $1:$2 sending \"$3\" hoping to get \"$4\" ..."
 	# NC=`which nc 2>/dev/null`
-	NC=/usr/bin/nc
+	NC=/bin/nc
 	[ ! -x "$NC" ] && echo "No netcat: using telnet" && NC=`which telnet`
 	RESPONSE=`
 		( echo "$3" ; sleep 99 ) |
@@ -63,15 +64,15 @@ echo
 # 
 # echo
 
-checkWebPageForRegexp "http://hwi.ath.cx/" "How to contact Joey" &
+checkWebPageForRegexp "http://hwi.ath.cx/" "How to contact Joey"
 
 echo
 
-checkWebPageForRegexp "https://emailforever.net/cgi-bin/openwebmail/openwebmail.pl" "Open" &
+checkWebPageForRegexp "https://emailforever.net/cgi-bin/openwebmail/openwebmail.pl" "Open"
 
 echo
 
-checkWebPageForRegexp "http://generation-online.org/" "Generation" &
+checkWebPageForRegexp "http://generation-online.org/" "Generation"
 
 echo
 
