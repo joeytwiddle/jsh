@@ -1,6 +1,10 @@
+
 #!/bin/sh
 ## Decrypts a folder, starts a shell, then re-encrypts the folder.
 ## Beware overlap when running two sessions.  We could automatically start the sbash session in a screen.  Later calls could join the screen, so it is the only one left to close.
+
+## BUG TODO: Leaving the terminal's scrollback history of the sbash session is insecure!  Although in some cases it may encourage the user to close the session sooner, since they still have access to the small part of information they required (better than leaving the session open for possible invasion)!
+## One solution is to start the sbash in a screen.  Later calls could join the screen, so it is the only one left to close.
 
 # set -e
 # set -x
