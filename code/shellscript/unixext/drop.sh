@@ -23,10 +23,11 @@ cat "$@" |
 		if [ "$N" = 0 ]
 		then break
 		fi
-		read LINE
+		read LINE || exit 0 ## DONE: If we are out of lines, give up!  Fixes bug of this getting caught looping forever.
 		N=$(($N-1));
 	done
 
+	## TODO: this might fail if we only just read the very last line.
 	cat
 
 }
