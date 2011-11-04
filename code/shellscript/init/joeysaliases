@@ -115,6 +115,11 @@ export MEMO_DEFAULT_CONDITION='( touch -d "2 hours ago" $AGEFILE ; newer $AGEFIL
 
 
 
+## TODO: If the user uses memo instead of rememo, should we re-use the memoed files even if it is "out of date" according to "default condition"?
+alias memo='memo -info'
+
+
+
 ## == Joey's Aliases: Overrides ==
 
 ## -a is nice, it will copy directories recursively; -i because i don't want to overwrite stuff by accident
