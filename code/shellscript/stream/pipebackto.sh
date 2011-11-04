@@ -26,6 +26,9 @@ cat << !
      The file will not be overwritten until the process has completed.
      Hence, no other processes will see the partial file.  :)
 
+     TODO: Check: I think this means the destination will not be overwritten if the command failed (for whatever reason).
+           Although if there is not enough disk-space when the dog is moved, maybe we get a partially written file?
+
 !
 exit 1
 fi
