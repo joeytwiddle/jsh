@@ -142,6 +142,14 @@ then
 				then echo -n "`curseyellow`<$COMMAND is an alias!>`cursenorm`" >/dev/stderr
 				fi
 			fi
+			# AC_CHECK_ALIASES=true
+			## Annoying - occurs more than once!
+			if [ "$AC_CHECK_ALIASES" ]
+			then
+				if alias "$COMMAND" >/dev/null 2>&1
+				then echo -n "`curseyellow`<$COMMAND is an alias!>`cursenorm`" >/dev/stderr
+				fi
+			fi
 			## I think these single brackets mean a string:
 			reply=(--help `cat "$MEMOFILE"`)
 			## Ne marche pas: compctl -f -c -u -r -k "($reply)" -H 0 '' "$COMMAND" -tn
