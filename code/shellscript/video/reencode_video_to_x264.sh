@@ -3,45 +3,33 @@
 
 require_exes mplayer mencoder faac x264 MP4Box || exit
 
-set -e
 # set -x
+set -e
 
 INFILE="$1"
 if [ ! -f "$INFILE" ]
 then
 cat << !
 
-<options> nice -n 5 reencode_video_to_x264 <video_file>
+nice -n 5 reencode_video_to_x264 <video_file>
 
   Fair quality (defaults):
     LOSS=16 AUDIOQUALITY=50 FPS=23.976
 
   Video quality:
-    LOSS=25
+    LOSS=25 AUDIOQUALITY=50 FPS=20
 
   Low quality (some visible artefacts):
-    LOSS=35 MOREOPTS="--ratetol 5.0"
-
-  Low quality alternative:
-    LOSS=25 FPS=15 MOREOPTS="--ratetol 5.0"
-
-  Note: Reducing FPS causes a quality loss in itself.  (Higher FPS allows a
-  lossy codec to catch up quickly, fixing messy frames.)
-  Also beware that non-standard FPS can confuse some players!
-  Hopefully ratetol (variance of bitrate) can help with low FPS.  Although I
-  have heard ratetol>1.0 criticized (perhaps for high quality high framerate
-  encodings).
+    LOSS=35 AUDIOQUALITY=50 FPS=15
 
   Optional vars:
 
     OUTSIZE=720x480
     PREVIEW="-ss 0:01:00 -endpos 0:10"
-    OUTFILE="blah.x264"
 
 !
 exit 1
 fi
-
 [ "$OUTFILE" ] || OUTFILE="$INFILE.x264.mp4"
 
 ## TODO: Input size and fps could be obtained from mplayer's output line starting "VIDEO:"
@@ -49,14 +37,21 @@ fi
 ## OUTSIZE should be input size, unless we are scaling with SCALEOPTS
 # [ "$OUTSIZE" ] || OUTSIZE=720x480
 [ "$FPS" ] || FPS=23.976
-# [ "$LOSS" ] || LOSS=26 ## web video quality
-[ "$LOSS" ] || LOSS=16 ## reasonable video quality, a tiny bit lossy
-# [ "$LOSS" ] || LOSS=12 ## good video quality
+# [ "$LOSS" ] || LOSS=26 ## web quality
+[ "$LOSS" ] || LOSS=16 ## reasonable, a tiny bit lossy
+# [ "$LOSS" ] || LOSS=12 ## video quality
 # [ "$LOSS" ] || LOSS=8 ## film quality?
-# AUDIOQUALITY=40 can create unpleasant distortion
 [ "$AUDIOQUALITY" ] || AUDIOQUALITY=50   # 100
 
+## My current settings (override existing - should not be here!)
+# OUTSIZE=640x360 ; SCALEOPTS="scale=640:360,"
+# OUTSIZE=576x320 ; SCALEOPTS="scale=576:320,"
+# OUTSIZE=640x272 ; SCALEOPTS="scale=640:272,"
+# OUTSIZE=560x304 ; SCALEOPTS="scale=560:304,"
+# OUTSIZE=448x256 ; SCALEOPTS="scale=448:256,"
 # PREVIEW="-ss 0:01:00 -endpos 0:10"
+# LOSS=20
+# AUDIOQUALITY=40 can create unpleasant distortion
 ## Not recommended: MOREOPTS="--ratetol 5.0"
 
 ## Needed for some .flv files (e.g. from YouTube)
@@ -70,8 +65,6 @@ fi
 
 [ -z "$OUTSIZE" ] && OUTSIZE="$INSIZE"
 
-## Generate suitable value for SCALEOPTS from OUTSIZE
-# e.g. OUTSIZE=640x360 requires SCALEOPTS="scale=640:360,"
 if [ ! "$OUTSIZE" = "$INSIZE" ] && [ ! "$SCALEOPTS" ]
 then
 	SCALEOPTS="scale=`echo "$OUTSIZE" | tr 'x' ':'`,"
@@ -83,21 +76,14 @@ fi
 WAVFILE="$INFILE.audio.wav"
 AACFILE="$INFILE.audio.aac"
 ## But mplayers file= is not safe to use if $INFILE contains spaced, so we use a tmpfile for that:
-## By adding $$ we allow two encoding processes to run at once.  However if we
-## interrupt before the wav->aac is complete, this uniquely-named file will be
-## left there!
-# TMPWAVFILE="$$.audiodump.wav.tmp"
-## By using the filename, we will clean any tempfile if we rerun the script
-## after an interrupted run.  Two encoding processes can still run, provided
-## their videos have different names!
-TMPWAVFILE="$INFILE.audiodump.wav.tmp"
+TMPWAVFILE="$$.audiodump.wav.tmp"
 
 ## The temp wav file is pretty large, sometimes larger than the final video!
-## We could dump the wav-file to memory.  This is a silly idea on busy
-## machines, it can cause a lot of application memory to be pushed to swap!
+## Dump the wav-file to memory?  This is silly, it can cause a lot of
+## application memory to be pushed to swap!
 # targetDir=/dev/shm
-## Since the data is written and read linearly, we can just store it on a drive
-## with enough space (preferably different from the drive we are reading from).
+## Since the data is written and read linearly, we really want to store it on a
+## different drive from the one currently in use, and with lots of space.
 targetDir=/tmp
 if [ -w "$targetDir" ]
 then
@@ -141,13 +127,9 @@ fi
 FIFOFILE="$INFILE".tmp.fifo.yuv
 ## NOTE: If you change the PREVIEW parameters, then you must delete
 ## the FIFOFILE yourself, to re-create the new size version.
-## DONE: Warn the user of the above!
-if [ "$PREVIEW" ]
-else
-	if [ -f "$FIFOFILE" ]
-	then echo "[WARNING] Re-using previous tmpfile.  If you have changed PREVIEW size then delete $FIFOFILE and re-run!"
-	fi
-else
+## TODO: Warn the user of the above!
+if [ ! "$PREVIEW" ]
+then
 	rm -f "$FIFOFILE"
 	mkfifo "$FIFOFILE"
 fi
@@ -158,22 +140,22 @@ then
 	verbosely mencoder $PREVIEW $OUTPUT_OPTIONS -o "$FIFOFILE" "$INFILE" >/dev/null &
 	# verbosely mplayer $PREVIEW -vo yuv4mpeg "$INFILE" && mv stream.yuv "$FIFOFILE"
 	## If we are sending to a file, then we wait for that to finish before we run x264
+	## NOTE: Alternatively, we could just sleep 5 and assume x264 will never
+	## catch up with mencoder.  This might finish faster result on
+	## multi-processor machines.
 	if [ ! -e "$FIFOFILE" ] || [ -f "$FIFOFILE" ]
 	then wait
 	fi
-	## NOTE: Alternatively, we could just sleep 5 and assume x264 will never
-	## catch up with mencoder.  This might finish faster on multi-processor
-	## machines.
 fi
+
+## The x264 --progress --no-psnr options seem to have disappeared!
 
 
 
 ### Encode with x264:
 
-## The x264 --progress and --no-psnr options seem to have disappeared!
-
 ## Basic:
-verbosely x264 --fps "$FPS" --crf "$LOSS" --input-res "$INSIZE" $MOREOPTS -o "$OUTFILE" "$FIFOFILE"
+verbosely x264 --fps "$FPS" --crf "$LOSS" -o "$OUTFILE" "$FIFOFILE" --input-res "$INSIZE"
 
 ## Readable by most players (Quicktime):
 # verbosely x264 --fps "$FPS" --bframes 2 --crf "$LOSS" --subme 6 --analyse p8x8,b8x8,i4x4,p4x4 $MOREOPTS -o "$OUTFILE" "$FIFOFILE" --input-res "$INSIZE"
