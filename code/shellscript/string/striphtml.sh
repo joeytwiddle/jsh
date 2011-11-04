@@ -72,6 +72,7 @@ sed '
 	s+&gt;+>+g
 	s+&lt;+<+g
 	s+&nbsp;+ +g
+	s+&amp;+\&+g
 ' |
 sed 's+^[	 ]*++' |
 sed "
