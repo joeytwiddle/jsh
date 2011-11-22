@@ -45,10 +45,13 @@ then
 	XTERM_FONT='-*-fixed-medium-r-*-*-15-*-*-*-*-*-*-*'
 fi
 
-## Gives me a nice orange/peach cursor!
-# XTERM_OPTS="$XTERM_OPTS -bg black -fg #ffffe0"
-## But my monitor is a bit knackered, making thin lines hard to see, so I lighten my background a bit.
-XTERM_OPTS="$XTERM_OPTS -bg #081410 -fg #ffffe0"
+# XTERM_OPTS="$XTERM_OPTS -bg black -fg white"
+## On a dark display, thin lines can be hard to see, so I lighten my background a bit:
+XTERM_OPTS="$XTERM_OPTS -bg #081410 -fg white"
+
+## Cursor and pointer colors can be set in ~/.Xresources, and loaded with xrdb -merge.
+# xterm*cursorColor: #ffdd44
+# xterm*pointerColor: #ffee99
 
 if [ "$XTERME" = xterm ]
 then

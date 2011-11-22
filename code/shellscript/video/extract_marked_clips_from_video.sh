@@ -47,7 +47,7 @@ do
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## Huge!
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
 	# COPY="-oac lavc -ovc copy" ## Large
-	verbosely mencoder "$@" $COPY $CLIPOPTS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
+	verbosely mencoder "$@" $COPY $CLIPOPTS $MENCODER_OPTIONS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
 
 	# prepare_for_editing "$VIDEOFILE"
 	# mv re_encoded.dv clip$CLIPNUM.dv

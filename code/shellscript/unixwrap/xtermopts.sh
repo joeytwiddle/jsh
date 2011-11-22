@@ -59,6 +59,7 @@ fi
 # FONT='-*-fixed-*-r-*-*-12-*-*-*-*-*-*-*' ## This one should work on all systems?
 # FONT='-*-proggysmalltt-*-*-*-*-*-120-*-*-*-*-*-*'   ## wider and shorter than clean
 # FONT='-*-montecarlo fixed 12-medium-r-*-*-*-120-*-*-*-*-*-*'   ## small and neat (1 pixel shorter than clean!), good bold, but weak 'a'
+# FONT='-*-modesevenfixed-*-*-*-*-12-*-*-*-*-*-*-*'
 ## My favourite:
 FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
 if [ "$HOSTNAME" = "pod" ]

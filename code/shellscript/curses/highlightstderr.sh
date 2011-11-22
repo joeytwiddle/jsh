@@ -49,7 +49,7 @@ printf "\033[00;36m" >&2 ## Reset color - grey for joey ?
 
 ## NOTE: The redirection example I used also added 3>&- at the end of both the "$@" and sed lines, but this appears to me to be superflous.
 
-exec 3>&- ## Close fd 3 (is this neccessary? we are unlikely to use it, even if this scripts is used as a function).
+exec 3>&- ## Close fd 3 (is this neccessary? we are unlikely to use it, even if this script is used as a function).
 
 ERRNUM=`cat "$ERRFILE"` ; rm -f "$ERRFILE"
 exit $ERRNUM

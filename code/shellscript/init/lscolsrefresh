@@ -1,6 +1,12 @@
-## Processes ~/.dircolors to create or update the cachefile for lscolsinit.
-## Source lscolsinit to load the changes into the shell.
-## Remove the cachefile ~/.lscols for auto-updates (slower).
+if [ "$1" = --help ]
+then cat << !
+Processes ~/.dircolors to create or update the ~/.lscols cachefile for lscolsinit.  This makes lscols load faster when you start a shell session.
+Source lscolsinit to load the changes into your current shell.
+Running lscolsrefresh once means you must run it again to load any new updates to the dircolos file!
+Remove the cachefile ~/.lscols for auto-updates (slower).
+!
+exit 0
+fi
 
 FILE="$HOME/.dircolors"
 # If they don't already have a colour scheme

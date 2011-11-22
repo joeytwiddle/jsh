@@ -1,0 +1,1 @@
+fuser -v /dev/snd*/*

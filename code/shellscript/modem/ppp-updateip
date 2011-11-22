@@ -13,7 +13,8 @@
 ##       No, it's dangerous if cron runs < 15mins and it's not difficult to allow file access (/tmp!)
 ##       ??
 
-LAST=/tmp/ppp-updateip.last
+## I was keeping this in tmp, but in /root it can survive reboots
+LAST=/root/.ppp-updateip.last
 
 IP=`ppp-getip`
 
@@ -41,7 +42,7 @@ fi
 if test -f "$LAST"
 then
 
-	NOW=/tmp/ppp-updateip.now
+	NOW=~/.ppp-updateip.now
 	touch "$NOW"
 
 	if test ! -x "`which datediff`"

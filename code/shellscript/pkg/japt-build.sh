@@ -21,11 +21,14 @@ export WRAP_GCC=true
 # export DEBIAN_BUILDARCH=i686
 export DEBIAN_BUILDARCH=pentium
 
+## Sometimes I need:
+# APT_GET_OPTS="-t stable"
+
 ## A good package to test it on is sed.  (Although if you have a genuine 386, it /might/ break it and if sed is needed to fix things you might get annoyed!)
 ## I don't know why Debian doesn't recognise I have a k7, and why debuild won't just build and install for that architecture when asked to.
 
 # jsh-depends: countlines
-# this-script-does-not-depend-on-jsh: del
+# jsh-depends-ignore: del
 # jsh-ext-depends: apt-get dpkg debuild
 # jsh-ext-depends-ignore: build
 
@@ -71,10 +74,10 @@ do
 	then
 
 		section "Getting build dependencies"
-		apt-get build-dep "$PACKAGE" || exit 2
+		apt-get build-dep "$PACKAGE" $APT_GET_OPTS || exit 2
 
 		section "Getting source"
-		apt-get source "$PACKAGE" || exit 3
+		apt-get source "$PACKAGE" $APT_GET_OPTS || exit 3
 
 	fi
 
@@ -144,4 +147,9 @@ $PKGS"
 	# 'ls' $PWD | grep "\.deb$" | beforefirst _ | withalldo dpkg -l | drop 5 | takecols 2 | while read PKG; do echo "$PKG"_*.deb; done
 	# 'ls' $PWD | grep "\.deb$" | beforefirst _ | withalldo dpkg -l | grep "^.i" | takecols 2 | while read PKG; do echo "$PKG"_*.deb; done
 
+	echo "TODO: ATM you must copy the package to /var/cache/japt-build/repository/ yourself"
+
 done
+
+rebuild_repository
+

@@ -1,6 +1,6 @@
 #!/bin/sh
 # jsh-depends: cursemagenta cursenorm memo removeduplicatelines takecols jdeltmp jgettmp drop error
-# this-script-does-not-depend-on-jsh: arguments pkgversions
+# jsh-depends-ignore: arguments pkgversions
 # jsh-ext-depends: sed apt-cache apt-get dpkg column
 # jsh-ext-depends-ignore: find env from file update
 
@@ -41,6 +41,9 @@ cd / # for memoing
 
 # echo "$0 $*" >&2
 
+## Cached data need only be refreshed if sources have changed, or been updated:
+MEMOCOM="memo -f /etc/apt/sources.list -d /var/lib/apt"
+
 ## I don't like this too much!
 while true
 do
@@ -48,6 +51,7 @@ do
   then
     SOURCE_LIST="--source-list $2" ## for passing around and memoing
     APT_EXTRA_ARGS="$APT_EXTRA_ARGS --option Dir::Etc::sourcelist=$2"
+    MEMOCOM="memo -f \$2\ -d /var/lib/apt"
     shift; shift
   elif [ "$1" = -installed ]
   then
@@ -57,8 +61,6 @@ do
   fi
 done
 
-## Cached data need only be refreshed if sources have changed, or been updated:
-MEMOCOM="memo -f /etc/apt/sources.list -d /var/lib/apt"
 ## if we are interested in installed packages, the cached data must be refreshed if installed packages have been changed
 if [ "$INSTALLED" ]
 then MEMOCOM="$MEMOCOM -f /var/lib/dpkg/status"

@@ -20,23 +20,23 @@ cat << !
     LOSS=25
 
   Low quality (some visible artefacts):
-    LOSS=35 MOREOPTS="--ratetol 5.0"
+    LOSS=35
 
   Low quality alternative:
-    LOSS=25 FPS=15 MOREOPTS="--ratetol 5.0"
+    LOSS=15 FPS=15
 
-  Note: Reducing FPS causes a quality loss in itself.  (Higher FPS allows a
-  lossy codec to catch up quickly, fixing messy frames.)
-  Also beware that non-standard FPS can confuse some players!
-  Hopefully ratetol (variance of bitrate) can help with low FPS.  Although I
-  have heard ratetol>1.0 criticized (perhaps for high quality high framerate
-  encodings).
+    Note: Reducing FPS is a quality loss in itself, so try reducing LOSS in
+    parallel.  (Higher framerate allows a lossy codec to catch up quickly,
+    fixing messy frames.)
+    Also beware that non-standard FPS can confuse some players!
 
   Optional vars:
 
     OUTSIZE=720x480
     PREVIEW="-ss 0:01:00 -endpos 0:10"
     OUTFILE="blah.x264"
+    MOREOPTS="--ratetol 5.0"
+      (Allows bitrate to grow by this much % for scenes which really need it)
 
 !
 exit 1
@@ -57,7 +57,10 @@ fi
 [ "$AUDIOQUALITY" ] || AUDIOQUALITY=50   # 100
 
 # PREVIEW="-ss 0:01:00 -endpos 0:10"
-## Not recommended: MOREOPTS="--ratetol 5.0"
+## Not recommended: MOREOPTS="--ratetol 5.0" as it can cause file size to blow out
+## --crf already attempts to reduce quality of less-important frames
+## However ratetol can be useful for climactic movies, where we expect to need
+## a higher bitrate for the end scenes than the earlier parts of the movie.
 
 ## Needed for some .flv files (e.g. from YouTube)
 fixTooManyPtsError="-nocorrect-pts"
@@ -86,11 +89,12 @@ AACFILE="$INFILE.audio.aac"
 ## By adding $$ we allow two encoding processes to run at once.  However if we
 ## interrupt before the wav->aac is complete, this uniquely-named file will be
 ## left there!
-# TMPWAVFILE="$$.audiodump.wav.tmp"
 ## By using the filename, we will clean any tempfile if we rerun the script
 ## after an interrupted run.  Two encoding processes can still run, provided
 ## their videos have different names!
-TMPWAVFILE="$INFILE.audiodump.wav.tmp"
+# TMPWAVFILE="$INFILE.audiodump.wav.tmp"
+## The problem is, the mencoder line we use can't output to files with spaces/quotes.
+TMPWAVFILE="$$.audiodump_tmp.wav"
 
 ## The temp wav file is pretty large, sometimes larger than the final video!
 ## We could dump the wav-file to memory.  This is a silly idea on busy
@@ -143,13 +147,19 @@ FIFOFILE="$INFILE".tmp.fifo.yuv
 ## the FIFOFILE yourself, to re-create the new size version.
 ## DONE: Warn the user of the above!
 if [ "$PREVIEW" ]
-else
+then
 	if [ -f "$FIFOFILE" ]
 	then echo "[WARNING] Re-using previous tmpfile.  If you have changed PREVIEW size then delete $FIFOFILE and re-run!"
 	fi
 else
 	rm -f "$FIFOFILE"
-	mkfifo "$FIFOFILE"
+	if ! mkfifo "$FIFOFILE"
+	then
+		# Some filesystems do not support fifo files!
+		# So we will just use a normal file.  That might be best placed in /tmp.
+		FIFOFILE="/tmp/`basename "$FIFOFILE"`"
+		echo "Warning: Failed to create FIFO.  Will use tmpfile instead: $FIFOFILE"
+	fi
 fi
 
 OUTPUT_OPTIONS="-nosound -of rawvideo -ofps $FPS -ovc raw -vf $SCALEOPTS""format=i420"
@@ -170,13 +180,18 @@ fi
 
 ### Encode with x264:
 
-## The x264 --progress and --no-psnr options seem to have disappeared!
-
 ## Basic:
 verbosely x264 --fps "$FPS" --crf "$LOSS" --input-res "$INSIZE" $MOREOPTS -o "$OUTFILE" "$FIFOFILE"
 
 ## Readable by most players (Quicktime):
 # verbosely x264 --fps "$FPS" --bframes 2 --crf "$LOSS" --subme 6 --analyse p8x8,b8x8,i4x4,p4x4 $MOREOPTS -o "$OUTFILE" "$FIFOFILE" --input-res "$INSIZE"
+
+## For 2-pass, replace --crf "$LOSS" with --bitrate and pass number:
+# x264 --pass 1 --bitrate 1000 -o <output> <input>
+# x264 --pass 2 --bitrate 1000 -o <output> <input>
+## Note with YUV input, this will only hit target bitrate if FPS matches input file.
+
+## NOTE: The x264 --progress and --no-psnr options seem to have disappeared!
 
 rm -f "$FIFOFILE"
 
@@ -193,7 +208,7 @@ if [ "$PREVIEW" = "" ]
 then cleanup_audio_files
 fi
 
-if find /dev/shm -iname "*.wav" | grep .
-then echo "The above files are left on your ramdisk!"
+if find /dev/tmp/ /dev/shm/ -maxdepth 1 -iname "*.wav" | grep .
+then echo "The above files are left on your (ram)disk!"
 fi
 

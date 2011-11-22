@@ -1,1 +1,5 @@
-$JPATH/install/netbeans/bin/runide.sh -jdkhome /usr/local/jdk1.2.2 &
+# $JPATH/install/netbeans/bin/runide.sh -jdkhome /usr/local/jdk1.2.2 "$@" &
+
+## --fontsize 10 
+## (default appears to be 11)
+/mnt/space/stuff/install/java/netbeans-7.0/bin/netbeans "$@" &

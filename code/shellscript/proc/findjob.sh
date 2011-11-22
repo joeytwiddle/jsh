@@ -75,7 +75,10 @@ then
 	fi > $KILLFILEA
 
 	cp $KILLFILEA $KILLFILEB
-	bigwin -fg "vim $KILLFILEB -c ?$@" &
+	if xisrunning
+	then bigwin -fg "vim $KILLFILEB -c ?$@" &
+	else vim "$KILLFILEB" -c "?$@"
+	fi
 
 	if [ "$KILL" ]
 	then

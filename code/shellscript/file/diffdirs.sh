@@ -108,6 +108,23 @@ removeduplicatelines |
 while read FILE
 do
 
+	## TODO: Link handling is not complete for fringe cases
+	if [ -L "$DIRA/$FILE" ] && [ -L "$DIRB"/"$FILE" ]
+	then
+		LINKA="`justlinks "$DIRA/$FILE"`"
+		LINKB="`justlinks "$DIRB/$FILE"`"
+		if [ "$LINKA" = "$LINKB" ]
+		then report "Identical symlinks: $FILE"
+		else report "${CURSEYELLOW}Differing symlinks: $DIRA/$FILE -> $LINKA but $DIRB/$FILE -> $LINKB"
+		fi
+		continue
+	fi
+
+	if ( [ -L "$DIRA/$FILE" ] && [ ! -L "$DIRB/$FILE" ] ) || ( [ ! -L "$DIRA/$FILE" ] && [ -L "$DIRB/$FILE" ] )
+	then
+		report "${CURSEYELLOW} One is a symlink, the other is not! $FILE"
+	fi
+
 	## Avoids errors, but doesn't actually compare the links!  (Sometimes the other one does not exist at all.)
 	if isbrokenlink "$DIRA/$FILE"
 	then
@@ -120,10 +137,10 @@ do
 		continue
 	fi
 
-	if [ ! -f "$DIRA/$FILE" ] && [ -f "$DIRB/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
+	if [ ! -e "$DIRA/$FILE" ] && [ -e "$DIRB/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
 		report "${CURSEGREEN}Only in $DIRB/: $FILE${CURSENORM}"
-	elif [ ! -f "$DIRB/$FILE" ] && [ -f "$DIRA/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
+	elif [ ! -e "$DIRB/$FILE" ] && [ -e "$DIRA/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
 		report "${CURSERED}${CURSEBOLD}Only in $DIRA/: $FILE${CURSENORM}"
 	else

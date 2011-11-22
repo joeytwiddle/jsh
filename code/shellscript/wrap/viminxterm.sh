@@ -79,7 +79,8 @@ then
 else
 
 	# Default size for new file
-	COLS=50
+	# COLS=50
+	COLS=80
 	ROWS=20
 
 fi
@@ -88,10 +89,15 @@ INTGEOM=`echo "$COLS"x"$ROWS" | sed 's|\..*x|x|;s|\..*$||'`
 
 ## This xterm title may eventually be overwritten by vim:
 # TITLE=`absolutepath "$1"`" [vim-never-shown]"
-TITLE="[Vim] `basename "$1"` (`dirname "$1"`)"
+# TITLE="[Vim] `basename "$1"` (`dirname "$1"`)"
+## basename can fail with e.g. viminxterm -S oldsession5.vim
+TITLE="[Vim] $1"
+## Alternatively, -S could become a special case, with large COLS+ROWS defaults.
 
 # XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 # `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
+
+# [ -f ~/.vim/plugin/session.vim ] && rm ~/.vim/plugin/session.vim
 
 ## My personal preference is a classic x-terminal with a dark-grey/blue background.
 # xterm -bg "#000048" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
@@ -109,4 +115,8 @@ xterm -bg "#223330" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvi
 	# # verbosely "$XTERME" -e "vim $*"
 	# "$XTERME" -e "recovervimswap -thenvim $*" &
 # fi
+
+extcode=$?
+# [ -f ~/.vim/plugin/session.vim ] && rm ~/.vim/plugin/session.vim
+exit $extcode
 

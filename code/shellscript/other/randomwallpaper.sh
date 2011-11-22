@@ -1,4 +1,8 @@
-#!/bin/zsh
+#!/bin/bash
+
+## This was previously /bin/zsh but that had a problem.  Somehow in the
+## following line, find interpreted $WALLPAPERDIRS as one argument.
+# memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
 
 ## TODO: Randomwallpaper is really quite slow.  But we can fix this.  Have it pre-cache an image (or a few)!
 
@@ -64,7 +68,7 @@ do
 		UNGREPEXPR="\("`
 			memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
 			while read X
-			do echo '^'\`dirname "$X"\`'|'
+			do echo '^'\`dirname "$X"\`'/|'
 			done |
 			tr -d '\n' |
 			sed 's+|$++'
@@ -111,10 +115,11 @@ do
 	if [ "$IMAGESIZE" ]
 	then
 		## For zsh: AREA=`noglob expr $IMAGESIZE`
-		AREA=`noglob calc $IMAGESIZE`
+		##          AREA=`noglob calc $IMAGESIZE`
+		AREA=`echo "$IMAGESIZE" | bc`
 	fi
 
-	if [ -f "$FILE" ] && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ] && [ "$AREA" ] && [ "$AREA" -gt 213792 ]
+	if [ -f "$FILE" ] && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ] && [ "$AREA" ] && [ "$AREA" -gt 102030 ]
 	then
 		echo "del \"$FILE\""
 		ln -sf "$FILE" /tmp/randomwallpaper-last

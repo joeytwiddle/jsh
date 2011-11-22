@@ -12,11 +12,12 @@
 
 ## This does not work!
 # find "$2" -maxdepth 0 -newer "$1" >/dev/null
+## Although it would with | grep .
 
 ## This does
 [[ "$(find "$2" -maxdepth 0 -newer "$1")" = "" ]]
 
-exit "$?"
+# exit "$?"   ## Don't use exit, so we can be imported with importshfn.
 
 
 

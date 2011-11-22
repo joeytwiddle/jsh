@@ -82,11 +82,11 @@ then
 	then
 		shift
 		# verbosely eval "$@"
-		$PRE eval "$@"
+		exec $PRE eval "$@"
 		# echo "$@" | sh ## yuk haven't tried it hope we don't need it!
 	else
 		# verbosely "$@"
-		$PRE "$@"
+		exec $PRE "$@"
 	fi
 	## alternatively: bash -c "$@"
 
@@ -139,14 +139,14 @@ else
 		## But it's no better than:
 		# source $JPATH/startj # simple ## we want half-simple, exporting VARS, but skipping aliases which won't get exported
 		[ "$JSHDEBUG" ] && echo "jsh: invoking zsh" >&2
-		$PRE zsh
+		exec $PRE zsh
 		## which isn't guaranteed to give aliases, but will work if .zshrc sources startj (for a second time!)
 	else
 		[ "$JSHDEBUG" ] && echo "jsh: invoking bash" >&2
 		## Bash does not source its default .rcs when we specify startj, so startj should source them itself.
 		## This is be triggered by:
 		export BASH_BASH=yes_please
-		$PRE bash --rcfile "$JPATH/startj"
+		exec $PRE bash --rcfile "$JPATH/startj"
 		## This was failing on gentoo.
 		# $PRE bash
 	fi

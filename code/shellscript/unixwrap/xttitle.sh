@@ -10,9 +10,9 @@
 ## EXPERIMENT 2:
 [ "$TERM" ] || exit 0
 ## EXPERIMENT 3:
-[ "$TERM" = xterm ] || exit 0
+[ "$TERM" = xterm ] || [ "$TERM" = Eterm ] || exit 0
 ## EXPERIMENT 4:
-# [ "$TERM" = screen ] && exit 0
+# ( [ "$TERM" = screen ] || [ "$TERM" = linux ] ) && exit 0
 ## In my Linux console, TERM=linux
 ## Abort if no X display:
 [ "$DISPLAY" ] || exit 0
@@ -36,15 +36,16 @@ else
 	## ah but that doesn't work remotely, better to run official xttitle!
 	## But now needs:
 	# if xisrunning
-	if [ "$TERM" = xterm ]
-	then
+	# if [ "$TERM" = xterm ] || [ "$TERM" = Eterm ]
+	## Checks are now done at the top!
+	# then
 		# printf "]0;""$DISPLAY_STR"""
 		# echo -n "]0;""$DISPLAY_STR"""
 		# echo "]0;""$DISPLAY_STR""" | tr -d "\n"
 		printf "%s" "]0;""$DISPLAY_STR""" | tr '\n' '\\' > /dev/stderr
 		## Note the version in xttitleprompt is a bit different:
 		# export XTTITLEBAR="\[\033]0;$TITLEBAR\007\]"
-	fi
+	# fi
 fi
 
 

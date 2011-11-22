@@ -221,7 +221,8 @@ then
 		else jshinfo "Output will be cached.  Retrieve with: memo $*" && SHOW_INFO_DONE=true
 		fi
 	fi
-	rememo "$@"
+	## This may have been set but not exported.  We pass it on, since rememo actually uses it.
+	IKNOWIDONTHAVEATTY=$IKNOWIDONTHAVEATTY rememo "$@"
 	## TODO CONSIDER: If we did . rememo "$@" here, maybe functions would get called :)  Although if we have done importshfn memo, then that might achieve the same.
 else
 	# [ "$DEBUG" ] && debug "memo: re-using com=\"$NICECOM\""

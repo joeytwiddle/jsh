@@ -14,8 +14,8 @@
 killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
 ## Despite Debian accepting the -stop-xscreensaver option now, xscreensaver still appears!
 
-OPTS="-vo gl,xv,x11" ## under gentoo this selects x11 which is slow
-# OPTS="-vo x11" ## No acceleration, always works.  Lets me adjust contrast.
+# OPTS="-vo gl,xv,x11" ## under gentoo this selects x11 which is slow.  gl sucks for me under compiz
+OPTS="-vo x11" ## No acceleration, always works.  Lets me adjust contrast.  Works under compiz.
 # OPTS="-vo xv" ## I thought this allowed us to adjust contrast but it doesn't right now.
 # OPTS="-vo sdl" ## good if the machine is slow (but not so pretty)
 ## OK all -vo options turned off.  Recommend setting in /etc/mplayer/mplayer.conf or ~/.mplayer.conf
@@ -69,12 +69,13 @@ done
 # [ "$FAST" ] && OPTS="$OPTS -ao sdl -vo x11 -vfm ffmpeg -autoq 5 -autosync 5 -framedrop"
 ## Others (Sunny highly compress h264):
 # [ "$FAST" ] && OPTS="$OPTS -nobps -ni -forceidx -mc 0"
-[ "$FAST" = 1 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5" # -framedrop 
+[ "$FAST" = 1 ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5"
 ## Note that -framedrop can be undesirable if the video is a highly-compressed
 ## h264 - it will cause us to frequently lose large chunks!
 ## A heavy flv from YouTube (crashes on HTLGI video!):
-[ "$FAST" = 2 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all"
-[ "$FAST" = 3 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all -ao sdl -framedrop -autoq 5 -autosync 5 -nobps -ni -mc 0 -vo sdl"
+[ "$FAST" = 2 ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts"
+## lowres=1 crashes on some videos, on others it makes decoding faster but with lower image quality
+[ "$FAST" = 3 ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts -nobps -ni -mc 0 -vo sdl"
 
 ## AFAIK VNC only works with the x11 vo:
 if [ "$VNCDESKTOP" = "X" ]
