@@ -6,8 +6,8 @@ SEARCHDIR="$1"
 
 LAST=`grep "$SEARCHDIR" "$HOME/.dirhistory" | 'tail' -n 1`
 
-## Put the directory we're moving to at the top of the history (looping)
-echo "$LAST" > $HOME/.dirhistory2
+## Put the directory we're moving from at the top of the history (looping)
+echo "$PWD" > $HOME/.dirhistory2
 grep -v "^$LAST$" $HOME/.dirhistory >> $HOME/.dirhistory2
 mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 
