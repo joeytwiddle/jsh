@@ -2,7 +2,7 @@
 SEARCHDIR="$1"
 
 grep "$SEARCHDIR" ~/.dirhistory | tail -n 4
-cursegreen ; echo "$PWD" ; cursenorm
+cursered ; cursebold ; echo "$PWD" ; cursenorm
 grep "$SEARCHDIR" ~/.dirhistory | head -n 3
 exit
 
