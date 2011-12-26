@@ -19,13 +19,16 @@ if [ "$1" = -m ]
 then COMMIT_MESSAGE="$2" ; shift ; shift
 fi
 
-git status "$@" | grep "^#[ 	]*modified:[ 	]*" | dropcols 1 2 |
-withalldo -r verbosely git add
-
 pipeboth=cat
 [ "$VERBOSE" ] && pipeboth=pipeboth
 
-[ "$VERBOSE" ] && jshinfo "Adding:"
+[ "$VERBOSE" ] && jshinfo "Changed files:"
+git status "$@" | grep "^#[ 	]*modified:[ 	]*" | dropcols 1 2 |
+pipeboth |
+withalldo -r verbosely git add
+
+jshinfo "Adding everything" ## because we skipped verbosely below
+[ "$VERBOSE" ] && jshinfo "New files:"
 # git status "$@" | fromline "^# Untracked files:$" | grep "^#	" | dropcols 1 |
 ## This was insatisfactory, listing the top missing folder and nothing below it.  So let's focus on files...
 find . -type f |
@@ -36,12 +39,13 @@ grep -v "/CVS/" | ## CVS folders
 grep -v "/[.]git/" | ## git itself!
 grep -v "/build/.dependency-info/" | ## Build files (Eclipse?)
 grep -v "/[.]gqview/" | ## Was randomly in my fuse-j-sh project
-grep -v "\.recovered\.[0-9]*$" |
+grep -v "\.recovered\.[0-9]*$" | ## recovervimswap files
 $pipeboth |
-withalldo -r verbosely git add
+# withalldo -r verbosely git add
+withalldo -r git add
 echo
 
-[ "$VERBOSE" ] && jshinfo "Removing:"
+[ "$VERBOSE" ] && jshinfo "Removed files:"
 git status "$@" | grep "^#[ 	]*deleted:[ 	]*" | dropcols 1 2 |
 $pipeboth |
 withalldo -r verbosely git rm
