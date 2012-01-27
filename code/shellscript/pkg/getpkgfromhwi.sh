@@ -29,10 +29,11 @@ do
 	# ssh joey@hwi.ath.cx "dpkg -L $PKGNAME | filesonly -inclinks | withalldo tar cz" > $PKGNAME.fromhwi.tgz
 	# ssh joey@hwi.ath.cx "echo 'dpkg -L $PKGNAME | filesonly -inclinks | withalldo tar cz' | jsh" > $PKGNAME.fromhwi.tgz
 	# ssh joey@hwi.ath.cx \
-	verbosely ssh joey@hwi.ath.cx -p 222 "/home/joey/j/jsh -c 'dpkg -L $PKGNAME | filesonly -inclinks | verbosely withalldo tar cz'" |
+	# verbosely ssh joey@hwi.ath.cx -p 222 "/home/joey/j/jsh -c 'dpkg -L $PKGNAME | filesonly -inclinks | verbosely withalldo tar cz'" |
+	verbosely ssh joey@hwi.ath.cx -p 222 "dpkg -L $PKGNAME | j/jsh filesonly -inclinks | j/jsh withalldo tar cjv" |
 	if [ "$UNPACK" ]
-	then tar xz
-	else cat > $PKGNAME.fromhwi.tgz
+	then tar xj
+	else cat > $PKGNAME.fromhwi.tar.bz2
 	fi
 	[ "$?" = 0 ] || jshwarn "FAILED to get package $PKGNAME"
 	## TODO: We are calling jsh on the remote machine (hwi).  So we may as well make that command into a script, eg. taruppkg
