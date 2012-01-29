@@ -3,10 +3,12 @@
 ## [ No use memoing find since the sort takes time, need to make into a fn then memo that. ]
 # [ "$MUSIC_SEARCH_DIRS" ] || MUSIC_SEARCH_DIRS="/stuff/mp3s/ /stuff/mp3sfor/ /stuff/mirrors/ /stuff/out/ /stuff/share/ /mnt/big/out /mnt/big/toconsume /mnt/big/gone_consume /mnt/big/consume_then_write /mnt/big/cds /stuff/otherfiles/downloads/ /mnt/hda2/stuff/mp3s /stuff/share/*/"
 
-LIST="$JPATH/music/all.m3u"
+outDir="$HOME/j/music"
+
+LIST="$outDir/all.m3u"
 
 [ "$MUSIC_EXTS_REGEXP" ] || MUSIC_EXTS_REGEXP="\(mp3\|ogg\|xm\|ra\|wma\|flac\|m4a\|m4p\|mod\|it\)"
-[ "$MUSIC_IGNORE_REGEXP" ] || MUSIC_IGNORE_REGEXP="\(/INCOMPLETE/\|/RECLAIM\|/dontplay/\|/horrid/\|/lessons/\|/corrupted/\|/ktorrent_working/\|/sounds/\|\/samples\|/usr/src/\|/boot/grub/\|/usr/lib/grub/\)" # pimsleur\|
+[ "$MUSIC_IGNORE_REGEXP" ] || MUSIC_IGNORE_REGEXP="\(/INCOMPLETE/\|/RECLAIM\|/dontplay/\|/horrid/\|/lessons/\|/corrupted/\|/ktorrent_working/\|/sounds/\|\/samples\|/usr/src/\|/boot/grub/\|/usr/lib/grub/\|/games/\)" # pimsleur\|
 ## /sounds/ catches /stuff/share/sounds, javascript/contrib/lazeroids-node/public/sounds, orona/0.1.91/package/public/sounds, /stuff/media/sounds
 ## /samples/ catches .enlightenment/themes/abtoenalloygreenJoey/sound/samples, /usr/share/lmms/samples
 ## /usr/src/ and /boot/grub/ speed up stripping of non-tracker .mod files
@@ -49,7 +51,9 @@ dog "$LIST"
 
 ## Personally I like to generate a shuffled playlist too
 
-cat "$LIST" | randomorder > $JPATH/music/list.m3u   ## << This is the file xmms reads from, but xmms also overwrites it when playlist is edited.
+cat "$LIST" | randomorder > $outDir/list.m3u   ## << This is the file xmms reads from, but xmms also overwrites it when playlist is edited.
 
-cp -f $JPATH/music/list.m3u $JPATH/music/all-shuffled.m3u   ## A copy in case I temporarily mess my playlist up
+cp -f $outDir/list.m3u $outDir/all-shuffled.m3u   ## A copy in case I temporarily mess my playlist up
+
+cat "$outDir/list.m3u"   ## Other scripts, for example randommp3, run "memo updatemusiclist" to get a playlist.
 
