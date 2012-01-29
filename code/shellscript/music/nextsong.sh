@@ -13,18 +13,20 @@ fade_all_mixers () {
 }
 ## Do a quick fadevolume before ending song, then restore volume for next song.
 quickfadevolume () {
-	DOWNSTEP=6 fadevolume 0
+	DOWNSTEP=4 fadevolume 0
 }
 
 ## TODO: This needs to remember values for each mixer
 remember_volume () {
 	## We record "current" volume from the first mixer/soundcard.
 	## But we will actually fade the first two mixers on the machine, and restore both to the recorded volume.
-	ORIGINAL_VOLUME=`aumix -d /dev/mixer -q | grep "pcm " | sed 's+pcm ++;s+,.*++'`
+	# ORIGINAL_VOLUME=`aumix -d /dev/mixer -q | grep "pcm " | sed 's+pcm ++;s+,.*++'`
+	ORIGINAL_VOLUME=`get_volume`
 }
 ## This is called once for each mixer
 restorevolume () {
-  aumix $AUMIX_OPTS -w "$ORIGINAL_VOLUME"
+	# aumix $AUMIX_OPTS -w "$ORIGINAL_VOLUME"
+	set_volume "$ORIGINAL_VOLUME"
 	# /usr/sbin/alsactl restore
 }
 
