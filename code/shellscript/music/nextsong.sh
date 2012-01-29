@@ -13,7 +13,7 @@ fade_all_mixers () {
 }
 ## Do a quick fadevolume before ending song, then restore volume for next song.
 quickfadevolume () {
-	DOWNSTEP=4 fadevolume 0
+	DOWNSTEP=1 fadevolume 0
 }
 
 ## TODO: This needs to remember values for each mixer
@@ -63,10 +63,12 @@ whichmediaplayer () {
 
 remember_volume
 
-fade_all_mixers
+( fade_all_mixers ) &
 
 PLAYER=`whichmediaplayer`
 jshinfo "Detected media player: $PLAYER"
+
+wait
 
 case $PLAYER in
 	xmms)
