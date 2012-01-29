@@ -15,13 +15,13 @@ HEAD=""
 for MIXER in /dev/mixer*
 do
 
-	VOL=`aumix -d $MIXER -q | grep "pcm " | after "pcm " | before ","`
+	VOL=`get_volume`
 	VOL=`expr $VOL + $HOWMUCH`
 
 	# jshinfo "Changing $MIXER to $VOL"
-	aumix -d $MIXER -w $VOL
+	set_volume "$VOL"
 
-	VOL=`aumix -d $MIXER -q | grep "pcm " | after "pcm " | before ","`
+	VOL=`get_volume`
 
 	[ "$VOL" ] || VOL=25
 	REPCHARS=$((VOL*72/100))
