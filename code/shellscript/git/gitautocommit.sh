@@ -51,16 +51,21 @@ jshinfo "gitignoreExpr = $gitignoreExpr"
 ## If we want to commit recursively, let's focus on files...
 find . -type f |
 # sed 's+^\.\/++' |   ## This is for gitignoreExpr - fix that to remove this
+
 ## Files we do not want to store:
-grep -v "\(^\|/\)[.].*[.]sw.$" | ## Vim swapfiles
-grep -v "[.]class$" | ## Java classfiles
-grep -v "/CVS/" | ## CVS folders
-grep -v "/[.]git/" | ## git itself!
-grep -v "/build/.dependency-info/" | ## Build files (Eclipse?)
-grep -v "/[.]gqview/" | ## Was randomly in my fuse-j-sh project
-grep -v "\.recovered\.[0-9]*$" | ## recovervimswap files
-grep -v "\.js$" |
+
 grep -v "$gitignoreExpr" |
+
+grep -v "/[.]git/" | ## git itself!
+
+# grep -v "\(^\|/\)[.].*[.]sw.$" | ## Vim swapfiles
+# grep -v "[.]class$" | ## Java classfiles
+# grep -v "/CVS/" | ## CVS folders
+# grep -v "/build/.dependency-info/" | ## Build files (Eclipse?)
+# grep -v "/[.]gqview/" | ## Was randomly in my fuse-j-sh project
+# grep -v "\.recovered\.[0-9]*$" | ## recovervimswap files
+# grep -v "\.js$" |   ## If you are hacking coffeescript
+
 pipeboth |
 withalldo -r verbosely highlightstderr git add -f
 # For some reason git -f add does not always work on long lists of files/dirs,
