@@ -34,6 +34,9 @@ do
 		-louder)
 			OPTS="$OPTS -af volume=+20dB"; shift
 		;;
+		-quiet)
+			OPTS="$OPTS -af volume=-20dB"; shift
+		;;
 		-putsubsbelow)
 			OPTS="$OPTS -vf expand=0:-140:0:+70 -subpos 100"; shift
 		;;
@@ -89,13 +92,16 @@ fi
 [ "$EQ" = headphones ] && OPTS="$OPTS -af equalizer=4:3:2:1:1:0:0:0:0:0" ## Louder bass
 [ "$EQ" = speakers ]   && OPTS="$OPTS -af equalizer=2:3:3:2:1:0:0:0:0:0" ## Louder bass and middle
 
-#                     gam:con:bri:sat:rg :gg :bg :weight
-# OPTS="$OPTS -vf eq2=1.0:1.0:0.0:1.0:0.6:1.0:1.0"  ## Fix red gamma on hwi
-# OPTS="$OPTS -vf eq2=1.0:1.0:0.0:1.0:0.7:1.0:1.0"  ## Fix red gamma on hwi
-# OPTS="$OPTS -vf eq2=1.0:1.2:0.0:1.0:0.8:1.1:1.1"  ## Fix red gamma on hwi and increase contrast
-# OPTS="$OPTS -vf eq2=1.2:1.0:0.0:1.0:1.0:1.1:1.1"  ## Fix red gamma on hwi and increase gamma
-# OPTS="$OPTS -vo x11" ## keeps my x gamma fixes, but doesn't scale (don't use this and eq2!)
-# OPTS="$OPTS -vo gl"  ## keeps x fixes, but a little blue just like eq2
+if [ "$SHORTHOST" = "hwi" ]
+then
+	#                     gam:con:bri:sat:rg :gg :bg :weight
+	# OPTS="$OPTS -vf eq2=1.0:1.0:0.0:1.0:0.6:1.0:1.0"  ## Fix red gamma on hwi
+	# OPTS="$OPTS -vf eq2=1.0:1.0:0.0:1.0:0.7:1.0:1.0"  ## Fix red gamma on hwi
+	# OPTS="$OPTS -vf eq2=1.0:1.2:0.0:1.0:0.8:1.1:1.1"  ## Fix red gamma on hwi and increase contrast
+	OPTS="$OPTS -vf eq2=1.2:1.0:0.0:1.0:1.0:1.1:1.1"  ## Fix red gamma on hwi and increase gamma
+	# OPTS="$OPTS -vo x11" ## keeps my x gamma fixes, but doesn't scale (don't use this and eq2!)
+	# OPTS="$OPTS -vo gl"  ## keeps x fixes, but a little blue just like eq2
+fi
 
 [ "$MPLAYER" ] || MPLAYER=mplayer
 verbosely unj $MPLAYER $OPTS "$@"
