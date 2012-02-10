@@ -58,27 +58,30 @@ done
 # [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all"
 ## But I found this was enough for me and not so bad quality (autoq/sync may not be needed):
 ## G's A:
-[ "$FAST" = 0 ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -autoq 5 -autosync 5"
+[ "$FAST" = 0 ] && OPTS="$OPTS -vfm ffmpeg -autoq 5 -autosync 5"
 ## KMD under Compiz:
-# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -autoq 5 -autosync 5 -framedrop -hardframedrop"
+# [ "$FAST" ] && OPTS="$OPTS -vfm ffmpeg -autoq 5 -autosync 5 -framedrop -hardframedrop"
 ## BSG S3:
-# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=1:fast -autoq 5 -autosync 5"
+# [ "$FAST" ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast -autoq 5 -autosync 5"
 ## Enterprise:
-# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=2:fast -autoq 5 -autosync 5"
+# [ "$FAST" ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=2:fast -autoq 5 -autosync 5"
 ## BSG S4.  lowres has no affect, -vo sdl helped SMPlayer under a busy compiz
 ## but prevents gamma correction (works ok in smplayer anyway):
 ## -vo x11 appears to work better than -vo xv under compiz.  sometimes with xv
 ## we get "X11 error: BadAlloc (insufficient resources for operation)"
-# [ "$FAST" ] && OPTS="$OPTS -ao sdl -vo x11 -vfm ffmpeg -autoq 5 -autosync 5 -framedrop"
+# [ "$FAST" ] && OPTS="$OPTS -vo x11 -vfm ffmpeg -autoq 5 -autosync 5 -framedrop"
 ## Others (Sunny highly compress h264):
 # [ "$FAST" ] && OPTS="$OPTS -nobps -ni -forceidx -mc 0"
-[ "$FAST" = 1 ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5"
+[ "$FAST" = 1 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5"
 ## Note that -framedrop can be undesirable if the video is a highly-compressed
 ## h264 - it will cause us to frequently lose large chunks!
 ## A heavy flv from YouTube (crashes on HTLGI video!):
-[ "$FAST" = 2 ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts"
+[ "$FAST" = 2 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts"
 ## lowres=1 crashes on some videos, on others it makes decoding faster but with lower image quality
-[ "$FAST" = 3 ] && OPTS="$OPTS -ao sdl -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts -nobps -ni -mc 0 -vo sdl"
+[ "$FAST" = 3 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts -nobps -ni -mc 0 -vo sdl"
+## On pod -ao sdl was failing to keep up (clipping and reporting underruns, P&R) whilst -ao alsa was fine.  Leaving -ao sdl until desperate.
+## This may be wrong for hwi - hwi's default alsa is significantly slower than sdl because it duplexes.
+[ "$FAST" -gt 9 ] && OPTS="$OPTS -ao sdl"
 
 ## AFAIK VNC only works with the x11 vo:
 if [ "$VNCDESKTOP" = "X" ]
