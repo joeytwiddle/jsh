@@ -118,7 +118,7 @@ do
 
 	# BUG: wmctrl does not always give us the right PID.  For example, xmms windows are listed with PID 0!
 
-	tee /tmp/save_desktop_$DESKTOP.debug |
+	# tee /tmp/save_desktop_$DESKTOP.debug |
 
 	## This loop should output the commands needed to restore each window.
 	## Duplicates will be trimmed.
@@ -179,14 +179,20 @@ do
 
 		fi
 
+		echo "$PID" >> "$PIDS_FILE"
+
+		if [ "$PROCESS_CWD" = "" ] || [ "$PROCESS_COMMAND" = "" ]
+		then
+			jshwarn "Skipping $PID $TITLE because PROCESS_CWD=$PROCESS_CWD and PROCESS_COMMAND=$PROCESS_COMMAND"
+			continue
+		fi
+
 		(
 			# echo "cd '$PROCESS_CWD' &&"
 			# echo "$PROCESS_COMMAND &"
 			echo "cd '$PROCESS_CWD' && $PROCESS_COMMAND &"
 			echo
 		)
-
-		echo "$PID" >> "$PIDS_FILE"
 
 	done |
 	removeduplicatelines >> "$TARGET_FILE"
@@ -200,7 +206,7 @@ do
 done
 
 PIDS=` cat "$PIDS_FILE" | tr '\n' ' ' `
-# rm -f "$PIDS_FILE"
+rm -f "$PIDS_FILE"
 # jshinfo "PIDS=$PIDS"
 
 ## Offer to close windows.
