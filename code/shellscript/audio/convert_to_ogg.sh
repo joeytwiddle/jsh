@@ -6,7 +6,7 @@ if [ "$1" = "" ] || [ "$1" = --help ]
 then
 cat << !
 
-convert_to_ogg <audio_or_video_file>
+convert_to_ogg <audio_or_video_files>...
 
   Converts the given audio files to ogg format, preserving any metadata that
   mplayer displays.
@@ -30,8 +30,8 @@ do
 
 	set -e   ## We don't want it to look like we succeeded if something went wrong!
 
-	extract_audio_from_video "$INFILE" | tee info.tmp 2>&1
-  ## Should create $INFILE.wav
+	dump_audio_from "$INFILE" | tee info.tmp 2>&1
+	## Should create $INFILE.wav
 
 	artist="`extract_info artist`"
 	title="`extract_info title`"
@@ -49,6 +49,12 @@ do
 	## Rename the final file (strip the original extension)
 	outfile="`echo "$INFILE" | sed 's+\.[^.]*$++'`".ogg
 	mv "$INFILE".ogg "$outfile"
+
+	originalSize=$(filesize "$INFILE")
+	finalSize=$(filesize "$outfile")
+	sizeReduction=$(( originalSize - finalSize ))
+	percentageShrunk=$(( 100 * sizeReduction / originalSize ))
+	jshinfo "Shrunk file by $percentageShrunk%."
 
 done
 
