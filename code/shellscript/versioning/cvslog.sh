@@ -1,0 +1,1 @@
+cvs log "$@" | more
