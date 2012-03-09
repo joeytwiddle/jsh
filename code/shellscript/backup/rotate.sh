@@ -67,7 +67,7 @@ function logfriendly_gzip () {
 		OUTPUT_FILE="$1"
 		INPUT_FILE="$2"
 		cat "$INPUT_FILE" | gzip -c > "$OUTPUT_FILE" &
-		sleep 5 ## give cat time to get a handle on the file
+		sleep 5 ## give cat time to get a handle on the file (generous in case system is busy)
 		printf "" > "$FILE" ## clear the file asap, so that new additions made during the gzip are in a new file
 		wait
 }
