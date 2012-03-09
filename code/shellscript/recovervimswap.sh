@@ -9,6 +9,7 @@
 ## I have actually got used to VIMAFTER not working anyway, so we could just remove it altogether.
 ## I kind of like that there are two processes: fixing the swapfiles, then opening the original requested set; since vimdiff's colors are distracting, once I have fixed any diffs, I am happy to reset vim (I quit vimdiff, so then vim runs)!
 
+## TODO: VIMAFTER is mixing various concepts: wantToVimAfter, safeToVimAfter and mustDealWithSwapDiffs.
 ## Runs a recovervimswap check, interactively, then runs vim afterwards.
 if [ "$1" = -thenvim ]
 then VIMAFTER=true; INTERACTIVE=true; shift
@@ -23,6 +24,8 @@ fi
 diffandask() {
 	echo "The swapfile has the following changes:"
 	diff "$1" "$2" | diffhighlight
+	# echo "Red lines are missing from the swapfile, green lines are added by the swapfile."
+	echo "The swapfile will *remove* the red lines, and *add* the green lines."
 	echo -n "Do you want to (U)se these changes, (D)rop these changes, or (V)imdiff them? "
 	read userSays
 	case "$userSays" in
@@ -107,7 +110,7 @@ do
 		## This can give errors for other reasons (e.g. "cannot write .viminfo") even if the recovery went fine.
 		## In that case, the old method would keep creating identical recover files but never deleting the swapfile!
 		## So we don't check vim's exit code (until I fix this problem on my gentoo!)
-		verbosely vim -r "$SWAPFILE" -c ":wq $RECOVERFILE" > "$SEND_ERR" 2>&1
+		verbosely vim --noplugin -r "$SWAPFILE" -c ":wq $RECOVERFILE" > "$SEND_ERR" 2>&1
 		if [ -f "$RECOVERFILE" ] && [ `filesize "$RECOVERFILE"` -gt 0 ]
 		then
 			## Recovery succeeded.  Let's give the recovered file the date it should have:
@@ -115,7 +118,7 @@ do
 			# echo "Successfully recovered $SWAPFILE to $RECOVERFILE, so deleting former:"
 			# del "$SWAPFILE"
 			echo "Successfully recovered $SWAPFILE to $RECOVERFILE"
-			del "$SWAPFILE" >/dev/null
+			del "$SWAPFILE" >/dev/null &
 			if cmp "$X" "$RECOVERFILE" > /dev/null
 			then
 				echo "Recovered file $RECOVERFILE is identical to original, so removing."
@@ -149,6 +152,9 @@ do
 					# vimdiff "$X" "$RECOVERFILE"
 					echo "vimdiff $X $RECOVERFILE"
 					echo "del $RECOVERFILE"
+					## TODO: For some reason as a user I feel I will be asked again
+					## whether to apply the changes.  I.e. I use vimdiff to inspect,
+					## but let this script do the merge.
 					## Why was this here?  VIMAFTER=
 				fi
 			fi
