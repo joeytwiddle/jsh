@@ -33,7 +33,8 @@ do
 
 	set -e   ## We don't want it to look like we succeeded if something went wrong!
 
-	extract_audio_from_video "$INFILE" | tee info.tmp 2>&1
+	dump_audio_from "$INFILE" | tee info.tmp 2>&1
+	## Should create $INFILE.wav
 
 	artist="`extract_info artist`"
 	title="`extract_info title`"
