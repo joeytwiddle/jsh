@@ -40,7 +40,9 @@ ERRFILE=/tmp/highlightstderr_errfile.$$
 # done >&2
 
 # sed -u "s+.*+$CURSERED\0$CURSENORM+" >&2
-sed -u "s+^+$CURSERED+ ; s+$+$CURSENORM+" >&2
+sed -u "s+^+$CURSEREDBOLD+ ; s+$+$CURSENORM+" >&2
+## I need bold red for my little xterms, or I can't quite make out the text of the error message!
+## Actually they are both unreadable, bold is so fat it loses information, thin is just a bit too dark!  Change xterm's default red to a bit brighter (some g+b)?
 
 ## TODO: only affect non-coloured lines; lines with colour-coding (at the start (and norm at the end?)) are not highlighted or added to
 # Doesn't work: sed -u "s+^[^`printf "\033["`].*+$CURSERED\0$CURSENORM+" >&2 ## send the highlighted output back to stderr
@@ -53,3 +55,4 @@ exec 3>&- ## Close fd 3 (is this neccessary? we are unlikely to use it, even if 
 
 ERRNUM=`cat "$ERRFILE"` ; rm -f "$ERRFILE"
 exit $ERRNUM
+
