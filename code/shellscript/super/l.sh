@@ -1,5 +1,8 @@
 #!/bin/sh
 
+## I know 'l' should really be an alias, but I personally like to use it e.g.
+## from within vim.
+
 ## useless_unless_sourced
 ls -lartFh --color "$@"
 

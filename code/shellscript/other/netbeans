@@ -2,4 +2,4 @@
 
 ## --fontsize 10 
 ## (default appears to be 11)
-/mnt/space/stuff/install/java/netbeans-7.0/bin/netbeans "$@" &
+/mnt/space/stuff/install/java/netbeans/bin/netbeans "$@" &

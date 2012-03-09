@@ -19,7 +19,10 @@ domp3info () {
 SEARCH="$*"
 
 PLAYLIST="$JPATH/music/search_results.m3u"
-memo -t "2 days" updatemusiclist | grep -i "$SEARCH" | grep -v -i "\<book\>" > "$PLAYLIST"
+memo -t "2 days" updatemusiclist |
+# grep -i "$SEARCH" |
+# grep -v -i "\<book\>" |
+dog "$PLAYLIST"
 if [ ! "x$SEARCH" = "x" ]
 then echo "$(cat "$PLAYLIST" | wc -l) tracks found matching \"$SEARCH\"."
 fi

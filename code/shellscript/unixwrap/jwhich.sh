@@ -1,5 +1,5 @@
 #!/bin/sh
-# this-script-does-not-depend-on-jsh: startj-hwi
+# jsh-depends-ignore: startj-hwi
 # jsh-ext-depends: sed
 # jsh-ext-depends-ignore: dir find file
 
@@ -19,6 +19,8 @@ then
     echo "  quietly means it just checks and returns 1/0, but does not print anything."
     exit 1
 fi
+
+## This script won't stop an infloop if you symlink a jsh script into a different PATH folder, e.g. ~/bin !
 
 ## Why not grep -v?  I guess we'd need to unj it wouldn't we!
 

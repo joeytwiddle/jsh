@@ -59,6 +59,13 @@ else
 	## including unpaired duplicates of already matched lines, wheras before
 	## only unique lines were shown.
 
+	## Hmm the old functionality was nice because it provided the lines in the
+	## order they appeared.  Could we achieve it more elegantly using
+	## removeduplicatelinespo (and an assumption) or keepduplicatelinespo?
+
+	## Otherwise, we should really reproduce the old functionality somewhere,
+	## because although this script is good, it is not suitable for humans.
+
 	## jgettmp causes a huge number of forks (~32)!  I shaved this down to 28.
 	# A=`jgettmp "$1"`
 	# B=`jgettmp "$2"`

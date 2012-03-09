@@ -108,30 +108,32 @@ then
 	echo
 	echo "`cursebold`You find yourself in $PWD"
 	echo
-	if [ "`find . -type f -maxdepth 1`" = "" ]
+	if [ "`find . -maxdepth 1 -type f`" = "" ]
 	then
 		echo "`cursebold`Whatever might have been here has long since disappeared.`cursenorm`"
 	else
 		echo -n "You can see `cursenorm`"
-		find . -type f -maxdepth 1 |
+		find . -maxdepth 1 -type f |
 		head -50 |
 		foreachdo file |
 		grep -v "Permission denied" |
 		afterfirst : | beforefirst , |
 		sed 's+\<ASCII ++' |
-		sort | removeduplicatelines | randomorder |
+		removeduplicatelines | randomorder |
 		sed 's+^+some +' |
 		sed 's+$+, +' |
-		tr -d '\n'
+		tr -d '\n' |
+		sed 's+, $++'
 		echo
 	fi
 	echo
-	if [ "`find . -type d -maxdepth 1`" = '.' ]
+	if [ "`find . -maxdepth 1 -type d`" = '.' ]
 	then
 		echo "`cursebold`This is a dead end, but you can escape to`cursenorm` .."
 	else
 		echo -n "`cursebold`The maze extends deeper into `cursenorm`"
-		find . -type d -maxdepth 1 |
+		find . -maxdepth 1 -type d |
+		grep -v "^\.$" |
 		sed 's+^\./++' |
 		tr '\n' ' '
 		echo

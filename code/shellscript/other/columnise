@@ -6,6 +6,14 @@ cat << !
 
 columnise [ -on <delims> ] [ -upto <regexp> ] [ <column_opts> ] <file>s..
 
+TODO BUGS:
+
+  -upto doesn't seem to work - columnises the things after it
+
+  -on removes the char - what if we want to keep it.
+    Do we want to keep it aligned left or right?
+    You can do  columns-clever -only '.*,'  it will keep the ,
+
 !
 exit 0
 fi

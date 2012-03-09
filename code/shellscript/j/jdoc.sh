@@ -118,9 +118,52 @@ else
 
 		else
 
-			jshwarn "No jsh script found at '$LINKTOCOM'"
+			# jshwarn "No jsh script found at '$LINKTOCOM'."
+			jshinfo "There is no jsh script called '$1'."
+
+			w=`which "$1"`
+			orp=P
+			if [ ! -z "$w" ]
+			then
+				echo
+				echo "  But there is an executable: `cursered;cursebold`$w`cursenorm`"
+				orp="Or p"
+			fi
+
+			# PERHAPS=`cd "$JPATH/tools" ; find . -maxdepth 1 -type l`
+			PERHAPS=`cd "$JPATH/tools" ; echolines * | grep "$1"`
+			if [ ! -z "$PERHAPS" ]
+			then
+				echo
+				jshinfo "$orp""erhaps you were looking for one of the following:"
+				echo
+				echo "$PERHAPS" |
+				# highlight "$1" green | prepend_each_line "  "
+				# foreachdo onelinedescription
+				while read SCRIPT
+				do
+					# echo -n "  $SCRIPT:\t"
+					# onelinedescription "$SCRIPT"
+					DESCR=`onelinedescription "$SCRIPT"`
+					if [ "$DESCR" = "???" ] || [ "$DESCR" = "" ]
+					then
+						echo "  `cursered;cursebold`$SCRIPT`cursenorm`"
+					else
+						echo "  `cursered;cursebold`$SCRIPT`cursenorm`	$DESCR"
+					fi
+				done
+			fi
 
 		fi
+
+		## It is a bit unusual to ask users this question if the script did not
+		## exist.  However I do sometimes use this feature to scan jsh scripts
+		## for a given regexp.
+
+		## Likewise the followthrough below is a bit over-powerful for normal
+		## users.  Perhaps the behaviour of these features should be reduced to
+		## mortal level, with exported config options unlocking the more powerful
+		## features.
 
 		## TODO: If this script was called as "man", (and there is no such shellscript(?)), then don't do this:
 		##       But always do it if the script is called as jdoc.
@@ -143,7 +186,7 @@ else
 				## I wanted to add the ability to search more than just the local jsh tools.
 				## But actually there are shellscripts scattered all over my other-language projects.  We would need a sophisticated index to find them all in order to do a full search.
 				SCRIPT_PATH_SEARCH="$JPATH/tools/ $JPATH/code/other/cgi/ $JPATH/code/other/web/ /mnt/hwibot/usr/lib/cgi-bin/"
-				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 | sed -u "s+^$JPATH/++" | highlight "\<$1\>" | highlight -bold "^[^ :-]*" cyan | more
+				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 | sed -u "s+^$JPATH/tools/++" | highlight "\<$1\>" | highlight -bold "^[^ :-]*" cyan | more
 
 				echo
 				jshquestion "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "

@@ -1,4 +1,5 @@
 #!/bin/bash
+
 ### B # l # o # a # t # e # d # ! #
 ## TODO: Offer config.global and config.local config files to ease customization and speed up startup
 ##       Create ". requiresenv <varname>..." script for checking for existence of neccessary shell environment variables, or exit with error.
@@ -11,6 +12,23 @@
 ##       These need not be set all over again
 ##       It would be quicker if we could skip them.
 ##       Only aliases (and other shell specific stuff) need to be set.
+
+## Speedup debugging:
+## Why shell starts so much faster on hwibot than hwi?
+## Gah I worked out part of the cause for that, but forgot it.  Well at least I made a comment about this, hooray!
+## I know one of our slowdowns is due to the huge size of $JPATH/tools and the fact that everything in there is symlinked!
+## So one experiment could be to copy scripts out of $JPATH/code/shellscript and into $JPATH/tools or something!
+[ "$DEBUG" ] && JSH_SHOW_TIMING=true
+
+dateDiff() {
+	[ -z "$JSH_SHOW_TIMING" ] && return 0
+	newDate=`date +"%s%N"`
+	if [ ! "$oldDate" ]
+	then oldDate=$newDate
+	fi
+	dateDiff=`expr "$newDate" - "$oldDate"`
+	echo "[$0] took ($dateDiff) to do $*" >&2
+}
 
 ## Are exits too harsh for a script which is likely to be sourced?
 ## Do we think it's OK because startj is run by jsh these days?
@@ -52,6 +70,8 @@ export COUNT_STARTJ_RUN
 if [ "$STARTJ_BLOCK" ]
 then echo "startj: Blocked ok (if ~/.bashrc sources startj, then jsh needn't start bash with startj as its rc script /and/ BASH_BASH set!)" >&2
 else
+
+	dateDiff "JSH starting"
 
 	## Source bash's profile script (if we have replaced it with this script)
 	## But be sure not to end up in an infinite loop!
@@ -173,6 +193,8 @@ else
 			if [ ! "$1" = "simple" ] && ! [ "$STARTJ_SIMPLE" ]
 			then
 
+				dateDiff "JSH stage 1"
+
 				## TODO: Separate scripts which need to run to init stuff for runtime
 				##       from scripts which do stuff that isn't dependent for later.
 
@@ -187,6 +209,8 @@ else
 
 				# mytime . getmachineinfo
 				. getmachineinfo
+
+				dateDiff "JSH stage 2"
 
 				### Keybindings and pretty prompts:
 				## Which flavour shell are we running?
@@ -213,6 +237,8 @@ else
 				##       for the moment, we don't start xttitleprompt
 				## SHORTSHELL is also used in joeysaliases (and term_state).
 
+				dateDiff "JSH stage 3"
+
 
 				. lscolsinit
 
@@ -226,6 +252,8 @@ else
 				alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
 				alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
 				alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
+
+				dateDiff "JSH stage 4"
 
 				BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | afterfirst ': ' | beforelast '\.'`
 
@@ -249,6 +277,8 @@ else
 					[ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
 					. autocomplete_from_man
 				fi
+
+				dateDiff "JSH stage 5"
 
 				export FIGNORE=".class"
 
@@ -278,6 +308,8 @@ else
 			fi # ! simple
 
 		fi # jwhich jwhich
+
+		dateDiff "JSH done"
 
 		[ "$TERM" = xterm ] && echo "`cursegreen`started]`cursenorm`" >&2
 

@@ -37,7 +37,14 @@ exit 0
 
 fi
 
-FILENAME="$1"
+BASEFILENAME="$1"
+
+if [ "$BASEFILENAME" = -auto ]
+then
+	# Use the first filename and strip its last .* to generate the basename.
+	BASEFILENAME=`echo "$2" | sed "s+\.[0-9a-zA-Z+\-_]*$++"`
+	jshinfo "Guessed base filename $BASEFILENAME"
+fi
 
 FILES_AS_ORDERED=` echolines "$@" `
 FILES_BY_DATE=` echolines "$@" | sortfilesbydate `
@@ -50,7 +57,9 @@ FILES_BY_DATE=` echolines "$@" | sortfilesbydate `
 
 if [ "$DO" = 1 ]
 then DO=verbosely
-else DO=echo ; jshinfo "Trial run - will not act!"
+else
+	DO=echo
+	jshinfo "Trial run - will not act!"
 fi
 
 
@@ -68,7 +77,7 @@ else
 	jshwarn "Date order and given order DO NOT match."
 fi
 
-# echo "Do you wish me to commit in this order under the filename '$FILENAME'?"
+# echo "Do you wish me to commit in this order under the filename '$BASEFILENAME'?"
 # 
 # read ANS
 # 
@@ -78,21 +87,21 @@ fi
 	# for X
 	# do
 # 	
-		# cp "$X" "$FILENAME"
-		# cvs add "$FILENAME"
-		# cvs commit -m "$X" "$FILENAME"
+		# cp "$X" "$BASEFILENAME"
+		# cvs add "$BASEFILENAME"
+		# cvs commit -m "$X" "$BASEFILENAME"
 # 
 	# done
 # 
 # fi
 
-if [ -f "$FILENAME" ]
+if [ -f "$BASEFILENAME" ]
 then
-	jshwarn "$FILENAME exists but would be overwritten.  If it does not match the latest of those to be committed, you may with to back it up (or make it part of the pattern)."
+	jshwarn "$BASEFILENAME exists but would be overwritten.  If it does not match the latest of those to be committed, you may with to back it up (or make it part of the pattern)."
 	# TODO: We should just do this automatically.  Move it to a tempfile at the start, and back for one final commit, no - just leave it uncommited.
 fi
 
-echo "Do you wish me to commit them in (d)ate order or (g)iven order under the filename '$FILENAME'?"
+echo "Do you wish me to commit them in (d)ate order or (g)iven order under the filename '$BASEFILENAME'?"
 
 read ANS
 
@@ -103,22 +112,17 @@ then echo "$FILES_AS_ORDERED"
 else exit 0
 fi |
 
+# Avoid cvs add complaining if it doesn't exist yet:
+$DO touch "$BASEFILENAME"
+$DO cvs add "$BASEFILENAME"
+
 while read X
 do
-	if [ "$FILENAME" = -auto ]
-	then TOCOMMIT=`echo "$X" | sed "s+\.[0-9a-zA-Z+\-_]*$++"`
-	else TOCOMMIT="$FILENAME"
-	fi
-	# $DO cp "$X" "$TOCOMMIT"
-	$DO mv -f "$X" "$TOCOMMIT"
-	# if [ ! "$DONE_ADD" ]
-	# then
-		$DO cvs add "$TOCOMMIT"
-		# DONE_ADD=true
-	# fi
-	$DO cvs commit -m "$X" "$TOCOMMIT"
-	$DO cvs edit "$TOCOMMIT"
-	# $DO del "$X" "$TOCOMMIT"
+	# $DO cp -f "$X" "$BASEFILENAME"
+	$DO mv -f "$X" "$BASEFILENAME"
+	$DO cvs commit -m "$X" "$BASEFILENAME"
+	$DO cvs edit "$BASEFILENAME"
+	# $DO del "$X"
 done
 
 [ "$DO" = echo ] && jshinfo "Call me again with DO=1"

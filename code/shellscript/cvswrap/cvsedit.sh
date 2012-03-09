@@ -7,7 +7,7 @@
 cvs edit "$@" >/dev/null 2>&1 || cvs edit
 
 ## Should do something:
-## We avoid this if we can, since I have a CVS/ folder in my ~
+## We avoid this if we can, since I have a CVS/ folder in my ~, it is slow!
 # find . -type f | grep -v /CVS/ |
 # while read f
 # do chmod ug+rw "$f"

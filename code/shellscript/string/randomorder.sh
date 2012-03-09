@@ -9,10 +9,10 @@
 ## Fast.  $$ can seed even if sh has no RANDOM.
 ## Maaaaaan it's still not random.  I think seed is too large for awk.
 # SEED="$$""$RANDOM"
-## OK just $RANDOM is small enough.
+## OK just $RANDOM is small enough.  To small?  Max ~30000?
 SEED="$RANDOM"
 [ "$SEED" ] || SEED="$$"
-jshinfo "Using SEED=$SEED"
+# jshinfo "Using SEED=$SEED"
 awk '
 	BEGIN { srand("'"$SEED"'") }
 	{ print rand() "\t" $0 }

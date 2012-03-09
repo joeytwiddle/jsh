@@ -33,6 +33,12 @@ exit
 
 ## Changed it so that you can specify --- to put the arguments in the middle of the command you call.
 
+if [ "$1" = -r ]
+then
+	IGNORE_EMPTY_LIST=true
+	shift
+fi
+
 slashescape () {
 	sed -e "s$1\\$1g"
 }
@@ -73,6 +79,10 @@ do
 	COMMANDLEFT="$COMMANDLEFT\"$LINE\" "
 done
 
-# debug "withalldo: eval \"$COMMANDLEFT $COMMAND\""
-eval "$COMMANDLEFT$COMMAND"
+if [ -z "$COMMANDLEFT" ] && [ "$IGNORE_EMPTY_LIST" ]
+then :
+else
+	# debug "withalldo: eval \"$COMMANDLEFT $COMMAND\""
+	eval "$COMMANDLEFT$COMMAND"
+fi
 

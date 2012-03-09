@@ -2,26 +2,9 @@
 
 
 
-## This method wasn't entirely accurate; sometimes you can have a DISPLAY variable but that display cannot be reached.
-# [ ! "$DISPLAY" = "" ]
-
-# XTERME=`jwhich xterm`
-# [ "$XTERME" ] || XTERME=`jwhich konsole`
-# [ "$XTERME" ] || XTERME=`jwhich gnome-terminal`
-# 
-# ## This method checks whether the display can actually be reached:
-# jshinfo "xisrunning: testing xterm method (using $XTERME)"
-# 
-# if [ "$XTERME" = /usr/bin/gnome-terminal ]
-# then
-	# ## worked when XTERME=gnome-terminal
-	# "$XTERME" --command="touch /tmp/xisrunning.$$" 2>/dev/null
-# else
-	# ## worked when XTERME=xterm
-	# "$XTERME" -e touch /tmp/xisrunning."$$" 2>/dev/null
-# fi
-
-# [ "$XISRUNNING" ] && exit 0
+## Can you have X without a $DISPLAY variable?  We assume not!
+[ ! "$DISPLAY" ] && exit 1
+## But you can have a DISPLAY variable for a display that cannot be reached.
 
 if xdpyinfo >/dev/null 2>&1
 then exit 0

@@ -176,7 +176,7 @@ then
     export INSTALLED=
     apt-list all $SOURCE_LIST | tr -s ' ' > $LIST ## Why do we put it into a list, when "apt-list all ..." caches its output anyway?!
 
-    echo "`cursemagenta`apt-list: building installed cache subset, u may get annoyed now...`cursenorm`" >&2
+    echo "`cursemagenta`[apt-list] Building installed cache subset, u may get annoyed now...`cursenorm`" >&2
 
     ## This memo file is too large, and we cache the output anyway!
     # $DPKGMEMOCOM "env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5" |
@@ -191,13 +191,13 @@ then
       error "Could not find $PKGNAME ver $PKGVER (which dpkg reports installed) in cache $LIST !"
     done |
     column -t
-    echo "`cursemagenta`apt-list: cache built.`cursenorm`" >&2
+    echo "[`cursemagenta`apt-list] Cache built.`cursenorm`" >&2
 
     jdeltmp $LIST
 
   else
 
-    echo "`cursemagenta`apt-list: building cache from apt-cache$APT_EXTRA_ARGS dump, please be patient...`cursenorm`" >&2
+    echo "`cursemagenta`[apt-list] Building cache from apt-cache$APT_EXTRA_ARGS dump, please be patient...`cursenorm`" >&2
     (
       echo "PACKAGE	VERSION	DISTRO	SOURCE"
       ## This memo file is too large, and we cache the output anyway!

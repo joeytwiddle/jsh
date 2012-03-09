@@ -16,10 +16,13 @@ then
 	[ "$1" = -diff ] && shift
 	# cvs diff | diffhighlight | more
 	## cvs diff outputs progress on stderr, so we hide it
-	cvs diff 2>/dev/null | diffhighlight | more +/"Index: "
+	cvs diff 2>/dev/null | diffhighlight |
+	# more +/"Index: "
+	# BUG: Errors "Pattern not found" if empty :)
 	## This +/Index search means the user can press 'n' to scroll to the next
 	## file, but it also means the first line is not displayed (better than the
 	## whole first file though :)
+	cat
 	exit 0
 fi
 

@@ -73,16 +73,22 @@ alias dusk="memo -t '1 hour' dusk"
 ## BUG: Unfortunately we can't use -f or -t because there may be multiple arguments :f
 
 ## I guess we need this as an aliased function because a script would lose the history!
-if test "$SHORTSHELL" = zsh
+if [ "$SHORTSHELL" = zsh ]
 then
 	# . pawan_zshrc_stripped
 	myhist() {
-		if [ "$1" = 0 ] || [ "$1" = . ]
-		then history 0
-		else history 1 | grep "$*" | tail -n "$((LINES-2))"
+		# if ! ([ "$1" = 0 ] || [ "$1" = . ])
+		if [ "$1" = '' ]
+		then history 1 | tail -n "$((LINES-2))"
+		else
+			search="$*"
+			if [ "$search" = 0 ] || [ "$search" = . ]
+			then search='^'   # show everything
+			fi
+			history 0 | grep "$search"
 		fi
 	}
-elif test "$SHORTSHELL" = bash
+elif [ "$SHORTSHELL" = bash ]
 then
 	myhist() {
 		if [ "$1" = 0 ] || [ "$1" = . ]

@@ -21,8 +21,11 @@ else
 	## Default: just commit quietly, and cvsedit to make files writeable.
 
 	cvs -q commit "$@"
+	errNo="$?"
 	# | grep -v "^? "
 	## caused: "Vim: Warning: Output is not to a terminal"
+	## CONSIDER: Should we do cvsedit if there was an error?
 	cvsedit "$@" >/dev/null 2>&1
+	exit "$errNo"
 
 fi

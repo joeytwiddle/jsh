@@ -1,17 +1,43 @@
 #!/bin/sh
 
 ## My script to popup vim in a new xterm with a sensible size for the file it is editing.
-## Also runs recovervimswap first :)
+## Now runs recovervimswap first.
 
-## BUGS: Works badly on .gzipped files.  Either skip sizing or gunzip them!
+## One line version:
+# xterm -title "[Vim] $*" -e vim "$@"
 
-# jwhich inj vim > /dev/null
-jwhich vim > /dev/null
+## BUG: Geometry estimation works badly on .gzipped files.  Either skip sizing or gunzip them!
 
-if [ ! "$?" = "0" ]
+if ! jwhich vim > /dev/null
 then
-	echo "viminxterm failing: vim not present"
+	echo "[viminxterm] Failing: vim not found on PATH."
 	exit 1
+fi
+
+## Meh fluxbox's grouping sucks anyway.  It won't do 1-group-per-desktop nor
+## will it use most-recent-group, there will just be 1 global group.  =(
+## If we are being called from an existing VIM session (let's assume it's in a terminal, not gvim).
+## Then MYVIMRC, VIM or VIMRUNTIME are likely to be set.
+if [ "$VIM" ]
+then
+	getcurrentwindowtitle() {
+		winid=`xdotool getwindowfocus`
+		xwininfo -id "$winid" | grep "^xwininfo: " | sed 's+^[^"]*"++ ; s+"$++'
+	}
+	oldWindowTitle=`getcurrentwindowtitle`
+	# jshinfo "oldWindowTitle=$oldWindowTitle"
+	## This sneakily invites fluxbox to group the new window with the current
+	## one, since my .fluxbox/apps file is configured to trigger a rule on this
+	## title string:
+	xttitle "Opening $* in Vim..."
+	## This assumes your Vim will reset the xttitle again soon.
+	## No it's ok, we will reset it here.  We must background this because the
+	## xterm is called in foreground!
+	(
+		sleep 2
+		# jshinfo "Restoring title $oldWindowTitle"
+		xttitle "$oldWindowTitle"
+	) &
 fi
 
 FILE="$1"
@@ -79,9 +105,8 @@ then
 else
 
 	# Default size for new file
-	# COLS=50
 	COLS=80
-	ROWS=20
+	ROWS=45
 
 fi
 

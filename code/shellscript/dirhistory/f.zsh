@@ -19,4 +19,4 @@ fi
 
 # dirhistory "$@"
 
-xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+[ "$UPDATE_XTTITLE_ON_DIR_CHANGE" ] && xttitle "$SHOWUSER$SHOWHOST$PWD %% "

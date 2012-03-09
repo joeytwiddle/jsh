@@ -5,32 +5,40 @@
 
 ## If screen is running, could pop up in an extra window.  Could make this X/screen window popup functionality generic
 
-## Options: MANPOPUP_MAX_WIDTH or MANPOPUP_GUESS_WIDTH
+## Option MANPOPUP_DESIRED_WIDTH - how wide do you want the window to be?
+[ "$MANPOPUP_DESIRED_WIDTH" ] || MANPOPUP_DESIRED_WIDTH=120
+
+## If man gives us not what we asked for, tries to fit to it
+[ "$MANPOPUP_GUESS_WIDTH" ] || MANPOPUP_GUESS_WIDTH=true
+
+## The max MANPOPUP_GUESS_WIDTH will expand to.
+[ "$MANPOPUP_MAX_WIDTH" ] || MANPOPUP_MAX_WIDTH=200
+
+
 
 REALMAN="`jwhich man`"
 # INJ=`jwhich inj $1`
 
-[ "$MANPOPUP_MAX_WIDTH" ] || MANPOPUP_MAX_WIDTH=120
-
-## Gah!  No matter what I do here, MANPOPUP_MAX_WIDTH is ignored, and the calling term's COLUMNS is used instead!
+## Gah!  No matter what I do here, MANPOPUP_DESIRED_WIDTH is ignored, and the calling term's COLUMNS is used instead!
 # unset COLUMNS
-# COLUMNS="$MANPOPUP_MAX_WIDTH"
-# export COLUMNS;
+COLUMNS="$MANPOPUP_DESIRED_WIDTH"
+export COLUMNS
 ## OK so we'll just opt for a dirty fallback solution:  :P
-[ "$COLUMNS" ] && [ "$COLUMNS" -gt "$MANPOPUP_MAX_WIDTH" ] && MANPOPUP_MAX_WIDTH="$COLUMNS"
+# [ "$COLUMNS" ] && [ "$COLUMNS" -gt "$MANPOPUP_DESIRED_WIDTH" ] && MANPOPUP_DESIRED_WIDTH="$COLUMNS"
 
 ## Unfortunately memo is too damn slow =/
 ## So we make our own cache:
 cachedPage="/tmp/manpopup.tmp.$$.joey"
-rememo env COLUMNS="$MANPOPUP_MAX_WIDTH" "$REALMAN" -a "$@" > "$cachedPage"
+rememo env COLUMNS="$MANPOPUP_DESIRED_WIDTH" "$REALMAN" -a "$@" > "$cachedPage"
 catpage() {
 	# memo "$REALMAN" -a "$@"   ## where "$@" were the parent script's args, not the functions
 	cat "$cachedPage"
 }
 ## BUG: One disadvantage of this, is that if we cannot write to /tmp/, we fail to display the man page!  memo might not do that
 
-## If user is running in X, we pop up a separate window for them
-## DONE: This has caused problems when vnc is initialised from X, and has this variable exported to its children!  OK jsh has removed its export STY for now so this shouldn't be a problem.
+## If user is using X-Windows, we pop up a new window for the manual page.
+## If they are running inside screen, we open a new screen for the manual page.
+## DONE: This caused problems when vnc was initialised from a screen, and had this variable exported to its children!  OK jsh has removed its export STY for the greater good.  Still, we could check X first, but that might feel odd when using screen under X, if DISPLAY is exported to the screen session.
 if [ "$STY" ]
 then screen -X screen -t '"'"$1"'"' $REALMAN -a "$@"
 elif xisrunning
@@ -45,14 +53,15 @@ then
 		then
 			## We want to make the output as wide as the widest line:
 			WIDTH=`catpage | col -bx | longestline`
+			# jshinfo "WIDTH=$WIDTH"
 			# WIDTH=`expr $WIDTH + 2`
 			# [ "$WIDTH" -lt 10 ] && echo "col -bx | longestline failed" | tee -a "$JPATH/logs/jshdebug"
 			[ "$WIDTH" -lt 20 ] && jshwarn "manpopup got WIDTH=$WIDTH"
 			[ "$WIDTH" -lt 80 ] && WIDTH=80
-			[ "$WIDTH" -gt "$MANPOPUP_MAX_WIDTH" ] && jshwarn "manpopup got WIDTH=$WIDTH"
+			[ "$WIDTH" -gt "$MANPOPUP_DESIRED_WIDTH" ] && jshwarn "manpopup got WIDTH=$WIDTH"
 			[ "$WIDTH" -gt "$MANPOPUP_MAX_WIDTH" ] && WIDTH="$MANPOPUP_MAX_WIDTH"
 		else
-			WIDTH="$MANPOPUP_MAX_WIDTH"
+			WIDTH="$MANPOPUP_DESIRED_WIDTH"
 		fi
 
 		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN -a "$@"

@@ -6,15 +6,11 @@ DIR=`realpath "$1"`
 
 flatdf 2>/dev/null | drop 1 | takecols 6 |
 
-sort |
-
+# Choose the longest matching one (/mnt/foo over /):
+sort -r |
 while read MOUNTPNT
 do
+  echo "$DIR" | grep "^$MOUNTPNT" > /dev/null &&
+  echo "$MOUNTPNT"
+done | head -n 1
 
-  if echo "$DIR" | grep "^$MOUNTPNT" > /dev/null
-  then echo "$MOUNTPNT"
-  fi
-
-done |
-
-tail -n 1

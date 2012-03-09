@@ -4,9 +4,17 @@ if [ "$1" = --help ]
 then
 cat << !
 
-columnise-clever [ -only <regexp> ] [ -ignore <regexp> ] <files>...
+columnise-clever [ -only <regexp> | -ignore <regexp> ] <files>...
 
   Reformat the input into columns.
+
+  You can use regexps to select which part of the line you do or don't want to
+  be reformat.  The rest will be left as-is.
+
+  TODO:
+
+  -ignore doesn't seem to work - columnises the things after it
+  -only was working though.  it keeps the delimeter too :)
 
 !
 exit 0

@@ -2,6 +2,12 @@
 # jsh-depends-ignore: check new
 # jsh-depends: cursecyan cursemagenta cursenorm jwatchcomp breakonctrlc jdeltmp jgettmp
 
+## BUG TODO: How can we ensure cleanup of the files?  I.e. we need to act on
+## Ctrl-C or we need some sort of daemon/background process running, waiting
+## for us to die so it can clean up.
+
+## Perhaps the whole thing should be a daemon, and the user interface is what keeps it alive?
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
@@ -58,10 +64,20 @@ fi
 
 # METHOD="$METHOD | striptermchars"
 
+## Tmpfiles "cleanup" by overwriting, jwatches don't work in parallel:
+# NEW=/tmp/new_"$USER".jwatch
+# OLD=/tmp/old_"$USER".jwatch
+## Unique:
 # NEW=`jgettmp "new-$1"`
 # OLD=`jgettmp "old-$1"`
-NEW=/tmp/"$1".jwatch_new
-OLD=/tmp/"$1".jwatch_old
+## Also unique:
+# NEW=/tmp/new_"$1"_output."$USER-$$".jwatch
+# OLD=/tmp/old_"$1"_output."$USER-$$".jwatch
+## Unique enough, practical for now (small parallel BUG):
+NEW=/tmp/new_"$1"_output."$USER".jwatch
+OLD=/tmp/old_"$1"_output."$USER".jwatch
+
+# Handle privacy concerns!
 touch "$NEW"
 touch "$OLD"
 chmod go-rwx "$NEW"

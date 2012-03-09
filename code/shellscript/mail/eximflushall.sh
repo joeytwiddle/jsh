@@ -81,8 +81,8 @@ do
 			;;
 
 			-reroute)
-				centralise '-' "Adding debug@hwi to the recipient list of $MSGID" | highlight ".*" cyan
-				$EXIM -Mar "$MSGID" debug@hwi.ath.cx
+				centralise '-' "Adding joey@neuralyte.org to the recipient list of $MSGID" | highlight ".*" cyan
+				$EXIM -Mar "$MSGID" joey@neuralyte.org
 			;;
 
 			-flush)

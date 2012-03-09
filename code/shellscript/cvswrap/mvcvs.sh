@@ -92,7 +92,7 @@ mvcvs1() {
 		
 		## Checking ok:
 		if test ! -f "$CVSFILE"; then
-		  echo "cvs file \"$CVSFILE\" does not exist!"
+		  echo "CVS file \"$CVSFILE\" does not exist!" >&2
 		  exit 1
 		fi
 
@@ -104,6 +104,9 @@ mvcvs1() {
 		## We can copy the file in the CVS repository to create the new entry
 		echo "set -e -x &&"
 		echo "cp \"$CVSFILE\" \"$CVSDESTDIR/$DESTFILENAME,v\" &&"
+		# Make a backup in case update or anything later messes with our file:
+		echo "cp \"$LOCALSRC\" /tmp/\"$FILENAME\".b4mvcvs &&"
+		echo "cvs update -AdP \"$LOCALDEST\" &&"
 
 		## To keep the client in sync, we remove the file and call "cvs remove", which will also remove it from the repository (when we commit later).
 		# echo "del -cvs \"$LOCALSRC\" &&" ## does cvs remove, and sends the file to trash
@@ -145,7 +148,21 @@ LOCALDEST="$1"
 printf "%s" "$FILELIST" |
 while read FILE
 do
-	mvcvs1 "$FILE" "$LOCALDEST"
+	if [ -f "$FILE" ]
+	then
+		mvcvs1 "$FILE" "$LOCALDEST"
+	else
+		echo 'I do not know how to mvcvs for folders yet!'
+		## It would probably involve:
+		# Make final check-in.
+		# Move working copy somewhere hidden.
+		# Move folder in root cvs server folder.
+		# Checkout newly positioned folder on client.
+		# Remove from hidden working tree any CVS folders.
+		# Copy hidden working tree over newly checked-out version.
+		# Delete hidden working tree.  (Perhaps last 2 can be combined as move.)
+		exit 2
+	fi
 done
 
 # ## Move to top of repository

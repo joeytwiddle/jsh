@@ -37,6 +37,10 @@ function mydiff () {
 	# -C 1 is nice for some context but then we never get <red >green lines, only !yellow changes, although with extra processing we could colour the !s correctly.
 }
 
+# jdiff asks us to export COLUMNS if we haven't.  Desirable if terminal width is not 80.
+# But doing it here doesn't work!  Seems we have to do it in the user shell.  :P
+# export COLUMNS="$COLUMNS"
+[ ! "$COLUMNS" ] && jshwarn "You probably want to export COLUMNS and re-run."   # (I can't do it for you, I've tried!)
 [ "$DIFFCOM" ] || DIFFCOM="jdiff"
 # [ "$DIFFCOM" ] || DIFFCOM="mydiff"
 
@@ -49,10 +53,11 @@ then
 		for FIGLET_FONT in small straight stampatello italic mini short ogre
 		do
 			# FIGLET_FONT_FILE=`unj locate "$FIGLET_FONT.flf" | head -n 1`
-			FIGLET_FONT_FILE=`memo unj locate "$FIGLET_FONT.flf" | head -n 1`
+			FIGLET_FONT_FILE=`MEMO_IGNORE_DIR=true memo unj locate "$FIGLET_FONT.flf" | grep "\.flf$" | head -n 1`
 			if [ "$FIGLET_FONT_FILE" ]
 			then
 				export DONT_USE_FIGLET=
+				# echo "Will use figlet font: $FIGLET_FONT_FILE"
 				break
 			fi
 		done
@@ -78,26 +83,38 @@ do
 	if [ ! -f "$FILE" ]
 	then error "skipping non-file: $FILE"; continue
 	fi
+
 	(
-		## TODO: optionally use figlet with font here!
+
 		(
-		# curseblue
-		## TODO: this is the cvs status that blocks, because it's directory is locked.
-		cvs status "$FILE" | highlight "^File:.*" cyan
-		# cvs diff "$FILE"
-		cvs -q update -p "$FILE" > $TMPFILE 2>/dev/null
-		cursenorm
-		if [ "$FIGLET_FONT_FILE" ]
-		then
-			cursecyan
-			figlet -w "$COLUMNS" -f "$FIGLET_FONT_FILE" "$FILE"
+
+			cursemagenta ; cursebold
+			if [ "$FIGLET_FONT_FILE" ]
+			then
+				figlet -w "$COLUMNS" -f "$FIGLET_FONT_FILE" "$FILE"
+			else
+				echo "File: `cursecyan``cursebold`$FILE`cursenorm`"
+			fi
+
+			# cursecyan
+			cursenorm ; cursemagenta
+			cvs status "$FILE"
 			cursenorm
-		else
-			echo "File: `cursecyan``cursebold`$FILE`cursenorm`"
-		fi
-		) | trimempty
+
+			# curseblue
+			## TODO: this is the cvs status that blocks, because it's directory is locked.
+			# cvs status "$FILE" | highlight "^File:.*" cyan
+
+			# cvs diff "$FILE"
+
+			cvs -q update -p "$FILE" > $TMPFILE 2>/dev/null
+
+		) # | trimempty
+
 		$DIFFCOM $TMPFILE "$FILE"
+
 	) | more
+
 	echo
 	while true
 	do

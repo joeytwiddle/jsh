@@ -124,60 +124,76 @@ try_del () {
 
 }
 
+
+
+	## Since finding the reclaim folder is hard, we will only do it once, for the first file.
+	## If the user wanted some of the later files to go to a different reclaim folder, they should have deleted them separately!
+
+	FILE="$1"
+
+	## Efficiency attempt (appears to work if we import memo above, but should use a more efficient memo!)
+	# X=`dirname "$FILE"`
+	# MOUNTPNT=`memo wheremounted "$/"`
+
+	## realpath first does not really do what we want when $FILE is an existing symlink:
+	# PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
+	## We want to do realpath on the parent, to find out where this file lives.
+	## Should work even if parent dir is a symlink.
+	# PARENTDIR=`realpath "\`dirname \"$FILE\"\`"`
+	## NOTE sort-of BUG: if you delete a symlink, the symlink is deleted ok, but it doesn't go to the reclaim directory it is in; it goes to the reclaim directory the symlink's target is in.
+	# MOUNTPNT=`wheremounted "$PARENTDIR"`
+	# Try this for speed: MOUNTPNT=`memo wheremounted "$PARENTDIR"`
+
+	PARENTDIR=`realpath "\`dirname \"$FILE\"\`"`
+	MOUNTPNT=`wheremounted "$PARENTDIR"`
+
+	## TODO: make a memo.quickndirty (local to current shell env, i.e. data stored in variables?),
+	##       and refactor out from here a getreclaimdirfordir <dir> function.
+
+	## Work out where to move the file to.
+	for TRASHDIR in "$MOUNTPNT/RECLAIM" "$TRASHDIR" "$JPATH/trash" "$HOME/.trash" /tmp/$USER-trash NO_DIR_WRITEABLE
+	do
+		if [ "$TRASHDIR" ]
+		then
+			if [ -w "$TRASHDIR" ]
+			then break   # Found
+			# else echo "not writeable: $TRASHDIR" >&2
+			fi
+			## Create the directory if its parent is writeable:
+			if [ -w "`dirname \"$TRASHDIR\"`" ]
+			then
+				verbosely mkdir "$TRASHDIR"
+				# chmod ugo+w "$TRASHDIR" ## Not secure.  Shared RECLAIM dirs should be created by root.
+				chmod go-rwx "$TRASHDIR" ## Secure.  Other users can create their own TRASHDIR!  TODO: could act differently if we are root.
+				# chmod go+rwx "$TRASHDIR" ## Insecure trashdir, but at least others can use it!
+				## Only finish if we succeeded in creating a writeable trashdir:
+				[ -w "$TRASHDIR" ] && break   # Found
+			# else echo "not writeable: `dirname \"$TRASHDIR\"`" >&2
+			fi
+		fi
+	done
+
+	## Did we find a trash dir?
+	if [ "$TRASHDIR" = NO_DIR_WRITEABLE ]
+	then
+		error "No suitable trash directory found.  Please export environment variable TRASHDIR."
+		exit 5
+	fi
+
+
+
 for FILE
 do
 
 	if [ -f "$FILE" ] || [ -d "$FILE" ] || [ -L "$FILE" ]
 	then
 
-		## Efficiency attempt (appears to work if we import memo above, but should use a more efficient memo!)
-		# X=`dirname "$FILE"`
-		# MOUNTPNT=`memo wheremounted "$X/"`
-		## TODO: does this really do what we want when $FILE is an existing symlink?
-		# PARENTDIR=`dirname "\`realpath \"$FILE\"\`"`
-		PARENTDIR=`realpath "\`dirname \"$FILE\"\`"`
-		## NOTE sort-of BUG: if you delete a symlink, the symlink is deleted ok, but it doesn't go to the reclaim directory it is in; it goes to the reclaim directory the symlink's target is in.
-		MOUNTPNT=`wheremounted "$PARENTDIR"`
-		# Try this for speed: MOUNTPNT=`memo wheremounted "$PARENTDIR"`
-
-		## TODO: make a memo.quickndirty (local to current shell env, i.e. data stored in variables?),
-		##       and refactor out from here a getreclaimdirfordir <dir> function.
-
-		## Work out where to move the file to.
-		for TRASHDIR in "$MOUNTPNT/RECLAIM" "$TRASHDIR" "$JPATH/trash" "$HOME/.trash" /tmp/$USER-trash NO_DIR_WRITEABLE
-		do
-			if [ "$TRASHDIR" ]
-			then
-				if [ -w "$TRASHDIR" ]
-				then try_del && break
-				# else echo "not writeable: $TRASHDIR" >&2
-				fi
-				## Create the directory if its parent is writeable:
-				if [ -w "`dirname \"$TRASHDIR\"`" ]
-				then
-					verbosely mkdir "$TRASHDIR"
-					# chmod ugo+w "$TRASHDIR" ## Not secure.  Shared RECLAIM dirs should be created by root.
-					chmod go-rwx "$TRASHDIR" ## Secure.  Other users can create their own TRASHDIR!  TODO: could act differently if we are root.
-					# chmod go+rwx "$TRASHDIR" ## Insecure trashdir, but at least others can use it!
-					## Only finish if we succeeded in creating a writeable trashdir:
-					[ -w "$TRASHDIR" ] && try_del && break
-				# else echo "not writeable: `dirname \"$TRASHDIR\"`" >&2
-				fi
-			fi
-		done
-
-		## Now we either left that for loop because try_del succeeded and we broke out, or we reached the end of the loop.
-		if [ "$TRASHDIR" = NO_DIR_WRITEABLE ]
-		then
-			error "No suitable trash directory found.  Please export environment variable TRASHDIR."
-			ALLOK=1
-			break ## continue
-		fi
+		try_del || ALLOK=3
 
 	else
 
 		error "del: does not exist: $FILE"
-		ALLOK=1
+		ALLOK=4
 		# continue
 
 	fi
@@ -193,3 +209,4 @@ exit $ALLOK
 # mkdir -p $TRASHDIR/$PWD/
 # echo "mv -f $@ $TRASHDIR/$PWD/"
 # mv -f $@ $TRASHDIR/$PWD/
+

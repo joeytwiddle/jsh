@@ -9,7 +9,8 @@
 ## Short-Description: hwibot
 ## Description:       Enable hwi's services running in /mnt/hwibot chroot
 ### END INIT INFO
-# Requires sshd_gentoo for grimeape service
+
+# We require sshd_gentoo for the grimeape service started in hwibot.inner
 
 # TODO for LSB: start, stop, restart, force-reload, and status; log_success_msg, log_failure_msg and log_warning_msg
 
@@ -18,7 +19,11 @@ TARGET=/mnt/hwibot
 ## the list of directories under /mnt
 # MNTPNTS="big data morphix floppy gentoo mandrake space hdb5 hda3 hdb7 hdb8 win98"
 MNTPNTS="space big hdb7 hdb6"
-NICE_THE_CHROOT="nice -n 8"
+NICE_THE_CHROOT="nice -n 4"
+# This has no effect on e.g. Apache or anything as far as I can see!
+# Well duh.  Now trying moving the nice inside the chroot command (previously came before chroot)!
+# Errrrr that gave: /usr/bin/nice: /usr/bin/nice: cannot execute binary file
+# Meh we have it inside hwibot's hwibot.inner anyway and it doesn't work there.
 
 if [ "$1" = start ]
 then

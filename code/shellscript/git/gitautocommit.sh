@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# TODO: I usually read gitdiff before doing gitautocommit, *but* gitdiff does
+# not show what new files gitautocommit will add.  This sometimes causes
+# accidental commits of naff files!  Perhaps after the brute-force add, we should
+# ask git what the new files are, and if there are any, we should *inform* the
+# user and ask for their permission if they requested an automatic commit (-m).
+
 set -e
 ## I set this so we won't proceed with the commit if the "git add" fails, e.g.
 ## with "The following paths are ignored by one of your .gitignore files" and
@@ -36,6 +42,8 @@ withalldo -r verbosely git add
 jshinfo "Adding new files" ## because we skipped verbosely below
 [ "$VERBOSE" ] && jshinfo "New files:"
 
+# BUG TODO: The .gitignore file may be in a parent folder.  In fact we should
+# probably concatenate all .gitignore files until we reach the .git root.
 gitignoreExpr="none_of_your_files_look_like_this.noodles"
 if [ -f .gitignore ]
 then
@@ -67,7 +75,8 @@ grep -v "/[.]git/" | ## git itself!
 # grep -v "\.js$" |   ## If you are hacking coffeescript
 
 pipeboth |
-withalldo -r verbosely highlightstderr git add -f
+# withalldo -r verbosely highlightstderr git add -f
+withalldo -r highlightstderr git add -f
 # For some reason git -f add does not always work on long lists of files/dirs,
 # but adding them manually one-by-one can work!
 echo

@@ -1,10 +1,5 @@
 #!/bin/sh
 
-## BUG: dpkg does not display all packages, e.g. meta-packages used by apt.
-## So rather than using dpkg -all, I recommend instead using: aptitude --disable-columns search <part-of-package-name> | grep ^i
-## I think this bug applies to dlocate as well as dpkg.
-## I don't know what is the pattern of packages that don't show.
-
 if [ "x$1" = "x" ]
 then
 cat << '!'
@@ -23,6 +18,17 @@ findpkg [-all] [-web] [-big] <part-of-package-name>
            packagenames.
 
   findpkg currently supports dpkg systems (e.g. Debian and Ubuntu).
+
+  BUG: dpkg does not display all packages, e.g. meta-packages used by apt.
+  So rather than using:
+
+    dpkg -l <glob>   or   findpkg <glob>
+
+  I recommend instead using:
+
+    aptitude --disable-columns search <regexp> | grep ^i
+
+  I believe this problem exists with dlocate as well as dpkg.
 
 !
 exit 1

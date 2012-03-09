@@ -32,15 +32,32 @@ then
 	shift
 fi
 
+if [ "$1" = -tre ]
+then
+	TRE=true
+	shift
+fi
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-	echo "findjob [-tree] <cmd/arg_search_string>"
+	echo
+	echo "findjob [-tree] <cmd/arg_regexp_word>"
+	echo
+	echo "  lists processes whose command or arguments match the given word."
+	echo
+	echo "  with -tree, shows all processes, focused on matches, so that parents can be"
+	echo "  easily seen.  This opens in vim."
+	echo
+	echo "  -tre shows the tree without vim, grepping matches and a few lines above."
+	echo
+	echo "  Undocumented features: -kidstoo -kill -tre"
 	exit 1
 fi
 
 findjob () {
+	SEARCH_REGEXP="$1"
 	env COLUMNS=65535 myps -novars -A |
-		grep -v "\<grep\>" | grep "$@" |
+		grep -v "\<grep\>" | grep "$SEARCH_REGEXP" |
 		## TODO: This and the PPID in myps hide valid other jobs belonging to this shell
 		##       Presumably that could be solved by starting new shell with #!/bin/sh
 		grep -v "\<$PID\>" |
@@ -56,10 +73,14 @@ findjobtree () {
 
 PID=$$
 
-if [ "$1" = -tre ]
+# SEARCH_REGEXP="$*"
+# SEARCH_REGEXP="\<$*\>"
+SEARCH_REGEXP="\<$*\>"
+
+if [ "$TRE" ]
 then
-	shift
-	findjobtree | dropcols 1 4 5 6 | higrep "$@" -B3 -A1
+	# BUG: Matches on processes created by higrep are displayed, despite $PID!
+	findjobtree | dropcols 1 4 5 6 | higrep "$SEARCH_REGEXP" -B3 -A1 | grep -v "\<$PID\>"
 	exit
 fi
 
@@ -70,8 +91,8 @@ then
 	KILLFILEB=`jgettmp killfileb`
 
 	if [ "$TREE" ]
-	then findjobtree "$@"
-	else findjob "$@"
+	then findjobtree "$SEARCH_REGEXP"
+	else findjob "$SEARCH_REGEXP"
 	fi > $KILLFILEA
 
 	cp $KILLFILEA $KILLFILEB
@@ -95,7 +116,7 @@ fi
 if [ "$KIDSTOO" ]
 then
 
-	findjob "$@" |
+	findjob "$SEARCH_REGEXP" |
 	## Use id of matching processes
 	takecols 3 |
 	while read X
@@ -105,9 +126,9 @@ then
 		echo
 	done
 else
-	findjob "$@"
+	findjob "$SEARCH_REGEXP"
 fi |
 
 # Highlighting and grep to hide it
-highlight "$@" | egrep -v "sed s#.*$@" | grep -v "highlight .*$1" ## .* handles the highlight control-chars that were added!
+highlight "$SEARCH_REGEXP" | egrep -v "sed s#.*$@" | grep -v "highlight .*$1" ## .* handles the highlight control-chars that were added!
 

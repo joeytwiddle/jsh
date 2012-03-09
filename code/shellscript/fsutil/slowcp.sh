@@ -8,7 +8,7 @@
 
 ## TODO: CONSIDER: Could change -at option to -kbps, here and in trickle, to make it easier (compulsory!) for the user to remember the units.
 
-SPEED="1024" # 1Meg per second
+SPEED="1024k" # 1Meg per second
 
 if [ ! "$1" ] || [ "$1" = --help ]
 then

@@ -44,6 +44,12 @@ fi
 if test "$1" = "-fg"; then
 	shift
 else
+	## I removed
+	# nice -n 2 
+	## from the two commands below, because although we might want watching to
+	## be low-priority, I often want compiling to go faster than the currently
+	## running program!  So unless we can renice the action (compilation) back
+	## to 0, I don't want to nice the whole thing.
 	if xisrunning; then
 		xterm -e nice -n 2 onchange -fg "$@" &
 	else
@@ -68,6 +74,27 @@ shift
 if [ "$1" = "do" ]
 then shift
 fi
+
+run_command() {
+	echo
+	cursecyan
+	for X in `seq 1 $COLUMNS`; do printf "-"; done; echo
+	echo "$whatChanged changed, running: $COMMANDONCHANGE"
+	cursenorm
+	echo
+	xttitle ">> onchange running $COMMANDONCHANGE ($whatChanged changed)"
+	highlightstderr $COMMANDONCHANGE
+	exitCode="$?"
+	cursecyan
+	if [ "$exitCode" = 0 ]
+	then echo "Done."
+	else echo "`cursered;cursebold`[onchange] Command failed with exit code $exitCode:`cursenorm` $COMMANDONCHANGE"
+	fi
+	cursenorm
+	[ "$DESENSITIZE" ] && sleep 2 && touch "$COMPFILE"
+	xttitle "## onchange watching $FILES ($whatChanged changed last)"
+}
+
 xttitle "## onchange watching $FILES"
 COMMANDONCHANGE="eval $*"
 COMPFILE=`jgettmp onchange`
@@ -80,11 +107,19 @@ while true; do
 	if test $IGNORE; then
 		NL=`find . -newer "$COMPFILE" | grep -v "/\." | countlines`
 		if test "$NL" -gt "0"; then
-			echo "something changed, running: $COMMANDONCHANGE"
-			xttitle ">> onchange running $COMMANDONCHANGE"
-			$COMMANDONCHANGE
-			echo "Done."
-			xttitle "## onchange watching $FILES"
+
+			# xttitle ">> onchange running $COMMANDONCHANGE"
+			# $COMMANDONCHANGE
+			# exitCode="$?"
+			# if [ "$exitCode" = 0 ]
+			# then echo "Done."
+			# else echo "`cursered;cursebold`Command failed with exit code $exitCode:`cursenorm` $COMMANDONCHANGE"
+			# fi
+			# xttitle "## onchange watching $FILES"
+
+			whatChanged="$NL files"
+			run_command
+
 			sleep 1
 			touch "$COMPFILE"
 		fi
@@ -92,19 +127,22 @@ while true; do
 		for file in $FILES; do
 			if newer "$file" "$COMPFILE"; then
 				touch "$COMPFILE"
-				echo
-				cursecyan
-				for X in `seq 1 $COLUMNS`; do printf "-"; done; echo
-				echo "$file changed, running: $COMMANDONCHANGE"
-				cursenorm
-				echo
-				xttitle ">> onchange running $COMMANDONCHANGE ($file changed)"
-				highlightstderr $COMMANDONCHANGE
-				cursecyan
-				echo "Done."
-				cursenorm
-				[ "$DESENSITIZE" ] && sleep 2 && touch "$COMPFILE"
-				xttitle "## onchange watching $FILES ($file changed last)"
+
+				# xttitle ">> onchange running $COMMANDONCHANGE ($file changed)"
+				# highlightstderr $COMMANDONCHANGE
+				# exitCode="$?"
+				# cursecyan
+				# if [ "$exitCode" = 0 ]
+				# then echo "Done."
+				# else echo "`cursered;cursebold`Command failed with exit code $exitCode:`cursenorm` $COMMANDONCHANGE"
+				# fi
+				# cursenorm
+				# [ "$DESENSITIZE" ] && sleep 2 && touch "$COMPFILE"
+				# xttitle "## onchange watching $FILES ($file changed last)"
+
+				whatChanged="$file"
+				run_command
+
 				# break
 			fi
 		done

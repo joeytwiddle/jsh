@@ -10,8 +10,12 @@
 # Requires SHORTSHELL from startj
 
 # XTTITLEPROMPT_SIMPLER=true
+XTTITLEPROMPT_SHOW_JOBS=1
 
-## Maybe too strict but this script is too heavy for low-spec machines.
+## Maybe too strict but this script is too heavy for low-spec machines and
+## terms, so we whitelist modern stuff with known xttitle support, and drop
+## people's ssh streams or legacy connections.  If they have vt100 we assume no
+## xttitle support?
 if [ "$TERM" = xterm ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ]
 then
 
@@ -171,7 +175,20 @@ then
 					FAKESQUARE="	"
 					# [ "$XTTITLEPROMPT_SIMPLER" ] || XTTITLE_DISPLAY="$XTTITLE_DISPLAY ($LASTCMD)"
 					# xttitle "$XTTITLE_HEAD<$((HISTCMD-1))> `swd`%_   $HISTSHOW"
-					xttitle "$XTTITLE_HEAD% `swd`/ _   $HISTSHOW"
+
+					JOBS_PRE=""
+					if [ "$XTTITLEPROMPT_SHOW_JOBS" ]
+					then
+						JOBS=`jobs | takecols 4`
+						if [ ! "$JOBS" = "" ]
+						then
+							JOB_LIST="`echo "$JOBS" | tr '\n' ',' | sed 's+,$++'`"
+							# JOBS_PRE='&['"$JOB_LIST""] "
+							JOBS_PRE='('"$JOB_LIST"")& "
+						fi
+					fi
+
+					xttitle "$XTTITLE_HEAD$JOBS_PRE% `swd`/ _   $HISTSHOW"
 
 					# echo ">$STY<" >> /tmp/123
 					# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | cut -c -10`]"

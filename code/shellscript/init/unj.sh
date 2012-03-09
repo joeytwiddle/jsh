@@ -3,7 +3,7 @@
 ## jsh-help: The -quiet option will supress error messages if the <program> does not exist outside jsh, but at time of writing, there were no uses of it in jsh, and it seems pretty daft anyway, so I recommend this option should be removed.
 
 # jsh-depends: jwhich
-# this-script-does-not-depend-on-jsh: exists jsh startj-hwi
+# jsh-depends-ignore: exists jsh startj-hwi
 
 ## Should unj deprecate jwhich?
 ## Note: Both are dangerous because if X calls unj X but unj X return the same X then infinite loop :-(
@@ -23,6 +23,9 @@
 ## At time of writing, I think unj is mostly used to run the real version,
 ## rather than disable jsh entirely.
 ## So the above method should be made a separate script, then maybe current uses of unj could be refactored to "extjshrun"
+
+## Oh I forgot it had changed.  I assumed unj was still adjusting PATH but it
+## isn't.  Perhaps it should, if I'm going to assume that it does!
 
 if test "$1" = "-quiet"
 then shift; UNJ_QUIET=true

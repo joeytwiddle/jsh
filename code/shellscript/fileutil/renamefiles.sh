@@ -1,7 +1,7 @@
 # jsh-ext-depends-ignore: file batch rename strings
 # jsh-ext-depends: sed find tty
 # jsh-depends: jshwarn
-# this-script-does-not-depend-on-jsh: exists
+# jsh-depends-ignore: exists
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
@@ -33,6 +33,10 @@ then
 	# echo "  but you should actually specify a glob for <search> and a regexp for <replace>."
 	# echo
 	echo "  To override aborting when the destination file exists, export RF_OVERWRITE=anything."
+	echo
+	echo "Examples:"
+	echo
+	echo "  renamefiles \".current\$\" ".old" | sh"
 	echo
 	echo "  TODO: May need to implement extra escaping for really nasty chars."
 	echo "        Bugreports (example failure strings) are welcome."

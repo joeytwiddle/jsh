@@ -1,12 +1,16 @@
 #!/bin/sh
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-  echo "diffcoms [ -color | -vimdiff | -worddiff | -diffwith <diffcommand> ] <command_a> <command_b>"
-  echo "  will run both commands, and diff their output."
+  echo "diffcoms [ -color | -vimdiff | -worddiff | -diffwith <diffcommand> ] \"<command_a>\" \"<command_b>\""
+  echo "  will run both commands, using eval, and diff their output."
   exit 1
 fi
 
 DIFFCOM="jfcsh -bothways"
+# DIFFCOM=prettydiff      # normal > < diff but highlighted
+# DIFFCOM=jdiff         # side-by-side
+# DIFFCOM=jdiffsimple   # no > < + - markers just colors
+## None of the above trim 
 while true
 do
   case "$1" in

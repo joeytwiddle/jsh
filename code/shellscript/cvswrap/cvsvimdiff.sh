@@ -101,6 +101,18 @@ $DIFFCOM "$FILENAME" "$CKOUT"
 # $DIFFCOM "$DIFFCOMARG" "$FILENAME" "$CKOUT"
 # -c ':syn off<Enter>:set wrap<Enter>'
 
+# I like to show the repository version on the right-hand side, although this
+# is not chronological and is atypical for me, this layout reminds me of the
+# thing I will be overwriting/changing, the repository copy on the right!
+# If I place the original version on the left, I ignore it and assume
+# everything on the right (the commit) is correct.
+# If the original is on the right, I think about what the commit will be
+# changing, and am more tempted to trim down my commit and give it further
+# consideration.
+# (Remember kids: Editing commits without testing them is bad!  So perhaps a
+# chronological layout would be better, if we decide commits are good from
+# having tested them, not from having read them!)
+
 # Don't think this is a problem: haven't handled second case, don't want to delete original file!!
 jdeltmp "$CKOUT"
 [ "$CKOUT2" ] && jdeltmp "$CKOUT2"

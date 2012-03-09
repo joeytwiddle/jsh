@@ -146,6 +146,7 @@ do
 	else
 		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
 		## These are faster alternatives, but not as thorough:
+		## Actually they are probably slower for small files, but significantly faster for any large files we come across.
 		if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ] ## Note: this detects a symlink to an identical file as different!
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		## This was no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]

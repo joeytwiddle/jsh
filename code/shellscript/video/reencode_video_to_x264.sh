@@ -19,24 +19,22 @@ cat << !
   Video quality:
     LOSS=25
 
-  Low quality (some visible artefacts):
-    LOSS=35
+  Low quality (visible artefacts):
+    LOSS=35 MONO=1   (see MONO warning below!)
 
   Low quality alternative:
-    LOSS=15 FPS=15
+    LOSS=30 FPS=15 MONO=1
 
-    Note: Reducing FPS is a quality loss in itself, so try reducing LOSS in
-    parallel.  (Higher framerate allows a lossy codec to catch up quickly,
-    fixing messy frames.)
-    Also beware that non-standard FPS can confuse some players!
+    Beware!  non-standard FPS might confuse some players!
 
-  Optional vars:
+  More options:
 
     OUTSIZE=720x480
     PREVIEW="-ss 0:01:00 -endpos 0:10"
     OUTFILE="blah.x264"
-    MOREOPTS="--ratetol 5.0"
-      (Allows bitrate to grow by this much % for scenes which really need it)
+    MONO=1   Downmix to mono (Beware!  May halve volume if input was mono!)
+    X264_OPTIONS="--ratetol 5.0"
+      Allows bitrate/filesize to grow by 5% for later scenes which really need it
 
 !
 exit 1
@@ -128,9 +126,10 @@ then
 		## has to worry about whether the $AACFILE file is out-of-date or not.
 		## This does mean preview audio comes out wrong.
 
+		[ "$MONO" = 1 ] && MPLAYER_AUDIO_OPTS="$MPLAYER_AUDIO_OPTS -af pan=1:0.5:0.5"
 		## This eval is only needed to do the 2> redirection inside verbosely!  :P
 		## Drop either the 2> redirect or verbosely, and the eval won't be needed.
-		verbosely eval "mplayer -noconsolecontrols $fixTooManyPtsError -vc null -vo null -ao pcm:fast:file=$TMPWAVFILE \"$INFILE\" 2>/dev/null" &&
+		verbosely eval "mplayer -noconsolecontrols $fixTooManyPtsError $MPLAYER_AUDIO_OPTS -vc null -vo null -ao pcm:fast:file=$TMPWAVFILE \"$INFILE\" 2>/dev/null" &&
 		mv -f "$TMPWAVFILE" "$WAVFILE"
 	fi
 	verbosely faac -q "$AUDIOQUALITY" --mpeg-vers 4 -o "$AACFILE" "$WAVFILE" &&
@@ -181,10 +180,10 @@ fi
 ### Encode with x264:
 
 ## Basic:
-verbosely x264 --fps "$FPS" --crf "$LOSS" --input-res "$INSIZE" $MOREOPTS -o "$OUTFILE" "$FIFOFILE"
+verbosely x264 --fps "$FPS" --crf "$LOSS" --input-res "$INSIZE" $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE"
 
 ## Readable by most players (Quicktime):
-# verbosely x264 --fps "$FPS" --bframes 2 --crf "$LOSS" --subme 6 --analyse p8x8,b8x8,i4x4,p4x4 $MOREOPTS -o "$OUTFILE" "$FIFOFILE" --input-res "$INSIZE"
+# verbosely x264 --fps "$FPS" --bframes 2 --crf "$LOSS" --subme 6 --analyse p8x8,b8x8,i4x4,p4x4 $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE" --input-res "$INSIZE"
 
 ## For 2-pass, replace --crf "$LOSS" with --bitrate and pass number:
 # x264 --pass 1 --bitrate 1000 -o <output> <input>
@@ -208,7 +207,7 @@ if [ "$PREVIEW" = "" ]
 then cleanup_audio_files
 fi
 
-if find /dev/tmp/ /dev/shm/ -maxdepth 1 -iname "*.wav" | grep .
+if find /tmp/ /dev/shm/ -maxdepth 1 -iname "*.wav" | grep .
 then echo "The above files are left on your (ram)disk!"
 fi
 

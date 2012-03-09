@@ -18,12 +18,15 @@ if [ "$1" = -n ]
 then
 	shift
 	revisionIndex="$1"
-	commitID=`git log | grep "^commit " | head -n "$revisionIndex" | tail -n 1 | cut -d ' ' -f 2`
+	shift
+	filename="$1"
+	commitID=`git log "$filename" | grep "^commit " | head -n "$revisionIndex" | tail -n 1 | cut -d ' ' -f 2`
 else
 	commitID="$1"
+	shift
 fi
 
-filename="$2"
+filename="$1"
 
 olderFile="$filename"."$commitID"
 
