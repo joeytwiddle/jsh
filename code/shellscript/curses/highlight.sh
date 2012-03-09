@@ -68,5 +68,5 @@ NORMCOL=`cursenorm`
 
 ## TODO: cvs copy had alternatives here for highlighting only the first -atom specified in the regexp (like extractregexp).  do it :)
 
-sed -u "s#$1#$HIGHCOL\0$NORMCOL#g"
+sed -u "s$1$HIGHCOL\0$NORMCOLg"
 
