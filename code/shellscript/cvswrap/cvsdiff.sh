@@ -138,6 +138,8 @@ then
 	# jfc nolines $LOCALLIST $REPOSLIST |
 		# sed "s+^./+cvs add ./+"
 
+	cvsIgnoreRegexp="\(^\|/\)\($( cat .cvsignore | globtoregexp | sed 's+$+\\|+' | tr -d '\n' | sed 's+\\|$++' )\)\(/\|$\)"
+
 	find "$@" -type f |
 	# if [ ! "$1" ]
 	# then
@@ -147,13 +149,16 @@ then
 		# for X in "$@"; do echo "./$X"; done
 		# # for X; do echo "./$X"; done
 	# fi |
-	grep -iv "/CVS/" | sed 's+^\.\/++' > $LOCALLIST
+	grep -iv "/CVS/" |
+	grep -v "$cvsIgnoreRegexp" |
+	sed 's+^\.\/++' > $LOCALLIST
 
 	echo
 	printf "%s\n" "# `cursecyan`Local directories not in repository:`cursenorm`"
 
 	find . -type d |
 	grep -iv "/CVS" |
+	grep -v "$cvsIgnoreRegexp" |
 	sed 's+^\.\/++' |
 	while read D
 	do
@@ -183,7 +188,7 @@ fi
 
 echo
 
-# jdeltmp $REPOSLIST $LOCALLIST
-jshinfo "REPOSLIST=$REPOSLIST LOCALLIST=$LOCALLIST"
+jdeltmp $REPOSLIST $LOCALLIST
+# jshinfo "REPOSLIST=$REPOSLIST LOCALLIST=$LOCALLIST"
 
 exit 0
