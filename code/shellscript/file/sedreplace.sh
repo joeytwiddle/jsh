@@ -49,7 +49,7 @@ else
 		## TODO: what about symlinks?  Is it better to cat over?
 		chmod --reference="$FILE" "$TMPFILE"
 		# Shouldn't I be checking for SHOWCHANGES here?
-		if cmp "$FILE" "$TMPFILE" >&2; then
+		if cmp "$FILE" "$TMPFILE" >/dev/null 2>&1; then
 			test $SHOWCHANGES && echo "sedreplace: no changes made to $FILE" >&2
 			jdeltmp "$TMPFILE"
 		else
