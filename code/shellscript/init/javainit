@@ -10,7 +10,8 @@
 . addtoclasspath -quiet /usr/share/java/servlet-2.0.jar $JPATH/code/java/servlets/
 
 # My code (jlib etc.):
-. addtoclasspath $JPATH/code/java/
+. addtoclasspath $JPATH/code/java/jlib/bin
+. addtoclasspath $JPATH/code/java/web/CommonUtils/bin
 
 # Java3D:
 # CLASSPATH=$CLASSPATH:/usr/local/jre1.2.2/jre/lib/ext/j3dutils.jar;
