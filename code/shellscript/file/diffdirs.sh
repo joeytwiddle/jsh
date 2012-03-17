@@ -122,7 +122,7 @@ do
 
 	if ( [ -L "$DIRA/$FILE" ] && [ ! -L "$DIRB/$FILE" ] ) || ( [ ! -L "$DIRA/$FILE" ] && [ -L "$DIRB/$FILE" ] )
 	then
-		report "${CURSEYELLOW} One is a symlink, the other is not! $FILE"
+		report "${CURSEYELLOW} One is a symlink, the other is not!${CURSENORM} $FILE"
 	fi
 
 	## Avoids errors, but doesn't actually compare the links!  (Sometimes the other one does not exist at all.)
