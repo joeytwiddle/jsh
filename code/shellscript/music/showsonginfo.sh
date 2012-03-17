@@ -58,7 +58,7 @@ do
 	## Fallbacks:
 	[ "$NAME" ] || NAME=$(basename "$FILE")
 	## CONSIDER TODO: Use getvideoduration instead?
-	[ "$TIME" ] || TIME="$NL  $( filesize "$FILE" | rev | sed 's+...+\0,+g' | rev ) bytes"
+	[ "$TIME" ] || TIME="$NL  $( filesize "$FILE" | rev | sed 's+...+\0,+g ; s+^,++' | rev ) bytes"
 
 	## Lookup amarok info for the file
 	AMAROK_DATA=$( amaroklookup "$FILE" | grep -v ^/ | sed 's+^\(.\)+  \1+' )
