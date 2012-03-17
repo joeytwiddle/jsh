@@ -46,7 +46,8 @@ else
 	# PRE_REMOVE="`cursemagenta``cursebold`-"
 	RESET_COL="`cursenorm`"
 	diff --old-line-format="$PRE_REMOVE$REMOVE_COL%L$RESET_COL" --new-line-format="$PRE_ADD$ADD_COL%L$RESET_COL" "$@" |
-	grep "$JDSCONTEXT" "\(`toregexp "$PRE_REMOVE"`\|`toregexp "$PRE_ADD"`\)" |
+	# grep "$JDSCONTEXT" "\(`toregexp "$PRE_REMOVE"`\|`toregexp "$PRE_ADD"`\)" |
+	grep "$JDSCONTEXT" "\(`toregexp "$REMOVE_COL"`\|`toregexp "$ADD_COL"`\)" |
 	sed "s|^--$|`curseblue` ... `cursenorm`|"
 
 	cursenorm # safe side
