@@ -8,6 +8,7 @@ memo -t '100 years' dusk | striptermchars | sort -k 2 > "$oldDusk"
 
 ## We can use rememo to refresh the record, or we can leave it alone.
 # rememo
+## In which case the user can force it to refresh with: rememo dusk
 dusk | striptermchars | sort -k 2 > "$newDusk"
 
 # diff "$oldDusk" "$newDusk" | diffhighlight

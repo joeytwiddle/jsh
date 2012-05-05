@@ -29,20 +29,8 @@ fi
 
 	## Output a list of files/folders to scan:
 	if [ "$*" = "" ]
-	then
-		# Yuk we need to strip out . and ..!
-		for X in * .*
-		do
-			if test ! "$X" = ".."
-			then
-				# Uncomment this next if to keep this dir . (total)
-				if test ! "$X" = "."
-				then echo "$X"
-				fi
-			fi
-		done
-	else
-		echolines "$@"
+	then echolines .* * | grep -v '^\(\.\|\.\.\)$'
+	else echolines "$@"
 	fi |
 
 	## Actually scan them:
