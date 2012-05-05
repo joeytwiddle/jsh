@@ -6,9 +6,11 @@
 SHOWSCAN=true
 
 DUCOM="du -skx"
-which nice >/dev/null && DUCOM="nice -n 5 $DUCOM"
-which ionice >/dev/null && DUCOM="ionice -n 5 $DUCOM"
-jshinfo "DUCOM=$DUCOM"
+# du can be heavy on disk access, and even the system CPU, so we relax it a lot.
+# Try -n 5 and -n 5 instead of -c 3, if the system is so busy your dusk never gets to run.
+which nice >/dev/null && DUCOM="nice -n 15 $DUCOM"
+which ionice >/dev/null && DUCOM="ionice -c 3 $DUCOM"
+# jshinfo "DUCOM=$DUCOM"
 
 if test $JM_COLOUR_LS
 then
@@ -28,8 +30,8 @@ fi
 	## Output a list of files/folders to scan:
 	if [ "$*" = "" ]
 	then
-	  # Yuk we need to strip out . and ..!
-	  for X in * .*
+		# Yuk we need to strip out . and ..!
+		for X in * .*
 		do
 			if test ! "$X" = ".."
 			then
