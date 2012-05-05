@@ -6,7 +6,9 @@ newDusk=$unique.new
 
 memo -t '100 years' dusk | striptermchars | sort -k 2 > "$oldDusk"
 
-rememo dusk | striptermchars | sort -k 2 > "$newDusk"
+## We can use rememo to refresh the record, or we can leave it alone.
+# rememo
+dusk | striptermchars | sort -k 2 > "$newDusk"
 
 # diff "$oldDusk" "$newDusk" | diffhighlight
 jdiffsimple "$oldDusk" "$newDusk"
