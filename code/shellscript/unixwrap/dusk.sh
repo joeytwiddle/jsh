@@ -6,6 +6,9 @@
 SHOWSCAN=true
 
 DUCOM="du -skx"
+which nice >/dev/null && DUCOM="nice -n 5 $DUCOM"
+which ionice >/dev/null && DUCOM="ionice -n 5 $DUCOM"
+jshinfo "DUCOM=$DUCOM"
 
 if test $JM_COLOUR_LS
 then
