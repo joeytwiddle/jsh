@@ -1,4 +1,6 @@
-CLASSPATH="$CLASSPATH:$JPATH/code/java/jlib/bin:$JPATH/code/java/tools/parser/bin"
+javaTop="$JPATH/code/java"
+[ -d "$javaTop" ] || javaTop="$HOME/j/code/java"
+export CLASSPATH="$CLASSPATH:$javaTop/jlib/bin:$javaTop/web/CommonUtils/bin:$javaTop/tools/parser/bin"
 
 # java -cp "$CLASSPATH:$JPATH/code/java/tools/parser/" Parser "$@"
 java tools.parser.Parser "$@"
