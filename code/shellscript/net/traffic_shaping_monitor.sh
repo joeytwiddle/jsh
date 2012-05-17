@@ -21,6 +21,9 @@ cat << ! |
 2:4 Web
 2:5 Bulk
 2:6 Other
+10: prio
+20: lowprio
+30: unused
 !
 
 while read NUM TYPE
@@ -45,14 +48,20 @@ add_levels_to_tc_output () {
 		# newSentRef="new_sent_$CURDISC"
 		if [ "$ARG1" = Sent ]
 		then
-			# jshinfo "$ARG2 / $TOTAL"
 			## -13 to make space for $DIFF
 			PROP="$(((COLUMNS-4-13)*ARG2/TOTAL))"
+			[ "$CURDISC" = "" ] && CURDISC="999"
+			# jshinfo "$CURDISC: $ARG2 / $TOTAL"
 			new_sent[$CURDISC]="$ARG2"
-			BAR=""
-			for X in `seq 0 $PROP`
-			do BAR="$BAR""#"
-			done
+			if [ "$CURDISC" = 999 ]
+			then
+				BAR="unknown_class"
+			else
+				BAR=""
+				for X in `seq 0 $PROP`
+				do BAR="$BAR""#"
+				done
+			fi
 			echo "Sent $ARG2 $ARG3 $REST"
 			echo -n "[$BAR]"
 			if [ "${new_sent[$CURDISC]}" ] && [ "${last_sent[$CURDISC]}" ]
@@ -69,7 +78,7 @@ add_levels_to_tc_output () {
 			## I think I solved this with < "$TMPFILE" instead of cat "$TMPFILE" |
 		else
 			if [ "$ARG1" = qdisc ]
-			then CURDISC=`echo "$ARG3" | sed 's+:$++'` ; echo
+			then CURDISC=`echo "$ARG3" | sed 's+[^0-9]*++g'` ; echo
 			fi
 			echo "$ARG1 $ARG2 $ARG3 $REST"
 		fi
