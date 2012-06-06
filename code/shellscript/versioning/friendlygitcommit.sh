@@ -10,9 +10,6 @@ do
 
 	git diff "$FILE" | diffhighlight
 
-	echo
-	echo "Would you like to: stage for (C)ommit ?  <Enter> to skip."
-
 	# Save stdin (the stream of filenames) into 4
 	exec 4>&0
 	# Read from original user's stdin (we saved in 3)
@@ -21,6 +18,9 @@ do
 	while true
 	do
 
+		echo
+		echo "Would you like to: (A)dd to stage ?  [Enter] to (S)kip, or (Q)uit."
+
 		read cmd
 
 		case "$cmd" in
@@ -28,7 +28,7 @@ do
 				echo "User requested exit."
 				exit 0
 			;;
-			c|C)
+			c|C|a|A|.)
 				verbosely git add "$FILE"
 				break # out of UI while and continue FILE read
 			;;
@@ -38,7 +38,7 @@ do
 				verbosely git commit -m "$msg" "$FILE"
 				break
 			;;
-			"")
+			""|s|S)
 				echo "Doing nothing with $FILE"
 				break # out of UI while and continue FILE read
 			;;
