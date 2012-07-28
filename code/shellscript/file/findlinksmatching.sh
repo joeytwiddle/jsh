@@ -70,8 +70,8 @@ grep --line-buffered "\(\|.*/\)$folder\(/\|$\)" |
 while IFS="" read link target
 do
 	if [ -d "$link" ] || [ -f "$link" ]
-	then echo "$link -> $CURSEGREEN""$target""$CURSENORM"
-	else echo "$link -> $CURSERED$CURSEBOLD""$target""$CURSEBOLD$CURSENORM"
+	then echo "-+- $link -> $CURSEGREEN""$target""$CURSENORM"
+	else echo "[!] $link -> $CURSERED$CURSEBOLD""$target""$CURSEBOLD$CURSENORM"
 	fi
 done
 
