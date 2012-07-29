@@ -1,4 +1,9 @@
 #!/bin/sh
+
+jshwarn "Note: jsh policy changed in 2008.  Now it adds itself to the end of your PATH, so it will not override existing executables."
+jshinfo "Therefore jsh scripts with name conflicts are now labelled as 'masked' rather than 'overrides'!  They should probably all be renamed/namespaced to fix this, e.g. mplayer -> jmplayer or jshmplayer"
+jshinfo "Then we will use an alias or function to redirect commands given in the user shell to our jsh version, but hopefully this will not happen when are running scripts from our shell."
+
 intersection () {
 	FILE="$1"; shift
 	cat "$@" |
@@ -34,7 +39,7 @@ intersection $ALL_NONJSH_COMMAND_NAMES $ALL_JSH_SCRIPT_NAMES |
 while read NAME
 do
 	# echo `which "$NAME"`" overrides "`jwhich "$NAME"`
-	echo "jsh's `cursecyan`$NAME`cursenorm` overrides `curseyellow`"`jwhich "$NAME"``cursenorm`
+	echo "jsh's `cursecyan`$NAME`cursenorm` is masked by `curseyellow`"`jwhich "$NAME"``cursenorm`
 done
 
 jdeltmp $ALL_JSH_SCRIPT_NAMES
