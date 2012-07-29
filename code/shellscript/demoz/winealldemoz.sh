@@ -43,8 +43,10 @@ while read X; do
 	# SIZE=`du -sk "$X" | sed 's+[ 	].*++'`"k"
 	# 'xterm' -title "wineonedemo: $NAME ($SIZE)" -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
 	# /usr/bin/X11/xterm -geometry 80x25+0+0 -fg white -bg black -e wineonedemo "$X"
+	wmctrl_store_positions
 	wineonedemo "$X"
 	xrandr -s "$original_xwin_size"
+	wmctrl_restore_positions
 
 	echo
 	echo "That was: $X"
