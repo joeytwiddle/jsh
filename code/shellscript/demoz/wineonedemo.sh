@@ -60,11 +60,26 @@ do
 
 
 
-	xttitle "`basename "$EXECUTABLE_FILE"` ("`filesize "$EXECUTABLE_FILE"`" bytes) from $1"
+	filesize=`cat "$EXECUTABLE_FILE" | wc -c`
+	if [ "$filesize" -gt 1024 ]
+	then
+		filesize=$((filesize / 1024))
+		if [ "$filesize" -gt 1024 ]
+		then
+			filesize=$((filesize / 1024))
+			filesize="$filesize Meg"
+		else
+			filesize="$filesize kilobytes"
+		fi
+	else
+		filesize="$filesize bytes"
+	fi
+
+	# xttitle "`basename "$EXECUTABLE_FILE"` ($filesize) from $1"
 
 	curseyellow
 	echo
-	echo "==== RUNNING $EXECUTABLE_FILE ===="
+	echo "==== RUNNING $EXECUTABLE_FILE ($filesize) ===="
 	echo
 	cursenorm
 
@@ -78,12 +93,28 @@ do
 
 	# vsound -v -f /tmp/vsound.out.wav -d -t \
 	# /usr/bin/wine "$EXECUTABLE_FILE"
-	wine "$EXECUTABLE_FILE"
+	wine "$EXECUTABLE_FILE" 2>&1 | tee /tmp/wineonedemo.out
+
+	exitCode=$?
 
 	sleep 1
 
 	# sleep 10
 	# waitforkeypress
+
+	[ "$exitCode" = 0 ] && break
+
+	echo "Exit code: $?"
+
+	if grep "DOS memory range unavailable" /tmp/wineonedemo.out >/dev/null
+	then
+		curseyellow
+		echo
+		echo "==== RETRYING $EXECUTABLE_FILE in DOSBox"
+		echo
+		cursenorm
+		dosbox "$EXECUTABLE_FILE"
+	fi
 
 done
 
