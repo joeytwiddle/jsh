@@ -1,17 +1,10 @@
 if [ "$*" ]
 then
-
 	for FILE
-	do
-
-		cat "$FILE" | dos2unix | pipebackto "$FILE"
-
+	do cat "$FILE" | dos2unix | pipebackto "$FILE"
 	done
-
 else
-
 	tr -d '\r'
-
 fi
 
 ## Doesn't seem to work
