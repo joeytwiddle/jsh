@@ -3,7 +3,7 @@
 
 ## Try to guess the top directory of j install
 ## If all below fails, then you should set it youself with export JPATH=...; source $JPATH/startj
-if test ! $JPATH; then
+if test -z "$JPATH"; then
 	if test -d "$HOME/j"; then
 		export JPATH=$HOME/j
 	## This doesn't work: bash cannot see it unless we call startj direct (no source)
@@ -16,7 +16,8 @@ if test ! $JPATH; then
 		exit 0
 	fi
 fi
-export PATH=$JPATH/tools:$PATH
+# export PATH="$JPATH/tools:$PATH"
+export PATH="$PATH:$JPATH/tools"
 
 # . javainit
 # . hugsinit
