@@ -105,20 +105,21 @@ do
 
 	while [ "$MAX" ] && [ "$N" -gt "$MAX" ]
 	do
-		jshinfo "$N exceeds max $MAX, so rotating earlier copies..."
+		jshinfo "[rotate] $N exceeds max $MAX, so rotating earlier copies..."
 		for OLDN in `seq 1 $((N-2))`
 		do
 			NEWN=$((OLDN+1))
 			# if shexec cmp "$FILE.$NEWN$EXT" "$FILE.$OLDNEXT" ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
-			if cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" >/dev/null ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
-			then
-				SKIPNEXT=true
-				jshwarn "$NEWN$EXT = $OLDN$EXT so SKIPNEXT=true" #  verbosely mv -f \"$FILE.$NEWN$EXT\" \"$FILE.$OLDN$EXT\"" ||
-			else
-				SKIPNEXT=
+			if cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" >/dev/null
+			then jshinfo "[rotate] $FILE.$NEWN$EXT and $$FILE.OLDN$EXT are identical" #  verbosely mv -f \"$FILE.$NEWN$EXT\" \"$FILE.$OLDN$EXT\"" ||
+			else verbosely mv -f "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT"
 			fi
-			[ "$SKIPNEXT" ] &&
-			verbosely mv -f "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT"
+			# BUG TODO: The above check doesn't do anything.  Noticing two files
+			# are identical should allow us to make a rotation without affecting
+			# earlier Ns.  Therefore this loop needs to go in the opposite
+			# direction, and can *break* if a match is found.  (Well actually it could rotate/shift those files above.)
+			# However, how can it do rotations when moving in the opposite direction?  Keep one temp in hand?
+			# CONSIDER: I think a better solution might be to check only the new incoming version.  That would require us to compress it before starting rotations.
 		done
 		N=$((N-1))
 		FINALFILE="$FILE.$N$EXT"
@@ -161,7 +162,7 @@ do
 		oldSize=`filesize "$FILE"`
 		zipcom || exit 1
 		newSize=`filesize "$FINALFILE"`
-		echo "Size changed from $oldSize to $newSize"
+		# [ "$oldSize" = "$newSize" ] || echo "Size changed from $oldSize to $newSize"
 	fi
 
 	## If we wanted to keep the original file, but gzip has removed it:
