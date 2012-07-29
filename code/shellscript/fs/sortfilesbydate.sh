@@ -17,13 +17,22 @@
 if [ "$1" ]
 then
 	echolines "$@" | sortfilesbydate
-
 else
 
-	## (No longer) stream-only version:
 	while read FILE
 	do find "$FILE" -maxdepth 0 -printf "$SORTFORM %p\n"
 	done |
+
+	## Horrid, faster:
+	# (
+		# cat
+		# echolines "\-maxdepth" 0 "\-printf" "$SORTFORM" "%p\n"
+	# ) |
+	# withalldo find |
+
+	## FAIL: I wanted xargs to replace {} but it doesn't - that's a find trick!
+	# xargs -d '\n' find {} -maxdepth 0 -printf "$SORTFORM %p\n" |
+
 	sort -n -k 1 |
 	dropcols 1
 
