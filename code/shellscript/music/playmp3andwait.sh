@@ -5,6 +5,10 @@ then ogg123 "$@" ; exit
 # else unj mplayer "$@" > /dev/null 2>&1
 fi
 
+# ~/j/tools/mplayer -louder "$@" ; exit
+
+
+
 find_exe() {
 	for X
 	do
