@@ -114,7 +114,7 @@ do
 		LINKA="`justlinks "$DIRA/$FILE"`"
 		LINKB="`justlinks "$DIRB/$FILE"`"
 		if [ "$LINKA" = "$LINKB" ]
-		then report "Identical symlinks: $FILE"
+		then report "Identical symlinks: $FILE" ## I wanted to do CURSENORM at the start, but that messes with user's grep -v ^Identical !
 		else report "${CURSEYELLOW}Differing symlinks: $DIRA/$FILE -> $LINKA but $DIRB/$FILE -> $LINKB"
 		fi
 		continue
@@ -122,7 +122,8 @@ do
 
 	if ( [ -L "$DIRA/$FILE" ] && [ ! -L "$DIRB/$FILE" ] ) || ( [ ! -L "$DIRA/$FILE" ] && [ -L "$DIRB/$FILE" ] )
 	then
-		report "${CURSEYELLOW} One is a symlink, the other is not!${CURSENORM} $FILE"
+		report "${CURSEYELLOW}One is a symlink, the other is not!${CURSENORM} $FILE"
+		continue
 	fi
 
 	## Avoids errors, but doesn't actually compare the links!  (Sometimes the other one does not exist at all.)
