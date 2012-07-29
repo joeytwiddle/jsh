@@ -3,7 +3,7 @@ APPS_TO_KILL="$APPS_TO_KILL amarokapp yauap"
 APPS_TO_KILL="$APPS_TO_KILL dbus-daemon dbus-launch"
 APPS_TO_KILL="$APPS_TO_KILL kdeinit4 kded klauncher"
 
-pgrep kicker >/dev/null && kickerWasRunning=true
+# pgrep kicker >/dev/null && kickerWasRunning=true
 
 echo
 echo "Processes which will probably be killed:"
