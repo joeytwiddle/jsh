@@ -20,7 +20,7 @@ SEARCH="$*"
 
 PLAYLIST="$JPATH/music/search_results.m3u"
 memo -t "2 days" updatemusiclist |
-# grep -i "$SEARCH" |
+grep -i "$SEARCH" |
 # grep -v -i "\<book\>" |
 dog "$PLAYLIST"
 if [ ! "x$SEARCH" = "x" ]
@@ -141,6 +141,7 @@ do
 		playmp3andwait "$TRACKTOPLAY" >/dev/null 2>&1
 	fi
 	echo
+	# CONSIDER: if [ ! "$TRACKTOPLAY" = "$TRACK" ]; then we can assume the track's mp3 gain has been corrected, and in this case we can/should play the track a bit louder than non-corrected tracks!
 
 	FIRSTLOOP=
 
