@@ -16,19 +16,54 @@
 ## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
 ## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.
 
+echo -n "wondershaper: "
+
 if [ "$1" = "stop" ] || [ "$1" = "restart" ]
 then
-	/sbin/tc qdisc del dev eth2 root
-	/sbin/tc qdisc del dev eth2 ingress 2>/dev/null ## we probably don't have any incoming rules
+	# /sbin/tc qdisc del dev eth0 root
+	# /sbin/tc qdisc del dev eth0 ingress 2>/dev/null ## we probably don't have any incoming rules
+	wondershaper clear eth0
+	wondershaper clear eth1
 fi
 
 if [ "$1" = "start" ] || [ "$1" = "restart" ]
 then
-	NYX="/root/j/code/shellscript/net/nyx.sh"
-	sh "$NYX"
+	# NYX_SCRIPT="/root/j/code/shellscript/net/nyx.sh"
+	# sh "$NYX_SCRIPT"
+	## This let me do 53k? up
+	# wondershaper eth0 6000  400
+	## But I can easily do 120k up!
+	wondershaper eth0 6000  900
+	## Wireless can carry a bit more than this:
+	wondershaper eth1  360 5000
+	## But we restrict it so it doesn't swamp torrents when grabbing from net
+	## because sudden swamping can cause good seeds to disconnect.
+	# wondershaper eth1  360 4000
+	## We can actually send a lot more through the router if we are using cables:
+	# wondershaper eth1 20000 20000
+
+	## My additional rules - high priority ports
+	HIPRIOPORTSRC="7777 7778"   # source ports for incoming packets
+	HIPRIOPORTDST="7777 7778"   # destination ports for outgoing packets
+	DEV=eth0
+	for a in $HIPRIOPORTSRC
+	do
+		tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
+		   match ip sport $a 0xffff flowid 1:10
+	done
+	for a in $HIPRIOPORTDST
+	do
+		tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
+		   match ip dport $a 0xffff flowid 1:10
+	done
+
 fi
 
-exit "$?"
+errCode="$?"
+
+echo "$1"ed
+
+exit "$errCode"
 
 
 
