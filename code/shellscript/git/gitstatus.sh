@@ -6,7 +6,9 @@ git status "$@" |
 highlight -bold "^#	*added:.*" green |
 highlight "^#	modified:.*" green |
 highlight -bold "^#	deleted:.*" red |
+highlight -bold "^#	new file:.*" yellow |
 grep -v "^#	$gitignoreExpr" |
 highlight "^#	.*" yellow |
+## Alternatively, diffs may be colored by setting [color "status"] section of .gitconfig
 # ( least || most || more )
 more
