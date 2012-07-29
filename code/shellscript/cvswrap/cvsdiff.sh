@@ -138,7 +138,7 @@ then
 	# jfc nolines $LOCALLIST $REPOSLIST |
 		# sed "s+^./+cvs add ./+"
 
-	cvsIgnoreRegexp="\(^\|/\)\($( cat .cvsignore | globtoregexp | sed 's+$+\\|+' | tr -d '\n' | sed 's+\\|$++' )\)\(/\|$\)"
+	cvsIgnoreRegexp="\(^\|/\)\($( cat .cvsignore 2>/dev/null | globtoregexp | sed 's+$+\\|+' | tr -d '\n' | sed 's+\\|$++' )\)\(/\|$\)"
 
 	find "$@" -type f |
 	# if [ ! "$1" ]
