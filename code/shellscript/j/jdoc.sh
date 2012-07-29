@@ -142,14 +142,15 @@ else
 				# foreachdo onelinedescription
 				while read SCRIPT
 				do
+					folder="`realpath "$JPATH/tools/$SCRIPT" | beforelast / | afterlast /`" 
 					# echo -n "  $SCRIPT:\t"
 					# onelinedescription "$SCRIPT"
 					DESCR=`onelinedescription "$SCRIPT"`
 					if [ "$DESCR" = "???" ] || [ "$DESCR" = "" ]
 					then
-						echo "  `cursered;cursebold`$SCRIPT`cursenorm`"
+						echo "  [`cursegreen`$folder`cursenorm`] `cursered;cursebold`$SCRIPT`cursenorm`"
 					else
-						echo "  `cursered;cursebold`$SCRIPT`cursenorm`	$DESCR"
+						echo "  [`cursegreen`$folder`cursenorm`] `cursered;cursebold`$SCRIPT`cursenorm`	$DESCR"
 					fi
 				done
 			fi
