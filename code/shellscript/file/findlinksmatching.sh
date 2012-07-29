@@ -4,27 +4,33 @@
 ## in '/' as these are added automatically, to ensure the word matches a node.
 ## The string is treated as a regexp, and may contain '/'s.
 ##
+## Output indicators:
+##
+##   =   a working symlink
+##   ?   a symlink whose target is missing
+##   !   an old symlink which is no longer a symlink
+##
 ## Examples:
 ##
 ##   % findlinksmatching alternatives/mail
-##   /usr/bin/mail -> /etc/alternatives/mail
+##   = /usr/bin/mail -> /etc/alternatives/mail
 ##
 ##   % findlinksmatching cpp
-##   /etc/alternatives/cpp -> /usr/bin/cpp
-##   /lib/cpp -> /etc/alternatives/cpp
-##   /usr/share/doc/gcc -> cpp
+##   = /etc/alternatives/cpp -> /usr/bin/cpp
+##   = /lib/cpp -> /etc/alternatives/cpp
+##   = /usr/share/doc/gcc -> cpp
 ##
 ##   % findlinksmatching bash
-##   /bin/sh.distrib -> bash
-##   /bin/rbash -> bash
+##   = /bin/sh.distrib -> bash
+##   = /bin/rbash -> bash
 ##
 ##   % findlinksmatching ash
-##   /bin/sh.distrib -> ash
-##   /bin/rbash -> ash
+##   = /bin/sh.distrib -> ash
+##   = /bin/rbash -> ash
 ##
 ## If you are worried about breaking symlinks during a session, keep watch:
 ##
-##   % ionice -n 3 nice -n 5  jwatch -delay 20 findlinksmatching .
+##   % ionice -n 3 nice -n 5  jwatch -oneway -delay 20 findlinksmatching .
 ##
 ## This relies on colors so it can notice when the alive/broken state changes.
 ## You can refresh the symlink list whilst it is running from another shell:
@@ -69,9 +75,20 @@ grep --line-buffered "\(\|.*/\)$folder\(/\|$\)" |
 ## NOTE: We are using the delimeter  in four places in this file!
 while IFS="" read link target
 do
+
+	## Fast but not up-to-date, uses cached target:
+	# nowTarget="$target"
+
+	## Up-to-date, reflects what the target is now:
+	nowTarget="`readlink "$link"`"
+	[ "$nowTarget" = "" ] && nowTarget="($target)"
+
 	if [ -d "$link" ] || [ -f "$link" ]
-	then echo "$CURSEGREEN""-+- $CURSENORM$link -> $target""$CURSENORM"
-	else echo "$CURSERED$CURSEBOLD""(!)$CURSEBOLD $CURSENORM$link -> $CURSERED$CURSEBOLD""$target""$CURSEBOLD$CURSENORM"
+	then echo "$CURSEGREEN""=$CURSENORM $link -> $CURSEGREEN$nowTarget""$CURSENORM"
+	elif [ ! -L "$link" ]
+	then echo "$CURSEYELLOW$CURSEBOLD""!$CURSEBOLD$CURSENORM$CURSEYELLOW$CURSEBOLD $link $CURSEBOLD$CURSENORM-> $nowTarget""$CURSEBOLD$CURSENORM"
+	else echo "$CURSERED$CURSEBOLD""?$CURSEBOLD$CURSENORM $link -> $CURSERED$CURSEBOLD""$nowTarget""$CURSEBOLD$CURSENORM"
 	fi
+
 done
 
