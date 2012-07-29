@@ -9,6 +9,12 @@ COMMAND="$1"
 ## TODO: automatic test to ensure filter file still works
 ##       and recover of file if not
 
+## Unfortunately this script is becoming less useful as some mailers generate a
+## unique origin address for each mail they send.  We may want to try picking
+## out a different field to filter on.  Unfortunately 'from' does not appear to
+## have any options for this.
+## We could try grepping mail folders ourself for ^Return-path: or ^From:
+
 case "$COMMAND" in
 
 	collectAddressesFrom)
@@ -17,7 +23,12 @@ case "$COMMAND" in
 		do from -f "$MAILBOX"
 		done |
 		takecols 2 |
-		removeduplicatelines
+		removeduplicatelines |
+		## But there are a couple of mail addresses we don't ever want to collect:
+		# Those "do not delete me" messages which sometimes appear in folders come from this guy
+		grep -v '^MAILER-DAEMON$' |
+		# Sometimes I get a mail from someone else but via myself.  It's not stupid, it's advanced.
+		grep -v '^joey@hwi$'
 	;;
 
 	ifMatchesAddressFrom)
