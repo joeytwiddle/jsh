@@ -19,6 +19,8 @@
 ## I know one of our slowdowns is due to the huge size of $JPATH/tools and the fact that everything in there is symlinked!
 ## So one experiment could be to copy scripts out of $JPATH/code/shellscript and into $JPATH/tools or something!
 [ "$DEBUG" ] && JSH_SHOW_TIMING=true
+# JSH_SHOW_TIMING=true
+# JSH_LITE=true
 
 dateDiff() {
 	[ -z "$JSH_SHOW_TIMING" ] && return 0
@@ -183,7 +185,16 @@ else
 			# export PATH=$HOME/bin:$PATH
 			## not yet finished, should be option - refer to setuppath in pclark/pubbin
 
+			# Alright now things get gnarly
+			# A few of the following add to LD_LIBRARY_PATH
+			# Probably most users won't want this, so make it part of joey's config not jsh!
+			# Also it has a nasty bug, that ":/foo/bar" consumes the first entry
+			# as "." which is considered insecure with $PATH and likewise for LD_LIBRARY_PATH.
+			# As a workaround until the entries are removed:
+			[ -z "$LD_LIBRARY_PATH" ] && LD_LIBRARY_PATH="/usr/lib"
+
 			# zsh on Solaris gives errors on . so I use source
+			# forget why I switched back to using .
 
 			. javainit
 			. hugsinit
@@ -207,8 +218,9 @@ else
 				fi
 				export SHORTHOST=`echo "$SHORTHOST" | beforefirst "\."`
 
+				## Sets up a few JM_.... variables, which are used by joeysaliases, dar, dsr, dusk, xtermopts and others!
 				# mytime . getmachineinfo
-				. getmachineinfo
+				# . getmachineinfo
 
 				dateDiff "JSH stage 2"
 
@@ -219,7 +231,6 @@ else
 					SHORTSHELL="zsh"
 					# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
 					## Nope better to have an alias source a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
-					. xttitleprompt
 					. zshkeys
 					. hwipromptforzsh
 					## TODO: problem, this can leave nonomatch in $1 of sourced scripts (in the interactive sh)
@@ -229,16 +240,11 @@ else
 					SHORTSHELL="bash"
 					. bashkeys
 					. hwipromptforbash
-					## Was not working when it was sourced before bashkeys.
-					. xttitleprompt
 					shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
 				fi
 				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt.
 				##       for the moment, we don't start xttitleprompt
 				## SHORTSHELL is also used in joeysaliases (and term_state).
-
-				dateDiff "JSH stage 3"
-
 
 				. lscolsinit
 
@@ -247,63 +253,73 @@ else
 				# . dirhistorysetup.bash
 				. dirhistorysetup.zsh
 
-				. cvsinit
+				dateDiff "JSH stage 3"
 
-				alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
-				alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
-				alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
-
-				dateDiff "JSH stage 4"
-
-				BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | afterfirst ': ' | beforelast '\.'`
-
-				if [ "$BOGOMIPS" ] && [ "$BOGOMIPS" -gt 500 ]
+				if [ ! "$JSH_LITE" ]
 				then
-					if [ "$BASH" ] && [ -f /etc/bash_completion ]
+
+					## Was not working when it was sourced before bashkeys.
+					. xttitleprompt
+
+					. cvsinit
+
+					alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
+					alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
+					alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
+
+					dateDiff "JSH stage 4"
+
+					BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | head -n 1 | afterfirst ': ' | beforelast '\.'`
+
+					if [ "$BOGOMIPS" ] && [ "$BOGOMIPS" -gt 500 ]
 					then
-						[ "$JSHDEBUG" ] && debug "Tab completion: loading /etc/bash_completion"
-						. /etc/bash_completion
-						## But it wasn't working (when I did su - <a_user> from root).
-					## Disabled because "ls --col"<Tab> didn't work:
-					## Besides, testing jsh's autocomplete_from_man is my priority!
-					# elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
-					# then
-						# [ "$JSHDEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
-						# . $HOME/.zsh_completion_rules
-					# else
-						# [ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
-						# . autocomplete_from_man
+						if [ "$BASH" ] && [ -f /etc/bash_completion ]
+						then
+							[ "$JSHDEBUG" ] && debug "Tab completion: loading /etc/bash_completion"
+							. /etc/bash_completion
+							## But it wasn't working (when I did su - <a_user> from root).
+						## Disabled because "ls --col"<Tab> didn't work:
+						## Besides, testing jsh's autocomplete_from_man is my priority!
+						# elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
+						# then
+							# [ "$JSHDEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
+							# . $HOME/.zsh_completion_rules
+						# else
+							# [ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
+							# . autocomplete_from_man
+						fi
+						[ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
+						. autocomplete_from_man
 					fi
-					[ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
-					. autocomplete_from_man
+
+					dateDiff "JSH stage 5"
+
+					export FIGNORE=".class"
+
+					## Avoid error if not on a tty
+					## Nice try Joey but doesn't work on kimo.
+					# if test ! "$BAUD" = "0"; then
+						mesg y
+					# fi
+
+					## Message on user login/out (zsh, tcsh, ...?)
+					export WATCH=all
+
+					### Better solution in jsh.
+					# ## If user prefers zsh but has not sourced startj in their .zshrc,
+					# ## then jsh needs this hack so that it may call zsh $JPATH/startj
+					# if test "$BASH_ZSH"
+					# then
+						# ## If zsh sources .zshrc which sources startj, don't run zsh again!
+						# unset BASH_ZSH
+						# ## but don't block startj, because we want to leave its aliases in zsh
+						# # export STARTJ_BLOCK=true
+						# zsh
+						# # unset STARTJ_BLOCK
+					# fi
+					# ## Doesn't really work because aliases etc get dropped.
+
 				fi
-
-				dateDiff "JSH stage 5"
-
-				export FIGNORE=".class"
-
-				## Avoid error if not on a tty
-				## Nice try Joey but doesn't work on kimo.
-				# if test ! "$BAUD" = "0"; then
-					mesg y
-				# fi
-
-				## Message on user login/out (zsh, tcsh, ...?)
-				export WATCH=all
-
-				### Better solution in jsh.
-				# ## If user prefers zsh but has not sourced startj in their .zshrc,
-				# ## then jsh needs this hack so that it may call zsh $JPATH/startj
-				# if test "$BASH_ZSH"
-				# then
-					# ## If zsh sources .zshrc which sources startj, don't run zsh again!
-					# unset BASH_ZSH
-					# ## but don't block startj, because we want to leave its aliases in zsh
-					# # export STARTJ_BLOCK=true
-					# zsh
-					# # unset STARTJ_BLOCK
-				# fi
-				# ## Doesn't really work because aliases etc get dropped.
 
 			fi # ! simple
 
