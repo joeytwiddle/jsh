@@ -241,7 +241,7 @@ do
 	then
 		echo "# Redund: ($X $Y) \"$FILE\""
 		echo "echo \"Deleting \\\"$FILE\\\"\""
-		echo "rm \"$FILE\""
+		echo "del \"$FILE\""
 	else
 		echo "# Unique: ($X $Y) \"$FILE\""
 	fi
