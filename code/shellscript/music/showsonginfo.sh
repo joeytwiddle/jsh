@@ -7,7 +7,9 @@
 # FONT='-*-london tube-*-*-*-*-*-300-*-*-*-*-*-*'
 # FONT='-*-koshgarian ligh-*-*-*-*-*-300-*-*-*-*-*-*'
 # FONT='-*-robotic monkey-*-r-*-*-*-300-*-*-*-*-*-*'
+## Can't get eurostile in bold from xfstt.  :f
 # FONT='-*-eurostile-*-*-*-*-45-*-*-*-*-*-*-*'
+# smallerFONT='-*-eurostile-*-*-*-*-35-*-*-*-*-*-*-*'
 FONT='-*-minima ssi-bold-*-*-*-*-340-*-*-*-*-*-*'
 smallerFONT='-*-minima ssi-bold-*-*-*-*-240-*-*-*-*-*-*'
 # FONT='-*-microgrammadmedext-*-*-*-*-40-*-*-*-*-*-*-*'
