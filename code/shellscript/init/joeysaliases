@@ -6,7 +6,7 @@
 
 # Note: some other aliases are initialised in dirhistorysetup
 
-## TODO CONSIDER: When should we make a command:
+## TODO CONSIDER: How should we make a command?
 #    - an Alias : [+] acts like a replacement, no need to pass args explicitly;
 #                 [-] one-liners only.
 #    - a Function : [+] multi-line, fast; [-] hog memory, global state.
@@ -19,7 +19,10 @@
 
 ## We shouldn't modify shell behaviour unless this is a user shell.
 ## e.g. FTPDrive was barfing because our ftpd was running our ls alias.
-if [ "$TERM" = linux ] || [ "$TERM" = xterm ] ## TODO: maybe more accurate to check for TTY?
+## But the following was failing on TERM=screen and many other types
+# if [ "$TERM" = linux ] || [ "$TERM" = xterm ]
+## Maybe better to check for TTY.
+if isatty
 then
 
 
@@ -113,8 +116,12 @@ alias quiet='fadevolume 0'
 
 ## == Joey's Aliases: Settings ==
 
+## TODO: Default options should go in a different file from shortcut functions.
+## Users may want to copy the default options file and edit it (e.g. remove MEMO_SHOW_INFO).
+
 ## No it's not good to have memo on an alias, because sometimes I want to pass it arguments!
-export MEMO_SHOW_INFO=true
+# export MEMO_SHOW_INFO=true
+export MEMO_SHOW_NEW_CACHEFILES=true
 ## Better might be:
 export MEMO_DEFAULT_CONDITION='( touch -d "2 hours ago" $AGEFILE ; newer $AGEFILE "$MEMOFILE" )'
 ## but this is not yet supported by the memo script :P
@@ -225,6 +232,7 @@ alias mykilljob=". 'mykilljob' -jc"
 
 # alias wget='screen wget'
 
+alias m='more'
 
 
 fi
