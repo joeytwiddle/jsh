@@ -16,7 +16,10 @@ fi
 
 if [ "$1" = "-absolute" ]
 then
-  absolutepath `dirname "$2"` `'ls' -ld "$2" | takecols 11`
+  # absolutepath `dirname "$2"` `'ls' -ld "$2" | takecols 11`
+  for l
+  do readlink -m "$l"
+  done
 else
   # "ls" -l "$@" | awk ' { printf($9"symlnk"$11"\n"); } '
   # "ls" -l "$@" | awk ' { printf($11"\n"); } '
@@ -25,6 +28,10 @@ else
   # 'ls' -ld "$@" | sed "s/[^ ]*[ ]*[^ ] [^ ]*[ ]*[^ ]*[ ]*[^ ]* [^ ]* [^ ]* [^ ]* [^ ]* [^ ]* //"
   # 'ls' -ld "$@" | grep " -> " | trimempty | afterfirst " -> "
   ## Made run-aloneable for refreshtoollinks
-  'ls' -ld "$@" | grep " -> " | grep -v "^$" | sed 's+.* -> ++'
+  # 'ls' -ld "$@" | grep " -> " | grep -v "^$" | sed 's+.* -> ++'
+  ## Using ls is bad, for example it used to present things in a different order from the one given!
+  for l
+  do readlink "$l"
+  done
 fi
 
