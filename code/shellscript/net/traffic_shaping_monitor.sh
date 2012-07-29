@@ -21,9 +21,9 @@ cat << ! |
 2:4 Web
 2:5 Bulk
 2:6 Other
-10: prio
-20: lowprio
-30: unused
+10: high
+20: normal
+30: low
 !
 
 while read NUM TYPE
