@@ -129,6 +129,10 @@ try_del () {
 	## Since finding the reclaim folder is hard, we will only do it once, for the first file.
 	## If the user wanted some of the later files to go to a different reclaim folder, they should have deleted them separately!
 
+	## CONSIDER: Alternatively, re-choose the reclaim folder IFF the next file's
+	## parent folder differs from the previous file's parent folder.  (This can
+	## be a cheap string comparison, well after dirname at least.)
+
 	FILE="$1"
 
 	## Efficiency attempt (appears to work if we import memo above, but should use a more efficient memo!)
