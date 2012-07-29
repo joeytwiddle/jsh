@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# OMG!  Why have we coerced this into working for ssh, at the expense of ftp
+# support, when we already have sftp_sync?!  This may have been a port of it!
+# This should be the ftp-only version, for when scp and ssh are unavailable.
+
+# Preserve permissions
+SCP_OPTIONS="$SCP_OPTIONS -p"
+
 ## BUGS: On one server some text files appeared as 2 or 4 bytes longer remotely than the file we received locally, so these were always repeat-fetched. :|
 
 function convert_ftp_response_to_filestats() {
@@ -23,7 +30,7 @@ else
 	REMOTEFOLDER="$4"
 fi
 
-KEEP_OLD_VERSIONS=true
+# KEEP_OLD_VERSIONS=true
 TARGET_DIR="$PWD" ## $REMOTEFOLDER/$FILEPATH gets appended to this
 
 if [ "$REMOTEFOLDER" == "" ]
@@ -108,7 +115,8 @@ function recycle() {
 		# verbosely mv "$1" "$1".$GEEKDATE
 		# GEEKDATE=`date -r "$1" +"%Y%m%d-%H%M"` ## we don't actually have hours and minutes
 		GEEKDATE=`date -r "$1" +"%Y%m%d"`
-		[ "$GEEKDATE" = "" ] && GEEKDATE="DELETED"
+		[ "$GEEKDATE" = "" ] && GEEKDATE="________"
+		GEEKDATE="$GEEKDATE"_then_deleted
 		if [ "$TEST" ]
 		then echo "Would move $1 to $1.$GEEKDATE"
 		else verbosely mv "$1" "$1".$GEEKDATE
@@ -122,6 +130,8 @@ function recycle() {
 }
 
 jshinfo "Scanning for new/changed files..."
+
+printf "" > files_to_bring.list
 
 cat "$FILELIST" |
 
@@ -186,15 +196,74 @@ do
 		else
 			[ "$DATE1" = "@" ] && DATE1=""
 			## TODO: optionally recycle (check-in) old file if it exists (we could check that it's not just a partial d/l)
-			jshinfo "No suitable candidate for $FILEPATH"
-			mkdir -p "`dirname "$TARGET_DIR/$FILEPATH"`" &&
-			cd "$TARGET_DIR" &&
-			download_file "$FILEPATH" "$TARGET_DIR/$FILEPATH" &&
-			touch -d "$DATE1 $DATE2 $DATE3" "$TARGET_DIR/$FILEPATH"
+
+			# jshinfo "No suitable candidate for $FILEPATH"
+			# mkdir -p "`dirname "$TARGET_DIR/$FILEPATH"`" &&
+			# cd "$TARGET_DIR" &&
+			# download_file "$FILEPATH" "$TARGET_DIR/$FILEPATH" &&
+			# touch -d "$DATE1 $DATE2 $DATE3" "$TARGET_DIR/$FILEPATH"
+
+			jshinfo "Queuing for download: $FILEPATH"
+			echo "$FILEPATH" >> files_to_bring.list
+
 		fi
 	fi
 
 done
+
+if [ "`cat files_to_bring.list`" = "" ]
+then
+	jshinfo "No new files to bring!"
+else
+	if [ "$USE_SFTP" ]
+	then
+
+		jshinfo "Copying files from server"
+
+		# ## BUG: This method does not fully work if there are same-named files to
+		# ## be retrieved from/for different folders.
+		# ## However, subsequent passes should catch up with those missed, and this
+		# ## is a nice simple algorithm that requires only one ssh connection.
+		# ## BUG TODO: This was supposed to grab them all with only one login, but
+		# ## it turns out scp is so dumb it logs in once for each file.
+		# mkdir -p sftp_got || exit 99
+		# 
+		# ## Copy all files into sftp_got/ folder.
+		# (
+			# cat files_to_bring.list |
+			# sed "s+^+$SSH_USERHOST:+" |
+			# # (s and )s and ' 's need to be escaped for withalldo or scp dunno which:
+			# sed 's+[() ]+\\\0+g'
+			# # Finally, target:
+			# echo "./sftp_got/"
+		# ) |
+		# withalldo scp $SCP_OPTIONS
+		# 
+		# ## Move downloaded files into the appropriate folders.
+		# cat files_to_bring.list |
+		# ## If there are multiple files with the same name, the last one downloaded will have overwritten the earlier ones.
+		# ## So we should put it into the dir of the last one, so we reverse the list!
+		# reverse |
+		# while read FILEPATH
+		# do
+			# FILENAME="`basename "$FILEPATH"`"
+			# FILEDIR="`dirname "$FILEPATH"`"
+			# mkdir -p "$FILEDIR"
+			# verbosely mv -f ./sftp_got/"$FILENAME" ./"$FILEPATH"
+		# done
+
+		## A better solution might look like:
+		cat ./files_to_bring.list |
+		# Escape chars which will otherwise fail: '(' ')' and ' '
+		sed 's+\([() ]\)+\\\1+g' |
+		withalldo ssh "$SSH_USERHOST" tar cz |
+		tar xzv
+
+	else
+		jshwarn "TODO: Support for multiple file retrieval with FTP."
+		jshwarn "FILES in files_to_bring.list NOT DOWNLOADED!"
+	fi
+fi
 
 jshinfo "Checking for local files which have been deleted on the source..."
 cd "$TARGET_DIR"
@@ -214,14 +283,17 @@ do
 	if grep -i "[ /]$LFRE$" "$FILELIST" >/dev/null ## with the sftpmethod, it's actually " ut_server/$LFRE$"
 	then :
 	else
-		# jshwarn "Failed to find re \"$LFRE\" in $FILELIST"
-		GEEKDATE=`date -r "$LOCALFILE" +"%Y%m%d"`
-		if [ "$TEST" ]
-		then echo "Would move $LOCALFILE to $LOCALFILE.`geekdate`_then_deleted"
-		else verbosely mv "$LOCALFILE" "$LOCALFILE".`geekdate`_then_deleted
-		fi
+		## jshwarn "Failed to find re \"$LFRE\" in $FILELIST"
+		# GEEKDATE=`date -r "$LOCALFILE" +"%Y%m%d"`
+		# if [ "$TEST" ]
+		# then echo "Would recycle $LOCALFILE to $LOCALFILE.`geekdate`_then_deleted"
+		# else verbosely mv "$LOCALFILE" "$LOCALFILE".`geekdate`_then_deleted
+		# fi
+		recycle "$LOCALFILE"
 	fi
 done
+
+
 
 if [ "$KEEP_OLD_VERSIONS" ]
 then jshinfo "Old versions were saved as <file>.<modification_date>"
