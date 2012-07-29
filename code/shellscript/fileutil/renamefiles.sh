@@ -5,9 +5,9 @@
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
-	echo "renamefiles [-r] <search> <replace> [<glob(I)>] [ |sh ]"
+	echo "renamefiles [-r] <search_glob> <replace_regex> [<files/dirs>..] [ |sh ]"
 	echo
-	echo "<command>... | renamefiles <search_glob> <replace_regexp> [ |sh ]"
+	echo "<command>... | renamefiles <search_glob> <replace_regex> [ |sh ]"
 	echo
 	echo "  shows you how to rename a batch of files matching the provided glob"
 	echo "  (e.g. .txt-2008*), using the replacement (which may use \1,\2,...)."
@@ -51,13 +51,7 @@ fi
 
 SEARCH_GLOB="$1"
 REPLACE="$2"
-
-if [ "$3" ]
-then
-	shift ; shift
-	GLOB_EXPR="-iname '$1'"
-	MAXDEPTH="-maxdepth 8"
-fi
+shift ; shift
 
 BE_CAREFUL="-i"
 [ "$RF_OVERWRITE" ] && BE_CAREFUL="-f"
@@ -70,8 +64,7 @@ SEARCH_REGEXP=`echo -n "$SEARCH_GLOB" | sed 's+\.+\\\\.+g ; s+\\?+\\\\(.\\\\)+g 
 
 if ! tty >/dev/null
 then cat
-# else find . -type f -maxdepth 1
-else find . $MAXDEPTH $GLOB_EXPR
+else find "$@" $MAXDEPTH | sed 's+^\./++'
 fi |
 grep "$SEARCH_REGEXP" |
 
