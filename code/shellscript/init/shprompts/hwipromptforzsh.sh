@@ -24,7 +24,7 @@ then
 		HEAD="%{[00;33m%}>%{[01;31m%}ROOT%{[00;33m%}<"
 		# HEAD="ROOT"
 		export PROMPT="%{[01;31m%}$HEAD %{[01;33m%}%? %{[00;36m%}%~/%{[01;31m%} "
-		export RPROMPT="$RPROMPT%{[00;32m%}"
+		export RPROMPT="$RPROMPT%{[00;37m%}"
 
 else
 
