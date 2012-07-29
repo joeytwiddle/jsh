@@ -50,6 +50,7 @@ then
 	# error "rememo can no longer be called directly; please use \"memo -c true\" instead."
 	# exit 1
 	## FIXED BUG: doh, why don't we just do that here?!
+	[ "$DEBUG" ] && debug "rememo: Calling memo -c true $*"
 	memo -c true "$@"
 	## This is still getting called, so it's still needed!
 	## Plenty of scripts (and users) use 'rememo' instead of 'memo -c true'.
@@ -114,7 +115,7 @@ fi
 EXITWAS=`cat $TMPFILE.result`
 
 ## At the moment, only successful executions are actually memo-ed.
-if [ "$EXITWAS" = 0 ]
+if [ "$EXITWAS" = 0 ] || [ ! -z "$MEMO_IGNORE_EXITCODE" ]
 then
 	mv -f $TMPFILE "$MEMOFILE"
 	# cat "$MEMOFILE" ## not needed now teeing
@@ -125,9 +126,9 @@ fi
 
 jdeltmp $TMPFILE $TMPFILE.result
 
-## Ideal for script, but caused problems when importshfn rememo was used:
-# exit "$EXITWAS"
-## But if imported as function:
-# return "$EXITWAS"
-## So compromise:
-[ ! "$EXITWAS" ] || [ "$EXITWAS" = 0 ]
+## We can't use exit "$EXITWAS" or return "$EXITWAS" if we want to use this
+## script as a function and/or a normal script, so we do:
+[ -z "$EXITWAS" ] || [ "$EXITWAS" = 0 ]
+## But we would really prefer to "set" the correct exit code.  (We could make a
+## function that uses return to achieve that.)
+
