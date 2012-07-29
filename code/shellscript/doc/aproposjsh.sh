@@ -1,8 +1,13 @@
 # jsh-depends: memo rememo importshfn jgettmpdir jshinfo
-# this-script-does-not-depend-on-jsh: jsh
+# jsh-depends-ignore: jsh
 ## jsh-help: Uses onelinedescription to build an apropos-like database for jsh
 
 ## Check out 'whatis'
+
+# On Gentoo everything fails except 30days.  FAIL: 30 days, "30 days", 30d, 3000s
+# Setting bash or zsh above made no difference.
+# doMemo="memo -t '30 days'"
+doMemo="memo -t 30days"
 
 case "$1" in
 
@@ -29,11 +34,11 @@ case "$1" in
 					# printf "%s(jsh)\t- " "$SCRIPT"
 					DIRNAME=`realpath "$JPATH/tools/$SCRIPT" | beforelast / | afterlast /`
 					printf "%s\t- " "$DIRNAME/$SCRIPT(jsh)"
-					# memo onelinedescription "$SCRIPT"
+					# $doMemo onelinedescription "$SCRIPT"
 					## Since we are memoing the whole thing externally, little point running memo again internally (here)
 					onelinedescription "$SCRIPT"
-					# memo -f "$JPATH/tools/$SCRIPT" onelinedescription "$SCRIPT"
-					# memo -f `realpath "$JPATH/tools/$SCRIPT" onelinedescription "$SCRIPT"
+					# $doMemo -f "$JPATH/tools/$SCRIPT" onelinedescription "$SCRIPT"
+					# $doMemo -f `realpath "$JPATH/tools/$SCRIPT" onelinedescription "$SCRIPT"
 				done
 
 			;;
@@ -75,25 +80,32 @@ case "$1" in
 
 		export MEMO_IGNORE_DIR=true
 
-		echo ; sleep 1 ## I think stderr was coming before stdout, due to | highlight
-		jshinfo "System packages:"
-		# verbosely memo -c true aproposjsh -builddb system-packages | grep -i -u "$@" |
-		# columnise -on "	"
-		# findpkg -all "$@" | striptermchars
-		findpkg -all "$@" | striptermchars | highlight -bold "^.i" green
+		echo
+		jshinfo "System man pages:"
+		$doMemo aproposjsh -builddb system-apropos-db | grep -i -u "$@"
+
+		echo
+		jshinfo "Jsh documentation:"
+		$doMemo aproposjsh -builddb jsh-man | grep -i -u "$@"
+
+		if which dpkg >/dev/null
+		then
+			## Testing: These should use proper memoing like the others
+			echo ; sleep 1 ## I think stderr was coming before stdout, due to | highlight
+			jshinfo "Installed packages:"
+			$doMemo findpkg "$@" | striptermchars | highlight -bold "^.i" green
+			echo
+			jshinfo "Available packages:"
+			# verbosely $doMemo -c true aproposjsh -builddb system-packages | grep -i -u "$@" |
+			# columnise -on "	"
+			# findpkg -all "$@" | striptermchars
+			$doMemo findpkg -all "$@" | striptermchars | highlight -bold "^.i" green
+		fi # todo: rpm/portage/etc...
 
 		echo
 		## This one should duplicates system apropos and jsh manpages, with maybe a few extras.
 		jshinfo "Executable commands on PATH:"
-		memo aproposjsh -builddb executable-commands | grep -i -u ".*/[^/]*$@"
-
-		echo
-		jshinfo "System apropos:"
-		memo aproposjsh -builddb system-apropos-db | grep -i -u "$@"
-
-		echo
-		jshinfo "Jsh apropos:"
-		memo aproposjsh -builddb jsh-man | grep -i -u "$@"
+		$doMemo aproposjsh -builddb executable-commands | grep -i -u ".*/[^/]*$@"
 
 		echo
 	;;
