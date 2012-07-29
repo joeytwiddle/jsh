@@ -1,7 +1,7 @@
 #!/bin/sh
 ### BEGIN INIT INFO
 # Provides:          hwibot.outer
-# Required-Start:    $remote_fs csf sshd_gentoo
+# Required-Start:    $remote_fs csf
 # Required-Stop:     $remote_fs
 # Should-Start:
 # Default-Start:     2 3 4 5
@@ -10,7 +10,7 @@
 ## Description:       Enable hwi's services running in /mnt/hwibot chroot
 ### END INIT INFO
 
-# We require sshd_gentoo for the grimeape service started in hwibot.inner
+# We previously required sshd_gentoo for the grimeape service started in hwibot.inner
 
 # TODO for LSB: start, stop, restart, force-reload, and status; log_success_msg, log_failure_msg and log_warning_msg
 
@@ -44,7 +44,11 @@ then
 	# mount --bind /mnt "$TARGET"/mnt
 	## TODO: check originals are mounted on local machine (otherwise the binds are pointless)!
 	for POINT in $MNTPNTS
-	do mount --bind /mnt/"$POINT" "$TARGET"/mnt/"$POINT"
+	do
+		mount --bind /mnt/"$POINT" "$TARGET"/mnt/"$POINT"
+		## Readonly can be done on bindmounts, but only retrospectively.
+		## We may not want this!  Some things on / and /home point into these folders!  (E.g. Mail)
+		# mount -o remount,ro "$TARGET"/mnt/"$POINT"
 	done
 	# mount --bind /mnt/mainhome "$TARGET"/home
 	mount --bind /home "$TARGET"/home
