@@ -104,8 +104,12 @@ Usage:
 
     memo will cache the ouput of the given command, and redisplay it on future
     calls made with the same arguments and from the same working directory.
+
     Hence memo is useful for caching the output of slow operations.
-    You may use rememo to force a refresh of the cache for that command (in wd).
+
+    You may use rememo to force a refresh of the cache for that command.
+
+    The timeout for cached data is 5 minutes, unless options override it.
 
 Options:
 
@@ -123,18 +127,56 @@ Examples:
   memo -f /var/lib/dpkg/status dpkg -l
   memo -d /var/lib/apt apt-cache dump
   memo -t '1 day' eval "du -sk /* | sort -n -k 1"   (using eval the | is memoed)
-  memo -c <check_com>  (eh what's this for?)     NOTE: rememo='memo -c true'
+  memo -c false data                                (never refresh this!)
 
 Todo:
 
   Possibly rememodiff which looks for changes since last memoed.
+  See duskdiff for an example of this.
+
+Environment variables / options:
+
+  MEMO_IGNORE_DIR         If unset, memos are cached per-current-folder.
+                          Set this if your command is cwd-invariant.
+
+  MEMO_IGNORE_EXITCODE    When unset, non-zero exit codes prevent data caching.
+                          Set this if you want to cache data even when errors.
+
+  MEMO_SHOW_NEW_CACHEFILES   Alternative to setting the two above!  This would
+                             be a good default enabled, with a setting to allow
+                             scripts to disable it.  We could deprecate the two
+                             below and introduce MEMO_HIDE_INFO and
+                             MEMO_VERBOSE?  Or keep MEMO_SHOW_INFO and
+                             introduce MEMO_QUIET / -q.
+
+  MEMO_SHOW_INFO          Show what is going on (useful).
+
+  MEMO_NOSHOW_REUSE       Only show when working hard, not when using cache.
+                          Prevents spam when memo is working well.
+                          Only relevant if MEMO_SHOW_INFO is set.
 
 Bugs:
 
-  -d <dirname> and -f <filename> compare the modified time against the modified time of the memo.
-    If the memo takes a long time to generate, it may be that the files changed since it started,
-    but before it ended, and so it should be rememo-ed, but isn't.  Could solve by changing
-    finished memofile's modified date to time that it was started.
+  -d <dirname> and -f <filename> compare the modified time against the modified
+    time of the memo.  If the memo takes a long time to generate, it may be
+    that the files changed since it started, but before it ended, and so it
+    should be rememo-ed, but isn't.  Could solve by changing finished
+    memofile's modified date to time that it was started.
+
+Notes:
+
+  memo -nd ... is deprecated in favour of MEMO_IGNORE_DIR=1 memo ...
+
+  But should it be?  -nd is nice and simple!
+
+  The argument for exposing features via environment vars rather whan
+  command-line arguments is that argument parsing has an overhead.  The
+  conclusion is therefore that environment vars should always be available as
+  an option to avoid args, and used at the discretion of the caller when
+  efficiency is required.  However args may be useful for rapid development,
+  and end users, so many/all features should be available as args too.
+  The brevity of args are an advantage, and can be easier to remember:
+  environment vars are prone to typos due to their expansive namespacing.
 
 !
 
@@ -191,13 +233,12 @@ if [ "$MEMO_IGNORE_DIR" ] || [ "$PWD" = / ] ## for speed or wider memoing (if cw
 then REALPWD=/
 else REALPWD=`realpath "$PWD"`
 fi
-CKSUM=`echo "[$MEMOEXTRA]$REALPWD/$*" | /usr/bin/md5sum -` ## seems minutely faster to me
+CKSUM=`echo "[$MEMOEXTRA]$REALPWD/$*" | /usr/bin/md5sum -` ## seems minutely faster to me.  than what dufus?  cksum or calling the md5sum shellscript unnecessarily?
 if [ "$DEBUG_MEMO" ]
 then CKSUM="` echo -n "$MEMOEXTRA[$*][$REALPWD" | tr " \n/" "_|#" | sed 's+^\(.\{80\}\).*+\1...+' `].$CKSUM"
 fi
 MEMOFILE="$MEMODIR/$CKSUM.memo"
-export CHECKDIR CHECKFILE REMEMOWHEN MEMOFILE AGEFILE
-# [ "$DEBUG" ] && debug "memo:     `cursemagenta`checking: $REMEMOWHEN (MEMOFILE=$MEMOFILE)`cursenorm`"
+# [ "$DEBUG" ] && debug "[memo]     `cursemagenta`checking: $REMEMOWHEN (MEMOFILE=$MEMOFILE)`cursenorm`"
 ### }}}
 
 
@@ -207,12 +248,13 @@ export CHECKDIR CHECKFILE REMEMOWHEN MEMOFILE AGEFILE
 # echo "Doing check: $REMEMOWHEN" >&2
 if [ "$REMEMO" ] || [ ! -f "$MEMOFILE" ] || eval "$REMEMOWHEN"
 then
-	# [ "$DEBUG" ] && ( debug "REmemoing: com=\"$NICECOM\" REMEMO=$REMEMO filecached=`mytest test -f \"$MEMOFILE\"` REMEMOWHEN=$REMEMOWHEN" | tr '\n' ';' ; echo>&2 )
-	[ "$DEBUG" ] && debug "memo: re-running com=\"$NICECOM\" REMEMO=$REMEMO filecached=`mytest test -f \"$MEMOFILE\"` REMEMOWHEN=$REMEMOWHEN"
-	# eval "$REMEMOWHEN" && [ "$DEBUG" ] && debug "memo:     `cursemagenta`Refresh needed with com: $REMEMOWHEN`cursenorm`"
-	[ "$MEMO_SHOW_NEW_CACHEFILES" ] && jshinfo "memo: creating new cachefile from command: `cursebold`$NICECOM > \"$MEMOFILE\""
+	NICECOM="$*"
+	[ "$DEBUG" ] && debug "[memo] re-running com=\"$NICECOM\" REMEMO=$REMEMO filecached=`mytest test -f \"$MEMOFILE\"` REMEMOWHEN=$REMEMOWHEN"
+	# eval "$REMEMOWHEN" && [ "$DEBUG" ] && debug "[memo]     `cursemagenta`Refresh needed with com: $REMEMOWHEN`cursenorm`"
+	# [ "$MEMO_SHOW_NEW_CACHEFILES" ] && jshinfo "[memo] creating new cachefile from command: `cursebold`$NICECOM > \"$MEMOFILE\""
+	[ "$MEMO_SHOW_NEW_CACHEFILES" ] && jshinfo "[memo] caching: `cursegreen;cursebold`$NICECOM `cursenorm`> `cursecyan`$MEMOFILE"
 	# [ "$MEMO_SHOW_INFO" ] && jshinfo "Calling: rememo $*" && SHOW_INFO_DONE=true
-	if [ "$MEMO_SHOW_INFO" ]
+	if [ -n "$MEMO_SHOW_INFO" ]
 	then
 		if [ -f "$MEMOFILE" ]
 		# then jshinfo "Replacing old memo: rememo $*" && SHOW_INFO_DONE=true
@@ -221,19 +263,26 @@ then
 		else jshinfo "Output will be cached.  Retrieve with: memo $*" && SHOW_INFO_DONE=true
 		fi
 	fi
-	## This may have been set but not exported.  We pass it on, since rememo actually uses it.
+
+	# These used to appear after the CKSUM generation.
+	export CHECKDIR CHECKFILE REMEMOWHEN MEMOFILE AGEFILE
+	# Strangely we do not need to export MEMO_IGNORE_DIR MEMO_IGNORE_EXITCODE if they were set by caller.
+
+	## TODO: WE DO NOT WANT TO CALL rememo!
+	## We prefer memo to be a standonly script, and for rememo to call us!
+
+	## This may have been set but not exported.  We pass it on, since rememo actually uses it.  Perhaps we should just add it to the above exports.
 	IKNOWIDONTHAVEATTY=$IKNOWIDONTHAVEATTY rememo "$@"
 	## TODO CONSIDER: If we did . rememo "$@" here, maybe functions would get called :)  Although if we have done importshfn memo, then that might achieve the same.
 else
-	# [ "$DEBUG" ] && debug "memo: re-using com=\"$NICECOM\""
-	[ "$DEBUG" ] && debug "memo: re-using memofile=\"$MEMOFILE\""
+	[ "$DEBUG" ] && debug "[memo] re-using memofile=\"$MEMOFILE\""
 	cat "$MEMOFILE"
 fi
 EXITWITH="$?"
 
 [ "$AGEFILE" ] && jdeltmp $AGEFILE
 
-if [ "$MEMO_SHOW_INFO" ] && [ ! "$SHOW_INFO_DONE" ]
+if [ -n "$MEMO_SHOW_INFO" ] && [ -z "$SHOW_INFO_DONE" ]
 then
 
 	if [ -f "$MEMOFILE" ]
@@ -244,7 +293,8 @@ then
 		# echo "as of "`date -r "$MEMOFILE"`
 		# echo "% $@"
 		TIMEAGO=`datediff -files "$MEMOFILE" "$TMPF"`
-		echo "`cursecyan`\"$*\" cached $TIMEAGO ago, in file \"$MEMOFILE\"`cursenorm`" >&2
+		# echo "`cursecyan`\"$*\" cached $TIMEAGO ago, in file \"$MEMOFILE\"`cursenorm`" >&2
+		[ -z "$MEMO_NOSHOW_REUSE" ] && jshinfo "\"$*\" cached $TIMEAGO ago, in file \"$MEMOFILE\"" >&2
 		# jdeltmp "$TMPF"
 	else
 		: ## memo failed to produce a file; due to invalid command?
