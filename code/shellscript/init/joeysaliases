@@ -233,7 +233,7 @@ alias mykilljob=". 'mykilljob' -jc"
 # alias wget='screen wget'
 
 alias m='more'
-alias le='less'
+alias le='less -R'
 alias c='cd'
 alias c.='cd ..'
 alias c..='cd ../..'
