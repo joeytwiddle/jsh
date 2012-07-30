@@ -61,7 +61,9 @@ do
 	esac
 	shift
 done
+
 SEARCH="$1"
+# for SEARCH; do ?
 
 if test $WEBSRCH
 then
