@@ -1,0 +1,13 @@
+# Source me, and I will guess your name, then load up your syswide config from
+# /etc and user-config from home dotfiles.
+
+scriptName="$0"
+
+if [ -f /etc/defaults/"$scriptName" ]
+then . /etc/defaults/"$scriptName"
+fi
+
+if [ -f "$HOME/.$scriptname/config" ]
+then . "$HOME/.$scriptname/config"
+fi
+
