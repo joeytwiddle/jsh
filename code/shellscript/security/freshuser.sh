@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Simple convenience tool.  Type freshuser when you want to try something
+# without being your normal user.
+
 cmd="`escapeargs "$@"`"
 [ -z "$cmd" ] && cmd="/bin/bash"
 
@@ -7,9 +10,6 @@ cmd="`escapeargs "$@"`"
 # . hwipromptforbash
 # export PS1
 # set -x
-
-# Simple convenience tool.  Type freshuser when you want to try something
-# without being your normal user.
 
 sudo useradd -m freshuser
 
