@@ -42,10 +42,16 @@ NL="
 	# tr -s "\n" |
 
 	## For IRC logs:
+	## NOTE: Should try to work on live pasted chat as well as on logs!
 	# sed 's+\[\(..\):\(..\)\] <\([^>]*\)>+At \1 \2 user \3 said +' |
 	sed "s+\[\(..\):\(..\)\] <\([^>]*\)>+ . \n \3 says +" |
 	## For pasted IRC channels:
 	sed "s+<\([^>]*\)>+ . \n \1 - . - +" |
+	grep -v "\-\->.* has joined #" |
+	grep -v "<\-\-.* has left #" |
+	grep -v "<\-\-.* has quit (" |
+	## TODO: Should go into seperate script irc2speech
+	## See also: irc_radio.sh in xchat log folder
 
 	## For tail:
 	sed 's+^==> \(.*\) <==$+Appended to file \1:+' |
