@@ -10,8 +10,9 @@
 ## Can't get eurostile in bold from xfstt.  :f
 # FONT='-*-eurostile-*-*-*-*-45-*-*-*-*-*-*-*'
 # smallerFONT='-*-eurostile-*-*-*-*-35-*-*-*-*-*-*-*'
-FONT='-*-minima ssi-bold-*-*-*-*-340-*-*-*-*-*-*'
-smallerFONT='-*-minima ssi-bold-*-*-*-*-240-*-*-*-*-*-*'
+## Now I can't get minima either!!
+# FONT='-*-minima ssi-bold-*-*-*-*-340-*-*-*-*-*-*'
+# smallerFONT='-*-minima ssi-bold-*-*-*-*-240-*-*-*-*-*-*'
 # FONT='-*-microgrammadmedext-*-*-*-*-40-*-*-*-*-*-*-*'
 # smallerFONT='-*-microgrammadmedext-*-*-*-*-30-*-*-*-*-*-*-*'
 # FONT='-*-microgrammadmedext-*-*-*-*-44-*-*-*-*-*-*-*'
@@ -19,6 +20,9 @@ smallerFONT='-*-minima ssi-bold-*-*-*-*-240-*-*-*-*-*-*'
 ## Heavy/Bold version:
 # FONT='-*-microgrammadbolext-*-*-*-*-44-*-*-*-*-*-*-*'
 # smallerFONT='-*-microgrammadbolext-*-*-*-*-34-*-*-*-*-*-*-*'
+## I get Terminus at least, which defaults to bold, but doesn't go over 320.
+FONT='-*-*-*-r-*-*-*-340-*-*-*-*-*-*'
+smallerFONT='-*-*-*-r-*-*-*-320-*-*-*-*-*-*'
 
 [ "$smallerFONT" ] || smallerFONT="$FONT"
 
