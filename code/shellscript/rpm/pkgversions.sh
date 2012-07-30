@@ -3,12 +3,17 @@
 # jsh-ext-depends: sed apt-cache
 # jsh-depends: cursecyan cursenorm drop tostring
 
-# bug: This does not actually list packages which are not installed, that could get huge.
-#      This is the all versions of all the installed packages matching *$1*
-if [ "$1" = "-all" ]
+if [ "$1" = -all ]
 then
 	shift
-	COLUMNS=160 findpkg "$1" | striptermchars | takecols 2 | withalldo pkgversions
+	altList=/etc/apt/all-sources.list
+	[ -f "$altList" ] && APT_CACHE_OPTIONS="$APT_CACHE_OPTIONS --option Dir::Etc::sourcelist=$altList" || echo "Source list $altList not found."
+fi
+
+if [ "$1" = "-search" ]
+then
+	shift
+	COLUMNS=160 findpkg -all "$1" | striptermchars | takecols 2 | withalldo pkgversions
 	exit
 fi
 # e.g.: pkgversions `findpkg xserver | striptermchars | takecols 2`
@@ -17,7 +22,21 @@ fi
 ## Doh!  See also: apt-show-versions
 ## See also: dpkg --print-avail
 
-[ -f /etc/apt/all-sources.list ] && APT_CACHE_OPTIONS="$APT_CACHE_OPTIONS --option Dir::Etc::sourcelist=/etc/apt/all-sources.list"
+if [ "$1" = "" ] || [ "$1" = --help ]
+then
+cat << !
+
+pkgversions [-all] [-search] <package_name>...
+
+  will show packages available with the given name.
+
+  -search : allow partial name matches
+
+  -all : use alternate source list
+
+!
+	exit
+fi
 
 for PKG in "$@"
 do
@@ -28,7 +47,7 @@ do
 
 	# apt-cache show "$PKG" | grep "^Version: " |
 
-	apt-cache showpkg "$PKG" |
+	apt-cache $APT_CACHE_OPTIONS showpkg "$PKG" |
 	grep "/var/lib/\(apt\|dpkg\)/" |
 	grep -v "^[ 	]*File: " |
 	sed 's+/var/lib/dpkg/status+installed+' |
@@ -46,7 +65,7 @@ do
 
 	continue
 
-	apt-cache showpkg "$PKG" 2>/dev/null |
+	apt-cache $APT_CACHE_OPTIONS showpkg "$PKG" 2>/dev/null |
 	drop 2 |
 	tostring "" |
 	# Why doesn't this line work?!
