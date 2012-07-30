@@ -1,0 +1,1 @@
+equery files "$1"
