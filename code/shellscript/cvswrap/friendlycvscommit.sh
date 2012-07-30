@@ -71,6 +71,7 @@ fi
 ## TODO: if a file needs /updating/ then just print a message saying so.  =)
 
 function tinydiffsummary() {
+	diff "$1" "$2" > lastcvsdiff.out
 	if [ -f lastcvsdiff.out ]
 	then
 		COUNTREMOVED=`cat lastcvsdiff.out | grep "^<" | wc -l`
@@ -160,7 +161,7 @@ do
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT=""
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="Commited from `hostname`:`realpath "$FILE"`"
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
-				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary "$FILE"` `date +"%Y/%m/%d %H:%M %Z" -r "$FILE"`"
+				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary $TMPFILE "$FILE"` `date +"%Y/%m/%d %H:%M %Z" -r "$FILE"`"
 				echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
 				echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
 				cvscommit -m "$INPUT" "$FILE" ||
