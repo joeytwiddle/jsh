@@ -8,7 +8,7 @@
 ## BUG: Now allows you rename files, but if there are multiple srcs it should check that dest is a dir!
 ## NEW: "Prototyped" ability to move whole directories (we could perform build a new tree and mvcvs every file)
 
-echo "## If the following looks ok to you, run mvcvs again with | sh -e -x"
+echo "## If the following looks ok to you, run mvcvs again with | bash -e -x"
 
 echo "## TODO: check the file has been committed, otherwise it doesn't work!!!" >&2
 # jshwarn "If your checkout is not in sync, it will be committed and updated!"
