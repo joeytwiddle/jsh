@@ -2,6 +2,8 @@
 set -e
 # BUG TODO: Fails to do the ln if first arg has trailing slash, e.g. "a_folder/"
 
+## Ummm see also mvandbacklink
+
 TARGET="`lastarg "$@"`"
 
 if [ -d "$TARGET" ]
