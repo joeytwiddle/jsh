@@ -4,6 +4,9 @@
 ## following line, find interpreted $WALLPAPERDIRS as one argument.
 # memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
 
+# FAST=1        # Does not scale up to desktop, just blits to background.
+# NOPREVIEW=1   # Does not preview - scales before drawing anything.
+
 ## TODO: Randomwallpaper is really quite slow.  But we can fix this.  Have it pre-cache an image (or a few)!
 
 if [ "$1" = -gl ]
@@ -60,6 +63,8 @@ do
 	SPECIALISE="$1"
 	[ "$SPECIALISE" ] && shift
 
+	# Folders containing the noshow file, and their subfolders, are to be
+	# ignored.  To achieve this we build an UNGREPEXPR.
 	if [ "$1" = -all ]
 	then
 		UNGREPEXPR='^$'
@@ -130,7 +135,7 @@ do
 		## ATM neither of these work.  :P
 		## Also, conversion is slow!  memoing won't really work (just double the size of DB!)  But if the created image file is significantly smaller than the original, let's replace the original by our new version!  We should only do this e.g. if we are converting from 1280x1024 bitmap to 1280x1024 png, and not doing any pixel value processing.
 
-		xsetbg "$FILE"   ## Preview
+		[ -z "$NOPREVIEW" ] && xsetbg "$FILE"   ## Preview
 		[ "$FAST" ] && break
 		(
 			MODDED_FILE="$HOME/j/background1.modulated.jpg"
