@@ -1,8 +1,10 @@
 ## Produces a list of symlinks which may point to or through the given file or
 ## path.  It basically searches all symlinks on the system for those where the
-## link target contains the string provided.  The string may not start or end
-## in '/' as these are added automatically, to ensure the word matches a node.
-## The string is treated as a regexp, and may contain '/'s.
+## link target contains the string provided.
+##
+## The string is treated as a word, and should not start or end in '/' as these
+## are added automatically.  Otherwise it is treated as a regexp, and may
+## contain '/'s.
 ##
 ## Output indicators:
 ##
@@ -38,8 +40,7 @@
 ##   % memo findlinksmatching blah
 ##
 
-# folder="`basename "$1"`"
-folder="$1"
+search="$1"
 
 . "$JPATH"/tools/faster_jsh_colors.init
 
@@ -70,7 +71,7 @@ MEMO_IGNORE_EXITCODE=true MEMO_IGNORE_DIR=true memo -t '16 days' \
       -o -type l -printf '%p%l\n' |
 # 2>/dev/null
 
-grep --line-buffered "\(\|.*/\)$folder\(/\|$\)" |
+grep --line-buffered "\(\|.*/\)$search\(/\|$\)" |
 
 ## NOTE: We are using the delimeter  in four places in this file!
 while IFS="" read link target
@@ -87,7 +88,7 @@ do
 	then echo "$CURSEGREEN""=$CURSENORM $link -> $CURSEGREEN$nowTarget""$CURSENORM"
 	elif [ ! -L "$link" ]
 	then echo "$CURSEYELLOW$CURSEBOLD""!$CURSEBOLD$CURSENORM$CURSEYELLOW$CURSEBOLD $link $CURSEBOLD$CURSENORM-> $nowTarget""$CURSEBOLD$CURSENORM"
-	else echo "$CURSERED$CURSEBOLD""?$CURSEBOLD$CURSENORM $link -> $CURSERED$CURSEBOLD""$nowTarget""$CURSEBOLD$CURSENORM"
+	else echo "$CURSERED$CURSEBOLD""?$CURSEBOLD$CURSENORM $link -> $CURSERED""$nowTarget""$CURSENORM"
 	fi
 
 done
