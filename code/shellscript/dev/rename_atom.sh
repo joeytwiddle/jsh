@@ -15,6 +15,11 @@
 ## Recommend combining efforts there rather that advancing independently.
 ##
 
+## One danger with refactoring is if the target word already exists, then it
+## cannot be undone later!
+## TODO: Check for the target word over the target files, and warn the user if
+## it is already used!
+
 echo "Warning: This script is about to do a lot of things to all the files under your current folder!  Are you sure you want to proceed?  I recommend making a backup first."
 read answer
 if [ "$answer" != y ]
