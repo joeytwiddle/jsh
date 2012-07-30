@@ -1,8 +1,20 @@
 #!/bin/sh
+
+# withalldo <cmd> will run the given command once, with the lines on standard
+# input passed as individual arguments.
+#
+# See also: foreachdo
+
 ## Pass -r option to ignore empty input (run nothing)
 xargs -d '\n' "$@"
 exit
 # Maybe also: xargs -0 "$@"
+
+## NOTE: One disadvantage of using xargs is that if we
+## . importshfn withalldo
+## and employ withalldo f where f is a shell function, xargs will not be able
+## to see f!
+## Recommendation: move the below to withalldosh and import *that*.
 
 ## I wrote this solution before I learned about xargs.
 
@@ -12,6 +24,8 @@ exit
 
 ## Xargs example:
 # echo 08 | xargs -i convert img{}.gif img{}.png
+
+## -0 is the safest delimiter for xargs, often used after find -print0
 
 # ## Trying to get xargs working:
 # sed  's+ +\\ +g' |
