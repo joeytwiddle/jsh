@@ -1,4 +1,3 @@
-#!/bin/sh
 ## Removes any duplicate lines from the stream, preserving line order on output.
 ## Doesn't remove empty lines.
 ## Keeps the first occurrence of a line, and drops any later occurrences.
@@ -26,7 +25,7 @@ do
   if [ "$LINE" = "" ]
   then
     echo "$N "
-  elif [ ! "$LINE" = "$LAST" ]
+  elif ! [ "$LINE" = "$LAST" ]   # This is slower, but /bin/sh cannot handle [ ! here.  O_o
   then
     echo "$N $LINE"
     LAST="$LINE"
