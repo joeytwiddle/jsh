@@ -1,0 +1,78 @@
+CURSEBLUE=$(curseblue)
+CURSEBOLD=$(cursebold)
+CURSECYAN=$(cursecyan)
+CURSEGREEN=$(cursegreen)
+CURSEGREY=$(cursegrey)
+CURSEMAGENTA=$(cursemagenta)
+CURSERED=$(cursered)
+CURSEWHITE=$(cursewhite)
+CURSEYELLOW=$(curseyellow)
+CURSENORM=$(cursenorm)
+CURSEREVERSE=$(cursereverse)
+CURSEBLACK=$(curseblack)
+CURSECOL=$(cursecol)
+CURSETAB=$(cursetab)
+CURSENL=$(cursenl)
+
+export CURSEBLUE
+export CURSEBOLD
+export CURSECYAN
+export CURSEGREEN
+export CURSEGREY
+export CURSEMAGENTA
+export CURSERED
+export CURSEWHITE
+export CURSEYELLOW
+export CURSENORM
+export CURSEREVERSE
+export CURSEBLACK
+export CURSECOL
+export CURSETAB
+export CURSENL
+
+curseblue() {
+	echo -n "$CURSEBLUE"
+}
+cursebold() {
+	echo -n "$CURSEBOLD"
+}
+cursecyan() {
+	echo -n "$CURSECYAN"
+}
+cursegreen() {
+	echo -n "$CURSEGREEN"
+}
+cursegrey() {
+	echo -n "$CURSEGREY"
+}
+cursemagenta() {
+	echo -n "$CURSEMAGENTA"
+}
+cursered() {
+	echo -n "$CURSERED"
+}
+cursewhite() {
+	echo -n "$CURSEWHITE"
+}
+curseyellow() {
+	echo -n "$CURSEYELLOW"
+}
+cursenorm() {
+	echo -n "$CURSENORM"
+}
+cursereverse() {
+	echo -n "$CURSEREVERSE"
+}
+curseblack() {
+	echo -n "$CURSEBLACK"
+}
+cursecol() {
+	echo -n "$CURSECOL"
+}
+cursetab() {
+	echo -n "$CURSETAB"
+}
+cursenl() {
+	echo -n "$CURSENL"
+}
+
