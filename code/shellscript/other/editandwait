@@ -2,11 +2,18 @@
 # this-script-does-not-depend-on-jsh: viinxterm viminxterm gvim
 # jsh-depends: runoneof xisrunning
 
-## Convenience function for user: if they gave a global path instead of a local
-## one, then we move to that folder, which may make it easier to open files from
-## GUI editors.
-if echo "$1" | grep "^/" >/dev/null
-then cd "`dirname "$1"`"
+## Convenience function for user: if they gave a remote folder instead of the
+## local one, then we move to that folder, which may make it easier to open
+## related files from the editor later.  Only implemented at the moment for
+## global paths, since otherwise we would need to rewrite "$1".  (In fact, as
+## it is, this will break opening of any later args which are given as relative
+## paths rather than global!)  OK fixed that by only acting if only 1 arg.
+if [ "$#" = 1 ] && echo "$1" | grep "^/" >/dev/null
+then
+	if [ -d "$1" ] ## Sometimes I ask vim to open a folder!
+	then cd "$1"
+	else cd "`dirname "$1"`"
+	fi
 fi
 
 if xisrunning
