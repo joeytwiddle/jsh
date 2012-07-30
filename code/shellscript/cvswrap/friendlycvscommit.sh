@@ -14,6 +14,8 @@ friendlycvscommit
   Users who do not like the default diff output, might like to try instead:
     DIFFCOM="jdiffsimple -fine" friendlycvscommit
 
+  Also: DONT_USE_FIGLET=1
+
 !
 exit 1
 fi
@@ -32,7 +34,7 @@ getfiles () {
 	# grep -v "^$" | grep -v "^#" |
 }
 
-function mydiff () {
+function flatdiff () {
 	diff "$@" | tee lastcvsdiff.out | diffhighlight | more
 	# -C 1 is nice for some context but then we never get <red >green lines, only !yellow changes, although with extra processing we could colour the !s correctly.
 }
@@ -42,7 +44,7 @@ function mydiff () {
 # export COLUMNS="$COLUMNS"
 [ ! "$COLUMNS" ] && jshwarn "You probably want to export COLUMNS and re-run."   # (I can't do it for you, I've tried!)
 [ "$DIFFCOM" ] || DIFFCOM="jdiff"
-# [ "$DIFFCOM" ] || DIFFCOM="mydiff"
+# [ "$DIFFCOM" ] || DIFFCOM="flatdiff"
 
 ## First, choose a figlet font:
 if [ ! "$DONT_USE_FIGLET" ]
@@ -121,7 +123,7 @@ do
 		# echo "Provide a comment with which to commit `cursecyan`$FILE`curseyellow`, or <Enter> to skip.  ('.<Enter>' will commit empty comment.)"
 		# echo "`curseyellow`Type: comment or [.] to [C]ommit, <Enter> to [S]kip, [E]dit [V]imdiff [R]ediff." #  (.=\"\").`cursenorm`"
 		echo "`cursecyan`$FILE`cursenorm`"
-		echo "`cursecyan;cursebold`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff" #  (.=\"\").`cursenorm`"
+		echo "`cursecyan;cursebold`Type comment or [.] to [C]ommit | <Enter> to [S]kip | [E]dit [V]imdiff [R]ediff [F]latdiff" #  (.=\"\").`cursenorm`"
 		echo "Or [U]ndo changes (retrieve previous version) | [Q]uit`cursenorm`"
 		read INPUT
 		[ "$INPUT" = "" ] && INPUT=s
@@ -134,6 +136,9 @@ do
 			;;
 			r|R|d|D)
 				$DIFFCOM $TMPFILE "$FILE" | more
+			;;
+			f|F)
+				flatdiff $TMPFILE "$FILE" | more
 			;;
 			s|S)
 				echo "`cursegreen`Skipping:`cursenorm` $FILE"
