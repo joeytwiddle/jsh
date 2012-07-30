@@ -35,7 +35,9 @@ getfiles () {
 }
 
 function flatdiff () {
-	diff "$@" | tee lastcvsdiff.out | diffhighlight | more
+	diff "$@" | diffhighlight | more
+	## We used to do this, but we can't rely on it if we don't do it for *every* file!
+	# tee lastcvsdiff.out | 
 	# -C 1 is nice for some context but then we never get <red >green lines, only !yellow changes, although with extra processing we could colour the !s correctly.
 }
 
