@@ -1,4 +1,12 @@
 #!/bin/sh
+
+# foreachdo <cmd...> will run the given command once for each line read from
+# standard input, passing the line as the final argument.
+#
+# See also: withalldo
+#
+# Drawbacks: No use if you want to pass an argument *after* the one on stdin!
+
 ## CONSIDER: We can do "... | foreachdo echo", but if we do "... | foreachdo eval 'sleep 0.2 ; echo'" then it breaks on bin/org/neuralyte/irc/IRCBot$2.class .
 
 ## Oh dear ambigous naming!
