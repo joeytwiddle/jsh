@@ -108,7 +108,7 @@ Examples:
      apt-list sources
 
   To see a list of packages installed from one source:
-     apt-list -installed from marillat.free.fr
+     apt-list -installed from www.deb-multimedia.org
 
   To see where different versions of libc6 come from:
      apt-list pkg libc6
