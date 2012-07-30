@@ -6,4 +6,5 @@ git diff "$@" | diffhighlight | more
 
 ## Interestingly, git itself calls 'pager' which points to /bin/less on my
 ## system, and shows colours just fine.  But if we call pager instead of more
-## above, the colour escape codes do not come out nicely!
+## above, the colour escape codes do not come out nicely!  It can be achieved
+## with pager -R or less -R.
