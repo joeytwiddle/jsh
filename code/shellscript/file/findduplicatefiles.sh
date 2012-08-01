@@ -1,7 +1,10 @@
 #!/bin/sh
 
-[ "$1" = "" ] && jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles without options.  You are recommended to use that until they are merged."
+## We are now doing size comparison when -samename is off.  So findduplicatefiles-quick is deprecated.
+# [ "$1" = "" ] && jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles without options.  You are recommended to use that until they are merged."
 # jshwarn "Ofc scripting makes sense with findduplicatefiles, providing we will keep the I/O similar."
+
+## DONE: Recommend automatic (TODO: optional) rejection of 0-length files, since these are always seen as duplicates, contain no data, and are more often useful for their filename, not their data.  Note: NOT done for -samename!
 
 ## WISHLIST:
 ## - instead of just deleting duplicates, also create a symlink in their place so they still function
@@ -26,37 +29,49 @@ SUGGEST_DEL=1
 # SUGGEST_LN=1 ## BUG TODO: creates a symlink to ./blah which is ONLY correct if the src link is in .
 
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
-	(
-	echo
-	# echo "findduplicatefiles [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ] <find_path>s.. [ <find_option>s.. ]"
-	echo "findduplicatefiles [ <options> ] <find_path>s.. [ <find_option>s.. ]"
-	echo "  where"
-	echo "  <options> = [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ]"
-	echo
-	echo "The search has three stages:"
-	echo
-	echo "1) First files with the same size are grouped."
-	echo
-	## echo "    -samename : group only files with identical names (faster but incomplete)"
-	echo "    -samename : skip check of files which have a unique filename"
-	echo "      (can still match files with non-identical filenames, if both hashed!)"
-	echo
-	echo "2) Second, similar files are hashed (cksum) to ensure they really are identical."
-	echo
-	echo "    -qkck : use quick checksum, (only examine 16k at either end of the file)."
-	echo "    -size : use file size instead of checksum (very fast but DANGEROUS)."
-	echo
-	echo "3) Finally redundant files deemed to have duplicates are suggested for removal."
-	echo
-	# echo "    TODO: output formats.  <-- ???!"
-	echo "    Note: ATM it outputs results, but doesn't delete anything, so ph34r not!"
-	echo
-	echo "  You may wish to temporarily rename, move, or symlink the directories under"
-	echo "  analysis into some alphanumeric order; since the first duplicate found is"
-	echo "  kept; and all later duplicates are nominated for removal.  (See SORT_METHOD.)"
-	echo
-	) | more
-	exit 1
+more << !
+
+findduplicatefiles [ <options> ] <find_path>s.. [ <find_option>s.. ]
+  where
+<options> = [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ]
+
+  will list duplicate files (by checksum), in a form that can be piped through
+  |sh to remove copies, retaining just one of each file.
+
+  -x <regexp> : a quick way to exclude certain files from consideration.
+
+The search has three stages:
+
+1) First files with the same size are grouped.  Or with
+
+  -samename : Only check files whose name appears more than once
+
+    A speed optimization if you know identical files will have the same name.
+    (Actually only significantly faster if there are many non-duplicate files
+    of matching size.)
+    Might still match files with non-identical filenames, if both were hashed.
+
+2) Second, similar files are hashed (cksum) to ensure they really are identical.
+
+    -qkck : Use quick checksum, (for huge files, only examines 16k at either
+            end of the file).  May generate false positives but no false -ves.
+
+    -size : Use file size instead of checksum (very fast but very DANGEROUS!).
+
+3) Finally redundant files deemed to have duplicates are suggested for removal.
+
+To actually delete redundant files, do not add -do or --force, add |sh
+
+You may wish to temporarily rename, move, or symlink the directories under
+analysis into some alphanumeric order; since the first duplicate found is kept;
+and all later duplicates are nominated for removal.  (See SORT_METHOD.)
+
+But be careful doing find */ or find -follow through *symlinks with matching
+targets* as this will present the same files with different paths, and mark
+them as duplicates.
+
+!
+exit 1
 fi
 
 ## OK well they aren't symlinks, because we use find -type f, and like it says hardlinks aren't a problem, so we don't need to display this message:
@@ -104,7 +119,7 @@ SORT_METHOD="sort" ## Alphanumeric
 # [ "$WHERE" ] || WHERE="."
 ## Better to use "$@" (prevents premature evaluation of glob, if user specified -name "*something*")
 
-if [ "$SAMENAME" ]
+if [ -n "$SAMENAME" ]
 then
 
 	## Faster, because initially extracts duplicated filenames
@@ -131,11 +146,14 @@ then
 
 else
 
+	## Group by size and keep only files which have a duplicate size.
 	## Whatever later we use (unless optimising with -samename), we first group by filesize.
 	## This is different from the -filesize option which *matches* on filesize!
 	## CONSIDER: If we replace %s with <filename> then we could do -samename in one method =)
 	find "$@" -type f -printf "%s %p\n" |
 	stripexcluded |
+  ## Skip files of 0 length:
+	grep -v "^0 " |
 	keepduplicatelines 1 |
 	sort -n -r -k 1 | ## optional; NO undesirable; it mucks up ordering!  Eh, how so?
 	# dropcols 1 |
