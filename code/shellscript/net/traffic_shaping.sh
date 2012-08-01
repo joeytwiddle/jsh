@@ -31,9 +31,9 @@ then
 	# NYX_SCRIPT="/root/j/code/shellscript/net/nyx.sh"
 	# sh "$NYX_SCRIPT"
 	## This let me do 53k? up
-	# wondershaper eth0 6000  400
-	## But I can easily do 120k up!
-	wondershaper eth0 6000  900
+	wondershaper eth0 6000  400
+	## But I can sometimes do 120k up!
+	# wondershaper eth0 6000  900
 	## Wireless can carry a bit more than this:
 	wondershaper eth1  360 5000
 	## But we restrict it so it doesn't swamp torrents when grabbing from net
