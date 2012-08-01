@@ -6,21 +6,26 @@
 SHOWSCAN=true
 
 DUCOM="du -skx"
-# du can be heavy on disk access, and even the system CPU, so we relax it a lot.
-# Try -n 5 and -n 5 instead of -c 3, if the system is so busy your dusk never gets to run.
-which nice >/dev/null && DUCOM="nice -n 15 $DUCOM"
-which ionice >/dev/null && DUCOM="ionice -c 3 $DUCOM"
+# du can be heavy on disk access, and even the system CPU, so we relax it a bit.
+which nice >/dev/null && DUCOM="nice -n 5 $DUCOM"       # weak: -n 5 strong: -n 15
+which ionice >/dev/null && DUCOM="ionice -n 5 $DUCOM"   # weak: -n 5 strong: -c 3
 # jshinfo "DUCOM=$DUCOM"
 
-if test $JM_COLOUR_LS
-then
-	# This is bad if the output is being streamed through autoamtion!
-	LSCOM="ls -artFd --color"
+## Enable this if you want to see files colored like with ls.
+[ "$USER" = joey ] && DUSK_COLORS=1
+
+if [ -z "$DUSK_COLORS" ]
+then LSCOM=echo
 else
-	# Too slow on Unix ATM (and not enough for it ATM ;):
-	LSCOM="fakels -d"
-	# LSCOM="ls -dF"
-	# LSCOM="echo"
+	if [ -n "$JM_COLOUR_LS" ]
+	then
+		# TODO: This is bad if the output is being streamed through automation!  Check tty?
+		LSCOM="ls -artFd --color"
+	else
+		# Too slow on Unix ATM (and not enough for it ATM ;):
+		# LSCOM="fakels -d"
+		LSCOM="ls -dF"
+	fi
 fi
 
 (
@@ -29,8 +34,12 @@ fi
 
 	## Output a list of files/folders to scan:
 	if [ "$*" = "" ]
-	then echolines .* * | grep -v '^\(\.\|\.\.\)$'
-	else echolines "$@"
+	then
+		echolines .* * | grep -v '^\(\.\|\.\.\)$'
+		# find . -maxdepth 1 -mindepth 1 | sed 's+^\./++'
+	else
+		echolines "$@"
+		# find "$@" -maxdepth 0 -mindepth 0 | sed 's+^\./++'
 	fi |
 
 	## Actually scan them:
