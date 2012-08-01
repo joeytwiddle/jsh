@@ -24,3 +24,6 @@ done
 
 # It was claimed aptitude markauto ~i should to the same trick, but of course that marks everything!
 
+# Also:
+# findpkg lib"*"-dev | takecols 2 | grep ^lib | beforelast ':' | withalldo aptitude markauto --simulate --assume-yes
+
