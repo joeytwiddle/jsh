@@ -19,7 +19,7 @@ do
 	do
 
 		echo
-		echo "Would you like to: (A)dd to stage ?  [Enter] to (S)kip, or (Q)uit."
+		echo "Would you like to: (A)dd to staged oommit ?  [Enter] to (S)kip, or (Q)uit."
 
 		read cmd
 
@@ -35,7 +35,8 @@ do
 			???*)
 				verbosely git add "$FILE"
 				msg="$cmd"
-				verbosely git commit -m "$msg" "$FILE"
+				# verbosely git commit -m "$msg" "$FILE"
+				commit_messasge="$commit_messasge| $msg "
 				break
 			;;
 			""|s|S)
