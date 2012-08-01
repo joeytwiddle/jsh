@@ -11,12 +11,15 @@ CACHEDIR="$HOME/.loki/ut/Cache"
 
 # DESTMAPDIR=/stuff/software/games/unreal/server/maps
 # DESTFILEDIR=/stuff/software/games/unreal/server/files/new
-DESTMAPDIR=/mnt/big/ut/files/maps/
-DESTFILEDIR=/mnt/big/ut/files/
+DESTMAPDIR=/stuff/ut/files/maps/
+DESTFILEDIR=/stuff/ut/files/
 
 # FILEDIRS="$DESTMAPDIR /stuff/software/games/unreal/server/files /home/oddjob2/ut_server/ut-server/ /mnt/big/ut/ut_win_pure"
 ## Added ut_win so I can create symlinks to my own custom maps.
-FILEDIRS="$DESTFILEDIR /stuff/software/games/unreal/server/files/ /mnt/big/ut/ut_win_pure /mnt/big/ut/ut_win"
+## WARNING!  If there are any duplicates in here (due to overlapping paths),
+## then CLEANUP_DUPLICATES below might see two different files, and delete it!
+## So never add DESTMAPDIR or DESTFILEDIR twice to this list.
+FILEDIRS="$DESTFILEDIR /mnt/big/ut/ut_win_pure /mnt/big/ut/ut_win"
 verbosely find $FILEDIRS -type f >/dev/null ## get OS cache ready
 
 # ADD_DATE_TO_DESTINATION=
@@ -30,11 +33,17 @@ fi
 ## Optional:
 # LOST_CACHEFILES_LIST=/home/oddjob2/ut_server/lost_cachefiles_list.txt
 
+## Haven't tried this yet:
+# . importshfn memo
+# . importshfn rememo
+
 . importshfn rmlink
 . importshfn verbosely
 . importshfn error
 . importshfn countlines
 . importshfn jshinfo
+
+MEMO_SHOW_INFO=""
 
 ## Remove any existing links from cachedir (useful e.g. for purging old broken links)
 # find "$CACHEDIR/" -type l |
@@ -83,15 +92,23 @@ do
 			then
 				if [ "$NUMTARGETS" -gt 1 ]
 				then
-					jshwarn "More than 1 option for $FNAME"
+					jshwarn "Multiple option for $FNAME:"
 					# echo "$TARGETS" >&2
-					echo "$TARGETS" >&2
 					# echo "$TARGETS" | withalldo cmp >&2 ||
 					# error "The different options differ!"
 					# if ! echo "$TARGETS" | withalldo cmp >&2
 					if ! cmp $TARGETS >&2
 					then error "The different options differ!"
-					else echo "$TARGETS" | drop 1 | grep "/stuff/software/games/unreal/server/files/" | foreachdo echo verbosely del
+					else
+						## CLEANUP_DUPLICATES
+						echo "$TARGETS" |
+						# drop 1 |   # Cleanup all but first
+						# grep "^\($DESTMAPDIR\|$DESTFILEDIR\)" |   # Cleanup the one in the boring folder
+						# foreachdo echo jshwarn "You may want to cleanup duplicates:" "del"
+						# If the user only sees the final jshwarn, and not the list of duplicates echoed above, he can't make an informed decision about whether to cleanup.
+						# foreachdo echo jshinfo "You may want to delete ONE of these: del"
+						sed 's+"+\\\\"+g' | # Once for the echo, once again because inside ""s
+						sed 's+^+echo jshinfo You may want to delete ONE of these: del "\\"+ ; s+$+\\""+'
 					fi
 				fi
 				# jshinfo "$NUMTARGETS for $FNAME, using $TARGET_TO_USE"
