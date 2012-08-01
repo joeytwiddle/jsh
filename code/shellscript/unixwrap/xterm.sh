@@ -19,8 +19,10 @@
 
 # # fi
 
+favouriteTerms="xterm x-terminal-emulator konqueror gnome-terminal dtterm"
+
 # Find which xterm emulator we are going to use...
-for xtermExeName in xterm x-terminal-emulator konqueror gnome-terminal dtterm NONE_FOUND
+for xtermExeName in $favouriteTerms NONE_FOUND
 do
 
 	## PROBLEM: This creates a forkbomb if you, say, symlink from ~/bin/xterm to here.
@@ -90,6 +92,7 @@ then
 	## These are these same, but seem weird - am I just used to Lucida?!
 	# XTERM_FONT='-schumacher-clean-medium-r-normal-*-*-120-*-*-c-*-iso646.1991-irv'
 	XTERM_FONT='-schumacher-clean-medium-r-normal-*-12-*-*-*-c-*-iso646.1991-irv'
+	# XTERM_FONT='-*-proggysmalltt-*-*-*-*-*-120-*-*-*-*-*-*'   ## wider and shorter than clean
 fi
 
 # XTERM_OPTS="$XTERM_OPTS -bg black -fg white"
