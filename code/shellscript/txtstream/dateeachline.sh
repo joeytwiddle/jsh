@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ## jsh-help: Prepends each line of output with the date/time it was printed, like a logfile.
 ## jsh-help: Use -fine to display time in seconds+nanoseconds.
 
@@ -14,6 +16,6 @@ fi
 
 while read LINE
 do
-	TIME=`date +"$FORMAT"`
+	TIME=$(date +"$FORMAT")
 	echo "$TIME $LINE"
 done
