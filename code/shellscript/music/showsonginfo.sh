@@ -1,33 +1,5 @@
 #!/bin/bash
 
-# FONT='-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*'
-# FONT='-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*'
-# FONT='-*-helvetica-*-r-*-*-*-240-*-*-*-*-*-*'
-# FONT='-*-dusty-*-*-*-*-40-*-*-*-*-*-*-*'
-# FONT='-*-london tube-*-*-*-*-*-300-*-*-*-*-*-*'
-# FONT='-*-koshgarian ligh-*-*-*-*-*-300-*-*-*-*-*-*'
-# FONT='-*-robotic monkey-*-r-*-*-*-300-*-*-*-*-*-*'
-## Can't get eurostile in bold from xfstt.  :f
-# FONT='-*-eurostile-*-*-*-*-45-*-*-*-*-*-*-*'
-# smallerFONT='-*-eurostile-*-*-*-*-35-*-*-*-*-*-*-*'
-## Now I can't get minima either!!
-# FONT='-*-minima ssi-bold-*-*-*-*-340-*-*-*-*-*-*'
-# smallerFONT='-*-minima ssi-bold-*-*-*-*-240-*-*-*-*-*-*'
-# FONT='-*-microgrammadmedext-*-*-*-*-40-*-*-*-*-*-*-*'
-# smallerFONT='-*-microgrammadmedext-*-*-*-*-30-*-*-*-*-*-*-*'
-# FONT='-*-microgrammadmedext-*-*-*-*-44-*-*-*-*-*-*-*'
-# smallerFONT='-*-microgrammadmedext-*-*-*-*-34-*-*-*-*-*-*-*'
-## Heavy/Bold version:
-# FONT='-*-microgrammadbolext-*-*-*-*-44-*-*-*-*-*-*-*'
-# smallerFONT='-*-microgrammadbolext-*-*-*-*-34-*-*-*-*-*-*-*'
-## I get Terminus at least, which defaults to bold, but doesn't go over 320.
-FONT='-*-*-*-r-*-*-*-340-*-*-*-*-*-*'
-smallerFONT='-*-*-*-r-*-*-*-320-*-*-*-*-*-*'
-
-[ "$smallerFONT" ] || smallerFONT="$FONT"
-
-killall osd_cat 2>&1 | grep -v "^osd_cat: no process \(killed\|found\)$"
-
 PRE=""
 NL="
 "
@@ -74,9 +46,41 @@ do
 	# echo "$DIR:
 	# $NAME
 
+	OUTPUT="$PRE$NAME$TIME$YEAR$COMMENT$AMAROK_DATA$NL  Path: $DIR/"
+	echo "$OUTPUT"
+
+	## Display this output as a screen overlay, using osd_cat
 	## Try to background the rendering, so this script return to its caller soon.
-	## (Beware the echo "$OUTPUT" inside!)
 	(
+
+		# FONT='-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*'
+		# FONT='-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*'
+		# FONT='-*-helvetica-*-r-*-*-*-240-*-*-*-*-*-*'
+		# FONT='-*-dusty-*-*-*-*-40-*-*-*-*-*-*-*'
+		# FONT='-*-london tube-*-*-*-*-*-300-*-*-*-*-*-*'
+		# FONT='-*-koshgarian ligh-*-*-*-*-*-300-*-*-*-*-*-*'
+		# FONT='-*-robotic monkey-*-r-*-*-*-300-*-*-*-*-*-*'
+		## Can't get eurostile in bold from xfstt.  :f
+		# FONT='-*-eurostile-*-*-*-*-45-*-*-*-*-*-*-*'
+		# smallerFONT='-*-eurostile-*-*-*-*-35-*-*-*-*-*-*-*'
+		## Now I can't get minima either!!
+		# FONT='-*-minima ssi-bold-*-*-*-*-340-*-*-*-*-*-*'
+		# smallerFONT='-*-minima ssi-bold-*-*-*-*-240-*-*-*-*-*-*'
+		# FONT='-*-microgrammadmedext-*-*-*-*-40-*-*-*-*-*-*-*'
+		# smallerFONT='-*-microgrammadmedext-*-*-*-*-30-*-*-*-*-*-*-*'
+		# FONT='-*-microgrammadmedext-*-*-*-*-44-*-*-*-*-*-*-*'
+		# smallerFONT='-*-microgrammadmedext-*-*-*-*-34-*-*-*-*-*-*-*'
+		## Heavy/Bold version:
+		# FONT='-*-microgrammadbolext-*-*-*-*-44-*-*-*-*-*-*-*'
+		# smallerFONT='-*-microgrammadbolext-*-*-*-*-34-*-*-*-*-*-*-*'
+		## I get Terminus at least, which defaults to bold, but doesn't go over 320.
+		FONT='-*-*-*-r-*-*-*-320-*-*-*-*-*-*'
+		smallerFONT='-*-*-*-r-*-*-*-280-*-*-*-*-*-*'
+
+		[ "$smallerFONT" ] || smallerFONT="$FONT"
+
+		killall osd_cat 2>&1 | grep -v "^osd_cat: no process \(killed\|found\)$"
+
 		killall osd_cat 2>&1 | grep -v "^osd_cat: no process \(killed\|found\)$"
 		# ` mp3info "$FILE" 2>/dev/null `" |
 		# osd_cat -c orange -f '-*-lucida-*-r-*-*-*-220-*-*-*-*-*-*'
@@ -84,8 +88,6 @@ do
 		# for COL in white red green blue black
 		for COL in green
 		do
-			OUTPUT="$PRE$NAME$TIME$YEAR$COMMENT$AMAROK_DATA$NL  Path: $DIR/"
-			echo "$OUTPUT"
 			# echo "$OUTPUT" | osd_cat -c "$COL" -d 8 -s 2 -f "$FONT"
 			echo "$OUTPUT" | head -n 1 | osd_cat -c "$COL" -i 8 -o 12 -d 7 -s 2 -f "$FONT" &
 			sleep 0.5
