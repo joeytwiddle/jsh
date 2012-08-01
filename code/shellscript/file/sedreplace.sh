@@ -111,8 +111,8 @@ else
 		if cmp "$FILE" "$TMPFILE" >/dev/null 2>&1
 		then
 
-			[ -n "$SHOWNOCHANGES" ] && echo "sedreplace: no changes made to $FILE" >&2
-			[ -n "$USEGREPFORSPEED" ] && echo "That is rather unexpected since grep thought we should!" >&2
+			[ -n "$SHOWNOCHANGES" ] && echo "sedreplace: No changes made to $FILE" >&2
+			[ -n "$USEGREPFORSPEED" ] && echo "sedreplace: No changes made to $FILE is rather unexpected since grep matched the regexp!" >&2
 
 			jdeltmp "$TMPFILE"
 
@@ -146,7 +146,7 @@ else
 				# cp -d --preserve=all "$FILE" "$FILE.b4sr"
 				if [ ! "$?" = 0 ]
 				then
-					echo "sedreplace: problem moving \"$FILE\" to \"$FILE.b4sr\"" >&2
+					echo "sedreplace: Problem moving \"$FILE\" to \"$FILE.b4sr\"" >&2
 					echo "Aborting!"
 					exit 1
 				fi
@@ -157,8 +157,8 @@ else
 			## modified (e.g. for build processes like make/ant).
 
 			cat "$TMPFILE" > "$FILE" &&
-			jdeltmp "$TMPFILE" ||
-			echo "sedreplace: problem moving \"$TMPFILE\" over \"$FILE\"" >&2
+			jdeltmp "$TMPFILE"
+			[ "$?" = 0 ] || echo "sedreplace: Problem moving \"$TMPFILE\" over \"$FILE\"" >&2
 
 			( [ -n "$SHOWCHANGES" ] || [ -n "$SHOWNOCHANGES" ] || [ -n "$VERIFY" ] ) && echo
 
