@@ -53,7 +53,7 @@ curseyellow
 MARKERTYPE=In_Mark
 LASTMARKERPOS=not_yet_set
 
-## gmplyer doesn't give the output!
+## gmplayer doesn't give the output!
 ## Oh well it does now on my sys so now it's back in:
 # [ "$MPLAYER" ] || MPLAYER=`which gmplayer`
 [ "$MPLAYER" ] || MPLAYER=`which mplayer`
