@@ -1,7 +1,8 @@
-#!/bin/sh
+#!/bin/bash
 # @packages faac gpac
 
-require_exes mplayer mencoder faac x264 MP4Box || exit
+require_exes mplayer mencoder faac x264 MP4Box filesize getvideoresolution \
+  getvideoduration verbosely || exit
 
 set -e
 # set -x
@@ -13,8 +14,11 @@ cat << !
 
 <options> nice -n 5 reencode_video_to_x264 <video_file>
 
+  Good quality:
+    LOSS=15 AUDIOQUALITY=100
+
   Fair quality (defaults):
-    LOSS=16 AUDIOQUALITY=50 FPS=23.976
+    LOSS=20 AUDIOQUALITY=80 FPS=23.976
 
   Video quality:
     LOSS=25
@@ -24,17 +28,18 @@ cat << !
 
   Low quality alternative:
     LOSS=30 FPS=15 MONO=1
-
-    Beware!  non-standard FPS might confuse some players!
+    (Beware!  non-standard FPS might confuse some players!)
 
   More options:
 
-    OUTSIZE=720x480
+    TARGET_SIZE=100   # for 100Meg file, LOSS ignored
+    OUTSIZE=720x480 or easier OUTWIDTH=720
     PREVIEW="-ss 0:01:00 -endpos 0:10"
-    OUTFILE="blah.x264"
-    MONO=1   Downmix to mono (Beware!  May halve volume if input was mono!)
+    OUTFILE="blah.x264"   # .avi lost sound, .mkv lost video, .mp4 is ok
+    MONO=1   # Downmix to mono (Beware!  May halve volume if input was mono!)
     X264_OPTIONS="--ratetol 5.0"
-      Allows bitrate/filesize to grow by 5% for later scenes which really need it
+      # Allows bitrate/filesize to grow by 5% for later action scenes
+    TWOPASS=true   # experimental, use with TARGET_SIZE
 
 !
 exit 1
@@ -44,21 +49,27 @@ fi
 
 ## TODO: Input size and fps could be obtained from mplayer's output line starting "VIDEO:"
 
+### Defaults:
 ## OUTSIZE should be input size, unless we are scaling with SCALEOPTS
 # [ "$OUTSIZE" ] || OUTSIZE=720x480
 [ "$FPS" ] || FPS=23.976
+# [ "$LOSS" ] || LOSS=8 ## ridiculous quality?
+# [ "$LOSS" ] || LOSS=12 ## great quality
+# [ "$LOSS" ] || LOSS=16 ## good film quality, a tiny bit lossy
+[ "$LOSS" ] || LOSS=20 ## sensible quality, pretty good but not bloated
 # [ "$LOSS" ] || LOSS=26 ## web video quality
-[ "$LOSS" ] || LOSS=16 ## reasonable video quality, a tiny bit lossy
-# [ "$LOSS" ] || LOSS=12 ## good video quality
-# [ "$LOSS" ] || LOSS=8 ## film quality?
 # AUDIOQUALITY=40 can create unpleasant distortion
-[ "$AUDIOQUALITY" ] || AUDIOQUALITY=50   # 100
+[ "$AUDIOQUALITY" ] || AUDIOQUALITY=80
 
 # PREVIEW="-ss 0:01:00 -endpos 0:10"
 ## Not recommended: MOREOPTS="--ratetol 5.0" as it can cause file size to blow out
 ## --crf already attempts to reduce quality of less-important frames
 ## However ratetol can be useful for climactic movies, where we expect to need
 ## a higher bitrate for the end scenes than the earlier parts of the movie.
+
+# tmpDir=.
+# tmpDir=/dev/shm
+tmpDir=/tmp
 
 ## Needed for some .flv files (e.g. from YouTube)
 fixTooManyPtsError="-nocorrect-pts"
@@ -67,6 +78,16 @@ if [ -z "$INSIZE" ]
 then
 	INSIZE="`getvideoresolution "$INFILE"`"
 	debug "Got input resolution: $INSIZE"
+fi
+
+if [ ! -z "$OUTWIDTH" ]
+then
+  INWIDTH="`echo "$INSIZE" | sed 's+x.*++'`"
+  INHEIGHT="`echo "$INSIZE" | sed 's+.*x++'`"
+  OUTHEIGHT=$(( INHEIGHT * OUTWIDTH / INWIDTH / 2 * 2 ))
+  # x264 demands a multiple of 2.  Let's force that for width too, just in case!
+  OUTWIDTH=$(( OUTWIDTH / 2 * 2 ))
+  OUTSIZE="$OUTWIDTH"x"$OUTHEIGHT"
 fi
 
 [ -z "$OUTSIZE" ] && OUTSIZE="$INSIZE"
@@ -79,6 +100,9 @@ then
 	## mplayer will scale the video down, so the insize to x264 will change:
 	INSIZE="$OUTSIZE"
 fi
+
+# In seconds
+INPUT_VIDEO_DURATION=`getvideoduration "$INFILE" | sed 's+\..*++'`
 
 ## We want to keep temp audio files associated with their source file, so multiple encodes will not collide.
 WAVFILE="$INFILE.audio.wav"
@@ -95,18 +119,17 @@ AACFILE="$INFILE.audio.aac"
 TMPWAVFILE="$$.audiodump_tmp.wav"
 
 ## The temp wav file is pretty large, sometimes larger than the final video!
-## We could dump the wav-file to memory.  This is a silly idea on busy
-## machines, it can cause a lot of application memory to be pushed to swap!
-# targetDir=/dev/shm
+## E.g. 2.0G for a feature-length movie.  Set tmpDir above.
+## We could dump the wav-file to memory (/dev/shm).  But this is a bad idea on
+## busy machines, it can cause a lot of application memory to be pushed to swap!
 ## Since the data is written and read linearly, we can just store it on a drive
 ## with enough space (preferably different from the drive we are reading from).
-targetDir=/tmp
-if [ -w "$targetDir" ]
+if [ -w "$tmpDir" ]
 then
-	WAVFILE="$targetDir"/"`basename "$WAVFILE"`"
-	TMPWAVFILE="$targetDir"/"`basename "$TMPWAVFILE"`"
+	WAVFILE="$tmpDir"/"`basename "$WAVFILE"`"
+	TMPWAVFILE="$tmpDir"/"`basename "$TMPWAVFILE"`"
 	## I won't do this unles $AACFILE is cleaned up every time.  It might leave unwanted files around!
-	# AACFILE="$targetDir"/"`basename "$AACFILE"`"
+	# AACFILE="$tmpDir"/"`basename "$AACFILE"`"
 	## In fact TODO: if interrupted, the current script might leave incomplete $OUTFILE or $FIFOFILE visible in the videos' folder, or .wav files HIDDEN in /dev/shm.  If detected, the user should at least be warned!
 fi
 
@@ -125,6 +148,8 @@ then
 		## I decided it was easier if we only encode the audio once, then nobody
 		## has to worry about whether the $AACFILE file is out-of-date or not.
 		## This does mean preview audio comes out wrong.
+		## We also need a full audio file so we can correctly calculate
+		## ENCODING_RATE from TARGET_SIZE later.
 
 		[ "$MONO" = 1 ] && MPLAYER_AUDIO_OPTS="$MPLAYER_AUDIO_OPTS -af pan=1:0.5:0.5"
 		## This eval is only needed to do the 2> redirection inside verbosely!  :P
@@ -135,6 +160,7 @@ then
 	verbosely faac -q "$AUDIOQUALITY" --mpeg-vers 4 -o "$AACFILE" "$WAVFILE" &&
 	rm -f "$WAVFILE"
 fi
+
 
 
 ### Output in a nice format for x264:
@@ -152,12 +178,12 @@ then
 	fi
 else
 	rm -f "$FIFOFILE"
-	if ! mkfifo "$FIFOFILE"
+	if [ "$TWOPASS" ] || ! mkfifo "$FIFOFILE"
 	then
 		# Some filesystems do not support fifo files!
-		# So we will just use a normal file.  That might be best placed in /tmp.
-		FIFOFILE="/tmp/`basename "$FIFOFILE"`"
-		echo "Warning: Failed to create FIFO.  Will use tmpfile instead: $FIFOFILE"
+		# So we will just use a normal file.
+		FIFOFILE="$tmpDir/`basename "$FIFOFILE"`"
+		echo "Using tmpfile instead of fifo: $FIFOFILE"
 	fi
 fi
 
@@ -179,16 +205,38 @@ fi
 
 ### Encode with x264:
 
-## Basic:
-verbosely x264 --fps "$FPS" --crf "$LOSS" --input-res "$INSIZE" $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE"
+if [ "$TARGET_SIZE" ]
+then
+	# In kilobytes
+	AUDIO_SIZE=$(( $(filesize "$AACFILE") / 1024 ))
+	SIZE_LEFT=$(( TARGET_SIZE*1024 - AUDIO_SIZE ))
+	BITRATE=$(( SIZE_LEFT*8 / INPUT_VIDEO_DURATION ))
+	ENCODING_RATE="--bitrate $BITRATE"
+else
+	ENCODING_RATE="--crf $LOSS"
+fi
+
+FPSINT="`echo "$FPS" | sed 's+\..*++'`"
+numFrames=$(( INPUT_VIDEO_DURATION * FPSINT ))
+echo "At least $numFrames frames to encode..."
+
+if [ "$TWOPASS" ]
+then
+
+	## For 2-pass, replace --crf "$LOSS" with --bitrate and pass number:
+	verbosely x264 --pass 1 --bitrate $BITRATE --fps "$FPS" --input-res "$INSIZE" $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE"
+	verbosely x264 --pass 2 --bitrate $BITRATE --fps "$FPS" --input-res "$INSIZE" $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE"
+	## Note with YUV input, this will only hit target bitrate if FPS matches input file.
+
+else
+
+	## Basic:
+	verbosely x264 $ENCODING_RATE --fps "$FPS" --input-res "$INSIZE" $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE"
+
+fi
 
 ## Readable by most players (Quicktime):
-# verbosely x264 --fps "$FPS" --bframes 2 --crf "$LOSS" --subme 6 --analyse p8x8,b8x8,i4x4,p4x4 $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE" --input-res "$INSIZE"
-
-## For 2-pass, replace --crf "$LOSS" with --bitrate and pass number:
-# x264 --pass 1 --bitrate 1000 -o <output> <input>
-# x264 --pass 2 --bitrate 1000 -o <output> <input>
-## Note with YUV input, this will only hit target bitrate if FPS matches input file.
+# verbosely x264 --fps "$FPS" --bframes 2 $ENCODING_RATE --subme 6 --analyse p8x8,b8x8,i4x4,p4x4 $X264_OPTIONS -o "$OUTFILE" "$FIFOFILE" --input-res "$INSIZE"
 
 ## NOTE: The x264 --progress and --no-psnr options seem to have disappeared!
 
@@ -207,7 +255,9 @@ if [ "$PREVIEW" = "" ]
 then cleanup_audio_files
 fi
 
-if find /tmp/ /dev/shm/ -maxdepth 1 -iname "*.wav" | grep .
+rm -f x264_2pass.log x264_2pass.log.mbtree
+
+if find $tmpDir/ /dev/shm/ -maxdepth 1 -iname "*.wav" | grep .
 then echo "The above files are left on your (ram)disk!"
 fi
 
