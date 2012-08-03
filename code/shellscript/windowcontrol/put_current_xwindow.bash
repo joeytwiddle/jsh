@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/dash
 # jsh-ext-depends: xdotool xwininfo sed cut xdpyinfo
 
 ## Moves your current window to corner/edge/center of screen.
@@ -45,7 +45,7 @@ yoffset=`extract_window_property "Relative upper-left Y"`
 # width=`echo "$geometry" | sed 's/\([0-9]*\)x\([0-9]*\)+.*/\1/'`
 
 oldwidth="$width" ; oldheight="$height"
-[ "$width" -lt 80 ] && width=$(( $width * 8 ) && height=$( $height * 8 ))
+[ "$width" -lt 80 ] && width=$(( $width * 8 )) && height=$(( $height * 8 ))
 
 # scrwidth="`getxwindimensions | cut -d x -f 1`"
 # scrheight="`getxwindimensions | cut -d x -f 2`"
