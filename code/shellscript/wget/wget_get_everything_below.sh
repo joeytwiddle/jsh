@@ -1,0 +1,1 @@
+wget --mirror --no-parent "$@"
