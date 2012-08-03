@@ -12,13 +12,19 @@
 
 FILE="$1"
 
-PROTOCOLS="(mms|rtsp)"
+# Originally intended for mms and rtsp, but works equally well on streaming
+# radio .m3u files which offer http URLs.
+PROTOCOLS="(mms|rtsp|http)"
 
 cat "$FILE" |
 # extractregex '"(mms:\/\/[^"]*)"' |
 # extractregex -atom "[\"']($PROTOCOLS:\/\/[^\"']*)[\"']" |
 extracturls | egrep "^$PROTOCOLS:" |
-
 removeduplicatelines |
-withalldo verbosely mplayer
+
+# pipeboth |
+# withalldo verbosely mplayer
+
+tee /tmp/mms.list
+mplayer -playlist /tmp/mms.list
 
