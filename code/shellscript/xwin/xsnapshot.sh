@@ -6,6 +6,20 @@
 DESTDIR=/tmp
 DESTDIR="$HOME/screenshots" ; mkdir -p "$DESTDIR" || exit 1
 
+windowid="root"
+if [ "$1" = "-window" ]
+then
+	shift
+	windowid=`xdotool getwindowfocus`
+fi
+
+if [ "$1" = --help ]
+then
+	echo "xsnapshot [-window]"
+	echo "  will take a screenshot of the current desktop (or with -window the currently focused window) and save it in $DESTDIR"
+	exit 0
+fi
+
 if [ "$1" ]
 then DESTINATION="$1"
 else DESTINATION="$DESTDIR"/screenshot-$$.png
@@ -15,7 +29,7 @@ fi
 ## But we could just scrap compatibility with them, and save pngs instead (much smaller but require processing).
 
 TMPFILE=/tmp/screenshot-$$-tmp.bmp
-import -window root "$TMPFILE"
+import -window "$windowid" "$TMPFILE"
 
 # if endswith "$DESTINATION" .bmp
 # then mv "$TMPFILE" "$DESTINATION"
