@@ -29,8 +29,10 @@ indeximagesindir () {
 	while read IMAGE
 	do
 		echo "<A HREF=\"$IMAGE\">"
-		echo "$IMAGE<BR>"
-		echo "<IMG src=\"$IMAGE\"><BR>"
+		echo "<small>$IMAGE</small><BR>"
+		# width='95%' reduces overlarge images well, but we don't want to scale up small images!
+		# width='20%' makes nice thumbnails, clicking provides the browser's image viewer, the image should be cached.
+		echo "<IMG width='20%' src=\"$IMAGE\"><BR>"
 		echo "</A>"
 		echo "<BR>"
 	done
