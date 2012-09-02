@@ -12,12 +12,14 @@
 
 # Ugh
 # SPECIALSTR="nobodyWo0ldn6teverUsastwiunglikevish_unlessOfCourseTh3yw3r34<<355/|\|gthisFile!"
-# SPECIALSTR="nbdW0d6eeUatinlkvs"
-# sed "s$@\(.*\)$SPECIALSTR\1" | sed "s.*$SPECIALSTR"
+SPECIALSTR="nbdW0d6eeUatinlkvs"
+sed "s$@\(.*\)$SPECIALSTR\1" | sed "s.*$SPECIALSTR"
 
 ## OK so we can't replace the stuff before away, because we can only match it greedily.
 ## But what we could do is match the thing we want to keep greedily, and throw the rest away.
-grep -o "$*.*" | sed "s^$*"
+## This broke slowgetauth on spud!  afterfirst "<[^>]*> *[^ ]* "
+## I think perhaps it breaks the original behaviour, of doing nothing if our regexp is not found?
+# grep -o "$*.*" | sed "s^$*"
 
 ## Nope:
 # sed "s+.\($@.*\)+\1+g"
