@@ -28,13 +28,17 @@ indeximagesindir () {
 	$sortCommand |
 	while read IMAGE
 	do
+		echo "<SPAN style='float: left; padding: 5px;'>"
+		echo "<CENTER>"
 		echo "<A HREF=\"$IMAGE\">"
-		echo "<small>$IMAGE</small><BR>"
 		# width='95%' reduces overlarge images well, but we don't want to scale up small images!
 		# width='20%' makes nice thumbnails, clicking provides the browser's image viewer, the image should be cached.
-		echo "<IMG width='20%' src=\"$IMAGE\"><BR>"
+		echo "<IMG width='200px' src=\"$IMAGE\"><BR>"
+		echo "<small>$IMAGE</small>"
 		echo "</A>"
-		echo "<BR>"
+		echo "</CENTER>"
+		echo "</SPAN>"
+		echo '&nbsp;'
 	done
 
 }
