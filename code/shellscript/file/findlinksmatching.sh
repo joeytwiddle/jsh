@@ -15,20 +15,22 @@
 ## Examples:
 ##
 ##   % findlinksmatching alternatives/mail
-##   = /usr/bin/mail -> /etc/alternatives/mail
+##   /usr/bin/mail -> /etc/alternatives/mail
 ##
 ##   % findlinksmatching cpp
-##   = /etc/alternatives/cpp -> /usr/bin/cpp
-##   = /lib/cpp -> /etc/alternatives/cpp
-##   = /usr/share/doc/gcc -> cpp
+##   /etc/alternatives/cpp -> /usr/bin/cpp
+##   /lib/cpp -> /etc/alternatives/cpp
+##   /usr/share/doc/gcc -> cpp
 ##
 ##   % findlinksmatching bash
-##   = /bin/sh.distrib -> bash
-##   = /bin/rbash -> bash
+##   /bin/sh.distrib -> bash
+##   /bin/rbash -> bash
 ##
 ##   % findlinksmatching ash
-##   = /bin/sh.distrib -> ash
-##   = /bin/rbash -> ash
+##   /bin/sh.distrib -> ash
+##   /bin/rbash -> ash
+##
+##   % findlinksmatching . | striptermchars | grep '\.u$'
 ##
 ## If you are worried about breaking symlinks during a session, keep watch:
 ##
@@ -43,6 +45,13 @@
 search="$1"
 
 . "$JPATH"/tools/faster_jsh_colors.init
+
+## find / can take a long time, and meanwhile be heavy enough to affect system
+## performance.  So we reduce processor and io-usage if possible.
+be_nice="nice -n 5"
+if which ionice >/dev/null 2>&1
+then be_nice="$be_nice ionice -c 3 -n 7"
+fi
 
 ## NOTE: Much of the below came from rmlink_safely.
 ##
@@ -63,7 +72,7 @@ search="$1"
       # -o -path '**/var/**' -o -path '**/opt/**' \
       # -o -path '**/bin/**' -o -path '**/sbin/**' \
 MEMO_IGNORE_EXITCODE=true MEMO_IGNORE_DIR=true memo -t '16 days' \
-  find / -path '**/RECLAIM/**' \
+  $be_nice find / -path '**/RECLAIM/**' \
       -o -path '**/proc/**' -o -path '/dev/**' -o -path '/sys/**' \
       -o -path '**/hwibot/dev/**' -o -path '**/hwibot/mnt/**' -o -path '**/hwibot/home/**' \
       -o -path '/oldhwibaks/**' -o -path '**/etc.*/**' \
