@@ -13,3 +13,6 @@ if test -e "$1" && test ! ""`justlinks "$1"` = ""; then
 else
 	exit 1
 fi
+
+# Some alternatives offered by bash (-h, -l) only succeed if the link is non-broken?
+
