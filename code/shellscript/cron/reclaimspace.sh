@@ -1,4 +1,8 @@
 #!/bin/bash
+# jsh-ext-depends: find
+# jsh-depends-ignore: randomorder there flatdf
+# jsh-depends: takecols drop error issymlink
+
 ## TODO: Does not cleanup sockets.
 
 ## DONE: Now does clean up empty directories, as well as files and symlinks in /RECLAIM.
@@ -20,7 +24,7 @@
 
 ## SAFETY:  Don't be scared; look below.  The two rm and rmdir commands both have /RECLAIM/ hardwired into them.  Therefore they will never delete anything that isn't below a directory called RECLAIM (or "reclaim" on some fs).
 
-## TOUBLESHOOTING: If (like me) you get "Stale NFS file handle" errors on your (vfat filing) system, you should swap "find . -type f" below for the "ls -R | ls-Rtofilelist | filesonly -inclinks" line.
+## TOUBLESHOOTING: If you get "Stale NFS file handle" errors on your vfat filing system, you can ignore them by swapping "find . -type f" below for the "ls -R | ls-Rtofilelist | filesonly -inclinks" line.
 
 ## Rare danger of infinite loop if somehow rm -f repeatedly succeeds but does not reduce disk usage, or the number of files in RECLAIM/ .
 ## DONE: so that reclaimspace may be run regularly from cron, put in a max loop threshold to catch that condition.
@@ -30,10 +34,6 @@
 # set -e
 
 ## Fri Jun 15 15:00:36 BST 2007: That's fucking hilarious.  I'm working on my latest most stable version of reclaimspace, and I've run out of diskspace.  :P
-
-# jsh-ext-depends: find
-# jsh-depends-ignore: randomorder there flatdf
-# jsh-depends: takecols drop error issymlink
 
 if [ "$1" = --help ]
 then
@@ -114,99 +114,132 @@ function spaceon() {
 
 function reclaimfrom() {
 
-	# cd "$1" ## Should have been done already
+	MNTPNT="$1"
+	# reclaimDir="$MNTPNT/RECLAIM"
+	## We don't use "$reclaimDir" - like a nutter we hard-code "$MNTPNT"/RECLAIM every time, "for safety".
 
-			## I had a lot of trouble if I broke out of the while loop, because the find was left dangling and still outputting (worse on Gentoo's bash).
-			## I did try cat > /dev/null to cleanup the end of the stream, but if I had already passed, the cat caused everything to block!
-			## So I decided it's easier (especially if the script might be modified in the future), that the while loop should read all of find's output,
-			## but only act if low space requires it.
-			# nice -n 20 find . -type f |
-			# ( randomorder && echo ) | ## need this end line otherwise read FILE on last entry ends the stream and hence the sh is killed. (?)
-			# ( nice -n 20 find . -type f ; echo ; echo ; echo ) |
-			## After huge changes it turns out it was only the 20 that was the problem on Gentoo; 10 seems ok.
-			## This find | the rest means the rest never gets done if there are no files.
-			# nice -n 10 find . -type f |
-			## Oh dear: find was encountering "Stale NFS file handle" error and breaking out instead of continuing.
-			## This does better although it has two dependencies so find is preferable on non-symptomatic systems:
-			## But: This find can run really slow if your are on a busy system and/or . has many files and subdirs.  At least now it only runs when reclamation is needed.
-			## So testing: Possible solution: find | head -n 1000 might SIGHUP the find or otherwise stop it once 1000 lines have been produced.  =)  Try it the next time the problem is encountered...
-			nice -n 10 'ls' -a -R | ls-Rtofilelist | filesonly -inclinks |
-			# nice -n 10 find-typef_avoiding_stale_handle_error . | ## works but skips links :/
-			head -n 1000 | ## since that is the timeout/max we do below
+	## Moving this find outside of the conditional while has made it more efficient (without memo) when many files need reclaiming, but very inefficient when 0 files need reclaiming.
+	## Ideally we wouldn't do this if we check before and space is ok.
+	# if [ -d "$MNTPNT/RECLAIM" ] && [ "$SPACE" -lt "$MINKBYTES" ] && cd "$MNTPNT/RECLAIM"
+	## I was using this mode for debug purposes:
+	if [ -d "$MNTPNT/RECLAIM" ] && cd "$MNTPNT/RECLAIM"
+	# if [ -d "$MNTPNT/RECLAIM" ] && cd "$MNTPNT/RECLAIM" && [ "$SPACE" -lt "$MINKBYTES" ]
+	then
 
-			# ( ## This sub-clause is needed so that the cat can send the rest of the randomorder stream somwhere, other bash under gentoo complains about a "Broken pipe"
+		## I had a lot of trouble if I broke out of the while loop, because the find was left dangling and still outputting (worse on Gentoo's bash).
+		## I did try cat > /dev/null to cleanup the end of the stream, but if I had already passed, the cat caused everything to block!
+		## So I decided it's easier (especially if the script might be modified in the future), that the while loop should read all of find's output,
+		## but only act if low space requires it.
+		## Why use 'find .' when we could be explicit?  Well "$MNTPNT"/RECLAIM does not work here; we need a relative path here because we do "$MNTPNT"/RECLAIM/"$FILE" later.
+		nice -n 20 find . -type f |
+		# ( randomorder && echo ) | ## need this end line otherwise read FILE on last entry ends the stream and hence the sh is killed. (?)
+		# ( nice -n 20 find . -type f ; echo ; echo ; echo ) |
+		## After huge changes it turns out it was only the 20 that was the problem on Gentoo; 10 seems ok.
+		## This find | the rest means the rest never gets done if there are no files.
+		# nice -n 10 find . -type f |
+		## Oh dear: find was encountering "Stale NFS file handle" error and breaking out instead of continuing.
+		## This does better although it has two dependencies so find is preferable on non-symptomatic systems:
+		## But: This find can run really slow if your are on a busy system and/or . has many files and subdirs.  At least now it only runs when reclamation is needed.
+		## So testing: Possible solution: find | head -n 1000 might SIGHUP the find or otherwise stop it once 1000 lines have been produced.  =)  Try it the next time the problem is encountered...
+		# nice -n 10 find-typef_avoiding_stale_handle_error . |            ## works but skips links :/
+		# nice -n 10 'ls' -a -R | ls-Rtofilelist | filesonly -inclinks |   ## works ok
+		head -n 1000 | ## since that is the timeout/max we do below
 
-			## I can't get set -e to work on these tests; because they are in while loop?  Ah they do now I've reduced the ()s.
-			while read FILE && [ "$SPACE" -lt "$MINKBYTES" ]
-			do
+		# ( ## This sub-clause is needed so that the cat can send the rest of the randomorder stream somwhere, other bash under gentoo complains about a "Broken pipe"
 
-				## Never reached if there was no more stream to read files from:
-				# export DEBUG=true
-				[ "$DEBUG" ] && debug "$FILE"
+		## I can't get set -e to work on these tests; because they are in while loop?  Ah they do now I've reduced the ()s.
+		while read FILE && [ "$SPACE" -lt "$MINKBYTES" ]
+		do
 
-				ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
-				if [ "$ATTEMPTSMADE" -gt 999 ]
+			## Never reached if there was no more stream to read files from:
+			# export DEBUG=true
+			[ "$DEBUG" ] && debug "$FILE"
+
+			ATTEMPTSMADE=`expr "$ATTEMPTSMADE" + 1`
+			if [ "$ATTEMPTSMADE" -gt 999 ]
+			then
+				## BUG: of course this can be reached legitimately before the work is done if the reclaim dir is full of many small or empty files.
+				error "Stopping on \"timeout\" reclamation attempt # $ATTEMPTSMADE."
+				## TODO: should we really timeout all?  Wouldn't it be better to timeout this partition, but proceed to rest?
+				exit 12
+			fi
+
+			# echo "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
+
+			REMOVED=
+			if [ -f "$MNTPNT"/RECLAIM/"$FILE" ] || [ -L "$MNTPNT"/RECLAIM/"$FILE" ] ## working file or symlink to folder or broken symlink
+			then
+
+				## Under Linux, rm-ing a file which a process is still writing to, can leave the disk-space unreclaimed, until that process actually lets go of the file handle.
+				## We can force the data to be reclaimed immediately, by emptying the file before deleting it (e.g. using printf "" > $file).
+				## NOTE!  We should never do this if the file is a symlink!  The link may be pointing to a file outside the RECLAIM dir, but even if it is inside, really our current task is just to remove the link, not to destroy its target!
+				## This check is done by issymlink.  NOTE issymlink must correctly recognise both working and *broken* symlinks, since we don't want to printf "" into either.
+				## NOTE!  We should never do this if the file is a hardlink!  Hard links are costly to detect.  Empying one file will empty the other.
+				## DISABLED PERMANENTLY due to serious hardlink danger.
+				# if ! issymlink "$MNTPNT"/RECLAIM/"$FILE"
+				# then
+					# echo "${COLRED}${COLBOLD}Emptying:${COLRESET} printf '' > $MNTPNT"/RECLAIM/"$FILE"
+					# printf '' > "$MNTPNT"/RECLAIM/"$FILE"
+				# fi
+				## The better solution, where possible, is of course to close the process which is writing to the file.
+				## The real annoyance is that, whilst this feature is rarely needed, if the user *does* need it, it cannot be applied retrospectively; once we have rm-ed the file handle, we cannot empty that file afterwards, if it is still using disk-space!
+
+				echo "${COLRED}${COLBOLD}Reclaiming:${COLRESET} rm -f $MNTPNT"/RECLAIM/"$FILE"
+				## Now we need to turn set -e off!
+				# set +e
+				if rm -f "$MNTPNT"/RECLAIM/"$FILE"
 				then
-					## BUG: of course this can be reached legitimately before the work is done if the reclaim dir is full of many small or empty files.
-					error "Stopping on \"timeout\" reclamation attempt # $ATTEMPTSMADE."
-					## TODO: should we really timeout all?  Wouldn't it be better to timeout this partition, but proceed to rest?
-					exit 12
+					REMOVED=true
+					## TODO: refactor this so /RECLAIM/ is hardwired into rmdir line:
+					DIR=`dirname "$MNTPNT"/RECLAIM/"$FILE"`
+					rmdir -p "$DIR" 2>/dev/null
+					## TODO: problem, if done as root, and /RECLAIM is empty, this might remove the /RECLAIM directory itself!
+					## Well, here's a fix:!
+					mkdir -p "$MNTPNT"/RECLAIM ## Remake the /RECLAIM dir just in case it was deleted.
 				fi
+				# set -e
+			fi
 
-				# echo "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
+			# SPACE=`flatdf | grep "^$DEVICE[ 	]" | takecols 4`
+			SPACE=`spaceon "$MNTPNT"` ## Like flatdf but better - only works on one mountpoint at a time.
+			echo "Space increased to: $SPACE"
 
-				REMOVED=
-				if [ -f "$MNTPNT"/RECLAIM/"$FILE" ] || [ -L "$MNTPNT"/RECLAIM/"$FILE" ] ## working file or broken link
-				then
-					## The philosophy behind the printf, is that if apps do still have references to this files inode (they have the file open),
-					## but we are trying to destroy the data anyway, this might actually reclaim the diskspace that would otherwise not be reclaimed.
-					## I can see this working momentarily if the file is being appended to (eg. a logfile) but not sure if it is open at specific seek points (eg. a torrent download file).
-					## But we only actually do this if it /isn't/ a symlink!  (BUG TODO: This means we _will_ kill hardlinks :( )
-					## This relies on the issymlink script which /might/ be broken!  But alternatives offered by bash (-h, -l) only test whether the link is non-broken.  So if it's broken we would end up creating an empty file with this!
-					## issymlink appears to correctly recognise both working and broken symlinks.
-					if ! issymlink "$MNTPNT"/RECLAIM/"$FILE"
-					then
-						echo "Reclaiming: printf '' > $MNTPNT"/RECLAIM/"$FILE"
-						printf '' > "$MNTPNT"/RECLAIM/"$FILE"
-					fi
-					echo "Reclaiming: rm -f $MNTPNT"/RECLAIM/"$FILE"
-					## Now we need to turn set -e off!
-					# set +e
-					if rm -f "$MNTPNT"/RECLAIM/"$FILE"
-					then
-						REMOVED=true
-						## TODO: refactor this so /RECLAIM/ is hardwired into rmdir line:
-						DIR=`dirname "$MNTPNT"/RECLAIM/"$FILE"`
-						rmdir -p "$DIR" 2>/dev/null
-						## TODO: problem, if done as root, and /RECLAIM is empty, this might remove the /RECLAIM directory itself!
-						## Well, here's a fix:!
-						mkdir -p "$MNTPNT"/RECLAIM ## Remake the /RECLAIM dir just in case it was deleted.
-					fi
-					# set -e
-				fi
+			if [ -z "$REMOVED" ]
+			then
+				## Actually this doesn't get run if the partition has no files to reclaim.  I believe the read FILE above causes a breakout when it tries to read past end of stream.
+				echo "But I failed to reclaim: $FILE"
+				## When two reclaimspace's are running, the reclamation of $FILE
+				## by the other will cause this one to skip the partition.
+				## No problem; two shouldn't really be running simultaneously anyway.
+			fi
 
-				# SPACE=`flatdf | grep "^$DEVICE[ 	]" | takecols 4`
-				SPACE=`spaceon "$MNTPNT"` ## Like flatdf but better - only works on one mountpoint at a time.
-				echo "Space increased to: $SPACE"
+		done
 
-				if [ ! "$REMOVED" ]
-				then
-					## Actually this doesn't get run if the partition has no files to reclaim.  I believe the read FILE above causes a breakout when it tries to read past end of stream.
-					echo "But I failed to reclaim: $FILE"
-					## When two reclaimspace's are running, the reclamation of $FILE
-					## by the other will cause this one to skip the partition.
-					## No problem; two shouldn't really be running simultaneously anyway.
-				fi
+		## Check/summarise:
+		# find "$MNTPNT"/RECLAIM/ -type d | grep -v "^\.$" |
+		verbosely find "$MNTPNT"/RECLAIM/ -type d | grep -v "/$" |
+		reverse |
+		# catwithprogress |
+		verbosely foreachdo rmdir 2>&1 |
+		# grep -v "^rmdir: failed to remove '.*': Directory not empty$"
+		grep -v "Directory not empty"
 
-			done
 
-			# find . -type d | grep -v "^\.$" |
-			verbosely find "$1"/ -type d | grep -v "/$" |
-			reverse |
-			# catwithprogress |
-			verbosely foreachdo rmdir 2>&1 |
-			# grep -v "^rmdir: failed to remove '.*': Directory not empty$"
-			grep -v "Directory not empty"
+
+		## Recently(?) problems developed with this approach.  What if the last read reached end-of-stream?  Then cat probably blocks!
+		## Failed attempt solving with the echo above, so that loop will break out before reading EOS so we can read it here.
+		# cat > /dev/null
+		## So now we do it inside the loop.
+
+		echo " done $DEVICE $MNTPNT ($SPACE"k")"
+
+		# )
+
+	else
+		echo "Could not cd to reclaim dir: $MNTPNT/RECLAIM" >&2
+	fi
+
+	echo
 
 }
 
@@ -249,32 +282,7 @@ do
 
 		jshwarn "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
 
-		# reclaimfrom "$MNTPNT"/RECLAIM
-
-		## Moving this find outside of the conditional while has made it more efficient (without memo) when many files need reclaiming, but very inefficient when 0 files need reclaiming.
-		## Ideally we wouldn't do this if we check before and space is ok.
-		# if [ -d "$MNTPNT"/RECLAIM ] && [ "$SPACE" -lt "$MINKBYTES" ] && cd "$MNTPNT"/RECLAIM
-		## I was using this mode for debug purposes:
-		if [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM
-		# if [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM && [ "$SPACE" -lt "$MINKBYTES" ]
-		then
-
-			reclaimfrom "$MNTPNT"/RECLAIM
-
-			## Recently(?) problems developed with this approach.  What if the last read reached end-of-stream?  Then cat probably blocks!
-			## Failed attempt solving with the echo above, so that loop will break out before reading EOS so we can read it here.
-			# cat > /dev/null
-			## So now we do it inside the loop.
-
-			echo " done $DEVICE $MNTPNT ($SPACE"k")"
-
-			# )
-
-		else
-			echo "Could not cd to reclaim dir: $MNTPNT/RECLAIM" >&2
-		fi
-
-		echo
+		reclaimfrom "$MNTPNT"
 
 	fi
 
