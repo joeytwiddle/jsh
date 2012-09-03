@@ -141,7 +141,8 @@ do
 				$DIFFCOM $TMPFILE "$FILE" | more
 			;;
 			f|F)
-				flatdiff $TMPFILE "$FILE" | more
+				# flatdiff $TMPFILE "$FILE" | more
+				jdiffsimple -fine $TMPFILE "$FILE" | more
 			;;
 			s|S)
 				echo "`cursegreen`Skipping:`cursenorm` $FILE"
