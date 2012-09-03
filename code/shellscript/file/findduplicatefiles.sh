@@ -47,9 +47,12 @@ The search has three stages:
   -samename : Only check files whose name appears more than once
 
     A speed optimization if you know identical files will have the same name.
-    (Actually only significantly faster if there are many non-duplicate files
-    of matching size.)
+    (Actually only significantly faster if there are *many* non-duplicate files
+    of matching size but different name.)
     Might still match files with non-identical filenames, if both were hashed.
+    Since this replaces the group-by-size method, it could under some
+    circumstances produce larger groups!
+    The grouping process is also a large overhead.
 
 2) Second, similar files are hashed (cksum) to ensure they really are identical.
 
