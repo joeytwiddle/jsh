@@ -22,10 +22,16 @@ fi
 ## TESTING: Now we are trying a for instead.
 [ ! "$DIFFCOM" ] && DIFFCOM=diffandask
 diffandask() {
+	(
+	echo
+	age "$1"
+	age "$2"
+	echo
 	echo "The swapfile has the following changes:"
 	diff "$1" "$2" | diffhighlight
 	# echo "Red lines are missing from the swapfile, green lines are added by the swapfile."
 	echo "The swapfile will *remove* the red lines, and *add* the green lines."
+	) | more
 	echo -n "Do you want to (U)se these changes, (D)rop these changes, or (V)imdiff them? "
 	read userSays
 	case "$userSays" in
@@ -42,6 +48,7 @@ diffandask() {
 			echo "Doing nothing.  Recovered file is left: $2"
 		;;
 	esac
+	sleep 1
 }
 
 NL="
@@ -89,6 +96,11 @@ do
 		if [ "$INTERACTIVE" ] && verbosely fuser -v "$SWAPFILE"
 		then
 			jshwarn "Swapfile is already open; quitting"
+			## List the guilty processes, for convenience:
+			# fuser "$SWAPFILE" 2>/dev/null | tr ' ' '\n' |
+			fuser -v "$SWAPFILE" 2>&1 | drop 1 | head -n 5 | dropcols 1 2 4 5 | takecols 1 | trimempty |
+			tee /tmp/xpq |
+			while read pid; do findjob "$pid"; done
 			## BUG: isn't this VIMAFTER= guaranteed to be forgotten outside of this fine | while loop?  Is that even relevant, since we exit just below?
 			VIMAFTER=
 			sleep 4
@@ -105,12 +117,21 @@ do
 
 		jshinfo "Recovering swapfile $SWAPFILE to $RECOVERFILE"
 
+		[ "$COLUMNS" ] && [ "$COLUMNS" -lt 80 ] && jshwarn "recovervimswap has been known to stall when COLUMNS is small!"
+
 		## TODO: Could grep following for "^Recovery completed"
-		SEND_ERR=/dev/null ## FIXED: I think we fixed this by specifying the swapfile~ If there is more than 1 swapfile, vim may ask user to choose which one to recover (somehow it does read answer from terminal not stdin); but user cannot see message if we hide output!
+		SEND_ERR=/dev/null
+		## FIXED: I think we fixed this by specifying the swapfile~ If there is more than 1 swapfile, vim may ask user to choose which one to recover (somehow it does read answer from terminal not stdin); but user cannot see message if we hide output!
 		## This can give errors for other reasons (e.g. "cannot write .viminfo") even if the recovery went fine.
 		## In that case, the old method would keep creating identical recover files but never deleting the swapfile!
 		## So we don't check vim's exit code (until I fix this problem on my gentoo!)
-		verbosely vim --noplugin -r "$SWAPFILE" -c ":wq $RECOVERFILE" > "$SEND_ERR" 2>&1
+		verbosely vim --noplugin -r "$SWAPFILE" -c ":wq $RECOVERFILE" > "$SEND_ERR"
+
+		## Filthy hack to recover old swapfiles written by my old 32bit OS (makes use of my 32bit debian install in /mnt/hwibot)
+		## We use absolutepath although we could have used cd.  BUG: Won't work for paths which fail to resolve in the chroot.
+		## ssh "$USER@127.0.0.1" -p 22 was not working quite right, so we use sudo chroot su!
+		[ "$?" = 0 ] || verbosely sudo chroot /mnt/hwibot su - joey -c "vim --noplugin -r \"$SWAPFILE\" -c \":wq `absolutepath "$RECOVERFILE"`\"" > "$SEND_ERR"
+
 		if [ -f "$RECOVERFILE" ] && [ `filesize "$RECOVERFILE"` -gt 0 ]
 		then
 			## Recovery succeeded.  Let's give the recovered file the date it should have:
@@ -122,6 +143,7 @@ do
 			if cmp "$X" "$RECOVERFILE" > /dev/null
 			then
 				echo "Recovered file $RECOVERFILE is identical to original, so removing."
+				sleep 0.5   # If this message disappears immediately, the user may not know what the conclusion was!
 				rm "$RECOVERFILE" ## remove temp file
 				## Now if we are really confident about this script, we could
 				## delete the swapfile, or get vim to.
@@ -132,7 +154,7 @@ do
 				then
 					jshinfo "Recovered non-identical swapfile; running $DIFFCOM ..."
 					## Hmmm vim doesn't really like running whilst inside a while read loop!  ("not a terminal")
-					jshwarn "If you fix the problem now, please delete the recovered file:"
+					[ "$DIFFCOM" = diffandask ] || jshwarn "If you fix the problem now, please delete the recovered file:"
 					echo "del \"`realpath "$RECOVERFILE"`\""
 					# sleep 30
 					"$DIFFCOM" "$X" "$RECOVERFILE"
