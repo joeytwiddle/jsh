@@ -118,10 +118,11 @@ else
 
 		else
 
-			if [ -n "$SHOWCHANGES" ] || [ "$VERIFY" ]
+			if [ -n "$SHOWCHANGES" ] || [ -n "$VERIFY" ]
 			then
 				echo "$CURSEYELLOW""Changes to $FILE:$CURSENORM"
 				diff "$FILE" "$TMPFILE" | diffhighlight -nm
+				[ -n "$SHOWCHANGES" ] && echo
 			fi
 
 			if [ -n "$VERIFY" ]
@@ -135,6 +136,7 @@ else
 				else
 					echo "Patching $FILE"
 				fi
+				echo
 			fi
 
 			## TODO: sometimes we move it sometimes we don't!
@@ -159,8 +161,6 @@ else
 			cat "$TMPFILE" > "$FILE" &&
 			jdeltmp "$TMPFILE"
 			[ "$?" = 0 ] || echo "sedreplace: Problem moving \"$TMPFILE\" over \"$FILE\"" >&2
-
-			( [ -n "$SHOWCHANGES" ] || [ -n "$SHOWNOCHANGES" ] || [ -n "$VERIFY" ] ) && echo
 
 		fi
 
