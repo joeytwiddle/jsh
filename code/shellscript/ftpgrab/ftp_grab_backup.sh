@@ -3,9 +3,22 @@
 # OMG!  Why have we coerced this into working for ssh, at the expense of ftp
 # support, when we already have sftp_sync?!  This may have been a port of it!
 # This should be the ftp-only version, for when scp and ssh are unavailable.
+# Mmm no, this script does magic stuff which we do not want to duplicate
+# (SEARCH_FOLDERS_FOR_MATCH), so we should be trying to ensure both sftp and
+# ftp approaches work here.
+
+# BUG: After switching from scp to tar to download files, I managed to download
+# a file that was a symlink (didn't seem to have a local copy in
+# SEARCH_FOLDERS_FOR_MATCH).  To avoid this I have added h to the remote tar -
+# hope that works.
 
 # Preserve permissions
 SCP_OPTIONS="$SCP_OPTIONS -p"
+
+# Set this to h if you want to follow symlinks when downloading a file.
+# (Note, does not affect comparison stage, but that's currently done by
+# file-size so it works through symlinks anyway.)
+FOLLOW_SYMLINKS_ON_SERVER_DOWNLOAD="h"
 
 ## BUGS: On one server some text files appeared as 2 or 4 bytes longer remotely than the file we received locally, so these were always repeat-fetched. :|
 
@@ -256,7 +269,7 @@ else
 		cat ./files_to_bring.list |
 		# Escape chars which will otherwise fail: '(' ')' and ' '
 		sed 's+\([() ]\)+\\\1+g' |
-		withalldo ssh "$SSH_USERHOST" tar cz |
+		withalldo ssh "$SSH_USERHOST" tar cz"$FOLLOW_SYMLINKS_ON_SERVER_DOWNLOAD" |
 		tar xzv
 
 	else
