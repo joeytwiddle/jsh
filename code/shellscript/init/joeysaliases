@@ -221,24 +221,44 @@ alias xv=myxv
 alias l='. l'
 
 ## Haven't got used to this shortcut.  'ld' is already taken!
-alias dl='ls -ld'
-
-## Note: it's rather important that aliases don't get passed
-## down to child shells / processes, because this would likely
-## result in infinite loops.
-### Er, I think that might be the default anyway!
+# alias dl='ls -ld'
+## I'm still using: l -d
 
 alias mykilljob=". 'mykilljob' -jc"
 
 # alias wget='screen wget'
 
+# Wow I only added 'm' and 'g' in 2012.  How many keystrokes have I wasted?
+
 alias m='more'
 alias le='less -R'
+alias g='grep'
+
+alias wad='withalldo'
+alias fed='foreachdo'
+# Ever used?
+alias rdl='removeduplicatelines'
+
 alias c='cd'
-alias c.='cd ..'
-alias c..='cd ../..'
-alias c...='cd ../../..'
+alias ..='cd ..'
+alias ...='cd ../..'
+# alias c.='cd ..'
+# alias c..='cd ../..'
+# alias c...='cd ../../..'
+# In zsh, our ^ alias does nothing.  Although eval "^" works fine.
+# In bash we get ":s^: no previous substitution".  Again eval works fine.
+alias ^='cd ..'
+alias ^.='cd ../..'
 
 
 fi
+
+
+
+## Old Note: it's rather important that aliases don't get passed
+## down to child shells / processes, because this would likely
+## result in infinite loops.
+## Well naturally they don't.  The only danger is if the aliases are loaded
+## again by child scripts (e.g. from .bash_profile) and these aliases are
+## interpreted in scripts.
 
