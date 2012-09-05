@@ -13,10 +13,19 @@ then
 		# export PROMPT="%{[01;31m%}%? %{[00;32m%}%~/ %{[01m%}%{ %}"
 		# export RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})"
 
+		## Argh, I need to know if I'm in a chroot system!  Peeking at 'mount' can do this.
+
+		## This is a good indicator if user got here via ssh:
+		if [ -n "$SSH_CONNECTION" ]
+		then
+			PROMPT="%{[01;33m%}<$USER@$SHORTHOST> $PROMPT"
+			export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
+		fi
+
 elif test "$USER" = root
 then
 
-		## HEAD is for xttitleprompt
+		## HEAD is to inject our own xttitleprompt
 		# HEAD="%{[00;33m%}>%{[01;31m%}!%{[00;33m%}DANGER%{[01;31m%}!%{[00;33m%}<"
 		# HEAD="%{[00;33m%}>%{[01;31m%}!%{[00;33m%}ROOT%{[01;31m%}!%{[00;33m%}<"
 		# HEAD="%{[01;31m%}>%{[00;33m%}ROOT%{[01;31m%}<"
