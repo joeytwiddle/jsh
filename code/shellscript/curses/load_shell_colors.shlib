@@ -1,0 +1,40 @@
+## NOTE: These have previously been called $CURSE... because $COL... is already
+## used in my IRC/sh scripts and in the future we might want to apply them to
+## HTML output format too.
+##
+## Goal: When converting scripts from using `curse...` or $CURSE... to $COL...
+## we should bear in mind IRC, HTML, and other output formats, and place tags
+## correctly to undo colors later.
+##
+## E.g. in HTML we might need to echo "Name: ${COLRED}$userName${ENDCOL}"
+##
+## Argument: Whilst this will aid our scripts in adding colors to output for
+## terminals, IRC and HTML,
+## it is not a complete solution, because e.g. $userName above may need to be
+## escaped too.
+## So should we refactor to the new style, or wait until we have an escaping
+## strategy?
+##
+## TODO:
+##
+## Perhaps 'escapeoutput' or '${ESCAPEOUTPUT}' could determine what escaping to
+## use in the current environment?
+##
+##   echo "Name: ${COLRED}`${ESCAPEOUTPUT} "$userName"`${ENDCOL}"
+##
+## escapeoutput would call tohtml or toirc when appropriate.
+## Alternatively, $ESCAPEOUTPUT could be set to "tohtml" when $COL... are set.
+
+COLNORM=`cursenorm`
+COLBOLD=`cursebold`
+
+COLRED=`cursered`
+COLGREEN=`cursegreen`
+COLBLUE=`curseblue`
+COLCYAN=`cursecyan`
+COLMAGENTA=`cursemagenta`
+COLYELLOW=`curseyellow`
+COLWHITE=`cursewhite`
+COLBLACK=`curseblack`
+COLGREY=`cursegrey`
+
