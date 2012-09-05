@@ -187,7 +187,12 @@ else
 				## I wanted to add the ability to search more than just the local jsh tools.
 				## But actually there are shellscripts scattered all over my other-language projects.  We would need a sophisticated index to find them all in order to do a full search.
 				SCRIPT_PATH_SEARCH="$JPATH/tools/ $JPATH/code/other/cgi/ $JPATH/code/other/web/ /mnt/hwibot/usr/lib/cgi-bin/"
-				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 | sed -u "s+^$JPATH/tools/++" | highlight "\<$1\>" | highlight -bold "^[^ :-]*" cyan | more
+				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 |
+				grep -v 'grep: .* No such file or directory' |
+				sed -u "s+^$JPATH/tools/++" |
+				highlight "\<$1\>" |
+				highlight -bold "^[^ :-]*" cyan |
+				more
 
 				echo
 				jshquestion "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "
