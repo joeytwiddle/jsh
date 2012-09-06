@@ -1,3 +1,8 @@
+# jsh-depends: memo find
+# jsh-ext-depends: readlink find
+# jsh-depends-ignore: hwibot faster_jsh_colors.init
+# jsh-ext-depends-ignore: ionice link
+#
 ## Produces a list of symlinks which may point to or through the given file or
 ## path.  It basically searches all symlinks on the system for those where the
 ## link target contains the string provided.
