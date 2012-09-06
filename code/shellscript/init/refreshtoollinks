@@ -59,7 +59,7 @@ else
 	## The old one
 
 	echo "Collecting "
-	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
+	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" -o -name "*.shlib" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
 	# test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
 	echo "Linking"
 	ln -sf $files $JPATH/tools/
