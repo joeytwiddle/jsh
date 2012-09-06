@@ -1,3 +1,6 @@
+# jsh-depends: jgettmp jdeltmp
+# jsh-depends-ignore: there dog write before pipe
+# jsh-ext-depends-ignore: file
 ## TODO: If given a file, for efficiency pipebackto should seek to obtain a tmpfile on the partition the file is on.
 
 ## TODO POLICY: I don't know what it does now, but dog should act similarly to cat, but it should offer the feature that
