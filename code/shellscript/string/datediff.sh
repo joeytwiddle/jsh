@@ -1,4 +1,7 @@
 #!/bin/sh
+# jsh-depends-ignore: age
+# jsh-ext-depends-ignore: file
+
 if [ "$2" = "" ]
 then
         echo "datediff [-secs] <earlierdate> <laterdate>"
