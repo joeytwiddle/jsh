@@ -24,14 +24,6 @@ TARGET="$1"
 [ "$TARGET" ] || exit 1
 
 
-# export HOST="$HOST"_chroot_"$1"
-# export HOSTNAME="$HOSTNAME"_chroot_"$1"
-# export SHORTHOST="$SHORTHOST"_chroot_"$1"
-# export SHOWHOST="$SHOWHOST"_chroot_"$1"
-# export SHORTHOST="chroot@$SHORTHOST:$1"
-export PROMPTHOST="chroot:`echo "$1" | afterlast /`"
-## CONSIDER: maybe better to export CHROOT_IS=... and let anything below pick it up.
-
 
 export HIGHLIGHTSTDERR=true
 
@@ -53,8 +45,6 @@ undo_fix_proc () {
 	verbosely chroot "$TARGET" umount -lf /proc
 	verbosely umount "$TARGET"/proc
 }
-
-## TODO: why is this declared twice?!
 
 fix_dev () {
 	mount | grep "^/dev on $TARGET/dev .*bind" >/dev/null ||
@@ -138,17 +128,17 @@ fix_mounts_simple_bind () {
 	jbindmount /mnt "$TARGET"/mnt
 }
 
+undo_fix_mounts_simple_bind () {
+	## Unfortunately, I think this methods leaves the subdirs under the target chroot empty!
+	verbosely umount "$TARGET"/mnt
+}
+
 fix_mounts_many_binds () {
 	for MNTPNT in /mnt/*
 	do
 		mount | takecols 3 | grep "^$MNTPNT$" &&
 		jbindmount "$MNTPNT" "$TARGET"/"$MNTPNT"
 	done
-}
-
-undo_fix_mounts_simple_bind () {
-	## Unfortunately, I think this methods leaves the subdirs under the target chroot empty!
-	verbosely umount "$TARGET"/mnt
 }
 
 undo_fix_mounts_many_binds () {
@@ -166,11 +156,14 @@ fix_mounts_check_fstab () {
 	# pipeboth | ## a lot!
 	while read DEV MNTPNT FSTYPE OPTIONS BOOT CHECK
 	do
+		# echo "GOT >>> $DEV $MNTPNT $FSTYPE $OPTIONS $BOOT $CHECK"
 		[ "$MNTPNT" = / ] && continue ## avoid this one!  presumably done before we called jchroot :P
 		[ -d "$TARGET"/"$MNTPNT" ] || continue
-		mount | grep "^$DEV " |
-		while read LDEV on LMNTPNT type LTYPE LOPTIONS
-		do
+		# mount | grep "^$DEV " |
+		# while read LDEV on LMNTPNT type LTYPE LOPTIONS
+		# do
+		LMNTPNT="$MNTPNT"
+		[ -d "$LMNTPNT" ] || continue
 			if [ "$UNDO" ]
 			then verbosely umount "$TARGET"/"$MNTPNT"
 			# then verbosely mount -o umount --bind "$LMNTPNT" "$TARGET"/"$MNTPNT"
@@ -178,8 +171,8 @@ fix_mounts_check_fstab () {
 				jshinfo "Device $LDEV on $LMNTPNT should appear at $TARGET/$MNTPNT"
 				jbindmount "$LMNTPNT" "$TARGET"/"$MNTPNT"
 			fi
-			break
-		done
+			# break
+		# done
 	done
 }
 
@@ -213,6 +206,20 @@ check_exec
 
 ## TODO: if "$*" = "" then run su - ?
 
+## We could export something to tell the user's prompt we are in a chroot.  But
+## this won't be exported to children of the chroot's sshd, so this will not
+## affect the prompt of shells obtained by ssh-ing into the chroot.  So this
+## issue is unsolved.
+## Interestingly SSH_CLIENT or SSH_CONNECTION can tell us something!
+# export HOST="$HOST"_chroot_"$1"
+# export HOSTNAME="$HOSTNAME"_chroot_"$1"
+# export SHORTHOST="$SHORTHOST"_chroot_"$1"
+# export SHOWHOST="$SHOWHOST"_chroot_"$1"
+# export SHORTHOST="chroot@$SHORTHOST:$1"
+export PROMPTHOST="chroot:`echo "$1" | afterlast /`"
+## CONSIDER: maybe better to export CHROOT_IS=... and let anything below pick it up.
+
+## We can however mark the title of the current xterm, to remind us (force-passed later)
 ## TODO: also setup headers/prestrings for the screen and shell prompts; review and combine them all :)
 # xttitle "chroot: $*"
 XTTITLE_PRESTRING_BEFORE="$XTTITLE_PRESTRING"
