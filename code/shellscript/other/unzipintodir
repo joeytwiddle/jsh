@@ -1,3 +1,39 @@
-mkdir "$1.unzipped"
-cd "$1.unzipped"
-tar xfz "../$1"
+#!/bin/sh
+
+set -e
+
+ark="$1"
+type="`echo "$ark" | sed 's+.*\.++'`"
+# type="`echo "$ark" | sed 's+.*\.\([^.]*\)+\1+'`"
+# name="`basename "$ark" .zip .tgz`"
+# name="`echo "$ark" | sed 's+^.*/\([^/]*\)\.[^.]*$+\1+'`"
+# Maybe had no /
+# [ "$name" = "$ark" ] && name="`echo "$ark" | sed 's+^\([^/]*\)\.[^.]*$+\1+'`"
+name="`echo "$ark" | sed 's+^.*/++' | sed 's+\.[^.]*$++'`"
+
+outfolder="$name"
+
+echo "t=$type o=$outfolder"
+
+if [ -e "$outfolder" ]
+then
+	echo "Cannot use folder - it exists: $outfolder"
+	exit 3
+fi
+
+# It might be in . or in /blah
+ark="`realpath "$ark"`"
+mkdir "./$outfolder"
+cd "./$outfolder"
+# Where is it now?
+
+if [ "$type" = zip ]
+then unzip "$ark"
+elif [ "$type" = tar ]
+then tar xfz "$ark"
+fi
+
+cd ..
+
+echo "$outfolder"
+
