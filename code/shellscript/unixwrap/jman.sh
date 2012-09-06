@@ -4,9 +4,10 @@ JMAN_SPECIAL_COLORS=1
 ## Popup the man window first if running in X:
 if xisrunning
 then
-	[ "$JMAN_SPECIAL_COLORS" ] && echo -e "*colorBDMode: on\n*colorULMode: on\n*colorBD: blue\n*colorUL: brown" | xrdb -merge
+	## echo -e failed to output the \n correctly in sh/dash, so using printf.
+	[ -n "$JMAN_SPECIAL_COLORS" ] && printf "*colorBDMode: on\n*colorULMode: on\n*colorBD: blue\n*colorUL: brown" | xrdb -merge
 	manpopup "$@"
-	[ "$JMAN_SPECIAL_COLORS" ] && ( sleep 5 ; echo -e "*colorBDMode: off\n*colorULMode: off" | xrdb -merge ) &
+	[ -n "$JMAN_SPECIAL_COLORS" ] && ( sleep 5 ; printf "*colorBDMode: off\n*colorULMode: off" | xrdb -merge ) &
 fi
 
 ## If the command is a jsh script, show jsh documentation (may popup, but always asks questions in the terminal):
