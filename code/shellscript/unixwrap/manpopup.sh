@@ -1,5 +1,8 @@
 #!/bin/sh
 
+## Pops up the relevant man page in a new window (or in a new tab if using screen).
+## Determines the maximum width of the man page in advance, so window can be appropriately sized.  (Some pages can be formatted very wide, whilst others seem fixed at 80.)
+
 ## DONE: Problems under Gentoo because memo is not caching because man returns non-zero exit code.
 ##       OK added fix to rememo, so it cats the cache whether the command succeeded or not.  (Seems appropriate!)
 
@@ -18,6 +21,12 @@
 
 REALMAN="`jwhich man`"
 # INJ=`jwhich inj $1`
+# REALMAN=/usr/bin/man
+if [ ! -x "$REALMAN" ]
+then
+	echo "man not found! [$REALMAN]"
+	exit 97
+fi
 
 ## Gah!  No matter what I do here, MANPOPUP_DESIRED_WIDTH is ignored, and the calling term's COLUMNS is used instead!
 # unset COLUMNS
@@ -84,7 +93,10 @@ then
 		## Replace the cached copy:
 		dog "$cachedPage"
 
-		whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e "less \"$cachedPage\""
+		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e "less \"$cachedPage\""
+		## Gah! Displaying our cached page with 'less' or with 'more' loses any bold/underline color modes set in .Xresources or by JMAN_SPECIAL_COLORS.  Has our cached copy dropped the bd/ul hints?  Or is less not showing them?
+		## The colors work fine if we use man itself, and not our cached copy.
+		whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e "$REALMAN -a \"$*\""
 
 	fi
 else
@@ -97,5 +109,6 @@ fi
 # then jdoc "$@"
 # fi
 
+## Ummm, so much for caching?
 ( sleep 120 ; rm "$cachedPage" ) &
 
