@@ -33,10 +33,15 @@ cd "$PWDBEFORE"
 
 PATHS_TO_SYSTEM_BINARIES="/bin /usr/bin /sbin" # /usr/sbin dunno why really should be in!
 
-## Ever-present programs which we don't want to observe dependencies on:
+## Ever-present programs to ignore - we don't want to manage these as dependencies:
 ## TODO: turn this into a line-delimited list.
 ## TODO: For the sake of curiousity, check which packages the progs belong to.
+## CONSIDER: This will mask out any jsh script with the same name - do we ever want to consider them as deps.  (We sometimes use a bash script with the same name as a fallback if the binary is not present.  Probably not of interest for coreutil packages, only optional ones.)
 EVER_PRESENT='^\('
+## New: Generate the list automatically from coreutils system package:
+EVER_PRESENT="$EVER_PRESENT""`memo eval "dpkg -L coreutils | grep /bin/ | filesonly -inclinks | filter_list_with test -x | afterlast /bin/ | toregexp | sed 's+$+\\\\\\|+' | tr -d '\n'"`"
+## Old: Manually entered list.
+EVER_PRESENT="$EVER_PRESENT"'sed\|file\|' # file not because it's always installed, but because it appears so often as a word in docs or as a varname etc.
 EVER_PRESENT="$EVER_PRESENT"'printf\|echo\|test\|clear\|cp\|mv\|ln\|rm\|ls\|kill\|'
 EVER_PRESENT="$EVER_PRESENT"'touch\|mkdir\|tr\|sh\|nice\|sleep\|date\|'
 EVER_PRESENT="$EVER_PRESENT"'chmod\|chgroup\|chown\|cat\|more\|head\|tail\|grep\|egrep\|du\|'
@@ -45,12 +50,13 @@ EVER_PRESENT="$EVER_PRESENT"'true\|false\|which\|env\|'
 ## Dunno whether to document dependency on expr.  It's builtin to modern shells, and part of coreutils.  Only really needed if there is ever a system out there without it as binary or builtin to shell.  It may present dependency resolution problems, if the binary is absent, and jsh doesn't realise expr is provided by sh.
 EVER_PRESENT="$EVER_PRESENT"'expr\|'
 EVER_PRESENT="$EVER_PRESENT"'\)$'
+# jshinfo "EVER_PRESENT=$EVER_PRESENT"
 
 ## Will show up jsh programs as well as /bin ones.  (Faster without; even faster if specialised out!)
 ## Note: sometimes you will get duplicates, eg. 'lynx' and 'lynx (jsh)' in which case we have to decide whether on not the jsh one is really a dependency.
 BOTHER_JSH=true
 DISCRIMINATE_JSH=true
-if test ! $BOTHER_JSH; then DISCRIMINATE_JSH=; fi
+[ ! $BOTHER_JSH ] && DISCRIMINATE_JSH=
 
 
 
@@ -68,10 +74,10 @@ LIST=`jgettmp possdepslist`
 (
 ## TODO: Haven't yet included $HOME/bin (could just use $PATH!)
  find $PATHS_TO_SYSTEM_BINARIES -maxdepth 1 -type f | notindir CVS | afterlast / | trimsmall
- if [ $BOTHER_JSH ]
+ if [ -n "$BOTHER_JSH" ]
  then
    find $JPATH/tools -maxdepth 1 -type l | afterlast / | trimsmall |
-   if [ $DISCRIMINATE_JSH ]
+   if [ -n "$DISCRIMINATE_JSH" ]
    then sed 's+$+ (jsh)+'
    else cat
    fi
