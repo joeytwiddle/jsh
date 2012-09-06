@@ -1,4 +1,6 @@
 #!/bin/sh
+# jsh-depends: phonelookup dog ppp-off highlight extractregex
+# jsh-ext-depends: sed sudo
 TARGET="$*"
 
 ## Did the user give a number, or a name to look up?
