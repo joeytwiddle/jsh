@@ -3,6 +3,7 @@
 # export IGNORE_REGEXP="\(/Logs/\|/logs/\|\.tmp$\|/NetGamesUSA.com/\|/BT-\)"
 # export KEEP_OLD_VERSIONS=true
 # export TEST=true
+## See also: ftp_grab_backup
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
