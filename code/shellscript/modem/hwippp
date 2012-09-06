@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: ensure-ip-state
 
 case $1 in
   up)
