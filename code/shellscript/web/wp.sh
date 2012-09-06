@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## Wikipedia summary lookup over domain protocol (IP but not TCP or HTTP).
+
 QUERY="$*"
 
 RESPONSE="`
