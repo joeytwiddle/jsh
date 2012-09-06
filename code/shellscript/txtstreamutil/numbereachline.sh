@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ "$PADDING" ]
 then PADSTR="%0$PADDING"i
 else PADSTR="%03i"
