@@ -80,7 +80,7 @@ fi
 # use dlocate if it's available
 BIN=`jwhich dlocate`
 SEARCHEXP="$SEARCH"
-if [ "$USEDPKGOVERDLOCATE" ] || [ ! -x "$BIN" ]
+if [ -n "$USEDPKGOVERDLOCATE" ] || [ ! -x "$BIN" ]
 then
   BIN=`jwhich dpkg`
   SEARCHEXP="*$SEARCH*"
@@ -108,8 +108,9 @@ fi
 #
 if [ $SHOWALL ]
 then
-	## Old: $HEAD $BIN -l "$SEARCHEXP" | drop 5
-	## Aptitude does not like *pkg* so we just use pkg
+	## Unfortunately dpkg does not seem to show all packages.  (Virtual packages hidden?)
+	# $HEAD $BIN -l "$SEARCHEXP" | drop 5
+	## Neither of these need the *pkg* SEARCHEXP glob, so we just use SEARCH.
 	if which aptitude >/dev/null
 	then aptitude search "$SEARCH"
 	else apt-cache search "$SEARCH"
