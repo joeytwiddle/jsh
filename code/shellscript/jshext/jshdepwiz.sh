@@ -48,7 +48,7 @@
 ## DEPWIZ_VIGILANT makes getjshdeps and getextdeps less lazy: they will check for new dependencies even if some have already been defined.
 ## You want this on if any of the scripts may have been changed since its dependencies were defined.  (Should really be on by default, but SLOW if user only wants to compile scripts whose dependencies are valid (ie. on up-to-date jsh's, should be able to default off!), and FORCES INTERACTION unless DEPWIZ_NON_INTERACTIVE is set.)  Recommended solution: jsh developers have DEPWIZ_VIGILANT set, but by default it is off.  Or, invert the meaning of the boolean, but have neat checkouts set the var.
 ## Vigilance is not needed in order to include dependencies for scripts for which no dependency info has been generated, because vigilant checking is normal for such scripts.
-[ "$DEPWIZ_NOT_VIGILANT" ] || export DEPWIZ_VIGILANT=true
+[ -z "$DEPWIZ_NOT_VIGILANT" ] && export DEPWIZ_VIGILANT=true
 ## As you can see, it currently defaults to vigilant (not lazy)
 
 ## Makes getjshdeps and getextdeps very lazy: they won't check even if the script has no dependency info of that type
@@ -67,8 +67,13 @@ function getrealscript () {
 	if ! jwhich inj "$1"
 	then
 		# error "Not found inj: $1"
-		find "$JPATH/code/shellscript" -name "$1" -or -name "$1".sh | notindir CVS | head -n 1 | grep . ||
-		echo "$PWD/$1"
+		# verbosely find "$JPATH/code/shellscript/" -type f -name "$1" -or -name "$1".sh | notindir CVS | head -n 1 | grep . ||
+		# echo "$PWD/$1"
+		if [ -f "$PWD/$1" ]
+		then
+			jshwarn "$1 not found on PATH, using $PWD/$1"
+			echo "$PWD/$1"
+		fi
 	fi
 }
 
@@ -77,7 +82,7 @@ function gendeps () {
 		SCRIPT="$1"
 		REALSCRIPT=`getrealscript "$SCRIPT"`
 
-		echo "`cursemagenta`jshdepwiz: Checking dependencies for $SCRIPT`cursenorm`" >&2
+		echo "`cursemagenta`jshdepwiz: Checking dependencies for `curseyellow`$SCRIPT`cursenorm`" >&2
 
 		# FOUND_JSH_DEPS=`memo -f "$REALSCRIPT" findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
 		FOUND_JSH_DEPS=`findjshdeps "$SCRIPT" | grep " (jsh)$" | takecols 1 | grep -v "^$SCRIPT$" | tr '\n' ' '`
@@ -88,9 +93,9 @@ function gendeps () {
 		KNOWN_EXT_DEPS=`extractdep "$SCRIPT" ext-depends ext-depends-tocheck ext-depends-ignore`
 		# CURRENT_TODO_JSH_DEPS=`extractdep "$SCRIPT" depends-tocheck`
 		# CURRENT_TODO_EXT_DEPS=`extractdep "$SCRIPT" ext-depends-tocheck`
-		# [ "$KNOWN_JSH_DEPS" ] && KNOWN_JSH_DEPS_REGEXP=`echo "$KNOWN_JSH_DEPS $CURRENT_TODO_JSH_DEPS" | tr ' ' '\n' | list2regexp` || KNOWN_JSH_DEPS_REGEXP="^$"
-		[ "$KNOWN_JSH_DEPS" ] && KNOWN_JSH_DEPS_REGEXP=`echo "$KNOWN_JSH_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || KNOWN_JSH_DEPS_REGEXP="^$"
-		[ "$KNOWN_EXT_DEPS" ] && KNOWN_EXT_DEPS_REGEXP=`echo "$KNOWN_EXT_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || KNOWN_EXT_DEPS_REGEXP="^$"
+		# [ -n "$KNOWN_JSH_DEPS" ] && KNOWN_JSH_DEPS_REGEXP=`echo "$KNOWN_JSH_DEPS $CURRENT_TODO_JSH_DEPS" | tr ' ' '\n' | list2regexp` || KNOWN_JSH_DEPS_REGEXP="^$"
+		[ -n "$KNOWN_JSH_DEPS" ] && KNOWN_JSH_DEPS_REGEXP=`echo "$KNOWN_JSH_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || KNOWN_JSH_DEPS_REGEXP="^$"
+		[ -n "$KNOWN_EXT_DEPS" ] && KNOWN_EXT_DEPS_REGEXP=`echo "$KNOWN_EXT_DEPS" | tr ' ' '\n' | trimempty | list2regexp` || KNOWN_EXT_DEPS_REGEXP="^$"
 		# echo "Echoing: $FOUND_JSH_DEPS   Ungrepping: $KNOWN_JSH_DEPS_REGEXP" >&2
 		NEW_JSH_DEPS=`echo "$FOUND_JSH_DEPS" | tr ' ' '\n' | grep -v "$KNOWN_JSH_DEPS_REGEXP"`
 		NEW_EXT_DEPS=`echo "$FOUND_EXT_DEPS" | tr ' ' '\n' | grep -v "$KNOWN_EXT_DEPS_REGEXP"`
@@ -104,7 +109,7 @@ function gendeps () {
 		addnewdeps depends $NEW_JSH_DEPS
 		addnewdeps ext-depends $NEW_EXT_DEPS
 
-		if [ "$DEPWIZ_NON_INTERACTIVE" ]
+		if [ -n "$DEPWIZ_NON_INTERACTIVE" ]
 		then
 			## Exit happy if no new deps
 			[ ! "$NEW_JSH_DEPS" ] && [ ! "$NEW_EXT_DEPS" ]
@@ -126,8 +131,8 @@ function extractdep () {
 			cat "$REALSCRIPT" |
 			grep "^# jsh-$DEPTYPE:"
 		`
-		# [ ! "$?" = 0 ] && [ "$RETURN_ERROR" ] && debug "failed to find jsh-$DEPTYPE in $SCRIPT" && return 1
-		[ ! "$?" = 0 ] && [ "$RETURN_ERROR" ] && return 1
+		# [ ! "$?" = 0 ] && [ -n "$RETURN_ERROR" ] && debug "failed to find jsh-$DEPTYPE in $SCRIPT" && return 1
+		[ ! "$?" = 0 ] && [ -n "$RETURN_ERROR" ] && return 1
 		echo "$RES" |
 		afterfirst :
 		# sed 's+^# jsh-$DEPTYPE:++'
@@ -151,7 +156,7 @@ function adddeptoscript () {
 	if ! echo "$DEPS" | grep "\<$DEP\>" > /dev/null
 	then
 		NEWSCRIPT=/tmp/newscript
-		if [ "$NEW_ENTRY" ]
+		if [ -n "$NEW_ENTRY" ]
 		then
 			debug "NEW_ENTRY"
 			(
@@ -178,7 +183,7 @@ function adddeptoscript () {
 			# read USER_SAYS
 			# case "$USER_SAYS" in
 				# y|Y|"")
-					cp "$REALSCRIPT" "$REALSCRIPT.b4jdw" ## backup
+					[ ! -f "$REALSCRIPT.b4jdw" ] && cp "$REALSCRIPT" "$REALSCRIPT.b4jdw" ## backup
 					cp $NEWSCRIPT "$REALSCRIPT"
 				# ;;
 			# esac
@@ -191,7 +196,7 @@ function addnewdeps () {
 	shift
 	for DEP
 	do
-		if [ "$DEPWIZ_NON_INTERACTIVE" ]
+		if [ -n "$DEPWIZ_NON_INTERACTIVE" ]
 		then
 			# echo "New dep $DEP not added to $SCRIPT because DEPWIZ_NON_INTERACTIVE." >&2
 			# echo "$DEP? " >&2
@@ -201,13 +206,13 @@ function addnewdeps () {
 		else
 			# echo "`curseyellow`jshdepwiz: These might be calls to `cursered;cursebold`$DEP`curseyellow` made from `cursecyan`$SCRIPT`curseyellow`:`cursenorm`" >&2
 			DEPBIN=`which "$DEP"`
-			echo "`curseyellow`[jshdepwiz] `cursenorm`It looks like `cursecyan`$SCRIPT`cursenorm` might be using `cursered;cursebold`$DEPBIN`cursenorm`:`cursenorm`" >&2
+			echo "`curseyellow`[jshdepwiz] `cursenorm`It looks like `cursecyan`$SCRIPT`cursenorm` might be using `cursered;cursebold`$DEP`cursenorm` (`cursered;cursebold`$DEPBIN`cursenorm`):`cursenorm`" >&2
 			higrep "\<$DEP\>" -C1 "$REALSCRIPT" | sed 's+^+  +' >&2
-			[ "$DEFAULT_TO_YES" ] && OPTIONS="Y/n/skip" || OPTIONS="Skip/y/n"
+			[ -n "$DEFAULT_TO_YES" ] && OPTIONS="Y/n/skip" || OPTIONS="Skip/y/n"
 			# echo -n "`curseyellow`jshdepwiz: Do you think `cursered;cursebold`$DEP`curseyellow` is a real `cursemagenta`jsh-$TYPE`curseyellow`? [$OPTIONS] `cursenorm`" >&2
 			echo -n "`curseyellow`[jshdepwiz] `cursenorm`Shall I mark `cursecyan`$SCRIPT`cursenorm` as `cursemagenta`jsh-$TYPE`cursenorm` on `cursered;cursebold`$DEP`cursenorm`? [$OPTIONS] `cursenorm`" >&2
 			read USER_SAYS
-			[ "$DEFAULT_TO_YES" ] && [ "$USER_SAYS" = "" ] && USER_SAYS=y
+			[ -n "$DEFAULT_TO_YES" ] && [ "$USER_SAYS" = "" ] && USER_SAYS=y
 			case "$USER_SAYS" in
 				n|N|no|NO|No)
 					adddeptoscript "$REALSCRIPT" "$TYPE"-ignore "$DEP"
@@ -232,7 +237,7 @@ case "$1" in
 
 		JSH_DEPS=`extractdep -err "$SCRIPT" depends`
 		## Should we do a vigilant check by re-generating the dependencies?
-		if [ "$DEPWIZ_VIGILANT" ] || ( [ ! "$?" = 0 ] && [ ! "$DEPWIZ_LAZY" ] )
+		if [ -n "$DEPWIZ_VIGILANT" ] || ( [ ! "$?" = 0 ] && [ ! "$DEPWIZ_LAZY" ] )
 		then
 			## If new dependencies were found, but were not checked (non-interactive), then add them anyway:
 			gendeps "$SCRIPT" || ADD="$NEW_JSH_DEPS "
@@ -247,7 +252,7 @@ case "$1" in
 		SCRIPT="$2"
 
 		EXT_DEPS=`extractdep -err "$SCRIPT" ext-depends`
-		if [ "$DEPWIZ_VIGILANT" ] || ( [ ! "$?" = 0 ] && [ ! "$DEPWIZ_LAZY" ] )
+		if [ -n "$DEPWIZ_VIGILANT" ] || ( [ ! "$?" = 0 ] && [ ! "$DEPWIZ_LAZY" ] )
 		then
 			## If new dependencies were found, but were not checked (non-interactive), then add them anyway:
 			gendeps "$SCRIPT" || ADD="$NEW_EXT_DEPS "
