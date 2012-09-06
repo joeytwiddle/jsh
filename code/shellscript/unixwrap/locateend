@@ -1,1 +1,2 @@
-`jwhich locate` "$1" | higrep "$1\$"
+# `jwhich locate` "$1" | grep "$1\$"
+`jwhich locate` -r "`toregexp "$1"`$"
