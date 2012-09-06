@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: cursenorm extractregex curseyellow
 if [ "$1" = -check ]
 then CHECK=true; shift
 else CHECK=

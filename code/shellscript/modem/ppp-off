@@ -1,3 +1,4 @@
+# jsh-depends: hwippp findjob
 findjob pppd
 
 hwippp down
