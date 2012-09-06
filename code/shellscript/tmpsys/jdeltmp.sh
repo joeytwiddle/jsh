@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# jsh-depends: startswith jshwarn
+# jsh-depends: startswith jshwarn jgettmpdir
 
 # TOPTMP="$JPATH/tmp"
 # 
