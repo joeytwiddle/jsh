@@ -13,7 +13,7 @@
 # fi
 
 # jsh-ext-depends: dirname
-# jsh-depends: jdeltmp jgettmp
+# jsh-depends: jdeltmp jgettmp errorexit
 # jsh-depends-ignore: jsh debug
 
 ## It would be quite nice to have a tmpdir at /dev/shm/something so that we can
