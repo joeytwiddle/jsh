@@ -135,6 +135,24 @@ tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
    flowid 1:10
 
 
+
+## Joey's additional rules - high priority ports
+HIPRIOPORTDST="7777 7778"   # destination ports for outgoing packets
+HIPRIOPORTSRC="7777 7778"   # source ports for incoming packets (but quite possibly ingress is dont separately)
+for a in $HIPRIOPORTDST
+do
+	tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
+	   match ip dport $a 0xffff flowid 1:10
+done
+for a in $HIPRIOPORTSRC
+do
+	tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
+	   match ip sport $a 0xffff flowid 1:10
+done
+# These need to be above the final non-interactive filter.  We check them early.
+
+
+
 # some traffic however suffers a worse fate
 for a in $NOPRIOPORTDST
 do
