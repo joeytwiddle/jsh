@@ -45,7 +45,7 @@ NOPRIOHOSTSRC=
 NOPRIOHOSTDST=
 
 # low priority source ports
-NOPRIOPORTSRC=
+NOPRIOPORTSRC="80"   # at least until this guy stops mirroring my server
 
 # low priority destination ports
 NOPRIOPORTDST=
@@ -79,28 +79,40 @@ tc qdisc del dev $DEV ingress 2> /dev/null > /dev/null
 # install root CBQ
 
 tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 10mbit 
+## Joey thinks all traffic should be limited to his desired max :P
+# tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth ${UPLINK}kbit
+
+## But the graph in gkrellm showed that going completely mental.  :P
+## Oh look below: isolated class 1: should limit everything to UPLINK rate.
+## But I swear, when I pushed my webserver port 80 into LOWPRIO class 1:30, and
+## torrents continued on 1:20, I was seeing up to double upload speed (in
+## gkrellm and traffic_shaping_monitor).  Can we blame that on UDP?
+## Hmm even just with the webserver, class 1:30 is actually limiting to the
+## 8*UPLINK/10 it specifies!  If these limits are then just recommendations
+## when the stream is full, I shall reduce them to 4:4:2.  But they aren't: the
+## stream was "full" but output exceeded the 1: limit anyway!
 
 # shape everything at $UPLINK speed - this prevents huge queues in your
 # DSL modem which destroy latency:
 # main class
 
 tc class add dev $DEV parent 1: classid 1:1 cbq rate ${UPLINK}kbit \
-allot 1500 prio 5 bounded isolated 
+   allot 1500 prio 5 bounded isolated 
 
 # high prio class 1:10:
 
-tc class add dev $DEV parent 1:1 classid 1:10 cbq rate ${UPLINK}kbit \
+tc class add dev $DEV parent 1:1 classid 1:10 cbq rate $((8*UPLINK/10))kbit \
    allot 1600 prio 1 avpkt 1000
 
 # bulk and default class 1:20 - gets slightly less traffic, 
 #  and a lower priority:
 
-tc class add dev $DEV parent 1:1 classid 1:20 cbq rate $((9*$UPLINK/10))kbit \
+tc class add dev $DEV parent 1:1 classid 1:20 cbq rate $((1*$UPLINK/10))kbit \
    allot 1600 prio 2 avpkt 1000
 
 # 'traffic we hate'
 
-tc class add dev $DEV parent 1:1 classid 1:30 cbq rate $((8*$UPLINK/10))kbit \
+tc class add dev $DEV parent 1:1 classid 1:30 cbq rate $((1*$UPLINK/10))kbit \
    allot 1600 prio 2 avpkt 1000
 
 # all get Stochastic Fairness:
@@ -136,18 +148,19 @@ tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
 
 
 
-## Joey's additional rules - high priority ports
-HIPRIOPORTDST="7777 7778"   # destination ports for outgoing packets
-HIPRIOPORTSRC="7777 7778"   # source ports for incoming packets (but quite possibly ingress is dont separately)
-for a in $HIPRIOPORTDST
+## Joey's additional rules - high priority ports, applied to both ingress and egress to/from said ports.
+## BUG: Not successfully applyied to ingress yet.
+HIPRIOLOCALPORTS="22 222"
+HIPRIOREMOTEPORTS="7777 7778 22 80"
+for a in $HIPRIOLOCALPORTS
 do
-	tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
-	   match ip dport $a 0xffff flowid 1:10
-done
-for a in $HIPRIOPORTSRC
-do
-	tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
+	tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
 	   match ip sport $a 0xffff flowid 1:10
+done
+for a in $HIPRIOREMOTEPORTS
+do
+	tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
+	   match ip dport $a 0xffff flowid 1:10
 done
 # These need to be above the final non-interactive filter.  We check them early.
 
@@ -192,6 +205,22 @@ tc filter add dev $DEV parent 1: protocol ip prio 18 u32 \
 # attach ingress policer:
 
 tc qdisc add dev $DEV handle ffff: ingress
+## A failed attempt to stop below breaking:
+# tc qdisc add dev $DEV root handle ffff: cbq avpkt 1000 bandwidth 10mbit ingress
+
+# First apply priority to important stuff
+## BUG: "RTNETLINK answers: Operation not supported" x 2 from this line
+# tc qdisc add dev $DEV parent ffff:11 handle 11: sfq perturb 10
+# for a in $HIPRIOLOCALPORTS
+# do
+	# tc filter add dev $DEV parent ffff: protocol ip prio 12 u32 \
+	   # match ip dport $a 0xffff flowid ffff:11
+# done
+# for a in $HIPRIOREMOTEPORTS
+# do
+	# tc filter add dev $DEV parent ffff: protocol ip prio 12 u32 \
+	   # match ip sport $a 0xffff flowid ffff:11
+# done
 
 # filter *everything* to it (0.0.0.0/0), drop everything that's
 # coming in too fast:
