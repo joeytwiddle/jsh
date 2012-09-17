@@ -104,6 +104,6 @@ cat "$TMPFILE" | sed "$SEDEXPR" |
 # tee /tmp/xx2 |
 
 ## This is a terminal pretty-printer, so make it friendly too:
-more ## (Can cause long lines to split early, as if termcodes were counted as columns)
-## If you have most, pipe to that and all will be fine.
+more -f ## (-f prevents line from splitting early due to invisible keycodes)
+## Alternatively, try less -R
 
