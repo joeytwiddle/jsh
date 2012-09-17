@@ -1,7 +1,8 @@
 #!/bin/sh
 ## See also: /bin/mountpoint -d (not available in morphix)
+# jsh-depends: takecols drop flatdf
 # jsh-ext-depends: sort realpath
-# jsh-depends: takecols drop realpath
+
 DIR=`realpath "$1"`
 
 flatdf 2>/dev/null | drop 1 | takecols 6 |
