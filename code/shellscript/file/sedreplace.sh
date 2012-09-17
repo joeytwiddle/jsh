@@ -7,6 +7,8 @@ then
 	echo
 	echo 'sedreplace [ <options> ] "search_string" "replace_string" [ <filename>... ]'
 	echo
+	echo "Options (not yet finalised):"
+	echo
 	echo "  -verify    asks user whether to accept replacement, per-file."
 	echo
 	echo "  -nobackup  do not create backup in <filename>.b4sr"
@@ -127,14 +129,14 @@ else
 
 			if [ -n "$VERIFY" ]
 			then
-				echo -n "Accept these changes (Y/n)? "
+				echo -n "Perform these changes (Y/n)? "
 				read k
 				if [ "$k" = "n" ] || [ "$k" = "N" ]
 				then
 					echo "Skipping $FILE"
 					continue
 				else
-					echo "Patching $FILE"
+					echo "Modifying $FILE"
 				fi
 				echo
 			fi
