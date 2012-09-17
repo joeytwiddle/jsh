@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends-ignore: find
 # jsh-ext-depends-ignore: find
 # jsh-depends: takecols
 ## TODO: trim this down: remove -likecksum / put it elsewhere; and consider using find -maxdepth 0 -printf "%s" to avoid spawning another process
