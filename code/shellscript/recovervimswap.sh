@@ -1,4 +1,8 @@
 #!/bin/sh
+# jsh-ext-depends-ignore: compare sudo
+# jsh-ext-depends: fuser realpath diff cmp
+# jsh-depends: trimempty jshwarn takecols drop del age cursenorm jshinfo filesize verbosely dropcols absolutepath cursecyan diffhighlight findjob
+# jsh-depends-ignore: realpath vimdiff pid swap hwibot
 ## Appears stable =)
 
 ## BUG: if multiple txtfiles are given, VIMAFTER gets cleared if only *one* of them is vimdiffed, whereas it should only be cleared if all of them were vimdiffed
@@ -150,6 +154,10 @@ do
 				cursecyan
 				VIMAFTER=true
 			else
+				if newer "$SWAPFILE" "$X"
+				then jshwarn "Swapfile is *newer* than $X - you probably want its contents!"
+				# else you probably don't :P
+				fi
 				if [ "$INTERACTIVE" ]
 				then
 					jshinfo "Recovered non-identical swapfile; running $DIFFCOM ..."
