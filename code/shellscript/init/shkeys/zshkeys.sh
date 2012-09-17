@@ -152,7 +152,7 @@ bindkey "^b" kill-word
 # and to keep inline, we fake the other too:
 bindkey -s "^z" "^r^v"
 
-bindkey "^u" backward-kill-line # (default!)
+bindkey "^u" backward-kill-line # (available by default on ^k)
 bindkey "^o" kill-line
 
 # Had trouble getting [ fully cleared for:
