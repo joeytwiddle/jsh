@@ -1,5 +1,6 @@
 #!/bin/bash
-# jsh-ext-depends-ignore: find make
+# jsh-depends-ignore: find
+# jsh-ext-depends-ignore: find make streams
 ## zsh would also do (just need the $RANDOM param)  (well actually that's a job for getrandom to worry about now :)
 
 ## TODO: scripts sometimes use highlight ".*" curseblue as a lazy way of printing the whole stream in blue
