@@ -75,7 +75,15 @@ alias igrep='grep -i'
 alias dusk="memo -t '1 hour' dusk"
 ## BUG: Unfortunately we can't use -f or -t because there may be multiple arguments :f
 
-## I guess we need this as an aliased function because a script would lose the history!
+## h is a shortcut for listing command-line history of the current shell.
+## It is aliased from h to myhist which is a function.
+##   h             list recent history
+##   h . | h 0     list all history (in zsh this is 'history 0', in bash just 'history')
+##   h <pattern>   list recent history matching <pattern>
+## We need this as a function rather than a script, because a script would load its own history?
+## Actually the zsh pattern implementation shows all matching, not just recent.
+alias h='hist'
+alias hist=myhist
 if [ "$SHORTSHELL" = zsh ]
 then
 	# . pawan_zshrc_stripped
@@ -95,15 +103,13 @@ elif [ "$SHORTSHELL" = bash ]
 then
 	myhist() {
 		if [ "$1" = 0 ] || [ "$1" = . ]
-		then history 0
+		then history
 		else history | grep "$*" | tail -n "$((LINES-2))"
 		fi
 	}
 fi
-alias hist=myhist
-alias h='hist'
 
-## histlist displays your history search results through less.
+## Alternative: histlist displays your history search results through less.
 # histlist() {
 	# history 0 | grep "$*" | less +G
 # }
