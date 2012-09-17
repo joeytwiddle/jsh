@@ -2,50 +2,72 @@
 # jsh-ext-depends: readlink find
 # jsh-depends-ignore: hwibot faster_jsh_colors.init
 # jsh-ext-depends-ignore: ionice link
-#
-## Produces a list of symlinks which may point to or through the given file or
-## path.  It basically searches all symlinks on the system for those where the
-## link target contains the string provided.
-##
-## The string is treated as a word, and should not start or end in '/' as these
-## are added automatically.  Otherwise it is treated as a regexp, and may
-## contain '/'s.
-##
-## Output indicators:
-##
-##   =   a working symlink
-##   ?   a symlink whose target is missing
-##   !   an old symlink which is no longer a symlink
-##
-## Examples:
-##
-##   % findlinksmatching alternatives/mail
-##   /usr/bin/mail -> /etc/alternatives/mail
-##
-##   % findlinksmatching cpp
-##   /etc/alternatives/cpp -> /usr/bin/cpp
-##   /lib/cpp -> /etc/alternatives/cpp
-##   /usr/share/doc/gcc -> cpp
-##
-##   % findlinksmatching bash
-##   /bin/sh.distrib -> bash
-##   /bin/rbash -> bash
-##
-##   % findlinksmatching ash
-##   /bin/sh.distrib -> ash
-##   /bin/rbash -> ash
-##
-##   % findlinksmatching . | striptermchars | grep '\.u$'
-##
-## If you are worried about breaking symlinks during a session, keep watch:
-##
-##   % ionice -n 3 nice -n 5  jwatch -oneway -delay 20 findlinksmatching .
-##
-## This relies on colors so it can notice when the alive/broken state changes.
-## You can refresh the symlink list whilst it is running from another shell:
-##
-##   % memo findlinksmatching blah
-##
+
+if [ "$1" = "" ] || [ "$1" = --help ]
+then
+pager << !
+
+findlinksmatching <part_of_link_target_path>
+
+  produces a list of symlinks which may point to or through the given file or
+  path.  It basically searches all symlinks on the system for those where the
+  link target contains the string provided.
+
+  The string is treated as a word, and should not start or end in '/' as these
+  are added automatically.  Otherwise it is treated as a regexp, and may
+  contain '/'s.
+
+  Uses memo to build a cache of the whole system on the first call, but make
+  later calls respond quickly.  (If you are not root, you will naturally see
+  errors about inaccessible files on the first pass.)
+
+Output indicators:
+
+  =   a working symlink (green)
+  ?   a symlink whose target is missing (red)
+  !   an old symlink which is no longer a symlink (yellow)
+
+FLM_FAST=1 findlinksmatching ...
+
+  displays directly from the cache, does not check the current status of
+  link targets.  Presents . indicator and no colors.
+
+TODO: Make FLM_FAST default to on, export var to turn it off (enable colors).
+
+Examples:
+
+  % findlinksmatching alternatives/mail
+  /usr/bin/mail -> /etc/alternatives/mail
+
+  % findlinksmatching cpp
+  /etc/alternatives/cpp -> /usr/bin/cpp
+  /lib/cpp -> /etc/alternatives/cpp
+  /usr/share/doc/gcc -> cpp
+
+  % findlinksmatching bash
+  /bin/sh.distrib -> bash
+  /bin/rbash -> bash
+
+  % findlinksmatching ash
+  /bin/sh.distrib -> ash
+  /bin/rbash -> ash
+
+  % FLM_FAST=1 findlinksmatching . | grep '\.u$'
+
+If you are worried about breaking symlinks during a session, keep watch:
+
+  % ionice -n 3 nice -n 5  jwatch -oneway -delay 20 findlinksmatching .
+
+This relies on colors so it can notice when the alive/broken state changes.
+You can refresh the symlink list whilst it is running from another shell:
+
+  % memo findlinksmatching blah
+
+!
+exit 0
+fi
+
+## CONSIDER: Why haven't we checked for symlinks whose targets have changed?  Because as long as it works, we don't care...
 
 search="$1"
 
@@ -91,18 +113,26 @@ grep --line-buffered "\(\|.*/\)$search\(/\|$\)" |
 while IFS="" read link target
 do
 
-	## Fast but not up-to-date, uses cached target:
-	# nowTarget="$target"
+	if [ -n "$FLM_FAST" ]
+	then
 
-	## Up-to-date, reflects what the target is now:
-	nowTarget="`readlink "$link"`"
-	[ "$nowTarget" = "" ] && nowTarget="($target)"
+		## Fast but not up-to-date, uses cached target:
+		nowTarget="$target"
+		echo ". $link -> $nowTarget"
 
-	if [ -d "$link" ] || [ -f "$link" ]
-	then echo "$CURSEGREEN""=$CURSENORM $link -> $CURSEGREEN$nowTarget""$CURSENORM"
-	elif [ ! -L "$link" ]
-	then echo "$CURSEYELLOW$CURSEBOLD""!$CURSEBOLD$CURSENORM$CURSEYELLOW$CURSEBOLD $link $CURSEBOLD$CURSENORM-> $nowTarget""$CURSEBOLD$CURSENORM"
-	else echo "$CURSERED$CURSEBOLD""?$CURSEBOLD$CURSENORM $link -> $CURSERED""$nowTarget""$CURSENORM"
+	else
+
+		## Up-to-date, reflects what the target is now:
+		nowTarget="`readlink "$link"`"
+		[ "$nowTarget" = "" ] && nowTarget="($target)"
+
+		if [ -d "$link" ] || [ -f "$link" ] || [ -e "$link" ] # I added -e cos I feel we should accept links to non-files-or-dirs, e.g. devices?
+		then echo "$CURSEGREEN""=$CURSENORM $link -> $CURSEGREEN$nowTarget""$CURSENORM"
+		elif [ ! -L "$link" ]
+		then echo "$CURSEYELLOW$CURSEBOLD""!$CURSEBOLD$CURSENORM$CURSEYELLOW$CURSEBOLD $link $CURSEBOLD$CURSENORM-> $nowTarget""$CURSEBOLD$CURSENORM"
+		else echo "$CURSERED$CURSEBOLD""?$CURSEBOLD$CURSENORM $link -> $CURSERED""$nowTarget""$CURSENORM"
+		fi
+
 	fi
 
 done
