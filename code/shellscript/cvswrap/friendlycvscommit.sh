@@ -164,9 +164,10 @@ do
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
 				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary $TMPFILE "$FILE"` `date +"%Y/%m/%d %H:%M %Z" -r "$FILE"`"
 				echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
-				echo "`cursecyan`cvscommit -m \"$INPUT\" $FILE`cursenorm`"
-				cvscommit -m "$INPUT" "$FILE" ||
+				echo "`cursecyan`cvs commit -m \"$INPUT\" $FILE`cursenorm`"
+				cvs commit -m "$INPUT" "$FILE" ||
 				error "cvscommit failed!"
+				cvs edit "$FILE"
 				sleep 5 ## attempt to fix lock BUG ## NOPE!!!
 				break
 			;;
