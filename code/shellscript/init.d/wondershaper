@@ -45,7 +45,7 @@ NOPRIOHOSTSRC=
 NOPRIOHOSTDST=
 
 # low priority source ports
-NOPRIOPORTSRC="80"   # at least until this guy stops mirroring my server
+NOPRIOPORTSRC="34727 6881 4444"   # I had 80 here when some guy was mirroring my server.  But now I've fixed limits so it will always share a little of the last class.
 
 # low priority destination ports
 NOPRIOPORTDST=
@@ -99,20 +99,26 @@ tc qdisc add dev $DEV root handle 1: cbq avpkt 1000 bandwidth 10mbit
 tc class add dev $DEV parent 1: classid 1:1 cbq rate ${UPLINK}kbit \
    allot 1500 prio 5 bounded isolated 
 
+# The rates set below are the max each class will use when the top class is
+# flooded.  If the top class is not flooded, they will expand to fill it, in
+# proportion to the rates given.  However if the total of the rates you give
+# adds up to more than the real total, two or three active classes may
+# overflood the interface's max bandwidth!
+
 # high prio class 1:10:
 
-tc class add dev $DEV parent 1:1 classid 1:10 cbq rate $((8*UPLINK/10))kbit \
+tc class add dev $DEV parent 1:1 classid 1:10 cbq rate $((50*UPLINK/100))kbit \
    allot 1600 prio 1 avpkt 1000
 
 # bulk and default class 1:20 - gets slightly less traffic, 
 #  and a lower priority:
 
-tc class add dev $DEV parent 1:1 classid 1:20 cbq rate $((1*$UPLINK/10))kbit \
+tc class add dev $DEV parent 1:1 classid 1:20 cbq rate $((40*$UPLINK/100))kbit \
    allot 1600 prio 2 avpkt 1000
 
 # 'traffic we hate'
 
-tc class add dev $DEV parent 1:1 classid 1:30 cbq rate $((1*$UPLINK/10))kbit \
+tc class add dev $DEV parent 1:1 classid 1:30 cbq rate $((10*$UPLINK/100))kbit \
    allot 1600 prio 2 avpkt 1000
 
 # all get Stochastic Fairness:
@@ -136,7 +142,7 @@ tc filter add dev $DEV parent 1:0 protocol ip prio 11 u32 \
 tc filter add dev $DEV parent 1:0 protocol ip prio 10 u32 \
    match ip protocol 17 0xff \
    match ip sport 4666 0xffff \
-   flowid 1:30 
+   flowid 1:30
 
 # prioritize small packets (<64 bytes)
 
@@ -149,9 +155,9 @@ tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
 
 
 ## Joey's additional rules - high priority ports, applied to both ingress and egress to/from said ports.
-## BUG: Not successfully applyied to ingress yet.
-HIPRIOLOCALPORTS="22 222"
-HIPRIOREMOTEPORTS="7777 7778 22 80"
+## BUG TODO: Not successfully applied to ingress yet!
+HIPRIOLOCALPORTS=""                      # "22 222"
+HIPRIOREMOTEPORTS="7777 7778 80"         # 22         apparently ssh/scp are dealt with by TOS
 for a in $HIPRIOLOCALPORTS
 do
 	tc filter add dev $DEV parent 1: protocol ip prio 12 u32 \
