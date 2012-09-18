@@ -121,7 +121,7 @@ do
     ## Add depdencies to todo list, if not already there:
     if [ "$ADDJSH" ]
     then
-      echo -n "`cursecyan`$SCRIPT`cursenorm`: " >&2
+      echo -n "`cursecyan`[compilejshscript]`cursenorm` Jsh dependencies for `curseyellow`$SCRIPT`cursenorm`: " >&2
       for NAME in $ADDJSH
       do
         if ! echo "$TODO$NL$JSHDEPS$NL$EXTDEPS" | grep "^$NAME$" > /dev/null
@@ -138,7 +138,7 @@ do
     ## Add external depdencies to big ext list, if not already there:
     if [ "$ADDEXT" ]
     then
-      echo -n "`cursecyan`$SCRIPT ext`cursenorm`: " >&2
+      echo -n "`cursecyan`[compilejshscript]`cursenorm` Ext dependencies for `curseyellow`$SCRIPT`cursenorm`: " >&2
       for NAME in $ADDEXT
       do
         if ! echo "$TODO$NL$JSHDEPS$NL$EXTDEPS" | grep "^$NAME$" > /dev/null
