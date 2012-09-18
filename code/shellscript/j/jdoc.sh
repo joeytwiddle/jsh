@@ -4,16 +4,29 @@
 if [ "$1" = "" ] || [ "$1" = "--help" ]
 then
 
-	echo
-	echo "jdoc <command>"
-	echo
-	echo "  will show you the documentation for the command, be it unix or jsh,"
-	echo "  and, if requested, will show uses of that command in all jsh scripts."
-	echo
-	echo "  You can find the list of jsh scripts in \$JPATH/tools/"
-	echo
-	echo "  jdoc also has a feature which helps you to refactor (rename) jsh scripts."
-	echo
+cat << !
+
+Usage: jdoc <scriptname>
+
+  will show you the documentation for the jsh script (TODO: or PATH script),
+  and, if requested, will show uses of that script in all jsh scripts.
+
+  It is safer to use than <scriptname> --help, which could do something
+  undesirable on very raw scripts.  However it will actually call
+  <scriptname> --help if it believes it is safe to do so!
+
+  Either way, it will also color-print the script for your perusal.
+
+  If you ask to see usage of/dependencies on the script, jdoc will also offer
+  to refactor (rename) that jsh script.  Only use this if you *really* hate the
+  name of the script, and wish it were called something else - it will affect
+  updates!  (Alternatively, make a symlink from your alias to the script.)
+
+  You can find the list of jsh scripts in \$JPATH/tools/
+
+Advanced usage: jdoc [ -hasdoc | showjshtooldoc ] <path_to_script>
+
+!
 
 elif [ "$1" = -hasdoc ]
 then
