@@ -21,21 +21,23 @@ fi |
 while read LINE
 do
 
+	SECONDS=`date +"$FORMAT"`
+
 	if [ -n "$LAST_LINE_SECONDS" ]
 	then
-		SECONDS=`date +"$FORMAT"`
-		SECONDS_SINCE_LAST_LINE=$((50*(SECONDS-LAST_LINE_SECONDS)/100000000))
+		SECONDS_SINCE_LAST_LINE=$(((SECONDS-LAST_LINE_SECONDS)/1000000000))
 		# echo "$SECONDS_SINCE_LAST_LINE	$LAST_LINE"
 		# DOTS="" ; for I in `seq 1 $SECONDS_SINCE_LAST_LINE`; do DOTS="$DOTS""."; done
 		DOTS="`yes . | head -n "$SECONDS_SINCE_LAST_LINE" | tr -d '\n'`"
-		echo "$DOTS"
+		# echo " $DOTS"
+		echo " $DOTS $SECONDS_SINCE_LAST_LINE""s"
 	else
 		echo "...	$LINE"
 	fi
 
 	echo -n "$LINE"
 
-	LAST_LINE_SECONDS=`date +"$FORMAT"`
+	LAST_LINE_SECONDS="$SECONDS"
 	LAST_LINE="$LINE"
 
 done
