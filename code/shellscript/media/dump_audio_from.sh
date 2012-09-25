@@ -1,5 +1,10 @@
 #!/bin/sh
+
 ## Uses mplayer to extract a wav/pcm file from the video/audio file.
+
+## This is a foolproof way of extracting audio frmo a video, with the
+## disadvantage that wav files take a lot of space!
+## The extract_audio_from_video is prone to failures.
 
 ## EXTRA_MPLAYER_OPTS might include things like: -srate 44100
 
@@ -29,3 +34,4 @@ do
 	# mplayer -dumpaudio "$infile" -dumpfile "$outfile"
 
 done
+
