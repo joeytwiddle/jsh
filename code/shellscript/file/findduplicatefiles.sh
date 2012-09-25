@@ -25,14 +25,16 @@ debug () {
 	# noop
 }
 
-SUGGEST_DEL=1
+[ -z "$SUGGEST_LN" ] && SUGGEST_DEL=1
 # SUGGEST_LN=1 ## BUG TODO: creates a symlink to ./blah which is ONLY correct if the src link is in .
 
 if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
 more << !
 
 findduplicatefiles [ <options> ] <find_path>s.. [ <find_option>s.. ]
-  where
+
+  Options must be given in the correct order:
+
 <options> = [ -x <ex_regexp> ] [ -samename ] [ -qkck | -size ]
 
   will list duplicate files (by checksum), in a form that can be piped through
@@ -115,8 +117,11 @@ then
 	# echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done' >> /dev/stderr
 fi
 
-# SORT_METHOD="sortbydirdepth" ## The one with the shorter dir depths (num of /s) gets kept.
-SORT_METHOD="sort" ## Alphanumeric
+if [ -z "$SORT_METHOD" ]
+then
+	# SORT_METHOD="sortbydirdepth" ## The one with the shorter dir depths (num of /s) gets kept.
+	SORT_METHOD="sort" ## Alphanumeric
+fi
 
 # WHERE="$*"
 # [ "$WHERE" ] || WHERE="."
@@ -135,8 +140,8 @@ then
 	while read X
 	do
 		debug "Group $X"
-		find "$@" -name "$X" |
-	stripexcluded |
+		find "$@" -type f -name "$X" |   ## This didn't have -type f before but I added it
+		stripexcluded |
 		while read Y
 		do
 			debug "Hashing $Y"
@@ -225,7 +230,17 @@ fi |
         if [ "$SUGGEST_DEL" ]
         then echo "del \"$FILE2\""
         elif [ "$SUGGEST_LN" ]
-        then echo "ln -s -f \"$PWD/$FILE\" \"$FILE2\""
+        # then echo "ln -s -f \"$PWD/$FILE\" \"$FILE2\""   ## Bad: $FILE may be absolute already
+        then
+          realLink=`absolutepath "$FILE"`
+          if [ -n "$PARANOID_BACKUP" ]
+          then
+            backupFile="/tmp/`basename "$FILE2"`.`date +'%s.%N'`"
+            echo "cp \"$FILE2\" \"$backupFile\""
+          else
+            echo "del \"$FILE2\""
+          fi
+          echo "ln -s -f \"$realLink\" \"$FILE2\""
         else echo "echo dunno how to handle \"$FILE\""
         fi
       else error "$SUM $SIZE for \"$FILE\" does not match $SUM2 $SIZE2 for \"$FILE2\""
