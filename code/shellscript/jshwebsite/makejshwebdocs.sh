@@ -28,7 +28,7 @@ fi
 ## TODO: Current: deletes itself before starting the new build.
 ##       Better to: make new build, then replace old build.
 OUTDIR=`absolutepath "$OUTDIR"`
-echo "Creating docs in $OUTDIR ..."
+echo "[`date`] Creating docs in $OUTDIR ..."
 if [ -e "$OUTDIR" ]
 then rm -rf "$OUTDIR"   ## Used to del but too many small files!
 fi
