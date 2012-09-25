@@ -118,7 +118,7 @@ do
 
 		$DIFFCOM $TMPFILE "$FILE"
 
-	) | more
+	) | more -f
 
 	echo
 	while true
@@ -168,7 +168,7 @@ do
 				cvs commit -m "$INPUT" "$FILE" ||
 				error "cvscommit failed!"
 				cvs edit "$FILE"
-				sleep 5 ## attempt to fix lock BUG ## NOPE!!!
+				sleep 2 ## attempt to fix lock BUG ## NOPE!!!
 				break
 			;;
 			?|??|???)
