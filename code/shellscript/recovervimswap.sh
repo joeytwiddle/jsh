@@ -5,6 +5,8 @@
 # jsh-depends-ignore: realpath vimdiff pid swap hwibot
 ## Appears stable =)
 
+RVS_USE_AGE=true
+
 ## BUG: if multiple txtfiles are given, VIMAFTER gets cleared if only *one* of them is vimdiffed, whereas it should only be cleared if all of them were vimdiffed
 ## Will rarely fail on final dir if the file is a symlink elsewhere, but if we do realpath we may miss a swapfile at the given path or one in an intermediate directory.  Rather than checking all, we always use the local given path, and leave the handling of swapfiles in symlinked dirs to the user.
 ## TODO: The intermediate swapfiles are relevant but the one that makes vim annoying is the final target, I suspect the vim executable ignores the others.  So just do a realpath.
@@ -113,6 +115,19 @@ do
 			## BUG TODO: Wait I investigated, and I do think that, and it's a problem, because we seem to break out and VIMAFTER=true, and we open the file despite the fact we've warned the user it's already opened, and refused to open it.  :P  Maybe the outer for loop contributes to our problem here.
 		fi
 
+		if [ -n "$RVS_USE_AGE" ]
+		then
+			if newer "$X" "$SWAPFILE"
+			then
+				jshinfo "Deleting old swapfile: $SWAPFILE"
+				del "$SWAPFILE"
+				continue
+			else
+				jshinfo "Swapfile is newer than file!"
+			fi
+		fi
+
+		## Choose name for swapfile
 		N=1
 		while [ -e "$X.recovered.$N" ]
 		do N=`expr $N + 1`
