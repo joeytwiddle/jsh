@@ -14,7 +14,7 @@ printf '' > selected_packages.txt
 
 for pkg in $(aptitude search "?installed ?not(?automatic)" --display-format "%p" | reverse)
 do
-	# If we mark it auto, will it cause any packages to be removed?
+	# If we mark it auto, will it cause any packages to be removed (itself or others)?
 	if ! aptitude markauto --simulate --assume-yes $pkg 2>&1 | grep 'will be REMOVED' > /dev/null
 	then
 		# It won't!
