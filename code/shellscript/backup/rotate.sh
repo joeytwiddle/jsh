@@ -34,11 +34,14 @@ then
 	echo "  -nozip: will not gzip or tar-up the file or directory before rotation"
 	echo "  -max:   will rotate to ensure no more than <num> + 1 logs (default=infinity)"
 	echo "  never rotates <file>[.gz].0"
+	echo "  -nodups: cleans up duplicates in the history (currently only works with -nozip)"
 	echo
 	echo "  Actually if the zip method is asked to work on a folder, it leaves the original folder intact, regardless of -keep!"
 	echo
 	echo "You may also wish to investigate savelog(8), part of debianutils."
 	echo "jsh rotate appears to do the opposite of lograte.  Higher numbers are more recent here."
+	echo
+	echo "In the future I may make -nozip a default, and require or -z / --compress / -zip to enable it."
 	exit 1
 fi
 
@@ -75,12 +78,12 @@ function logfriendly_gzip () {
 for FILE
 do
 
-	if [ "$KEEP" ]
+	if [ -n "$KEEP" ]
 	then cp -a "$FILE" "$FILE.keep"
 	fi
 
 	## What extension will we use, if any?
-	if [ ! "$ZIP" ]
+	if [ -z "$ZIP" ]
 	then EXT=""
 	elif [ -f "$FILE" ]
 	then EXT=.gz
@@ -103,7 +106,7 @@ do
 		# [ "$MAX" ] && [ "$N" -gt "$MAX" ] && jshwarn "Exceeded max $MAX with $FINALFILE and haven't yet fixed code to deal with this."
 	done
 
-	while [ "$MAX" ] && [ "$N" -gt "$MAX" ]
+	while [ -n "$MAX" ] && [ "$N" -gt "$MAX" ]
 	do
 		jshinfo "[rotate] $N exceeds max $MAX, so rotating earlier copies..."
 		for OLDN in `seq 1 $((N-2))`
@@ -127,7 +130,7 @@ do
 
 	DOZIPCOM=""
 	## How will we compress it?
-	if [ ! "$ZIP" ]
+	if [ -z "$ZIP" ]
 	then
 		## TODO: does this work if it's a dir, and is it logfriendly?
 		DOZIPCOM="move file"
@@ -148,38 +151,38 @@ do
 		}
 		## BUG TODO: even without -keep, this will leave the $FILE (directory) intact =/
 	else
-		echo "$FILE is not a file or a directory"
+		echo "[rotate] $FILE is not a file or a directory"
 		exit 1
 	fi
 
 	## Do the compression, if needed:
-	if [ "$DOZIPCOM" ]
+	if [ -n "$DOZIPCOM" ]
 	then
-		# echo "rotate: $ZIPCOM \"$FILE\""
-		# echo "rotate: $ZIPCOM"
-		# echo "Rotating $FILE to $FINALFILE with `declare -f zipcom | tr '\n\t' '  '`"
-		echo "Rotating $FILE to $FINALFILE with $DOZIPCOM"
+		# echo "[rotate] % $ZIPCOM \"$FILE\""
+		# echo "[rotate] % $ZIPCOM"
+		# echo "[rotate] Rotating $FILE to $FINALFILE with `declare -f zipcom | tr '\n\t' '  '`"
+		echo "[rotate] Rotating $FILE to $FINALFILE with $DOZIPCOM"
 		oldSize=`filesize "$FILE"`
 		zipcom || exit 1
 		newSize=`filesize "$FINALFILE"`
-		# [ "$oldSize" = "$newSize" ] || echo "Size changed from $oldSize to $newSize"
+		# [ "$oldSize" = "$newSize" ] || echo "[rotate] Size changed from $oldSize to $newSize"
 	fi
 
 	## If we wanted to keep the original file, but gzip has removed it:
-	if [ "$KEEP" ]
+	if [ -n "$KEEP" ]
 	then mv "$FILE.keep" "$FILE"
 	fi
 
 	## If avoiding duplicates, check whether we have already backed up an identical copy of this file/directory:
-	if [ "$NODUPS" ] && [ "$LASTFINAL" ] && cmp "$FINALFILE" "$LASTFINAL"
+	if [ -n "$NODUPS" ] && [ -n "$LASTFINAL" ] && cmp "$FINALFILE" "$LASTFINAL"
 	then
-		echo "rotate: skipping backup because files is identical to last"
+		echo "[rotate] Dropping $FINALFILE because identical to $LASTFINAL"
 		del "$FINALFILE"
 		## To skip processing of latter section
 		# MAX=
 		N=$LASTN
 	else
-		# echo "rotate: mv \"$FINALFILE\" \"$FINALFILE.$N\""
+		# echo "[rotate] % mv \"$FINALFILE\" \"$FINALFILE.$N\""
 		# mv "$FINALFILE" "$FINALFILE.$N"
 		## Now we do nothing, because FINALFILE should have been worked out already
 		:
@@ -188,11 +191,11 @@ do
 	## If we exceed the maximum, then do the rotation:
 	## TODO: This has been disabled for now; it needs to be refactored to deal with the new style
 	##       Fortunately at present, no important jsh scripts use -max.
-	# if [ "$MAX" ]
+	# if [ -n "$MAX" ]
 	# then
 		# if [ "$N" -gt "$MAX" ]
 		# then
-			# echo "Rotating the files..."
+			# echo "[rotate] Rotating the files..."
 			# ## Start at 1 so 0 is not rotated.
 			# X=1
 			# # mv "$FINALFILE.$X" "$FINALFILE.$X.oldMEGAbakB4rotate" ## ???!
