@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # /bin/grep -v $@
 
 ## BUG: inefficient (runs a new sh+grep for every arg!)
