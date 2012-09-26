@@ -1,6 +1,6 @@
 ## makeshfunction `find ~/j/code/shellscript -type f | grep -v /CVS/ | grep -v "\.hs" | grep -v "\.c" | grep -v "\.swp" | grep -v "\.txt$"` > allj.sh
 
-# jsh-depends: endswith filename startswith error
+# jsh-depends: endswith filename startswith error jshwarn
 
 ## Notes: It is good that we include the main script itself as a function, in case it tries to make calls to itself.
 
