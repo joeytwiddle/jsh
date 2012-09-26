@@ -1,9 +1,19 @@
 #!/bin/zsh
 
+# jsh-depends: jwatchchanges trimempty beforefirst beforelast importshfn ifonline highlight afterlast jshinfo
+# jsh-ext-depends-ignore: ssh
+
 ## A simple visualisation for tc traffic
 ## Show bars representing the amount of traffic passed through each class, and highlights live changes.
 
 ## zsh is needed to perform the real arithmetic to calculate DATEDIFF
+dateFormat="%s.%N"
+if [ -z "$ZSH_NAME" ]
+then
+	echo "Warning: traffic_shaping_monitor should be run in zsh (for accurate timing arithmetic)!"
+	# exit 3
+	dateFormat="%s"
+fi
 
 SEDSTR=`
 cat << ! |
@@ -41,7 +51,7 @@ add_levels_to_tc_output () {
 	## The first "Sent" number in the file should be the #bytes sent in the root class, i.e. the total bytes sent.
 	TOTAL=`cat "$TMPFILE" | grep "^ *Sent " | head -n 1 | beforefirst " bytes " | afterlast " "`
 	# [ "$LAST_TOTAL" ] && echo "$TOTAL - $LAST_TOTAL = $((TOTAL-LAST_TOTAL))"
-	TIME=$(date +%s.%N)
+	TIME=$(date +$dateFormat)
 	while read ARG1 ARG2 ARG3 REST
 	do
 		# lastSentRef="last_sent_$CURDISC"
@@ -67,6 +77,7 @@ add_levels_to_tc_output () {
 			if [ "${new_sent[$CURDISC]}" ] && [ "${last_sent[$CURDISC]}" ]
 			then
 				DATEDIFF=$((TIME-LAST_TIME))
+				[ -z "$ZSH_NAME" ] && jshinfo "DATEDIFF= $TIME - $LAST_TIME = $DATEDIFF"
 				DIFF="$(( (${new_sent[$CURDISC]}-${last_sent[$CURDISC]}) / DATEDIFF ))"
 				DIFF=`echo "$DIFF" | beforelast "\."`
 				echo -n " [$DIFF bps]"
@@ -90,6 +101,7 @@ add_levels_to_tc_output () {
 }
 
 add_levels_to_tc_output
+[ -z "$ZSH_NAME" ] && sleep 2
 
 . importshfn jwatchchanges
 
