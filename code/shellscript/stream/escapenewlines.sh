@@ -1,5 +1,5 @@
 #!/bin/sh
-# jsh-ext-depends-ignore: file
+# jsh-ext-depends-ignore: file stream
 # jsh-ext-depends: sed
 # jsh-depends-ignore: after
 # unj escapenewlines "$@"
