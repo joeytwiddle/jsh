@@ -127,6 +127,12 @@ else
 				[ "$PROMPTHOST" ] || PROMPTHOST="\h" ## for jchroot.  CONSIDER: would hard-coding the PROMPTHOST, instead of \h, be more efficient?
 				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
 			fi
+
+			## hwi is a special case where I can be logged in in different ways
+			## If ssh-ed into hwi, present some extra prompt to make it clear:
+			if [ "$SHORTHOST" = hwi ] && [ -n "$SSH_CONNECTION" ]
+			then PS1="$RESCOL<$USER@$SHORTHOST> $PS1"
+			fi
 		;;
 
 	esac
