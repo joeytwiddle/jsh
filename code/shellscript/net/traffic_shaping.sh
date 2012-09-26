@@ -30,32 +30,36 @@ if [ "$1" = "start" ] || [ "$1" = "restart" ]
 then
 	# NYX_SCRIPT="/root/j/code/shellscript/net/nyx.sh"
 	# sh "$NYX_SCRIPT"
-	## This let me do 53k? up
-	wondershaper eth0 6000  400
-	## But I can sometimes do 120k up!
+
+	### Interface to the Internet.
+	## 400 lets me do 50k up.  (always)
+	## 1000 lets me upload at 125k/s.  (sometimes)
+	wondershaper eth0 6000 1000
 	# wondershaper eth0 6000  900
-	## Wireless can carry a bit more than this:
-	wondershaper eth1  360 5000
-	## But we restrict it so it doesn't swamp torrents when grabbing from net
-	## because sudden swamping can cause good seeds to disconnect.
-	# wondershaper eth1  360 4000
+
+	### Interface to the Home Network (we are serving), including wireless and LAN.
+	# wondershaper eth1  360 5000
+	## But we restrict it a bit so it can't get greedy and swamp UDP transfers
+	## to/from this machine.
+	wondershaper eth1  200 4000
 	## We can actually send a lot more through the router if we are using cables:
 	# wondershaper eth1 20000 20000
 
-	## My additional rules - high priority ports
-	HIPRIOPORTSRC="7777 7778"   # source ports for incoming packets
-	HIPRIOPORTDST="7777 7778"   # destination ports for outgoing packets
-	DEV=eth0
-	for a in $HIPRIOPORTSRC
-	do
-		tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
-		   match ip sport $a 0xffff flowid 1:10
-	done
-	for a in $HIPRIOPORTDST
-	do
-		tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
-		   match ip dport $a 0xffff flowid 1:10
-	done
+### DISABLED - do not work here, need to go in /etc/init.d/wondershaper
+# ## Joey's additional rules - high priority ports
+# HIPRIOPORTDST="7777 7778"   # destination ports for outgoing packets
+# HIPRIOPORTSRC="7777 7778"   # source ports for incoming packets (but quite possibly ingress is dont separately)
+# for a in $HIPRIOPORTDST
+# do
+	# tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
+	   # match ip dport $a 0xffff flowid 1:10
+# done
+# for a in $HIPRIOPORTSRC
+# do
+	# tc filter add dev $DEV parent 1: protocol ip prio 19 u32 \
+	   # match ip sport $a 0xffff flowid 1:10
+# done
+# # These need to be above the final non-interactive filter.  We check them early.
 
 fi
 
