@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-ext-depends: ifconfig
 ## TODO: cable modem was not giving me a dhcp so I wasn't online but I had eth1 so this script thought I was.  :-/
 # eth1      Link encap:Ethernet  HWaddr 00:11:1A:D4:18:A5  
           # UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
