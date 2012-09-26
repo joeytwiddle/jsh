@@ -32,7 +32,7 @@ fi
 
 
 
-[ "$1" = -java ] && TREECOM="java tools.tree.Tree" && shift
+[ "$1" = -java ] && TREECOM="env CLASSPATH=$HOME/j/code/java java tools.tree.Tree" && shift
 
 [ "$1" = -sh ] && TREECOM="treesh -" && shift
 
