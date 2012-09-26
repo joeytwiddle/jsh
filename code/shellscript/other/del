@@ -2,7 +2,7 @@
 # jsh-ext-depends-ignore: from file cvs
 # jsh-ext-depends: sed basename dirname realpath
 # jsh-depends-ignore: reclaimspace
-# jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted
+# jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted dfh verbosely geekdate
 
 ## TODO: might be nice to do a quick check to see if any processes have a handle on (or are opening) each file before we delete it.
 

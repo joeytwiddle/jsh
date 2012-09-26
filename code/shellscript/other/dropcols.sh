@@ -1,4 +1,5 @@
 #!/bin/sh
+# jsh-depends: jshwarn
 
 # jsh-ext-depends: sed
 

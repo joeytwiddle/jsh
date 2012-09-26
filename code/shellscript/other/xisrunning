@@ -1,4 +1,6 @@
+# jsh-depends-ignore: xterm
 ## xisrunning - check we have an accessible running X display
+# jsh-ext-depends: xterm xdpyinfo
 
 
 

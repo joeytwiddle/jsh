@@ -1,4 +1,8 @@
 #!/bin/sh
+# jsh-ext-depends: diff patch
+# jsh-ext-depends-ignore: watch top
+# jsh-depends: escapenewlines unescapenewlines dog cursenorm curseyellow jdeltmp jgettmp striptermchars
+# jsh-depends-ignore: top highlight
 ## TODO: If the output is too long for the screen, and $LINES exists, we should
 ## trim with: `| head -n "$((LINES-5))"` and also inform the user.
 

@@ -1,7 +1,8 @@
 #!/bin/bash
 # jsh-ext-depends: sed md5sum tty realpath
-# jsh-depends-ignore: cursemagenta cursenorm debug
 # jsh-depends: memo jdeltmp jgettmpdir jgettmp realpath md5sum error jshwarn
+# jsh-ext-depends-ignore: streams
+# jsh-depends-ignore: cursemagenta cursenorm debug
 
 ## FEATURE ISSUE: rememo does not actually replace the old stored memo, so the
 ## cache is often the first output, not the last output.  Sometimes this is

@@ -1,3 +1,5 @@
+# jsh-ext-depends-ignore: script
+# jsh-depends: makeshfunction jdeltmp jgettmp
 ## Usage:
 ## . importshfn <jshtool> | <path_to_shellscript> ...
 
