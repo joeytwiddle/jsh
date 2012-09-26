@@ -1,6 +1,7 @@
-# jsh-depends-ignore: xterm jsh
-# jsh-depends: waitforkeypress xisrunning jdeltmp jgettmp
 ## Based on xtermsh
+# jsh-depends: waitforkeypress xisrunning jdeltmp jgettmp
+# jsh-ext-depends: xterm
+# jsh-depends-ignore: xterm jsh
 
 if [ "$1" = -fg ]
 then FOREGROUND=true; shift
