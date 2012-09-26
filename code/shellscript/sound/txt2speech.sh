@@ -65,6 +65,8 @@ NL="
 	# sed "s/-/ /g" |
 	# sed "s/\./ dot /g" |
 	# sed "s/^$/\\
+	## But two words joined by a dash are pronounced awfully (festival reads the letters!), so:
+	sed 's/-/ - /g' |
 # . new paragraph.\\
 # /" |
 	# tr "\n" " " |
