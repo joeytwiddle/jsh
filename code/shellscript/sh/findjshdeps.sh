@@ -27,7 +27,8 @@ export IKNOWIDONTHAVEATTY=1
 [ "$PWDBEFORE" ] || export PWDBEFORE="$PWD"
 ## First experiment selfmemoing =)
 # echo "before: >$0< >$1< >$2< >$3<" >&2
-. selfmemo -nodir -d $JPATH/code/shellscript - "$0" "$@"; shift
+# . selfmemo -nodir -d $JPATH/code/shellscript - "$0" "$@"; shift
+## BUG: Really want the test to be -f on script, but we don't know scriptfile path yet!
 # echo "after:  >$0< >$1< >$2< >$3<" >&2
 cd "$PWDBEFORE"
 
