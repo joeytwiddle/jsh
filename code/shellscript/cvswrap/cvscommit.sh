@@ -24,8 +24,16 @@ else
 	errNo="$?"
 	# | grep -v "^? "
 	## caused: "Vim: Warning: Output is not to a terminal"
+
+	## LEGACY: I only needed to do this when CVSREAD was set.  It is not unset.
 	## CONSIDER: Should we do cvsedit if there was an error?
-	cvsedit "$@" >/dev/null 2>&1
+	## BUG: Can be slow if we've done commit from an ancestor folder.
+	# cvsedit "$@" >/dev/null 2>&1
+	## BUG: This works OK if we've specified the files, but does nothing if we haven't!
+	# for arg in "$@"
+	# do [ -f "$arg" ] || [ -d "$arg" ] && verbosely cvs edit "$arg" >/dev/null 2>&1
+	# done
+
 	exit "$errNo"
 
 fi
