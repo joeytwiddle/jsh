@@ -1,4 +1,5 @@
 #!/bin/bash
+# jsh-depends: require_exes getvideoduration debug
 # @packages faac gpac
 
 require_exes mplayer mencoder faac x264 MP4Box filesize getvideoresolution \
@@ -39,27 +40,27 @@ cat << !
     MONO=1   # Downmix to mono (Beware!  May halve volume if input was mono!)
     X264_OPTIONS="--ratetol 5.0"
       # Allows bitrate/filesize to grow by 5% for later action scenes
-    TWOPASS=true   # experimental, use with TARGET_SIZE
+    TWOPASS=true   # use with TARGET_SIZE; may overshoot (can use >15G of space!)
 
 !
 exit 1
 fi
 
-[ "$OUTFILE" ] || OUTFILE="$INFILE.x264.mp4"
+[ -n "$OUTFILE" ] || OUTFILE="$INFILE.x264.mp4"
 
 ## TODO: Input size and fps could be obtained from mplayer's output line starting "VIDEO:"
 
 ### Defaults:
 ## OUTSIZE should be input size, unless we are scaling with SCALEOPTS
-# [ "$OUTSIZE" ] || OUTSIZE=720x480
-[ "$FPS" ] || FPS=23.976
-# [ "$LOSS" ] || LOSS=8 ## ridiculous quality?
-# [ "$LOSS" ] || LOSS=12 ## great quality
-# [ "$LOSS" ] || LOSS=16 ## good film quality, a tiny bit lossy
-[ "$LOSS" ] || LOSS=20 ## sensible quality, pretty good but not bloated
-# [ "$LOSS" ] || LOSS=26 ## web video quality
+# [ -n "$OUTSIZE" ] || OUTSIZE=720x480
+[ -n "$FPS" ] || FPS=23.976
+# [ -n "$LOSS" ] || LOSS=8 ## ridiculous quality?
+# [ -n "$LOSS" ] || LOSS=12 ## great quality
+# [ -n "$LOSS" ] || LOSS=16 ## good film quality, a tiny bit lossy
+[ -n "$LOSS" ] || LOSS=20 ## sensible quality, pretty good but not bloated
+# [ -n "$LOSS" ] || LOSS=26 ## web video quality
 # AUDIOQUALITY=40 can create unpleasant distortion
-[ "$AUDIOQUALITY" ] || AUDIOQUALITY=80
+[ -n "$AUDIOQUALITY" ] || AUDIOQUALITY=80
 
 # PREVIEW="-ss 0:01:00 -endpos 0:10"
 ## Not recommended: MOREOPTS="--ratetol 5.0" as it can cause file size to blow out
@@ -94,7 +95,7 @@ fi
 
 ## Generate suitable value for SCALEOPTS from OUTSIZE
 # e.g. OUTSIZE=640x360 requires SCALEOPTS="scale=640:360,"
-if [ ! "$OUTSIZE" = "$INSIZE" ] && [ ! "$SCALEOPTS" ]
+if [ ! "$OUTSIZE" = "$INSIZE" ] && [ -z "$SCALEOPTS" ]
 then
 	SCALEOPTS="scale=`echo "$OUTSIZE" | tr 'x' ':'`,"
 	## mplayer will scale the video down, so the insize to x264 will change:
@@ -171,14 +172,15 @@ FIFOFILE="$INFILE".tmp.fifo.yuv
 ## NOTE: If you change the PREVIEW parameters, then you must delete
 ## the FIFOFILE yourself, to re-create the new size version.
 ## DONE: Warn the user of the above!
-if [ "$PREVIEW" ]
+if [ -n "$PREVIEW" ]
 then
 	if [ -f "$FIFOFILE" ]
 	then echo "[WARNING] Re-using previous tmpfile.  If you have changed PREVIEW size then delete $FIFOFILE and re-run!"
 	fi
 else
 	rm -f "$FIFOFILE"
-	if [ "$TWOPASS" ] || ! mkfifo "$FIFOFILE"
+	## TWOPASS cannot use a fifo until we move the below mencoder call into a function, so we can run it again for the second pass.
+	if [ -n "$TWOPASS" ] || ! mkfifo "$FIFOFILE"
 	then
 		# Some filesystems do not support fifo files!
 		# So we will just use a normal file.
@@ -205,7 +207,7 @@ fi
 
 ### Encode with x264:
 
-if [ "$TARGET_SIZE" ]
+if [ -n "$TARGET_SIZE" ]
 then
 	# In kilobytes
 	AUDIO_SIZE=$(( $(filesize "$AACFILE") / 1024 ))
@@ -220,7 +222,7 @@ FPSINT="`echo "$FPS" | sed 's+\..*++'`"
 numFrames=$(( INPUT_VIDEO_DURATION * FPSINT ))
 echo "At least $numFrames frames to encode..."
 
-if [ "$TWOPASS" ]
+if [ -n "$TWOPASS" ]
 then
 
 	## For 2-pass, replace --crf "$LOSS" with --bitrate and pass number:
@@ -251,7 +253,7 @@ mv -f "$OUTFILE".with_video "$OUTFILE"
 
 
 
-if [ "$PREVIEW" = "" ]
+if [ -z "$PREVIEW" ]
 then cleanup_audio_files
 fi
 
