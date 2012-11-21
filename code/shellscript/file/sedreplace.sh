@@ -67,10 +67,11 @@ TO="$2"
 shift
 shift
 
-if test "$3" = ""; then
+if [ -z "$1" ]
+then
 
 	isatty && echo "[sedreplace] Reading from stdin" >&2
-	sed "s$1$2g"
+	sed "s$FROM$TOg"
 
 else
 
