@@ -69,8 +69,9 @@ else
 
 	# Problem: 'ls' does not seem to override fakels alias on Solaris :-(
 	NEWLIST=`
-		'ls' -d "$LOOKIN/$LOOKFOR"* 2>/dev/null |
-		while read X
+		# 'ls' -d "$LOOKIN/$LOOKFOR"* 2>/dev/null |
+		# while read X
+		for X in "$LOOKIN"/"$LOOKFOR"*
 		do [ -d "$X" ] && echo "$X"
 		done
 	` 2> /dev/null
@@ -86,7 +87,7 @@ else
 	then
 		## One unique directory found  :)
 		# echo ">"`curseyellow`" $NEWLIST"`cursenorm`
-		echo "$NEWLIST" | sed "s+^\(.*$NEWDIR\)\(.*\)$+> "`cursegreen`"\1"`curseyellow;cursebold`"\2"`cursenorm`"+"
+		echo "$NEWLIST" | sed "s+^\(.*$NEWDIR\)\(.*\)$+> "`curseyellow;cursebold`"\1"`cursegreen;cursebold`"\2"`cursenorm`"+"
 		'cd' "$NEWLIST"
 
 	else
