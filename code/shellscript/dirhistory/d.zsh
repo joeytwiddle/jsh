@@ -85,13 +85,13 @@ else
 	elif [ `echo "$NEWLIST" | countlines` = 1 ]
 	then
 		## One unique directory found  :)
-		echo ">"`curseyellow`" $NEWLIST"`cursenorm`
+		# echo ">"`curseyellow`" $NEWLIST"`cursenorm`
+		echo "$NEWLIST" | sed "s+^\(.*$NEWDIR\)\(.*\)$+> "`cursegreen`"\1"`curseyellow;cursebold`"\2"`cursenorm`"+"
 		'cd' "$NEWLIST"
 
 	else
 		## Multiple possibilities, suggest them to the user.
-		echo "$NEWLIST" |
-		sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`curseyellow`"\1"`curseyellow`"\2"`cursenorm`"+"
+		echo "$NEWLIST" | sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`curseyellow;cursebold`"\1"`cursered;cursebold`"\2"`cursenorm`"+"
 
 	fi
 
