@@ -103,6 +103,10 @@ NL="
 	sed 's|\<US\>|U S|g' |
 	# sed 's|\<of\>|orve|g' |
 
+	## Web ’s are not real 's and often cause festival to read the whole word as individual letters.
+	# sed "s+[’]++g" |
+	tr "’" "'" |
+
 	sed 's+^+(SayText "+ ; s+$+")+' |
 	cat
 
