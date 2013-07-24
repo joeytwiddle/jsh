@@ -16,6 +16,11 @@
 ## Works by sending all non-interactive (i.e. low priority) traffic through a pipe which is 3/4rs (or 1/2lf for 56kmodems) the size of your actual connection
 ## This should leave a large enough gap for responsive web browsing, ssh sessions, email, etc.
 
+USE_WONDERSHAPER_INSTEAD=
+
+if [ -n "$USE_WONDERSHAPER_INSTEAD" ]
+then
+
 echo -n "wondershaper: "
 
 if [ "$1" = "stop" ] || [ "$1" = "restart" ]
@@ -69,6 +74,7 @@ echo "$1"ed
 
 exit "$errCode"
 
+fi
 
 
 
@@ -114,8 +120,9 @@ exit "$errCode"
 ## Rob's:
 # BANDWIDTH_OUT=45000
 ## Mine:
-BANDWIDTH_OUT=33566
+# BANDWIDTH_OUT=33566
 # BANDWIDTH_OUT=30000
+BANDWIDTH_OUT=15000
 
 # PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="45" ; PROPORTION_LARGE_PIPE="35"
 # PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="35" ; PROPORTION_LARGE_PIPE="40"
@@ -124,9 +131,10 @@ BANDWIDTH_OUT=33566
 # PROPORTION_SMALL_PIPE="10" ; PROPORTION_WEBSERVER="10" ; PROPORTION_LARGE_PIPE="80"
 # PROPORTION_SMALL_PIPE="15" ; PROPORTION_WEBSERVER="45" ; PROPORTION_LARGE_PIPE="35"
 # PROPORTION_SMALL_PIPE="10" ; PROPORTION_WEBSERVER="50" ; PROPORTION_LARGE_PIPE="80" ## Letting torrents go fast, but still prioritising web traffic, so although we may be flooded, we at least got prioritisation
-PROPORTION_SMALL_PIPE="30" ; PROPORTION_WEBSERVER="80" ; PROPORTION_LARGE_PIPE="80" ## Letting torrents go fast, but still prioritising web traffic, so although we may be flooded, we at least got prioritisation
+#PROPORTION_SMALL_PIPE="30" ; PROPORTION_WEBSERVER="80" ; PROPORTION_LARGE_PIPE="80" ## Letting torrents go fast, but still prioritising web traffic, so although we may be flooded, we at least got prioritisation
+PROPORTION_SMALL_PIPE="20" ; PROPORTION_WEBSERVER="50" ; PROPORTION_LARGE_PIPE="30"
 
-INTERFACE=`/home/joey/j/jsh ifonline`
+[ -z "$INTERFACE" ] && INTERFACE=`/home/joey/j/jsh ifonline`
 
 
 
