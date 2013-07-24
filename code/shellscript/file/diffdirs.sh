@@ -19,21 +19,25 @@ fi
 DIRA="$1"
 DIRB="$2"
 
-if [ ! "$DIRA" ] || [ ! "$DIRB" ]
+if [ -z "$DIRA" ] || [ -z "$DIRB" ] || [ "$1" = -help ]
 then
 cat << !
 
-diffdirs <dira> <dirb>
+[<<options>] diffdirs <dira> <dirb>
 
-  shows a summary of which files in dira and dirb are identical or different.
+  shows a summary of which files in dira and dirb are identical, unique or
+  different.
 
-If provided, these can be used to select files by filenames:
+If provided, these options can be used to select files by filenames:
 
   ONLY_REGEXP="/src/"
 
   IGNORE=".class"
     or
   IGNORE_REGEXP="\.class$"
+
+If neither are specified, IGNORE_REGEXP will apply some common excludes,
+including .git and node_modules folders.
 
 To skip reporting identical files:
 
@@ -56,8 +60,9 @@ PREFERRED_DIFFCOM="xterm -geometry 140x60 -e vimdiff" ## prebg
 
 
 # [ "$IGNORE" ] && IGNORE_REGEXP="\(""`echo "$IGNORE" | tr ',' '\n' | while read IGNORETERM; do echo "$(toregexp "$IGNORETERM")"; echo "\|"; done; echo "impossible\)"`""\)"
-[ "$IGNORE" ] && IGNORE_REGEXP="` echo "$IGNORE" | tr ',' '\n' | list2regexp `"
-[ "$IGNORE_REGEXP" ] || IGNORE_REGEXP="impossible"
+[ -n "$IGNORE" ] && IGNORE_REGEXP="` echo "$IGNORE" | tr ',' '\n' | list2regexp `"
+#[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="_sdfjslfj23djlsdf_IMPOSSIBLE_sdjfklf242sdf423jsd_"
+[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="\(^\|/\)\(\.git\|CVS\|\.svn\|node_modules\)/"
 
 findfiles () {
 	cd "$1" || exit 1
@@ -78,7 +83,7 @@ report() {
 }
 
 identical() {
-  [ "$NOMATCHES" ] && return
+	[ -n "$NOMATCHES" ] && return
 	if [ "$IDCNT" = 0 ]
 	then /bin/echo -n "Identical:" "$@"
 	else /bin/echo -n "" "$@"
@@ -98,7 +103,7 @@ isbrokenlink() {
 	exit 55   # does nothing - we can't quit if the above fail
 ) |
 
-if [ "$ONLY_REGEXP" ]
+if [ -n "$ONLY_REGEXP" ]
 then grep "$ONLY_REGEXP"
 else cat
 fi |
@@ -161,7 +166,7 @@ do
 			# report "${CURSEYELLOW}Differ: diff \"$DIRA/$FILE\" \"$DIRB/$FILE\"${CURSENORM}"
 			DIFFSUMMARY=`NOEXEC=1 IKNOWIDONTHAVEATTY=1 diffsummary "$DIRA/$FILE" "$DIRB/$FILE"`
 			report "${CURSEYELLOW}Differ: $PREFERRED_DIFFCOM $DIFFSUMMARY${CURSENORM}"
-			if [ "$SHOWDIFFSWITH" ]
+			if [ -n "$SHOWDIFFSWITH" ]
 			then
 				report "Here are the differences:"
 				report $SHOWDIFFSWITH "$DIRA/$FILE" "$DIRB/$FILE"
