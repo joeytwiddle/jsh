@@ -1,10 +1,13 @@
 #!/bin/sh
 SLEEPTIME=5
 
+INTERFACE="$1"
+[ -z "$INTERFACE" ] && INTERFACE=`ifonline`
+
 while true
 do
 
-	/sbin/tc -s qdisc ls dev eth1 |
+	/sbin/tc -s qdisc ls dev "$INTERFACE" |
 	grep "^[ ]*Sent " |
 	numbereachline
 
