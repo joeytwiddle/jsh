@@ -5,9 +5,11 @@ JMAN_SPECIAL_COLORS=1
 if xisrunning
 then
 	## echo -e failed to output the \n correctly in sh/dash, so using printf.
-	[ -n "$JMAN_SPECIAL_COLORS" ] && printf "*colorBDMode: on\n*colorULMode: on\n*colorBD: blue\n*colorUL: brown" | xrdb -merge
+	## Needed to add "VT100." for them to work in Ubuntu.
+	## TODO: rxvt users will need: URxvt.colorIT: #87af5f URxvt.colorBD: #d7d7d7 URxvt.colorUL: #87afd7
+	[ -n "$JMAN_SPECIAL_COLORS" ] && printf "*VT100.colorBDMode: on\n*VT100.colorULMode: on\n*VT100.colorBD: blue\n*VT100.colorUL: brown" | xrdb -merge
 	manpopup "$@"
-	[ -n "$JMAN_SPECIAL_COLORS" ] && ( sleep 5 ; printf "*colorBDMode: off\n*colorULMode: off" | xrdb -merge ) &
+	[ -n "$JMAN_SPECIAL_COLORS" ] && ( sleep 5 ; printf "*VT100.colorBDMode: off\n*VT100.colorULMode: off" | xrdb -merge ) &
 fi
 
 ## If the command is a jsh script, show jsh documentation (may popup, but always asks questions in the terminal):

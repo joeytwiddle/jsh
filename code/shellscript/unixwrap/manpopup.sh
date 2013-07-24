@@ -97,6 +97,8 @@ then
 		## Gah! Displaying our cached page with 'less' or with 'more' loses any bold/underline color modes set in .Xresources or by JMAN_SPECIAL_COLORS.  Has our cached copy dropped the bd/ul hints?  Or is less not showing them?
 		## The colors work fine if we use man itself, and not our cached copy.
 		whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e "$REALMAN -a \"$*\""
+		## FIXED: Because Ubuntu does not set the colors I want, we need a dark background...
+		#bigwin "$REALMAN -a \"$*\""
 
 	fi
 else
