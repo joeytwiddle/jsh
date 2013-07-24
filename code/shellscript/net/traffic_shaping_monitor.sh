@@ -15,8 +15,7 @@ then
 	dateFormat="%s"
 fi
 
-SEDSTR=`
-cat << ! |
+OLDSEDTABLE="
 11: games
 12: tos
 13: mail
@@ -34,14 +33,26 @@ cat << ! |
 10: high
 20: normal
 30: low
-!
+"
 
+SEDTABLE="
+10: high
+20: normal
+30: low
+2:1 HIGH
+2:2 NORMAL
+2:3 LOW
+"
+
+SEDSTR=`
+echo "$SEDTABLE" | grep -v '^$' |
 while read NUM TYPE
 do echo -n "s+$NUM+$NUM~$TYPE+g;"
 done | beforelast ";"
 `
 
-INTERFACE=`ifonline`
+INTERFACE="$1"
+[ -n "$INTERFACE" ] || INTERFACE=`ifonline`
 
 # jwatchchanges -fine /sbin/tc -s qdisc ls dev $INTERFACE "|" trimempty "|" sed "\"$SEDSTR\"" | highlight '[^ ]*:'
 
