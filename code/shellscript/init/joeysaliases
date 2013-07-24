@@ -174,7 +174,7 @@ alias xterm='xtermbg'
 
 ## Should not be called by shellscripts:
 ## Problem: should be called: mount "$@"
-function jmount() {
+jmount() {
 	'mount' "$@" |
 	highlight "\<rw\>" cyan |
 	highlight "\<ro\>" red |
@@ -185,7 +185,7 @@ alias mount='jmount'
 
 # alias mount="'mount' | highlight_words"
 
-function jshssh () {
+jshssh () {
 	xttitle "=< ssh $* >="
 	## This was supposed to prevent the remote server from changing the xttitle (altho if we ssh on from there we might want to).  But it made kx vi's PageUp/Down break: export TERM=vt100
 	'ssh' "$@"
@@ -201,13 +201,13 @@ myls() {
 }
 alias l='myls'
 
-# function jfluxbox () {
+# jfluxbox () {
 	# . includepath /usr/local/fluxbox
 	# 'fluxbox' "$@"
 # }
 # alias fluxbox='jfluxbox'
 
-function jcal() {
+jcal() {
 	## Highlight the current day (must strip underline termcodes to find it!)
 	cal "$@" | sed 's+_++g' | highlight "\<`date | takecols 3`\>"
 }
@@ -248,6 +248,9 @@ alias rdl='removeduplicatelines'
 alias c='cd'
 alias ..='cd ..'
 alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
 # alias c.='cd ..'
 # alias c..='cd ../..'
 # alias c...='cd ../../..'
