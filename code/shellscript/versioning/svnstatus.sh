@@ -1,5 +1,5 @@
 ## Not quite.  ls knows how (at least where newliens are concerned.)
-function inUserMode () {
+inUserMode() {
 	[ "`tty`" ]
 }
 
