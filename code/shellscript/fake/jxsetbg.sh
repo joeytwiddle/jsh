@@ -1,4 +1,7 @@
 #!/bin/sh
+
+require_exes xsetbg || require_exes fbsetbg || exit
+
 IMAGE="$1"
 
 # xv is centralised and smoothscales =) but non-free :-/
@@ -35,7 +38,14 @@ IMAGE="$1"
 
 	fi
 
-	unj xsetbg -fullscreen -onroot -fit -border black "$IMAGE"
+	if which xsetbg >/dev/null 2>&1
+	then unj xsetbg -fullscreen -onroot -fit -border black "$IMAGE"
+	elif which fbsetbg >/dev/null 2>&1
+	then fbsetbg -A "$IMAGE"
+	else
+		echo "Can't find any command to set the background!" >&2
+		# xsetroot -bitmap might do it but it requires some weird image format, and we'll probably need to do centering ourself (e.g. via imagemagick).
+	fi
 	# xview -fullscreen "$IMAGE" &
 	# XVIEWPID="$!"
 	# sleep 5
