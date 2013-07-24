@@ -111,7 +111,7 @@ do AUMIX_OPTS="-d $MIXER" ; restorevolume &
 done
 
 ## Since the above doesn't work
-gksudo alsactl restore
+#gksudo alsactl restore
 
 ## Display the new song, for convenience (wait a bit to be sure it's started):
 (
