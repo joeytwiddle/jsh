@@ -5,6 +5,17 @@
 # jsh-depends-ignore: realpath vimdiff pid swap hwibot
 ## Appears stable =)
 
+
+
+# recovervimswap is currently hanging due my modified recover.vim plugin.
+# Until this is resolved, we had better not use recovervimswap!
+if [ "$1" = -thenvim ]
+then shift ; vim "$@"
+fi
+exit
+
+
+
 RVS_USE_AGE=true
 
 ## BUG: if multiple txtfiles are given, VIMAFTER gets cleared if only *one* of them is vimdiffed, whereas it should only be cleared if all of them were vimdiffed
