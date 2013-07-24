@@ -17,7 +17,7 @@ jshinfo "NOTE: xhost permissions cleared, you will have to restore them manually
 ## TODO: restore xhost permissions to previous when sbash is done
 jshinfo
 
-PRIVFILE="/home/joey/linux/.private/private.tgz.encrypted"
+PRIVFILE="$HOME/.private/private.tgz.encrypted"
 PRIVFILEDIR="`dirname "$PRIVFILE"`"
 PRIVFILEBASE="`basename "$PRIVFILE" .tgz.encrypted`"
 
