@@ -1,7 +1,9 @@
-# jsh-ext-depends-ignore: file batch rename strings
-# jsh-ext-depends: sed find tty
+#!/bin/sh
 # jsh-depends: jshwarn
 # jsh-depends-ignore: exists
+# jsh-ext-depends: sed find tty
+# jsh-ext-depends-ignore: file batch rename strings
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
@@ -10,33 +12,35 @@ then
 	echo "<command>... | renamefiles <search_glob> <replace_regex> [ |sh ]"
 	echo
 	echo "  shows you how to rename a batch of files matching the provided glob"
-	echo "  (e.g. .txt-2008*), using the replacement (which may use \1,\2,...)."
+	echo '  (e.g. "*.txt"), using the replacement (which may use \\1,\\2,...).'
 	echo
-	echo "  To actually perform the renaming, just add \"|sh\" to the end of the command."
+	echo "  To actually perform the renaming, just add |sh to the end of the command."
 	echo
 	# echo "  In the first instance, the files are those in the current directory,"
 	echo "  In the first instance, the file-nodes are found in the current directory,"
 	echo "  In the second instance, the list of files is received on standard-in."
 	echo
-	echo "  The option -r acts recursively, but do check that your search/replace acts on the filename and not the path."
-	echo
-	echo "  Pipe the output through |sh if you are happy."
+	echo "  The option -r acts recursively, but do check that your search/replace acts on"
+	echo "  the filename and not the path."
 	echo
 	# echo "  NOTE: <search> is a sed regexp, but you must not use \\(...\\) -> \\n args."
 	# echo "  TODO: Why not?  It seems to work fine for me!  Ah only method 1 supports it."
 	# echo "  NOTE: <search> is a sed regexp, so you can use the \\(...\\) -> \\n feature." ## Using method1 anyway
-	echo "  Note: Since renamefiles uses sed, you can use regexp's \\(...\\) -> \\n feature." ## Using method1 anyway
-	echo "        But remember that . ? and * are interpreted as globs not regexps."
+	echo "  Note: Since renamefiles uses sed, you can use regexp's"' \\(...\\) -> \\n feature.' ## Using method1 anyway
+	echo "        But ? and * are interpreted as globs not regexps, and . is a literal."
 	echo
 	# echo "  grep and sed are used for the selection of files and their renaming,"
 	# # echo "  but pre-processing auto-changes . to \. and * to (.*) and ? to . ."
 	# echo "  but you should actually specify a glob for <search> and a regexp for <replace>."
 	# echo
-	echo "  To override aborting when the destination file exists, export RF_OVERWRITE=anything."
+	echo "  To override aborting when the destination file exists,"
+	echo "    export RF_OVERWRITE=anything."
 	echo
 	echo "Examples:"
 	echo
-	echo "  renamefiles \".current\$\" ".old" | sh"
+	echo "  To rename file.1 and file.2 to file.01 and file.02"
+	echo
+	echo "    renamefiles '.\(?\)$' '.0\\\\1'"
 	echo
 	echo "  TODO: May need to implement extra escaping for really nasty chars."
 	echo "        Bugreports (example failure strings) are welcome."
