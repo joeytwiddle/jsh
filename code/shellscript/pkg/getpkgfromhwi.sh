@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ## See also: dpkg-repack
 ## Or for gentoo: quickpkg ?
 
