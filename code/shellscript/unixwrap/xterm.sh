@@ -19,7 +19,7 @@
 
 # # fi
 
-favouriteTerms="xterm x-terminal-emulator konqueror gnome-terminal dtterm"
+favouriteTerms="xterm x-terminal-emulator gnome-terminal konqueror dtterm"
 
 # Find which xterm emulator we are going to use...
 for xtermExeName in $favouriteTerms NONE_FOUND
@@ -71,7 +71,16 @@ done
 # XTERM_FONT='lucidatypewriter-8'
 # XTERM_OPTS="$XTERM_OPTS -fa lucidatypewriter-8"
 ## This still does tho:
-XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
+#XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
+XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1'
+## One advantage of terminus is that unlike lucidatypewriter, it is there by default on most systems.
+# XTERM_FONT='-*-terminus-*-*-*-*-16-*-*-*-*-*-*-*'
+## Interestingly, I can get xterm to use fonts *not* visible in xfontsel, by passing:
+# -fa "Liberation Mono" -fs 10
+## This is not too bad, but still 1 pixel too tall for my liking.  For the classic lucidatypewriter, you DON'T need msttcorefonts, you need xfonts-75dpi or xfonts-100dpi.
+## Although to get LucidaConsole in GVim, we need xfstt and lucon.ttf
+## I wondered if we could use lucon.ttf for xterm too (although xfonts-??dpi seems preferable).  Under Ubuntu 12.10.04-LTS, GVim could see lucon through xfstt *without* needing to use TCP.  In fact if I did use TCP, and then xfontsel -scaled, my whole X crashed!
+
 ## For Pod:
 if [ "$HOSTNAME" = pod ]
 then
@@ -95,19 +104,22 @@ then
 	# XTERM_FONT='-*-proggysmalltt-*-*-*-*-*-120-*-*-*-*-*-*'   ## wider and shorter than clean
 fi
 
-# XTERM_OPTS="$XTERM_OPTS -bg black -fg white"
-## On a dark display, thin lines can be hard to see, so I lighten my background a bit.
-## My monitor is kind-of dodgy, so this is nearly indistinguishable from black.
-# XTERM_OPTS="$XTERM_OPTS -bg #081410 -fg white"
-XTERM_OPTS="$XTERM_OPTS -bg #082222 -fg white"
-
-## Cursor and pointer colors can be set in ~/.Xresources, and loaded with xrdb -merge.
-# xterm*cursorColor: #ffdd44
-# xterm*pointerColor: #ffee99
-
 # These weren't working for ages - I only noticed -si (scroll on tty output) was missing!
 if [ "$XTERME" = /usr/bin/xterm ]
 then
+
+	# XTERM_OPTS="$XTERM_OPTS -bg black -fg white"
+	## On a dark display, thin lines can be hard to see, so I lighten my background a bit.
+	## My monitor is kind-of dodgy, so this is nearly indistinguishable from black.
+	# XTERM_OPTS="$XTERM_OPTS -bg #081410 -fg white"
+	#XTERM_OPTS="$XTERM_OPTS -bg #082222 -fg white"
+	XTERM_OPTS="$XTERM_OPTS -bg #102626 -fg white"
+	#XTERM_OPTS="$XTERM_OPTS -bg #142828 -fg white"
+
+	## Cursor and pointer colors can be set in ~/.Xresources, and loaded with xrdb -merge.
+	# xterm*cursorColor: #ffdd44
+	# xterm*pointerColor: #ffee99
+
 	# XTERM_OPTS="$XTERM_OPTS `xtermopts`" ## gnome-terminal can't handle these, but it's ok if it's called as x-terminal-emulator (gnome-terminal.wrapper) in the newest gnome!
 	## -cc selection regions include () [] _ - . / exclude : ,
 	XTERM_OPTS="$XTERM_OPTS -cc 33:48,37:48,45-47:48,64:48,126:48"
@@ -126,10 +138,11 @@ then
 	XTERM_OPTS="$XTERM_OPTS -j -s -vb -si -sk"
 	# -rightbar = obvious, +sb = hidden, -sl = history length
 	XTERM_OPTS="$XTERM_OPTS -rightbar +sb -sl 2000"
+	XTERM_OPTS="$XTERM_OPTS -font $XTERM_FONT"
 fi
 
 
 
 # We used to have unj here
-"$XTERME" -font "$XTERM_FONT" $XTERM_OPTS "$@" ## unj to prevent our xterm in :$JPATH:
+"$XTERME" $XTERM_OPTS "$@" ## unj to prevent our xterm in :$JPATH:
 
