@@ -1,3 +1,9 @@
+# Oops.  See load_shell_colors.shlib
+
+# Calling out to curseblue etc. might be overkill, when we could just use things like:
+#   norm_bg=$(tput sgr0)
+#   red_bg=$(tput setab 1)
+
 CURSEBLUE=$(curseblue)
 CURSEBOLD=$(cursebold)
 CURSECYAN=$(cursecyan)
