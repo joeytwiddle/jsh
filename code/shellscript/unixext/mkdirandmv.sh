@@ -1,5 +1,5 @@
 #!/bin/sh
-## BUG TODO: If second arg is a non-existent directory, it moves the file to that name rather than creating a folder and moving the file into it!
+## BUG TODO: Ambiguity about whether last argument is a folder or target filename.  If last arg is a non-existent directory, it moves the file to that name rather than creating a folder and moving the file into it!
 
 TARGET=`lastarg "$@"`
 
