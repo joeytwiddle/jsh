@@ -18,7 +18,7 @@ fi
 ## will it use most-recent-group, there will just be 1 global group.  =(
 ## If we are being called from an existing VIM session (let's assume it's in a terminal, not gvim).
 ## Then MYVIMRC, VIM or VIMRUNTIME are likely to be set.
-if [ "$VIM" ]
+if [ -n "$VIM" ] && which xdotool >/dev/null 2>&1
 then
 	getcurrentwindowtitle() {
 		winid=`xdotool getwindowfocus`
@@ -128,7 +128,8 @@ TITLE="[Vim] $1"
 # xterm -bg "#000048" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
-xterm -bg "#223330" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
+# Fails on gnome-terminal: -bg "#223330" -geometry $INTGEOM -title "$TITLE" 
+"$JPATH"/tools/xterm -geometry $INTGEOM -title "$TITLE" -e "$JPATH/tools/recovervimswap -thenvim $*"
 # # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM -title \"$TITLE\" "
 # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM " ## TITLE caused problems in my chroot (XTERMOPTS is not quoted)!
 # if [ "`jwhich xterm`" ]
