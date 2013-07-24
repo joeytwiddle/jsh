@@ -26,7 +26,7 @@ fi
 while [ "$*" ]
 do [ -d "$1" ] && WALLPAPERDIRS="$WALLPAPERDIRS $1" && shift || break
 done
-[ "$WALLPAPERDIRS" ] || WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/www.irtc.org/" # /stuff/mirrors/" # /www/uploads/"
+[ "$WALLPAPERDIRS" ] || WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/www.irtc.org/ $HOME/Wallpapers" # /stuff/mirrors/" # /www/uploads/"
 
 
 
