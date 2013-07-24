@@ -3,12 +3,13 @@ if [ -f .gitignore ]
 then gitignoreExpr="\($( cat .gitignore | globtoregexp | sed 's+$+\\|+' | tr -d '\n' | sed 's+\\|$++' )\)$"
 fi
 git status "$@" |
-highlight -bold "^#	*added:.*" green |
-highlight "^#	modified:.*" green |
-highlight -bold "^#	deleted:.*" red |
-highlight -bold "^#	new file:.*" yellow |
+highlight -bold "# On branch [^m][^a][^s][^t][^e].*" magenta |
+highlight -bold "	*added:.*" green |
+highlight "	modified:.*" green |
+highlight -bold "	deleted:.*" red |
+highlight -bold "	new file:.*" yellow |
 grep -v "^#	$gitignoreExpr" |
-highlight "^#	.*" yellow |
+highlight "^#	.*" cyan |
 ## Alternatively, diffs may be colored by setting [color "status"] section of .gitconfig
 # ( least || most || more )
 more
