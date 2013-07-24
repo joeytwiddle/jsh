@@ -199,10 +199,12 @@ else
 				# # sed "s+^+$BEGIN$UP+"
 				## I wanted to add the ability to search more than just the local jsh tools.
 				## But actually there are shellscripts scattered all over my other-language projects.  We would need a sophisticated index to find them all in order to do a full search.
-				SCRIPT_PATH_SEARCH="$JPATH/tools/ $JPATH/code/other/cgi/ $JPATH/code/other/web/ /mnt/hwibot/usr/lib/cgi-bin/"
+				# So uh Ubuntu (12.04)'s grep -r *ignores* symlinks.
+				#SCRIPT_PATH_SEARCH="$JPATH/tools/ ...
+				SCRIPT_PATH_SEARCH="$JPATH/code/shellscript/ $JPATH/code/other/cgi/ $JPATH/code/other/web/ /mnt/hwibot/usr/lib/cgi-bin/"
 				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 |
 				grep -v 'grep: .* No such file or directory' |
-				sed -u "s+^$JPATH/tools/++" |
+				sed -u "s+^$JPATH/code/shellscript/++" |
 				highlight "\<$1\>" |
 				highlight -bold "^[^ :-]*" cyan |
 				more
