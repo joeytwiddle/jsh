@@ -1,3 +1,29 @@
+if [ -z "$2" ] || [ "$1" = --help ]
+then cat << !!
+
+swap <fileA> <fileB>
+
+  Swaps the two files on disk (via an intermediary ./tmp.swp)
+
+  This does not fail if one of the files is non-existent.  Hence it can be used
+  to move a file somewhere else temporarily, and then move it back using the
+  same command.  (Although it doesn't look pretty doing it!)
+
+  So instead of:
+
+    mv suspect suspect.disabled
+    # test something
+    mv suspect.disabled suspect
+
+  You can save your fingers with:
+
+    swap suspect suspect.disabled
+    # test something
+    swap suspect suspect.disabled     (<Up>+<Enter>)
+
+!!
+exit 0
+fi
 verbosely mv "$1" tmp.swp
 if [ -e "$1" ]; then
   echo "Tried moving $1 to tmp.swp but it's still there!"
