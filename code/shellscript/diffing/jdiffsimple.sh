@@ -1,6 +1,7 @@
 #!/bin/sh
 ## TODO: jdiffsimple -fine sometimes seems to \r the last line (or few lines).  It also randomly prints 14+4 at the top!
 ## TODO: Also -fine prints 4 removed spaces as "- - - - "!
+## `jdiffsimple -fine` achieves something similar to http://homepages.inf.ed.ac.uk/imurray2/compnotes/cwdiff
 
 if [ ! "$*" ] || [ "$1" = --help ]
 then
