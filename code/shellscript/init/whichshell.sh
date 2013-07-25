@@ -1,5 +1,5 @@
-#!/bin/sh
-# whichshell 2>&- || SHTYPE=SH_OLD : do NOT eliminate this first comment line!
+# whichshell 2>&- || SHTYPE=SH_OLD : do NOT eliminate this first comment line!  Eh?  Why not.  :P
+# No shebang!
 #*TAG:32236 5:Jun 28 1998:0755:whichshell:
 # Author: Brian Hiles <bsh@iname.com>
 # Copyright: (c) 1997-1998

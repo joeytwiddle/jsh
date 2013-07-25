@@ -1,4 +1,10 @@
 #!/bin/sh
+
+## WARNING: If you try to source this script from some less-advanced shells (e.g. dash?), it may throw a syntax error when it tries to parse var=(...) array creation, even though it doesn't actually *run* that line!
+# whichshell was reporting "zsh" although ZSH_NAME was not set.  Perhaps it was zsh running in a back-compat-mode?  Or whichshell was just wrong?  (This was when my .fluxbox/startup tried to load startj during a lightdm login on Ubuntu precise.)
+#whichshell >&2
+#echo "BASH=$BASH ZSH_NAME=$ZSH_NAME" >&2
+
 # TO TEST: sometimes the first completion i try to make on a file with " "s in its name appears to break the args?  Is this our fault?
 
 # TODO: Most annoying small bug is that occasionally we want to expand to a
@@ -35,7 +41,7 @@
 show_command_info () {
 	if [ "$ARGS" = "" ] || [ "$ARGS" = - ]
 	then
-		if [ "$SHOW_COMMAND_INFO" ]
+		if [ -n "$SHOW_COMMAND_INFO" ]
 		then
 			FOUND=
 			if ( builtin "$COMMAND" ) >/dev/null 2>&1 ## This may be running the bash version; zsh's version of builtin may differ
@@ -74,7 +80,7 @@ list_commands_in_path () {
 }
 
 ## bash version:
-if [ "$BASH" ]
+if [ -n "$BASH" ]
 then
 
 	. jgettmpdir -top
@@ -85,7 +91,7 @@ then
 
 	## -g -s removed for odin's older bash
 
-	function joeyComplete {
+	joeyComplete () {
 		COMMAND="$1"
 		shift
 		ARGS="$*"
@@ -99,7 +105,7 @@ then
 		## Also acts as a cache, so future calls are faster:
 		complete -W "$WORDS" -a -b -c -d -f -j -k -u "$COMMAND"
 		# COMPREPLY=($WORDS)
-		COMPREPLY=(`compgen -W "$WORDS" -a -b -c -d -f -j -k -u -- "$CURRENT"`)
+		COMPREPLY=( $(compgen -W "$WORDS" -a -b -c -d -f -j -k -u -- "$CURRENT") )
 	}
 
 	## Since bash only runs completion on named commands, we must go and get the names of all commands in $PATH:
@@ -107,21 +113,19 @@ then
 	# complete -F joeyComplete `
 	complete -a -b -c -d -f -g -j -k -s -u -F joeyComplete `list_commands_in_path`
 
-fi
-
 ## zsh version: I could not prevent named matches from continuing on to the glob function, despite use of "-tn".
 ## So I added an heuristic and simple caching to make it fast.
-if [ "$ZSH_NAME" ]
+elif [ -n "$ZSH_NAME" ]
 then
 
 	. jgettmpdir -top
 	export ZSH_COMPLETION_STORAGE_DIR="$HOME/.memocache/zsh_completion_options"
 	mkdir -p "$ZSH_COMPLETION_STORAGE_DIR"
 
-	function joeyComplete {
+	joeyComplete () {
 		read -c COMMAND ARGS
 		## Heuristic:
-		if [ ! "$ARGS" ]
+		if [ -z "$ARGS" ]
 		then
 			reply=
 		else
@@ -134,24 +138,15 @@ then
 				mkdir -p `dirname "$MEMOFILE"` ## This works even if COMMAND is an alias with '/'s in path.
 				MEMO_SHOW_INFO= NOINFO=1 MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 'memo' extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
 			fi
-			# AC_CHECK_ALIASES=true
-			## Annoying - occurs more than once!
-			if [ "$AC_CHECK_ALIASES" ]
+			AC_CHECK_ALIASES=true
+			if [ -n "$AC_CHECK_ALIASES" ]
 			then
 				if alias "$COMMAND" >/dev/null 2>&1
 				then echo -n "`curseyellow`<$COMMAND is an alias!>`cursenorm`" >/dev/stderr
 				fi
 			fi
-			# AC_CHECK_ALIASES=true
-			## Annoying - occurs more than once!
-			if [ "$AC_CHECK_ALIASES" ]
-			then
-				if alias "$COMMAND" >/dev/null 2>&1
-				then echo -n "`curseyellow`<$COMMAND is an alias!>`cursenorm`" >/dev/stderr
-				fi
-			fi
-			## I think these single brackets mean a string:
-			reply=(--help `cat "$MEMOFILE"`)
+			## The single brackets means an array
+			reply=( "--help" $(cat "$MEMOFILE") )
 			## Ne marche pas: compctl -f -c -u -r -k "($reply)" -H 0 '' "$COMMAND" -tn
 		fi
 	}
@@ -160,5 +155,9 @@ then
 	compctl -f -c -u -r -K joeyComplete "*" -tn
 	## History made directory /s not work and was in general quite annoying for me:
 	# -H 0 '' 
+
+else
+
+	echo "autocomplete_from_man does not know how add completion to this shell." >&2
 
 fi

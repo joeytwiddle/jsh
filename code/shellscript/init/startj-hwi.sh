@@ -271,25 +271,29 @@ else
 
 					BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | head -n 1 | afterfirst ': ' | beforelast '\.'`
 
-					if [ "$BOGOMIPS" ] && [ "$BOGOMIPS" -gt 500 ]
+					if [ -n "$BOGOMIPS" ] && [ "$BOGOMIPS" -gt 500 ]
 					then
-						if [ "$BASH" ] && [ -f /etc/bash_completion ]
+						if [ -n "$BASH" ] && [ -f /etc/bash_completion ]
 						then
-							[ "$JSHDEBUG" ] && debug "Tab completion: loading /etc/bash_completion"
+							[ -n "$JSHDEBUG" ] && debug "Tab completion: loading /etc/bash_completion"
 							. /etc/bash_completion
 							## But it wasn't working (when I did su - <a_user> from root).
 						## Disabled because "ls --col"<Tab> didn't work:
 						## Besides, testing jsh's autocomplete_from_man is my priority!
 						# elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
 						# then
-							# [ "$JSHDEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
+							# [ -n "$JSHDEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
 							# . $HOME/.zsh_completion_rules
 						# else
-							# [ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
+							# [ -n "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
 							# . autocomplete_from_man
 						fi
-						[ "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
-						. autocomplete_from_man
+						[ -n "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
+						# autocomplete_from_man will throw a parse error (syntax error) on some older shells, even for lines than don't run, so we only run it for known-good shells.
+						if [ -n "$BASH" ] || [ -n "$ZSH_NAME" ]
+						then
+							. autocomplete_from_man
+						fi
 					fi
 
 					dateDiff "JSH stage 5"
