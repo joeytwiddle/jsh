@@ -20,7 +20,7 @@ friendlycvscommit
 exit 1
 fi
 
-getfiles () {
+get_files() {
 	#### Lists files which are handled by cvs (are in the repository).
 	## This is very slow, could try: cvs diff 2>/dev/null | grep "^Index:"
 	## I use memo to avoid locking problems caused by two cvs's querying the same directory.  Ie. I get the cvsdiff saved to a file (thanks to memo) before I do any commits.
@@ -34,7 +34,31 @@ getfiles () {
 	# grep -v "^$" | grep -v "^#" |
 }
 
-function flatdiff () {
+show_status() {
+	cvs status "$1"
+}
+
+get_latest_version() {
+	cvs -q update -p "$1" > "$2" 2>/dev/null
+}
+
+reset_to_repository_version() {
+	cvs update "$1"
+	cvs edit "$1" # that's the way i like it ;)
+}
+
+commit_file_with_comment() {
+	FILE="$1"
+	INPUT="$2"
+	echo "`cursecyan`cvs commit -m \"$INPUT\" $FILE`cursenorm`"
+	cvs commit -m "$INPUT" "$FILE" ||
+	error "cvscommit failed!"
+	cvs edit "$FILE"
+}
+
+
+
+flatdiff () {
 	diff "$@" | diffhighlight | more
 	## We used to do this, but we can't rely on it if we don't do it for *every* file!
 	# tee lastcvsdiff.out | 
@@ -81,7 +105,7 @@ function tinydiffsummary() {
 }
 
 shift ## ?
-FILES=`getfiles "$@"`
+FILES=`get_files "$@"`
 TMPFILE=`jgettmp "repository_version"`
 for FILE in $FILES
 do
@@ -103,7 +127,7 @@ do
 
 			# cursecyan
 			cursenorm ; cursemagenta
-			cvs status "$FILE"
+			show_status "$FILE"
 			cursenorm
 
 			# curseblue
@@ -112,7 +136,7 @@ do
 
 			# cvs diff "$FILE"
 
-			cvs -q update -p "$FILE" > $TMPFILE 2>/dev/null
+			get_latest_version "$FILE" "$TMPFILE"
 
 		) # | trimempty
 
@@ -150,8 +174,7 @@ do
 			;;
 			u|U)
 				del "$FILE"
-				cvs update "$FILE"
-				cvs edit "$FILE" # that's the way i like it ;)
+				reset_to_repository_version "$FILE"
 				break
 			;;
 			q|Q)
@@ -164,10 +187,7 @@ do
 				# [ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname`:`realpath .`"
 				[ "$INPUT" = "." ] || [ INPUT = c ] || [ INPUT = C ] && INPUT="`whoami`@`hostname` `tinydiffsummary $TMPFILE "$FILE"` `date +"%Y/%m/%d %H:%M %Z" -r "$FILE"`"
 				echo "`cursegreen`Committing with comment:`cursenorm` $INPUT"
-				echo "`cursecyan`cvs commit -m \"$INPUT\" $FILE`cursenorm`"
-				cvs commit -m "$INPUT" "$FILE" ||
-				error "cvscommit failed!"
-				cvs edit "$FILE"
+				commit_file_with_comment "$FILE" "$INPUT"
 				sleep 2 ## attempt to fix lock BUG ## NOPE!!!
 				break
 			;;
