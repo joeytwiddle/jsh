@@ -5,7 +5,7 @@ A diverse library of shellscripts.  Run at your own risk.
 - JSH-specific
 
     jdoc <jsh_command>            - Show / search documentation
-    et <jsh_command>              - "Edit tool" (so old it used to be a .bat!)
+    et <jsh_command>              - "Edit tool" (so old it used to be a .BAT!)
 
 - Scripts to make my interactive shell look pretty (colourful and informative)
 
@@ -16,10 +16,13 @@ A diverse library of shellscripts.  Run at your own risk.
 
 - Scripts to make my interactive shell easier to use
 
-    . dirhistorysetup.bash / .zsh       Provide `b` and `f`
-    . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B
+    . dirhistorysetup.bash / .zsh       Provide `b` and `f` and `dirhistory`
+    . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B to jump and delete small/large words
 
-- Scripts for composing shell commands, at runtime or when writing other scripts.  All of the following read from standard in:
+    cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
+    h [<pattern>]       provides fast searching of history
+
+- Scripts for composing shell commands, on the command-line or when writing other scripts.  Most of the following read from standard in:
 
     | withalldo <cmd...>
     | foreachdo <cmd...>
@@ -31,17 +34,20 @@ A diverse library of shellscripts.  Run at your own risk.
     | filesonly
     | prependeachline <txt_to_prepend>
     | takecols <column_numbers...>       Like cut but no params to remember!
+    | dropcols <column_numbers...>
     | beforefirst <regexp>
     | afterlast <regexp>
     | dateeachline
     | numbereachline
     | sortfilesbydate
+    | sortfilesbysize
 
     | list2regexp
-    | chooserandom
+    | chooserandomline
+    chooserandom <args...>
     | countlines
 
-    echolines
+    echolines <glob>
     waitforkeypress
 
     filesize <file>
@@ -50,24 +56,25 @@ A diverse library of shellscripts.  Run at your own risk.
 
 - Utilities
 
-    memo <slow_command...>
+    memo [ -t "N weeks" ] <slow_command...>
     diffdirs <dirA> <dirB>
     diffgraph <related_files...>      shows which files are most closely related
     monitorps                         report new/closed processes
     listopenports
     listopenfiles
     whatisaccessing <file/folder>
-    jwatch <cmd>
-    jwatchchanges <cmd>
+    whatsblockingaudio
+    traffic_shaping_monitor
+    jwatch <cmd>                      show lines added to or removed from the cmd's output
+    jwatchchanges [-fine] <cmd>       show the cmd output, highlighting changes
     findbrokenlinks
     dusk                              show disk usage by folder (like du -sk)
     duskdiff
-    whatsblockingaudio
     del <file/folder>                 sucks but not as much as `rm` does
     rmlink <symlink>
-    | diffhighlight
+    | diffhighlight                   add colours to diffs/patches
     sedreplace <search> <replace> <files...>
-    lazymount
+    lazymount <file_to_mount>
 
     worddiff / wordpatch
 
@@ -80,12 +87,12 @@ A diverse library of shellscripts.  Run at your own risk.
     convert_to_mp3 <any_audio_or_video_file>
     convert_to_ogg <any_audio_or_video_file>
     reencode_video_to_x264 <video_file>
-    | txt2speech
+    | txt2speech                      makes festival sound slightly less stupid
     wp <term>                         fast Wikipedia search (short summary)
 
 - 1000 more scripts that shouldn't be here
 
-## Setup (needs a test run)
+## Setup
 
 First clone the repository:
 
@@ -117,5 +124,5 @@ If you just want the scripts on your PATH, and crucial initialisation, but none 
 
 Run just one jsh command:
 
-    jsh/jsh <jsh_command> ...
+    jsh/jsh <jsh_command> <args...>
 

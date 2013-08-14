@@ -138,7 +138,8 @@ then
 				mkdir -p `dirname "$MEMOFILE"` ## This works even if COMMAND is an alias with '/'s in path.
 				MEMO_SHOW_INFO= NOINFO=1 MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 'memo' extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
 			fi
-			AC_CHECK_ALIASES=true
+			#AC_CHECK_ALIASES=true
+			## This feature is rather annoying.  It might be useful as a warning, but it appears in the middle of your command!  We could hide it again, but it might flash so fast that we wouldn't see it.
 			if [ -n "$AC_CHECK_ALIASES" ]
 			then
 				if alias "$COMMAND" >/dev/null 2>&1

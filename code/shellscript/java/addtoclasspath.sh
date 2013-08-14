@@ -1,4 +1,5 @@
-#!/bin/sh
+# No shebang.  source me!
+
 addonetoclasspath() {
 	TOADD="$1"
 	## Provided not already in the classpath,

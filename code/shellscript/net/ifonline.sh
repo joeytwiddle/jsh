@@ -9,9 +9,9 @@
           # RX bytes:0 (0.0 b)  TX bytes:342 (342.0 b)
 ## The lack of IP addresses might be an indicator of a problem here!
 
-for INTERFACE in eth0 eth1 eth2 eth3 ppp0
+for INTERFACE in usb0 usb1 eth0 eth1 eth2 eth3 ppp0 ppp1 wlan0 wlan1
 do
-	if /sbin/ifconfig "$INTERFACE" >/dev/null 2>&1
+	if /sbin/ifconfig "$INTERFACE" 2>&1 | grep "inet addr:" >/dev/null
 	then
 		echo "$INTERFACE"
 		exit 0

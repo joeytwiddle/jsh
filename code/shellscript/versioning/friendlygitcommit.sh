@@ -19,7 +19,7 @@ do
 	do
 
 		echo
-		echo "Would you like to: (A)dd to staged oommit ?  [Enter] to (S)kip, or (Q)uit."
+		echo "Would you like to: (A)dd to staged commit ?  [Enter] to (S)kip, or (Q)uit."
 
 		read cmd
 
