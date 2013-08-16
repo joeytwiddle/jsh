@@ -2,19 +2,19 @@
 
 A diverse library of shellscripts.  Run at your own risk.
 
-- JSH-specific
+## JSH-specific
 
     jdoc <jsh_command>            - Show / search documentation
     et <jsh_command>              - "Edit tool" (so old it used to be a .BAT!)
 
-- Scripts to make my interactive shell look pretty (colourful and informative)
+## Scripts to make my interactive shell look pretty (colourful and informative)
 
     . autocomplete_from_man
     . xtitleprompt
     . hwipromptforbash / forzsh
     . lscolsinit
 
-- Scripts to make my interactive shell easier to use
+## Scripts to make my interactive shell easier to use
 
     . dirhistorysetup.bash / .zsh       Provide `b` and `f` and `dirhistory`
     . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B to jump and delete small/large words
@@ -22,7 +22,7 @@ A diverse library of shellscripts.  Run at your own risk.
     cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
     h [<pattern>]       provides fast searching of history
 
-- Scripts for composing shell commands, on the command-line or when writing other scripts.  Most of the following read from standard in:
+## Scripts for composing shell commands, on the command-line or when writing other scripts.  Most of the following read from standard in:
 
     | withalldo <cmd...>
     | foreachdo <cmd...>
@@ -54,19 +54,27 @@ A diverse library of shellscripts.  Run at your own risk.
     mp3duration <file>
     imagesize <file>
 
-- Utilities
+## Utilities
 
     memo [ -t "N weeks" ] <slow_command...>
     diffdirs <dirA> <dirB>
     diffgraph <related_files...>      shows which files are most closely related
-    monitorps                         report new/closed processes
-    listopenports
-    listopenfiles
-    whatisaccessing <file/folder>
-    whatsblockingaudio
-    traffic_shaping_monitor
     jwatch <cmd>                      show lines added to or removed from the cmd's output
     jwatchchanges [-fine] <cmd>       show the cmd output, highlighting changes
+
+### Monitoring
+
+    monitorps                         report new/closed processes
+    listopenports [ <process_name> ]
+    listopenfiles [ <process_name> ]
+    whatisaccessing <file/folder>
+    whatisonport <port>
+    whatsblockingaudio
+    whatsplaying
+    traffic_shaping_monitor
+
+### More
+
     findbrokenlinks
     dusk                              show disk usage by folder (like du -sk)
     duskdiff
@@ -82,7 +90,7 @@ A diverse library of shellscripts.  Run at your own risk.
     getxwindimensions
     put_current_xwindow
 
-- Wrappers
+## Wrappers
 
     convert_to_mp3 <any_audio_or_video_file>
     convert_to_ogg <any_audio_or_video_file>
