@@ -2,8 +2,8 @@
 optionalProcessName="$1"
 # Don't lookup hostnames: -n
 lsof -P -S 2 -V |
-grep "^$optionalProcessName" |
-grep ":" |
-grep -v "\<REG\>" |
-grep -v "Permission denied"
+grep --line-buffered "^$optionalProcessName" |
+grep --line-buffered ":" |
+grep --line-buffered -v "\<REG\>" |
+grep --line-buffered -v "Permission denied"
 # highlight blue ".*Permission denied.*"
