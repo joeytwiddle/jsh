@@ -10,9 +10,11 @@ A diverse library of shellscripts.  Run at your own risk.
 ## Scripts to make my interactive shell look pretty (colourful and informative)
 
     . autocomplete_from_man
-    . xtitleprompt
+    . xttitleprompt
     . hwipromptforbash / forzsh
     . lscolsinit
+
+Please note that all my rc files now live separately [https://github.com/joeytwiddle/rc_files](here).  For example you may obtain a nice set of `.dircolors` for `lscolsinit` from there.
 
 ## Scripts to make my interactive shell easier to use
 
@@ -22,15 +24,17 @@ A diverse library of shellscripts.  Run at your own risk.
     cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
     h [<pattern>]       provides fast searching of history
 
-## Scripts for composing shell commands, on the command-line or when writing other scripts.  Most of the following read from standard in:
+## Scripts for composing shell commands
+
+For use on the command-line or when writing actual scripts.  Most of the following read from standard in:
 
     | withalldo <cmd...>
     | foreachdo <cmd...>
     | dog <target_file>       atomic write, does not clobber until the end, safe to use after cat!
-    | striptermchars          get rid of ANSI color codes
+    | striptermchars          remove ANSI color codes
     | trimempty
-    | removeduplicatelines
-    | dirsonly                simple list filters
+    | removeduplicatelines    and removeduplicatelinespo to preserve order
+    | dirsonly                simple filters for lists of paths
     | filesonly
     | prependeachline <txt_to_prepend>
     | takecols <column_numbers...>       Like cut but no params to remember!
@@ -60,7 +64,7 @@ A diverse library of shellscripts.  Run at your own risk.
     diffdirs <dirA> <dirB>
     diffgraph <related_files...>      shows which files are most closely related
     jwatch <cmd>                      show lines added to or removed from the cmd's output
-    jwatchchanges [-fine] <cmd>       show the cmd output, highlighting changes
+    jwatchchanges [-fine] <cmd>       show the cmd output, highlighting changes (more like watch(1))
 
 ### Monitoring
 
@@ -72,17 +76,19 @@ A diverse library of shellscripts.  Run at your own risk.
     whatsblockingaudio
     whatsplaying
     traffic_shaping_monitor
+    findjob <process_name>
 
-### More
+### Filesystem
 
     findbrokenlinks
-    dusk                              show disk usage by folder (like du -sk)
+    dusk                              show disk usage by folder (du -sk | sort)
     duskdiff
     del <file/folder>                 sucks but not as much as `rm` does
     rmlink <symlink>
+    lazymount <file_to_mount>
+
     | diffhighlight                   add colours to diffs/patches
     sedreplace <search> <replace> <files...>
-    lazymount <file_to_mount>
 
     worddiff / wordpatch
 
@@ -100,7 +106,9 @@ A diverse library of shellscripts.  Run at your own risk.
 
 - 1000 more scripts that shouldn't be here
 
-## Setup
+## Install and setup
+
+**Mac users SHOULD NOT install jsh at this time.  I am working on compatibility...**  The main problem is that jsh uses `sed` a lot, but BSD sed has significant differences from GNU sed.
 
 First clone the repository:
 
