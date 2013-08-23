@@ -1,6 +1,6 @@
 #!/bin/sh
 # echo $0
-## TODO: check: if our exported JPATH gets passed across the connection, it'd probably be better to clear it
+## TODO: check: if our exported JPATH gets passed across the connection, it'd probably be better to clear it.  Seems unlikely anyway.
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
@@ -63,7 +63,7 @@ then
 	## TODO: But, inscreendo only pops up xterm on first screen, whereas we want ssh2box to always popup the xterm.
 	inscreendo -xterm boxen $SSHCOM
 else
-	jshwarn "Cannot start sshi in screen, because you don't have screen!"
+	jshwarn "Cannot start ssh in screen, because you don't have screen!"
 	"$SSHCOM"
 fi
 
