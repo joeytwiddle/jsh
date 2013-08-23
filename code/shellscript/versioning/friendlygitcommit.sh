@@ -1,3 +1,7 @@
+#!/bin/bash
+
+# BUG: Only works from the root of the repository, fails in subfolders!
+
 exec 3>&0   # Save user stdin(0) into 3
 
 # Get list of modified files
@@ -19,7 +23,7 @@ do
 	do
 
 		echo
-		echo "Would you like to: (A)dd to staged commit ?  [Enter] to (S)kip, or (Q)uit."
+		echo "Would you like to: (A)dd to staged commit ?  [Enter] to (S)kip, (Q)uit, or enter a message to commit."
 
 		read cmd
 
@@ -35,8 +39,8 @@ do
 			???*)
 				verbosely git add "$FILE"
 				msg="$cmd"
-				# verbosely git commit -m "$msg" "$FILE"
-				commit_messasge="$commit_messasge| $msg "
+				verbosely git commit -m "$msg"
+				#commit_messasge="$commit_messasge| $msg "
 				break
 			;;
 			""|s|S)
