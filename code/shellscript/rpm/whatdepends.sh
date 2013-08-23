@@ -1,5 +1,5 @@
 #!/bin/sh
-## For when you do and apt-get install but get dependency problems which need resolving.
+## For when you do an apt-get install but get dependency problems which need resolving.
 ## Doesn't deal with or options
 
 grep " Depends: " |
