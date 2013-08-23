@@ -263,10 +263,6 @@ else
 
 					. cvsinit
 
-					alias cvshwi='cvs -z6 -d :pserver:joey@hwi.ath.cx:/stuff/cvsroot'
-					alias cvsimc='cvs -d :pserver:anonymous@cat.org.au:/usr/local/cvsroot'
-					alias cvsenhydra='cvs -d :pserver:anoncvs@enhydra.org:/u/cvs'
-
 					dateDiff "JSH stage 4"
 
 					BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | head -n 1 | afterfirst ': ' | beforelast '\.'`
