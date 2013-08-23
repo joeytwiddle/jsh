@@ -116,7 +116,7 @@ First clone the repository:
 
 Now create all the symlinks:
 
-    jsh/jsh jsh/code/shellscript/init/refreshtoollinks.sh
+    jsh/jsh jsh/code/shellscript/init/refreshtoollinks
 
 OK now you are done.
 

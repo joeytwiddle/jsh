@@ -21,7 +21,7 @@ then
 fi
 
 echo "Clearing"
-"rm" -f $JPATH/tools/*
+"rm" -f "$JPATH"/tools/*
 
 if test ! "$1" = "-old" ## It does seem to work now (a bit better than the original!) =) && test "ifonly" = "itworked"
 then
@@ -34,20 +34,29 @@ then
 		## Some Solaris boxes don't support -regex, so using grep instead.
 		find ../code/shellscript/ -not -type d |
 			## If you have a standalone copy of the catwithprogress script (make one with compilejshscript), then we can display progress... :)
-			if [ -x $HOME/bin/catwithprogress ]
-			then $HOME/bin/catwithprogress
+			if [ -x "$HOME"/bin/catwithprogress ]
+			then "$HOME"/bin/catwithprogress
 			else cat
 			fi |
 		grep ".*/\([^\.]*\|.*\.\(sh\|hs\|zsh\|bash\|shlib\|init\)\)$"
 		# test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
-	/bin/grep -v "/.ignore/" |
-	/bin/grep -v "/CVS/" |
+	grep -v "/.ignore/" |
+	grep -v "/CVS/" |
 	## Problem with next is that d.zsh gets ln'ed to d not d.zsh
 	# sed 's+\(.*\)/\([^\.]*\)\(\..*\|\)+ln -sf "\1/\2\3" "$JPATH/tools/\2"+' |
-	sed 's+\(.*\)/\([^\.]*\)\(\(\.sh\|\.hs\)\|\(.*\)\)$+ln -s "\1/\2\4\5" "$JPATH/tools/\2\5"+' |
+	# This is not BSD compatible
+	#sed 's+\(.*\)/\([^\.]*\)\(\(\.sh\|\.hs\)\|\(.*\)\)$+ln -s "\1/\2\4\5" "$JPATH/tools/\2\5"+' |
+	# Split it into two:
+	sed 's+\(.*\)/\(.*\)$+ln -s "\1/\2" "$JPATH/tools/\2"+' |
+	# BSD sed can't do OR?!
+	#sed 's+\.\(sh\|hs\)"$+"+' |
+	sed 's+\.\(sh\)"$+"+' |
+	sed 's+\.\(hs\)"$+"+' |
+	# Avoid calling each script in turn, if for any reason the sed failed!
+	grep "^ln -s " |
 	# cat
-	sh
+	sh -x
 
 	## Note: we haven't dealt with duplicates or dangling links
 
@@ -59,8 +68,8 @@ else
 	## The old one
 
 	echo "Collecting "
-	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" -o -name "*.shlib" \) ! -type d | /bin/grep -v "/.ignore/" | /bin/grep -v "/CVS/"`
-	# test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | /bin/grep -v "/CVS/"`
+	files=`find $JPATH/code/shellscript \( -name "*" -o -name "*.sh" -o -name "*.hs" -o -name "*.shlib" \) ! -type d | grep -v "/.ignore/" | grep -v "/CVS/"`
+	# test -d "$JPATH/code/java" && files="$files "`find $JPATH/code/java -name "*.sh" | grep -v "/CVS/"`
 	echo "Linking"
 	ln -sf $files $JPATH/tools/
 
