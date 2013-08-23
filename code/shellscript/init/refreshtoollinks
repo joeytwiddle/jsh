@@ -29,7 +29,7 @@ then
 	## Faster
 
 	cd $JPATH/tools
-	echo "Linking ..."
+	echo "Linking..."
 	(
 		## Some Solaris boxes don't support -regex, so using grep instead.
 		find ../code/shellscript/ -not -type d |
@@ -56,7 +56,7 @@ then
 	# Avoid calling each script in turn, if for any reason the sed failed!
 	grep "^ln -s " |
 	# cat
-	sh -x
+	/bin/bash
 
 	## Note: we haven't dealt with duplicates or dangling links
 
