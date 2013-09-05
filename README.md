@@ -2,6 +2,8 @@
 
 A diverse library of shellscripts.  Run at your own risk.
 
+Primarily for GNU/Linux.  Has been seen working in Cygwin under Windows.  Currently a bunch of failures under FreeBSD and MacOSX due to sed acting differently.  Used to work under Solaris in the past but now expects bash to be present.
+
 ## JSH-specific
 
     jdoc <jsh_command>            - Show / search documentation

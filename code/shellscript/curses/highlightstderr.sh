@@ -40,7 +40,8 @@ ERRFILE=/tmp/highlightstderr_errfile.$$
 # done >&2
 
 # sed -u "s+.*+$CURSERED\0$CURSENORM+" >&2
-sed -u "s+^+$CURSEREDBOLD+ ; s+$+$CURSENORM+" >&2
+#sed -u "s+^+$CURSEREDBOLD+ ; s+$+$CURSENORM+" >&2
+highlight -bold ".*" red >&2
 ## I need bold red for my little xterms, or I can't quite make out the text of the error message!
 ## Actually they are both unreadable, bold is so fat it loses information, thin is just a bit too dark!  Change xterm's default red to a bit brighter (some g+b)?
 

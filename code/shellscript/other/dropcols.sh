@@ -22,6 +22,7 @@
 
 ## Currently matches adjacent spaces/tabs as one delimeter
 SEDSTRINGBITA='\([^ 	]*\)[ 	]*'
+AWKSTRINGBITA='([^ 	]*)[ 	]*'
 
 ## For matching a single tab as one delimeter:
 # SEDSTRINGBITA='\([^ 	]*\)\([ ]*\|	\)'
@@ -31,6 +32,8 @@ SEDSTRINGBITA='\([^ 	]*\)[ 	]*'
 
 SEDSTRINGPARTA=
 SEDSTRINGPARTB=
+AWKSTRINGPARTA=
+AWKSTRINGPARTB=
 
 COLN=1
 
@@ -53,6 +56,7 @@ do
 
 	## Sed always picks up a column:
 	SEDSTRINGPARTA="$SEDSTRINGPARTA$SEDSTRINGBITA"
+	AWKSTRINGPARTA="$AWKSTRINGPARTA$AWKSTRINGBITA"
 	## But only sometimes prints it back out:
 	if test "$KEEPCOL"
 	then
@@ -60,7 +64,10 @@ do
 		if [ "$COLN" -gt 9 ]
 		then jshwarn "Failure imminent - trying to use replacement $COLN but only 1-9 are supported by sed!"
 		fi
-	else SEDSTRINGPARTB="$SEDSTRINGPARTB"
+		AWKSTRINGPARTB="$AWKSTRINGPARTB\$$COLN \" \""
+	else
+		SEDSTRINGPARTB="$SEDSTRINGPARTB"
+		AWKSTRINGPARTB="$AWKSTRINGPARTB"
 	fi
 
 	COLN=`expr "$COLN" + 1`
@@ -73,9 +80,17 @@ do
 
 done
 
+#AWKSTRINGPARTA="$AWKSTRINGPARTA""(.*)$"
+AWKSTRINGPARTA=""
+AWKSTRINGPARTB="$AWKSTRINGPARTB \">\" \$5 \"<\""
+
 SEDSTRING="s+^$SEDSTRINGPARTA+$SEDSTRINGPARTB+"
 
 # echo "$SEDSTRING"
 
-sed -u "$SEDSTRING"
+#sed -u "$SEDSTRING"
+
+#jshinfo "SEDSTRINGPARTA=$SEDSTRINGPARTA SEDSTRINGPARTB=$SEDSTRINGPARTB AWKSTRINGPARTB=$AWKSTRINGPARTB"
+jshinfo "AWKSTRINGPARTA=$AWKSTRINGPARTA AWKSTRINGPARTB=$AWKSTRINGPARTB"
+awk "/$AWKSTRINGPARTA/ { print $AWKSTRINGPARTB }"
 

@@ -204,7 +204,8 @@ else
 				SCRIPT_PATH_SEARCH="$JPATH/code/shellscript/ $JPATH/code/other/cgi/ $JPATH/code/other/web/ /mnt/hwibot/usr/lib/cgi-bin/"
 				highlightstderr grep "\<$1\>" -C2 -r $SCRIPT_PATH_SEARCH 2>&1 |
 				grep -v 'grep: .* No such file or directory' |
-				sed -u "s+^$JPATH/code/shellscript/++" |
+				# GNU wants -u, BSD wants -l
+				sed "s+^$JPATH/code/shellscript/++" |
 				highlight "\<$1\>" |
 				highlight -bold "^[^ :-]*" cyan |
 				more
