@@ -1,4 +1,6 @@
 #!/bin/sh
+# Generates a file for Sodipodi displaying all the TrueType fonts you have available.
+# Note this only works if you have configured your font server to provide TrueType fonts to X.  It is unlikely your Linux distribution came configured that way!
 (
 
 cat << !
