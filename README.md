@@ -24,6 +24,8 @@ Please note that all my rc files now live separately [https://github.com/joeytwi
     cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
     h [<pattern>]       provides fast searching of history
 
+    .. / ... / ....     shortcuts for cd ../../.. etc.
+
 ## Scripts for composing shell commands
 
 For use on the command-line or when writing actual scripts.  Most of the following read from standard in:
@@ -119,6 +121,11 @@ Now create all the symlinks:
     jsh/jsh jsh/code/shellscript/init/refreshtoollinks
 
 OK now you are done.
+
+If you want jsh to always load when you start a shell, you can add the following to your `.bash_rc` or `.zshrc`:
+
+    export JPATH="$HOME/jsh"
+    source "$JPATH/startj"
 
 ## Running
 

@@ -32,9 +32,6 @@ dateDiff() {
 	echo "[$0] took ($dateDiff) to do $*" >&2
 }
 
-## Are exits too harsh for a script which is likely to be sourced?
-## Do we think it's OK because startj is run by jsh these days?
-
 ## Conclusive (?) proof that bash provides nothing to tell us where this script is when it is called with source.
 ## $_ comes out as previous command (the one called before source!)
 # echo "\$\_ = >$_<" >&2

@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
@@ -47,6 +49,7 @@ then
 	then echo 'revisionIndex should be >= 1!' ; exit 1
 	fi
 	commitID=`git log "$filename" | grep "^commit " | head -n "$revisionIndex" | tail -n 1 | cut -d ' ' -f 2`
+	# CONSIDER: Perhaps we could just use HEAD^$revisionIndex of HEAD~~$revisionIndex ?
 fi
 
 olderFile="$filename"."$commitID"
@@ -54,6 +57,7 @@ olderFile="$filename"."$commitID"
 verbosely git diff "$commitID" "$filename" |
 # cat | diffhighlight
 patch -R -o "$olderFile" "$filename"
+# CONSIDER: Instead of patching, perhaps we could use `git cat-file`.
 
 [ "$DIFFCOM" ] || DIFFCOM="vimdiff"
 
