@@ -179,7 +179,7 @@ then
 					JOBS_PRE=""
 					if [ "$XTTITLEPROMPT_SHOW_JOBS" ]
 					then
-						JOBS=`jobs | takecols 4`
+						JOBS=`jobs | cut -c 19-`
 						if [ ! "$JOBS" = "" ]
 						then
 							JOB_LIST="`echo "$JOBS" | tr '\n' ',' | sed 's+,$++'`"
