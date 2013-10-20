@@ -8,8 +8,9 @@ exec 3>&0   # Save user stdin(0) into 3
 
 # Get list of modified files
 git status --porcelain |
-grep "^ M " |
-sed 's+^ M ++' |
+# UU is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
+grep "^\( M\|UU\) " |
+sed 's+^.. ++' |
 
 while read FILE
 do
