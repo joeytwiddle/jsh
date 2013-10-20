@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# BUG: Only works from the root of the repository, fails in subfolders!
+# This script only works from the root of the repository.  It fails if run in a subfolder.
+gitTopLevelDir=$(git rev-parse --show-toplevel)
+cd "$gitTopLevelDir" || exit
 
 exec 3>&0   # Save user stdin(0) into 3
 
@@ -23,7 +25,7 @@ do
 	do
 
 		echo
-		echo "Would you like to: (A)dd to staged commit ?  [Enter] to (S)kip, (Q)uit, or enter a message to commit."
+		jshquestion "Enter a message to add and commit, or (A) to stage, (S)kip/<Enter>, (E)dit the file, (R)eset it, or (Q)uit? "
 
 		read cmd
 
@@ -32,20 +34,27 @@ do
 				echo "User requested exit."
 				exit 0
 			;;
-			c|C|a|A|.)
+			a|A|.)
 				verbosely git add "$FILE"
-				break # out of UI while and continue FILE read
+				break # stop asking what to do; proceed to the next file
+			;;
+			e|E)
+				verbosely editandwait "$FILE"
+				# TODO: re-diff here?
+			;;
+			r|R)
+				verbosely git checkout -- "$FILE"
+				break
 			;;
 			???*)
 				verbosely git add "$FILE"
 				msg="$cmd"
 				verbosely git commit -m "$msg"
-				#commit_messasge="$commit_messasge| $msg "
 				break
 			;;
 			""|s|S)
-				echo "Doing nothing with $FILE"
-				break # out of UI while and continue FILE read
+				jshinfo "Doing nothing with $FILE"
+				break
 			;;
 		esac
 
