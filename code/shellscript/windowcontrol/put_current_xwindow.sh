@@ -1,5 +1,6 @@
 #!/bin/sh
 # jsh-ext-depends: xdotool xwininfo sed cut xdpyinfo
+# jsh-depends-ignore: top
 
 ## NOTE: It is preferable to use the ported version put_current_xwindow.bash
 ## because it is faster.

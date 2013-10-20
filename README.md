@@ -23,6 +23,7 @@ Please note that all my rc files now live separately [https://github.com/joeytwi
 
     cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
     h [<pattern>]       provides fast searching of history
+    .. / ... / ....     shortcuts for cd ../../.. etc.
 
 Also handy when working from the cmdline:
 
@@ -120,7 +121,7 @@ Rarely used on the commandline.
 
 ## Install and setup
 
-**Mac users SHOULD NOT install jsh at this time.  I am working on compatibility...**  The main problem is that jsh uses `sed` a lot, but BSD sed has significant differences from GNU sed.
+**jsh is not very Mac compatible at this moment.**  The main problem is that jsh uses `sed s` a lot, but BSD sed has significant differences from GNU sed.  There are other problems too (`grep --line-buffered`, ...)
 
 First clone the repository:
 
@@ -131,6 +132,11 @@ Now create all the symlinks:
     jsh/jsh jsh/code/shellscript/init/refreshtoollinks
 
 OK now you are done.
+
+If you want jsh to always load when you start a shell, you can add the following to your `.bash_rc` or `.zshrc`:
+
+    export JPATH="$HOME/jsh"
+    source "$JPATH/startj"
 
 ## Running
 

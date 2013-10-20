@@ -71,8 +71,8 @@ done
 # XTERM_FONT='lucidatypewriter-8'
 # XTERM_OPTS="$XTERM_OPTS -fa lucidatypewriter-8"
 ## This still does tho:
-#XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
-XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1'
+XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
+#XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1'
 ## One advantage of terminus is that unlike lucidatypewriter, it is there by default on most systems.
 # XTERM_FONT='-*-terminus-*-*-*-*-16-*-*-*-*-*-*-*'
 ## Interestingly, I can get xterm to use fonts *not* visible in xfontsel, by passing:
