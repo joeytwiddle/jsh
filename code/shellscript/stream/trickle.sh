@@ -6,8 +6,8 @@
 
 ## TODO: could (optionally) check hardisk usage (/proc/partitions) to and adjust its runtime byterate accordingly.
 
-SPEED="1k"
-
+# Bytes per second
+SPEED="1000"
 if [ "$1" = -at ]
 then SPEED="$2"; shift; shift
 fi
@@ -24,15 +24,18 @@ while dd count=$COUNT bs=$SPEED 2>/dev/null
 do
 	wait
 	sleep $SLEEPTIME &
-	[ "$SOFAR" ] && SOFAR=`expr $SOFAR + '(' $SPEED '*' $COUNT ')'` || SOFAR=
+	[ -n "$SOFAR" ] && SOFAR=`expr $SOFAR + '(' $SPEED '*' $COUNT ')'` || SOFAR=
 	# [ "$SOFAR" ] &&
 
-	echo -e -n '\r[ ' >&2
-	echo -n "$SOFAR / $KNOWN_TOTAL_SIZE" >&2
-	[ "$SOFAR" ] && [ "$KNOWN_TOTAL_SIZE" ] && echo -n " : `expr 100 '*' $SOFAR / $KNOWN_TOTAL_SIZE` %" >&2
-	echo -n " ]  " >&2
+	if [ -n "$TRICKLE_SHOW_PROGRESS" ]
+	then
+		echo -e -n '\r[ ' >&2
+		echo -n "$SOFAR / $KNOWN_TOTAL_SIZE" >&2
+		[ -n "$SOFAR" ] && [ -n "$KNOWN_TOTAL_SIZE" ] && echo -n " : `expr 100 '*' $SOFAR / $KNOWN_TOTAL_SIZE` %" >&2
+		echo -n " ]  " >&2
+	fi
 
-	if [ "$SOFAR" ] && [ "$KNOWN_TOTAL_SIZE" ] && [ "$SOFAR" -gt "$KNOWN_TOTAL_SIZE" ]
+	if [ -n "$SOFAR" ] && [ -n "$KNOWN_TOTAL_SIZE" ] && [ "$SOFAR" -gt "$KNOWN_TOTAL_SIZE" ]
 	then
 		jshinfo "trickle dropping out after KNOWN_TOTAL_SIZE reached (because dd didn't!)."
 		break
