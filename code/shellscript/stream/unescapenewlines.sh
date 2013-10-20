@@ -1,7 +1,7 @@
 #!/bin/sh
-# this-script-does-not-depend-on-jsh: escapenewlines
 # jsh-ext-depends: sed
-# jsh-depends: error
+# jsh-depends-ignore: escapenewlines error
+
 # unj decodeslashn "$@"
 
 ## In fact, for decoding a newline-escaped stream, tr -d '\n' should never be harmful, so the -x option needn't really be specified, it could be assumed.  (But if it is going to be sent, the -x should be caught!)
