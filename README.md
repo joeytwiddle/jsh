@@ -19,10 +19,15 @@ Please note that all my rc files now live separately [https://github.com/joeytwi
 ## Scripts to make my interactive shell easier to use
 
     . dirhistorysetup.bash / .zsh       Provide `b` and `f` and `dirhistory`
-    . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B to jump and delete small/large words
+    . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B/O to jump and delete small/large words
 
     cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
     h [<pattern>]       provides fast searching of history
+
+Also handy when working from the cmdline:
+
+    jman             - Popup a man page in a separate terminal window
+    japropos         - Search a bunch of things, not just man pages
 
 ## Scripts for composing shell commands
 
@@ -57,6 +62,13 @@ For use on the command-line or when writing actual scripts.  Most of the followi
     filesize <file>
     mp3duration <file>
     imagesize <file>
+
+## Scripts for shellscripting
+
+Rarely used on the commandline.
+
+    . importshfn <shellscript>       Load a shellscript as a function, so it runs faster when you call it many times
+    . require_exes <exe_names...>    exits if the gives exes are not on your PATH
 
 ## Utilities
 
