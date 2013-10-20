@@ -46,7 +46,7 @@ then
 	if [ "$revisionIndex" -lt 1 ]
 	then echo 'revisionIndex should be >= 1!' ; exit 1
 	fi
-	commitID=`git log "$filename" | grep "^commit " | head -n "$revisionIndex" | tail -n 1 | cut -d ' ' -f 2`
+	commitID=`git log "$filename" | grep --line-buffered "^commit " | head -n "$revisionIndex" | tail -n 1 | cut -d ' ' -f 2`
 fi
 
 olderFile="$filename"."$commitID"
