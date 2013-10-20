@@ -56,3 +56,18 @@ exec 3>&- ## Close fd 3 (is this neccessary? we are unlikely to use it, even if 
 ERRNUM=`cat "$ERRFILE"` ; rm -f "$ERRFILE"
 exit $ERRNUM
 
+
+
+
+# Another way of doing this might be...
+
+# Child processes inherit open file descriptors. This is why pipes work. To prevent an fd from being inherited, close it.
+# Redirecting only stderr to a pipe.
+
+exec 3>&1                              # Save current "value" of stdout.
+ls -l 2>&1 >&3 3>&- | grep bad 3>&-    # Close fd 3 for 'grep' (but not 'ls').
+#              ^^^^   ^^^^
+exec 3>&-                              # Now close it for the remainder of the script.
+
+# Thanks, S.C.
+
