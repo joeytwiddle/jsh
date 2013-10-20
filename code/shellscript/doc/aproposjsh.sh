@@ -30,6 +30,7 @@ case "$1" in
 				catwithprogress |
 				while read SCRIPT
 				do
+					jshinfo "Getting onelinedescription for $SCRIPT"
 					# echo -e -n "$SCRIPT(jsh)\t- "
 					# printf "%s(jsh)\t- " "$SCRIPT"
 					DIRNAME=`realpath "$JPATH/tools/$SCRIPT" | beforelast / | afterlast /`
@@ -96,6 +97,7 @@ case "$1" in
 			$doMemo findpkg "$@" | striptermchars | highlight -bold "^.i" green
 			echo
 			jshinfo "Available packages:"
+			## Doesn't work: export COLUMNS
 			# verbosely $doMemo -c true aproposjsh -builddb system-packages | grep -i -u "$@" |
 			# columnise -on "	"
 			# findpkg -all "$@" | striptermchars
