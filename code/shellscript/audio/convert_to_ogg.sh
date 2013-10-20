@@ -13,9 +13,13 @@ convert_to_ogg <audio_or_video_files>...
 
   You can provide optional parameters EXTRA_MPLAYER_OPTS and EXTRA_OGGENC_OPTS.
 
-  For example to encode a low quality ogg:
+  For example to encode a low quality ogg, do the following before converting:
 
-  export EXTRA_MPLAYER_OPTS="-srate 32000" ; export EXTRA_OGGENC_OPTS="-q 0.5 --downmix"
+  export EXTRA_MPLAYER_OPTS="-srate 32000"
+  export EXTRA_OGGENC_OPTS="-q 0.5 --downmix"
+
+  -q 2.0 will produce a  96kbit ogg
+  -q 3.0 will produce a 112kbit ogg
 
 !
 exit 0
