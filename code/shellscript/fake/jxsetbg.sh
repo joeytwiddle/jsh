@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# BUG: This reports xsetbg as required, even though this script in fact works fine without it.
 require_exes xsetbg || require_exes fbsetbg || exit
 
 IMAGE="$1"
