@@ -2,6 +2,7 @@
 # jsh-depends-ignore: startj-hwi
 # jsh-ext-depends: sed
 # jsh-ext-depends-ignore: dir find file
+# See also: hash (in bash and zsh)
 
 ## When compiljsh puts a wrapper sh in a function, it may call jwhich on itself.
 ## To avoid inf loop jwhich should return full path or nothing, never just the

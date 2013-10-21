@@ -1,7 +1,10 @@
-#!/bin/sh
-## TODO: jdiffsimple -fine sometimes seems to \r the last line (or few lines).  It also randomly prints 14+4 at the top!
+#!/bin/bash
+## Switched to bash to use PIPESTATUS.  All the alternatives are basically horrible!  :P
+##   http://stackoverflow.com/questions/1221833/bash-pipe-output-and-capture-exit-status#18295541
+## DONE: Just force a final newline when using -fine.  jdiffsimple -fine sometimes seems to \r the last line (or few lines).  It also randomly prints 14+4 at the top!
 ## TODO: Also -fine prints 4 removed spaces as "- - - - "!
 ## `jdiffsimple -fine` achieves something similar to http://homepages.inf.ed.ac.uk/imurray2/compnotes/cwdiff
+## FIXED: Does not produce an exit code like normal diff does.
 
 if [ ! "$*" ] || [ "$1" = --help ]
 then
@@ -25,8 +28,14 @@ then
 	[ "$JDSCONTEXT" ] || JDSCONTEXT="-C20"
 	JDSCONTEXT="$JDSCONTEXT" jdiffsimple "$FILEA".xescaped "$FILEB".xescaped "$@" |
 	unescapenewlines -x
+	exitCode=${PIPESTATUS[0]}
 
 	rm -f "$FILEA".xescaped "$FILEB".xescaped
+
+	# Doing a word-diff will sometimes (always?) fail to provide a final newline.
+	echo
+
+	exit "$exitCode"
 
 else
 
@@ -50,7 +59,10 @@ else
 	# grep "$JDSCONTEXT" "\(`toregexp "$PRE_REMOVE"`\|`toregexp "$PRE_ADD"`\)" |
 	grep "$JDSCONTEXT" "\(`toregexp "$REMOVE_COL"`\|`toregexp "$ADD_COL"`\)" |
 	sed "s|^--$|`curseblue` ... `cursenorm`|"
+	exitCode=${PIPESTATUS[0]}
 
 	cursenorm # safe side
+
+	exit "$exitCode"
 
 fi

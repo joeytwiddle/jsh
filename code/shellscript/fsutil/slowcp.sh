@@ -26,7 +26,7 @@ slowcp [ -at <kps> ] <from> <to-dir>
     <to-dir> must be a directory
     the path to <from> will be replicated in <to-dir>
 
-  The -at option takes kps in dd format (eg. append 'K'), default '$SPEED'.
+  The -at option takes bytes per second.
 
   Use monitorhdflow and experiment with -at to find your system's appropriate speed.
   But beware that caches, buffers and other processes will disrupt the numbers!
@@ -90,7 +90,7 @@ jshinfo "$KNOWN_TOTAL_SIZE bytes at $SPEED""kps might take ~ $ESTTIME minutes."
 	echo ""
 ) |
 
-verbosely trickle -at "$SPEED" |
+verbosely env TRICKLE_SHOW_PROGRESS=1 trickle -at "$SPEED" |
 
 (
 	cd "$TO" || exit 1

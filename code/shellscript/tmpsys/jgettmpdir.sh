@@ -1,4 +1,5 @@
 #!/bin/bash
+# jsh-ext-depends-ignore: find
 
 ## We could be using a much shorter version:
 # if [ "$TOPTMP" ]

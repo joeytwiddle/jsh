@@ -74,6 +74,7 @@ do
 		OLDSZ=`ls -l "$MBOX" | takecols 5`
 
 		export KNOWN_TOTAL_SIZE=`filesize "$MBOX"`
+		export TRICKLE_SHOW_PROGRESS=1
 		if
 			cat "$MBOX" |
 			trickle -at 1000 | ## At 1000k=1Meg per second, this is hardly trickling, only showing progress.  Why not use catwithprogress (passing size thru)?

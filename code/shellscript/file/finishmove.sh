@@ -41,11 +41,13 @@ do
 			# ls -l "$FILE" "$DESTFILE"
 			jshinfo "Matches target.  Deleting: $FILE"
 			jshsuggest rm "$FILE"
-			jshsuggest del "$FILE"
+			#jshsuggest del "$FILE"
 		elif [[ "$CMP" =~ "^cmp: EOF on $DESTFILE$" ]]
 		then
-			jshinfo "Does not match!  Overwriting: $FILE"
+			jshinfo "Target is partial source!  Overwriting: $FILE"
 			jshsuggest mv "$FILE" "$DESTFILE"
+		else
+			jshwarn 'Target does not match source!  Doing nothing'
 		fi
 	else
 		jshinfo "Target missing!  Moving: $FILE"

@@ -1,5 +1,14 @@
 #!/bin/sh
+
+## These days we have |datediffeachline .  I strongly recommend using that over prettytail!  Perhaps it should replace this.  Done!  It is not quite as pretty though.
+
+tail "$@" | datediffeachline
+exit
+
+
+
 ## NOTE: When joeysaliases aliased tail=prettytail, it caused sourced scripts from user shell problems: eg. b.zsh used tail (->prettytail) but now uses 'tail'
+## BUG TODO: The sleep reporter backgrounds itself when run from the cmdline, and when user Ctrl-Cs the main tail, the sleep reporter continues!
 
 ## TODO: make it not repeat until file gets updated, then isn't changed for $SLEEPTIME seconds.
 ## TODO: make it turn off-onable from jsh config

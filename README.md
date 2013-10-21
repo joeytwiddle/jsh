@@ -19,12 +19,16 @@ Please note that all my rc files now live separately [https://github.com/joeytwi
 ## Scripts to make my interactive shell easier to use
 
     . dirhistorysetup.bash / .zsh       Provide `b` and `f` and `dirhistory`
-    . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B to jump and delete small/large words
+    . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B/O to jump and delete small/large words
 
     cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
     h [<pattern>]       provides fast searching of history
-
     .. / ... / ....     shortcuts for cd ../../.. etc.
+
+Also handy when working from the cmdline:
+
+    jman             - Popup a man page in a separate terminal window
+    japropos         - Search a bunch of things, not just man pages
 
 ## Scripts for composing shell commands
 
@@ -59,6 +63,13 @@ For use on the command-line or when writing actual scripts.  Most of the followi
     filesize <file>
     mp3duration <file>
     imagesize <file>
+
+## Scripts for shellscripting
+
+Rarely used on the commandline.
+
+    . importshfn <shellscript>       Load a shellscript as a function, so it runs faster when you call it many times
+    . require_exes <exe_names...>    exits if the gives exes are not on your PATH
 
 ## Utilities
 
@@ -110,7 +121,7 @@ For use on the command-line or when writing actual scripts.  Most of the followi
 
 ## Install and setup
 
-**Mac users SHOULD NOT install jsh at this time.  I am working on compatibility...**  The main problem is that jsh uses `sed` a lot, but BSD sed has significant differences from GNU sed.
+**jsh is not very Mac compatible at this moment.**  The main problem is that jsh uses `sed s` a lot, but BSD sed has significant differences from GNU sed.  There are other problems too (`grep --line-buffered`, ...)
 
 First clone the repository:
 
