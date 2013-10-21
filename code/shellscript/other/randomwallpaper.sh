@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# If we don't have imagemagick's convert, then the ATTEMPT loop below will perceive a failure from jxsetbg and will keep retrying.
+. require_exes convert
+
 ## This was previously /bin/zsh but that had a problem.  Somehow in the
 ## following line, find interpreted $WALLPAPERDIRS as one argument.
 # memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
