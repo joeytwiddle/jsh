@@ -24,6 +24,11 @@ then
 	echo "        In the meantime (and in general) you are recommended to install one."
 	# echo "        maybe we could check inode instead of path?"
 	echo
+	echo "  If you want to link files from a different location, set LINK_FROM."
+	echo "  If you want to link files *to* a different location, set LINK_TO."
+	echo
+	echo '    LINK_FROM="$HOME/rc_files.solaris" LINK_TO=/home/joey/solaris linkhome'
+	echo
 	exit 1
 fi
 
@@ -33,7 +38,10 @@ then DEPTH=7
 else DEPTH=2
 fi
 
-cd "$JPATH/code/home" &&
+[ -z "$LINK_FROM" ] && LINK_FROM="$JPATH/code/home"
+[ -z "$LINK_TO" ] && LINK_TO="$HOME"
+
+cd "$LINK_FROM" &&
 find . -maxdepth $DEPTH |
 	grep -v "/CVS$" | grep -v "/CVS/" |
 	sed "s+^./++" | grep -v "^\.$" |
@@ -44,10 +52,10 @@ find . -maxdepth $DEPTH |
 	
 	while read X
 	do
-		# SOURCE="$JPATH/code/home/$X"
-		SOURCE="`realpath "$JPATH/code/home/$X"`"
-		DEST="$HOME/$X"
-		NICEDEST="~/$X"
+		# SOURCE="$LINK_FROM/$X"
+		SOURCE="`realpath "$LINK_FROM/$X"`"
+		DEST="$LINK_TO/$X"
+		NICEDEST="$DEST"   # If possible, turn '$HOME/' into '~/' e.g. using a "path simplifier"
 		if [ ! -d "$DEST" ] && [ ! -f "$DEST" ]
 		then
 			DESTDIR=`dirname "$DEST"`
@@ -65,7 +73,7 @@ find . -maxdepth $DEPTH |
 				if [ -f "$DEST" ] && [ -f "$SOURCE" ] && cmp "$DEST" "$SOURCE"
 				then echo "         but they are identical, so why not: del \"$NICEDEST\""
 				fi
-				if [ "$SHOWDIFFS" ] && [ -f "$DEST" ]
+				if [ -n "$SHOWDIFFS" ] && [ -f "$DEST" ]
 				then
 					gvimdiff "$DEST" "$SOURCE"
 				fi
