@@ -12,8 +12,9 @@ cat "$@" |
 sed 's+^Index: +\n\n\n\0+' |
 ## Originally for svn diffs.
 ## Added regexps for cvs diffs.
-highlight "^[^-+<> 	@,|\!=0-9].*" reverse |
-highlight -bold "^\(+++\|---\|===\|Index\|@\|\*\*\*\|[0-9][0-9acd,]*$\).*" cyan |
+highlight -bold "^\(+++\|---\|===\|[Ii]ndex\).*" cyan |
+highlight -bold -reverse "^[^-+<> 	@,|\!=0-9].*" cyan |
+highlight -bold "^\(@\|\*\*\*\|[0-9][0-9acd,]*$\).*" magenta |
 highlight       "^[+>].*" green |
 highlight -bold "^[-<].*" red |
 highlight       "^[|\!].*" yellow |
