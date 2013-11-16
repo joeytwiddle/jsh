@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+# We cannot use /bin/sh here because it doesn't set HOSTNAME (dash)
 # jsh-ext-depends-ignore: konqueror
 # jsh-depends: jwhich xtermopts
 
@@ -81,6 +82,7 @@ XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1'
 ## Although to get LucidaConsole in GVim, we need xfstt and lucon.ttf
 ## I wondered if we could use lucon.ttf for xterm too (although xfonts-??dpi seems preferable).  Under Ubuntu 12.10.04-LTS, GVim could see lucon through xfstt *without* needing to use TCP.  In fact if I did use TCP, and then xfontsel -scaled, my whole X crashed!
 
+## Fun fact: zsh sets HOST but empties HOSTNAME, bash sets HOSTNAME but empties HOST, and /bin/sh sets neither!
 ## For Pod:
 if [ "$HOSTNAME" = pod ]
 then
@@ -92,6 +94,9 @@ then
 	# XTERM_FONT='-*-terminus-medium-r-*-*-*-140-*-*-*-*-*-*'   ## clean-15 looks cooler than terminus!
 	# XTERM_FONT='-*-clean-medium-r-*-*-15-*-*-*-*-*-*-*' ## blocky - looks cool but not so easy on the eye
 	XTERM_FONT='-*-fixed-medium-r-*-*-15-*-*-*-*-*-*-*'
+fi
+if [ "$HOSTNAME" = porridge ]
+then XTERM_FONT='-b&h-lucidatypewriter-medium-r-normal-*-*-100-*-*-m-*-iso8859-1'
 fi
 if [ "$VNCDESKTOP" = "X" ]
 then
@@ -138,11 +143,12 @@ then
 	XTERM_OPTS="$XTERM_OPTS -j -s -vb -si -sk"
 	# -rightbar = obvious, +sb = hidden, -sl = history length
 	XTERM_OPTS="$XTERM_OPTS -rightbar +sb -sl 2000"
-	XTERM_OPTS="$XTERM_OPTS -font $XTERM_FONT"
+	## Removed so that we can set the font through .Xresources or .Xresources.local
+	# XTERM_OPTS="$XTERM_OPTS -font $XTERM_FONT"
 fi
 
 
 
 # We used to have unj here
-"$XTERME" $XTERM_OPTS "$@" ## unj to prevent our xterm in :$JPATH:
+exec "$XTERME" $XTERM_OPTS "$@" ## unj to prevent our xterm in :$JPATH:
 
