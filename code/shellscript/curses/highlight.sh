@@ -12,7 +12,7 @@
 if [ "$1" = "" ] || [ "$1" = --help ]
 then cat << !
 
-highlight [ -bold ] <regexp> [ <color> ]
+highlight [ -bold ] [ -reverse ] <regexp> [ <color> ]
 
   highlights all occurrences of the expression in stdout using a random termcap
   colour (or the colour specified).
@@ -37,6 +37,13 @@ then
   shift
 fi
 
+REVERSE=
+if [ "$1" = "-reverse" ]
+then
+  REVERSE=1
+  shift
+fi
+
 COLOR="$2"
 if [ ! "$COLOR" ]
 then
@@ -57,10 +64,15 @@ then
 else
 
 	HIGHCOL=`curse$COLOR`
-	if [ "$BOLD" ]
-	then HIGHCOL="$HIGHCOL"`cursebold`
-	fi
 
+fi
+
+if [ -n "$BOLD" ]
+then HIGHCOL="$HIGHCOL"`cursebold`
+fi
+
+if [ -n "$REVERSE" ]
+then HIGHCOL="$HIGHCOL"`cursereverse`
 fi
 
 NORMCOL=`cursenorm`
