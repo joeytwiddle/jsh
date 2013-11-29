@@ -22,7 +22,9 @@
 ## But the following was failing on TERM=screen and many other types
 # if [ "$TERM" = linux ] || [ "$TERM" = xterm ]
 ## Maybe better to check for TTY.
-if isatty
+## isatty is not only *wrong* but can also break with "Cannot write to /dev/stdout".  (This is either because of a virtualized system, but more likely after logging in as root and then becoming a user with su.)
+# if isatty
+if [ -t 1 ]
 then
 
 
