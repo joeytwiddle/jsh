@@ -29,4 +29,4 @@ else
 	tar $TARCOM
 fi &&
 
-mv "$FILE" "$FILE.prev"
+cp -L "$FILE" "$FILE.prev"

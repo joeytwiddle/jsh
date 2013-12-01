@@ -12,8 +12,9 @@ DIR="$1"
 FILE="$DIR.tgz.encrypted"
 
 test -f "$FILE" && [ ! "$NOBACKUP" ] &&
-mv "$FILE" "$FILE.bak"
+cp "$FILE" "$FILE.bak"
 
+# For when the above cp was a mv
 touch "$FILE"
 chmod 600 "$FILE"
 
