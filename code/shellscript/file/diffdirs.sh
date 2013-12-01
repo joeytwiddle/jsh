@@ -43,6 +43,11 @@ To skip reporting identical files:
 
   NOMATCHES=x
 
+To display or inspect diffs respectively (and sequentially):
+
+  SHOWDIFFSWITH=prettydiff
+  SHOWDIFFSWITH="xterm -geometry 140x60 -e vimdiff"
+
 !
 exit 0
 fi
@@ -169,7 +174,7 @@ do
 			if [ -n "$SHOWDIFFSWITH" ]
 			then
 				report "Here are the differences:"
-				report $SHOWDIFFSWITH "$DIRA/$FILE" "$DIRB/$FILE"
+				$SHOWDIFFSWITH "$DIRA/$FILE" "$DIRB/$FILE"
 				report echo
 			fi
 		fi
