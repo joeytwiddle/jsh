@@ -23,8 +23,12 @@ fi
 
 cat "$KEYFILE" |
 
-ssh-agent verbosely ssh "$@" eval "cat >> ./.ssh/authorized_keys"
+ssh-agent verbosely ssh "$@" eval "mkdir -p .ssh && cat >> .ssh/authorized_keys"
 ## The ssh-agent is a weak attempted fallback if the key sending fails; i'm not sure i have ever got ssh-agent to do anything useful
+
+## Occasionally remote servers are not configured to permit key authentication.  In that case, the root user on the remote server could try adding these to /etc/ssh/sshd_config, and then restart sshd:
+## RSAAuthentication yes
+## PubkeyAuthentication yes
 
 
 
