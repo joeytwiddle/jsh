@@ -266,15 +266,16 @@ alias md=mkdir
 
 
 # Let Vim use Ctrl-Q and Ctrl-S
-pathToVim=`which vim`
-if [ -n "$pathToVim" ]
-then
-	vim() {
-		stty -ixon
-		"$pathToVim" "$@"
-		stty +ixon
-	}
-fi
+# I have since moved these into my .vimrc, so that they will run when vim is invoked by another program (e.g. git merge or visudo)
+#pathToVim=`which vim`
+#if [ -n "$pathToVim" ]
+#then
+#	vim() {
+#		stty -ixon
+#		"$pathToVim" "$@"
+#		stty ixon
+#	}
+#fi
 
 
 fi
