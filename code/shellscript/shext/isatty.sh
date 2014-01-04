@@ -12,3 +12,8 @@
 #tty 0>/dev/stdout >/dev/null 2>&1
 ## Stolen from /usr/share/fish/functions/isatty.fish
 
+## UNRELATED but I thought it was worth noting:
+## If you have lost your tty (e.g. the app which calls us has stolen it) but you want to break through to the tty anyway, to interact with the user, you can do:
+## exec < /dev/tty
+## From: https://github.com/eggsy84/GitDryRunMerge/blob/master/post-commit
+
