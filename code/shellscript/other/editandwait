@@ -18,7 +18,7 @@ fi
 
 if xisrunning
 then
-	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim" # notepad"
+	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="gvim subl viminxterm viinxterm nedit gedit dtpad kwrite" # notepad"
 else
 	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="vim vi ae pico jpico gvim" # notepad"
 	[ "$SCREENTITLE" ] || export SCREENTITLE="{"`echo "$*" | afterlast / | cut -c -20`"}"
