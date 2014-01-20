@@ -25,6 +25,7 @@ then
 fi
 dircolors "$FILE" > $HOME/.lscols
 
-## My zsh needs this version because I set weird options, but it breaks in bash!  Oh it writes to a file ! then barfs on the redundant .lscols argument.
+## My zsh needs this version because I was trying out the no-clobber option.  But this breaks in bash (in fact it writes to a file called ! and then barfs on the redundant .lscols argument).
 # dircolors "$FILE" >! $HOME/.lscols
 ## It's moot anyway, in its current form .dircolors does nothing!
+## If we really need this, we could just rm -f the file first.
