@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+# Previously /bin/sh, but on Mac, sh's echo command does not understand -n.
+# Although curiously, /bin/sh was GNU bash, version 3.2.51(1)-release-(x86_64-apple-darwin13)
+# but this apparently has different behaviour from /bin/sh on Linux.
 
 ## Simple version:
 # du -sk * ; exit
