@@ -12,3 +12,7 @@ then eval `dircolors $JPATH/code/home/.dircolors`
 else eval `dircolors -p | dircolors` ## Default - use this to seed your own config
 fi
 export LS_COLORS
+
+# For Mac / BSD ls (settings similar to my .dircolors):
+export LSCOLORS="cxCxFxDxBxDxDxababacac"
+
