@@ -254,6 +254,8 @@ grep "$SELECTIONREGEXP" |
 
 grep -v " (\<ro\>.*)$" | ## Excludes CD-drives and other read-only mounts
 grep -v "(.*bind.*)$" |
+# Mounted dmg volumes on Mac OSX show: /dev/disk2s2 on /Volumes/GIMP (hfs, local, nodev, nosuid, read-only, noowners, quarantine, mounted by joey)
+grep -v "(.*read-only.*)$" |
 
 takecols 1 3 |
 

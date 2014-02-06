@@ -5,7 +5,7 @@
 
 DIR=`realpath "$1"`
 
-flatdf 2>/dev/null | drop 1 | takecols 6 |
+flatdf 2>/dev/null | drop 1 | dropcols 1 2 3 4 5 |
 
 # Choose the longest matching one (/mnt/foo over /):
 sort -r |
