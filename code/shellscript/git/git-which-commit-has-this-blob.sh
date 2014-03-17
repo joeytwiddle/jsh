@@ -4,9 +4,16 @@
 # Find the SHA1 of the blob (file) you want to search for by hashing an existing copy:
 #   git hash-object /tmp/i_found_this_is_it_old.cpp
 
-# In the one test I did so far, the *last* line displayed was the commit that added the given blob.
+# In its current form, the last line displayed is the commit that added the given blob.
+# We could reverse the output of git rev-list in order to search history chronologically.
 
-obj_hash="$1"
+if [ "$1" = -f ]
+then
+     file="$2"
+     obj_hash=`git hash-object "$file"`
+else
+     obj_hash="$1"
+fi
 
 if false
 then
@@ -24,6 +31,7 @@ fi
 
 # go over all trees
 git log --pretty=format:'%T %h %s' |
+#reverse |
 while read tree commit subject
 do
      git ls-tree -r $tree | grep "\<$obj_hash\>" |
@@ -31,12 +39,12 @@ do
      do
           if [ "$hash" = "$obj_hash" ]
           then
-               f=$filename
-               echo "Found $f in $a $b $hash $filename tree=$tree commit=$commit subject=$subject"
-               break
+               echo "Found a=$a b=$b filename=$filename tree=$tree commit=$commit subject=$subject" >&2
+               echo "$commit -- $filename"
+               # We cannot break out of the outer loop, but we can exit :)
+               #exit
+               # But we might not want to; we probably want to keep looking backwards for the *first* commit that added that blob.
           fi
-          if [ -n "$f" ]; then break; fi
      done
-     if [ -n "$f" ]; then break; fi
 done
 
