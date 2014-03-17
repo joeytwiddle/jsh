@@ -3,6 +3,9 @@
 ## For Debian/apt-based-systems, lists those packages you have installed for which a newer version is available in the security repository.
 ## I.e. it suggests to you what security upgrades you should make.
 
+# Ubuntu trick to install only packages from security release:
+#aptitude update ; aptitude safe-upgrade -o Aptitude::Delete-Unused=false --assume-yes --target-release `lsb_release -cs`-security
+
 ## TODO: apt-list does not appeat to be memoing correctly!
 ## Also, this earlier version looked more efficient.
 
