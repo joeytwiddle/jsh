@@ -27,3 +27,5 @@ elif test "$BASH"; then
 	SHORTSHELL="bash"
 fi
 
+# On Linux these days, $SHELL=/bin/bash or /bin/zsh.
+
