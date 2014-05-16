@@ -56,11 +56,13 @@ This can also be applied directly to variables.
 
     echo Folder = $filename:h
 
-^R reverse search. Hit ^R, type a fragment of a previous command you want to match, and hit ^R until you find the one you want.
+<Ctrl-R> reverse search history. Hit <Ctrl-R>, type a fragment of a previous command you want to match, and hit <Ctrl-R> until you find the one you want.
 
-Unfortunately I have remapped <C-R> but we can do something similar by dropping into vi mode:
+Unfortunately I have remapped <Ctrl-R> but we can do something similar by dropping into vi mode:
 
-    <Esc>/txt_to_search_for<Enter>nnnNNN
+    <Esc>/txt_to_search_for<Enter>nnnNNNa
+
+The `nnnNNN` are examples of searching forward/back.  The final `a` is to leave vi mode.
 
 Expand complicated lines before hitting the dreaded enter
 
