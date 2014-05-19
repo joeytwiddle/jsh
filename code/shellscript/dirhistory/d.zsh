@@ -2,7 +2,10 @@
 ## d: change directory and record for b and f shell tools
 ## Works for bash too despite its name!
 ## Although when .-ed without an argument in bash, it remembers the $1 from the last call!  :-(
-## TODO:
+
+## See also: bash provides `cd -`
+
+## DONE:
 # Shouldn't we remember moved-into, not moved-out-of?  Yes we should, it would be nice to not forget it at least.
 # Sometimes NEWDIR="$@" breaks under ssh?
 # Investigate: echo "($LAST)"

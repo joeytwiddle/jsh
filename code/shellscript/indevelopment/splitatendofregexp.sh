@@ -14,5 +14,5 @@ REGEXP="$1"
 shift
 
 cat "$@" |
-
 sed "s+\($REGEXP\|.*\)\(.*\)+$LEFT$RIGHT+"
+
