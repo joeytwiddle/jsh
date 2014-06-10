@@ -62,7 +62,7 @@ do
 	done
 
 	echo
-	sleep 1
+	sleep 0.5
 
 	# Now we have what we need, go back to reading files
 	exec <&4
