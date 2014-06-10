@@ -20,7 +20,6 @@ then
 	numDesktops=` wmctrl -d | wc -l `
 
 	fromDesktop=` wmctrl -d | grep "[^ ]* *\*" | takecols 1 `
-	echo "fromDesktop: $fromDesktop"
 
 	direction="$2"
 	if [ "$direction" = up ]
@@ -40,14 +39,9 @@ then
 	if [ "$toDesktop" -lt 0 ]
 	then toDesktop=` expr $toDesktop + $numDesktops `
 	fi
-	echo "toDesktop: $toDesktop"
 
 	windowsOnDesktopA=` wmctrl -l -p -G -x | grep "^[^ ]*  *$fromDesktop " | takecols 1 `
-	echo "windowsOnDesktopA: $windowsOnDesktopA"
 	windowsOnDesktopB=` wmctrl -l -p -G -x | grep "^[^ ]*  *$toDesktop " | takecols 1 `
-	echo "windowsOnDesktopB: $windowsOnDesktopB"
-
-	# ...
 
 	wmctrl -s $toDesktop
 
