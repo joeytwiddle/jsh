@@ -3,19 +3,21 @@
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo
+	echo "gitvimdiff <filename>"
+	echo
 	echo "gitvimdiff <commit> <filename>"
 	echo
 	echo "gitvimdiff -n <num> <filename>"
 	echo
-	echo "gitvimdiff <filename>"
+	echo "  will check out a temporary version of <filename> and do a vimdiff against"
+	echo "  the working file."
 	echo
-	echo "  will check out a temporary version of <filename> and do a vimdiff..."
+	echo "  The first form diffs against the most recent commit."
 	echo
-	echo "  You may set \$DIFFCOM to use a different program to compare the files."
+	echo "  The -n form goes <num> revisions back in the revision history of that file,"
+	echo "  to save you from having to look up the commit id."
 	echo
-	echo "  The -n form goes <num> revisions back, so you don't have to lookup the commit ids."
-	echo
-	echo "  The final form, with only one file argument, diffs against the most recent commit."
+	echo "  You may set \$DIFFCOM to use a different program to compare the two files."
 	echo
 	exit 1
 fi
