@@ -35,7 +35,7 @@ do
 				echo "User requested exit."
 				exit 0
 			;;
-			a|A|.)
+			a|A)
 				verbosely git add "$FILE"
 				break # stop asking what to do; proceed to the next file
 			;;
@@ -47,7 +47,7 @@ do
 				verbosely git checkout -- "$FILE"
 				break
 			;;
-			???*)
+			???*|.)
 				verbosely git add "$FILE"
 				msg="$cmd"
 				verbosely git commit -m "$msg"
