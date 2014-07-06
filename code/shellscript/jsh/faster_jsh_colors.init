@@ -16,9 +16,9 @@ CURSEYELLOW=$(curseyellow)
 CURSENORM=$(cursenorm)
 CURSEREVERSE=$(cursereverse)
 CURSEBLACK=$(curseblack)
-CURSECOL=$(cursecol)
-CURSETAB=$(cursetab)
-CURSENL=$(cursenl)
+#CURSECOL=$(cursecol)
+#CURSETAB=$(cursetab)
+#CURSENL=$(cursenl)
 
 export CURSEBLUE
 export CURSEBOLD
