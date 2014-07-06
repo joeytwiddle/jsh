@@ -1,8 +1,26 @@
 #!/bin/sh
 
-#. require_exes wmctrl xdotool
+# Functions for moving windows between desktops.  So far only one is implemented:
+#
+# move_windows_between_desktops swapdesktops <direction>
+#
+#   Swaps all windows on current desktop with those on the desktop in the direction specified.
+#
 
+# KEYBINDS:
+#
+# You could make keybinds for these.  For example, a Fluxbox user would add this to his ~/.fluxbox/keys file:
+#
+# Control Mod4 Shift Left  :ExecCommand move_windows_between_desktops swapdesktops left
+# Control Mod4 Shift Right :ExecCommand move_windows_between_desktops swapdesktops right
+# Control Mod4 Shift Up    :ExecCommand move_windows_between_desktops swapdesktops up
+# Control Mod4 Shift Down  :ExecCommand move_windows_between_desktops swapdesktops down
+
+# IMPLEMENTATION NOTES:
+#
 # This should have been possible purely with wmctrl but `wmctrl -r id -R desk` always moved the currently focused window.
+
+#. require_exes wmctrl xdotool
 
 desktopsPerRow=3
 
