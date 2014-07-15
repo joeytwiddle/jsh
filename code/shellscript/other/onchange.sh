@@ -14,8 +14,9 @@
 # Halves the forking
 . importshfn newer
 
-if test "$1" = "--help" -o "$1" = "" -o "$2" = ""; then
-	cat << !
+if [ "$1" = "--help" ] || [ "$1" = "" ] || [ "$2" = "" ]
+then
+cat << !
 
 onchange [-fg] [-d] [ -ignore | <paths>... ] [do] <command>
 
@@ -46,12 +47,12 @@ onchange [-fg] [-d] [ -ignore | <paths>... ] [do] <command>
   build to start!  Ideally we would make it even driven!
 
 !
-	# NO!    If you are really cunning, you could use "\$file" in your command!
-	exit 1
+# NO!    If you are really cunning, you could use "\$file" in your command!
+exit 1
 fi
 
-if test "$1" = "-fg"; then
-	shift
+if [ "$1" = "-fg" ]
+then shift
 else
 	## I removed
 	# nice -n 2 
@@ -59,20 +60,21 @@ else
 	## be low-priority, I often want compiling to go faster than the currently
 	## running program!  So unless we can renice the action (compilation) back
 	## to 0, I don't want to nice the whole thing.
-	if xisrunning; then
-		xterm -e nice -n 2 onchange -fg "$@" &
-	else
-		nice -n 2 onchange -fg "$@" &
+	if xisrunning
+	then xterm -e nice -n 2 onchange -fg "$@" &
+	else nice -n 2 onchange -fg "$@" &
 	fi
 	exit
 fi
 
-if test "$1" = "-d"; then
+if [ "$1" = "-d" ]
+then
 	DESENSITIZE=true
 	shift
 fi
 
-if test "$1" = "-ignore"; then
+if [ "$1" = "-ignore" ]
+then
 	shift
 	paths_to_check=.
 else
