@@ -1,15 +1,17 @@
 #!/bin/sh
 # jsh-depends: jwhich
 
-if test "$1x$2" = "x"; then
+if [ "$1x$2" = "x" ]
+then
   echo 'runoneof [-notinj] "<executables>" <args...>'
   echo '  Will find and run on the first working executable!'
 fi
 
 INJOPT="inj"
-if test "$1" = "-notinj"; then
-	shift
-	INJOPT=""
+if [ "$1" = "-notinj" ]
+then
+  shift
+  INJOPT=""
 fi
 
 LIST=$1;
@@ -22,17 +24,19 @@ for FILE in $LIST; do
   # which may not be present
   # TRY=`jwhich $INJOPT "$FILE"`
   # TRY=`which "$FILE"`
-  TRY=`[ "$INJOPT" ] && which "$FILE" || jwhich "$FILE"`
+  TRY=`[ -n "$INJOPT" ] && which "$FILE" || jwhich "$FILE"`
 
   # WARNING: don't disrupt $? next line
-  if test "$?" = "0"; then
+  if [ "$?" = "0" ]
+  then
 
     # echo "runoneof: trying $TRY $*" >&2
 
-    $TRY "$@"
+    "$TRY" "$@"
 
     # WARNING: don't disrupt $? next line
-    if test "$?" = "0"; then
+    if [ "$?" = "0" ]
+    then
 
       # echo "runoneof: worked on $TRY" >&2
       exit 0
