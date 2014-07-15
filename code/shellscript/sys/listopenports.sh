@@ -1,4 +1,6 @@
 #!/bin/sh
+# Alternative: netstat -lpn
+
 optionalProcessName="$1"
 # Don't lookup hostnames: -n
 lsof -P -S 2 -V |
