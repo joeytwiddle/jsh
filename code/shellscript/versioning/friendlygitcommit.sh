@@ -1,19 +1,21 @@
 #!/bin/bash
 
-# This script only works from the root of the repository.  It fails if run in a subfolder.
+# Adding and committing only works from the root of the repository.  It fails if run in a subfolder.
 gitTopLevelDir=$(git rev-parse --show-toplevel)
-cd "$gitTopLevelDir" || exit
+# But we don't move into the root folder until later, so that e.g. '.' can be passed as an argument and given to `git status`.
 
 exec 3>&0   # Save user stdin(0) into 3
 
 # Get list of modified files
-git status --porcelain |
+git status --porcelain "$@" |
 # UU is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
 grep "^\( M\|UU\) " |
 sed 's+^.. ++' |
 
 while read FILE
 do
+
+	cd "$gitTopLevelDir"
 
 	git diff "$FILE" | diffhighlight
 
