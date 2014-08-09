@@ -22,7 +22,7 @@ Another trick is to use {...,...} to create two similar arguments:
 
     cp my_file.txt{,.backup}
 
-If you want to refer to the last arguments from the previous command line, use `$_` or `!:$` or `!$`
+If you want to refer to the last argument from the previous command line, use `$_` or `!:$` or `!$`
 
     cp index.html /path/to/deploy_folder/index.html
     chmod ugo+r $_
