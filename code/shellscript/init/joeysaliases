@@ -202,6 +202,9 @@ myls() {
 	fi
 }
 alias l='myls'
+# ll does not show folder contents; also does not humanise sizes, so they are easier to compare.  Although dsr already does that!
+# TODO: If given no arguments, should either drop the -d, or provide ./* as arguments.
+alias ll='ls -lartFd --color'
 
 # jfluxbox () {
 	# . includepath /usr/local/fluxbox
@@ -276,6 +279,10 @@ alias md=mkdir
 #		stty ixon
 #	}
 #fi
+
+
+alias mpl=mplayer
+alias smpl=smplayer
 
 
 fi
