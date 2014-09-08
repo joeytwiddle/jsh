@@ -8,11 +8,16 @@
 
 # Bytes per second
 SPEED="1000"
+SLEEPTIME=1
+
 if [ "$1" = -at ]
 then SPEED="$2"; shift; shift
 fi
 
-SLEEPTIME=1
+if [ "$1" = -n ] || [ "$1" = --interval ]
+then SLEEPTIME="$2"; shift; shift
+fi
+
 COUNT=1
 
 SOFAR=0
