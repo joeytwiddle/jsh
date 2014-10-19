@@ -2,8 +2,8 @@
 
 wmctrl -l -p -G -x |
 
-# We always restore XMMS with bad values, so let's just skip it.
-grep -v "\<XMMS_.*\.xmms\>" |
+# We always restore XMMS and the panels with bad values, so let's just skip them:
+grep -v "\<\(XMMS_.*\.xmms\|panel\.lxpanel\|kicker\.Kicker\)\>" |
 
 while read ID DESKTOP PID X Y WIN_WIDTH WIN_HEIGHT WM_CLASS TITLE
 do
