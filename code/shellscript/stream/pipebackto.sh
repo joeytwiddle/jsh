@@ -1,6 +1,10 @@
 # jsh-depends: jgettmp jdeltmp
 # jsh-depends-ignore: there dog write before pipe
 # jsh-ext-depends-ignore: file
+
+## See also: sponge from moreutils
+## But beware that using a RAM method could result in data loss during a system crash/reset: http://mywiki.wooledge.org/BashPitfalls#pf13
+
 ## TODO: If given a file, for efficiency pipebackto should seek to obtain a tmpfile on the partition the file is on.
 
 ## TODO POLICY: I don't know what it does now, but dog should act similarly to cat, but it should offer the feature that
@@ -14,13 +18,15 @@ cat << !
 
   1) Let's you write back to a file in a single pipe command:
 
-       cat \$FILE | ... process ... | dog \$FILE
+       cat \$FILE | ... process ... | dog \$FILE   # good
 
-     [ Because all good shell users know that this doesn't work:
+     Because all good shell users know that this doesn't work:
 
-       cat \$FILE | ... process ... > \$FILE
+       cat \$FILE | ... process ... > \$FILE       # BAD
 
-     It empties the file before reading it! ]
+     It empties the file before reading it!
+
+     For more info, see: http://mywiki.wooledge.org/BashPitfalls#pf13
 
   2) Also, they let you change a file atomically:
 
