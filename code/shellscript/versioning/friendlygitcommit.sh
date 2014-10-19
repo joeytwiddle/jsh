@@ -8,8 +8,10 @@ exec 3>&0   # Save user stdin(0) into 3
 
 # Get list of modified files
 git status --porcelain "$@" |
-# UU is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
-grep "^\( M\|UU\) " |
+# ' M' is a normal modified file
+# 'MM' means it has been staged, but there are modifications since the staged version
+# 'UU' is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
+grep "^\( M\|UU\|MM\) " |
 sed 's+^.. ++' |
 
 while read FILE
@@ -37,7 +39,7 @@ do
 				echo "User requested exit."
 				exit 0
 			;;
-			a|A)
+			a|A|y|Y)
 				verbosely git add "$FILE"
 				break # stop asking what to do; proceed to the next file
 			;;
@@ -55,7 +57,7 @@ do
 				verbosely git commit -m "$msg"
 				break
 			;;
-			""|s|S)
+			""|s|S|n|N)
 				jshinfo "Doing nothing with $FILE"
 				break
 			;;
