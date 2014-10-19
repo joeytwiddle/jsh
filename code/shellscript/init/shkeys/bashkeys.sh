@@ -18,3 +18,6 @@ bind "\C-b":kill-word
 bind "\C-o":kill-line
 ## Kinda dangerous to use in case bashkeys are not loaded, because C-o's
 ## default is to run the current command (and load line back up into REPL)!
+
+bind "\C-space":forward-char
+bind "\C-h":backward-char
