@@ -6,6 +6,11 @@
 # jsh-ext-depends-ignore: sort sed
 # jsh-depends-ignore: findfiles
 
+# We can do this in one line using bash's process substitution:
+#   diff <(find dir1 | sort) <(find dir2 | sort)
+# Or if you are feeling brave, use diff's recursive option:
+#   diff -r dir1 dir2
+
 ## Consider: Instead of "Only in ..." use "Missing" and "Added" when comparing state of second wrt first.
 ## BUG TODO: Does not do the right thing with broken symlinks - spews errors instead.
 
