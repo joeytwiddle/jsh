@@ -25,7 +25,7 @@
 
 ## TODO: an option to cache until condition expires: that date of memofile == date of specified file (in other words newer || older)
 
-export DEBUG_MEMO=true ## TODO DEV TOREMOVE: until i work out what memos are filling up /tmp
+# export DEBUG_MEMO=true ## TODO DEV TOREMOVE: until i work out what memos are filling up /tmp
 
 ## Note: if you see a script which does "cd /" and claims to do it for memoing, this is because it wants all its memo's to be "working-directory independent"
 ##       this might be solved in future by TODO: an option (or envvar) to specify that the working-directory is irrelevant to memo's output, and should be ignored in the hash
@@ -264,10 +264,9 @@ then REALPWD=/
 else REALPWD="`realpath "$PWD"`"
 fi
 ## DEBUG_MEMO sacrifices speed for meaningful memofile names:
+CKSUM="`echo "[$MEMOEXTRA]$REALPWD/$*" | /usr/bin/md5sum -`"
 if [ -n "$DEBUG_MEMO" ]
-# then CKSUM="` echo -n "$MEMOEXTRA[$*][$REALPWD" | tr " \n/" "_|#" | sed 's+^\(.\{80\}\).*+\1...+' `].$CKSUM"
 then CKSUM="` echo -n "$MEMOEXTRA[$*][$REALPWD" | tr " \n/" "_|#" | sed 's+^\(.\{80\}\).*+\1...+' `].$CKSUM"
-else CKSUM="`echo "[$MEMOEXTRA]$REALPWD/$*" | /usr/bin/md5sum -`"
 fi
 MEMOFILE="$MEMODIR/$CKSUM.memo"
 # [ -n "$DEBUG" ] && debug "[memo]     `cursemagenta`checking: $REMEMOWHEN (MEMOFILE=$MEMOFILE)`cursenorm`"
