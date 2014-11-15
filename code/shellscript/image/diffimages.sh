@@ -7,6 +7,17 @@ image2="$2"
 outFile="$3"
 [ -z "$outFile" ] && outFile=difference.png
 
+if [ -z "$image1" ] || [ -z "$image2" ]
+then cat << !
+
+Usage: diffimages <image1> <image2> [<output_file>]
+
+If no output image is specified, output will be saved in difference.png .
+
+!
+exit 0
+fi
+
 # I could not get diffing to work well with transparent images, so let's just make them non-transparent!
 kill_transparency=true
 if [ -n "$kill_transparency" ]
