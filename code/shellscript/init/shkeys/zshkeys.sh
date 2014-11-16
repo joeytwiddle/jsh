@@ -118,6 +118,7 @@ bindkey "^ " vi-cmd-mode
 # bindkey "^b" backward-word
 # bindkey "^x" kill-word
 bindkey "^ " forward-char # Ctrl+SPACE
+bindkey "^@" forward-char # Ctrl+SPACE
 bindkey "^H" backward-char # Ctrl+BACKSPACE
 
 # and other Vi usefuls:
