@@ -263,7 +263,6 @@ if [ -n "$MEMO_IGNORE_DIR" ] || [ "$PWD" = / ] ## for speed or wider memoing (if
 then REALPWD=/
 else REALPWD="`realpath "$PWD"`"
 fi
-## DEBUG_MEMO sacrifices speed for meaningful memofile names:
 CKSUM="`
 	echo "[$MEMOEXTRA]$REALPWD/$*" |
 	# md5sum is not installed on Mac OSX by default, but cksum is.
@@ -276,6 +275,7 @@ then
 	echo '[ERROR] memo failed to generate a unique hash.  Aborting.' >&2
 	exit 1
 fi
+## DEBUG_MEMO sacrifices speed for meaningful memofile names:
 if [ -n "$DEBUG_MEMO" ]
 then CKSUM="` echo -n "$MEMOEXTRA[$*][$REALPWD" | tr " \n/" "_|#" | sed 's+^\(.\{80\}\).*+\1...+' `].$CKSUM"
 fi
