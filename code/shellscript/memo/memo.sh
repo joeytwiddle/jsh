@@ -264,7 +264,13 @@ then REALPWD=/
 else REALPWD="`realpath "$PWD"`"
 fi
 ## DEBUG_MEMO sacrifices speed for meaningful memofile names:
-CKSUM="`echo "[$MEMOEXTRA]$REALPWD/$*" | /usr/bin/md5sum -`"
+CKSUM="`
+	echo "[$MEMOEXTRA]$REALPWD/$*" |
+	# md5sum is not installed on Mac OSX by default, but cksum is.
+	#md5sum -
+	cksum -
+`"
+# BUG TODO: If either md5sum or cksum fail, memo continues to proceed, resulting in hash collisions!  It should probably quit instead.
 if [ -n "$DEBUG_MEMO" ]
 then CKSUM="` echo -n "$MEMOEXTRA[$*][$REALPWD" | tr " \n/" "_|#" | sed 's+^\(.\{80\}\).*+\1...+' `].$CKSUM"
 fi
