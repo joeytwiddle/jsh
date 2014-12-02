@@ -270,7 +270,12 @@ CKSUM="`
 	#md5sum -
 	cksum -
 `"
-# BUG TODO: If either md5sum or cksum fail, memo continues to proceed, resulting in hash collisions!  It should probably quit instead.
+# If either md5sum or cksum fail, this can lead to hash collisions.  So if a good hash can not be generated, we should abort!
+if [ ! "$?" = 0 ]
+then
+	echo '[ERROR] memo failed to generate a unique hash.  Aborting.' >&2
+	exit 1
+fi
 if [ -n "$DEBUG_MEMO" ]
 then CKSUM="` echo -n "$MEMOEXTRA[$*][$REALPWD" | tr " \n/" "_|#" | sed 's+^\(.\{80\}\).*+\1...+' `].$CKSUM"
 fi
