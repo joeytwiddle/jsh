@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # jsh-depends-ignore: age
 # jsh-ext-depends-ignore: file
 

@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+# Mac OSX's sh-3.2 has a builtin echo which prints -n instead of interpreting it.  So we use bash.
 
 ## Simple version:
 # du -sk * ; exit
