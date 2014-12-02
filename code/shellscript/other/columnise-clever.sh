@@ -13,8 +13,10 @@ columnise-clever [ -only <regexp> | -ignore <regexp> ] <files>...
 
   TODO:
 
-  -ignore doesn't seem to work - columnises the things after it
   -only was working though.  it keeps the delimeter too :)
+
+  -ignore To use -ignore, you should in fact provide a regexp that, assuming it starts from ^, matches all the fields you want to columnise, and one more.
+          So for example '[^ ]* *[^ ]*' would match two fields, where the first one is not indented, and therefore the second field will be columnised and nothing else will be affected.
 
 !
 exit 0

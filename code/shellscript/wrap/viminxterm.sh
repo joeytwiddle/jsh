@@ -51,7 +51,8 @@ then
 
 	MAXVOL=`expr 140 "*" 50`
 	MAXCOLS=160
-	MAXROWS=50
+	#MAXROWS=50
+	MAXROWS=74
 	MINCOLS=20
 	MINROWS=10
 
@@ -122,6 +123,8 @@ TITLE="[Vim] $1"
 # XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 # `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
 
+font_args="-font -*-lucidatypewriter-medium-*-*-*-11-*-*-*-*-*-*-*"
+
 # [ -f ~/.vim/plugin/session.vim ] && rm ~/.vim/plugin/session.vim
 
 ## My personal preference is a classic x-terminal with a dark-grey/blue background.
@@ -129,7 +132,7 @@ TITLE="[Vim] $1"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
 # Fails on gnome-terminal: -bg "#223330" -geometry $INTGEOM -title "$TITLE" 
-"$JPATH"/tools/xterm -geometry $INTGEOM -title "$TITLE" -e "$JPATH/tools/recovervimswap -thenvim $*"
+"$JPATH"/tools/xterm -geometry $INTGEOM -title "$TITLE" $font_args -e "$JPATH/tools/recovervimswap -thenvim $*"
 # # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM -title \"$TITLE\" "
 # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM " ## TITLE caused problems in my chroot (XTERMOPTS is not quoted)!
 # if [ "`jwhich xterm`" ]

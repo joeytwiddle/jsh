@@ -1,0 +1,82 @@
+Some of these are from:
+
+- http://stackoverflow.com/questions/68372/what-is-your-single-most-favorite-command-line-trick-using-bash
+- http://www.shell-fu.org/
+
+
+Go to previous folder with:
+
+    cd -
+
+Refer to earlier arguments on the *same* line using `!#:<arg_index>`
+
+    0    1 2 3
+    v    v v v
+    echo a b c !#:2
+
+will display "a b c b".
+
+Without the `#` it uses the previous line.  `$` is the last index.
+
+Another trick is to use {...,...} to create two similar arguments:
+
+    cp my_file.txt{,.backup}
+
+If you want to refer to the last argument from the previous command line, use `$_` or `!:$` or `!$`
+
+    cp index.html /path/to/deploy_folder/index.html
+    chmod ugo+r $_
+
+You can also try Esc-Dot and Meta-Dot for the last arg of the prev cmd.
+
+For all the args:
+
+    echo !*
+
+Repeat the previous command with `!!`
+
+    sudo !!
+
+Use `^...^...` to search and replace on the previous command:
+
+    $ ehco foo bar baz
+    bash: ehco: command not found
+    $ ^ehco^echo
+    foo bar baz
+
+bash has a rename builtin:
+
+    rename 's/text_to_find/text_to_replace/' *.txt
+
+Get "head" and "tail" (dirname and basename) of previous arguments:
+
+    echo !$:h !$:t
+
+This can also be applied directly to variables.
+
+    echo Folder = $filename:h
+
+<Ctrl-R> reverse search history. Hit <Ctrl-R>, type a fragment of a previous command you want to match, and hit <Ctrl-R> until you find the one you want.
+
+Unfortunately I have remapped <Ctrl-R> but we can do something similar by dropping into vi mode:
+
+    <Esc>/txt_to_search_for<Enter>nnnNNNa
+
+The `nnnNNN` are examples of searching forward/back.  The final `a` is to leave vi mode.
+
+Expand complicated lines before hitting the dreaded enter
+
+    Alt+Ctrl+e   — shell-expand-line (may need to use Esc, Ctrl+e on your keyboard)
+    Ctrl+_       — undo
+    Ctrl+x, *    — glob-expand-word
+
+Place the filename at the beginning of the line to make it easier to edit the search at the end of the command.
+
+    </var/log/messages grep foo
+
+
+
+Popup a quick webserver on port 8000:
+
+    alias webshare='python -m SimpleHTTPServer'
+

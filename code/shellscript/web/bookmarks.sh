@@ -162,3 +162,31 @@ then
 fi
 
 
+### Chrome:
+
+chrome_bookmarks_file=/home/joey/.config/chromium/Default/Bookmarks
+if [ -f "$chrome_bookmarks_file" ]
+then
+	jshinfo "Reading $chrome_bookmarks_file ..."
+	grep '^\s*"\(name\|url\|type\)"' "$chrome_bookmarks_file" |
+	#afterfirst ':' | afterfirst '"' | beforelast '"' |
+	# In the file I had, bookmarks had: name, type="url", url
+	#                    folders   had: children, name, type="folder"
+	sed 's+^\s*"\([^"]*\)":\s*"\([^"]*\)"[ 	,]*$+\1 \2+' |
+	while read key value
+	do
+		# Collect properties
+		if [ "$key" = "name" ]
+		then name="$value"
+		elif [ "$key" = "url" ]
+		then url="$value"
+		elif [ "$key" = "type" ]
+		then type="$value"
+		fi
+		# Print (once all data is collected)
+		if [ "$key" = "url" ] && [ "$type" = "url" ]
+		then printf "%s\n" "$url [chrome] $name"
+		fi
+	done
+fi
+

@@ -1,19 +1,23 @@
 #!/bin/bash
 
-# This script only works from the root of the repository.  It fails if run in a subfolder.
+# Adding and committing only works from the root of the repository.  It fails if run in a subfolder.
 gitTopLevelDir=$(git rev-parse --show-toplevel)
-cd "$gitTopLevelDir" || exit
+# But we don't move into the root folder until later, so that e.g. '.' can be passed as an argument and given to `git status`.
 
 exec 3>&0   # Save user stdin(0) into 3
 
 # Get list of modified files
-git status --porcelain |
-# UU is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
-grep "^\( M\|UU\) " |
+git status --porcelain "$@" |
+# ' M' is a normal modified file
+# 'MM' means it has been staged, but there are modifications since the staged version
+# 'UU' is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
+grep "^\( M\|UU\|MM\) " |
 sed 's+^.. ++' |
 
 while read FILE
 do
+
+	cd "$gitTopLevelDir"
 
 	git diff "$FILE" | diffhighlight
 
@@ -35,7 +39,7 @@ do
 				echo "User requested exit."
 				exit 0
 			;;
-			a|A|.)
+			a|A|y|Y)
 				verbosely git add "$FILE"
 				break # stop asking what to do; proceed to the next file
 			;;
@@ -47,13 +51,13 @@ do
 				verbosely git checkout -- "$FILE"
 				break
 			;;
-			???*)
+			???*|.)
 				verbosely git add "$FILE"
 				msg="$cmd"
 				verbosely git commit -m "$msg"
 				break
 			;;
-			""|s|S)
+			""|s|S|n|N)
 				jshinfo "Doing nothing with $FILE"
 				break
 			;;
@@ -62,7 +66,7 @@ do
 	done
 
 	echo
-	sleep 1
+	sleep 0.5
 
 	# Now we have what we need, go back to reading files
 	exec <&4

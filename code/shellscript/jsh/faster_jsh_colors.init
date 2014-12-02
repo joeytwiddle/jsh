@@ -1,5 +1,7 @@
 # Oops.  See load_shell_colors.shlib
 
+# See: https://github.com/jimeh/git-aware-prompt/blob/master/colors.sh
+
 # Calling out to curseblue etc. might be overkill, when we could just use things like:
 #   norm_bg=$(tput sgr0)
 #   red_bg=$(tput setab 1)
@@ -16,9 +18,9 @@ CURSEYELLOW=$(curseyellow)
 CURSENORM=$(cursenorm)
 CURSEREVERSE=$(cursereverse)
 CURSEBLACK=$(curseblack)
-CURSECOL=$(cursecol)
-CURSETAB=$(cursetab)
-CURSENL=$(cursenl)
+#CURSECOL=$(cursecol)
+#CURSETAB=$(cursetab)
+#CURSENL=$(cursenl)
 
 export CURSEBLUE
 export CURSEBOLD

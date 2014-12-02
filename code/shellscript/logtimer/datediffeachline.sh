@@ -8,10 +8,10 @@ LAST_LINE_SECONDS=
 
 export FORMAT="%s%N"
 
-if [ -n "$*" ]
-then "$@"
-else cat
-fi |
+#if [ -n "$*" ]
+#then "$@"
+#else cat
+#fi |
 
 # dateeachline -fine |
 # sed 's+^\[\([^.]*\)\.[^]]*\]+\1+' | ## extract just seconds as first field
@@ -27,15 +27,18 @@ do
 	then
 		SECONDS_SINCE_LAST_LINE=$(((SECONDS-LAST_LINE_SECONDS)/1000000000))
 		# echo "$SECONDS_SINCE_LAST_LINE	$LAST_LINE"
-		# DOTS="" ; for I in `seq 1 $SECONDS_SINCE_LAST_LINE`; do DOTS="$DOTS""."; done
-		DOTS="`yes . | head -n "$SECONDS_SINCE_LAST_LINE" | tr -d '\n'`"
-		# echo " $DOTS"
-		echo " $DOTS $SECONDS_SINCE_LAST_LINE""s"
-	else
-		echo "...	$LINE"
+		if [ "$SECONDS_SINCE_LAST_LINE" -gt 0 ]
+		then
+			# DOTS="" ; for I in `seq 1 $SECONDS_SINCE_LAST_LINE`; do DOTS="$DOTS""."; done
+			DOTS="`yes . | head -n "$SECONDS_SINCE_LAST_LINE" | tr -d '\n'`"
+			# echo " $DOTS"
+			echo " $DOTS $SECONDS_SINCE_LAST_LINE""s"
+		else
+			echo
+		fi
 	fi
 
-	echo -n "$LINE"
+	printf "%s" "$LINE"
 
 	LAST_LINE_SECONDS="$SECONDS"
 	LAST_LINE="$LINE"

@@ -1,0 +1,256 @@
+Better Bash Scripting in
+15 Minutes
+By Robert Muth
+The tips and tricks below originally appeared as one of Functions
+Google’s “Testing on the Toilet” (TOTT) episodes. This is a 
+      revised and augmented version. 
+Safer Scripting ExtractBashComments() {
+               egrep "^#"
+              }
+             cat myscript.sh | ExtractBashComments | wc
+            comments=$(ExtractBashComments < myscript.sh)
+I start every bash script with the following prolog:
+#!/bin/bash
+set -o nounset
+set -o errexit
+This will take care of two very common errors:
+1.	 Referencing undefined variables (which default to
+"")
+2.	 Ignoring failing commands
+The two settings also have shorthands (“-u” and “-e”)
+but the longer versions are more readable.
+If a failing command is to be tolerated, use this
+idiom:
+if ! <possible failing command> ; then
+echo "failure ignored"
+fi
+Note that some Linux commands have options
+which, as a side-effect, suppress some failures, e.g.:
+“mkdir -p” and “rm -f”.
+Also note, that the “errexit” mode, while a valuable
+first line of defense, does not catch all failures, i.e.,
+under certain circumstances failing commands will go
+undetected.
+30  PROGRAMMING
+Bash lets you define functions which behave like other
+commands — use them liberally; it will give your bash
+scripts a much needed boost in readability:
+Some more instructive examples:
+SumLines() { # iterating over stdin - similar
+to awk
+local sum=0
+local line=””
+while read line ; do
+sum=$((${sum} + ${line}))
+done
+echo ${sum}
+}
+SumLines < data_one_number_per_line.txt
+log() { # classic logger
+local prefix="[$(date +%Y/%m/%d\ %H:%M:%S)]: "
+echo "${prefix} $@" >&2
+}
+log "INFO" "a message"
+Try moving all bash code into functions, leaving only
+global variable/constant definitions and a call to “main”
+at the top-level.
+Variable Annotations ==
+Bash allows for a limited form of variable annotations. 	
+The most important ones are: 
+■■ local (for local variables inside a function)
+■■ readonly (for read-only variables)
+# a useful idiom: DEFAULT_VAL can be overwritten
+# with an environment variable of the same name
+readonly DEFAULT_VAL=${DEFAULT_VAL:-7}
+myfunc() {
+# initialize a local variable with the global
+default
+local some_var=${DEFAULT_VAL}
+...
+}
+=~
+	
+-n
+-z
+-eq
+-ne
+string matching with globbing
+(double brackets only, see below)
+string matching with regular expressions 	
+(double brackets only, see below)
+string is non-empty
+string is empty
+numerical equality
+numerical inequality
+single bracket
+[ "${name}" \> "a" -o ${name} \< "m" ]
+double brackets
+[[ "${name}" > "a" && "${name}" < "m"
+]]
+Regular Expressions/Globbing
+Note that it is possible to make a variable read-only These new capabilities within double brackets are best
+that wasn’t before: illustrated via examples:
+x=5 t="abc123"
+x=6 [[ "$t" == abc* ]]
+readonly x #
+x=7 [[ "$t" == "abc*" ]] #
+# failure [[ "$t" =~ [abc]+[123]+
+         			
+        [[ "$t" =~ "abc*" ]] #
+Strive to annotate almost all variables in a bash script
+with either local or read-only.
+Favor $() over backticks (`)
+Backticks are hard to read and in some fonts can be
+easily confused with single quotes. $() also permits
+nesting without the quoting headaches.
+# both commands below print out: A-B-C-D
+echo "A-`echo B-\`echo C-\\\`echo D\\\`\``"
+echo "A-$(echo B-$(echo C-$(echo D)))"
+Favor [[]] (double brackets) over []
+[[]] avoids problems like unexpected pathname
+expansion, offers some syntactical improvements, and
+adds new functionality:
+true (globbing)
+false (literal matching)
+] # true
+# (regular expression)
+false (literal matching)
+Note, that starting with bash version 3.2, the regular
+or globbing expression must not be quoted. If your
+expression contains whitespace you can store it in a
+variable:
+r="a b+"
+[[ "a bbb" =~ $r ]]
+# true
+Globbing-based string matching is also available via
+the case statement:
+case $t in
+abc*) <action> ;;
+esac
+Operator Meaning
+logical or (double brackets only)
+logical and (double brackets only)
+string comparison (no escaping necessary
+	
+within double brackets)
+-lt
+numerical comparison
+= 	
+string matching with globbing
+||	
+&&	
+<
+  31
+String Manipulation Avoiding Temporary Files
+Bash has a number of (underappreciated) ways to Some commands expect filenames as parameters so
+manipulate strings. straightforward pipelining does not work.
+                   This is where <() operator comes in handy as it takes
+                  a command and transforms it into something which
+                 can be used as a filename:
+Basics
+f="path1/path2/file.ext"
+len="${#f}" # = 20 (string length)
+# slicing: ${<var>:<start>} or
+${<var>:<start>:<length>}
+slice1="${f:6}" # = "path2/file.ext"
+slice2="${f:6:5}" # = "path2"
+slice3="${f: -8}" # = "file.ext"(Note: space
+before "-")
+pos=6
+len=5
+slice4="${f:${pos}:${len}}" # = "path2"
+Substitution (with globbing)
+f="path1/path2/file.ext"
+single_subst="${f/path?/x}" # = "x/path2/file.ext"
+global_subst="${f//path?/x}" # = "x/x/file.ext"
+# string splitting
+readonly DIR_SEP="/"
+array=(${f//${DIR_SEP}/ })
+second_dir="${array[1]}"
+# = path2
+Deletion at beginning/end (with globbing)
+f="path1/path2/file.ext"
+# deletion at string beginning
+extension="${f#*.}" # = "ext"
+# greedy deletion at string beginning
+filename="${f##*/}"
+# = "file.ext"
+# deletion at string end
+dirname="${f%/*}"
+# = "path1/path2"
+# greedy deletion at end
+root="${f%%/*}"
+# = "path1"
+32  PROGRAMMING
+# download and diff two webpages
+diff <(wget -O - url1) <(wget -O - url2)
+Also useful are “here documents,” which allow
+arbitrary multi-line string to be passed in on stdin. The
+two occurrences of “MARKER” brackets the document.
+“MARKER” can be any text.
+# DELIMITER is an arbitrary string
+command << MARKER
+...
+${var}
+$(cmd)
+...
+MARKER
+If parameter substitution is undesirable, simply put
+quotes around the first occurrence of MARKER:
+command << 'MARKER'
+...
+no substitution is happening here.
+$ (dollar sign) is passed through verbatim.
+...
+MARKER
+Built-In Variables
+For reference
+$0 name of the script
+$n positional parameters to script/function
+$$ PID of the script
+$! PID of the last command executed (and run in the
+background)
+$? exit status of the last command (${PIPESTATUS}
+for pipelined commands)
+$# number of parameters to script/function
+$@ all parameters to script/function (sees arguments as
+separate word)
+$* all parameters to script/function (sees arguments as
+single word)
+Note
+$* is rarely the right choice
+$@ handles empty parameter list and white-space
+within parameters correctly
+$@ should usually be quoted like so "$@"
+Debugging
+To perform a syntax check/dry run of your bash script,
+run:
+bash -n myscript.sh
+To produce a trace of every command executed, run:
+bash -v myscripts.sh
+To produce a trace of the expanded command, use:
+bash -x myscript.sh
+-v and -x can also be made permanent by adding set
+-o verbose and set -o xtrace to the script prolog.
+This might be useful if the script is run on a remote
+machine, e.g., a build-bot and you are logging the
+output for remote inspection.
+Signs you should not be using a bash script
+■■ Your script is longer than a few hundred lines of
+      code
+■■ You need data structures beyond simple arrays
+■■ You have a hard time working around quoting issues
+■■ You do a lot of string manipulation
+■■ You do not have much need for invoking other pro-
+      grams or pipelining them
+■■ You worry about performance
+Instead consider scripting languages like Python or
+Ruby.
+References
+■■ Advanced Bash-Scripting Guide: hn.my/abs
+■■ Bash Reference Manual: hn.my/bashref n
+Robert Muth is a software engineer at Google New York. In his
+spare time he develops Android apps and dances tango, though
+usually not at the same time.
+Reprinted with permission of the original author.
+First appeared in hn.my/bash15 (robertmuth.blogspot.com)

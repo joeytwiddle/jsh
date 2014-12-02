@@ -1,3 +1,5 @@
+# Requires: cd-discid lynx
+
 TRACKINF=`trackinf | sed "s/ /+/g"`
 # URL="http://cddb.cddb.com/~cddb/cddb.cgi"
 URL="http://freedb.freedb.org/~cddb/cddb.cgi"

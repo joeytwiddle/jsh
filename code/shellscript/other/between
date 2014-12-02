@@ -3,3 +3,4 @@
 
 awk ' BEGIN { FS="'$1'" } { printf($2"\n") } '
 
+# Show stuff between two lines (inclusive): sed -n -e "/$1/,/$2/p"

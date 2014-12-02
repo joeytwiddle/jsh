@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 ## Should add detection of whether info file == man page ;p
 
 if [ "$1" = "" ] || [ "$1" = "--help" ]
@@ -98,7 +98,7 @@ then
 				echo
 				barline
 
-			) | more
+			) | less -REX
 
 else
 
@@ -207,7 +207,7 @@ else
 				sed -u "s+^$JPATH/code/shellscript/++" |
 				highlight "\<$1\>" |
 				highlight -bold "^[^ :-]*" cyan |
-				more
+				less -REX
 
 				echo
 				jshquestion "Would you like to replace all occurrences of `cursecyan`$1`cursenorm` in jsh? [yN] "
