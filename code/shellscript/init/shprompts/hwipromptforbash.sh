@@ -11,6 +11,10 @@ then
 
 else
 
+	if declare -f find_git_branch >/dev/null
+	then GIT_AWARE_PROMPT="\[`cursenorm`\]\$git_branch\[`cursegreen``cursebold`\]\$git_ahead_mark\[`cursered``cursebold`\]\$git_behind_mark\[`curseyellow`\]\$git_dirty"
+	fi
+
 	# Quite fun:
 	# PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\])\['`cursemagenta`'\]\u\['`cursenorm`'\]-\['`curseblue`'\]\t\['`cursenorm`'\]-\['`cursemagenta`'\]\h\['`cursenorm`'\](\['`cursegreen`'\]\w/\['`cursenorm`'\] '
 
@@ -50,12 +54,12 @@ else
 		EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
 		if [ "$RUNNING_GENTOO" = 1 ]
 		then
-			PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$G2COL$G2P \[\033[00m\]"
+			PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w $GIT_AWARE_PROMPT$G2P\[\033[00m\]"
 		else
 			## this splash of colours is important!
 			# DOLLARDOESNTDOMUCH="\\$" ## should be $ or # depending on uid
 			DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell
-			PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR\h $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
+			PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR\h $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $GIT_AWARE_PROMPT$DIRCOLOR\w/ \[\033[00m\]"
 		fi
 
 	# case `hostname -s` in
@@ -116,7 +120,7 @@ else
 
 			if [ "$RUNNING_GENTOO" = 1 ]
 			then
-				PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$G2COL$G2P \[\033[00m\]"
+				PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w $GIT_AWARE_PROMPT$G2P\[\033[00m\]"
 			else
 				## TODO: the problem is that this red field gets confused with jsh's zsh prompt which has the exit code in red and then the path in green
 				## this splash of colours is important!
@@ -125,7 +129,7 @@ else
 				# DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell - almost always 0, got it confused with exit code :P
 				## TODO: can we find a more useful value for DOLLARDOESNTDOMUCH (especially given the on-the-fly evaluation above)?
 				[ "$PROMPTHOST" ] || PROMPTHOST="\h" ## for jchroot.  CONSIDER: would hard-coding the PROMPTHOST, instead of \h, be more efficient?
-				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/\[\033[00m\] "
+				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $GIT_AWARE_PROMPT$DIRCOLOR\w/ \[\033[00m\]"
 			fi
 
 			## hwi is a special case where I can be logged in in different ways
