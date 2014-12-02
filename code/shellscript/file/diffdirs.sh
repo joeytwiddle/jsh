@@ -48,7 +48,13 @@ To skip reporting identical files:
 
   NOMATCHES=x
 
-To display or inspect diffs respectively (and sequentially):
+Options:
+
+  -showdiffswith <cmd>
+
+  e.g. -showdiffswith 'diff -u'
+
+Or, display or inspect diffs respectively (and sequentially):
 
   SHOWDIFFSWITH=prettydiff
   SHOWDIFFSWITH="xterm -geometry 140x60 -e vimdiff"
