@@ -52,7 +52,7 @@ fi
 
 if declare -f find_git_branch >/dev/null
 then
-	local GIT_AWARE_PROMPT="\%{`cursenorm`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\%{`cursered``cursebold`\%}\$git_behind_mark\%{`curseyellow`\%}\$git_dirty"
+	local GIT_AWARE_PROMPT="\%{`cursenorm`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count"
 	# Append these extras after the existing %{color}~/ part of the prompt
 	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%}%~/*\)+\1$GIT_AWARE_PROMPT+g")
 	# Whenever precmd is called, also run find_git_branch
