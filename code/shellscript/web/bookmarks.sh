@@ -162,9 +162,13 @@ then
 fi
 
 
+
 ### Chrome:
 
-chrome_bookmarks_file=/home/joey/.config/chromium/Default/Bookmarks
+# TODO: Capture folders
+
+#chrome_bookmarks_file=/home/joey/.config/chromium/Default/Bookmarks
+chrome_bookmarks_file=/home/joey/.config/google-chrome/Default/Bookmarks
 if [ -f "$chrome_bookmarks_file" ]
 then
 	jshinfo "Reading $chrome_bookmarks_file ..."
