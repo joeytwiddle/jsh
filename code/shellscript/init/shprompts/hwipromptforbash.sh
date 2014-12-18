@@ -3,7 +3,7 @@
 
 
 
-# Seasonal Batman (like an easter egg):
+# Seasonal bat prompt (like an easter egg):
 if date | grep "Oct 31" > /dev/null
 then
 	PS1="\[\033[00m\]/\[\033[00;35m\]\u\[\033[00m\])\[\033[00;34m\]at\[\033[00m\](\[\033[00;35m\]\h\[\033[00m\]\\\\ \[\033[00;32m\]\w/\[\033[00m\] "
