@@ -21,14 +21,16 @@ then
 	exit 1
 fi
 
-if [ ! "$COLUMNS" ]
-then
-	COLUMNS=72
-	error "Please export COLUMNS."
-else
-	COLUMNS=`expr $COLUMNS - 8` ## fix hack
-fi
-export COLUMNS
+#if [ ! "$COLUMNS" ]
+#then
+#	COLUMNS=72
+#	error "Please export COLUMNS."
+#else
+#	COLUMNS=`expr $COLUMNS - 8` ## fix hack
+#fi
+#export COLUMNS
+
+export COLUMNS=`tput cols`
 
 if [ "$1" = "-bg" ] && xisrunning
 then
