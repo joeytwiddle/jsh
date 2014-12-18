@@ -1,5 +1,7 @@
 # No shebang.  source me!
 
+# BUG: Leaks the X variable; could be avoided by working in a function, making X a local variable.  But then we would leak a function instead!  Could also unset X...
+
 addonetoclasspath() {
 	TOADD="$1"
 	## Provided not already in the classpath,
