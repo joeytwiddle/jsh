@@ -25,12 +25,16 @@ then
 	echo
 	echo "diffgraph [ -fine | -diffcom <command> ] <files>..."
 	echo
-	echo "  constructs a graph showing which files are similar to each other."
+	echo "  calculates weightings to show which files are similar to each other."
 	echo
 	echo "  Each file is diffed against every other using the command provided (diff by"
 	echo "  default), and the closeness of two files is judged by the size of their diff."
 	echo
 	echo "  If read/plotted properly, this shows which files forked from which others."
+	echo
+	echo "  For better alignment, you may like to pass through columnise-clever:"
+	echo
+	echo "    diffgraph file.ext.* | columnise-clever -only '^[^ ]* [^ ]* '"
 	echo
 	exit 1
 fi
