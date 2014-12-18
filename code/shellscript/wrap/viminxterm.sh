@@ -75,8 +75,8 @@ then
 	fi
 
 	## Expand the perceived dimensions of the file, so that the editor will show a little gap at the sides
-	ROWSINFILE=`expr '(' $ROWSINFILE '+' 2 ')' '*' 12 '/' 10`   ## More so for ROWS now my Vim has MinBufExplorer at the top
-	COLSINFILE=`expr '(' $COLSINFILE '+' 2 ')' '*' 11 '/' 10`
+	ROWSINFILE=`expr '(' $ROWSINFILE '+' 7 ')'`   ## More so for ROWS now my Vim has MinBufExplorer at the top
+	COLSINFILE=`expr '(' $COLSINFILE '+' 4 ')'`
 
 	## Determine desired height, without exceeding needed height, or maximum allowed height
 	if [ $ROWSINFILE -lt $MAXROWS ]
