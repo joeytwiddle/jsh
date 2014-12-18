@@ -29,6 +29,7 @@ then
 fi
 
 ## Gah!  No matter what I do here, MANPOPUP_DESIRED_WIDTH is ignored, and the calling term's COLUMNS is used instead!
+## It is probably doing something like `tput cols` to get the number of columns, and ignore the COLUMNS variable.
 # unset COLUMNS
 COLUMNS="$MANPOPUP_DESIRED_WIDTH"
 export COLUMNS
