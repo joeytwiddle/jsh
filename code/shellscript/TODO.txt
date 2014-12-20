@@ -48,3 +48,12 @@ e.g.:
   mature (free of bugs, finished or at least fully functional)
   dev (not recommended for use yet, unless you are a developer who wants the latest version)
 
+
+
+
+For maximum portability, our shebangs should look like this:
+
+#! /usr/bin/env bash
+
+Because: http://stackoverflow.com/questions/733824/how-to-run-a-sh-script-in-an-unix-console-mac-terminal/733901#733901
+

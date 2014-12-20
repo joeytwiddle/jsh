@@ -4,7 +4,7 @@
 
 SEARCHDIR="$1"
 
-NEXT=`grep "$SEARCHDIR" $HOME/.dirhistory | head -n 1`
+NEXT=`grep -e "$SEARCHDIR" $HOME/.dirhistory | head -n 1`
 
 # Put top directory at bottom of list
 grep -v "^$NEXT$" $HOME/.dirhistory > $HOME/.dirhistory2
