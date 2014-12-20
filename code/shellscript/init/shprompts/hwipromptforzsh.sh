@@ -1,3 +1,7 @@
+# When PROMPT is expanded, also expand any ${...} or $(...) inside it.
+# Currently this is only needed for GIT_AWARE_PROMPT, but we do it always for consistency.
+setopt PROMPT_SUBST
+
 if test "$USER" = joey && test "$SHORTHOST" = hwi
 then
 
@@ -44,6 +48,19 @@ else
 		# # export RPROMPT="%{[00;31m%}%?%{[00m%}:%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 		# export RPROMPT="%{[0%?;30m%}[%{[00;3%?m%}err %?%{[0%?;30m%}]%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 
+fi
+
+if declare -f find_git_branch >/dev/null
+then
+	local GIT_AWARE_PROMPT="\%{`cursenorm`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count"
+	# Append these extras after the existing %{color}~/ part of the prompt
+	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%}%~/*\)+\1$GIT_AWARE_PROMPT+g")
+	# Whenever precmd is called, also run find_git_branch
+	# add-zsh-hook, which we load from zshcontrib, is just used to help us arrange the precmd array
+	autoload add-zsh-hook
+	add-zsh-hook precmd find_git_branch
+	add-zsh-hook precmd find_git_dirty
+	add-zsh-hook precmd find_git_ahead_behind
 fi
 
 # if test "$SHLVL" -gt 3
