@@ -12,7 +12,7 @@ if [ "$1" = --help ]
 then
 cat << !
 
-monitoriflow [ -window <seconds> ] [ -tc <qdisc_num> ] [ <interface> ]
+monitoriflow [ -bsd | -mac ] [ -window <seconds> ] [ -tc <qdisc_num> ] [ <interface> ]
 
   will display incoming, outgoing and total average bytes per second
   travelling over the specified interface (or eth1 by default).
@@ -31,6 +31,12 @@ getbytesifconfig () {
 	sed 's+.*RX bytes:\([^ ]*\).*TX bytes:\([^ ]*\).*+\1 \2+g'
 }
 
+getbytesbsd () {
+	netstat -i -b -n -I "$IFACE" |
+	drop 1 | head -n 1 |
+	takecols 7 10
+}
+
 getbytestc () {
 	echo -n "0 "
 	/sbin/tc -s qdisc ls dev $IFACE |
@@ -40,6 +46,12 @@ getbytestc () {
 	takecols 2 # | pipeboth
 }
 
+if [ "$1" = -bsd ] || [ "$1" = -mac ]
+then BSD=true; shift
+fi
+# Auto-detect if we are on a BSD system (please improve this!)
+[ `uname` = Darwin ] && BSD=true
+
 WINDOW=10
 if [ "$1" = -window ]
 then
@@ -48,6 +60,9 @@ then
 fi
 
 GETBYTESIO=getbytesifconfig
+if [ -n "$BSD" ]
+then GETBYTESIO=getbytesbsd
+fi
 if [ "$1" = -tc ]
 then
 	GETBYTESIO=getbytestc
@@ -67,9 +82,13 @@ else # IFACE=eth0
 	IFACE=`
 		GREATEST=-1
 		GREATEST_IFACE=none_found
-		/sbin/ifconfig |
-		grep "\(^[^ ]\|^[ ]*RX packets\)" |
-		sed 's+\( *RX[^:]*:[ ]*\|\)\(^[^ ]*\|[^ ]*\).*+\2+' |
+		if [ -n "$BSD" ]
+		then netstat -i -b -n | takecols 1 7 | drop 1
+		else
+			/sbin/ifconfig |
+			grep "\(^[^ ]\|^[ ]*RX packets\)" |
+			sed 's+\( *RX[^:]*:[ ]*\|\)\(^[^ ]*\|[^ ]*\).*+\2+'
+		fi |
 		while read DEV
 		do read NUMPKS
 			echo "$DEV   $NUMPKS"
