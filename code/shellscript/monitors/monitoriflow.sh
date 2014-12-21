@@ -83,7 +83,7 @@ else # IFACE=eth0
 		GREATEST=-1
 		GREATEST_IFACE=none_found
 		if [ -n "$BSD" ]
-		then netstat -i -b -n | takecols 1 7 | drop 1
+		then netstat -i -b -n | takecols 1 5 | drop 1
 		else
 			/sbin/ifconfig |
 			grep "\(^[^ ]\|^[ ]*RX packets\)" |
