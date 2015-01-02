@@ -1,10 +1,16 @@
 #!/bin/sh
 
-## Policy: empty files get 0, files with no '\n' get 1, files with '\n' get count of '\n's plus 1 if there is a last line with no trailing '\n'.
-## In other words, counts the number of non-empty lines you could get from the file/stream
+## Counts the number of lines in the file or stream.
+## If the file is empty, produces 0
+## If the file contains just `\n`, produces 1.
+## Otherwise produces the number of `\n`s but +1 if the last line does not end in `\n`.
 
-## Actually wc says it counts newlines, so they act the same except when the file is just '\n', in which case countlines responds 0.
-## Not sure if that behaviour was needed for another script, but I like it anyway.
+## echo -n     | countlines      # 0
+## echo        | countlines      # 1
+## echo -n foo | countlines      # 1
+## echo foo    | countlines      # 1
+
+## The original spec said that just `\n` should produce 0, but it wasn't actually doing that on Mac.  Does it do it on Linux?
 
 docountlines () {
 
