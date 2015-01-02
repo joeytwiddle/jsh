@@ -12,11 +12,13 @@ grep -v "^$LAST$" $HOME/.dirhistory >> $HOME/.dirhistory2
 mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 
 # export PWD='$LAST'
-if [ "$LAST" ]
+if [ -n "$LAST" ]
 then 'cd' "$LAST"
 else echo "X `cursered;cursebold`$SEARCHDIR`cursenorm`" # beep
 fi
 
 # dirhistory "$@"
 
-[ "$UPDATE_XTTITLE_ON_DIR_CHANGE" ] && xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+[ -n "$UPDATE_XTTITLE_ON_DIR_CHANGE" ] && xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+
+true
