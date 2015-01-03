@@ -107,7 +107,7 @@ fi >&2
 ## TODO: unreadable files / locked dirs
 ## TODO: accurate labeling of single/multiple
 ## TODO: "examine" mime-magic (see)
-if [ "$LINUX_ADVENTURE" ]
+if [ -n "$LINUX_ADVENTURE" ]
 then
 	echo
 	echo "`cursebold`You find yourself in $PWD"

@@ -12,11 +12,13 @@ echo "$PWD" >> $HOME/.dirhistory2
 mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 
 # export PWD='$NEXT'
-if [ "$NEXT" ]
+if [ -n "$NEXT" ]
 then 'cd' "$NEXT"
 else echo "X `cursered;cursebold`$SEARCHDIR`cursenorm`" # beep
 fi
 
 # dirhistory "$@"
 
-[ "$UPDATE_XTTITLE_ON_DIR_CHANGE" ] && xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+[ -n "$UPDATE_XTTITLE_ON_DIR_CHANGE" ] && xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+
+true
