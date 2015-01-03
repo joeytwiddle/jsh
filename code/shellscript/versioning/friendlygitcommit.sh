@@ -13,6 +13,7 @@ git status --porcelain "$@" |
 # 'UU' is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
 grep "^\( M\|UU\|MM\) " |
 sed 's+^.. ++' |
+sed 's+^"\(.*\)"$+\1+' |
 
 while read FILE
 do
