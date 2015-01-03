@@ -12,7 +12,7 @@ then
 else
 
 	if declare -f find_git_branch >/dev/null
-	then GIT_AWARE_PROMPT="\[`cursenorm`\]\$git_branch\[`curseyellow`\]\$git_dirty\$git_dirty_count\[`cursegreen``cursebold`\]\$git_ahead_mark\$git_ahead_count\[`cursered``cursebold`\]\$git_behind_mark\$git_behind_count"
+	then GIT_AWARE_PROMPT="\[`cursenorm`\]\$git_branch\[`curseyellow`\]\$git_dirty\$git_dirty_count\[`cursegreen``cursebold`\]\$git_ahead_mark\$git_ahead_count\[`cursered``cursebold`\]\$git_behind_mark\$git_behind_count\[`cursecyan`\]\$git_staged_mark\$git_staged_count"
 	fi
 
 	# Quite fun:
