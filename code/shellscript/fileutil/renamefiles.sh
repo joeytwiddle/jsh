@@ -70,7 +70,7 @@ if ! tty >/dev/null
 then cat
 else find "$@" $MAXDEPTH | sed 's+^\./++'
 fi |
-grep "$SEARCH_REGEXP" |
+grep -e "$SEARCH_REGEXP" |
 
 ## Method 1:
 while read FILENAME

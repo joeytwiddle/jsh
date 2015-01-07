@@ -20,6 +20,11 @@
 #  Sometimes we might need to go for say the n'th best in order to make the
 #  graph "complete" (all joined, no islands).
 
+## Note:
+#  Failures (e.g. due to pointing at an unreadable file, or non-file) result in 0-length output, which then gets reported as the winner!
+#  I have already added checks that each specified word is a readable file.  But other problems could potentially arise (e.g. network failure, or file removed or permissions changed before diff opens it).
+#  But in general, we should abort the match if one of the diff commands broke.  Although we may need to detect that by analyzing stderr, because it seems diff yields exit code 1 for both differences and for read failures!
+
 if [ ! "$1" ] || [ "$1" = --help ]
 then
 	echo
@@ -67,11 +72,13 @@ DIFFDIR=`jgettmpdir diffgraph`
 # printf "%s" "$FILES" |
 for X in "$@"
 do
+	( [ -f "$X" ] && [ -r "$X" ] ) || continue
 	BESTFORX="none_found"
 	BESTFORXSIZE="999999999"
 	# printf "%s" "$FILES" |
 	for Y in "$@"
 	do
+		( [ -f "$Y" ] && [ -r "$Y" ] ) || continue
 		if [ ! "$X" = "$Y" ]
 		then
 			# echo "Testing: $X $Y" >&2
@@ -88,7 +95,7 @@ do
 			# RESULTSIZE=` $DIFFCOM "$X" "$Y" | countbytes `
 
 			## Extra support for fine worddiffs, to make the numbers nicer (smaller):
-			## TODO CONSIDER: should we gzip all diifs (not just fine ones/ones done with worddiff) before counting length?
+			## TODO CONSIDER: should we gzip all diffs (not just fine ones/ones done with worddiff) before counting length?
 			if [ "$DIFFCOM" = worddiff ]
 			then
 				RESULTSIZE=` $DIFFCOM "$X" "$Y" | gzip -c | countbytes `

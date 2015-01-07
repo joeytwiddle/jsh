@@ -2,6 +2,9 @@
 # Currently this is only needed for GIT_AWARE_PROMPT, but we do it always for consistency.
 setopt PROMPT_SUBST
 
+# Set the color for the command line editor.
+#zle_highlight=( default:bg=black,fg=white )
+
 if test "$USER" = joey && test "$SHORTHOST" = hwi
 then
 
@@ -52,7 +55,8 @@ fi
 
 if declare -f find_git_branch >/dev/null
 then
-	local GIT_AWARE_PROMPT="\%{`cursenorm`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count"
+	local GIT_AWARE_PROMPT="\%{`cursenorm`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count"
+	# \%{`cursenorm`\%}$
 	# Append these extras after the existing %{color}~/ part of the prompt
 	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%}%~/*\)+\1$GIT_AWARE_PROMPT+g")
 	# Whenever precmd is called, also run find_git_branch
