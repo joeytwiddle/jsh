@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # jsh-depends: jshwarn
 # jsh-depends-ignore: exists
 # jsh-ext-depends: sed find tty
