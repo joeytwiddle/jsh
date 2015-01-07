@@ -7,7 +7,7 @@ image2="$2"
 outFile="$3"
 [ -z "$outFile" ] && outFile=difference.png
 
-if [ -z "$image1" ] || [ -z "$image2" ]
+if [ $# != 2 ] && [ $# != 3 ]
 then cat << !
 
 Usage: diffimages <image1> <image2> [<output_file>]
