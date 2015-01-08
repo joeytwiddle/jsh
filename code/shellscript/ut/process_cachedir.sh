@@ -154,7 +154,8 @@ do
 					then jshwarn "Unexpected: $TARGET_TO_USE exists!"
 					else
 						# echo "mv -i \"$BOWFILE\" \"$TARGET_TO_USE\""
-						echo "verbosely mkdirandmv \"$BOWFILE\" \"$TARGET_TO_USE\""
+						echo "verbosely mkdir -p \"`dirname "$TARGET_TO_USE"`\""
+						echo "verbosely mv \"$BOWFILE\" \"$TARGET_TO_USE\""
 						# echo "mvpreserve \"$BOWFILE\" \"$TARGET_TO_USE\""
 						echo "verbosely ln -s \"$TARGET_TO_USE\" \"$BOWFILE\""
 					fi
