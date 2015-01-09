@@ -22,7 +22,7 @@ sed 's+^Index: +\n\n\n\0+' |
 highlight -bold -reverse "^\(diff \).*" cyan |
 highlight -bold -reverse "^\(commit \).*" yellow |
 highlight -bold "^\(Author: \|Date: \).*" yellow |
-highlight -bold "^\(+++\|---\|===\|[^-+<> 	@,|\!=0-9]\).*" cyan |
+highlight -bold "^\(+++ \|--- \|=== \|[^-+<> 	@,|\!=0-9]\).*" cyan |
 highlight -bold "^\(@\|\*\*\*\|[0-9][0-9acd,]*$\).*" magenta |
 highlight -bold "^[+>].*" green |
 highlight -bold "^[-<].*" red |
