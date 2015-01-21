@@ -1,4 +1,5 @@
-#!/bin/sh
+# @sourceme
+
 ## This script must be sourced!  E.g.: . xttitleprompt
 
 ## TODO: The default xttitle for a terminal window could be a sanitised version of the user's shell prompt (PS1/PROMPT) [remove colors+other escapes].  The current terminal is my own "traditional" shell prompt: the directory followed by a % (but for some reason I have them the other way around :P )

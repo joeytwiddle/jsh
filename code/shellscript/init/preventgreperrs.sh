@@ -1,4 +1,5 @@
-#!/bin/bash
+# @sourceme
+
 ## Avoid "cannot grep directory" errors:
 
 if [ "$JM_UNAME" = "sunos" ]

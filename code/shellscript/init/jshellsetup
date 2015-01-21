@@ -1,3 +1,5 @@
+# @sourceme
+
 MOZILLA_FIVE_HOME=/usr/local/mozilla
 export MOZILLA_FIVE_HOME
 

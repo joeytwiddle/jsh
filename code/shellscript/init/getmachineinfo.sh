@@ -1,4 +1,4 @@
-#!/bin/sh
+# @sourceme
 
 ## Interesting, on Hwi:
 ## zsh gives MACHTYPE=i686

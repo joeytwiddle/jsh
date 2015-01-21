@@ -1,4 +1,4 @@
-#!/bin/bash
+# @sourceme
 
 ### B # l # o # a # t # e # d # ! #
 ## TODO: Offer config.global and config.local config files to ease customization and speed up startup

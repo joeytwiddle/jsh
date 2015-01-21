@@ -1,3 +1,5 @@
+# @sourceme
+
 # When PROMPT is expanded, also expand any ${...} or $(...) inside it.
 # Currently this is only needed for GIT_AWARE_PROMPT, but we do it always for consistency.
 setopt PROMPT_SUBST

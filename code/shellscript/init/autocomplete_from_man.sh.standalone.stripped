@@ -1,3 +1,5 @@
+# @sourceme
+
 ## autocomplete_from_man: Adds to bash or zsh the ability to use tab-completion for the - and -- options of the current command (provided it has a man page installed).
 ## eg.: source this script with ". ./autocomplete_from_man", then type: tar --<Tab>
 ## Documented code available from http://hwi.ath.cx

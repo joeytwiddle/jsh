@@ -1,3 +1,5 @@
+# @sourceme
+
 ## Load pretty colors for ls into the shell.  Source me!
 export SHELL ## dircolors wants this
 ## You can make local cache .lscols by running lscolsrefresh but it will
