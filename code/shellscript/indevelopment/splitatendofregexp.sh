@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ## Consider: avoid problems with \(s inside REGEXP by changing $RIGHT so that the last .* is only there when the right should be lost.
 
 if [ "$1" = -left ]
