@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ## DONE: make links point to ../code/shellscript/$SCRIPTPATH rather than full path, to make jsh easier to move about!
 
 # Symbolically link all relevant tools into $JPATH/tools/ directory

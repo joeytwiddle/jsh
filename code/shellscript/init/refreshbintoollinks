@@ -1,3 +1,5 @@
+#!/bin/sh
+
 ## DISABLED
 ## We now simply add $HOME/bin to their path in startj.
 

@@ -5,6 +5,8 @@
 #
 # See also: foreachdo
 
+## Does not work with BSD xargs.  As far as I can tell that has no way to delimit only on '\n'.  Therefore on BSD/OSX we should drop to the fallback.
+
 ## Pass -r option to ignore empty input (run nothing)
 xargs -d '\n' "$@"
 exit

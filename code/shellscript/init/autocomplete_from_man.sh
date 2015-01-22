@@ -1,4 +1,4 @@
-#!/bin/sh
+# @sourceme
 
 ## WARNING: If you try to source this script from some less-advanced shells (e.g. dash?), it may throw a syntax error when it tries to parse var=(...) array creation, even though it doesn't actually *run* that line!
 # whichshell was reporting "zsh" although ZSH_NAME was not set.  Perhaps it was zsh running in a back-compat-mode?  Or whichshell was just wrong?  (This was when my .fluxbox/startup tried to load startj during a lightdm login on Ubuntu precise.)

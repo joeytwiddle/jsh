@@ -1,3 +1,5 @@
+#!/bin/sh
+
 if [ "$1" = --help ]
 then cat << !
 Processes ~/.dircolors to create or update the ~/.lscols cachefile for lscolsinit.  This makes lscols load faster when you start a shell session.

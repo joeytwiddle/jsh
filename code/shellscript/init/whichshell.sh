@@ -1,3 +1,5 @@
+# @sourceme
+
 # whichshell 2>&- || SHTYPE=SH_OLD : do NOT eliminate this first comment line!  Eh?  Why not.  :P
 # No shebang!
 #*TAG:32236 5:Jun 28 1998:0755:whichshell:
