@@ -22,8 +22,9 @@ fi
 kill_transparency=true
 if [ -n "$kill_transparency" ]
 then
-	#bgcol=darkred
-	bgcol=black
+	bgcol=darkred
+	#bgcol=darkmagenta
+	#bgcol=black
 	#bgcol=white
 	#bgcol=gray
 	filled_image1="$image1.filled_by_diffimages.png"
