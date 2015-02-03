@@ -52,3 +52,16 @@ then
 	rm -f "$filled_image2"
 fi
 
+# Check if the result is completely black (indicating no difference)
+#if convert "$outFile" txt: | grep -v '^#' | grep -v '#000000  black$' >/dev/null
+info=`identify -verbose -unique "$outFile"`
+if grep '^  Colors: 1$' <<< "$info" >/dev/null && grep -A1 '^  Histogram:$' <<< "$info" | grep '^.*: (  0,  0,  0) #000000 gray(0)$' >/dev/null
+then
+	echo 'Images are identical.'
+	true
+else
+	# It might be nice to get a measure of the difference here, e.g. %age of pixels which are not black.
+	echo 'There are differences.'
+	false
+fi
+
