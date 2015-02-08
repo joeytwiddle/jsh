@@ -27,7 +27,7 @@ If you want to refer to the last argument from the previous command line, use `$
     cp index.html /path/to/deploy_folder/index.html
     chmod ugo+r $_
 
-You can also try Esc-Dot and Meta-Dot for the last arg of the prev cmd.
+You can also try `<Esc>-.` or `<Meta>-.` for the last arg of the prev cmd.
 
 For all the args:
 
