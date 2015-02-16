@@ -1,5 +1,7 @@
 #!/bin/bash
-. require_exes composite
+
+# Disabled because not very portable
+#. require_exes composite
 
 image1="$1"
 image2="$2"
