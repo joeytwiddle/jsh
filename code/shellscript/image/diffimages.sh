@@ -39,14 +39,6 @@ fi
 
 # Produces black for no difference:
 composite "$image1" "$image2" -compose difference "$outFile"
-# Just made a mess when I fed them transparent images:
-#convert "$image1" "$image2" \( -clone 0 -clone 1 -compose difference -composite -threshold 0 \) -delete 1 -alpha off -compose copy_opacity "$outFile"
-
-#convert "$image2" "$image1" -alpha off +repage \
-#	\( -clone 0 -clone 1 -compose difference -composite -threshold 0 \) \
-#	\( -clone 0 -clone 2 -compose multiply -composite \) \
-#	-delete 0,1 +swap -alpha off -compose copy_opacity -composite -trim +repage \
-#	"$outFile"
 
 if [ -n "$kill_transparency" ]
 then
