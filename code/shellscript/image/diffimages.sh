@@ -48,20 +48,18 @@ fi
 
 # Check if the result is completely black (indicating no difference)
 #if convert "$outFile" txt: | grep -v '^#' | grep -v '#000000  black$' >/dev/null
-info=`identify -verbose -unique "$outFile"`
-if grep '^  Colors: 1$' <<< "$info" >/dev/null && grep -A1 '^  Histogram:$' <<< "$info" | grep '^.*: (  0,  0,  0) #000000 gray(0)$' >/dev/null
+info=$(convert "$outFile" -fill magenta +opaque "rgb(0,0,0)" -format %c histogram:info:)
+black_pixels=$(grep ' black$' <<< "$info" | sed 's+^ *++ ; s+:.*++')
+non_black_pixels=$(grep ' magenta$' <<< "$info" | sed 's+^ *++ ; s+:.*++')
+total_pixels=$((black_pixels + non_black_pixels))
+if [[ -n "$black_pixels" ]] && [[ "$black_pixels" = "$total_pixels" ]]
 then
-	echo 'Images are identical.'
+	echo 'The images are identical.'
 	true
 else
-	echo 'There are differences.'
-	total_pixels=`grep '^    Pixels: ' <<< "$info" | sed 's+.*: ++'`
-	# BUG: If there are many differences (e.g. Colors: 5844) then no Histogram section is shown.
-	black_pixels=`grep -A1 '^  Histogram:$' <<< "$info" | grep ' #000000 black$' | sed 's+^ *++ ; s+:.*++'`
-	non_black_pixels=$((total_pixels - black_pixels))
 	#difference_percentage=`expr '(' $non_black_pixels '*' 200 + 1 ')' / $total_pixels / 2`
 	difference_percentage=`echo "scale=2; $non_black_pixels * 100 / $total_pixels" | bc | sed 's+^\.+0.+'`
-	echo "The two images differ by $difference_percentage% ($non_black_pixels pixels)."
+	echo "The images differ by $difference_percentage% ($non_black_pixels pixels)."
 	false
 fi
 
