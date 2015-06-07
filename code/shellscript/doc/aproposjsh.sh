@@ -81,21 +81,22 @@ case "$1" in
 
 		export MEMO_IGNORE_DIR=true
 
-		echo
 		jshinfo "System man pages:"
 		$doMemo aproposjsh -builddb system-apropos-db | grep -i -u "$@"
 
-		echo
-		jshinfo "Jsh documentation:"
-		$doMemo aproposjsh -builddb jsh-man | grep -i -u "$@"
+		## These sleeps prevent stderr from being displayed before stdout (which can happen due to | highlight slowing down stdout).  An alternative would be to 2>&1 the jshinfos.
+		echo ; sleep 0.2
+		## This one should duplicates system apropos and jsh manpages, with maybe a few extras.
+		jshinfo "Executable commands on PATH:"
+		$doMemo aproposjsh -builddb executable-commands | grep -i -u ".*/[^/]*$@"
 
 		if which dpkg >/dev/null
 		then
 			## Testing: These should use proper memoing like the others
-			echo ; sleep 1 ## I think stderr was coming before stdout, due to | highlight
+			echo ; sleep 0.2
 			jshinfo "Installed packages:"
 			$doMemo findpkg "$@" | striptermchars | highlight -bold "^.i" green
-			echo
+			echo ; sleep 0.2
 			jshinfo "Available packages:"
 			## Doesn't work: export COLUMNS
 			# verbosely $doMemo -c true aproposjsh -builddb system-packages | grep -i -u "$@" |
@@ -104,10 +105,9 @@ case "$1" in
 			$doMemo findpkg -all "$@" | striptermchars | highlight -bold "^.i" green
 		fi # todo: rpm/portage/etc...
 
-		echo
-		## This one should duplicates system apropos and jsh manpages, with maybe a few extras.
-		jshinfo "Executable commands on PATH:"
-		$doMemo aproposjsh -builddb executable-commands | grep -i -u ".*/[^/]*$@"
+		echo ; sleep 0.2
+		jshinfo "Jsh documentation:"
+		$doMemo aproposjsh -builddb jsh-man | grep -i -u "$@"
 
 		echo
 	;;
