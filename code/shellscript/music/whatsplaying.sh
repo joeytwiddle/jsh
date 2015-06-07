@@ -19,6 +19,10 @@ find_open_music_files () {
 		listopenfiles -allthreads . 2>/dev/null | grep "\(/dev/dsp\|/dev/snd/.\)" | grep -v "/dev/snd/control" | takecols 1
 		## TODO: on some systems listopenfiles (lsof) runs slowly
 		##       this can be helped by specifying the process name to look for
+
+		## BUG: If mplayer is using pulseaudio (or any separate soundsystem) then the pulseaudio process is listed, but not the mplayer process.
+		## This is a quickfix, although only for mplayer!  (We could list a number of known audio players here...)
+		echo "mplayer"
 	) |
 
 	removeduplicatelines |
