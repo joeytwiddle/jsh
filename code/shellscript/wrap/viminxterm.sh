@@ -51,8 +51,10 @@ then
 
 	MAXVOL=`expr 140 "*" 50`
 	MAXCOLS=160
-	#MAXROWS=50
-	MAXROWS=74
+	# MAXROWS=50
+	# MAXROWS=74   # porridge
+	## To fit lucida 11 into a 768px high screen, 61 rows is just over (using OrangeJuice decorations in Fluxbox).
+	MAXROWS=60
 	MINCOLS=20
 	MINROWS=10
 
