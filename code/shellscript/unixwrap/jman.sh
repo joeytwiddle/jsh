@@ -1,4 +1,7 @@
 #!/bin/sh
+
+## Displays man page AND/OR jsh documentation for given command.
+
 JMAN_SPECIAL_COLORS=1
 
 ## Popup the man window first if running in X:
@@ -7,6 +10,7 @@ then
 	## echo -e failed to output the \n correctly in sh/dash, so using printf.
 	## Needed to add "VT100." for them to work in Ubuntu.
 	## TODO: rxvt users will need: URxvt.colorIT: #87af5f URxvt.colorBD: #d7d7d7 URxvt.colorUL: #87afd7
+	## TODO: Why not move this inside manpopup?
 	[ -n "$JMAN_SPECIAL_COLORS" ] && printf "*VT100.colorBDMode: on\n*VT100.colorULMode: on\n*VT100.colorBD: blue\n*VT100.colorUL: brown" | xrdb -merge
 	manpopup "$@"
 	[ -n "$JMAN_SPECIAL_COLORS" ] && ( sleep 5 ; printf "*VT100.colorBDMode: off\n*VT100.colorULMode: off" | xrdb -merge ) &
