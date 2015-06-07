@@ -47,7 +47,7 @@ do
 			jshinfo "Target is partial source!  Overwriting: $FILE"
 			jshsuggest mv "$FILE" "$DESTFILE"
 		else
-			jshwarn 'Target does not match source!  Doing nothing'
+			jshwarn "Target does not match source!  Doing nothing to: $FILE"
 		fi
 	else
 		jshinfo "Target missing!  Moving: $FILE"
