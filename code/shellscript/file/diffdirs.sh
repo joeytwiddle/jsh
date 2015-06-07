@@ -67,7 +67,8 @@ fi
 
 ## Defaults:
 #PREFERRED_DIFFCOM="diff"
-PREFERRED_DIFFCOM="xterm -geometry 140x60 -e vimdiff" ## prebg
+#PREFERRED_DIFFCOM="xterm -geometry 140x60 -e vimdiff" ## prebg
+PREFERRED_DIFFCOM=""
 
 
 
@@ -129,13 +130,15 @@ removeduplicatelines |
 while read FILE
 do
 
+	# TODO: Some of the symlink handling code could be reduced using readlink
+
 	## TODO: Link handling is not complete for fringe cases
 	if [ -L "$DIRA/$FILE" ] && [ -L "$DIRB"/"$FILE" ]
 	then
 		LINKA="`justlinks "$DIRA/$FILE"`"
 		LINKB="`justlinks "$DIRB/$FILE"`"
 		if [ "$LINKA" = "$LINKB" ]
-		then report "Identical symlinks: $FILE" ## I wanted to do CURSENORM at the start, but that messes with user's grep -v ^Identical !
+		then [ -z "$NOMATCHES" ] && report "Identical symlinks: $FILE" ## I wanted to do CURSENORM at the start, but that messes with user's grep -v ^Identical !
 		else report "${CURSEYELLOW}Differing symlinks: $DIRA/$FILE -> $LINKA but $DIRB/$FILE -> $LINKB"
 		fi
 		continue
@@ -161,10 +164,10 @@ do
 
 	if [ ! -e "$DIRA/$FILE" ] && [ -e "$DIRB/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
-		report "${CURSEGREEN}Only in $DIRB/: $FILE${CURSENORM}"
+		report "${CURSEGREEN}Only in \"$DIRB/\": $FILE${CURSENORM}"
 	elif [ ! -e "$DIRB/$FILE" ] && [ -e "$DIRA/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
-		report "${CURSERED}${CURSEBOLD}Only in $DIRA/: $FILE${CURSENORM}"
+		report "${CURSERED}${CURSEBOLD}Only in \"$DIRA/\": $FILE${CURSENORM}"
 	else
 		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
 		## These are faster alternatives, but not as thorough:
