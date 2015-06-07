@@ -133,7 +133,7 @@ Now create all the symlinks:
 
 OK now you are done.
 
-If you want jsh to always load when you start a shell, you can add the following to your `.bash_rc` or `.zshrc`:
+If you want jsh to always load when you start a shell, add the following lines to your `.bashrc` or `.zshrc`:
 
     export JPATH="$HOME/jsh"
     source "$JPATH/startj"
