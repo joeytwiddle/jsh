@@ -17,7 +17,7 @@ XTTITLEPROMPT_SHOW_JOBS=1
 ## terms, so we whitelist modern stuff with known xttitle support, and drop
 ## people's ssh streams or legacy connections.  If they have vt100 we assume no
 ## xttitle support?
-if [ "$TERM" = xterm ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ]
+if [ "$TERM" = xterm ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ]
 then
 
 	# XTTITLE_HEAD=""
@@ -26,13 +26,19 @@ then
 	# fi
 
 	## If we are in a screen, but not on the local machine, we must have ssh'ed somewhere from within screen.
+	## We also want to do this for tmux.  We can check for $STY or $TMUX.
 	SCRHEAD=""
-	if [ "$TERM" = screen ] && [ ! "$STY" ]
+	if ( [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ] ) && [ ! "$STY" ]
 	   # ! contains "$SCREENTITLE" "$SHOWHOST"
 	then
-		## If we want to display the machine name, and what it's up to, we should use screentitle -remote below.
-		SCRHEAD="($SHORTHOST)"
-		screentitle -remote "$SCRHEAD"
+		## In tmux, displaying the hostname for every window wastes a lot of space.  Let's not do that!
+		## But we will do it if this is an sshd login; they are probably running screen or tmux on the client.
+		if [ -n "$SSH_CLIENT" ] || [ -z "$TMUX" ]
+		then
+			## If we want to display the machine name, and what it's up to, we should use screentitle -remote below.
+			SCRHEAD="($SHORTHOST)"
+			screentitle -remote "$SCRHEAD"
+		fi
 	fi
 
 	# [ "$USER" = foo ] && SHOWUSER= || SHOWUSER="$USER"

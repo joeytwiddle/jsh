@@ -10,7 +10,10 @@ if [ ! "$STY" ]
 then
 
 	## Works for remote screen:
-	[ "$TERM" = screen ] && echo -n "k$*\\" >&2 # does this work? not as part of bash prompt!
+	## The TERM checks alone could mis-fire in a plain xterm if that setting is chosen.
+	## So now we check explicitly for tmux, or for screen (STY above), or for ssh login (might be remote screen).
+	( [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ] ) &&
+	( [ -n "$TMUX" ] || [ -n "$SSH_CLIENT" ] ) && echo -n "k$*\\" >&2 # does this work? not as part of bash prompt!
 
 else
 
