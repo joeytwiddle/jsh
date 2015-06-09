@@ -7,7 +7,7 @@ getvalue() {
 }
 
 state=`getvalue "state"`
-time_to_full=`getvalue "time to full"`
+time_to_full=`getvalue "time to \(full\|empty\)"`
 percentage=`getvalue "percentage"`
 
 if [ "$1" = -mini ]
@@ -15,9 +15,13 @@ then
 
 	# Tiny summary suitable for e.g. tmux statusbar.
 
-	mini_state="\\"
+	mini_state='\\'
 	if [ "$state" = "charging" ]
 	then mini_state="/"
+	elif [ "$state" = "fully-charged" ]
+	then mini_state="f"
+		echo "Charged"
+		exit
 	fi
 
 	mini_time=`echo "$time_to_full" | sed 's+ hours+h+ ; s+ minutes+m+ ; s+ seconds+s+'`
