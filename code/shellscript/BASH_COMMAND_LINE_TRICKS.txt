@@ -89,17 +89,30 @@ If you want to exit and keep the job running, try:
 
 # tmux keys
 
-## 
+- `tmux a` re-attach to existing session
 
 With the prefix in front (default `Ctrl-B`):
 
 - `d` detach
-- `tmux a` re-attach to existing session
+
+Windows:
+
 - `c` create window
 - `n` / `p` / `l` - move to next/previous/last window
+
+Panes:
+
 - `"` split window vertically (creates a new shell and pushes old session up)
+- `%` split window horizontally
 - `!` break the pane out into its own window
 - `x` Kill the current pane
 - `j` / `k` / `h` / `l` Move between panes
-- `Ctrl-o` rotate windows (keep cursor still)
+- `o` move cursor between panes
+- `Ctrl-o` rotate panes (keep cursor still)
+- `f` find a pane by searching contents of all windows
+- '{' / '}' re-arrange pane order
+
+- `s` view sessions (to select)
+- `L` switch to last session
+- `D` view sessions (to delete)
 
