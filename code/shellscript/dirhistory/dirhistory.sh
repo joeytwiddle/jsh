@@ -1,9 +1,13 @@
 #!/bin/sh
 SEARCHDIR="$1"
 
-grep "$SEARCHDIR" ~/.dirhistory | tail -n 4
-cursered ; cursebold ; echo "$PWD" ; cursenorm
+(
+cursegreen
+grep "$SEARCHDIR" ~/.dirhistory | tail -n 5
+curseyellow ; cursebold ; echo "$PWD" ; cursenorm
+cursegreen
 grep "$SEARCHDIR" ~/.dirhistory | head -n 3
+) | sed 's+$+/+'
 exit
 
 

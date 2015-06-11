@@ -17,6 +17,10 @@
 ## The max MANPOPUP_GUESS_WIDTH will expand to.
 [ "$MANPOPUP_MAX_WIDTH" ] || MANPOPUP_MAX_WIDTH=200
 
+## The number of columns (fixed).
+## For height 768px, 52 rows of lucida 13 fits closely, or 61 rows of lucida 11.
+MANPOPUP_DESIRED_HEIGHT=52
+
 
 
 REALMAN="`jwhich man`"
@@ -53,7 +57,7 @@ if [ "$STY" ]
 then screen -X screen -t '"'"$1"'"' $REALMAN -a "$@"
 elif xisrunning
 then
-	# [ "$INJ" ] && whitewin -title "jdoc $1" -geometry 80x60 -e jdoc "$1"
+	# [ "$INJ" ] && whitewin -title "jdoc $1" -geometry 80x"$MANPOPUP_DESIRED_HEIGHT" -e jdoc "$1"
 	## man will try to fit page within COLUMNS>=80plz, and then we will fit to whatever man outputs
 	## First, check a manual page actually exists: (man will print error for us if not)
 	if [ `catpage | wc -l` -gt 0 ]
@@ -74,12 +78,12 @@ then
 			WIDTH="$MANPOPUP_DESIRED_WIDTH"
 		fi
 
-		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN -a "$@"
-		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN -a "$@"
-		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e $REALMAN -a "$@"
+		# whitewin -title "Manual: $*" -geometry "$WIDTH"x"$MANPOPUP_DESIRED_HEIGHT" -e $REALMAN -a "$@"
+		# whitewin -title "Manual: $*" -geometry "$WIDTH"x"$MANPOPUP_DESIRED_HEIGHT" -e $REALMAN -a "$@"
+		# whitewin -title "Manual: $*" -geometry "$WIDTH"x"$MANPOPUP_DESIRED_HEIGHT" -e $REALMAN -a "$@"
 
 		## TODO: Detect if not in X, but in screen, then popup a screen tab like this:
-		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e inscreendo man $REALMAN -a "$@"
+		# whitewin -title "Manual: $*" -geometry "$WIDTH"x"$MANPOPUP_DESIRED_HEIGHT" -e inscreendo man $REALMAN -a "$@"
 
 		## Extract the first two levels of sections headings, to make a Table of Contents:
 		## BUG: This means that now all the pages of -a are concatenated, rather than being able to move between them with :n :p.
@@ -94,10 +98,10 @@ then
 		## Replace the cached copy:
 		dog "$cachedPage"
 
-		# whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e "less \"$cachedPage\""
+		# whitewin -title "Manual: $*" -geometry "$WIDTH"x"$MANPOPUP_DESIRED_HEIGHT" -e "less \"$cachedPage\""
 		## Gah! Displaying our cached page with 'less' or with 'more' loses any bold/underline color modes set in .Xresources or by JMAN_SPECIAL_COLORS.  Has our cached copy dropped the bd/ul hints?  Or is less not showing them?
 		## The colors work fine if we use man itself, and not our cached copy.
-		whitewin -title "Manual: $*" -geometry "$WIDTH"x60 -e "$REALMAN -a \"$*\""
+		whitewin -title "Manual: $*" -geometry "$WIDTH"x"$MANPOPUP_DESIRED_HEIGHT" -e "$REALMAN -a \"$*\""
 		## FIXED: Because Ubuntu does not set the colors I want, we need a dark background...
 		#bigwin "$REALMAN -a \"$*\""
 

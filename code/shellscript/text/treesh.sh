@@ -90,7 +90,8 @@ COMMONSOFAR=""
 CURRENTCOMMON=""
 
 ## Guarantees final stack popping.
-( catwithprogress "$@" && echo ) | (
+#( catwithprogress "$@" && echo ) | (
+( cat "$@" && echo ) | (
 
 # catwithprogress |
 
@@ -152,6 +153,8 @@ then pipeboth
 else cat
 fi |
 
-eval "$TREEVIM"
+#eval "$TREEVIM" /tmp/treesh.out
+# If we call treevim here, it breaks tree.sh when that tries to call us then treevim itself.  (It could call `treesh -` to avoid that.)
+cat
 
 jdeltmp $TMPFILE

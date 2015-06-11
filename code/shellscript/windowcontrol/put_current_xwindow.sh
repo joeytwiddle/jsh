@@ -93,6 +93,9 @@ case "$putWhere" in
 		push_top
 		push_centerx
 	;;
+	top_edge)
+		push_top
+	;;
 	ne)
 		push_top
 		push_right
@@ -100,6 +103,9 @@ case "$putWhere" in
 	left)
 		push_left
 		push_centery
+	;;
+	left_edge)
+		push_left
 	;;
 	center_x)
 		push_centerx
@@ -115,12 +121,18 @@ case "$putWhere" in
 		push_right
 		push_centery
 	;;
+	right_edge)
+		push_right
+	;;
 	sw)
 		push_left ; push_bottom
 	;;
 	bottom)
 		push_bottom
 		push_centerx
+	;;
+	bottom_edge)
+		push_bottom
 	;;
 	se)
 		push_right ; push_bottom
