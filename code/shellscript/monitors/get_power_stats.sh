@@ -27,9 +27,15 @@ then
 	fi
 
 	mini_time=`echo "$time_to_end" | sed 's+\.[0-9]*++ ; s+ hours+h+ ; s+ minutes+m+ ; s+ seconds+s+'`
-	mini_percentage=`echo "$percentage" | sed 's+\..*++'`"%"
+	mini_percentage=`echo "$percentage" | sed 's+\..*++'`
 
-	echo "$mini_percentage$mini_state$mini_time"
+	if [ "$mini_percentage" -lt 7 ] && [ ! "$state" = "charging" ]
+	then
+		mini_state="_"
+		#mini_time="!!!"
+	fi
+
+	echo "${mini_percentage}%${mini_state}${mini_time}"
 
 else
 
