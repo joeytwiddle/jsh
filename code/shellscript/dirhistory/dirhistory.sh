@@ -1,13 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 SEARCHDIR="$1"
 
 (
-cursegreen
-grep "$SEARCHDIR" ~/.dirhistory | tail -n 5
-curseyellow ; cursebold ; echo "$PWD" ; cursenorm
-cursegreen
-grep "$SEARCHDIR" ~/.dirhistory | head -n 3
-) | sed 's+$+/+'
+paste -d ' ' <(seq 9 -1 1) <(grep "$SEARCHDIR" ~/.dirhistory | tail -n 9) | sed "s+^+`cursebold`+ ; s+ .*+`cursegreen`&/`cursenorm`+"
+echo "0 `curseyellow;cursebold`$PWD`cursenorm`"
+paste -d ' ' <(seq 1 3) <(grep "$SEARCHDIR" ~/.dirhistory | head -n 3) | sed "s+^+`cursebold`+ ; s+ .*+`cursegreen`&/`cursenorm`+"
+)
 exit
 
 
