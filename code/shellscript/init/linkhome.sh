@@ -41,6 +41,9 @@ fi
 [ -z "$LINK_FROM" ] && LINK_FROM="$JPATH/code/home"
 [ -z "$LINK_TO" ] && LINK_TO="$HOME"
 
+LINK_FROM="`realpath "$LINK_FROM"`"
+
+[ -d "$LINK_FROM" ] &&
 cd "$LINK_FROM" &&
 find . -maxdepth $DEPTH |
 	grep -v "/CVS$" | grep -v "/CVS/" |
@@ -53,7 +56,7 @@ find . -maxdepth $DEPTH |
 	while read X
 	do
 		# SOURCE="$LINK_FROM/$X"
-		SOURCE="`realpath "$LINK_FROM/$X"`"
+		SOURCE="$LINK_FROM/$X"
 		DEST="$LINK_TO/$X"
 		NICEDEST="$DEST"   # If possible, turn '$HOME/' into '~/' e.g. using a "path simplifier"
 		if [ ! -d "$DEST" ] && [ ! -f "$DEST" ]
