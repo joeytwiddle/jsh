@@ -36,14 +36,17 @@ fi
 
 [ "$1" = -sh ] && TREECOM="treesh -" && shift
 
-if [ ! "$TREECOM" ]
+if [ -z "$TREECOM" ]
 then
 	## Use compiled Haskell treelist tool if available.
 	HASKELL_TREELIST_BINARY="$JPATH/code/haskell/tools/treelist"
 	if [ -x "$HASKELL_TREELIST_BINARY" ]
 	then TREECOM="$HASKELL_TREELIST_BINARY" ## Compiled with ghc =)
+	elif which hugs >/dev/null && [ -f "$JPATH/code/haskell/tools/treelist.hs" ]
+	then TREECOM="runhugs $JPATH/code/haskell/tools/treelist.hs"
 	else TREECOM=treesh ## fallback
 	fi
+	[ -n "$DEBUG" ] && debug "Using TREECOM=$TREECOM"
 	## Hugs interpreter is not efficient:
 	# runhugs $JPATH/code/haskell/tools/treelist.hs $TMPFILE
 	# $JPATH/code/haskell/tools/treelist.hs $TMPFILE
@@ -60,12 +63,12 @@ cat "$@" > $TMPFILE
 
 $TREECOM "$TMPFILE" |
 
-if [ "$CAT" ]
+if [ -n "$CAT" ]
 then
 	# cat
 	cat | highlight "^+ .* {" green | highlight "^- .* }" red
 else
-	treevim
+	treevim -
 fi
 
 jdeltmp $TMPFILE
