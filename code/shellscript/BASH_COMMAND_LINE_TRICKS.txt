@@ -114,5 +114,5 @@ Panes:
 
 - `s` view sessions (to select)
 - `L` switch to last session
-- `D` view sessions (to delete)
+- `D` view clients (to delete)
 
