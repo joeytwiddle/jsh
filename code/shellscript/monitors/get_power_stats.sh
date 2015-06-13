@@ -8,6 +8,8 @@ getvalue() {
 
 state=`getvalue "state"`
 time_to_end=`getvalue "time to \(full\|empty\)"`
+# Sometimes there just isn't a time value.
+[ -z "$time_to_end" ] && time_to_end="?"
 percentage=`getvalue "percentage"`
 
 if [ "$1" = -mini ]
