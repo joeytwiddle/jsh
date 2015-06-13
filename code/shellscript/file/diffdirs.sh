@@ -185,7 +185,11 @@ do
 		# if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ]
 
 		## Check file size and last modified time, but allow it to pass if modified time were different but contents are the same.
-		if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ] && ( [ "`lastmodified "$DIRA/$FILE"`" = "`lastmodified "$DIRB/$FILE"`" ] || cmp "$DIRA/$FILE" "$DIRB/$FILE" >/dev/null )
+		filesize_a="`filesize "$DIRA/$FILE"`"
+		filesize_b="`filesize "$DIRB/$FILE"`"
+		filemodi_a="`lastmodified "$DIRA/$FILE"`"
+		filemodi_b="`lastmodified "$DIRB/$FILE"`"
+		if [ "$filesize_a" = "$filesize_b" ] && ( [ "$filemodi_a" = "$filemodi_b" ] || cmp "$DIRA/$FILE" "$DIRB/$FILE" >/dev/null )
 
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		## This was no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
