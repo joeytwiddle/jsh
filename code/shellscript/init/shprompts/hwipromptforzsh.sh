@@ -67,6 +67,7 @@ then
 	add-zsh-hook precmd find_git_branch
 	add-zsh-hook precmd find_git_dirty
 	add-zsh-hook precmd find_git_ahead_behind
+	add-zsh-hook precmd find_git_stash_status
 fi
 
 # if test "$SHLVL" -gt 3
