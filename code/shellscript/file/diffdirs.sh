@@ -117,7 +117,7 @@ isbrokenlink() {
 (
 	( findfiles "$DIRA" )
 	( findfiles "$DIRB" )
-	exit 55   # does nothing - we can't quit if the above fail
+	exit 55   # does nothing - we cannot abort the entire chain if one of the above fail
 ) |
 
 if [ -n "$ONLY_REGEXP" ]
@@ -138,7 +138,7 @@ do
 		LINKA="`justlinks "$DIRA/$FILE"`"
 		LINKB="`justlinks "$DIRB/$FILE"`"
 		if [ "$LINKA" = "$LINKB" ]
-		then [ -z "$NOMATCHES" ] && report "Identical symlinks: $FILE" ## I wanted to do CURSENORM at the start, but that messes with user's grep -v ^Identical !
+		then [ -z "$NOMATCHES" ] && report "Identical symlinks: $FILE" ## I wanted to do CURSENORM at the start, but that is not friendly to a user who tries to do `grep -v ^Identical`
 		else report "${CURSEYELLOW}Differing symlinks: $DIRA/$FILE -> $LINKA but $DIRB/$FILE -> $LINKB"
 		fi
 		continue
