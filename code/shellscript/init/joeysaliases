@@ -252,7 +252,16 @@ alias fed='foreachdo'
 # Ever used?
 alias rdl='removeduplicatelines'
 
+# Let's go all out with this.
+alias t='tail -n'
+alias h='head -n'
+alias s='sort'
+alias dc='dropcols'
+alias tc='takecols'
+
+# I never remember to use this
 alias c='cd'
+# But I love these
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
