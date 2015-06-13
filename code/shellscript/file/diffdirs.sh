@@ -112,6 +112,10 @@ isbrokenlink() {
 	[ -L "$1" ] && ! [ -d "$1" ] && ! [ -f "$1" ]
 }
 
+lastmodified() {
+	stat -c '%X' "$@"
+}
+
 
 
 (
@@ -172,7 +176,11 @@ do
 		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
 		## These are faster alternatives, but not as thorough:
 		## Actually they are probably slower for small files, but significantly faster for any large files we come across.
-		if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ] ## Note: this detects a symlink to an identical file as different!
+		## Check only file size
+		## Note: this detects a symlink to an identical file as different!
+		# if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ]
+		## Check file size and last modified time, but allow it to pass if modified time were different but contents are the same.
+		if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ] && ( [ "`lastmodified "$DIRA/$FILE"`" = "`lastmodified "$DIRB/$FILE"`" ] || cmp "$DIRA/$FILE" "$DIRB/$FILE" >/dev/null )
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		## This was no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
 		## This does not work on files with spaces: # if test "`qkcksum \`realpath "$DIRA/$FILE"\` | takecols 1 2`" = "`qkcksum \`realpath "$DIRB/$FILE"\` | takecols 1 2`" ## only faster for bigger files!
