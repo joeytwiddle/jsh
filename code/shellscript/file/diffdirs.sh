@@ -150,7 +150,7 @@ do
 		continue
 	fi
 
-	## Avoids errors, but doesn't actually compare the links!  (Sometimes the other one does not exist at all.)
+	## Avoids errors, but does not actually compare the links!  (Sometimes the other one does not exist at all.)
 	if isbrokenlink "$DIRA/$FILE"
 	then
 		report "${CURSEYELLOW}Is a broken symlink:${CURSENORM} $DIRA/$FILE"
@@ -175,7 +175,7 @@ do
 		if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ] ## Note: this detects a symlink to an identical file as different!
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		## This was no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
-		## This doesn't work on files with spaces: # if test "`qkcksum \`realpath "$DIRA/$FILE"\` | takecols 1 2`" = "`qkcksum \`realpath "$DIRB/$FILE"\` | takecols 1 2`" ## only faster for bigger files!
+		## This does not work on files with spaces: # if test "`qkcksum \`realpath "$DIRA/$FILE"\` | takecols 1 2`" = "`qkcksum \`realpath "$DIRB/$FILE"\` | takecols 1 2`" ## only faster for bigger files!
 		# then noop
 		then
 			# /bin/echo -e -n "\rIdentical: $FILE   "
