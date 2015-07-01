@@ -1,8 +1,13 @@
 ### zsh commandline completion based on output of recent (latest) command
 
+# ISSUES:
+# - History gets polluted with record-log appended to commands
+# - tee forces things like man to simply cat the file, instead of providing the interactive pager
+
 RUNTIME_FILE_PREFIX="/tmp/joey-output-completion.$$"
 
 record-log() {
+	# We cannot use eval here, it doesn't process aliases.
 	"$@" | tee "$RUNTIME_FILE_PREFIX".output
 	# Process the output now, rather than once each completion
 	cat "$RUNTIME_FILE_PREFIX".output | striptermchars > "$RUNTIME_FILE_PREFIX".clean_output
@@ -19,7 +24,7 @@ add-log-recorder() {
 	if alias "$first_arg" >/dev/null
 	then local is_an_alias=1
 	fi
-	# Except for some of my crucial alaises which do require immediacy
+	# Except for some of my crucial alaises which require local execution
 	case "$first_arg" in
 		cd|b|f)
 			local is_an_alias=
