@@ -1,3 +1,5 @@
+### zsh commandline completion based on output of recent (latest) command
+
 RUNTIME_FILE_PREFIX="/tmp/joey-output-completion.$$"
 
 record-log() {
@@ -9,10 +11,21 @@ record-log() {
 
 add-log-recorder() {
 	# Aliases and functions and shell-builtins (like cd and source) might affect the shell session.
+	# But our recorder causes the command to be run in a child shell.
 	# So we only record a log if the command is going to run an executable file.
 	local first_arg="${BUFFER% *}"
-	which_output="$(which $first_arg)"
-	if [ -f "$which_output" ] && [ -x "$which_output" ] #&& [ ! "$first_arg" = cd ]
+	local which_output="$(which $first_arg)"
+	# But many aliases will run executables, so let's allow them for now.
+	if alias "$first_arg" >/dev/null
+	then local is_an_alias=1
+	fi
+	# Except for some of my crucial alaises which do require immediacy
+	case "$first_arg" in
+		cd|b|f)
+			local is_an_alias=
+		;;
+	esac
+	if [ -n "$is_an_alias" ] || ( [ -f "$which_output" ] && [ -x "$which_output" ] )
 	then
 		[[ $BUFFER = record-log* ]] || BUFFER="record-log $BUFFER"
 	fi
@@ -28,9 +41,9 @@ output-completion() {
 	then
 		reply=
 	else
-		#MEMOFILE="$ZSH_COMPLETION_STORAGE_DIR"/"$COMMAND".cached
-		## The single brackets means an array
-		reply=( "--help" $(cat "$RUNTIME_FILE_PREFIX".output_completions) )
+		# This stops the cat from throwing errors if no completions were generated.
+		#touch "$RUNTIME_FILE_PREFIX".output_completions
+		reply=( $(cat "$RUNTIME_FILE_PREFIX".output_completions) )
 	fi
 }
 
