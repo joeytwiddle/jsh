@@ -20,15 +20,15 @@ do
 
 	# mencoder "$@" -o re_encoded.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6 || exit
 
-  ## -ofps 24 needed for s11redux.wmv which "has 1000fps"!
-  ## -srate 3200 needed for parliament_palestine_march.avi, which had pcm with bad sample rate
+	## -ofps 24 needed for s11redux.wmv which "has 1000fps"!
+	## -srate 3200 needed for parliament_palestine_march.avi, which had pcm with bad sample rate
 	# nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=6:acodec=mp2 $MP_CLIP $MP_EXTRA_OPTS || exit
 
 	## Reasonable quality:
-  nice -n 16 mencoder -srate "$SRATE" -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=$VQSCALE $MP_CLIP $MP_EXTRA_OPTS || exit
+	nice -n 16 mencoder -srate "$SRATE" -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=$VQSCALE $MP_CLIP $MP_EXTRA_OPTS || exit
 
 	## High quality (but large file!):
-  # nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=2 $MP_CLIP $MP_EXTRA_OPTS || exit
+	# nice -n 16 mencoder -srate 32000 -ofps 25 $MP_MEET_STANDARD "$VIDEOFILE" -o "$VIDEOFILE"-simple.avi -of avi -oac lavc -ovc lavc -lavcopts vqscale=2 $MP_CLIP $MP_EXTRA_OPTS || exit
 
 done
 
