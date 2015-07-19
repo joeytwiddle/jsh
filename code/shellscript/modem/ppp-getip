@@ -3,11 +3,16 @@
 IP=""
 
 ## From ifconfig:
-[ "$IP" ] || IP=`/sbin/ifconfig | grep "inet addr:" | grep "Bcast:255.255.255.255" | head -n 1 | afterfirst : | takecols 1 | tr -d " "`
+[ "$IP" ] || IP=`/sbin/ifconfig | grep "inet addr:" | grep "Bcast:255.255.255.255" | afterfirst : | takecols 1 | grep -v '^127.0.0.1$' | tr -d " " | head -n 1`
 
 ## Works behind a router:
-[ "$IP" ] || IP=` IKNOWIDONTHAVEATTY=1 memo -t "20 minutes" wget --timeout=3 --quiet "http://www.whatismyip.org" -O - `
-## Needed when they were returning HTML: | grep "^<TITLE>" | afterfirst " - " | beforefirst "<" 
+[ "$IP" ] || IP=`
+	IKNOWIDONTHAVEATTY=1 memo -t "20 minutes" wget --timeout=3 --quiet "http://www.whatismyip.org" -O - |
+	## Needed when they were returning HTML:
+	#grep "^<TITLE>" | afterfirst " - " | beforefirst "<" 
+	## Needed in 2014:
+	grep -A1 "Your IP Address" | tail -n 1 | afterfirst ">" | beforefirst "<"
+`
 
 ## For PPP:
 # IP=`/sbin/ifconfig | grep P-t-P | afterfirst : | takecols 1 | tr -d " "`
