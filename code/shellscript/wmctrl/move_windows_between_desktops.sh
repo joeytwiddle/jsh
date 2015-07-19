@@ -24,6 +24,8 @@
 
 desktopsPerRow=3
 
+notify=1
+
 showhelp() {
 cat << !
 
@@ -74,6 +76,16 @@ then
 	done
 
 	# I tried piping the commands to xdotool - which worked fine but wasn't significantly faster.
+
+	if [ -n "$notify" ]
+	then
+		killall osd_cat
+		#font='-*-helvetica-*-r-*-*-*-400-*-*-*-*-*-*'
+		font='-*-nimbus roman no9 l-*-r-*-*-60-*-*-*-*-*-*-*'
+		echo "Swapped desktop $fromDesktop with desktop $toDesktop" |
+		#echo "Moved desktop $fromDesktop $direction" |
+		osd_cat -d 2 -A center -f "$font"
+	fi
 
 else
 
