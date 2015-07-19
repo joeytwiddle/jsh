@@ -14,8 +14,8 @@
 ## EXPERIMENT 4:
 # ( [ "$TERM" = screen ] || [ "$TERM" = linux ] ) && exit 0
 ## In my Linux console, TERM=linux
-## Abort if no X display:
-[ "$DISPLAY" ] || exit 0
+## We could abort if there is no X display.  But actually it can still work through ssh, regardless of whether X is available.
+#[ "$DISPLAY" ] || exit 0
 
 [ "$DEBUG" ] && debug "TERM=$TERM tty=`tty` so running xttitle $*"
 
@@ -42,10 +42,10 @@ else
 		# printf "]0;""$DISPLAY_STR"""
 		# echo -n "]0;""$DISPLAY_STR"""
 		# echo "]0;""$DISPLAY_STR""" | tr -d "\n"
-		printf "%s" "]0;""$DISPLAY_STR""" | tr '\n' '\\' > /dev/stderr
+		# Previously I was doing >/dev/stderr here, but that failed after `su - [user]`
+		printf "%s" "]0;""$DISPLAY_STR""" | tr '\n' '\\' >&2
 		## Note the version in xttitleprompt is a bit different:
 		# export XTTITLEBAR="\[\033]0;$TITLEBAR\007\]"
 	# fi
 fi
-
 
