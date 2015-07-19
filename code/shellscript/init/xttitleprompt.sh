@@ -49,6 +49,10 @@ then
 
 	# export XTTITLE_HEAD="<xterm> $XTTITLE_HEAD"
 
+	if [ -n "$SSH_CLIENT" ]
+	then XTTITLE_HEAD="$XTTITLE_HEAD$USER@$SHORTHOST"
+	fi
+
 	# if xisrunning; then
 
 		## Now below:
