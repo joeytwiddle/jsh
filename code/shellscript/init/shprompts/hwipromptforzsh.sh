@@ -46,7 +46,16 @@ then
 
 else
 
-		export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;32m%}%~/%{[00m%} "
+		#export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;32m%}%~/%{[00m%} "
+		# Experimenting with filled background (to help prompts stand out from process output)
+		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
+		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[47;32m%} %~/%{[00m%} "
+		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[42;30m%} %~/%{[00m%} "
+		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
+		#export PROMPT="%{[42;30m%}%n%{[42;30m%}@%{[42;30m%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
+		export PROMPT="%{[40;36m%}%n%{[40;37m%}@%{[40;36m%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
+		#export PROMPT="%{[44;36m%}%n%{[44;37m%}@%{[44;36m%}%m %{[44;32m`cursebold`%}%~/%{[00m%} "
+
 		export RPROMPT="%{[0%?;30m%}[%{[0%?;3%?m%}err %?%{[0%?;30m%}]%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 		## My prefered colours for Unix:
 		# export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;33m%}%~/%{[00m %} "
@@ -57,10 +66,10 @@ fi
 
 if declare -f find_git_branch >/dev/null
 then
-	local GIT_AWARE_PROMPT="\%{`cursenorm`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count"
+	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count"
 	# \%{`cursenorm`\%}$
 	# Append these extras after the existing %{color}~/ part of the prompt
-	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%}%~/*\)+\1$GIT_AWARE_PROMPT+g")
+	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%} *%~/*\)+\1$GIT_AWARE_PROMPT+g")
 	# Whenever precmd is called, also run find_git_branch
 	# add-zsh-hook, which we load from zshcontrib, is just used to help us arrange the precmd array
 	autoload add-zsh-hook
@@ -83,14 +92,17 @@ then
 fi
 
 ## for zsh -x debugging (bad for bash though!)
-# export PS4="%{[00;35m%}[%{[00;31m%}%N[00;35m%}]%{[00;33m%}%_%{%{[00m%}%% "
+# See section "SIMPLE PROMPT ESCAPES"
+# %L is shell-level ($SHLVL, depth of child shells)
+# %? is the previous exit code
+# PS4="%{[00;35m%}[%{[00;31m%}%N[00;35m%}]%{[00;33m%}%_%{%{[00m%}%% "
 # ## Outputs the following format: [script_name]exec_trace% command args
-# export PS4="%{`cursemagenta`%}[%{`cursered`%}%1N%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%% "
+# PS4="%{`cursemagenta`%}[%{`cursered`%}%1N%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%% "
 ## Outputs the following format: (exit_code)shell_level/dir/[script_name]exec_trace% command args
-# export PS4="(%?)%L%c%{`cursemagenta`%}[%{`cursered``cursebold`%}%1N:%i%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%# "
-export PS4="(%?)%L%{`cursegreen`$}%c%{`cursemagenta`%}[%{`cursered``cursebold`%}%1N:%i%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%# "
+# PS4="(%?)%L%c%{`cursemagenta`%}[%{`cursered``cursebold`%}%1N:%i%{`cursemagenta`%}]%{`curseyellow`%}%_%{`cursenorm`%}%# "
+PS4="%{`cursemagenta`%}+%{`curseblue`%}%L%{`cursemagenta`%}?%{`curseblue`%}%?%{`cursemagenta`%}|%{`cursegreen`%}%c%{`cursemagenta`%}|%{`cursered``cursebold`%}%1N:%i%{`cursemagenta`%}|%{`curseyellow`%}%_%{`cursemagenta`%}%{`cursemagenta`%}>%{`cursenorm`%} "
 
-## TODO: Should really go in bash's .bash_profile (or is it .rc?), so that it is invoked when user types: sh -x something.sh
+## TODO: Should really go in bash's .bash_profile (or is it .rc?), so that it is invoked when user types: bash -x something.sh
 ##       At the moment that calls bash with zsh's PS4, which makes a horrid mess if it gets the zsh PS4 above.
 ##       Hmmm I tried putting this PS4 in .bashrc and .bash_profile but it didn't work =/
 ##       Maybe instead we can put zsh's PS4 above in .zshrc ? ^^
