@@ -8,6 +8,45 @@ Go to previous folder with:
 
     cd -
 
+
+
+# Editing on the command-line
+
+    <Ctrl-a>         Jump to front of line
+    <Ctrl-e>         Jump to end of line
+
+    <Escape> b       Jump back one word
+    <Escape> f       Jump forwards one word
+
+    <Escape> <Del>   Delete previous word
+
+
+
+# Arguments on previous lines
+
+To insert the last argument of the previous command, hit `<Esc>-.` or `<Meta>-.`.
+
+Alternatively, you can evaluate the expression `!$` or `!:$` or `$_` (latter does not tab-complete in bash or zsh):
+
+    cp index.html /path/to/deploy_folder/index.html
+    chmod ugo+r !$
+
+To select an arg by number (not in zsh):
+
+    echo !:2
+
+For all the args:
+
+    echo !*
+
+Repeat the previous command with `!!`
+
+    sudo !!
+
+
+
+# Earlier arguments on this line
+
 Refer to earlier arguments on the *same* line using `!#:<arg_index>`
 
     0    1 2 3
@@ -18,24 +57,36 @@ will display "a b c b".
 
 Without the `#` it uses the previous line.  `$` is the last index.
 
+Shortcuts are `!#$` for the last argument and `!#` for all the arguments, including the command.  With my shell options, I can use `<Tab>` to expand in zsh, or `<Enter>` to expand in bash.
+
 Another trick is to use {...,...} to create two similar arguments:
 
     cp my_file.txt{,.backup}
 
-If you want to refer to the last argument from the previous command line, use `!$` or `!:$` or `$_` (latter does not tab-complete in zsh).
+# Expand complicated lines before hitting the dreaded enter
 
-    cp index.html /path/to/deploy_folder/index.html
-    chmod ugo+r $_
+    Escape Ctrl+e
+      or
+    Alt+Ctrl+e    - shell-expand-line (bash, not zsh)
 
-You can also try `<Esc>-.` or `<Meta>-.` for the last arg of the prev cmd.
+    Ctrl+x *      - glob-expand-word
 
-For all the args:
+    Ctrl+_        - undo
 
-    echo !*
 
-Repeat the previous command with `!!`
+# Search history
 
-    sudo !!
+<Ctrl-R> reverse search history. Hit <Ctrl-R>, type a fragment of a previous command you want to match, and hit <Ctrl-R> until you find the one you want.
+
+Unfortunately I have remapped <Ctrl-R> but we can do something similar by dropping into vi mode:
+
+    <Esc>/txt_to_search_for<Enter>nnnNNNa
+
+The `nnnNNN` are examples of searching forward/back.  The final `a` is to leave vi mode.
+
+
+
+# General
 
 Use `^...^...` to search and replace on the previous command:
 
@@ -56,21 +107,7 @@ This can also be applied directly to variables.
 
     echo Folder = $filename:h
 
-<Ctrl-R> reverse search history. Hit <Ctrl-R>, type a fragment of a previous command you want to match, and hit <Ctrl-R> until you find the one you want.
-
-Unfortunately I have remapped <Ctrl-R> but we can do something similar by dropping into vi mode:
-
-    <Esc>/txt_to_search_for<Enter>nnnNNNa
-
-The `nnnNNN` are examples of searching forward/back.  The final `a` is to leave vi mode.
-
-Expand complicated lines before hitting the dreaded enter
-
-    Alt+Ctrl+e   — shell-expand-line (may need to use Esc, Ctrl+e on your keyboard)
-    Ctrl+_       — undo
-    Ctrl+x, *    — glob-expand-word
-
-Place the filename at the beginning of the line to make it easier to edit the search at the end of the command.
+When sending output to a file, place the filename at the beginning of the line.  This makes it easier to edit the arguments at the end of the command (in this case the search "foo").
 
     </var/log/messages grep foo
 
