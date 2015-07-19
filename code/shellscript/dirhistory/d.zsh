@@ -1,4 +1,4 @@
-#!/bin/sh
+# @nohashbang
 ## d: change directory and record for b and f shell tools
 ## Works for bash too despite its name!
 ## Although when .-ed without an argument in bash, it remembers the $1 from the last call!  :-(
@@ -83,7 +83,7 @@ else
 	then
 		## No directory found.
 		## NEW! Try anyway, quietly.  E.g. bash might find something with CDPATH.
-		'cd' "$NEWDIR" || echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" # beep
+		'cd' "$NEWDIR" 2>/dev/null || echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" # beep
 		# false
 
 	elif [ `echo "$NEWLIST" | countlines` = 1 ]
