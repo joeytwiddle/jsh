@@ -84,8 +84,7 @@ if [ -n "$BASH" ]
 then
 
 	. jgettmpdir -top
-	# export BASH_COMPLETION_STORAGE_DIR="$TOPTMP/completion_options-$USER.bash"
-	export BASH_COMPLETION_STORAGE_DIR="$HOME/.memocache/bash_completion_options"
+	export BASH_COMPLETION_STORAGE_DIR="$HOME/.cache/autocomplete_from_man.bash"
 	mkdir -p "$BASH_COMPLETION_STORAGE_DIR"
 	## TODO: it appears this directory is being created but never used!
 
@@ -119,7 +118,7 @@ elif [ -n "$ZSH_NAME" ]
 then
 
 	. jgettmpdir -top
-	export ZSH_COMPLETION_STORAGE_DIR="$HOME/.memocache/zsh_completion_options"
+	export ZSH_COMPLETION_STORAGE_DIR="$HOME/.cache/autocomplete_from_man.zsh"
 	mkdir -p "$ZSH_COMPLETION_STORAGE_DIR"
 
 	joeyComplete () {
@@ -136,7 +135,8 @@ then
 			if [ ! -f "$MEMOFILE" ] || [ "$REMEMO" ]
 			then
 				mkdir -p `dirname "$MEMOFILE"` ## This works even if COMMAND is an alias with '/'s in path.
-				MEMO_SHOW_INFO= NOINFO=1 MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 'memo' extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
+				#MEMO_SHOW_INFO= NOINFO=1 MEMO_IGNORE_DIR=1 IKNOWIDONTHAVEATTY=1 'memo' extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
+				extractpossoptsfrommanpage "$COMMAND" > "$MEMOFILE"
 			fi
 			#AC_CHECK_ALIASES=true
 			## This feature is rather annoying.  It might be useful as a warning, but it appears in the middle of your command!  We could hide it again, but it might flash so fast that we wouldn't see it.
