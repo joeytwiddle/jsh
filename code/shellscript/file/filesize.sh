@@ -15,5 +15,6 @@ else
 	# 'ls' -l "$@" |
 		# takecols 5
 	## this also breaks: find: invalid predicate `)Starship.unr'
-	find "$@" -maxdepth 0 -follow -printf "%s\n"
+	#find "$@" -maxdepth 0 -follow -printf "%s\n"
+	stat -c '%s' "$@"
 fi
