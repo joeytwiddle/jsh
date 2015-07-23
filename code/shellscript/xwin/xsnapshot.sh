@@ -11,6 +11,12 @@ if [ "$1" = "-window" ]
 then
 	shift
 	windowid=`xdotool getwindowfocus`
+	#app_name="`xdotool getwindowname "$windowid"`"
+	app_name="`xprop -id "$windowid" | grep "^WM_CLASS(STRING)" | sed 's+.*"\(.*\)"$+\1+'`"
+	sanitized_app_name="`printf "%s" "$app_name" | tr '#/' '__'`"
+	window_description="$USER's $sanitized_app_name"
+else
+	window_description="$USER's desktop on `hostname`"
 fi
 
 if [ "$1" = --help ]
@@ -23,7 +29,7 @@ fi
 if [ "$1" ]
 then DESTINATION="$1"
 #else DESTINATION="$DESTDIR"/screenshot-$$.png
-else DESTINATION="$DESTDIR"/"$USER"@"$(hostname) at $(date +"%-I:%M %p on %A %-d %B %Y").png"
+else DESTINATION="$DESTDIR"/"$window_description at $(date +"%-I:%M %p on %A %-d %B %Y").png"
 fi
 
 ## ATM we force output as .bmp because other programs may be expecting .bmps.
