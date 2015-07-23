@@ -24,8 +24,8 @@ do
 	VOL=`get_volume`
 
 	[ "$VOL" ] || VOL=25
-	REPCHARS=$((VOL*72/100))
-	echo "$HEAD[`strrep = $REPCHARS`[$VOL%]`strrep - $((72-REPCHARS))`]" | osd_cat -A right -c green -d 1 -f '-*-fixed-*-r-*-*-*-180-*-*-*-*-*-*' &
+	REPCHARS=$((VOL*30/100))
+	echo "$HEAD|`strrep = $REPCHARS`[$VOL%]`strrep - $((30-REPCHARS))`|" | osd_cat -A right -c green -O 4 -o 12 -d 1 -f '-*-fixed-*-r-*-*-*-320-*-*-*-*-*-*' &
 	## I was using freemono but it wasn't available on all systems.
 
 	HEAD="$HEAD
