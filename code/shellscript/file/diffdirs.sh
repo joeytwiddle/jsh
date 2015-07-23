@@ -79,7 +79,7 @@ PREFERRED_DIFFCOM=""
 # [ "$IGNORE" ] && IGNORE_REGEXP="\(""`echo "$IGNORE" | tr ',' '\n' | while read IGNORETERM; do echo "$(toregexp "$IGNORETERM")"; echo "\|"; done; echo "impossible\)"`""\)"
 [ -n "$IGNORE" ] && IGNORE_REGEXP="` echo "$IGNORE" | tr ',' '\n' | list2regexp `"
 #[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="_sdfjslfj23djlsdf_IMPOSSIBLE_sdjfklf242sdf423jsd_"
-[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="\(^\|/\)\(\.git\|CVS\|\.svn\|node_modules\)/"
+[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="\(^\|/\)\(\.git/\|CVS/\|\.svn/\|node_modules/\|\..*\.sw.$\)"
 
 findfiles () {
 	cd "$1" || exit 1
@@ -112,11 +112,13 @@ isbrokenlink() {
 	[ -L "$1" ] && ! [ -d "$1" ] && ! [ -f "$1" ]
 }
 
-lastmodified() {
-	stat -c '%X' "$@"
+# We used to check the size only.  That is faster if the files are identical but have different dates.  But it is also prone to skip fixed-length files whose content might be different!  So it is more accurate to check both.  (Although it's still not 100%!)
+get_size_and_date() {
+	stat -c '%s %X' "$@"
 }
 
 
+[ -n "$NM" ] && NOMATCHES="$NM"
 
 (
 	( findfiles "$DIRA" )
@@ -148,9 +150,14 @@ do
 		continue
 	fi
 
-	if ( [ -L "$DIRA/$FILE" ] && [ ! -L "$DIRB/$FILE" ] ) || ( [ ! -L "$DIRA/$FILE" ] && [ -L "$DIRB/$FILE" ] )
+	if [ -L "$DIRA/$FILE" ] && [ ! -L "$DIRB/$FILE" ]
 	then
-		report "${CURSEYELLOW}One is a symlink, the other is not!${CURSENORM} $FILE"
+		report "${CURSEYELLOW}A is a symlink, B is not!${CURSENORM} $FILE"
+		continue
+	fi
+	if [ ! -L "$DIRA/$FILE" ] && [ -L "$DIRB/$FILE" ]
+	then
+		report "${CURSEYELLOW}B is a symlink, A is not!${CURSENORM} $FILE"
 		continue
 	fi
 
@@ -185,11 +192,9 @@ do
 		# if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ]
 
 		## Check file size and last modified time, but allow it to pass if modified time were different but contents are the same.
-		filesize_a="`filesize "$DIRA/$FILE"`"
-		filesize_b="`filesize "$DIRB/$FILE"`"
-		filemodi_a="`lastmodified "$DIRA/$FILE"`"
-		filemodi_b="`lastmodified "$DIRB/$FILE"`"
-		if [ "$filesize_a" = "$filesize_b" ] && ( [ "$filemodi_a" = "$filemodi_b" ] || cmp "$DIRA/$FILE" "$DIRB/$FILE" >/dev/null )
+		filestats_a="`get_size_and_date "$DIRA/$FILE"`"
+		filestats_b="`get_size_and_date "$DIRB/$FILE"`"
+		if [ "$filestats_a" = "$filestats_b" ] || cmp "$DIRA/$FILE" "$DIRB/$FILE" >/dev/null
 
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		## This was no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]
