@@ -22,7 +22,8 @@ fi
 
 if [ "$1" ]
 then DESTINATION="$1"
-else DESTINATION="$DESTDIR"/screenshot-$$.png
+#else DESTINATION="$DESTDIR"/screenshot-$$.png
+else DESTINATION="$DESTDIR"/"$USER"@"$(hostname) at $(date +"%-I:%M %p on %A %-d %B %Y").png"
 fi
 
 ## ATM we force output as .bmp because other programs may be expecting .bmps.
