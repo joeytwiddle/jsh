@@ -43,6 +43,8 @@ Repeat the previous command with `!!`
 
     sudo !!
 
+Repeat the command before the previous one with `!-2`
+
 
 
 # Earlier arguments on this line
@@ -53,7 +55,7 @@ Refer to earlier arguments on the *same* line using `!#:<arg_index>`
     v    v v v
     echo a b c !#:2
 
-will display "a b c b".
+will display "a b c b".  The last argument is `!#:$`.
 
 Without the `#` it uses the previous line.  `$` is the last index.
 
