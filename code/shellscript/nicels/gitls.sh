@@ -1,3 +1,4 @@
+# BUG: When directories are passed as arguments, they are not listed the same as with ls.
 find "$@" -maxdepth 1 |
 #find "$@" -type f | grep -v "/\.git/" |
 sed 's+^\./++' |
