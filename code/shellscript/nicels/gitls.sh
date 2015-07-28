@@ -9,7 +9,7 @@ do
 	then extra="  "
 	elif [ -f "$node" ]
 	then
-		extra="$(git status --porcelain "$node" 2>/dev/null | cut -c 1-2)"
+		extra="$(git status --porcelain --ignored "$node" 2>/dev/null | cut -c 1-2)"
 		[ "$extra" = "" ] && extra="  "
 	fi
 	#echo -n "$extra "
