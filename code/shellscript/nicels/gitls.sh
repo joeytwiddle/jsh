@@ -7,7 +7,10 @@
 find "$@" -maxdepth 1 |
 #find "$@" -type f | grep -v "/\.git/" |
 sed 's+^\./++' |
-sortfilesbydate |
+if which sortfilesbydate >/dev/null
+then sortfilesbydate
+else cat
+fi |
 while read node
 do
 	# Fallback (default) status.  Not many things get this.  Broken symlinks do (untracked, not sure about tracked).
@@ -53,6 +56,10 @@ do
 	#echo -n "$extra "
 	ls -ld --color "$node" | sed "s+^\([^ ]* *\)\{8\}+\0[$extra] +"
 done |
-columnise-clever -ignore '^[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]*[^ ]* *[^ ]*' |
-# columnise-clever left-aligns fields, but we want the 5th field (file size) right-aligned
-sed 's+^\(\([^ ]* *\)\{4\}\)\([^ ]*\)\( *\) +\1\4\3 +'
+if which columnise-clever >/dev/null
+then
+	columnise-clever -ignore '^[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]*[^ ]* *[^ ]*' |
+	# columnise-clever left-aligns fields, but we want the 5th field (file size) right-aligned
+	sed 's+^\(\([^ ]* *\)\{4\}\)\([^ ]*\)\( *\) +\1\4\3 +'
+else cat
+fi
