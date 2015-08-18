@@ -1,5 +1,5 @@
 #!/bin/sh
-
+# Wrapper for prettydiff that works as expected (Unix-like) for 0, 1 or 2 arguments.
 # You will need prettydiff installed: npm install -g prettydiff
 
 [ -z "$PRETTYDIFF_APP" ] && PRETTYDIFF_APP=$HOME/npm/bin/prettydiff
@@ -10,8 +10,8 @@ if [ "$#" = 0 ]
 then
 	# Read from stdin, write to stdout
 	# This did something weird.  It replaced all `/` with `\` and left everything else unchanged.
-	#node "$PRETTYDIFF_APP" source:"`cat`" readmethod:screen     mode:"$PRETTYDIFF_MODE" report:false
-	# It rejects /dev/stdin as input because it isn't a file.
+	#node "$PRETTYDIFF_APP" source:"`cat`" readmethod:screen mode:"$PRETTYDIFF_MODE" report:false
+	# It also rejects /dev/stdin as input because it isn't a file.
 	# But reading from a tempfile worked fine:
 	tmpfile=/tmp/nodepretty.$USER.$$.js
 	cat > "$tmpfile"
@@ -29,6 +29,6 @@ then
 	# This doesn't do what I expected: it creates a folder $2 containing the result and a "report" (which for me was just the result again!)
 	#node "$PRETTYDIFF_APP" source:"$1" readmethod:file mode:"$PRETTYDIFF_MODE" report:false output:"$2"
 	# But this will work:
+	#nodepretty "$1" > "$2"
 	sh "$0" "$1" > "$2"
 fi
-
