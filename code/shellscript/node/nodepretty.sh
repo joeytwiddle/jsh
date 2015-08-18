@@ -29,6 +29,6 @@ then
 	# This doesn't do what I expected: it creates a folder $2 containing the result and a "report" (which for me was just the result again!)
 	#node "$PRETTYDIFF_APP" source:"$1" readmethod:file mode:"$PRETTYDIFF_MODE" report:false output:"$2"
 	# But this will work:
-	nodepretty "$1" > "$2"
+	sh "$0" "$1" > "$2"
 fi
 
