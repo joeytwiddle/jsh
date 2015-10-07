@@ -19,5 +19,11 @@ ADDED=`diff "$@" | grep "^>" | wc $WC_OPTION`
 [ "$REMOVED" = 0 ] && REMOVED= || REMOVED="-$REMOVED"
 [ "$CHANGED" = 0 ] && CHANGED= || CHANGED="~$CHANGED"
 [ "$ADDED" = 0 ] && ADDED= || ADDED="+$ADDED"
-[ "x$REMOVED$CHANGED$ADDED" = "x" ] && UNIT_TYPE="no changes"
+if [ "x$REMOVED$CHANGED$ADDED" = "x" ]
+then
+	if cmp "$1" "$2" >/dev/null
+	then UNIT_TYPE="no changes"
+	else UNIT_TYPE="binaries differ"
+	fi
+fi
 echo "\"$1\" \"$2\" [$REMOVED$CHANGED$ADDED$UNIT_TYPE]"
