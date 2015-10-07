@@ -75,6 +75,15 @@ Another trick is to use {...,...} to create two similar arguments:
 
     Ctrl+_        - undo
 
+## These are in zsh; not sure about bash.
+
+But anyway they are disabled in jsh's zshkeys, to make Ctrl+x alone faster.
+
+    Ctrl+x a      - expand alias
+    Ctrl+x d      - list possible expansions (like the default Tab,Tab)
+    Ctrl+x ~      - list possible expansions (like the default Tab,Tab)
+    Ctrl+x m      - expand most recent file (not sure how this is known!  from > perhaps.)
+
 
 # Search history
 
