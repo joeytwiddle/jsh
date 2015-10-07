@@ -7,6 +7,8 @@
 
 ## TODO: Have mp3gain not change the file, but create a tiny file to cache the results of the mp3gain scan.  Use mp3gain to apply the (cached) result to a temporary copy of the mp3 before playing.
 
+DEBUG=true
+
 MP3INFOEXE=`which mp3info 2>/dev/null`
 
 domp3info () {
@@ -18,13 +20,36 @@ domp3info () {
 
 SEARCH="$*"
 
-PLAYLIST="$JPATH/music/search_results.m3u"
-memo -t "2 days" updatemusiclist |
+
+# This script finds all your music in this file
+AUDIO_FILES_LIST="$HOME/Music/jsh_audio_files.m3u"
+#AUDIO_FILES_LIST="$HOME/Music/all_tracks.m3u"
+
+CURRENT_PLAYLIST="$HOME/Music/current_playlist.m3u"
+mkdir -p "$HOME/Music"
+
+# Old location
+[ ! -f "$AUDIO_FILES_LIST" ] && AUDIO_FILES_LIST="$JPATH/music/search_results.m3u"
+
+# Can be overriden by setting JSH_ALL_AUDIO_FILES
+[ -n "$JSH_ALL_AUDIO_FILES" ] && AUDIO_FILES_LIST="$JSH_ALL_AUDIO_FILES"
+
+# Generate the file if it does not exist
+
+if [ ! -f "$AUDIO_FILES_LIST" ]
+then memo -t "2 days" updatemusiclist > "$AUDIO_FILES_LIST"
+fi
+
+cat "$AUDIO_FILES_LIST" |
+
 grep -i "$SEARCH" |
 # grep -v -i "\<book\>" |
-dog "$PLAYLIST"
+dog "$CURRENT_PLAYLIST"
+
 if [ ! "x$SEARCH" = "x" ]
-then echo "$(cat "$PLAYLIST" | wc -l) tracks found matching \"$SEARCH\"."
+then
+	jshinfo "$(cat "$CURRENT_PLAYLIST" | wc -l) tracks found matching \"$SEARCH\"."
+	echo
 fi
 
 ## GET_FILE_LIST="memo -t '2 days' updatemusiclist"
@@ -45,9 +70,11 @@ do
 
 	# TRACK=`cat $JPATH/music/list.m3u | grep -i "$SEARCH" | chooserandomline`
 	# TRACK=`memo -t '2 days' updatemusiclist | grep -i "$SEARCH" | grep -v -i "\<book\>" | chooserandomline`
-	TRACK=`cat "$PLAYLIST" | chooserandomline`
+	TRACK=`cat "$CURRENT_PLAYLIST" | chooserandomline`
 
 	[ ! -f "$TRACK" ] && continue
+
+	# Preprocess the track, but not on the first loop
 
 	## Normalise volume (gain)
 	TRACKTOPLAY="$TRACK"
@@ -55,7 +82,7 @@ do
 	## Now we also skip if ut is running (in that case on gentoo the niceness causes mp3gain to take ages but still cause tiny bits of lag to ut (which was nice 0).
 	# if [ "$USE_MP3GAIN" ] && [ ! "$FIRSTLOOP" ] && endswith "$TRACK" "\.mp3" ## because mp3gain does nasty things with oggs (like filling up the computer's memory?!)
 	echo "`cursenorm;cursebold`Next track: `cursemagenta`$TRACK`cursenorm`" >&2
-	if [ "$USE_MP3GAIN" ] && [ ! "$FIRSTLOOP" ] && echo "$TRACK" | grep -i "\.mp3$" >/dev/null && ! findjob "ut-bin\>" >/dev/null ## because mp3gain does nasty things with oggs (like filling up the computer's memory?!)
+	if [ "$USE_MP3GAIN" ] && [ -n "$DEBUG" ] || [ ! "$FIRSTLOOP" ] && echo "$TRACK" | grep -i "\.mp3$" >/dev/null && ! findjob "ut-bin\>" >/dev/null ## because mp3gain does nasty things with oggs (like filling up the computer's memory?!)
 	then
 		# echo "`curseblue`Normalising next track: `cursemagenta`$TRACK`cursenorm`" >&2
 
@@ -89,41 +116,57 @@ do
 	xttitle "randommp3: `domp3info -p "%a - %t" "$TRACK" 2>/dev/null` [`filename "$TRACK"`]"
 
 	## Inform the log
-	echo "$TRACK" >> $JPATH/logs/xmms.log
+	if [ -d "$JPATH/logs" ]
+	then echo "$TRACK" >> $JPATH/logs/xmms.log
+	fi
 
-	## Echo output to user
-	# SIZE=`du -sh "$TRACK" | takecols 1`
-	[ -x "$MP3INFOEXE" ] && SIZE=`mp3duration "$TRACK" | takecols 1`
-	# echo "$SIZE: "`curseyellow``cursebold`"$TRACK"`cursenorm`
-	echo "\""`curseyellow``cursebold`"$TRACK"`cursenorm`"\" ($SIZE)"
 
-	MP3INFO=`domp3info "$TRACK" 2>/dev/null`
+	SHOW_OLD_OUTPUT_FORMAT=
 
-	echo "$MP3INFO" |
-	grep -v "^File: " | grep -v "^$" |
-	sed "s+[[:alpha:]]*:+`cursemagenta`\0`cursenorm`+g" |
-	# sed "s+\(File:[^ ]* \)\(.*\)+`curseblue`\1 `curseblue`\2+"
-	cat
+	if [ -n "$SHOW_OLD_OUTPUT_FORMAT" ]
+	then
 
-	# (
-	# echo "`domp3info -p "%a - %t" "$TRACK" 2>/dev/null` :: [`filename "$TRACK"`]"
-	# # echo "randommp3: `domp3info -p "%a - %t" "$TRACK" 2>/dev/null` [`filename "$TRACK"`]"
-		# # echo "$MP3INFO"
-	# ) |
-	# # osd_cat -c green -f '-*-lucida-*-r-*-*-*-200-*-*-*-*-*-*'
-	# osd_cat -c green -f '-*-lucida-*-r-*-*-*-200-*-*-*-*-*-*'
-	## This is now a duplicate of whatsplaying:
-	FILE="$TRACK"
-	NAME=` domp3info -p "%a - %t" "$FILE" `
-	TIME=` domp3info -p "%mm%ss" "$FILE" `
-	(
-		echo "$NAME"
-		echo " \\_ $TIME :: [$FILE]" 
-	) |
-	# osd_cat -c green -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*' &
-	osd_cat -c green -f '-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*' & ## works inside my chroot
+		## Echo output to user
+		# SIZE=`du -sh "$TRACK" | takecols 1`
+		[ -x "$MP3INFOEXE" ] && SIZE=`mp3duration "$TRACK" | takecols 1`
+		# echo "$SIZE: "`curseyellow``cursebold`"$TRACK"`cursenorm`
+		echo "\""`curseyellow``cursebold`"$TRACK"`cursenorm`"\" ($SIZE)"
 
+		MP3INFO=`domp3info "$TRACK" 2>/dev/null`
+
+		echo "$MP3INFO" |
+		grep -v "^File: " | grep -v "^$" |
+		sed "s+[[:alpha:]]*:+`cursemagenta`\0`cursenorm`+g" |
+		# sed "s+\(File:[^ ]* \)\(.*\)+`curseblue`\1 `curseblue`\2+"
+		cat
+
+		# (
+		# echo "`domp3info -p "%a - %t" "$TRACK" 2>/dev/null` :: [`filename "$TRACK"`]"
+		# # echo "randommp3: `domp3info -p "%a - %t" "$TRACK" 2>/dev/null` [`filename "$TRACK"`]"
+			# # echo "$MP3INFO"
+		# ) |
+		# # osd_cat -c green -f '-*-lucida-*-r-*-*-*-200-*-*-*-*-*-*'
+		# osd_cat -c green -f '-*-lucida-*-r-*-*-*-200-*-*-*-*-*-*'
+		## This is now a duplicate of whatsplaying:
+		FILE="$TRACK"
+		NAME=` domp3info -p "%a - %t" "$FILE" `
+		TIME=` domp3info -p "%mm%ss" "$FILE" `
+		(
+			echo "$NAME"
+			echo " \\_ $TIME :: [$FILE]" 
+		) |
+		# osd_cat -c green -f '-*-freesans-*-r-*-*-*-240-*-*-*-*-*-*' &
+		osd_cat -c green -f '-*-lucidabright-medium-r-*-*-26-*-*-*-*-*-*-*' & ## works inside my chroot
+
+	else
+
+		showsonginfo "$TRACK"
+
+	fi
+
+	echo
 	echo "`cursered`del \"$TRACK\"`cursenorm`""(|.mp3gain)" # also cleans up any associated mp3gain file :)
+
 
 	# [ "$USE_MP3GAIN" ] && [ ! "$FIRSTLOOP" ] && TRACK="$NORMALISEDTRACK"
 
@@ -134,11 +177,11 @@ do
 	# echo "randommp3: `domp3info -p "%a - %t" "$TRACK" 2>/dev/null` [`filename "$TRACK"`]" | osd_cat -f '-*-lucida-*-r-*-*-*-440-*-*-*-*-*-*'
 	if [ "$USE_MP3GAIN" ]
 	then
-		playmp3andwait "$TRACKTOPLAY" >/dev/null 2>&1 &
-		## Gives mpg123 time to cache, so mp3gain doesn't steal vital CPU!  TODO: renice mpg123
+		playmp3andwait "$TRACKTOPLAY" #>/dev/null 2>&1 &
+		## Gives mpg123 time to cache, so mp3gain doesn't steal vital CPU!
 		sleep 10
 	else
-		playmp3andwait "$TRACKTOPLAY" >/dev/null 2>&1
+		playmp3andwait "$TRACKTOPLAY" #>/dev/null #2>&1
 	fi
 	echo
 	# CONSIDER: if [ ! "$TRACKTOPLAY" = "$TRACK" ]; then we can assume the track's mp3 gain has been corrected, and in this case we can/should play the track a bit louder than non-corrected tracks!
