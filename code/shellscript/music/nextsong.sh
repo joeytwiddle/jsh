@@ -76,7 +76,10 @@ is_running() {
 }
 
 if [ "$PLAYER" = "pulseaudio" ]
-then PLAYER=`is_running xmms || is_running mplayer || is_running mpg123 || is_running ogg123`
+then
+	#echo "Killing pulseaudio is not enough to search the song."
+	PLAYER=`is_running xmms || is_running mplayer || is_running mpg123 || is_running ogg123`
+	jshinfo "I don't want to kill pulseaudio. But I found running process: $PLAYER"
 fi
 
 wait
