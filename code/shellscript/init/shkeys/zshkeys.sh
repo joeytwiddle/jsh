@@ -30,6 +30,20 @@ bindkey "^Xr" undefined-key # history-incremental-search-backward
 bindkey "^Xs" undefined-key # history-incremental-search-forward
 bindkey "^Xu" undefined-key # undo
 
+# More when I used zsh 4.3.17 on Ubuntu 12.04
+bindkey "^X^R" undefined-key # _read_comp
+bindkey "^X?" undefined-key # _complete_debug
+bindkey "^XC" undefined-key # _correct_filename
+bindkey "^Xa" undefined-key # _expand_alias
+bindkey "^Xc" undefined-key # _correct_word
+bindkey "^Xd" undefined-key # _list_expansions
+bindkey "^Xe" undefined-key # _expand_word
+bindkey "^Xh" undefined-key # _complete_help
+bindkey "^Xm" undefined-key # _most_recent_file
+bindkey "^Xn" undefined-key # _next_tags
+bindkey "^Xt" undefined-key # _complete_tag
+bindkey "^X~" undefined-key # _bash_list-choices
+
 # Clear all CTRL+[s cos I want to use it.
 # nah this loses loads of stuff i like and doesn't fully clear ^[
 # bindkey "^[" undefined-key # vi-backward-kill-word
@@ -108,6 +122,15 @@ bindkey "^Xu" undefined-key # undo
 # bindkey "^[z" undefined-key # execute-last-named-cmd
 # bindkey "^[|" undefined-key # vi-goto-column
 # bindkey "^[^?" undefined-key # backward-kill-word
+
+# These only work for me if I hit them really quickly.  Otherwise some other feature gets invoked.
+#bindkey "^[?" history-incremental-search-backward
+#bindkey "^[/" history-incremental-search-forward
+# Very easy to hit:
+bindkey "^[^]" history-incremental-search-backward
+# "^/" didn't work for me, but ^? (Ctrl-Shift-/) does:
+# Oh no, this is no good.  That also gets fired on Delete!
+#bindkey "^?" history-incremental-search-backward
 
 # Mode switching
 bindkey -a "\E" vi-insert
