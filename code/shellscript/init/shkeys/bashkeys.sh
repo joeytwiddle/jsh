@@ -30,3 +30,9 @@ bind "\C-o":kill-line
 
 bind "\C-space":forward-char
 bind "\C-h":backward-char
+
+## Since C-r overrode the reverse-search-history action, make a new bind for it
+## Binding C-? also activates when I hit C-/ (in xterm on tomato:Ubuntu-12.04)
+bind "\C-?":reverse-search-history
+## On no this is no good.  It fires when pressing arrow keys!
+#bind "\C-[":reverse-search-history
