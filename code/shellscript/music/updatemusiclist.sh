@@ -3,9 +3,11 @@
 ## [ No use memoing find since the sort takes time, need to make into a fn then memo that. ]
 # [ "$MUSIC_SEARCH_DIRS" ] || MUSIC_SEARCH_DIRS="/stuff/mp3s/ /stuff/mp3sfor/ /stuff/mirrors/ /stuff/out/ /stuff/share/ /mnt/big/out /mnt/big/toconsume /mnt/big/gone_consume /mnt/big/consume_then_write /mnt/big/cds /stuff/otherfiles/downloads/ /mnt/hda2/stuff/mp3s /stuff/share/*/"
 
-outDir="$HOME/j/music"
+[ -z "$JSH_MUSIC_DIR" ] && JSH_MUSIC_DIR="$HOME/Music/"
 
-LIST="$outDir/all.m3u"
+[ -z "$JSH_ALL_AUDIO_FILES" ] && JSH_ALL_AUDIO_FILES="$JSH_MUSIC_DIR/jsh_audio_files.m3u"
+
+# We actually write to a lot of other places at the bottom too.
 
 [ "$MUSIC_EXTS_REGEXP" ] || MUSIC_EXTS_REGEXP="\(mp3\|ogg\|xm\|ra\|wma\|flac\|m4a\|m4p\|mod\|it\)"
 [ "$MUSIC_IGNORE_REGEXP" ] || MUSIC_IGNORE_REGEXP="\(/INCOMPLETE/\|/RECLAIM\|/dontplay/\|/horrid/\|/lessons/\|/corrupted/\|/ktorrent_working/\|/sounds/\|\/samples\|/usr/src/\|/boot/grub/\|/usr/lib/grub/\|/games/\)" # pimsleur\|
@@ -22,36 +24,46 @@ filesonly | ## locate -e deals with non-existent files, but i don't want existin
 sed 's+/mnt/[^/]*/stuff/+/stuff/+' |
 sed 's+.*/share/+/stuff/share/+' |
 sed 's+.*/mp3sfor/+/stuff/mp3sfor/+' |
-dog "$LIST"
+dog "$JSH_ALL_AUDIO_FILES"
 
 ## Many files with .mod extension are not actually tracker files!  We must
 ## check all these files because my XMMS modplug plugin sometimes has an audio
 ## lockup if it tries to play a non-tracker file.
-(
-	TRACKER_FORMATS="\.\(it\|mod\|xm\)$"
-	cat "$LIST" | grep "$TRACKER_FORMATS" |
-	while read trackerFile
-	do
-		## We allow unrecognised "data" files, or recognised things if they are tracker files :)
-		if file "$trackerFile" | grep -i "\(: data$\|tracker\)" >/dev/null
-		then echo "$trackerFile"
-		else echo "Dropping non-tracker file: $trackerFile" >&2
-		fi
-	done
-	cat "$LIST" | grep -v "$TRACKER_FORMATS" ## everything else we didn't check
-) | dog "$LIST"
+if which file >/dev/null
+then
+	(
+		TRACKER_FORMATS="\.\(it\|mod\|xm\)$"
+		cat "$JSH_ALL_AUDIO_FILES" | grep "$TRACKER_FORMATS" |
+		while read trackerFile
+		do
+			## We allow unrecognised "data" files, or recognised things if they are tracker files :)
+			if file "$trackerFile" | grep -i "\(: data$\|tracker\)" >/dev/null
+			then echo "$trackerFile"
+			else echo "Dropping non-tracker file: $trackerFile" >&2
+			fi
+		done
+		cat "$JSH_ALL_AUDIO_FILES" | grep -v "$TRACKER_FORMATS" ## everything else we didn't check
+	) | dog "$JSH_ALL_AUDIO_FILES"
+fi
 
-cat "$LIST" |
+cat "$JSH_ALL_AUDIO_FILES" |
 ## Sort them by filename (rather than path)
 # sortpathsbyfilename |
 sortpathsbylastdirname |
-dog "$LIST"
+dog "$JSH_ALL_AUDIO_FILES"
 
 
 
 ## Personally I like to generate a shuffled playlist too
 
-cat "$LIST" | randomorder > $outDir/list.m3u   ## << This is the file xmms reads from, but xmms also overwrites it when playlist is edited.
+# We write to some other handy files:
+outDir="$HOME/Music/"
+if [ ! -d "$outDir" ]
+then outDir="$JPATH/music"
+fi
+mkdir -p "$OUTDIR"
+
+cat "$JSH_ALL_AUDIO_FILES" | randomorder > $outDir/list.m3u   ## << This is the file xmms reads from, but xmms also overwrites it when playlist is edited.
 
 cp -f $outDir/list.m3u $outDir/all-shuffled.m3u   ## A copy in case I temporarily mess my playlist up
 
