@@ -7,7 +7,7 @@ setopt PROMPT_SUBST
 # Set the color for the command line editor.
 #zle_highlight=( default:bg=black,fg=white )
 
-if test "$USER" = joey && test "$SHORTHOST" = hwi
+if [[ "$USER" = joey ]] && [[ -z "$SSH_CONNECTION" ]] && false #[ "$SHORTHOST" = hwi ] || [[ "$SHORTHOST" = tomato ]]
 then
 
 		## By far the coolest prompt
@@ -23,13 +23,6 @@ then
 		# export RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})"
 
 		## Argh, I need to know if I'm in a chroot system!  Peeking at 'mount' can do this.
-
-		## This is a good indicator if user got here via ssh:
-		if [ -n "$SSH_CONNECTION" ]
-		then
-			PROMPT="%{[01;33m%}<$USER@$SHORTHOST> $PROMPT"
-			export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
-		fi
 
 elif test "$USER" = root
 then
@@ -53,20 +46,41 @@ else
 		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[42;30m%} %~/%{[00m%} "
 		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
 		#export PROMPT="%{[42;30m%}%n%{[42;30m%}@%{[42;30m%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
-		export PROMPT="%{[40;36m%}%n%{[40;37m%}@%{[40;36m%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
-		#export PROMPT="%{[44;36m%}%n%{[44;37m%}@%{[44;36m%}%m %{[44;32m`cursebold`%}%~/%{[00m%} "
+		# 40 = black background, 44 = blue background
+		bgcol=40
+		## Background extends beneath the current directory
+		#export PROMPT="%{[${bgcol};36m%}%n%{[${bgcol};37m%}@%{[${bgcol};36m%}%m %{[${bgcol};32m`cursebold`%}%~/%{[00m%} "
+		## Background only lies beneath the user@hostname
+		export PROMPT="%{[${bgcol};36m%}%n%{[${bgcol};37m%}@%{[${bgcol};36m%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
 
 		export RPROMPT="%{[0%?;30m%}[%{[0%?;3%?m%}err %?%{[0%?;30m%}]%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 		## My prefered colours for Unix:
 		# export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;33m%}%~/%{[00m %} "
 		# # export RPROMPT="%{[00;31m%}%?%{[00m%}:%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 		# export RPROMPT="%{[0%?;30m%}[%{[00;3%?m%}err %?%{[0%?;30m%}]%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
+fi
 
+if true # has_battery
+then
+	get_power_stats_zsh_hook() {
+		power_stats=$(get_power_stats -mini | sed 's+%+%%+g')
+	}
+	autoload add-zsh-hook
+	add-zsh-hook precmd get_power_stats_zsh_hook
+
+	RPROMPT=$(printf "%s" "$RPROMPT" | sed "s+%l+%l%{[00m%}:%{[00;36m%}\$power_stats+")
+fi
+
+## This is a good indicator if user got here via ssh:
+if [ -n "$SSH_CONNECTION" ]
+then
+	PROMPT="%{[01;33m%}<$USER@$SHORTHOST> $PROMPT"
+	export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
 fi
 
 if declare -f find_git_branch >/dev/null
 then
-	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count"
+	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count\%{`curseblue`\%}\$git_unknown_mark\$git_unknown_count"
 	# \%{`cursenorm`\%}$
 	# Append these extras after the existing %{color}~/ part of the prompt
 	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%} *%~/*\)+\1$GIT_AWARE_PROMPT+g")
@@ -84,7 +98,7 @@ fi
 # fi
 
 # if [ "$TERM" = screen ]
-if [ "$STY" ]
+if [ -n "$STY" ]
 then
 	SCREEN_NAME=`echo "$STY" | afterfirst '\.'`
 	# test "$SCREEN_NAME" || SCREEN_NAME=screen
