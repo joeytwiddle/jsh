@@ -243,8 +243,9 @@ alias mykilljob=". 'mykilljob' -jc"
 
 # Wow I only added 'm' and 'g' in 2012.  How many keystrokes have I wasted?
 
-alias m='more'
-alias le='less -R'
+#alias m='more'
+#alias le='less -R'
+alias m='less -REX'
 alias g='grep'
 
 alias wad='withalldo'
