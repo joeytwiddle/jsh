@@ -160,12 +160,15 @@ do
 
 	else
 
-		showsonginfo "$TRACK"
+		showsonginfo "$TRACK" >/dev/null 2>&1
 
 	fi
 
 	echo
-	echo "`cursered`del \"$TRACK\"`cursenorm`""(|.mp3gain)" # also cleans up any associated mp3gain file :)
+	echo "`curseyellow`If you don't like this song, you can delete the file (and its cachefiles) with:`cursenorm`"
+	echo
+	echo "    `cursered`del \"$TRACK\"(|.mp3gain)`cursenorm`" # also cleans up any associated mp3gain file :)
+	echo
 
 
 	# [ "$USE_MP3GAIN" ] && [ ! "$FIRSTLOOP" ] && TRACK="$NORMALISEDTRACK"

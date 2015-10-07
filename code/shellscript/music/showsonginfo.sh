@@ -10,6 +10,8 @@ do
 	FILE="`realpath "$FILE" | sed 's+^/mnt/[^/]*/stuff/+/stuff/+'`"
 	DIR=`dirname "$FILE"`
 
+	FILENAME=`basename "$FILE"`
+
 	NAME=
 	TIME=
 	YEAR=
@@ -31,22 +33,28 @@ do
 		YEAR=$( ogginfo "$FILE" | grep "^[ 	]*DATE=" | head -n 1 | sed 's/^[^=]*=//')
 		COMMENT=$( ogginfo "$FILE" | grep "^[ 	]*COMMENT=" | head -n 1 | sed 's/^[^=]*=//')
 	fi
-	[ "$TIME" ] && TIME="$NL  Length: $TIME"
 
-	## Fallbacks:
-	[ "$NAME" ] || NAME=$(basename "$FILE")
+	## Fallback:
+	[ -n "$NAME" ] || NAME=""
+
+	[ -n "$TIME" ] && TIME="$NL  Length: $TIME"
+
+	[ -n "$YEAR" ] && YEAR="  Year: $YEAR"
+	[ -n "$COMMENT" ] && COMMENT="$NL  Comment: $COMMENT"
+
 	## CONSIDER TODO: Use getvideoduration instead?
 	[ "$TIME" ] || TIME="$NL  $( filesize "$FILE" | rev | sed 's+...+\0,+g ; s+^,++' | rev ) bytes"
 
 	## Lookup amarok info for the file
-	AMAROK_DATA=$( amaroklookup "$FILE" | grep -v ^/ | sed 's+^\(.\)+  \1+' )
-	[ "$YEAR" ] && YEAR="  Year: $YEAR"
-	[ "$COMMENT" ] && COMMENT="$NL  Comment: $COMMENT"
-	[ "$AMAROK_DATA" ] && AMAROK_DATA="$NL$AMAROK_DATA"
-	# echo "$DIR:
-	# $NAME
+	if which amaroklookup
+	then
+		AMAROK_DATA=$( amaroklookup "$FILE" | grep -v ^/ | sed 's+^\(.\)+  \1+' )
+		[ "$AMAROK_DATA" ] && AMAROK_DATA="$NL$AMAROK_DATA"
+		# echo "$DIR:
+		# $NAME
+	fi
 
-	OUTPUT="$PRE$NAME$TIME$YEAR$COMMENT$AMAROK_DATA$NL  Path: $DIR/"
+	OUTPUT="${PRE}${FILENAME} ${NAME}${TIME}${YEAR}${COMMENT}${AMAROK_DATA}${NL}  Path: ${DIR}/"
 	echo "$OUTPUT"
 
 	## Display this output as a screen overlay, using osd_cat

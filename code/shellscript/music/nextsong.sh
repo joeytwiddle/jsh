@@ -38,7 +38,8 @@ restorevolume () {
 whichmediaplayer () {
 
 	# Quick cheat - look for xmms where I expect it
-	verbosely listopenfiles -allthreads xmms | grep "\(/dev/dsp\|/dev/snd/.\)" |
+	#verbosely 
+	listopenfiles -allthreads xmms | grep "\(/dev/dsp\|/dev/snd/.\)" |
 		grep -v "/dev/snd/control" | takecols 1 | head -n 1 |
 	grep . ||
 

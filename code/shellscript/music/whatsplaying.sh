@@ -31,7 +31,7 @@ find_open_music_files () {
 	while read PROGNAME
 	do
 
-		# jshinfo "$PROGNAME"
+		jshinfo "$PROGNAME"
 
 		## Yep some systems use bin others sbin.
 		## -c is fast! :D
