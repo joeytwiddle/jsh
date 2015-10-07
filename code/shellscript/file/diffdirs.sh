@@ -14,6 +14,12 @@
 ## Consider: Instead of "Only in ..." use "Missing" and "Added" when comparing state of second wrt first.
 ## BUG TODO: Does not do the right thing with broken symlinks - spews errors instead.
 
+## Defaults:
+#[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH="diff"
+#[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH="xterm -geometry 140x60 -e vimdiff" ## prebg
+[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH=""
+#[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH=""
+
 ## BUG: -showdiffswith doesn't work for eg. vimdiff, because stdin terminal has already been stolen :(  (xterm -e vimdiff is ok though :)
 if [ "$1" = -showdiffswith ]
 then
@@ -65,11 +71,6 @@ fi
 
 
 
-## Defaults:
-#PREFERRED_DIFFCOM="diff"
-#PREFERRED_DIFFCOM="xterm -geometry 140x60 -e vimdiff" ## prebg
-PREFERRED_DIFFCOM=""
-
 
 
 . "$JPATH"/tools/faster_jsh_colors.init
@@ -114,7 +115,7 @@ isbrokenlink() {
 
 # We used to check the size only.  That is faster if the files are identical but have different dates.  But it is also prone to skip fixed-length files whose content might be different!  So it is more accurate to check both.  (Although it's still not 100%!)
 get_size_and_date() {
-	stat -c '%s %X' "$@"
+	stat -c '%s %Y' "$@"
 }
 
 
@@ -207,7 +208,7 @@ do
 		else
 			# report "${CURSEYELLOW}Differ: diff \"$DIRA/$FILE\" \"$DIRB/$FILE\"${CURSENORM}"
 			DIFFSUMMARY=`NOEXEC=1 IKNOWIDONTHAVEATTY=1 diffsummary "$DIRA/$FILE" "$DIRB/$FILE"`
-			report "${CURSEYELLOW}Differ: $PREFERRED_DIFFCOM $DIFFSUMMARY${CURSENORM}"
+			report "${CURSEYELLOW}Differ: $SHOWDIFFSWITH $DIFFSUMMARY${CURSENORM}"
 			if [ -n "$SHOWDIFFSWITH" ]
 			then
 				report "Here are the differences:"
