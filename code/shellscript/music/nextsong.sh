@@ -68,6 +68,17 @@ remember_volume
 PLAYER=`whichmediaplayer`
 jshinfo "Detected media player: $PLAYER"
 
+is_running() {
+	if findjob "$1" >/dev/null
+	then echo "$1"
+	else return 1
+	fi
+}
+
+if [ "$PLAYER" = "pulseaudio" ]
+then PLAYER=`is_running xmms || is_running mplayer || is_running mpg123 || is_running ogg123`
+fi
+
 wait
 
 case $PLAYER in
