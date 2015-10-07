@@ -23,7 +23,7 @@ do
   VOL=`get_volume`
   VOL=`expr "$VOL" - $DOWNSTEP`
   [ "$VOL" -gt 0 ] || VOL=0
-  echo "$VOL"
+  #echo "$VOL"
   [ "$VOL" ] && [ "$VOL" -gt -1 ] &&
   set_volume "$VOL" &&
   [ "$VOL" ] && [ "$VOL" -gt 0 ] && DONE=
