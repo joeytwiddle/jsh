@@ -254,11 +254,18 @@ alias fed='foreachdo'
 alias rdl='removeduplicatelines'
 
 # Let's go all out with this.
-alias t='tail -n'
-alias h='head -n'
+# But h and f already have uses.
+#alias h='head -n'
+#alias t='tail -n'
+alias h1='head -n 1'
+alias t1='tail -n 1'
+alias hn='head -n'
+alias tn='tail -n'
 alias s='sort'
 alias dc='dropcols'
 alias tc='takecols'
+#alias f='file'
+alias i='file'
 
 # I never remember to use this
 alias c='cd'
@@ -292,6 +299,8 @@ alias md=mkdir
 #	}
 #fi
 
+# Open vim with last opened file
+alias lvim="vim -c \"normal '0\""
 
 alias mpl=mplayer
 alias smpl=smplayer
