@@ -14,7 +14,7 @@
 [ "$SORTBY" = modify ] && SORTFORM="%T@"
 [ "$SORTBY" = status ] && SORTFORM="%C@"
 
-if [ "$1" ]
+if [ -n "$1" ]
 then
 	echolines "$@" | sortfilesbydate
 else
