@@ -1,6 +1,9 @@
 #!/bin/bash
-. require_exes bladeenc mp3info
+. require_exes mp3info
+# bladeenc or lame
 # @see-also convert_to_ogg
+
+set -e
 
 if [ "$1" = --help ]
 then
@@ -34,7 +37,8 @@ do
 	set -e   ## We don't want it to look like we succeeded if something went wrong!
 
 	dump_audio_from "$INFILE" | tee info.tmp 2>&1
-	## Should create $INFILE.wav
+	## dump_audio_from always creates $INFILE.wav
+	wavfile="$INFILE.wav"
 
 	artist="`extract_info artist`"
 	title="`extract_info title`"
@@ -43,16 +47,29 @@ do
 	genre="`extract_info genre`"
 	composer="`extract_info composer`"
 
-	bladeenc $EXTRA_BLADEENC_OPTS -QUIT "$INFILE".wav
+	# We can't send to $mp3file here, bladeenc always outputs .mp3 filename, with .wav removed.
+	#bladeenc $EXTRA_BLADEENC_OPTS -QUIT "$wavfile"
+	# bladeenc always creates $wavfile.mp3
+	# bladeenc always creates $INFILE.mp3
+	#mp3file="$INFILE.mp3"
 
-	rm "$INFILE".wav
-	# mv "$INFILE.ogg" "$artist - $title".ogg
+	mp3file="$INFILE.$$.mp3"
+	lame "$wavfile" "$mp3file"
+
+	#ffmpeg  -ab -i 20110928-210058_do.wav  20110928-210058_do_test.mp3
+
+	rm "$wavfile"
 
 	## Rename the final file (strip the original extension)
+	# mv "$mp3file" "$artist - $title".ogg
 	outfile="`echo "$INFILE" | sed 's+\.[^.]*$++'`".mp3
-	mv "$INFILE".mp3 "$outfile"
+	verbosely mv "$mp3file" "$outfile"
 
 	mp3info -a "$artist" -l "$album" -t "$title" -y "$date" -g "$genre" -c "$composer" "$outfile"
+
+	echo
+	nicels -l "$INFILE" "$mp3file" "$outfile" 2>/dev/null || true   # Avoid returning 2
+	echo
 
 done
 
