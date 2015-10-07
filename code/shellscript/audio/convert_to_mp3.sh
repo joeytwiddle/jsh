@@ -47,16 +47,30 @@ do
 	genre="`extract_info genre`"
 	composer="`extract_info composer`"
 
-	# We can't send to $mp3file here, bladeenc always outputs .mp3 filename, with .wav removed.
-	#bladeenc $EXTRA_BLADEENC_OPTS -QUIT "$wavfile"
-	# bladeenc always creates $wavfile.mp3
-	# bladeenc always creates $INFILE.mp3
-	#mp3file="$INFILE.mp3"
+	if which ffmpeg >/dev/null
+	then
 
-	mp3file="$INFILE.$$.mp3"
-	lame "$wavfile" "$mp3file"
+		#ffmpeg  -ab -i 20110928-210058_do.wav  20110928-210058_do_test.mp3
 
-	#ffmpeg  -ab -i 20110928-210058_do.wav  20110928-210058_do_test.mp3
+	elif which lame >/dev/null
+
+		mp3file="$INFILE.$$.mp3"
+		lame "$wavfile" "$mp3file"
+
+	elif which bladeenc >/dev/null
+
+		# We can't send to $mp3file here, bladeenc always outputs .mp3 filename, with .wav removed.
+		bladeenc $EXTRA_BLADEENC_OPTS -QUIT "$wavfile"
+		# bladeenc always creates $wavfile.mp3
+		# bladeenc always creates $INFILE.mp3
+		mp3file="$INFILE.mp3"
+
+	else
+
+		echo "Could not find an mp3 encoder.  (Install lame, ffmpeg or bladeenc.)"
+		exit 5
+
+	fi
 
 	rm "$wavfile"
 
