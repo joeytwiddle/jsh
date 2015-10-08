@@ -1,3 +1,6 @@
+#!/bin/bash
+# When I stopped using memo in autocomplete_from_man, I started getting errors from here.  So I introduced the shebang.
+
 # jsh-depends: extractregex
 # jsh-ext-depends: col
 
@@ -30,7 +33,7 @@ printf "%s" "$TOPRINT" >&2
 (
 	TOPRINT="[jdoc $1]"
 	printf "%s" "$TOPRINT" >&2
-	## TODO: No no no: we shouldn't just cat the file (that gets options passed to other programs!), we should use jdoc to display its --help if exists, but not show the script itself.
+	## TODO: No, we shouldn't just cat the file (that gets options passed to other programs!), we should use jdoc to display its --help if exists, but not show the script itself.
 	[ -f "$JPATH/tools/$1" ] && head -n 200 "$JPATH/tools/$1" 2>/dev/null
 	unprint "$TOPRINT"
 	## This was causing segfaults on Hwi:
