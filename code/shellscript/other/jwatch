@@ -74,8 +74,14 @@ fi
 # NEW=/tmp/new_"$1"_output."$USER-$$".jwatch
 # OLD=/tmp/old_"$1"_output."$USER-$$".jwatch
 ## Unique enough, practical for now (small parallel BUG):
-NEW=/tmp/new_"$1"_output."$USER".jwatch
-OLD=/tmp/old_"$1"_output."$USER".jwatch
+# NEW=/tmp/new_"$1"_output."$USER".jwatch
+# OLD=/tmp/old_"$1"_output."$USER".jwatch
+filter_for_file() {
+	echo "$*" |
+	tr '/\:' '||.'
+}
+NEW="/tmp/new_$(filter_for_file "$1")_output.$USER.jwatch"
+OLD="/tmp/old_$(filter_for_file "$1")_output.$USER.jwatch"
 
 # Handle privacy concerns!
 touch "$NEW"
