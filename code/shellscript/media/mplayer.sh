@@ -81,20 +81,32 @@ done
 ## Others (Sunny highly compress h264):
 # [ "$FAST" ] && OPTS="$OPTS -nobps -ni -forceidx -mc 0"
 
-[ "$FAST" -gt 0 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5"
+## The last video I tried had A/V sync issues with all of the below configurations, but using more threads seemed to help.  I think -autosync 5 worked better than 30 in that case.
+[ "$FAST" -gt 1 ] && OPTS="$OPTS -lavdopts threads=4 -autosync 5"
+#[ "$FAST" -gt 1 ] && OPTS="$OPTS -lavdopts threads=4:lowres=0:fast:skiploopfilter=all -autosync 5 -sws 4"
+## A/V sync is only lost when I use x11 driver in fullscreen with -zoom.
+## So one option for large videos is to remove -zoom and avoid fullscreen.
+## The A/V can always be resynced by doing one of the following:
+## - Switch out of fullscreen and back in (catches up)
+## - Increase and decrease playbackspeed with ] then immediately [ (catches up)
+## - Rewind and forwardwind (immediate resync)
+## TODO: Does -sws 4 help?
+
+## autosync 1 has a special meaning, so it is worth trying before trying a higher value.
+[ "$FAST" -gt 2 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autosync 1"
 ## Note that -framedrop can be undesirable if the video is a highly-compressed
 ## h264 - it will cause us to frequently lose large chunks!
 
 ## A heavy flv from YouTube (crashes on HTLGI video!):
-[ "$FAST" -gt 1 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts"
+[ "$FAST" -gt 3 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts"
 
 ## On pod -ao sdl was failing to keep up (clipping and reporting underruns, P&R) whilst -ao alsa was fine.  Leaving -ao sdl until desperate.
 ## This may be wrong for hwi - hwi's default alsa is significantly slower than sdl because it duplexes.
 [ "$FAST" -gt 4 ] && OPTS="$OPTS -ao sdl"
 
 ## -vo sdl is the sort of thing you can do yourself, if you remember to.
-[ "$FAST" -gt 5 ] && OPTS="$OPTS -vo sdl"
-[ "$FAST" -gt 5 ] && REMEMBER_WINDOW_POSITIONS=true   # If sdl drops X resolution, window positions may be lost!
+#[ "$FAST" -gt 5 ] && OPTS="$OPTS -vo sdl" &&
+#                     REMEMBER_WINDOW_POSITIONS=true   # If sdl drops X resolution, window positions may be lost!
 
 ## lowres=1 crashes on many videos, on just a few it makes decoding faster but with lower image quality
 [ "$FAST" -gt 8 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts -nobps -ni -mc 0 -vo sdl"
@@ -162,4 +174,27 @@ verbosely unj $MPLAYER $OPTS "$@"
 [ "$REMEMBER_WINDOW_POSITIONS" ] && wmctrl_restore_positions
 
 [ "$XSCREENSAVER_WAS_RUNNING" ] && xscreensaver -no-splash &
+
+#
+#            ************************************************
+#            **** Your system is too SLOW to play this!  ****
+#            ************************************************
+#
+# Possible reasons, problems, workarounds:
+# - Most common: broken/buggy _audio_ driver
+#   - Try -ao sdl or use the OSS emulation of ALSA.
+#   - Experiment with different values for -autosync, 30 is a good start.
+# - Slow video output
+#   - Try a different -vo driver (-vo help for a list) or try -framedrop!
+# - Slow CPU
+#   - Don't try to play a big DVD/DivX on a slow CPU! Try some of the lavdopts,
+#     e.g. -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all.
+# - Broken file
+#   - Try various combinations of -nobps -ni -forceidx -mc 0.
+# - Slow media (NFS/SMB mounts, DVD, VCD etc)
+#   - Try -cache 8192.
+# - Are you using -cache to play a non-interleaved AVI file?
+#   - Try -nocache.
+# Read DOCS/HTML/en/video.html for tuning/speedup tips.
+# If none of this helps you, read DOCS/HTML/en/bugreports.html.
 
