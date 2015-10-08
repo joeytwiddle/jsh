@@ -94,12 +94,12 @@ do
 		# osd_cat -c orange -f '-*-lucida-*-r-*-*-*-220-*-*-*-*-*-*'
 		# for COL in black green yellow red magenta blue cyan green black
 		# for COL in white red green blue black
-		for COL in green
+		for COL in green # magenta red blue yellow
 		do
 			# echo "$OUTPUT" | osd_cat -c "$COL" -d 8 -s 2 -f "$FONT"
-			echo "$OUTPUT" | head -n 1 | osd_cat -c "$COL" -i 8 -o 12 -d 7 -s 2 -f "$FONT" &
+			echo "$OUTPUT" | head -n 1 | osd_cat -c "$COL" -i 8 -o 12 -d 7 -O 3 -f "$FONT" &
 			sleep 0.5
-			echo "$OUTPUT" | drop 1 | osd_cat -c "$COL" -i 16 -o 64 -d 7 -s 2 -f "$smallerFONT" &
+			echo "$OUTPUT" | drop 1 | osd_cat -c "$COL" -i 16 -o 64 -d 7 -O 3 -f "$smallerFONT" &
 			wait
 			PRE="$PRE$NL$NL"
 		done
