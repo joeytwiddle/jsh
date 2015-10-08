@@ -6,7 +6,7 @@ then
 
 cat << !
 
-Usage: jdoc <scriptname>
+Usage: jdoc [ <scriptname> | <part_of_script_name> ]
 
   will show you the documentation for the jsh script (TODO: or PATH script),
   and, if requested, will show uses of that script in all jsh scripts.
