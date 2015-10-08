@@ -33,14 +33,15 @@ cat << !
 
   More options:
 
+    PREVIEW="-ss 0:01:00 -endpos 0:10"
     TARGET_SIZE=100   # for 100Meg file, LOSS ignored
     OUTSIZE=720x480 or easier OUTWIDTH=720
-    PREVIEW="-ss 0:01:00 -endpos 0:10"
     OUTFILE="blah.x264"   # .avi lost sound, .mkv lost video, .mp4 is ok
     MONO=1   # Downmix to mono (Beware!  May halve volume if input was mono!)
     X264_OPTIONS="--ratetol 5.0"
       # Allows bitrate/filesize to grow by 5% for later action scenes
     TWOPASS=true   # use with TARGET_SIZE; may overshoot (can use >15G of space!)
+    ROTATE=1       # 90 deg with mencoder (1 clockwise, 2 anti, 0 and 3 also flip)
 
 !
 exit 1
@@ -81,7 +82,7 @@ then
 	debug "Got input resolution: $INSIZE"
 fi
 
-if [ ! -z "$OUTWIDTH" ]
+if [ -n "$OUTWIDTH" ]
 then
   INWIDTH="`echo "$INSIZE" | sed 's+x.*++'`"
   INHEIGHT="`echo "$INSIZE" | sed 's+.*x++'`"
@@ -100,6 +101,19 @@ then
 	SCALEOPTS="scale=`echo "$OUTSIZE" | tr 'x' ':'`,"
 	## mplayer will scale the video down, so the insize to x264 will change:
 	INSIZE="$OUTSIZE"
+fi
+
+if [ -n "$ROTATE" ]
+then
+	OUTWIDTH="`echo "$OUTSIZE" | beforefirst "x"`"
+	OUTHEIGHT="`echo "$OUTSIZE" | afterfirst "x"`"
+	INWIDTH="`echo "$INSIZE" | beforefirst "x"`"
+	INHEIGHT="`echo "$INSIZE" | afterfirst "x"`"
+	# For +/-90, but not for 180
+	# Below here, INSIZE is only used by x264 as the size mencoder outputs.
+	OUTSIZE="$OUTHEIGHT"x"$OUTWIDTH"
+	INSIZE="$INHEIGHT"x"$INWIDTH"
+	MENCODER_VIDEO_OPTS="$MENCODER_VIDEO_OPTS -vf rotate=$ROTATE"
 fi
 
 # In seconds
@@ -189,7 +203,7 @@ else
 	fi
 fi
 
-OUTPUT_OPTIONS="-nosound -of rawvideo -ofps $FPS -ovc raw -vf $SCALEOPTS""format=i420"
+OUTPUT_OPTIONS="-nosound -of rawvideo -ofps $FPS -ovc raw -vf $SCALEOPTS""format=i420 $MENCODER_VIDEO_OPTS"
 if [ ! -f "$FIFOFILE" ]
 then
 	verbosely mencoder $PREVIEW $OUTPUT_OPTIONS -o "$FIFOFILE" "$INFILE" >/dev/null &
