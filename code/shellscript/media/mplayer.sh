@@ -26,8 +26,11 @@ do
 		-turbo)
 			OPTS="$OPTS -vo sdl"; shift
 		;;
-		-louder)
+		-loud)
 			OPTS="$OPTS -af volume=+20dB"; shift
+		;;
+		-louder)
+			OPTS="$OPTS -af volume=+30dB"; shift
 		;;
 		-quiet)
 			OPTS="$OPTS -af volume=-20dB"; shift
@@ -40,6 +43,15 @@ do
 		;;
 		-faster)
 			FAST=2 ; shift
+		;;
+		-morebass)
+			EQ="morebass" ; shift
+		;;
+		-moremiddle)
+			EQ="moremiddle" ; shift
+		;;
+		-moretreble)
+			EQ="moretreble" ; shift
 		;;
 		*)
 			break
@@ -95,12 +107,35 @@ then OPTS="$OPTS -vo x11"
 fi
 ## xv is more efficient though
 
+## When changing speed (with [ and ] or -speed), keep pitch the same
+## TODO: This breaks the volume filter when enabled.  Perhaps we need to specify both in one -af option...?
+#OPTS="$OPTS -af scaletempo"
+
 ## Graphic equalizer
 [ "$EQ" ] || EQ="none"
+
+# Boost the bass if you have cheap headphones or small speakers.
+#[ "$EQ" = morebass ]   && OPTS="$OPTS -af equalizer=4:3:2:1:1:0:0:0:0:0"
+
+# Actually boost the bass by reducing everything else
+[ "$EQ" = hardbass ]   && OPTS="$OPTS -af equalizer=2:1:0:-1:-1:-2:-2:-2:-2:-2"
+
+# Boost the middle and the bass a little, for a warmer feel on a nice speaker set.
+#[ "$EQ" = morebass ]   && OPTS="$OPTS -af equalizer=2:2:1:0:-1:-2:-2:-2:-2:-2"
+
+# Boost the bass a lot
+[ "$EQ" = morebass ]   && OPTS="$OPTS -af equalizer=3:3:2:1:0:-1:-2:-2:-2:-2"
+
+# Boost the middle and the bass a little, for a warmer feel on a nice speaker set.
+[ "$EQ" = softbass ]   && OPTS="$OPTS -af equalizer=2:2:1:1:0:0:-1:-1:-2:-2"
+
+# Boost the middle and the bass a little, for a warmer feel on a nice speaker set.
+[ "$EQ" = moremiddle ] && OPTS="$OPTS -af equalizer=2:3:3:2:1:0:0:0:0:0"
+
+# Reduce the bass if you have too much bass, or want to boost the highs
+[ "$EQ" = moretreble ] && OPTS="$OPTS -af equalizer=-4:-4:-3:-3:-2:-2:-1:-1:0:0" ## Quieter bass
+
 # [ "$EQ" = wireless ]   && OPTS="$OPTS -af equalizer=0:0:1:1:2:2:3:3:4:4" ## Louder middle and treble (can cause crackle)
-[ "$EQ" = wireless ]   && OPTS="$OPTS -af equalizer=-4:-4:-3:-3:-2:-2:-1:-1:0:0" ## Quieter bass
-[ "$EQ" = headphones ] && OPTS="$OPTS -af equalizer=4:3:2:1:1:0:0:0:0:0" ## Louder bass
-[ "$EQ" = speakers ]   && OPTS="$OPTS -af equalizer=2:3:3:2:1:0:0:0:0:0" ## Louder bass and middle
 
 if [ "$SHORTHOST" = "hwi" ]
 then
