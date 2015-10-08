@@ -55,7 +55,7 @@ then
 		exit 4
 	fi
 
-	toDesktop=` expr '(' $fromDesktop $offset '%' $numDesktops ')' `
+	toDesktop=` expr '(' $fromDesktop $offset ')' '%' $numDesktops `
 	if [ "$toDesktop" -lt 0 ]
 	then toDesktop=` expr $toDesktop + $numDesktops `
 	fi
@@ -81,10 +81,11 @@ then
 	then
 		killall osd_cat
 		#font='-*-helvetica-*-r-*-*-*-400-*-*-*-*-*-*'
-		font='-*-nimbus roman no9 l-*-r-*-*-60-*-*-*-*-*-*-*'
-		echo "Swapped desktop $fromDesktop with desktop $toDesktop" |
+		#font='-*-nimbus roman no9 l-*-r-*-*-60-*-*-*-*-*-*-*'
+		font='-*-helvetica-*-r-*-*-34-*-*-*-*-*-*-*'
+		echo "Swapped desktops $fromDesktop and $toDesktop" |
 		#echo "Moved desktop $fromDesktop $direction" |
-		osd_cat -d 2 -A center -f "$font"
+		osd_cat -o 500 -d 2 -A center -c yellow -O 2 -f "$font"
 	fi
 
 else
