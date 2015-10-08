@@ -29,7 +29,7 @@ fi
 if [ "$1" ]
 then DESTINATION="$1"
 #else DESTINATION="$DESTDIR"/screenshot-$$.png
-else DESTINATION="$DESTDIR"/"$window_description at $(date +"%-I:%M %p on %A %-d %B %Y").png"
+else DESTINATION="$DESTDIR"/"$window_description at $(date +"%-I:%M:%S %p on %A %-d %B %Y").png"
 fi
 
 ## ATM we force output as .bmp because other programs may be expecting .bmps.
@@ -37,6 +37,17 @@ fi
 
 TMPFILE=/tmp/screenshot-$$-tmp.bmp
 import -window "$windowid" "$TMPFILE"
+
+if which osd_cat >/dev/null
+then
+	killall osd_cat
+	#font='-*-helvetica-*-r-*-*-*-400-*-*-*-*-*-*'
+	#font='-*-nimbus roman no9 l-*-r-*-*-60-*-*-*-*-*-*-*'
+	font='-*-helvetica-*-r-*-*-24-*-*-*-*-*-*-*'
+	echo "Saved screenshot at\n\n$DESTINATION" |
+	#echo "Moved desktop $fromDesktop $direction" |
+	osd_cat -o 200 -d 2 -A center -c yellow -O 2 -f "$font"
+fi
 
 # if endswith "$DESTINATION" .bmp
 # then mv "$TMPFILE" "$DESTINATION"
