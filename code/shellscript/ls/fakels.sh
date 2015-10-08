@@ -8,7 +8,7 @@
 JM_LS_OPTS=`echo "$JM_LS_OPTS" | sed 's+\(^\| \)--color\>++'`
 # debug "$JM_LS_OPTS"
 
-'ls' -atr -C $JM_LS_OPTS "$@" |
+'ls' -atr -F -C $JM_LS_OPTS "$@" |
 	# striptermchars |
 	# On Unix this now kills the whole string!
 	if test -f "$HOME/.dircolors"; then
@@ -19,6 +19,6 @@ JM_LS_OPTS=`echo "$JM_LS_OPTS" | sed 's+\(^\| \)--color\>++'`
 	fi |
 	# else # now always do this too:
 		highlight "/" green |
-		( [ "$1" = -noexec ] && highlight -bold "*" red || cat ) |
-		highlight -bold "@" yellow
+		highlight -bold "*" red |
+		highlight -bold "@" green
 	# fi
