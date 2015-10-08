@@ -31,7 +31,7 @@ find_open_music_files () {
 	while read PROGNAME
 	do
 
-		jshinfo "$PROGNAME"
+		# jshinfo "$PROGNAME"
 
 		## Yep some systems use bin others sbin.
 		## -c is fast! :D
@@ -54,7 +54,7 @@ find_open_music_files () {
 
 FILES=` find_open_music_files `
 
-OUTPUT=`
+FILES=`
 
 	## For compatibility with randommp3 script:
 	if ( [ "$FILES" = /tmp/randommp3-gainchange.mp3 ] || [ "$FILES" = /tmp/randommp3-gainchange-2.mp3 ] ) && [ -e "$FILES.whatsplaying" ]
@@ -68,12 +68,12 @@ OUTPUT=`
 
 `
 
-echo "$OUTPUT"
+#echo "[whatsplaying] FILES: $FILES"
 
 if [ ! "$NOEXTRAS" ] && xisrunning && which osd_cat >/dev/null && [ -z "$SKIP_OSD" ] 2>&1
 then
 	(
-		echo "$OUTPUT" |
+		echo "$FILES" |
 		head -n 1 |
 		foreachdo showsonginfo 2>/dev/null
 		## No good putting these in parallel - they kill each other :P
