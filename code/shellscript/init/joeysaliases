@@ -302,7 +302,12 @@ alias md=mkdir
 # Open vim with last opened file
 alias lvim="vim -c \"normal '0\""
 
+
 alias mpl=mplayer
+if [ -x "$JPATH/j/tools/mplayer" ]
+then alias mpl="$JPATH/j/tools/mplayer"
+fi
+#alias mpl='FAST=2 ~/j/tools/mplayer'
 alias smpl=smplayer
 
 
