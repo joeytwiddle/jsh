@@ -5,9 +5,14 @@
 ## TODO: jmusic should have lock/active/run-file?
 
 fade_all_mixers () {
-	export AUMIX_OPTS
+	#export AUMIX_OPTS
+	# On my naff machine I don't have /dev/mixer[N] devices, but I think we iterate once with '/dev/mixer*'
+	# If amixer is present, it doesn't matter, because @see set_volume uses that but always points to the first mixer.
 	for MIXER in /dev/mixer*
-	do AUMIX_OPTS="-d $MIXER" ; quickfadevolume & ## fade all mixers simultaneously
+	do
+		export AUMIX_OPTS="-d $MIXER"
+		## We background this, in order to fade all mixers simultaneously
+		quickfadevolume &
 	done
 	wait
 }
@@ -62,60 +67,67 @@ whichmediaplayer () {
 
 }
 
+make_media_player_skip() {
+
+	PLAYER=`whichmediaplayer`
+	jshinfo "[nextsong] Detected media player: $PLAYER"
+
+	is_running() {
+		if findjob "$1" >/dev/null
+		then echo "$1"
+		else return 1
+		fi
+	}
+
+	if [ "$PLAYER" = "pulseaudio" ]
+	then
+		#echo "Killing pulseaudio is not enough to search the song."
+		PLAYER=`is_running xmms || is_running mplayer || is_running mpg123 || is_running ogg123`
+		jshinfo "[nextsong] I don't want to kill pulseaudio. But I found running process: $PLAYER"
+	fi
+
+	wait
+
+	case $PLAYER in
+		xmms)
+			## Added stop and start (-s and -p) in an attempt to avoid the audio clipping problem below.
+			## xmms was returning before the playing song had actually stopped or advanced.
+			xmms -s
+			xmms -f
+			xmms -p
+		;;
+		amarok|yauap)
+			## Does not work!
+			# amarok -f
+			:
+		;;
+		audacious)
+			# # audtool -s
+			# audtool -f
+			# # audtool -p
+			## Gentoo:
+			audtool playlist-advance
+		;;
+		mpg123|ogg123|mpg321)
+			killall -sINT $PLAYER ## send it something softer?  we assume they are being called in a loop ;)
+		;;
+		mplayer)
+			## No good, doesn't progress to next song.  Want to send it a signal!
+			killall mplayer ## send it something softer
+		;;
+		*)
+			error "$0: Don't know how to operate your media player: $PLAYER"
+		;;
+	esac
+}
+
+
+
 remember_volume
 
 ( fade_all_mixers ) &
 
-PLAYER=`whichmediaplayer`
-jshinfo "Detected media player: $PLAYER"
-
-is_running() {
-	if findjob "$1" >/dev/null
-	then echo "$1"
-	else return 1
-	fi
-}
-
-if [ "$PLAYER" = "pulseaudio" ]
-then
-	#echo "Killing pulseaudio is not enough to search the song."
-	PLAYER=`is_running xmms || is_running mplayer || is_running mpg123 || is_running ogg123`
-	jshinfo "I don't want to kill pulseaudio. But I found running process: $PLAYER"
-fi
-
-wait
-
-case $PLAYER in
-	xmms)
-		## Added stop and start (-s and -p) in an attempt to avoid the audio clipping problem below.
-		## xmms was returning before the playing song had actually stopped or advanced.
-		xmms -s
-		xmms -f
-		xmms -p
-	;;
-	amarok|yauap)
-		## Does not work!
-		# amarok -f
-		:
-	;;
-	audacious)
-		# # audtool -s
-		# audtool -f
-		# # audtool -p
-		## Gentoo:
-		audtool playlist-advance
-	;;
-	mpg123|ogg123|mpg321)
-		killall -sINT $PLAYER ## send it something softer?  we assume they are being called in a loop ;)
-	;;
-	mplayer)
-		## No good, doesn't progress to next song.  Want to send it a signal!
-		killall mplayer ## send it something softer
-	;;
-	*)
-		error "$0: Don't know how to operate your media player: $PLAYER"
-	;;
-esac
+make_media_player_skip
 
 ## On my system this prevents a tiny bit of the old audio continuing after the kill,
 ## but on your system it might take longer, or it might clip a second off the start of the new song!  But who cares, it's only a second right?
@@ -131,6 +143,11 @@ done
 ## Display the new song, for convenience (wait a bit to be sure it's started):
 (
 	sleep 3
+	# Wow it is taking a really long time on my current system
+	# The randommp3 has some sleeps in it at the moment, which may be the cause.
+	#sleep 12
+	# Yes it was.
 	whatsplaying
 ) &
 
+wait
