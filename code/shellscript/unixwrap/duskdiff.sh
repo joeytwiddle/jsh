@@ -1,4 +1,8 @@
-## @long_overdue
+#!/bin/sh
+# Compares the sizes of all immediate subfolders to their sizes the last time duskdiff was run.
+
+# The current strategy is to sort the folders by name so they stay in position.
+# If we sort them by size then pairs of removed and added lines will be disconnected.
 
 unique=/tmp/duskdiff.$$
 oldDusk=$unique.old
@@ -16,4 +20,3 @@ jdiffsimple "$oldDusk" "$newDusk"
 
 rm -f "$oldDusk" "$newDusk"
 # del "$oldDusk" "$newDusk"
-
