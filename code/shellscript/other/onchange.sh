@@ -20,11 +20,17 @@ cat << !
 
 onchange [-fg] [-d] [ -ignore | <paths>... ] [do] <command>
 
+  Runs the given <command> every time a file below <paths> changes.
+
   You may use a glob in <paths> but it should be contained in quotes if you
   want it to be evaluated later (after the call to onchange).
 
+  You should not pass it filenames containing spaces.
+
   -ignore means you need not provide a file list, the current folder will be
           scanned.
+
+          It could have a more appropriate name.  Perhaps `.`  or `""` :)
 
   -d is "desensitize" - we will not re-trigger on any files changed during the
      build process (command).
