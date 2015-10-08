@@ -7,6 +7,8 @@
 
 ## Sometimes we don't want highlighting, we want pretty formatting (e.g. JSON).
 
+## See also: beautify_json (jsh)
+
 # Read from stdin:
 if [ "x$*" = x ]
 then
