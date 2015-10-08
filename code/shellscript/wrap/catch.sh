@@ -6,7 +6,7 @@ export TMPFILE=`jgettmp caught-err`
 	# eval "$@" 2>&1
 	highlightstderr "$@" 2>&1
 	echo "$?" > "$TMPFILE"
-) | more
+) | less -RX
 
 CAUGHTERR=`cat "$TMPFILE"`
 jdeltmp "$TMPFILE"
