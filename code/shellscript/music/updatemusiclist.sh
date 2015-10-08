@@ -26,7 +26,12 @@ sed 's+.*/share/+/stuff/share/+' |
 sed 's+.*/mp3sfor/+/stuff/mp3sfor/+' |
 dog "$JSH_ALL_AUDIO_FILES"
 
-## Many files with .mod extension are not actually tracker files!  We must
+### Filter out .mod files which aren't audio files.
+## MOD is a file format used by tracker software on 8 bit, 16 bit and PC platforms to encode a song based on a few channels calling small embedded samples.
+## But MOD is also a common file extension used on various platforms and OSs to represent different things.
+## We only want to list the real MOD files in our 
+## Many files with .mod extension are not actually tracker files!
+## We must
 ## check all these files because my XMMS modplug plugin sometimes has an audio
 ## lockup if it tries to play a non-tracker file.
 if which file >/dev/null
