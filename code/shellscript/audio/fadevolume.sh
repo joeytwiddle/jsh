@@ -8,22 +8,22 @@ fi
 
 ## First argument is seconds between each nudge down in volume.
 ## Defaults to 60 seconds (slow fade).
-if [ "$1" ]
+if [ -n "$1" ]
 then GAP="$1"
 else GAP=60
 fi
 
-[ "$DOWNSTEP" ] || DOWNSTEP=1
+[ -n "$DOWNSTEP" ] || DOWNSTEP=1
 
 DONE=
-while [ ! "$DONE" ]
+while [ -z "$DONE" ]
 do
   DONE=true # Cleared if any of the mixers has not yet hit 0
 
   VOL=`get_volume`
   VOL=`expr "$VOL" - $DOWNSTEP`
   [ "$VOL" -gt 0 ] || VOL=0
-  #echo "$VOL"
+  #echo "[fadevolume] Reducing volume to: $VOL"
   [ "$VOL" ] && [ "$VOL" -gt -1 ] &&
   set_volume "$VOL" &&
   [ "$VOL" ] && [ "$VOL" -gt 0 ] && DONE=
