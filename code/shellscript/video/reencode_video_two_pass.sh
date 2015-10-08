@@ -66,11 +66,13 @@ then
 	jshinfo "Adjusted VIDEO_BITRATE to $VIDEO_BITRATE to avoid \"requested bitrate is too low\" error on second pass"
 fi
 
-OUTPUT_CODEC="-y ffmpeg,mjpeg -F mpeg4" ## Tried some others because this one was slow to playback at 1024x576 but it beat them all (very slightly)!
+# OUTPUT_CODEC="-y ffmpeg,mjpeg -F mpeg4" ## I tried some others because this one was slow to playback at 1024x576 but this one beat them all for size (very slightly).
 # OUTPUT_CODEC="-y mjpeg,mjpeg" ## Very slow to playback
-# OUTPUT_CODEC="-y xvid4,mjpeg" ## No better
-# OUTPUT_CODEC="-y divx5,divx5" ## No better
-# OUTPUT_CODEC="-y divx4,divx4" ## I don't have dependencies
+# OUTPUT_CODEC="-y divx5,divx5" ## No better (and unsupported, soon to be removed)
+# OUTPUT_CODEC="-y divx4,divx4" ## I don't have dependencies (probably also unsupported)
+# OUTPUT_CODEC="-y xvid4,mjpeg" ## Complains about missing /usr/lib/transcode/export_mjpeg.so
+# OUTPUT_CODEC="-y xvid4"       ## No better but works
+OUTPUT_CODEC="-y ffmpeg -F mpeg4" ## Recommended
 
 ## One pass:
 # transcode -i "$INPUT" -x mplayer -o "$OUTPUT" $OUTPUT_CODEC -b "$AUDIO_BITRATE" -w "$VIDEO_BITRATE" $EXTRA_TRANSCODE_OPTS
