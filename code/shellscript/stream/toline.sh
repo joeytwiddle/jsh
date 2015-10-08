@@ -1,5 +1,5 @@
 #!/bin/sh
-## Streams standard in to standard out, until given awk regexp is reached (inclusive).
+## Streams standard in to standard out, until given awk regexp is reached (exclusive with -x).
 
 ## Consider: Renaming it grepto, or maybe awkto now!
 ## TODO: awk doesn't handle /s well, need to \/ escape them
