@@ -4,7 +4,53 @@
 
 [ -z "$PRETTYDIFF_APP" ] && PRETTYDIFF_APP=$HOME/npm/bin/prettydiff
 
+if [ "$1" = "--help" ] || [ "$1" = "-help" ] || [ "$1" = "-h" ]
+then
+	(
+		echo "A unix-like wrapper for prettydiff"
+		echo
+		echo "Usage:"
+		echo
+		echo "    nodepretty [<option>s] [ <input_file> [ <output_file> ] ]"
+		echo
+		echo "where <option>s are in the form:"
+		echo
+		echo "    -<name>=<value>"
+		echo
+		echo "      or"
+		echo
+		echo "    -<name> <value>"
+		echo
+		echo "The prefix -- may also be used."
+		echo
+		echo "Now here is the help for prettydiff itself:"
+		echo
+		"$PRETTYDIFF_APP"
+		echo
+	) | less -REX
+	exit 0
+fi
+
 [ -z "$PRETTYDIFF_MODE" ] && PRETTYDIFF_MODE=beautify
+
+prettydiff_opts=""
+
+# Parse options
+while echo "$1" | grep '^--*' >/dev/null
+do
+	if echo "$1" | grep "=" >/dev/null
+	then
+		optname=$(echo "$1" | sed 's+=.*++' | sed 's+^--*++')
+		optval=$(echo "$1" | sed 's+.*=++')
+		shift
+	else
+		optname=$(echo "$1" | sed 's+^--*++')
+		optval="$2"
+		shift
+		shift
+	fi
+	prettydiff_opts="$prettydiff_opts $optname:$optval"
+done
 
 if [ "$#" = 0 ]
 then
@@ -15,13 +61,13 @@ then
 	# But reading from a tempfile worked fine:
 	tmpfile=/tmp/nodepretty.$USER.$$.js
 	cat > "$tmpfile"
-	node "$PRETTYDIFF_APP" source:"$tmpfile" readmethod:filescreen mode:"$PRETTYDIFF_MODE" report:false
+	node "$PRETTYDIFF_APP" $prettydiff_opts source:"$tmpfile" readmethod:filescreen mode:"$PRETTYDIFF_MODE" report:false
 	rm -f "$tmpfile"
 elif [ "$#" = 1 ]
 then
 	# Read from file $1, write to stdout
-	node "$PRETTYDIFF_APP" source:"$1" readmethod:filescreen mode:"$PRETTYDIFF_MODE" report:false
-	# This should also do the same, but it uses a printfile:
+	node "$PRETTYDIFF_APP" $prettydiff_opts source:"$1" readmethod:filescreen mode:"$PRETTYDIFF_MODE" report:false
+	# This should also do the same, but it uses a tmpfile:
 	#cat "$1" | nodepretty
 elif [ "$#" = 2 ]
 then
