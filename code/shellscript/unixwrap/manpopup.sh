@@ -49,6 +49,9 @@ catpage() {
 	cat "$cachedPage"
 }
 ## BUG: One disadvantage of this, is that if we cannot write to /tmp/, we fail to display the man page!  memo might not do that
+## BUG: I think we don't really need to do the caching if x is not running.
+##      This, and the sleep at the bottom, could be moved inside the xisrunning block below.
+##      NO!  The cache is useful to make 'catpage' efficient.  If we want to use catpage to list the headers, that functionality should be available in non-X situations too.  It should be named and refactored, and made optional (so we can use man and skip the cache if needed).  Use a hook function to perform the caching in advance.
 
 ## If user is using X-Windows, we pop up a new window for the manual page.
 ## If they are running inside screen, we open a new screen for the manual page.
