@@ -31,6 +31,10 @@ mkdir -p "$HOME/Music"
 # Old location
 [ ! -f "$AUDIO_FILES_LIST" ] && AUDIO_FILES_LIST="$JPATH/music/search_results.m3u"
 
+if [ ! -f "$AUDIO_FILES_LIST" ]
+then updatemusiclist | dog "$AUDIO_FILES_LIST"
+fi
+
 # Can be overriden by setting JSH_ALL_AUDIO_FILES
 [ -n "$JSH_ALL_AUDIO_FILES" ] && AUDIO_FILES_LIST="$JSH_ALL_AUDIO_FILES"
 
@@ -181,8 +185,8 @@ do
 	if [ "$USE_MP3GAIN" ]
 	then
 		playmp3andwait "$TRACKTOPLAY" #>/dev/null 2>&1 &
-		## Gives mpg123 time to cache, so mp3gain doesn't steal vital CPU!
-		sleep 10
+		## Gives the player a bit of time to establish and cache the file, so mp3gain doesn't steal vital CPU!
+		#sleep 10
 	else
 		playmp3andwait "$TRACKTOPLAY" #>/dev/null #2>&1
 	fi
