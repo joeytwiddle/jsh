@@ -20,12 +20,16 @@ if [ "$1" = -join ]
 then JOIN_LINES=true; shift
 fi
 
+while read line
+do
+
 NL="
 "
 
 ## Wait for whole block:
 
-(
+echo "Doing: $line"
+printf "%s\n" "$line" | (
 
 	## Switch to the English(GB) voice if it is available:
 	voiceDir="/usr/share/festival/voices/"
@@ -114,7 +118,8 @@ NL="
 
 ) |
 
-pipeboth |
+#pipeboth |
+#tee /dev/stderr |
 
 if test "$1" = "-tomp3"
 then
@@ -129,3 +134,5 @@ else
 festival # --tts
 
 fi
+
+done
