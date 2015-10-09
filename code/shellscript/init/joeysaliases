@@ -148,10 +148,10 @@ alias memo='memo -info'
 ## -a is nice, it will copy directories recursively; -i because i don't want to overwrite stuff by accident
 alias cp='cp -a -i'
 
-alias locate='memo -t "1 day" locate'
-alias locateonly='memo -t "1 day" locateonly'
-alias locateend='memo -t "1 day" locateend'
-alias locateword='memo -t "1 day" locateword'
+alias locate='memo -t "1 day" -nd locate'
+alias locateonly='memo -t "1 day" -nd locateonly'
+alias locateend='memo -t "1 day" -nd locateend'
+alias locateword='memo -t "1 day" -nd locateword'
 
 ## Actually my ls and l aliases are now overriden by myls later.
 if test $JM_COLOUR_LS; then
