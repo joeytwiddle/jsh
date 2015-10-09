@@ -23,10 +23,12 @@ do
   VOL=`get_volume`
   VOL=`expr "$VOL" - $DOWNSTEP`
   [ "$VOL" -gt 0 ] || VOL=0
-  #echo "[fadevolume] Reducing volume to: $VOL"
-  [ "$VOL" ] && [ "$VOL" -gt -1 ] &&
-  set_volume "$VOL" &&
-  [ "$VOL" ] && [ "$VOL" -gt 0 ] && DONE=
+
+  echo "[fadevolume] Reducing volume to: $VOL"
+  [ -n "$VOL" ] && [ "$VOL" -gt -1 ] && set_volume "$VOL"
+  #echo "err=$?"
+
+  [ "$?" = 0 ] && [ "$VOL" -gt 0 ] && DONE=
 
   sleep $GAP
 done
