@@ -1,19 +1,20 @@
 ### zsh commandline completion based on output of recent (latest) command
 
+# Captures the stdout of recent commands (currently only the last command), and uses this to seed Tab-completion.
+
 # How it works:
 # We add 'record-log ' before every command to be executed.
 # So in fact record-log is executed.  It then runs the command, but it sends output to a file.
 # Later, tab-completion can read this file to obtain useful words.
 
 # You can enable ALWAYS_RECORD_OUTPUT_COMPLETION to get it to automatically record the output of commands.
-# But it is quite disruptive at the moment, so a friendlier alternative is to put `record-log ` at the beginning of a command before running it.  The output of the command will be stored and you will later be able to perform completion on its words.
+# But it is quite disruptive at the moment, so a friendlier alternative is to put `clog ` at the beginning of commands whose output you wish to store.
 
 # ISSUES:
-# - Only applies to the commands before a '|' I believe.
-# - Does not work on aliases.
-# - History gets polluted with record-log appended to commands
-# - The use of tee forces things like man to simply cat the file, instead of providing the interactive pager
-# - Completion doesn't work on all commands.  (I have had trouble with `git log` and aliases to it.  `l` and `echo` always seem to work.)
+# - Currently it only applies to the part of the command before the first '|'.  It should apply to the whole command!
+# - Does not work on aliases (record-log does not get prepended)
+# - If you look back through command history, it is polluted with record-log preppended to every command
+# - The use of tee forces things like man to simply cat the file, instead of providing the interactive pager.  There may be a less disruptive way to copy but preserve stdout.
 
 # For the bash version, we may be able to use the "DEBUG trap": http://askubuntu.com/questions/22233/always-prompt-the-user-before-executing-a-command-in-the-shell#22256
 # This page has a nice example of a history search under the section "Programmable Completion": http://www.cl.cam.ac.uk/local/sys/unix/applications/bash/
