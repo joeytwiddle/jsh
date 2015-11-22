@@ -119,9 +119,11 @@ Rarely used on the commandline.
 
 - 1000 more scripts that shouldn't be here
 
-## Install and setup
+## Mac users should do this before installing
 
-**jsh is not very Mac compatible at this moment.**  The main problem is that jsh uses `sed s` a lot, but BSD sed has significant differences from GNU sed.  There are other problems too (`grep --line-buffered`, ...)
+If you want to run jsh on Mac OSX (or on BSD distros) then you should `brew install coreutils` and then put it at the front of your `PATH`!  The main reason that jsh doesn't work on BSD is that it uses `sed s` a lot, and BSD sed has significant differences from GNU sed.  There are other incompatibilities though (`grep --line-buffered`, ...).  But with GNU coreutils on your `PATH` you should be fine.  (Notably, even though my modified `PATH` was exported, I had no trouble running `rvm` or `rails` or `brew` from within jsh.  Props to those projects for sanitizing the `PATH`!)
+
+## Install and setup
 
 First clone the repository:
 
@@ -131,7 +133,7 @@ Now create all the symlinks:
 
     jsh/jsh jsh/code/shellscript/init/refreshtoollinks
 
-OK now you are done.
+OK setup is now complete.
 
 If you want jsh to always load when you start a shell, add the following lines to your `.bashrc` or `.zshrc`:
 
@@ -156,7 +158,7 @@ If you just want the scripts on your PATH, and crucial initialisation, but none 
 
 (This actually does not do much more than setting `$JPATH` and adding `$JPATH/tools` to your `$PATH`.)
 
-Run just one jsh command:
+If you want to run just one jsh command and then return to your current shell:
 
-    jsh/jsh <jsh_command> <args...>
+    jsh/jsh <jsh_command> [ <args...> ]
 
