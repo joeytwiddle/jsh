@@ -21,7 +21,7 @@ do
 	# jshinfo "Changing $MIXER to $VOL"
 	set_volume "$VOL"
 
-	show_volume
+	[ -n "$SHOW_VOLUME" ] && show_volume
 
 	SHOWVOLUME_HEAD="$SHOWVOLUME_HEAD
 "
