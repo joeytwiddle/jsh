@@ -7,7 +7,7 @@ commands_to_run="`jgettmp commands_to_run`"
 
 if [ "$1" ]
 then
-	echo "$@" > "$original_filenames"
+	echolines "$@" > "$original_filenames"
 else
 	find . -maxdepth 1 |
 	grep -v '^\.$' |
