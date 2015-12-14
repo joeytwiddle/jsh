@@ -152,10 +152,17 @@ then
 		fi
 	}
 
-	# COMPCTL_OPTS="-f -c -u -r -K" ## I don't appear to be able to pass this variable as options.  Crazy builtin I guess. :-/
+	## compctl is the old completion system.
+	## This command used to work fine for me on Debian, but on more recent Ubuntu systems adding our own completion rule here stops completion from working properly on (in) filenames with spaces.
+	## (I think compctl is preventing fallback to compsys, which usually handles such filenames well.)
 	compctl -f -c -u -r -K joeyComplete "*" -tn
 	## History made directory /s not work and was in general quite annoying for me:
 	# -H 0 '' 
+
+	## We could switch to using the new completion system, if I could work it out!  It is somewhat more complex.
+	## Friendly guide: http://zsh.sourceforge.net/Guide/zshguide06.html
+	## Official guide: http://zsh.sourceforge.net/Doc/Release/Completion-System.html
+	#zstyle ":completion::*:*:*:" tag-order local-directories path-directories "(_alternative _cd)"
 
 else
 
