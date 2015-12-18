@@ -1,5 +1,7 @@
-battery_id=`upower -e | grep battery | tail -n 1`
-stats=`upower -i "$battery_id"`
+#!/bin/sh
+
+battery_id=`upower -e 2>/dev/null | grep battery | tail -n 1`
+stats=`upower -i "$battery_id" 2>/dev/null`
 
 getvalue() {
 	printf "%s\n" "$stats" |
@@ -31,7 +33,7 @@ then
 	mini_time=`echo "$time_to_end" | sed 's+\.[0-9]*++ ; s+ hours+h+ ; s+ minutes+m+ ; s+ seconds+s+'`
 	mini_percentage=`echo "$percentage" | sed 's+[.%].*++'`
 
-	if [ "$mini_percentage" -lt 7 ] && [ ! "$state" = "charging" ]
+	if [ -n "$mini_percentage" ] && [ "$mini_percentage" -lt 7 ] && [ ! "$state" = "charging" ]
 	then
 		mini_state="_"
 		#mini_time="!!!"
