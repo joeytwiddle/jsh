@@ -83,7 +83,7 @@ do
 		UNGREPEXPR='^$'
 	else
 		## For greater efficiency: put this whole block in a fn, then memo a call to the fn
-		UNGREPEXPR="\("`
+		UNGREPEXPR="("`
 			memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
 			toregexp |
 			while read X
@@ -91,8 +91,8 @@ do
 			done |
 			tr -d '\n' |
 			sed 's+|$++'
-		`"\)"
-		if [ -z "$UNGREPEXPR" ] || [ "$UNGREPEXPR" = "\(\)" ]
+		`")"
+		if [ -z "$UNGREPEXPR" ] || [ "$UNGREPEXPR" = "()" ]
 		then UNGREPEXPR="^$"
 		else [ -n "$DEBUG" ] && debug "UNGREPEXPR=$UNGREPEXPR"
 		fi
