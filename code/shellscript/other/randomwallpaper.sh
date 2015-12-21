@@ -105,7 +105,7 @@ do
 		# egrep -v "$UNGREPEXPR" |
 		# notindir $AVOID |
 		# if [ -n "$SPECIALISE" ]
-		# then grep "$SPECIALISE"
+		# then grep -i "$SPECIALISE"
 		# else cat
 		# fi |
 		# chooserandomline
@@ -115,7 +115,7 @@ do
 		egrep -v "$UNGREPEXPR" |
 		notindir $AVOID |
 		if [ -n "$SPECIALISE" ]
-		then grep "$SPECIALISE"
+		then grep -i "$SPECIALISE"
 		else cat
 		fi > /tmp/possible_wallpapers.list
 	FILE=`
