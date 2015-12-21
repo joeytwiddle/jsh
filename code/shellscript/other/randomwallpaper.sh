@@ -158,7 +158,7 @@ do
 			## Darken image: bri,sat,hue
 			# [ -n "$DARKEN" ] && which convert >/dev/null 2>&1 &&
 			# MODULATE="-modulate 80,100,100" ## This mucks up colours nastily (more red?  quantised?)
-			if which convert>/dev/null 2>&1 && verbosely convert "$FILE" $MODULATE -quality 100% "$MODDED_FILE"
+			if which convert>/dev/null 2>&1 && verbosely convert "$FILE" -auto-orient $MODULATE -quality 100% "$MODDED_FILE"
 			then
 				ORIGINAL_SIZE=$(filesize "$FILE")
 				NEW_SIZE=$(filesize "$MODDED_FILE")
