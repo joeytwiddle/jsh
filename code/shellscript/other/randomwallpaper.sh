@@ -14,9 +14,18 @@
 
 if [ "$1" = -gl ]
 then
-	# /usr/lib/xscreensaver/glslideshow -root -duration 2 -zoom 100 -pan 1 -fade 1
-	# /usr/lib/xscreensaver/glslideshow -titles -root -duration 20 -zoom 100 -pan 20 -fade 10
-	/usr/lib/xscreensaver/glslideshow -titles -root -duration 20 -zoom 80 -pan 60 -fade 10
+	## Gentle panning gives me motion sickness, but it's here if you want it:
+	# /usr/lib/xscreensaver/glslideshow -titles -root -duration 20 -zoom 80 -pan 20 -fade 10
+
+	## No panning is much more CPU-efficient.
+	## But with no panning, the background does not get updated when Fluxbox switches desktop!
+	## We would be better off running randomwallpaper in a loop instead of using glslideshow.  Although it wouldn't do the fading.
+	# /usr/lib/xscreensaver/glslideshow -titles -root -duration 20 -zoom 100 -fade 5
+
+	## So, at least for Fluxbox, we need a little panning, even though it is constantly using CPU.
+	## But the panning is often visible, because there is lots of space for panning when the image ratio does not match the screen ratio.  So to reduce motion sickness, we slow it down more.
+	/usr/lib/xscreensaver/glslideshow -titles -root -duration 600 -zoom 99 -pan 600 -fade 5
+
 	exit
 fi
 
