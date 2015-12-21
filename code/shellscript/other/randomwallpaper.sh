@@ -7,8 +7,8 @@
 ## following line, find interpreted $WALLPAPERDIRS as one argument.
 # memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
 
-# FAST=1        # Does not scale up to desktop, just blits to background.
-# NOPREVIEW=1   # Does not preview - scales before drawing anything.
+# FAST=1                # Does not scale up to desktop, just blits to background.
+# PREVIEW_WALLPAPER=1   # Does not preview - scales before drawing anything.
 
 ## TODO: Randomwallpaper is really quite slow.  But we can fix this.  Have it pre-cache an image (or a few)!
 
@@ -29,28 +29,29 @@ then
 	exit
 fi
 
-[ "$DONT_DARKEN" ] || DARKEN=true
+[ -n "$DONT_DARKEN" ] || DARKEN=true
 
 ## Usage: randomwallpaper [ <path>s ]* [ <regexp_for_grep> ]
 
 ## TODO: skip images below a certain size (pixelswise or bytewise)
 
-while [ "$*" ]
+while [ -n "$*" ]
 do [ -d "$1" ] && WALLPAPERDIRS="$WALLPAPERDIRS $1" && shift || break
 done
-[ "$WALLPAPERDIRS" ] || WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/www.irtc.org/ $HOME/Wallpapers/" # /stuff/mirrors/" # /www/uploads/"
+# [ -z "$WALLPAPERDIRS" ] && WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/www.irtc.org/ $HOME/Wallpapers/" # /stuff/mirrors/" # /www/uploads/"
+[ -z "$WALLPAPERDIRS" ] && WALLPAPERDIRS="$HOME/Wallpapers/"
 
 
 
 cd / # just for memoing
 
 LASTWALL=`justlinks /tmp/randomwallpaper-last`
-if [ "$LASTWALL" ]
+if [ -n "$LASTWALL" ]
 then
 	# while true
 	# do
 		# LW2=`justlinks "$LASTWALL"`
-		# if [ "$LW2" ]
+		# if [ -n "$LW2" ]
 		# then LASTWALL="$LW2"
 		# else break
 		# fi
@@ -73,7 +74,7 @@ do
 	# FILE=`chooserandomline tmp.txt`
 
 	SPECIALISE="$1"
-	[ "$SPECIALISE" ] && shift
+	[ -n "$SPECIALISE" ] && shift
 
 	# Folders containing the noshow file, and their subfolders, are to be
 	# ignored.  To achieve this we build an UNGREPEXPR.
@@ -84,35 +85,36 @@ do
 		## For greater efficiency: put this whole block in a fn, then memo a call to the fn
 		UNGREPEXPR="\("`
 			memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
+			toregexp |
 			while read X
 			do echo '^'\`dirname "$X"\`'/|'
 			done |
 			tr -d '\n' |
 			sed 's+|$++'
 		`"\)"
-		if [ "$UNGREPEXPR" = "" ] || [ "$UNGREPEXPR" = "\(\)" ]
+		if [ -z "$UNGREPEXPR" ] || [ "$UNGREPEXPR" = "\(\)" ]
 		then UNGREPEXPR="^$"
-		else [ "$DEBUG" ] && debug "UNGREPEXPR=$UNGREPEXPR"
+		else [ -n "$DEBUG" ] && debug "UNGREPEXPR=$UNGREPEXPR"
 		fi
 	fi
 
 	## Ditto optimisation recommended above
-	[ "$DEBUG" ] && debug "Running: find $WALLPAPERDIRS $SEARCHARGS | egrep -v \"$UNGREPEXPR\""
+	[ -n "$DEBUG" ] && debug "Running: find $WALLPAPERDIRS $SEARCHARGS | egrep -v \"$UNGREPEXPR\""
 	# FILE=`
 		# echo "memo -t '1 hour' find $WALLPAPERDIRS $SEARCHARGS" | sh |
 		# egrep -v "$UNGREPEXPR" |
 		# notindir $AVOID |
-		# if [ "$SPECIALISE" ]
+		# if [ -n "$SPECIALISE" ]
 		# then grep "$SPECIALISE"
 		# else cat
 		# fi |
 		# chooserandomline
 	# `
 		# memo -t '1 hour' verbosely find $WALLPAPERDIRS $SEARCHARGS | ## Had problems when I introduced ""s into SEARCHARGS
-		memo -t '1 hour' eval "verbosely find $WALLPAPERDIRS $SEARCHARGS" |
+		memo -t '1 hour' eval "find $WALLPAPERDIRS $SEARCHARGS" |
 		egrep -v "$UNGREPEXPR" |
 		notindir $AVOID |
-		if [ "$SPECIALISE" ]
+		if [ -n "$SPECIALISE" ]
 		then grep "$SPECIALISE"
 		else cat
 		fi > /tmp/possible_wallpapers.list
@@ -129,14 +131,14 @@ do
 
 	## Get image area by extracting dimensions
 	IMAGESIZE=`imagesize "$FILE" | grep "^[0-9]*x[0-9]*" | sed 's+x+ * +'`
-	if [ "$IMAGESIZE" ]
+	if [ -n "$IMAGESIZE" ]
 	then
 		## For zsh: AREA=`noglob expr $IMAGESIZE`
 		##          AREA=`noglob calc $IMAGESIZE`
 		AREA=`echo "$IMAGESIZE" | bc`
 	fi
 
-	if [ -f "$FILE" ] && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ] && [ "$AREA" ] && [ "$AREA" -gt 102030 ]
+	if [ -f "$FILE" ] && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ] && [ -n "$AREA" ] && [ "$AREA" -gt 102030 ]
 	then
 		echo "del \"$FILE\""
 		ln -sf "$FILE" /tmp/randomwallpaper-last
@@ -147,14 +149,16 @@ do
 		## ATM neither of these work.  :P
 		## Also, conversion is slow!  memoing won't really work (just double the size of DB!)  But if the created image file is significantly smaller than the original, let's replace the original by our new version!  We should only do this e.g. if we are converting from 1280x1024 bitmap to 1280x1024 png, and not doing any pixel value processing.
 
-		[ -z "$NOPREVIEW" ] && xsetbg "$FILE"   ## Preview
-		[ "$FAST" ] && break
+		[ -n "$PREVIEW_WALLPAPER" ] && xsetbg "$FILE"   ## Preview
+		[ -n "$FAST" ] && break
 		(
+			# Ideally we would use a PNG instead of JPG, but it takes significantly longer (even with 0% compression), and with quality 100% JPG is indistinguishable to the eye, even on vector images.
+			# Curiously, JPG is still faster on vector images, even though it produces a larger image file.
 			MODDED_FILE="$HOME/j/background1.modulated.jpg"
 			## Darken image: bri,sat,hue
-			# [ "$DARKEN" ] && which convert >/dev/null 2>&1 &&
+			# [ -n "$DARKEN" ] && which convert >/dev/null 2>&1 &&
 			# MODULATE="-modulate 80,100,100" ## This mucks up colours nastily (more red?  quantised?)
-			if which convert>/dev/null 2>&1 && verbosely convert "$FILE" $MODULATE "$MODDED_FILE"
+			if which convert>/dev/null 2>&1 && verbosely convert "$FILE" $MODULATE -quality 100% "$MODDED_FILE"
 			then
 				ORIGINAL_SIZE=$(filesize "$FILE")
 				NEW_SIZE=$(filesize "$MODDED_FILE")
