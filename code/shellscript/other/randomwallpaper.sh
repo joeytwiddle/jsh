@@ -60,6 +60,9 @@ then
 	jshinfo "If you didn't like the last wallpaper: del '$LASTWALL'"
 fi
 
+SPECIALISE="$1"
+[ -n "$SPECIALISE" ] && shift
+
 for ATTEMPT in `seq 1 20`
 do
 
@@ -72,9 +75,6 @@ do
 
 	# find . -type f -and -not -name "*.html" > tmp.txt
 	# FILE=`chooserandomline tmp.txt`
-
-	SPECIALISE="$1"
-	[ -n "$SPECIALISE" ] && shift
 
 	# Folders containing the noshow file, and their subfolders, are to be
 	# ignored.  To achieve this we build an UNGREPEXPR.
