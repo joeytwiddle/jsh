@@ -122,6 +122,8 @@ do
 		chooserandomline /tmp/possible_wallpapers.list
 	`
 
+	[ -n "$FILE" ] && [ -f "$FILE" ] || continue
+
 	## If it's a gz, unzip it.  TODO: zip it up again after!
 	if endswith "$FILE" "\.gz"
 	then
