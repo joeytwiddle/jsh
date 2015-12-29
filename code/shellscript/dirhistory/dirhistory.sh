@@ -14,7 +14,7 @@ exit
 
 TMPF=`jgettmp`
 
-awkdrop 1 $HOME/.dirhistory | grep "$1" > $TMPF
+awkdrop 1 $HOME/.dirhistory | grep -F "$1" > $TMPF
 
 (
 seq 4 -1 1 | tr " " "\n" | sed "s/\(.*\)/"`cursegreen`"\b\1 /" | splicewith tail -4 $TMPF
