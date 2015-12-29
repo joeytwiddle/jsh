@@ -2,10 +2,10 @@
 SEARCHDIR="$1"
 
 (
-cursegreen
+#cursegrey
 grep "$SEARCHDIR" ~/.dirhistory | tail -n 5
 curseyellow ; cursebold ; echo "$PWD" ; cursenorm
-cursegreen
+#cursegrey
 grep "$SEARCHDIR" ~/.dirhistory | head -n 3
 ) | sed 's+$+/+'
 exit
