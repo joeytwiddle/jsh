@@ -9,6 +9,13 @@ do
 	#total_size=$(stat -c "%s" "$file")
 	data_size=$(du -B1 "$file" | sed 's+\s.*++')
 
+	# Avoid division by zero errors
+	if [ "$total_size" = 0 ]
+	then
+		echo "$file is empty"
+		continue
+	fi
+
 	percentage_full=$(expr "$data_size" '*' 100 / "$total_size")
 
 	printf "%s is %s%% full\n" "$file" "$percentage_full"
