@@ -23,18 +23,19 @@ do
 		# Recursive mode is optional because it's a lot slower on large repositories.
 		if [ -n "$GITLS_CHECK_FOLDERS" ]
 		then
+			status_line="$(git status --porcelain "$lnode" 2>/dev/null)"
 			# If any file below is modified, display that
-			modified=$(git status --porcelain "$lnode" 2>/dev/null | grep -m 1 -o "^.M")
+			modified=$(printf "%s" "$status_line" | grep -m 1 -o "^.M")
 			if [ -n "$modified" ]
 			then extra="$modified"
 			else
 				# If any file below is unknown, then display that
-				unknown=$(git status --porcelain "$lnode" 2>/dev/null | grep -m 1 -o "^??")
+				unknown=$(printf "%s" "$status_line" | grep -m 1 -o "^??")
 				if [ -n "$unknown" ]
 				then extra="$unknown"
 				else
 					# Just display the first thing that git reports
-					whatever=$(git status --porcelain "$lnode" 2>/dev/null | grep -m 1 -o "^..")
+					whatever=$(printf "%s" "$status_line" | grep -m 1 -o "^..")
 					if [ -n "$whatever" ]
 					then extra="$whatever"
 					else extra="  "
@@ -54,8 +55,13 @@ do
 		# We look for ignored files, they sometimes produce "!!" but occasionally ""
 		# Up-to-date files always produce ""
 		# Unfortunately, if we are not in a git folder, then we also get ""!
-		extra="$(git status --porcelain --ignored "$lnode" 2>/dev/null | cut -c 1-2)"
-		[ "$extra" = "" ] && extra="  "
+		status_line="$(git status --porcelain --ignored "$lnode" 2>/dev/null)"
+		if [ "$?" != 0 ]
+		then extra='XX'
+		else
+			extra="$(printf "%s" "$status_line" | cut -c 1-2)"
+			[ "$extra" = "" ] && extra="  "
+		fi
 	fi
 	#echo -n "$extra "
 	cd "$cwd"
