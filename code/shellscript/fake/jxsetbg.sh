@@ -27,15 +27,16 @@ IMAGE="$1"
 		XRES=`echo "$SIZE" | beforefirst x`
 		YRES=`echo "$SIZE" | afterfirst x`
 		ASPECT_PERCENT=$((XRES*100/YRES))
-		if [ "$ASPECT_PERCENT" -gt 123 ] && [ "$ASPECT_PERCENT" -lt 141 ]
-		then FIX='!'
-		fi
+		#if [ "$ASPECT_PERCENT" -gt 123 ] && [ "$ASPECT_PERCENT" -lt 141 ]
+		#then FIX='!'
+		#fi
 		# jshinfo "aspect=$ASPECT_PERCENT FIX=$FIX"
 
+		TARGET_DIMENSIONS=`getxwindimensions`
 		# DITHER=just_testing ## todo: autodetect via xdpyinfo
 		if [ "$DITHER" ]
-		then convert "$IMAGE" -geometry 1280x1024"$FIX" -depth 8 -dither $CONVERTOPTS /tmp/tmp-dithered.png && IMAGE=/tmp/tmp-dithered.png
-		else convert "$IMAGE" -geometry 1280x1024"$FIX" $CONVERTOPTS /tmp/tmp.png && IMAGE=/tmp/tmp.png
+		then convert "$IMAGE" -geometry "$TARGET_DIMENSIONS""$FIX" -depth 8 -dither $CONVERTOPTS /tmp/tmp-dithered.png && IMAGE=/tmp/tmp-dithered.png
+		else convert "$IMAGE" -geometry "$TARGET_DIMENSIONS""$FIX" $CONVERTOPTS /tmp/tmp.png && IMAGE=/tmp/tmp.png
 		fi
 
 	fi
