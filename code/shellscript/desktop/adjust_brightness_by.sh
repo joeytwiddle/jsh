@@ -4,6 +4,16 @@
 
 adjustment_percent="$1"
 
+if which xbacklight >/dev/null
+then
+	xbacklight -inc "$adjustment_percent"
+	current=$(xbacklight -get | grep -o '^[^.]*')
+	if [ "$current" -lt 1 ]
+	then xbacklight = 1
+	fi
+	exit
+fi
+
 min_brightness_percent=10
 
 current_brightness=$(xrandr --current --verbose | grep Brightness: | head -n 1 | takecols 2)
@@ -48,6 +58,12 @@ gamma=1.0
 #if [ "$new_brightness_percent" -lt 11 ]
 #then gamma=1.5
 #fi
-xrandr --output "$first_output" --brightness "$new_brightness" --gamma "$gamma:$gamma:$gamma"
+rgamma=$gamma
+ggamma=$gamma
+bgamma=$gamma
+rgamma=1.0
+ggamma=1.0
+bgamma=1.0
+xrandr --output "$first_output" --brightness "$new_brightness" --gamma "$rgamma:$ggamma:$bgamma"
 
 # An alternative method is to read from $bl/actual_brightness, crop to $bl/bl_power and $bl/max_brightness, and set $bl/brightness, where bl=/sys/class/backlight/intel_backlight, however on my current machine this requires Ubuntu.
