@@ -6,7 +6,22 @@ adjustment_percent="$1"
 
 if which xbacklight >/dev/null
 then
-	xbacklight -inc "$adjustment_percent"
+	# Do not use the provided value; instead adjust exponentially, relative to current brightness
+	if [ "$adjustment_percent" -gt 0 ]
+	then adjustment_direction="+"
+	else adjustment_direction="-"
+	fi
+	adjustment_magnitude=$(echo "$adjustment_percent" | sed 's/^[+-]//')
+	current_brightness=$(xbacklight -get)
+	#actual_adjustment="${adjustment_direction}$(echo "define max (a,b) { if (a>b) { return a; } else { return b; } } max($current_brightness * 0.3, 1)" | bc)"
+	actual_adjustment="${adjustment_direction}$(echo "define max (a,b) { if (a>b) { return a; } else { return b; } } scale=2; max($current_brightness * $adjustment_magnitude / 5.0, 1)" | bc)"
+	#actual_adjustment="$(echo "$current_brightness * $adjustment_magnitude / 5" | bc)"
+	#if [ "$actual_adjustment" -lt 1 ]
+	#then actual_adjustment=1
+	#fi
+	#actual_adjustment="$adjustment_direction$actual_adjustment"
+
+	xbacklight -inc "$actual_adjustment"
 	current=$(xbacklight -get | grep -o '^[^.]*')
 	if [ "$current" -lt 1 ]
 	then xbacklight = 1
