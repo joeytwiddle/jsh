@@ -185,17 +185,22 @@ bindkey "^o" kill-line
 # bindkey "^[" vi-backward-word
 # bindkey "^]" vi-forward-word
 
-# At last, bindkey on CTRL+arrow
+# Jump back/forward a word using Ctrl-Left and -Right
 bindkey "^[[5D" backward-word
 bindkey "^[[5C" forward-word
 # Except sometimes it's not that, it's this
 bindkey "^[[1;5D" backward-word
 bindkey "^[[1;5C" forward-word
 
-# Some people want to go back/forward using Shift-Arrows
-# Since without these keybinds Shift-Arrows insert some messy control characters, who am I to deny them?
+# Jump back/forward a word using Shift-Left and -Right
 bindkey "^[[2D" backward-word
 bindkey "^[[2C" forward-word
 bindkey "^[[1;2D" backward-word
 bindkey "^[[1;2C" forward-word
+
+# Jump back/forward a word using Ctrl-Shift-Left and -Right
+bindkey "^[[6D" backward-word
+bindkey "^[[6C" forward-word
+bindkey "^[[1;6D" backward-word
+bindkey "^[[1;6C" forward-word
 
