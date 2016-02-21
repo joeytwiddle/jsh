@@ -36,3 +36,16 @@ bind "\C-h":backward-char
 bind "\C-?":reverse-search-history
 ## On no this is no good.  It fires when pressing arrow keys!
 #bind "\C-[":reverse-search-history
+
+## These don't seem to work at all here.
+## But they work just fine in ~/.inputrc
+## Ctrl-Left and -Right
+#bind "\e[1;5D":backward-word
+#bind "\e[1;5C":forward-word
+#bind "\e[5D":backward-word
+#bind "\e[5C":forward-word
+## Shift-Left and -Right
+#bind "\e[1;2D":backward-word
+#bind "\e[1;2C":forward-word
+#bind "\e[2D":backward-word
+#bind "\e[2C":forward-word

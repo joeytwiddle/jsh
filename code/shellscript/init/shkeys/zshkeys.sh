@@ -188,3 +188,14 @@ bindkey "^o" kill-line
 # At last, bindkey on CTRL+arrow
 bindkey "^[[5D" backward-word
 bindkey "^[[5C" forward-word
+# Except sometimes it's not that, it's this
+bindkey "^[[1;5D" backward-word
+bindkey "^[[1;5C" forward-word
+
+# Some people want to go back/forward using Shift-Arrows
+# Since without these keybinds Shift-Arrows insert some messy control characters, who am I to deny them?
+bindkey "^[[2D" backward-word
+bindkey "^[[2C" forward-word
+bindkey "^[[1;2D" backward-word
+bindkey "^[[1;2C" forward-word
+
