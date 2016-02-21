@@ -146,8 +146,8 @@ bindkey "^@" forward-char # Ctrl+SPACE
 bindkey "^H" backward-char # Ctrl+BACKSPACE
 
 # and other Vi usefuls:
+#bindkey "^p" vi-put-before
 bindkey "^p" vi-put-after
-bindkey "^p" vi-put-before
 bindkey "^g" expand-history
 bindkey "^u" vi-undo-change # now taken
 bindkey "^z" vi-undo-change # now taken

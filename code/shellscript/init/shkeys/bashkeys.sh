@@ -22,9 +22,13 @@ bind "\C-v":kill-word
 ## They can be used when C-x/v are inhibited by Solaris:
 bind "\C-z":backward-kill-word
 bind "\C-b":kill-word
-## My mirror to C-u; although default is C-k.
-bind "\C-o":kill-line
+## My mirror to C-u; actually available as a default on C-k.
 ## Kinda dangerous to use in case bashkeys are not loaded, because C-o's default action is to run the current command (and load line back up into REPL)!
+bind "\C-o":kill-line
+## Paste (similar to zsh's vi-put-after)
+## Default action is previous-history, so you might get that if this hasn't been loaded!
+## If that does happen, press Ctrl-n or <Down> to return, then Escape-p to perform vi-put from vi mode.
+bind "\C-p":vi-put
 
 ## If we did `set -o vi` then we might be able to simulate the deletes we want using Vi mode.  <Esc> to enter vi mode.
 
