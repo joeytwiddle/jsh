@@ -119,19 +119,15 @@ Rarely used on the commandline.
 
 - 1000 more scripts that shouldn't be here
 
-## Mac users should do this before installing
-
-If you want to run jsh on Mac OSX (or on BSD distros) then you should `brew install coreutils` and then put it at the front of your `PATH`!  The main reason that jsh doesn't work on BSD is that it uses `sed s` a lot, and BSD sed has significant differences from GNU sed.  There are other incompatibilities though (`grep --line-buffered`, ...).  But with GNU coreutils on your `PATH` you should be fine.  (Notably, even though my modified `PATH` was exported, I had no trouble running `rvm` or `rails` or `brew` from within jsh.  Props to those projects for sanitizing the `PATH`!)
-
 ## Install and setup
 
 First clone the repository:
 
-    git clone https://github.com/joeytwiddle/jsh
+    $ git clone https://github.com/joeytwiddle/jsh
 
 Now create all the symlinks:
 
-    jsh/jsh jsh/code/shellscript/init/refreshtoollinks
+    $ jsh/jsh jsh/code/shellscript/init/refreshtoollinks
 
 OK setup is now complete.
 
@@ -139,6 +135,22 @@ If you want jsh to always load when you start a shell, add the following lines t
 
     export JPATH="$HOME/jsh"
     source "$JPATH/startj"
+
+## Additional step for Mac OS X users
+
+If you want to run jsh on Mac OS X then you should:
+
+    $ brew install coreutils gnu-sed findutils
+
+Then add the following lines to your `.bashrc` or `.zshrc`, *before* the `JPATH` lines we inserted earlier:
+
+    export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
+    export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
+    export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
+
+This is because Jsh makes heavy use of GNU utils such as `grep` and `sed`.  Although many of these programs are distributed with Mac OS X, they are BSD versions and do not accept exactly the same arguments.
+
+(This `PATH` will be provided to any non-Jsh commands you call from within a Jsh shell.  So far this has caused me no problems.  I have been able to run `brew`, `rvm` and `rails` from inside or outside Jsh.)
 
 ## Running
 
