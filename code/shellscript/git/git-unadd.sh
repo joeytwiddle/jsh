@@ -18,7 +18,8 @@ do
   if git status --porcelain "$file" | grep "^A" >/dev/null
   then
 
-    git rm --cached "$file"
+    # We use -f to avoid "error: the following file has staged content different from both the file and the HEAD"
+    git rm --cached -f "$file"
 
   fi
 
