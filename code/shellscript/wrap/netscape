@@ -2,4 +2,5 @@ if jwhich netscape quietly
 then `jwhich netscape` -install -no-about-splash -geometry =550x550+10+10 "$@" &
 # Cannot do this, because browse tries to call netscape => infloop!
 #else browse "$@" &
+else exit 1
 fi
