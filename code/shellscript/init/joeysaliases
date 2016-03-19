@@ -107,7 +107,8 @@ then
 		else
 			if [ "$*" = 0 ] || [ "$*" = . ]
 			then search='^'   # show everything
-			else search="^ *[0-9][0-9]*  *.*$*"
+			#else search="^ *[0-9][0-9]*  *.*$*"   # highlights up to the pattern; not really desirable!  Perhaps I was trying to avoid matching the history number when the pattern was a number
+			else search="$*"
 			fi
 			history 0 | grep "$search"
 		fi
@@ -265,6 +266,8 @@ alias mykilljob=". 'mykilljob' -jc"
 #alias le='less -R'
 alias m='less -REX'
 alias g='grep'
+alias ig='igrep'
+alias gi='igrep'
 
 alias wad='withalldo'
 alias fed='foreachdo'
@@ -285,18 +288,12 @@ alias tc='takecols'
 #alias f='file'
 alias i='file'
 
-# I never remember to use this
-alias c='cd'
-# But I love these
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
 alias .....='cd ../../../..'
 alias ......='cd ../../../../..'
-# alias c.='cd ..'
-# alias c..='cd ../..'
-# alias c...='cd ../../..'
-# We cannot use ^ so easily, not that I really want to.
+# I thought ^ might be a nice way to say "go up", but we cannot use it so easily.
 # In zsh, our ^ alias does nothing.  Although eval "^" works fine.
 # In bash we get ":s^: no previous substitution".  Again eval works fine.
 #alias ^='cd ..'
@@ -321,13 +318,40 @@ alias md=mkdir
 alias lvim="vim -c \"normal '0\""
 
 
+alias fumount='fusermount -u'
+
+
 alias mpl=mplayer
-if [ -x "$JPATH/j/tools/mplayer" ]
-then alias mpl="$JPATH/j/tools/mplayer"
+if [ -x "$JPATH/tools/mplayer" ]
+then alias mpl="$JPATH/tools/mplayer"
 fi
 #alias mpl='FAST=2 ~/j/tools/mplayer'
-alias smpl=smplayer
 
+# Simply makes it possible to background a process using a prefix ('inbg'), rather than a postfix ('&')
+inbg() {
+	"$@" &
+}
+
+# Various apps I might start from the commandline, but I never actually want to run in the foreground.
+# TODO: Avoid repetition by factoring out to a function.  Also consider sending the stdout+err of the process to somewhere else (e.g. a logfile, or a separate screen/tmux window, or an xterm) to avoid cluttering the user's shell.
+alias smpl='inbg smplayer'
+alias gqview='inbg gqview'
+alias gimp='inbg gimp'
+alias inkscape='inbg inkscape'
+alias nautilus='inbg nautilus'
+alias okular='inbg okular'
+
+
+
+alias xchat='echo "Running hexchat not xchat!" ; hexchat'
+
+alias npi='npm install'
+
+
+
+# Heavy processes that take a long time should gentle.
+
+alias debuild='nice ionice debuild'
 
 fi
 
