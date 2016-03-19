@@ -57,9 +57,11 @@ for PROG in $HIGHESTPRIORITYPROGS
 do [ "$UID" = 0 ] && alias "$PROG"="nice -n -20 $PROG"
 done
 
-. preventgreperrs
-# alias grep='grep --line-buffered' ## This seems to add to the previous definition :)
-alias grep='grep --line-buffered --colour=auto' ## This seems to add to the previous definition :)
+## BUG: By redefining the grep alias here, the aliases defined in preventgreperrs are lost!
+## So I disabled preventgreperrs; no point loading it if we won't use it.
+#. preventgreperrs
+# alias grep='grep --line-buffered'
+alias grep='grep --line-buffered --colour=auto'
 alias sed='sed -u'
 
 
