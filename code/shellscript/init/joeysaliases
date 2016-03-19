@@ -206,8 +206,8 @@ jshssh () {
 alias ssh='jshssh'
 
 myls() {
-	## I always use -a *except* when in ~.  To -a my dotfiles, I cd into a symlink to ~.
-	if [ "$PWD" = "$HOME" ]
+	## I always use '-a' except when looking at '~'.  To -a my dotfiles, pass any argument, e.g. '.' or '-a'.
+	if ( [ "$PWD" = "$HOME" ] && [ -z "$1" ] ) || [ "$*" = "$HOME" ]
 	then 'ls' -lrtFh --color "$@"
 	else 'ls' -lartFh --color "$@"
 	fi
