@@ -75,11 +75,18 @@ alias igrep='grep -i'
 ## Hmm, seems rude, so leaving help as it was.
 
 ## We should do this for everything (no reason why not to, apart from memo diskspace usage I guess):
-# alias dusk="rememo dusk"
-# alias dusk="memo -c true dusk"
-# alias dusk="memo -t '1 minute' dusk"
-alias dusk="memo -t '1 hour' dusk"
+# alias dusk='memo -t "1 day" dusk'
+# alias dusk='memo -t "1 month" dusk'
+alias dusk='memo -t "1 year" dusk'
 ## BUG: Unfortunately we can't use -f or -t because there may be multiple arguments :f
+
+## newdusk does not memo, to ensure that olddusk will still work.
+alias newdusk='dusk'
+alias olddusk='memo -c true dusk'
+# alias olddusk='memo -t "3 years" dusk'
+# alias deepdusk='memo -t "3 years" dusk'
+
+alias redusk='rememo dusk'
 
 ## h is a shortcut for listing command-line history of the current shell.
 ## It is aliased from h to myhist which is a function.
