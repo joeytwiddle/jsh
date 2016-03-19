@@ -213,6 +213,11 @@ myls() {
 	fi
 }
 alias l='myls'
+
+if [ -n "$ZSH_NAME" ]
+then compdef myls=ls
+fi
+
 # ll does not show folder contents; also does not humanise sizes, so they are easier to compare.  Although dsr already does that!
 # TODO: If given no arguments, should either drop the -d, or provide ./* as arguments.
 alias ll='ls -lartFd --color'
@@ -240,7 +245,11 @@ alias xv=myxv
 
 # alias l='ls -l'
 ## superceded by the l shellscript:
-alias l='. l'
+# alias l='. l'
+
+if [ -n "$ZSH_NAME" ]
+then compdef l=ls
+fi
 
 ## Haven't got used to this shortcut.  'ld' is already taken!
 # alias dl='ls -ld'
