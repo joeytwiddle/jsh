@@ -21,7 +21,7 @@ Please note that all my rc files now live separately [https://github.com/joeytwi
     . dirhistorysetup.bash / .zsh       Provide `b` and `f` and `dirhistory`
     . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B/O to jump and delete small/large words
 
-    cd <partial_path>   autocompletes partial matches (or displays when multiple matches)
+    cd <partial_path>   typo helper: autocompletes partial matches, or shows alternatives when multiple matches
     h [<pattern>]       provides fast searching of history
     .. / ... / ....     shortcuts for cd ../../.. etc.
 
@@ -36,19 +36,21 @@ For use on the command-line or when writing actual scripts.  Most of the followi
 
     | withalldo <cmd...>
     | foreachdo <cmd...>
-    | dog <target_file>       atomic write, does not clobber until the end, safe to use after cat!
-    | striptermchars          remove ANSI color codes
+    | dog <target_file>       Atomic write, does not clobber until the end, safe to use after cat!
+    | striptermchars          Remove ANSI color codes
     | trimempty
     | removeduplicatelines    and removeduplicatelinespo to preserve order
-    | dirsonly                simple filters for lists of paths
-    | filesonly
     | prependeachline <txt_to_prepend>
     | takecols <column_numbers...>       Like cut but no params to remember!
     | dropcols <column_numbers...>
-    | beforefirst <regexp>
+    | beforefirst <regexp>    Take portion of each line before or after pattern
     | afterlast <regexp>
-    | dateeachline
+    | fromline [-x] <regexp>  Take all lines after or before given pattern
+    | toline [-x] <regexp>    [-x] means exclude the matching line
     | numbereachline
+    | dateeachline [-fine]
+    | dirsonly                Simple filters for lists of paths
+    | filesonly
     | sortfilesbydate
     | sortfilesbysize
 
@@ -96,12 +98,15 @@ Rarely used on the commandline.
     findbrokenlinks
     dusk                              show disk usage by folder (du -sk | sort)
     duskdiff
-    del <file/folder>                 sucks but not as much as `rm` does
-    rmlink <symlink>
+    del <files/folders...>            moves files to trash, reclaimable in case of accident
+    rmlink <symlinks...>              safer than rm: only removes files which are symlinks
     lazymount <file_to_mount>
 
     | diffhighlight                   add colours to diffs/patches
     sedreplace <search> <replace> <files...>
+
+    renamefiles <search_pattern> <replace_pattern> [<files...>] |sh
+    editfilenames                     opens Vim to let you edit filenames
 
     worddiff / wordpatch
 
