@@ -244,18 +244,24 @@ function reclaimfrom() {
 }
 
 
-mount |
-## If you are chrooted, but /proc has been mounted, this works much better (well it works!):
-# cat /proc/mounts |
+## This fails when the mountpont (column 3) contains spaces
+# mount |
+# ## If you are chrooted, but /proc has been mounted, this works much better (well it works!):
+# # cat /proc/mounts |
+# 
+# grep "^/dev" |
+# 
+# grep "$SELECTIONREGEXP" |
+# 
+# grep -v " (\<ro\>.*)$" | ## Excludes CD-drives and other read-only mounts
+# grep -v "(.*bind.*)$" |
+# 
+# takecols 1 3 |
 
-grep "^/dev" |
-
+df |
+grep "^/dev/" |
 grep "$SELECTIONREGEXP" |
-
-grep -v " (\<ro\>.*)$" | ## Excludes CD-drives and other read-only mounts
-grep -v "(.*bind.*)$" |
-
-takecols 1 3 |
+dropcols 2 3 4 5 |
 
 # grep -v "/dev$" |
 # grep -v "/dev/pts$" |
