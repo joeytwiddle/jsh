@@ -13,6 +13,8 @@ if which d.zsh b.zsh f.zsh 2>&1 > /dev/null; then
 
 	alias f='SUPPRESS_PREEXEC=undo . $JPATH/tools/f.zsh'
 	alias b='SUPPRESS_PREEXEC=undo . $JPATH/tools/b.zsh'
+
+	alais dh='dirhistory'
 else
 	echo "Error with dirhistory: could not find d.zsh b.zsh f.zsh in path." >&2
 fi
