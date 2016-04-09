@@ -1,5 +1,8 @@
 # My dirhistory tool
-# @sourceme You need to source this from your ~/.zshrc
+# @sourceme You need to source this from your ~/.zshrc or ~/.bashrc
+
+# Despite the name, this supports both bash and zsh shells.
+# TODO: rename me!
 
 if which d.zsh b.zsh f.zsh 2>&1 > /dev/null; then
 	alias cd='d'
