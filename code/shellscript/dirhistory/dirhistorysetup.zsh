@@ -5,11 +5,16 @@ if which d.zsh b.zsh f.zsh 2>&1 > /dev/null; then
 	alias cd='d'
 	#alias d='SUPPRESS_PRECMD=undo;SUPPRESS_PREEXEC=undo . $JPATH/tools/d.zsh'
 	#alias d='SUPPRESS_PREEXEC=undo . $JPATH/tools/d.zsh'
-	# In order to let d use cd's Tab-completion, we must make it a function
+
+	# In zsh, completion of filenames containing spaces would not continue after a space
+	# In order to let d use cd's Tab-completion in zsh, we must make it a function, and use compdef
+	# (For bash either the alias or the function is fine.)
 	d () {
 		SUPPRESS_PREEXEC=undo . $JPATH/tools/d.zsh "$@"
 	}
-	compdef d=cd
+	if [ -n "$ZSH_NAME" ]
+	then compdef d=cd
+	fi
 
 	alias f='SUPPRESS_PREEXEC=undo . $JPATH/tools/f.zsh'
 	alias b='SUPPRESS_PREEXEC=undo . $JPATH/tools/b.zsh'
