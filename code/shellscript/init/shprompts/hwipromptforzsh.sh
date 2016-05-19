@@ -80,7 +80,7 @@ fi
 
 if declare -f find_git_branch >/dev/null
 then
-	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`curseblue`\%}\$git_unknown_mark\$git_unknown_count"
+	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseblue`\%}\$git_unknown_mark\$git_unknown_count"
 	# \%{`cursenorm`\%}$
 	# Append these extras after the existing %{color}~/ part of the prompt
 	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%} *%~/*\)+\1$GIT_AWARE_PROMPT+g")
