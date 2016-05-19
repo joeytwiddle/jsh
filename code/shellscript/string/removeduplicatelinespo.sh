@@ -1,6 +1,18 @@
 ## Removes any duplicate lines from the stream, preserving line order on output.
-## Doesn't remove empty lines.
 ## Keeps the first occurrence of a line, and drops any later occurrences.
+
+awk '!already_seen[$0]++' "$@"
+
+exit
+
+## From http://unix.stackexchange.com/questions/194780/remove-duplicate-lines-while-keeping-the-order-of-the-lines
+## Without awk:
+# cat -n out.txt | sort -k2 -k1n  | uniq -f1 | sort -nk1,1 | cut -f2-
+## With perl:
+# perl -ne 'print if ++$k{$_}==1' out.txt
+
+## My original method.
+## Doesn't remove empty lines, a feature for keepduplicatelines's gap mode.
 
 LAST=""
 cat "$@" |
