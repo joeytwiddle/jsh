@@ -1,5 +1,7 @@
 #!/bin/sh
 
+## A one-line alternative: find . ! -empty -type f -exec sh -c 'md5sum "$1"' _ {} \; | sort | uniq -w32 -dD
+
 ## We are now doing size comparison when -samename is off.  So findduplicatefiles-quick is deprecated.
 # [ "$1" = "" ] && jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles without options.  You are recommended to use that until they are merged."
 # jshwarn "Ofc scripting makes sense with findduplicatefiles, providing we will keep the I/O similar."

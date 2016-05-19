@@ -56,6 +56,7 @@ fi
 
 findjob () {
 	SEARCH_REGEXP="$1"
+	## CONSIDER: An alternative to `grep -v grep` would be to tweak SEARCH_REGEXP so that it cannot match itself.  E.g. findjob 'zsh' -> findjob '[z]sh'
 	env COLUMNS=65535 myps -novars -A |
 		grep -v "\<grep\>" | grep "$SEARCH_REGEXP" |
 		## TODO: This and the PPID in myps hide valid other jobs belonging to this shell
