@@ -1,3 +1,0 @@
-## Not sure how this helps!
-## Removed DOS formatting because it appended ^M to the filename on Linux :-(
-`jwhich gvim` "$@"
