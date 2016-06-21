@@ -1,4 +1,4 @@
-#!/bin/sh
+# @sourceme
 # ## What shell are we running?
 # ## This says SHELL=bash on tao when zsh is run.  zsh only shows in ZSH_
 # ## $0 does OK for bash (at least when in .bash_profile!)
