@@ -24,6 +24,7 @@ bind "\C-z":backward-kill-word
 bind "\C-b":kill-word
 ## My mirror to C-u; actually available as a default on C-k.
 ## Kinda dangerous to use in case bashkeys are not loaded, because C-o's default action is to run the current command (and load line back up into REPL)!
+## Also doesn't work in iTerm2 on Mac.  It might be better just to learn Ctrl-K!
 bind "\C-o":kill-line
 ## Paste (similar to zsh's vi-put-after)
 ## Default action is previous-history, so you might get that if this hasn't been loaded!

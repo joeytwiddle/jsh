@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# See also: nl -nrn -w${PADDING}
+
 # e.g. PADCHAR=0
 [ -z "$PADDING" ] && PADDING=3
 # e.g. PADCHAR=" "
