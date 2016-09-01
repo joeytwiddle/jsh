@@ -119,11 +119,6 @@ else
 			EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
 			## (shouldn't all modern bash prompts have this, on the other machines above?)
 
-			jobs_count_for_prompt() {
-				local numjobs=$(jobs -pr | wc -l)
-				((numjobs)) && echo -n "(${numjobs}) "
-			}
-
 			if [ "$RUNNING_GENTOO" = 1 ]
 			then
 				PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$GIT_AWARE_PROMPT $G2P\[\033[00m\]"
@@ -135,7 +130,7 @@ else
 				# DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell - almost always 0, got it confused with exit code :P
 				## TODO: can we find a more useful value for DOLLARDOESNTDOMUCH (especially given the on-the-fly evaluation above)?
 				[ "$PROMPTHOST" ] || PROMPTHOST="\h" ## for jchroot.  CONSIDER: would hard-coding the PROMPTHOST, instead of \h, be more efficient?
-				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[`curseyellow`\]\$(jobs_count_for_prompt)\[`cursenorm`\]\[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
+				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]\[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
 			fi
 
 			## hwi is a special case where I can be logged in in different ways
