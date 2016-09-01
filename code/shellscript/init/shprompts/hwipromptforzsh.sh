@@ -53,11 +53,11 @@ else
 		## Background only lies beneath the user@hostname
 		export PROMPT="%{[${bgcol};36m%}%n%{[${bgcol};37m%}@%{[${bgcol};36m%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
 
-		export RPROMPT="%{[0%?;30m%}[%{[0%?;3%?m%}err %?%{[0%?;30m%}]%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
+		export RPROMPT="%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 		## My prefered colours for Unix:
 		# export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;33m%}%~/%{[00m %} "
 		# # export RPROMPT="%{[00;31m%}%?%{[00m%}:%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
-		# export RPROMPT="%{[0%?;30m%}[%{[00;3%?m%}err %?%{[0%?;30m%}]%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
+		# export RPROMPT="%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 fi
 
 if true # has_battery
@@ -70,6 +70,12 @@ then
 
 	RPROMPT=$(printf "%s" "$RPROMPT" | sed "s+%l+%l%{[00m%}:%{[00;36m%}\$power_stats+")
 fi
+
+# Show the number of jobs running (if > 0)
+RPROMPT="%(1j.%{`curseyellow`%}(%j)%{`cursenorm`%}.)${RPROMPT}"
+
+# Show the exit code of the last command (if non-zero)
+RPROMPT="%{[0%?;30m%}[%{[0%?;3%?m%}err %?%{[0%?;30m%}]${RPROMPT}"
 
 ## This is a good indicator if user got here via ssh:
 if [ -n "$SSH_CONNECTION" ]
