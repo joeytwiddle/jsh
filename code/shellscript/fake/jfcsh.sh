@@ -47,8 +47,9 @@ then
 		cat "$1" |
 		while IFS="" read X
 		do
-			X="`toregexp "$X"`"
-			grep "^$X$" "$2"
+			# X="`toregexp "$X"`"
+			# grep "^$X$" "$2"
+			grep -x -F "$X" "$2"
 		done
 
 else
