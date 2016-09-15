@@ -4,6 +4,7 @@
 # jsh-depends: cursecyan centralise cursenorm jdeltmp jgettmp
 ## TODO: jfc / jfcsh bridge (has been tried somewhere...)
 ## See other implementations: http://mywiki.wooledge.org/BashFAQ/036
+## An alternative to `jfcsh -common` is `comm -12` provided that both files are sorted.
 
 case "$1" in
 	""|-h|--help)
