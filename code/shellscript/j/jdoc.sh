@@ -39,7 +39,7 @@ then
 	head -n 100 "$2" |
 	# grep '\-\-help' > /dev/null	
 	## More advanced: on not-commented lines, finds occurrences of:  = "--help  ||  = '--help  ||  = --help  ||  --help)
-	grep "[^#]*\(= \([\"']\|\)--help\|--help)\)" > /dev/null	
+	grep "[^#]*\(= [\"']{0,1}--help\|--help)\)" > /dev/null
 	exit "$?"
 
 elif [ "$1" = showjshtooldoc ]
