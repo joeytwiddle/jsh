@@ -29,6 +29,10 @@ extract_info() {
 	cat info.tmp | grep "^ $1: " | afterfirst ": "
 }
 
+## Be gentle:
+which renice >/dev/null && renice -n 10 -p $$
+which ionice >/dev/null && ionice -c 3 -p $$
+
 for INFILE
 do
 
