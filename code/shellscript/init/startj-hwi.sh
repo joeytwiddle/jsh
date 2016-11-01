@@ -262,7 +262,10 @@ else
 
 					dateDiff "JSH stage 4"
 
-					BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | head -n 1 | afterfirst ': ' | beforelast '\.'`
+					if [ -f /proc/cpuinfo ]
+					then BOGOMIPS=`cat /proc/cpuinfo | grep bogomips | head -n 1 | afterfirst ': ' | beforelast '\.'`
+					else BOGOMIPS=1000   # Just assume, e.g. for Mac OS X
+					fi
 
 					if [ -n "$BOGOMIPS" ] && [ "$BOGOMIPS" -gt 500 ]
 					then
