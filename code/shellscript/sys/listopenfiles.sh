@@ -3,6 +3,8 @@
 ## Use listopenfiles <whatever> | dropcols 2 | removeduplicatelines
 ## Make this an option defaulting to on (could call it "merge threads")
 
+## NOTE: Add `-d 0-2` to lsof to exclude lots of files (including shared libraries).  But maybe it excludes too much.
+
 if [ "$1" = --help ]
 then cat << !
 
