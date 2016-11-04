@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Finds all the git repos under your home folder, and tries to fetch them,
+# so you will have the latest upstream the next time you visit the folder.
+
 #find "$HOME/" -type d -name .git |
 locate -r '/\.git$' | grep -F -e "$HOME/" |
 

@@ -7,6 +7,15 @@
 # In its current form, the last line displayed is the commit that added the given blob.
 # We could reverse the output of git rev-list in order to search history chronologically.
 
+if [ "$1" = --help ] || [ -z "$1" ]
+then cat << !
+
+git-which-commit-has-this-blob [ -f <filename> | <hash> ]
+
+!
+exit
+fi
+
 if [ "$1" = -f ]
 then
      file="$2"
