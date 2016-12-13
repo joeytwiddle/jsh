@@ -4,15 +4,16 @@ A diverse library of shellscripts.  Run at your own risk.
 
 ## JSH-specific
 
-    jdoc <jsh_command>            - Show / search documentation
-    et <jsh_command>              - "Edit tool" (so old it used to be a .BAT!)
+    jdoc <jsh_command> | <text>   Show or search documentation
+    et <jsh_command>              Edit a script ("Edit tool" - so old it used to be a .BAT!)
 
 ## Scripts to make my interactive shell look pretty (colourful and informative)
 
-    . autocomplete_from_man
     . xttitleprompt
     . hwipromptforbash / forzsh
     . lscolsinit
+
+These are sourced automatically if you run `jsh/jsh` or source `startj`
 
 Please note that all my rc files now live separately [https://github.com/joeytwiddle/rc_files](here).  For example you may obtain a nice set of `.dircolors` for `lscolsinit` from there.
 
@@ -25,6 +26,8 @@ Please note that all my rc files now live separately [https://github.com/joeytwi
     h [<pattern>]       provides fast searching of history
     .. / ... / ....     shortcuts for cd ../../.. etc.
 
+    . autocomplete_from_man     Tries to provide tab-completion for any command, by peeking at the command's man page
+
 Also handy when working from the cmdline:
 
     jman             - Popup a man page in a separate terminal window
@@ -32,25 +35,25 @@ Also handy when working from the cmdline:
 
 ## Scripts for composing shell commands
 
-For use on the command-line or when writing actual scripts.  Most of the following read from standard in:
+For use on the command-line or when writing actual scripts.  Most of the following read a list from standard in (assumes inputs are separated by newlines):
 
     | withalldo <cmd...>
     | foreachdo <cmd...>
     | dog <target_file>       Atomic write, does not clobber until the end, safe to use after cat!
     | striptermchars          Remove ANSI color codes
-    | trimempty
-    | removeduplicatelines    and removeduplicatelinespo to preserve order
-    | prependeachline <txt_to_prepend>
-    | takecols <column_numbers...>       Like cut but no params to remember!
-    | dropcols <column_numbers...>
-    | beforefirst <regexp>    Take portion of each line before or after pattern
-    | afterlast <regexp>
+    | trimempty               Remove empty/blank lines
+    | removeduplicatelines    Use removeduplicatelinespo to preserve order
+    | takecols <column_numbers...>       Like cut but no params to remember!  Assumes fields are separated by whitespace.
+    | dropcols <column_numbers...>       Removes the specified columns, keeps the rest
+    | beforefirst <regexp>    Take portion of each line before pattern
+    | afterlast <regexp>      or after pattern
     | fromline [-x] <regexp>  Take all lines after or before given pattern
     | toline [-x] <regexp>    [-x] means exclude the matching line
-    | numbereachline
-    | dateeachline [-fine]
-    | dirsonly                Simple filters for lists of paths
-    | filesonly
+    | prependeachline <txt_to_prepend>   Puts the given text before each line of input
+    | numbereachline                     Puts a number before each line of input
+    | dateeachline [-fine]               Puts the date and time before each line of input (useful after tail, or for logging)
+    | dirsonly                Retains only those lines of input which are directories
+    | filesonly               Retains only those lines of input which are files
     | sortfilesbydate
     | sortfilesbysize
 
@@ -75,22 +78,22 @@ Rarely used on the commandline.
 
 ## Utilities
 
-    memo [ -t "N weeks" ] <slow_command...>
+    memo [ -t "N weeks" ] <slow_command...>   Remembers the first output and gives it back on subsequent calls
     diffdirs <dirA> <dirB>
-    diffgraph <related_files...>      shows which files are most closely related
-    jwatch <cmd>                      show lines added to or removed from the cmd's output
-    jwatchchanges [-fine] <cmd>       show the cmd output, highlighting changes (more like watch(1))
+    diffgraph <related_files...>      Shows which files are most closely related, by numerical distance (does not actually draw a graph yet!)
+    jwatch <cmd>                      Show lines added to or removed from the cmd's output
+    jwatchchanges [-fine] <cmd>       Show the cmd output, highlighting changes (more like watch(1))
 
 ### Monitoring
 
-    monitorps                         report new/closed processes
+    monitorps                         Report new/closed processes (useful if you notice a lot of forks but don't know why)
     listopenports [ <process_name> ]
     listopenfiles [ <process_name> ]
     whatisaccessing <file/folder>
     whatisonport <port>
     whatsblockingaudio
     whatsplaying
-    traffic_shaping_monitor
+    traffic_shaping_monitor           Monitor what /sbin/tc classes are doing
     findjob <process_name>
 
 ### Filesystem
@@ -122,7 +125,7 @@ Rarely used on the commandline.
     | txt2speech                      makes festival sound slightly less stupid
     wp <term>                         fast Wikipedia search (short summary)
 
-- 1000 more scripts that shouldn't be here
+- ... and 1000 more scripts that shouldn't be here
 
 ## Install and setup
 
