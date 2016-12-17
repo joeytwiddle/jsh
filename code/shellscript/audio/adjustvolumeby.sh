@@ -4,7 +4,7 @@ DELTA="$1"
 
 # DELTA can be 1 or -1 or 10 or -10 but never +1 or +10 because they do not work through expr.
 
-## TODO: merge volumeup and volumedown into adjustvolume +/-N
+## DONE: merge volumeup and volumedown into adjustvolume +/-N
 ## TODO CONSIDER: some systems will want us to only change one mixer,
 ##   i.e. the first card's master might control all cards?
 
