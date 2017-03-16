@@ -346,6 +346,11 @@ alias okular='inbg okular'
 alias xchat='echo "Running hexchat not xchat!" ; hexchat'
 
 alias npi='npm install'
+alias npmi='npm install'
+alias ya='yarn add'
+alias yi='yarn add'
+alias yga='yarn global add'
+alias ygi='verbosely yarn global add'
 
 
 
