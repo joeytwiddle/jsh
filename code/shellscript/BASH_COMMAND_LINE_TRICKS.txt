@@ -45,6 +45,8 @@ Repeat the previous command with `!!`
 
 Repeat the command before the previous one with `!-2`
 
+There is also `!^`.  I don't know exactly what that represents.  But I do know that `!^[number]` is not useful.
+
 
 
 # Earlier arguments on this line

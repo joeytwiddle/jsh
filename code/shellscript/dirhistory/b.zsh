@@ -1,5 +1,8 @@
 # b: move back in directory history
 
+# See also: pushd <dir>, popd
+# See also: cd - (one step only)
+
 [ "$SUPPRESS_PREEXEC" = undo ] && SUPPRESS_PREEXEC=
 
 SEARCHDIR="$1"

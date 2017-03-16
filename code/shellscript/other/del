@@ -4,6 +4,10 @@
 # jsh-depends-ignore: reclaimspace
 # jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted dfh verbosely geekdate
 
+## See also: `trash-put <file>` from the package `trash-cli`
+## https://github.com/andreafrancia/trash-cli
+## See also: `trash` and `gvfs-trash`
+
 ## TODO: might be nice to do a quick check to see if any processes have a handle on (or are opening) each file before we delete it.
 
 ## TODO: could integrate with new deldirs script
