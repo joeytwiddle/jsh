@@ -17,7 +17,7 @@
 # readgroup () {
 	# while read LINE
 	# do
-		# test ! "$LINE" && break
+		# [ ! "$LINE" ] && break
 		# echo "$LINE" >&2
 	# done
 # }
@@ -30,7 +30,7 @@ debug () {
 [ -z "$SUGGEST_LN" ] && SUGGEST_DEL=1
 # SUGGEST_LN=1 ## BUG TODO: creates a symlink to ./blah which is ONLY correct if the src link is in .
 
-if test "$1" = "" || test "$1" = "--help" || test "$1" = "-h"; then
+if [ "$1" = "" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
 more << !
 
 findduplicatefiles [ <options> ] <find_path>s.. [ <find_option>s.. ]
@@ -101,22 +101,22 @@ stripexcluded () {
 }
 
 SAMENAME=
-if test "$1" = "-samename"
+if [ "$1" = "-samename" ]
 then
 	SAMENAME=true
 	shift
 fi
 
 HASH="cksum"
-if test "$1" = "-qkck"
+if [ "$1" = "-qkck" ]
 then
 	shift
 	HASH="qkcksum"
-elif test "$1" = "-size"
+elif [ "$1" = "-size" ]
 then
 	shift
 	HASH="filesize -likecksum"
-	# echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if test "$Z"; then cksum "$Z"; else echo; fi done' >> /dev/stderr
+	# echo 'Possible usage: findduplicatefiles -size | while read X Y Z; do if [ "$Z" ]; then cksum "$Z"; else echo; fi done' >> /dev/stderr
 fi
 
 if [ -z "$SORT_METHOD" ]
@@ -185,7 +185,7 @@ fi |
 (
 
   read EMPTY
-  test "$EMPTY" = "" || error "Expected empty line; got \"$EMPTY\""
+  [ "$EMPTY" = "" ] || error "Expected empty line; got \"$EMPTY\""
   echo
 
   while read LINE
@@ -194,7 +194,7 @@ fi |
       echo "$LINE"
       while read LINE
       do
-        if test "$LINE"
+        if [ -n "$LINE" ]
         then echo "$LINE"
         else break
         fi
@@ -211,11 +211,11 @@ fi |
 (
 
   read EMPTY
-  test "$EMPTY" = "" || error "Expected empty line; got \"$EMPTY\""
+  [ "$EMPTY" = "" ] || error "Expected empty line; got \"$EMPTY\""
 
   while read SUM SIZE FILE
   do
-    if test "$SUM" = ""
+    if [ "$SUM" = "" ]
     then
       error "## Unexpected empty line"
       continue
@@ -224,14 +224,14 @@ fi |
     echo "# -- $FILE"
     while read SUM2 SIZE2 FILE2
     do
-      if test "$SUM2" = ""
+      if [ "$SUM2" = "" ]
       then break
       fi
-      if test "$SUM" = "$SUM2" && test "$SIZE" = "$SIZE2"
+      if [ "$SUM" = "$SUM2" ] && [ "$SIZE" = "$SIZE2" ]
       then
-        if [ "$SUGGEST_DEL" ]
+        if [ -n "$SUGGEST_DEL" ]
         then echo "del \"$FILE2\""
-        elif [ "$SUGGEST_LN" ]
+        elif [ -n "$SUGGEST_LN" ]
         # then echo "ln -s -f \"$PWD/$FILE\" \"$FILE2\""   ## Bad: $FILE may be absolute already
         then
           realLink=`absolutepath "$FILE"`
@@ -257,7 +257,7 @@ fi |
 # do
 	# echo "GROUP:"
 	# echo "$GROUP"
-	# # test ! "$GROUP" && break
+	# # [ ! "$GROUP" ] && break
 # done
 
 exit
@@ -275,7 +275,7 @@ sort |
 
 while read X Y FILE
 do
-	if test "$X" = "$LASTX" && test "$Y" = "$LASTY"
+	if [ "$X" = "$LASTX" ] && [ "$Y" = "$LASTY" ]
 	then
 		echo "# Redund: ($X $Y) \"$FILE\""
 		echo "echo \"Deleting \\\"$FILE\\\"\""
