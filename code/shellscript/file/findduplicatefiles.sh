@@ -3,7 +3,7 @@
 ## A one-line alternative: find . ! -empty -type f -exec sh -c 'md5sum "$1"' _ {} \; | sort | uniq -w32 -dD
 
 ## We are now doing size comparison when -samename is off.  So findduplicatefiles-quick is deprecated.
-# [ "$1" = "" ] && jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles without options.  You are recommended to use that until they are merged."
+# [ -z "$1" ] && jshwarn "findduplicatefiles-quick is actually much faster than findduplicatefiles without options.  You are recommended to use that until they are merged."
 # jshwarn "Ofc scripting makes sense with findduplicatefiles, providing we will keep the I/O similar."
 
 ## DONE: Recommend automatic (TODO: optional) rejection of 0-length files, since these are always seen as duplicates, contain no data, and are more often useful for their filename, not their data.  Note: NOT done for -samename!
@@ -30,7 +30,7 @@ debug () {
 [ -z "$SUGGEST_LN" ] && SUGGEST_DEL=1
 # SUGGEST_LN=1 ## BUG TODO: creates a symlink to ./blah which is ONLY correct if the src link is in .
 
-if [ "$1" = "" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
+if [ -z "$1" ] || [ "$1" = "--help" ] || [ "$1" = "-h" ]; then
 more << !
 
 findduplicatefiles [ <options> ] <find_path>s.. [ <find_option>s.. ]
@@ -185,7 +185,7 @@ fi |
 (
 
   read EMPTY
-  [ "$EMPTY" = "" ] || error "Expected empty line; got \"$EMPTY\""
+  [ -z "$EMPTY" ] || error "Expected empty line; got \"$EMPTY\""
   echo
 
   while read LINE
@@ -211,11 +211,11 @@ fi |
 (
 
   read EMPTY
-  [ "$EMPTY" = "" ] || error "Expected empty line; got \"$EMPTY\""
+  [ -z "$EMPTY" ] || error "Expected empty line; got \"$EMPTY\""
 
   while read SUM SIZE FILE
   do
-    if [ "$SUM" = "" ]
+    if [ -z "$SUM" ]
     then
       error "## Unexpected empty line"
       continue
@@ -224,7 +224,7 @@ fi |
     echo "# -- $FILE"
     while read SUM2 SIZE2 FILE2
     do
-      if [ "$SUM2" = "" ]
+      if [ -z "$SUM2" ]
       then break
       fi
       if [ "$SUM" = "$SUM2" ] && [ "$SIZE" = "$SIZE2" ]
