@@ -4,7 +4,9 @@
 # See also: pwgen (from pwgen package)
 
 [ -z "$PASSWORD_LENGTH" ] && PASSWORD_LENGTH=$((10 + RANDOM%11))
-< /dev/urandom tr -cd '[:alnum:]' | head -c "$PASSWORD_LENGTH" ; echo
+#< /dev/urandom tr -cd '[:alnum:]' | head -c "$PASSWORD_LENGTH" ; echo
+# That didn't work on Mac OS X (it displayed a bunch of non-ASCII symbols), so instead:
+< /dev/urandom strings | grep -o '[[:alnum:]]' | head -n "$PASSWORD_LENGTH" | tr -d '\n' ; echo
 
 
 
