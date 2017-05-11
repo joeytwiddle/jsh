@@ -277,7 +277,7 @@ do
 
 	# [ -d "$MNTPNT"/RECLAIM ] && cd "$MNTPNT"/RECLAIM && find . -type f | countlines
 
-	if [ "$SPACE" -lt "$MINKBYTES" ]
+	if [ -n "$SPACE" ] && [ "$SPACE" -lt "$MINKBYTES" ]
 	then
 
 		jshwarn "Partition $DEVICE mounted at $MNTPNT has $SPACE"k" < $MINKBYTES"k" of space."
