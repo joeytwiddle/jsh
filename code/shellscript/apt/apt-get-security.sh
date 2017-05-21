@@ -1,5 +1,7 @@
 #!/bin/sh
-SECURITY_LIST=/etc/apt/sources-security.list
+set -e
+
+SECURITY_LIST=/tmp/sources-security.list
 
 if [ ! -f "$SECURITY_LIST" ]
 then
