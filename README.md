@@ -2,16 +2,20 @@
 
 A diverse library of shellscripts.  Run at your own risk.
 
+Many of these scripts run standalone, but some of them require other scripts to be on the PATH.
+
+Run `jsh/jsh` or `source jsh/startj` or `source jsh/startj-simple` to setup your PATH so they will all run fine.  (See detailed instructions below.)
+
 ## JSH-specific
 
-    jdoc <jsh_command> | <text>   Show or search documentation
+    jdoc <jsh_command> | <text>   Show or search documentation (like man for jsh scripts)
     et <jsh_command>              Edit a script ("Edit tool" - so old it used to be a .BAT!)
 
 ## Scripts to make my interactive shell look pretty (colourful and informative)
 
-    . xttitleprompt
-    . hwipromptforbash / forzsh
-    . lscolsinit
+    . xttitleprompt               Show information in your terminal window
+    . hwipromptforbash / forzsh   My pretty prompt
+    . lscolsinit                  Loads a comprehensive color scheme for `ls`
 
 These are sourced automatically if you run `jsh/jsh` or source `startj`
 
@@ -73,7 +77,7 @@ For use on the command-line or when writing actual scripts.  Most of the followi
 
 Rarely used on the commandline.
 
-    . importshfn <shellscript>       Load a shellscript as a function, so it runs faster when you call it many times
+    . importshfn <shellscript>       Creates a function from the shellscript, so it will run quicker if you call it many times.  YMMV
     . require_exes <exe_names...>    exits if the gives exes are not on your PATH
 
 ## Utilities
