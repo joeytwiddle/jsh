@@ -4,6 +4,8 @@
 # you have extra kernel packages such as linux-image-extra-foo, this won't be
 # pinned, so it could get autoremoved.
 
+# I posted this script on https://askubuntu.com/questions/2793/how-do-i-remove-old-kernel-versions-to-clean-up-the-boot-menu/917306#917306
+
 set -e
 
 package_name="currently-running-kernel"
