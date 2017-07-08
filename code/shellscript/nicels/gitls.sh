@@ -16,7 +16,8 @@ do
 	cwd="$PWD"
 	lnode="$(basename "$node")"
 	cd "$(dirname "$node")"
-	# Fallback (default) status.  Not many things get this.  Broken symlinks do (untracked, not sure about tracked).
+	# Fallback (default) status.  Not many things get this.  Untracked broken symlinks do (not sure about tracked), and sockets do.
+	# According to logic below, these are things which are not directories and not files.
 	extra="--"
 	if [ -d "$lnode" ]
 	then
