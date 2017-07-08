@@ -4,6 +4,10 @@
 # BUG: When directories are passed as arguments, they are not listed the same as with ls.  Instead of just filenames, each files full path is displayed.
 # Note that git is (currently) run from the caller's working directory, so cannot inspect files from a different repository.
 
+if [ "$1" = -R ]
+then GITLS_CHECK_FOLDERS=1; shift
+fi
+
 find "$@" -maxdepth 1 |
 #find "$@" -type f | grep -v "/\.git/" |
 sed 's+^\./++' |
