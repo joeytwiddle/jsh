@@ -69,3 +69,7 @@ if [ ! -f "${package_file}" ]; then echo "Expected package file was not build: $
 echo ">> Installing generated package ${package_name}"
 
 sudo dpkg -i "${package_file}"
+
+# Cleanup if successful
+cd /
+rm -rf "${tmpdir}"
