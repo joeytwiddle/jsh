@@ -26,7 +26,7 @@ current_kernel_package_name="linux-image-$(uname -r)"
 
 #is_package_insalled="$(apt -qq list "${current_kernel_package_name}")"
 is_package_insalled="$(dpkg-query -W "${current_kernel_package_name}" 2>/dev/null)"
-if [ -z "$is_package_insalled" ]; then echo "Cannot pin package ${current_kernel_package_name} because it is not installed"; exit 1; fi
+if [ -z "$is_package_insalled" ]; then echo "Cannot pin package ${current_kernel_package_name} because it is not installed" >&2; exit 1; fi
 
 echo ">> Generating package ${package_name} to pin the current kernel package (${current_kernel_package_name})"
 
@@ -64,7 +64,7 @@ echo
 
 package_file="./${package_name}_${package_version}_all.deb"
 
-if [ ! -f "${package_file}" ]; then echo "Expected package file was not build: ${package_file}"; exit 2; fi
+if [ ! -f "${package_file}" ]; then echo "Expected package file was not build: ${package_file}" >&2; exit 2; fi
 
 echo ">> Installing generated package ${package_name}"
 
