@@ -8,7 +8,8 @@
 # xterm -fg "#003000" -bg "#ffffe4" "$@" &
 # xterm -fg "#005500" -bg "#ffffbb" "$@" &
 # xterm -fg "#005500" -bg "#eeee99" "$@" &
-xterm -fg "#004400" -bg "#ddddaa" "$@" &
+# xterm -fg "#004400" -bg "#ddddaa" "$@" &
+xterm -fg "#004400" -bg "#bbbb99" "$@" &
 
 ## Green/black LCD (SpyAmp):
 # xterm -fg "#222222" -bg "#88bb88" "$@" &
