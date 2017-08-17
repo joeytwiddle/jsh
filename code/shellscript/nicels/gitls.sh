@@ -41,6 +41,8 @@ do
 				else
 					# Just display the first thing that git reports
 					whatever=$(printf "%s" "$status_line" | grep -m 1 -o "^..")
+					# Added `head -n 1` because on Mac OS X grep 2.5.1-FreeBSD was outputting every '..', not only the first one found (and not only those at line start)
+					#whatever=$(printf "%s" "$status_line" | grep -m 1 -o "^.." | head -n 1)
 					if [ -n "$whatever" ]
 					then extra="$whatever"
 					else extra="  "
