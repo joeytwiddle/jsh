@@ -1,10 +1,8 @@
 #!/usr/bin/env bash
 
-mongo "$@" << !!!
-var collections = db.getCollectionNames();
+# E.g.: mongo_show_collection_counts localhost/MyDB
 
-for (var c of collections) {
-	var count = db.getCollection(c).count();
-	print(c + ": " + count);
-}
+mongo "$@" << !!! |
+db.getCollectionNames().forEach(collectionName => print(collectionName + ": " + db.getCollection(collectionName).count()));
 !!!
+sort -n -k 2
