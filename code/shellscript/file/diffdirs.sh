@@ -11,6 +11,8 @@
 # Or if you are feeling brave, use diff's recursive option:
 #   diff -r dir1 dir2
 
+# See also: diff --brief -r
+
 ## Consider: Instead of "Only in ..." use "Missing" and "Added" when comparing state of second wrt first.
 ## BUG TODO: Does not do the right thing with broken symlinks - spews errors instead.
 
