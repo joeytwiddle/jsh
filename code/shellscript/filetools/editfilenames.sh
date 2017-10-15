@@ -1,9 +1,11 @@
 #!/bin/sh
 # Rename files using your favourite editor.
 
-original_filenames="`jgettmp original_filenames`"
-new_filenames="`jgettmp new_filenames`"
-commands_to_run="`jgettmp commands_to_run`"
+# BUG I you rename a symlink to itself (i.e. don't rename it) and that symlink is a folder, then the symlink will be moved into that folder, and disappear from the current folder!
+
+original_filenames="$(jgettmp original_filenames)"
+new_filenames="$(jgettmp new_filenames)"
+commands_to_run="$(jgettmp commands_to_run)"
 
 if [ "$1" ]
 then
@@ -11,13 +13,24 @@ then
 else
 	find . -maxdepth 1 |
 	grep -v '^\.$' |
+	sort |
 	sed 's+^\.\/++' > "$original_filenames"
 fi
 
 cp "$original_filenames" "$new_filenames"
 
 #vi "$new_filenames"
-editandwait "$new_filenames"
+#editandwait "$new_filenames"
+
+# Find a suitable text editor
+editor="$VISUAL"
+[ -z "$editor" ] && editor="$EDITOR"
+[ -z "$editor" ] && which editor >/dev/null && editor=editor
+[ -z "$editor" ] && which nano   >/dev/null && editor=nano
+[ -z "$editor" ] && which vi     >/dev/null && editor=vi
+[ -z "$editor" ] && editor=no_editor_found
+
+$editor "$new_filenames"
 
 cat "$original_filenames" | sed "s+'+'\"'\"'+g" | sed "s+.*+'\0'+g" | dog "$original_filenames"
 cat "$new_filenames"      | sed "s+'+'\"'\"'+g" | sed "s+.*+'\0'+g" | dog "$new_filenames"
@@ -30,8 +43,8 @@ echo
 cat "$commands_to_run"
 echo
 
-num_original="`cat "$original_filenames" | wc -l`"
-num_new="`cat "$new_filenames" | wc -l`"
+num_original="$(cat "$original_filenames" | wc -l)"
+num_new="$(cat "$new_filenames" | wc -l)"
 if [ ! "$num_original" = "$num_new" ]
 then
 	echo 'The number of filenames differ.  We cannot safely proceed!'
