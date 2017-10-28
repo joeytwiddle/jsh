@@ -34,6 +34,8 @@ listopenfiles [ -allthreads | -mergethreads | -mergeprocesses ] [ <start_of_proc
 
     listopenfiles chrome | grep "\<REG\>" | grep -v "\<mem\>"
 
+  See also: listfilesopenby <part_of_process_name> which is much faster
+
 !
 exit 1
 fi
