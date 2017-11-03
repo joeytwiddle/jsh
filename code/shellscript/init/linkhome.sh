@@ -70,7 +70,7 @@ find . -maxdepth $DEPTH |
 				ln -sf "$SOURCE" "$DEST"
 			fi
 		else
-			if [ ! `realpath "$DEST"` = `realpath "$SOURCE"` ]
+			if [ ! "`realpath "$DEST"`" = "`realpath "$SOURCE"`" ]
 			then
 				echo "`cursered;cursebold`problem`cursenorm` $NICEDEST `cursered;cursebold`is in the way of`cursenorm` $SOURCE"
 				if [ -f "$DEST" ] && [ -f "$SOURCE" ] && cmp "$DEST" "$SOURCE"
