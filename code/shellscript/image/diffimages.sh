@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# See also: http://stackoverflow.com/questions/5132749/diff-an-image-using-imagemagick?rq=1
+
 # Disabled because not very portable
 #. require_exes composite
 
