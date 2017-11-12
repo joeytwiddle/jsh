@@ -42,13 +42,22 @@ do
 	# == Quality ==
 	# For PNGs of game screenshots, 80% showed loss in text quality (weaker contrast), 90% looked ok, 95% showed little compression.
 
-	verbosely convert "$filename" -geometry "2073600@>" -quality 50% "$shrunken_filename"
+	# When scaling down vector images, -scale may be preferable to -geometry, because it is linear rather than cubic.  Cubic can introduce unwanted ringing at high-contrast edges.  Incidentally, -scale is also faster.
+	# However when scaling down photos, -geometry (or -resize) may be preferable, to keep the edges sharp.
+
+	# When I don't care that much about the images, I want to keep them for posterity, but I really want to save space.
+	#verbosely convert "$filename" -quality 60% -geometry "1920000@>" "$shrunken_filename"
+
+	# For photos I want to keep at reasonably good quality, but I don't need them to be perfect.
+	verbosely convert "$filename" -quality 80% -geometry "2073600@>" "$shrunken_filename"
 
 	touch -r "$filename" "$shrunken_filename"
 
 	# If the process actually made the file larger, then copy the old one over the "shrunken" one.
 	if [ "$(stat -c '%s' "$shrunken_filename")" -gt "$(stat -c '%s' "$filename")" ]
-	then cp -af "$filename" "$shrunken_filename"
+	then
+		echo "The convered image was larger!  So sticking with the original."
+		cp -af "$filename" "$shrunken_filename"
 	fi
 
 	#del "$filename"
