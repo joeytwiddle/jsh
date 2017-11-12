@@ -1,0 +1,768 @@
+#!/bin/bash
+#
+# Developed by Fred Weinhaus 8/27/2007 .......... revised 4/25/2015
+# Contrast limiting technique by Alan Gibson (user snibgo) ... 7/3/2013
+#
+# ------------------------------------------------------------------------------
+# 
+# Licensing:
+# 
+# Copyright © Fred Weinhaus
+# 
+# My scripts are available free of charge for non-commercial use, ONLY.
+# 
+# For use of my scripts in commercial (for-profit) environments or 
+# non-free applications, please contact me (Fred Weinhaus) for 
+# licensing arrangements. My email address is fmw at alink dot net.
+# 
+# If you: 1) redistribute, 2) incorporate any of these scripts into other 
+# free applications or 3) reprogram them in another scripting language, 
+# then you must contact me for permission, especially if the result might 
+# be used in a commercial or for-profit environment.
+# 
+# My scripts are also subject, in a subordinate manner, to the ImageMagick 
+# license, which can be found at: http://www.imagemagick.org/script/license.php
+# 
+# ------------------------------------------------------------------------------
+# 
+####
+#
+# USAGE: redist [-s shape] [-m colormodel] [-c channel] [-g graytype] 
+# [-f factor] [-G] [-L] [mean[,lo[,hi]]] infile outfile
+# USAGE: redist [-h or -help]
+# 
+# -h or -help        get help
+# -s   shape         redistribution shape; choices are: Gaussian or Uniform; 
+#                    default is Gaussian
+# -m   colormodel    processing (color) model; default=RGB
+# -c   channel       channel number to process; channel=0,1,2; 
+#                    default -> see below
+# -g   graytype      type of grayscale image to use when colormodel=RGB;
+#                    choices are: gray, rec601, rec709, lightness, brightness, 
+#                    ave, demodhsl, demodhcl. default=gray
+# -f   factor        factor the contrast gain limiting factor; smaller values  
+#                    will limit contrast gain more; values above about 3 will 
+#                    produce no contrast limit; float>=0; 
+#                    default is no threshold
+# -G                 display the grayscale histogram (graph) with 
+#                    distribution function overlay
+# -L                 save the lookup table image; if saved, it will 
+#                    be named redist_lut.png
+# mean               desired mean for Gaussian distribution; 
+#                    mean in range 0 to 100; default=60 
+# lo                 desired 1 sigma roll-off point of distribution on the 
+#                    low side of the Gaussian peak; lo > 0; default=60
+# hi                 desired 1 sigma roll-off point of distribution on the 
+#                    high side of the Gaussian peak; hi > 0; default=60
+# 
+###
+#
+# NAME: REDIST 
+# 
+# PURPOSE: To modify an image so that its (grayscale) histogram has either 
+# a Gaussian (sometimes called normal or bell-shaped) distribution or
+# a Uniform (constant height) distribution. The latter is equivalent to 
+# histogram equalization.
+# 
+# DESCRIPTION: REDIST is designed to apply an intensity mapping
+# transformation to an image such that the resulting image's grayscale
+# histogram has a specified distribution shape (Gaussian or Uniform). For 
+# colormodel not equal to RGB, it first converts the image to that 
+# color space via the colormodel parameter and processes the intensity-like 
+# channel. For colormodel=RGB, it converts the image to an appropriate 
+# intensity-like channel as specified by graytype. Either way it computes the 
+# intensity-like channel's cumulative histogram. The script then generates the 
+# integral of the specified distribution scaled to the last value in the 
+# cumulative histogram. For each value in the image's cumulative histogram, 
+# it finds the closest value in the integral and then looks to see what its 
+# graylevel value is. It uses those graylevel values as the y-value in a 
+# mapping transformation whose x-values range from 0-255. This mapping 
+# transformation is expressed as a 1-D image and used with the IM function 
+# -fx or -clut to transform the input image. For colormodel not RGB, it process 
+# only the intensity-like channel and then recombines the channels and converts 
+# back to RGB. For colormodel RGB, it applies the transformation to each 
+# channel of the RGB image. If a graph is desired, it is normally just viewed. 
+# However, a default parameter in the program can be set to allow it to be 
+# saved as outfilename_graph.gif. To end the script, close/quit the graph image.
+# 
+# 
+# ARGUMENTS: 
+# 
+# -s  SHAPE defines the desired distribution shape, which can be either 
+# Gaussian (also known as normal or bell-shaped) or Uniform (constant 
+# height). The default is Gaussian if -s shape is not specified.
+# 
+# -m  COLORMODEL defines the color model to use for the processing of an
+# RGB color image into a grayscale image in order to compute the required
+# cumulative histogram. If a colormodel other than RGB or GLOBAL is
+# specified, then the image is first transformed into that color space and
+# an intensity-like channel will then be used to compute the cumulative
+# histogram. If RGB is selected, the RGB image is converted to an appropriate 
+# grayscale according to the graytype. This grayscale image is then used to 
+# generate the cumulative histogram. If GLOBAL is selected, then the combined 
+# cumulative histogram from all the channels is computed. The default value is 
+# RGB when colormodel is not provided. Note that results vary between the 
+# different color models.
+# 
+# -c  CHANNEL defines which channel to use for the histogram processing.
+# Values for channel may be 0, 1 or 2, which correspond to those generated
+# by the conversion to that color space. For RGB, this is R=0, G=1, B=2.
+# For HSL, this is H=0, S=1, L=2. The same goes for the other color spaces.
+# This will override the default value which is set for most colorspaces 
+# to the most intensity-like channel. For HSL and HSB, this is channel 2. 
+# For all others except RGB and GLOBAL, this is channel 0. For GLOBAL, 
+# all channels will be combined to compute the histogram.
+# 
+# -g  GRAYTYPE defines the type of grayscale image to use when colormodel=RGB.
+# The choices are: gray (same as rec609luma; YUV, YIQ, YCbCr channel 1;  
+# HCL channel 2), rec709 (which is rec709luma), lightness (from HSL channel 2),  
+# brightness (from HSB channel 2) and ave (from OHTA channel 1). The 
+# default=gray. Note that gray is the same as rec601luma prior to IM 6.8.5.5 
+# and is the same as rec709luma for IM 6.8.5.5 forward.
+#
+# -f factor ... FACTOR is the contrast gain limiting factor. Smaller values  
+# will limit contrast gain more; values above about 3 will produce no contrast 
+# limit. Values are floats>=0. The default is no contrast gain limitation.
+# The factor is used to combine the histogram count mean and standard deviation 
+# to compute a maximum threshold for the histogram counts in order to limit the
+# contrast. The threshold=countmean+factor*countstd.
+#
+# -L ... Save the lookup table image. If saved, it will be named 
+# redist_lut.png
+# 
+# -G ... Display the grayscale histogram (graph) with the distribution 
+# function overlay
+#
+# MEAN is the desired center point for the peak in the Gaussian 
+# distribution. It is an integer in the range of 0 to 100 (graylevel %). 
+# Its default value is 60.
+# 
+# LO is the desired 1 sigma roll-off point on the low side of the 
+# distribution, expressed as pixels from the peak. This is where 
+# the Gaussian shape has dropped to 61% of its maximum value. The 
+# range between the peak and this point, will contain 34% of all the 
+# pixels in the image. It is an integer which is greater than zero. 
+# Its default is 60.
+# 
+# HI is the desired 1 sigma roll-off point on the high side of the 
+# distribution, expressed as pixels from the peak. This is where 
+# the Gaussian shape has dropped to 61% of its maximum value. The 
+# range between the peak and this point, will contain 34% of all the 
+# pixels in the image. It is an integer which is greater than zero. 
+# Its default is 60. If LO is provided, but not HI, then HI will be 
+# set equal to LO.
+# 
+# NOTE: If you want different default values for mean, lo and hi, 
+# you may set them within the script, just below
+# 
+# REQUIRES: NetPBM PGM format intermediate image. See 
+# http://netpbm.sourceforge.net/
+#
+# NOTE: Thanks to Anthony Thyssen for the suggested changes from shell 
+# calculations for the histograms to the use of AWK. This has produced 
+# a 10x performance speed up.
+# 
+# CAVEAT: No guarantee that this script will work on all platforms, 
+# nor that trapping of inconsistent parameters is complete and 
+# foolproof. Use At Your Own Risk. 
+# 
+######
+#
+
+# set default value
+dmean=60
+dlo=60
+dhi=60
+maxval=65535
+shape="gaussian"
+colormodel="RGB"
+channel=""
+graytype="GRAY"
+factor=""
+display_graph="no"
+graph="view"
+
+
+# set directory for temporary files
+dir="."    # suggestions are dir="." or dir="/tmp"
+
+
+# set up functions to report Usage and Usage with Description
+PROGNAME=`type $0 | awk '{print $3}'`  # search for executable on path
+PROGDIR=`dirname $PROGNAME`            # extract directory of program
+PROGNAME=`basename $PROGNAME`          # base name of program
+usage1() 
+	{
+	echo >&2 ""
+	echo >&2 "$PROGNAME:" "$@"
+	sed >&2 -e '1,/^####/d;  /^###/g;  /^#/!q;  s/^#//;  s/^ //;  4,$p' "$PROGDIR/$PROGNAME"
+	}
+usage2() 
+	{
+	echo >&2 ""
+	echo >&2 "$PROGNAME:" "$@"
+	sed >&2 -e '1,/^####/d;  /^######/g;  /^#/!q;  s/^#*//;  s/^ //;  4,$p' "$PROGDIR/$PROGNAME"
+	}
+
+
+# function to report error messages
+errMsg()
+	{
+	echo ""
+	echo $1
+	echo ""
+	usage1
+	exit 1
+	}
+
+
+# function to test for minus at start of value of second part of option 1 or 2
+function checkMinus
+	{
+	test=`echo $val | grep -c '^-.*$'`   # returns 1 if match; 0 otherwise
+    if [ $test -eq 1 ]
+		then
+			errMsg "$errorMsg"
+    fi
+	}
+
+
+
+# function to get cumulative histogram
+cumHistogram()
+	{
+	img="$1"
+	
+	histArr=(`convert $img -colorspace gray -depth 8 -format "%c" histogram:info:- \
+	| tr -cs '0-9\012' ' ' |\
+	awk '
+	# AWK to generate a zero filled histogram
+	{ bin[int($2)] += $1; } 
+	END { for (i=0;i<256;i++) {hist = bin[i]+0; print hist; }
+	} '`)
+#	echo ${histArr[*]}
+#	echo ${#histArr[*]}
+
+	if [ "$factor" = "" ]; then
+		ccountArr=(`echo ${histArr[*]} |\
+		awk '# AWK to generate a cumulative histogram
+		{ split($0,count," ") }
+		END { for (i=0;i<256;i++) { cum += count[i]; print cum } } '`)
+		totpix=${ccountArr[255]}
+#		echo ${ccountArr[*]}
+#		echo ${#ccountArr[*]}
+
+	else
+		mean_std=`echo ${histArr[*]} | tr " " "\n" |\
+		awk '
+		# AWK to generate count mean and std of histogram
+		{ sum += $1; sumsq += $1*$1; }
+		END { mean=sum/256; std=sqrt(sumsq/256 - mean*mean); print mean, std } '`
+		cmean=`echo $mean_std | cut -d\  -f1`
+		cstd=`echo $mean_std | cut -d\  -f2`
+#		echo "cmean=$cmean; cstd=$cstd;"
+
+		# compute count_threshold for clipping the histogram
+		count_threshold=`convert xc: -format "%[fx:$cmean+$factor*$cstd]" info:`
+
+		ccountArr=(`echo ${histArr[*]} |\
+		awk -v thresh="$count_threshold" '# AWK to generate a cumulative histogram
+		{ split($0,count," ") }
+		END { for (i=0;i<256;i++) { cum += (count[i]>thresh)?thresh:count[i]; print cum } } '`)
+		totpix=${ccountArr[255]}
+#		echo ${ccountArr[*]}
+#		echo ${#ccountArr[*]}
+	fi
+	}
+
+
+# function to generate gaussian array in two parts: 0 to mean and mean to 255
+gaussian()
+	{
+	mean=`echo "scale=0; 256 * $mean / 100" | bc`
+	expo=`convert xc: -format "%[fx:e]" info:`
+
+	# create low part of gaussian distribution
+	fact=`convert xc: -format "%[fx:1/(2*($lo)^2)]" info:`
+	loArr=(`awk -v mean="$mean" -v fact="$fact" -v expo="$expo" -v maxval="$maxval" '
+		BEGIN { for (i=0;i<=mean;i++) print maxval*expo^(-((i-mean)^2)*fact); }'`)
+#	echo ${loArr[*]}
+#	echo ${#loArr[*]}
+
+	# create high part of gaussian distribution
+	mean1=`expr $mean + 1`
+	fact=`convert xc: -format "%[fx:1/(2*($hi)^2)]" info:`
+	hiArr=(`awk -v mean="$mean" -v fact="$fact" -v expo="$expo" -v maxval="$maxval" '
+		BEGIN { for (i=mean+1;i<256;i++) print maxval*expo^(-((i-mean)^2)*fact); }'`)
+#	echo ${hiArr[*]}
+#	echo ${#hiArr[*]}
+	
+	# combine low and high parts of gaussian distribution
+	gausslist="${loArr[*]} ${hiArr[*]}"
+	functionArr=($gausslist)
+#	echo ${functionArr[*]}
+#	echo ${#functionArr[*]}
+		}
+
+integrateFunction()
+	{
+	# integrate function distribution
+	intFunctionList=$(for ((i=0; i<256; i++)); do
+		echo "$i ${functionArr[$i]}"
+		done |\
+		awk -v totpix="$totpix" '# AWK to integrate a function
+			{ cum += $2; rcum[$1] = cum; } 
+			END { for (i=0;i<256;i++) print int(totpix*rcum[i]/cum); }')
+	integralArr=($intFunctionList)
+#	echo ${integralArr[*]}
+#	echo ${#integralArr[*]}
+	}
+
+# function to generate lut from matching the cumulative histogram with the function integral
+genLutArr()
+	{
+	# for each possible bin graylevel (0 to 255) of cc2 starting at 0
+	# get count from cumulate histogram cc2 at that bin, then
+	# increment along bin graylevels of integrated function cc1 until that count exceeds that of cc2
+	# find the bin graylevel in cc1 and use that as the output value of the lut transformation 
+	# where the cc2 bin graylevel is the input value of the lut transformation
+	# repeat for the next cc2 bin, but starting at graylevel where left off from previous.
+	# as cumulative histograms never decrease, you don't have to start at graylevel 0 each time
+
+	lutlist=$(for ((i=0; i<256; i++)); do
+		echo "$i ${integralArr[$i]} ${ccountArr[$i]}"
+		done |\
+		awk -v maxval="$maxval" '# AWK to generate transformation lut
+			BEGIN { i=0; } { cc1[$1]=$2; cc2[$1]=$3; } 
+			END { for ( j=0;j<256;j++ ) 
+				{ while ( i != 255 && cc1[i] <= cc2[j] ) 
+					{ i++ } lut = maxval*i/255; print lut; } }')
+	}
+
+# special function to generate lut for Uniform Distribution which is just the cumulative histogram normalized to max value 
+genUniformLutArr()
+	{
+	# the uniform distribution has an integral which is f(x)=x
+	# this means that the cumulative distribution of the image is its own lut and only needs to be scaled
+	# get raw cumulative histogram
+	fact=`convert xc: -format "%[fx:$maxval/$totpix]" info:`
+	lutlist=$(for ((i=0; i<256; i++)); do
+		echo "${ccountArr[$i]}"
+		done |\
+		awk -v fact="$fact" '{ print int(fact*$1); }')
+	}
+
+# test for correct number of arguments and get values
+if [ $# -eq 0 ]
+	then
+	# help information
+   echo ""
+   usage2
+   exit 0
+elif [ $# -gt 15 ]
+	then
+	errMsg "--- TOO MANY ARGUMENTS WERE PROVIDED ---"
+else
+	mean=""
+	lo=""
+	hi=""
+	while [ $# -gt 0 ]
+		do
+			# get parameter values
+			case "$1" in
+		  -h|-help)    # help information
+					   echo ""
+					   usage2
+					   exit 0
+					   ;;
+				-G)    # display graph
+					   display_graph="yes"
+					   ;;
+		 		-s)    # distribution shape
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   shape=$1
+					   if [ "$shape" != "Gaussian" -a "$shape" != "gaussian" -a "$shape" != "Uniform"  -a "$shape" != "uniform" ]
+							then
+							errMsg "--- SHAPE=$shape IS NOT A VALID VALUE ---"
+						fi
+					   errorMsg="--- INCORRECT SHAPE PARAMETER SPECIFICATION ---"
+					   val=$shape
+					   checkMinus  ;;
+		 		-m)    # colorspace model
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   colormodel=$1
+					   colormodel=`echo "$colormodel" | tr "[:lower:]" "[:upper:]"`
+					   errorMsg="--- INCORRECT MODEL PARAMETER SPECIFICATION ---"
+					   val=$colormodel
+					   checkMinus  ;;
+		 		-c)    # channel number
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   channel=$1
+					   if [ $channel -ne 0 -a $channel -ne 1 -a $channel -ne 2 ]
+							then
+							errMsg "--- CHANNEL=$channel IS NOT A VALID VALUE ---"
+						fi
+					   errorMsg="--- INCORRECT CHANNEL PARAMETER SPECIFICATION ---"
+					   val=$channel
+					   checkMinus  ;;
+				-g)    # get  graytype
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID GRAYTYPE SPECIFICATION ---"
+					   checkMinus "$1"
+					   graytype="$1"
+					   graytype=`echo "$graytype" | tr "[:lower:]" "[:upper:]"`
+					   case "$graytype" in
+							GRAY) ;;
+							REC601) ;;
+							REC709) ;;
+							LIGHTNESS) ;;
+							BRIGHTNESS) ;;
+							AVE) ;;
+							DEMODHSL) ;;
+							DEMODHCL) ;;
+							*) errMsg "--- GRAYTYPE=$graytype IS NOT A VALID VALUE ---" ;;
+					   esac
+					   ;;
+				-f)    # get factor
+					   shift  # to get the next parameter
+					   # test if parameter starts with minus sign 
+					   errorMsg="--- INVALID FACTOR SPECIFICATION ---"
+					   checkMinus "$1"
+					   factor=`expr "$1" : '\([.0-9]*\)'`
+					   [ "$factor" = "" ] && errMsg "--- FACTOR=$factor MUST BE A NON-NEGATIVE FLOAT ---"
+					   ;;
+ 				-L)    # get  savelut
+					   savelut="yes"
+					   ;;
+ 				 -)    # STDIN, end of arguments
+  				 	   break
+  				 	   ;;
+				-*)    # any other - argument
+					   errMsg "--- UNKNOWN OPTION ---"
+					   ;;					   
+  [0-9,]*[^a-zA-Z])    # Values supplied - need to test with and without trailing comma
+		   			   mean=`expr "$1" : '\([0-9]*\)[,].*'`
+					   if [ "$mean" = "" ]
+					   		then
+		   			   		mean=`expr "$1" : '\([0-9]*\)'`
+		   			   		[ "$mean" != "" ] && lo=$dlo; hi=$dhi
+		   			   		[ "$mean" = "" ] && mean=$dmean; lo=$dlo; hi=$dhi
+		   			   fi
+		   			   meantestA=`echo "$mean < 0" | bc`
+		   			   meantestB=`echo "$mean > 100" | bc`
+					   [ $meantestA -eq 1 -o $meantestB -eq 1 ] && errMsg "--- MEAN=$mean MUST BE GREATER THAN OR EQUAL 0 AND LESS THAN OR EQUAL 100 ---"
+		   			   #
+		   			   lo=`expr "$1" : '[0-9]*[,]\([0-9]*\)[,].*'`
+					   if [ "$lo" = "" ]
+					   		then
+		   			   		lo=`expr "$1" : '[0-9]*[,]\([0-9]*\)'`
+		   			   		[ "$lo" != "" ] && hi=$lo
+		   			   		[ "$lo" = "" ] && lo=$dlo; hi=$dlo
+		   			   fi
+		   			   lotest=`echo "$lo <= 0" | bc`
+					   [ $lotest -eq 1 ] && errMsg "--- LO=$lo MUST BE GREATER THAN 0 ---"
+		   			   #
+		   			   hi=`expr "$1" : '[0-9]*[,][0-9]*[,]\([0-9]*\)'`
+		   			   [ "$hi" = "" -a $lo -ne $dlo ] && hi=$lo
+		   			   [ "$hi" = "" -a $lo -eq $dlo ] && hi=$dhi
+		   			   hitest=`echo "$hi <= 0" | bc`
+					   [ $hitest -eq 1 ] && errMsg "--- HI=$hi MUST BE GREATER THAN 0 ---"
+					   ;;
+		   	 .*,.*)    # Bogus Values supplied
+		   	   		   errMsg "--- MEAN, LO AND/OR HI VALUES ARE NOT VALID ---"
+		   	   		   ;;
+		     	 *)    # end of arguments
+					   break
+					   ;;
+			esac
+			shift   # next option
+	done
+	#
+	# get infile and outfile
+	infile="$1"
+	outfile="$2"
+	#
+	# if nothing supplied for mean,lo,hi then set to defaults
+	[ "$mean" = "" ] && mean=$dmean
+	[ "$lo" = "" ] && lo=$dlo
+	[ "$hi" = "" ] && hi=$dhi
+fi
+
+# setup temporary images and auto delete upon exit
+# use mpc/cache to hold input image temporarily in memory
+#tmpA="$dir/redist_$$.mpc"
+#tmpB="$dir/redist_$$.cache"
+# use miff instead as mpc/cache produces too many values/counts for the same bin in the IM histogram that need to be combined
+tmpA="$dir/redist_$$.miff"
+tmp0="$dir/redist_0_$$.miff"
+tmp1="$dir/redist_1_$$.miff"
+tmp2="$dir/redist_2_$$.miff"
+tmpP="$dir/redist_proc_$$.miff"
+tmp3="$dir/redist_3_$$.miff"
+# get outfile name before suffix
+outname=`echo "$outfile" | sed -n 's/^\([^.]*\)[.][^.]*$/\1/ p'`
+hg="_histgraph"
+tmp4="$dir/$outname$hg.gif"
+if [ "$graph" = "view" ] 
+	then 
+	trap "rm -f $tmpA $tmpB $tmp0 $tmp1 $tmp2 $tmpP $tmp3 $tmp4;" 0
+	trap "rm -f $tmpA $tmpB $tmp0 $tmp1 $tmp2 $tmpP $tmp3 $tmp4; exit 1" 1 2 3 15
+	trap "rm -f $tmpA $tmpB $tmp0 $tmp1 $tmp2 $tmpP $tmp3 $tmp4; exit 1" ERR
+elif [ "$graph" = "save" ]
+	then
+	trap "rm -f $tmpA $tmpB $tmp0 $tmp1 $tmp2 $tmpP $tmp3;" 0
+	trap "rm -f $tmpA $tmpB $tmp0 $tmp1 $tmp2 $tmpP $tmp3; exit 1" 1 2 3 15
+	trap "rm -f $tmpA $tmpB $tmp0 $tmp1 $tmp2 $tmpP $tmp3; exit 1" ERR
+else
+	errMsg "--- NOT A VALID GRAPH DISPLAY OPTION ---"
+fi
+
+
+# test that infile provided
+[ "$infile" = "" ] && errMsg "NO INPUT FILE SPECIFIED"
+# test that outfile provided
+[ "$outfile" = "" ] && errMsg "NO OUTPUT FILE SPECIFIED"
+
+# get im_version
+im_version=`convert -list configure | \
+	sed '/^LIB_VERSION_NUMBER /!d; s//,/;  s/,/,0/g;  s/,0*\([0-9][0-9]\)/\1/g' | head -n 1`
+
+# colorspace RGB and sRGB swapped between 6.7.5.5 and 6.7.6.7 
+# though probably not resolved until the latter
+# then -colorspace gray changed to linear between 6.7.6.7 and 6.7.8.2 
+# then -separate converted to linear gray channels between 6.7.6.7 and 6.7.8.2,
+# though probably not resolved until the latter
+# so -colorspace HSL/HSB -separate and -colorspace gray became linear
+# but we need to use -set colorspace RGB before using them at appropriate times
+# so that results stay as in original script
+# The following was determined from various version tests using redist.
+# Note: bug in IM 6.7.6.6 HSL/HSB bad, 6.7.7.0 HSL/HSB/RGB bad, 6.7.7.8 & 6.7.7.9 HSL/HSB bad, 6.7.8.1 HSB very bad
+if [ "$im_version" -lt "06070606" -o "$im_version" -gt "06070707" ]; then
+	cspace="RGB"
+else
+	cspace="sRGB"
+fi
+if [ "$im_version" -lt "06070607" -o "$im_version" -gt "06070707" ]; then
+	setcspace="-set colorspace RGB"
+else
+	setcspace=""
+fi
+# no need for setcspace for grayscale or channels after 6.8.5.4
+if [ "$im_version" -gt "06080504" ]; then
+	setcspace=""
+	cspace="sRGB"
+fi
+
+
+# now do processing
+if convert -quiet "$infile" -strip +repage "$tmpA"
+	then
+		# get colorspace and type
+		colorspace=`identify -ping -verbose $tmpA | sed -n 's/^.*Colorspace: \([^ ]*\).*$/\1/p'`
+		type=`identify -ping -verbose $tmpA | sed -n 's/^.*Type: \([^ ]*\).*$/\1/p'`
+
+		[ "$type" = "Grayscale" ] && colorspace="Gray"
+
+		# colormodel SRGB is processed the same as RGB
+		[ "$colormodel" = "SRGB" ] && colormodel="RGB"
+
+		# colormodels not valid for redist
+		[ "$colormodel" = "HWB" -o "$colormodel" = "XYZ" -o "$colormodel" = "CMYK" ] && errMsg "--- $colormodel IS NOT A VALID COLORMODEL FOR REDIST ---"
+
+		# if nothing supplied for channel, then set defaults
+		if [ "$channel" = "" -a "$colormodel" = "HSL" ]; then 
+			channel=2
+		elif [ "$channel" = "" -a "$colormodel" = "HSB" ]; then 
+			channel=2
+		elif [ "$channel" = "" -a "$colormodel" = "HCL" ]; then 
+			channel=2
+		elif [ "$channel" = "" -a "$colormodel" != "RGB" -a "$colormodel" != "GLOBAL" -a "$colorspace" != "Gray" ]; then
+			channel=0
+		fi
+
+#echo "colorspace=$colorspace; type=$type; channel=$channel; colormodel=$colormodel; graytype=$graytype; setcspace=$setcspace"
+
+
+		if [ "$colorspace" != "Gray" -a "$channel" != "" -a "$colormodel" != "GLOBAL" ]
+			then
+			 	convert $tmpA $setcspace -colorspace $colormodel -channel R -separate $tmp0
+			 	convert $tmpA $setcspace -colorspace $colormodel -channel G -separate $tmp1
+			 	convert $tmpA $setcspace -colorspace $colormodel -channel B -separate $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "GRAY" -a "$channel" = "" ]
+			then
+			 	convert $tmpA $setcspace -colorspace Gray $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "REC709" -a "$channel" = "" ]
+			then
+			 	convert $tmpA $setcspace -colorspace Rec709Luma $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "REC601" -a "$channel" = "" ]
+			then
+			 	convert $tmpA $setcspace -colorspace Rec601Luma $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "LIGHTNESS" -a "$channel" = "" ]
+			then
+			 	convert $tmpA $setcspace -colorspace HSL -channel B -separate $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "BRIGHTNESS" -a "$channel" = "" ]
+			then
+			 	convert $tmpA $setcspace -colorspace HSB -channel B -separate $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "AVE" -a "$channel" = "" ]
+			then
+			 	convert $tmpA $setcspace -colorspace OHTA -channel R -separate $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "DEMODHSL" -a "$channel" = "" ]
+			then
+			 	convert $tmpA -define modulate:colorspace=HSL -modulate 100,0,100 $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$graytype" = "DEMODHCL" -a "$channel" = "" ]
+			then
+			 	convert $tmpA -define modulate:colorspace=HCL -modulate 100,0,100 $tmp2
+		elif [ "$colorspace" != "Gray" -a "$colormodel" = "GLOBAL" -a "$channel" = "" ]
+			then
+			 	convert $tmpA $setcspace -separate -append $tmp2
+		elif [ "$colorspace" = "Gray" ]
+			then
+			 	convert $tmpA $tmp2
+		else
+				errMsg "--- UNKNOWN COLORSPACE OR COLORMODEL ---"
+		fi
+	else
+		errMsg "--- FILE $infile DOES NOT EXIST OR IS NOT AN ORDINARY FILE, NOT READABLE OR HAS ZERO SIZE ---"
+fi
+
+#echo ""
+#echo "Please Wait - It May Take Some Time To Process The Image"
+#echo ""
+
+#echo "channel=$channel; colorspace=$colorspace; type=$type; colormodel=$colormodel;"
+
+# call subroutines
+
+
+[ "$channel" = "0" ] && convert $tmp0 $tmpP
+[ "$channel" = "1" ] && convert $tmp1 $tmpP
+[ "$channel" = "2" ] && convert $tmp2 $tmpP
+[ "$channel" = "" ] && convert $tmp2 $tmpP   # for RGB, GLOBAL and colorspace gray
+
+cumHistogram "$tmpP"
+
+if [ "$shape" = "Uniform" -o "$shape" = "uniform" ]
+	then
+	genUniformLutArr
+else
+	if [ "$shape" = "Gaussian" -o "$shape" = "gaussian" ]
+		then
+		gaussian
+	fi
+	integrateFunction
+	genLutArr
+fi
+
+# now convert lutArr into lut image
+# Use NetPBM (PGM format implied intermediate image)
+# note, (somewhere in IM between 6.7.5.5 and 6.7.8.2) PGM is linear
+echo "P2 256 1 $maxval $lutlist" | convert - -scale 256x1\! $tmp3
+
+# now process the input and recombine the color bands, if appropriate
+
+if [ "$colorspace" != "Gray" -a "$channel" != "" ]
+	then
+		# process one channel
+		# need $tmpP to be non-linear, so use -set colorspace RGB
+		if [ "$im_version" -ge "06030507" ]
+			then 
+			convert $tmpP $tmp3 $setcspace -clut $tmpP
+		else
+			convert $tmpP $tmp3 $setcspace -fx 'v.p{u*v.w,0}' $tmpP
+		fi
+		# combine channels
+		# channels are non-linear via -set colorspace RGB
+		# so need to use -colorspace RGB to put them together
+		# to reproduce original results.
+		if [ $channel -eq 0 ]
+			then
+			convert $tmp0 -colorspace $colormodel \
+				$tmpP -compose CopyRed -composite \
+				$tmp1 -compose CopyGreen -composite \
+				$tmp2 -compose CopyBlue -composite \
+				-colorspace $cspace $outfile
+		elif [ $channel -eq 1 ]
+			then
+			convert $tmp0 -colorspace $colormodel \
+				$tmp0 -compose CopyRed -composite \
+				$tmpP -compose CopyGreen -composite \
+				$tmp2 -compose CopyBlue -composite \
+				-colorspace $cspace $outfile
+		elif [ $channel -eq 2 ]
+			then
+			convert $tmp0 -colorspace $colormodel \
+				$tmp0 -compose CopyRed -composite \
+				$tmp1 -compose CopyGreen -composite \
+				$tmpP -compose CopyBlue -composite \
+				-colorspace $cspace $outfile
+		fi
+ elif [ "$colorspace" != "Gray" -a "$colormodel" = "RGB" -a "$channel" = "" ]
+	then
+		# process RGB together
+		if [ "$im_version" -ge "06030507" ]
+			then
+			convert $tmpA $tmp3 -clut $outfile
+		else
+			convert $tmpA $tmp3 -fx 'v.p{u*v.w,0}' "$outfile"
+		fi
+ elif [ "$colorspace" != "Gray" -a "$colormodel" = "GLOBAL" -a "$channel" = "" ]
+	then
+		# process RGB together
+		if [ "$im_version" -ge "06030507" ]
+			then
+			convert $tmpA $tmp3 -clut "$outfile"
+		else
+			convert $tmpA $tmp3 -fx 'v.p{u*v.w,0}' "$outfile"
+		fi
+else
+		# process Grayscale
+		if [ "$im_version" -ge "06030507" ]
+			then 
+			convert $tmp2 $tmp3 $setcspace -clut $tmpP
+		else
+			convert $tmp2 $tmp3 $setcspace -fx 'v.p{u*v.w,0}' $tmpP
+		fi
+		convert $tmpP "$outfile"
+fi
+
+
+# now create histogram
+if [ $display_graph = "yes" ]
+	then
+	if [ "$colorspace" != "Gray" ]
+		then
+		if [ "$colormodel" = "RGB" -o "$colormodel" = "GLOBAL" ]
+			then 
+			if [ "$im_version" -ge "06030507" ]
+				then 
+				convert $tmp2 $tmp3 $setcspace -clut $tmpP
+			else
+				convert $tmp2 $tmp3 $setcspace -fx 'v.p{u*v.w,0}' $tmpP
+			fi
+		fi
+	fi
+	convert $tmpP -define histogram:unique-colors=false histogram:- | convert - -filter point -resize 128x100! $tmp4
+
+	if [ "$shape" != "Uniform" -a "$shape" != "uniform" ]
+		then
+		# now overlay graph on histogram; scale graph to 128 wide (take every other point) and 100 tall and invert the y coordinates
+		i=0
+		while [ $i -lt 256 ]
+			do
+			x=`expr $i / 2`
+			y=`echo "scale=0; 100 - (100 * ${functionArr[$i]} / $maxval)" | bc`
+			pointArr[$x]="$x,$y"
+			i=`expr $i + 2`
+		done
+		convert $tmp4 -stroke red -strokewidth 2 -fill none -draw "polyline ${pointArr[*]}" $tmp4
+	fi
+	display $tmp4
+fi
+
+[ "$savelut" = "yes" ] && convert $tmp3 redist_lut.png
+
+exit 0
