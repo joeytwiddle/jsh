@@ -6,7 +6,7 @@ which ionice >/dev/null && ionice -c 3 -p $$
 
 # See also: shrinkimage
 
-find "$@" -iname "*.JPG" |
+find "$@" -iname "*.PNG" -or -iname "*.JPG" -or -iname "*.JPEG" |
 
 grep -v -F ".smaller." |
 grep -v -F ".shrunken." |
