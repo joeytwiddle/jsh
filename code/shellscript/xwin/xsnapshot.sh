@@ -38,6 +38,9 @@ fi
 TMPFILE=/tmp/screenshot-$$-tmp.bmp
 import -window "$windowid" "$TMPFILE"
 
+# For Mac OS X:
+#screencapture screen1.png screen2.png ...
+
 if which osd_cat >/dev/null
 then
 	killall osd_cat
