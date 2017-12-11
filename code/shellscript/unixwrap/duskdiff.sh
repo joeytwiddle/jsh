@@ -8,12 +8,17 @@ unique=/tmp/duskdiff.$$
 oldDusk=$unique.old
 newDusk=$unique.new
 
-memo -t '100 years' dusk | striptermchars | sort -k 2 > "$oldDusk"
+# Sort by filename
+#sort='sort -k 2'
+# Sort by size
+sort='sort -n -k 1'
+
+memo -t '100 years' dusk | striptermchars | $sort > "$oldDusk"
 
 ## We can use rememo to refresh the record, or we can leave it alone.
 # rememo
 ## In which case the user can force it to refresh with: rememo dusk
-dusk | striptermchars | sort -k 2 > "$newDusk"
+dusk | striptermchars | $sort > "$newDusk"
 
 # diff "$oldDusk" "$newDusk" | diffhighlight
 jdiffsimple "$oldDusk" "$newDusk"
