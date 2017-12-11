@@ -118,6 +118,7 @@ else
 			## This gets evaluated on-the-fly:
 			EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
 			## (shouldn't all modern bash prompts have this, on the other machines above?)
+			## I wanted to put this further right, just before the path, but for some reason if I put it there, it always reports 1.  (Testing on Mac OS X.)
 
 			if [ "$RUNNING_GENTOO" = 1 ]
 			then
