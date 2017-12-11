@@ -231,7 +231,7 @@ alias ll='ls -lartFd --color'
 
 jcal() {
 	## Highlight the current day (must strip underline termcodes to find it!)
-	cal "$@" | sed 's+_++g' | highlight "\<`date | takecols 3`\>"
+	'cal' "$@" | sed 's+_++g' | highlight "\<`date | takecols 3`\>"
 }
 alias cal='jcal'
 
