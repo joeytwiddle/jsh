@@ -1,25 +1,29 @@
 # jsh - Joey's Shellscript Library
 
-A diverse library of shellscripts.  Run at your own risk.
+A diverse library of shellscripts.  This is my preferred working environment when using a Unix shell.  But I also use this project to collect useful bits and bobs as I discover them.  (For example, I recently added a script to boost volume above 100 when using pulseaudio.)
 
-Many of these scripts run standalone, but some of them require other scripts to be on the PATH.
+Many of these scripts will run standalone, but some of them depend on other jsh scripts, so they must be on the PATH.
 
 Run `jsh/jsh` or `source jsh/startj` or `source jsh/startj-simple` to setup your PATH so they will all run fine.  (See detailed instructions below.)
 
 ## JSH-specific
 
-    jdoc <jsh_command> | <text>   Show or search documentation (like man for jsh scripts)
-    et <jsh_command>              Edit a script ("Edit tool" - so old it used to be a .BAT!)
+    jdoc <jsh_command> | <text>   Show or search script documentation (like man+apropos for jsh scripts)
+
+    et <jsh_command> | <new_com>  Edit a script ("Edit tool" - so old it used to be a .BAT!)
+                                  This will open the given script in your favourite editor (see 'edit')
+                                  It can also be used to create a new script
+                                  So it is a very quick way to create new commands / aliases for future use
 
 ## Scripts to make my interactive shell look pretty (colourful and informative)
 
-    . xttitleprompt               Show information in your terminal window
-    . hwipromptforbash / forzsh   My pretty prompt
     . lscolsinit                  Loads a comprehensive color scheme for `ls`
+    . hwipromptforbash / forzsh   A pretty and informative prompt
+    . xttitleprompt               Show detailed information about your shell in the title of your terminal window
 
 These are sourced automatically if you run `jsh/jsh` or source `startj`
 
-Please note that all my rc files now live separately [https://github.com/joeytwiddle/rc_files](here).  For example you may obtain a nice set of `.dircolors` for `lscolsinit` from there.
+Please note that all my rc files now live separately [here](https://github.com/joeytwiddle/rc_files).  For example you may obtain a nice set of `.dircolors` for `lscolsinit` from there.
 
 ## Scripts to make my interactive shell easier to use
 
