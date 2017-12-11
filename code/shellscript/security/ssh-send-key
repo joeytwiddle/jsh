@@ -1,3 +1,7 @@
+#!/bin/sh
+
+# This problem has already been solved!  See: ssh-copy-id
+
 if [ ! "$*" ]
 then
 	echo "ssh-send-key [ssh_options] <user>@<host>"
