@@ -35,6 +35,13 @@
 ##   destination path are symlinks.  If they are, the file might be saved outside
 ##   the RECLAIM tree, maybe even on a different partition.  :|
 
+# The del script works fine on most *nix platforms, but I would like to move towards using the built-in trash systems where possible.
+
+# If we are on macOS, use the del script for macOS
+if [ "$(uname)" = 'Darwin' ]
+then exec del.macos "$@"
+fi
+
 DOCVS=
 if [ "$1" = "-cvs" ]
 then DOCVS=true; shift
