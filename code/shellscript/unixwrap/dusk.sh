@@ -33,6 +33,8 @@ fi
 
 	[ "$SHOWSCAN" ] && echo -n "Scanning: " >&2
 
+	## TODO: The idiomatic solution to this is to use: shopt -s dotglob
+
 	## Output a list of files/folders to scan:
 	if [ "$*" = "" ]
 	then
