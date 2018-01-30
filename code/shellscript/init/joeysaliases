@@ -345,13 +345,21 @@ alias okular='inbg okular'
 
 alias xchat='echo "Running hexchat not xchat!" ; hexchat'
 
-alias npi='npm install'
 alias npmi='npm install'
-alias ya='yarn add'
-alias yi='yarn add'
-alias yga='yarn global add'
-alias ygi='verbosely yarn global add'
+alias npi='npm install'
+alias ni='npm install'
+alias nr='npm run'
+alias ns='npm start'
+alias nt='npm test'
 
+alias yi='yarn install'
+alias ya='yarn add'
+alias yga='yarn global add'
+alias ys='yarn start'
+alias yt='yarn test'
+alias yr='yarn run'
+alias yx='yarn exec'
+alias yx-='yarn exec --'
 
 
 # Heavy processes that take a long time should gentle.
