@@ -55,18 +55,22 @@ bind "\C-?":reverse-search-history
 #bind "\e[2D":backward-word
 #bind "\e[2C":forward-word
 
-# Defaults (to undo the next section, if desired):
-#bind "TAB:complete"
-#bind "set show-all-if-ambiguous off"
-#bind "set menu-complete-display-prefix off"
+# The following feature only half works with bash 3.  It confuses me when it is half working (it makes me think it is fully working, and only one completion is possible, when in fact many are), therefore I would rather not use it at all in bash 3.
+if ((BASH_VERSINFO[0] >= 4))
+then
+  # Defaults (to undo the next section, if desired):
+  #bind "TAB:complete"
+  #bind "set show-all-if-ambiguous off"
+  #bind "set menu-complete-display-prefix off"
 
-# If there are multiple matches for completion, Tab should cycle through them
-bind 'TAB':menu-complete
-# The following only work on bash > 4 (so not on Mac which ships with bash 3 by default)
-# List the files if there is more than one match
-bind "set show-all-if-ambiguous on"
-# If there are multiple matches, do not complete on the first Tab, only start cycling on the second Tab
-bind "set menu-complete-display-prefix on"
-# The following is meant to cycle backwards on Shift-Tab.
-# So far, I have not got this working on bash3 or bash4 under iTerm2, or on Linux!
-#bind '\e[Z':menu-complete-backward
+  # If there are multiple matches for completion, Tab should cycle through them
+  bind 'TAB':menu-complete
+  # The following only work on bash > 4 (so not on Mac which ships with bash 3 by default)
+  # List the files if there is more than one match
+  bind "set show-all-if-ambiguous on"
+  # If there are multiple matches, do not complete on the first Tab, only start cycling on the second Tab
+  bind "set menu-complete-display-prefix on"
+  # The following is meant to cycle backwards on Shift-Tab.
+  # So far, I have not got this working on bash3 or bash4 under iTerm2, or on Linux!
+  #bind '\e[Z':menu-complete-backward
+fi
