@@ -24,12 +24,22 @@
 
 dateDiff() {
 	[ -z "$JSH_SHOW_TIMING" ] && return 0
-	newDate=`date +"%s%N"`
-	if [ ! "$oldDate" ]
-	then oldDate=$newDate
-	fi
-	dateDiff=`expr "$newDate" - "$oldDate"`
-	echo "[$0] took ($dateDiff) to do $*" >&2
+
+	# BSD date does not do nanoseconds.  So for Mac, we look for locally installed GNU date.
+	# (BUG: If it is not present, we will end up using BSD date, which will cause errors.)
+	local date_cmd
+	date_cmd=/usr/local/opt/coreutils/libexec/gnubin/date
+	[ -x "$date_cmd" ] || date_cmd="date"
+
+	newDate="$("$date_cmd" +"%s%N")"
+	[ -z "$oldDate" ] && oldDate="$newDate"
+
+	dateDiff="$(expr "$newDate" - "$oldDate")"
+
+	#echo "[$0] took ($dateDiff) to do $*" >&2
+	printf "[%s] took % 11dms to do %s\n" "$0" "$dateDiff" "$*" >&2
+
+	oldDate="$newDate"
 }
 
 ## Conclusive (?) proof that bash provides nothing to tell us where this script is when it is called with source.
