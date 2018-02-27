@@ -32,7 +32,7 @@
 
 if [ "$(uname)" = "Linux" ]
 then xterm -fg "#004400" -bg "#cccc99" "$@" &
-else xterm -fg "#004400" -bg "#ccccaa" "$@" &
+else xterm -fg "#004400" -bg "#c8c8aa" "$@" &
 fi
 
 # Black on green (like the SpyAmp's LCD theme):
