@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # jsh-ext-depends: dirname mencoder
 # jsh-ext-depends-ignore: clip
 
@@ -33,7 +35,7 @@ do
 
 	LENGTH=`echo "$OUT - $IN" | bc` || exit 3
 
-	export CLIPOPTS="-ss $IN -endpos $LENGTH"
+	CLIPOPTS="-ss $IN -endpos $LENGTH"
 
 	# COPY="-oac copy -ovc copy" ## Fastest, probably preferable, but initial frames can be messy and sometimes audio codec will not allow it.
 	COPY="-oac pcm -ovc copy" ## Fast but fat.  With some formats, -oac copy fails but we can use -oac pcm.
@@ -47,7 +49,12 @@ do
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ljpeg" ## Huge!
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
 	# COPY="-oac lavc -ovc copy" ## Large
+
 	verbosely mencoder "$@" $COPY $CLIPOPTS $MENCODER_OPTIONS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
+	# verbosely ffmpeg -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy -avoid_negative_ts make_zero "$OUTPUTDIR/$OUTPUTFILE"
+	# verbosely avconv -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy "$OUTPUTDIR/$OUTPUTFILE"
+
+	## We can also try setting the quality level: -crf 22
 
 	# prepare_for_editing "$VIDEOFILE"
 	# mv re_encoded.dv clip$CLIPNUM.dv
