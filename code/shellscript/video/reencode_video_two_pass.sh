@@ -35,6 +35,10 @@ OUTPUT="$INPUT.reencoded.avi"
 ## Delays (pads at start) audio by 6 frames:
 # EXTRA_TRANSCODE_OPTS="-D -6 $EXTRA_TRANSCODE_OPTS"
 
+## Be gentle:
+which renice >/dev/null && renice -n 10 -p $$
+which ionice >/dev/null && ionice -c 3 -p $$
+
 # del transcode_out.avi
 rm -f ./stream.yuv
 

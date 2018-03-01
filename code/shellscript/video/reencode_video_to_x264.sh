@@ -13,7 +13,7 @@ if [ ! -f "$INFILE" ]
 then
 cat << !
 
-<options> nice -n 5 reencode_video_to_x264 <video_file>
+<options> reencode_video_to_x264 <video_file>
 
   Good quality:
     LOSS=15 AUDIOQUALITY=100
@@ -116,6 +116,10 @@ then
 	MENCODER_VIDEO_OPTS="$MENCODER_VIDEO_OPTS -vf rotate=$ROTATE"
 fi
 
+## Be gentle:
+which renice >/dev/null && renice -n 10 -p $$
+which ionice >/dev/null && ionice -c 3 -p $$
+
 # In seconds
 INPUT_VIDEO_DURATION=`getvideoduration "$INFILE" | sed 's+\..*++'`
 
@@ -169,7 +173,7 @@ then
 		[ "$MONO" = 1 ] && MPLAYER_AUDIO_OPTS="$MPLAYER_AUDIO_OPTS -af pan=1:0.5:0.5"
 		## This eval is only needed to do the 2> redirection inside verbosely!  :P
 		## Drop either the 2> redirect or verbosely, and the eval won't be needed.
-		verbosely eval "mplayer -noconsolecontrols $fixTooManyPtsError $MPLAYER_AUDIO_OPTS -vc null -vo null -ao pcm:fast:file=$TMPWAVFILE \"$INFILE\" 2>/dev/null" &&
+		verbosely eval "mplayer -noconsolecontrols $fixTooManyPtsError $MPLAYER_AUDIO_OPTS -vc null -vo null -ao pcm:fast:file=$TMPWAVFILE \"$INFILE\" >/dev/null 2>/dev/null" &&
 		mv -f "$TMPWAVFILE" "$WAVFILE"
 	fi
 	verbosely faac -q "$AUDIOQUALITY" --mpeg-vers 4 -o "$AACFILE" "$WAVFILE" &&
