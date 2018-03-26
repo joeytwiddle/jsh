@@ -6,15 +6,17 @@ SEARCHDIR="$1"
 
 NEXT=`grep -e "$SEARCHDIR" $HOME/.dirhistory | head -n 1`
 
-# Put top directory at bottom of list
-grep -vxF "$NEXT" $HOME/.dirhistory > $HOME/.dirhistory2
-echo "$PWD" >> $HOME/.dirhistory2
-mv -f $HOME/.dirhistory2 $HOME/.dirhistory
-
-# export PWD='$NEXT'
 if [ -n "$NEXT" ]
-then 'cd' "$NEXT"
-else echo "X `cursered;cursebold`$SEARCHDIR`cursenorm`" # beep
+then
+    # Put top directory at bottom of list
+    grep -vxF "$NEXT" $HOME/.dirhistory > $HOME/.dirhistory2
+    echo "$PWD" >> $HOME/.dirhistory2
+    mv -f $HOME/.dirhistory2 $HOME/.dirhistory
+
+    # export PWD='$NEXT'
+    'cd' "$NEXT"
+else
+    echo "X `cursered;cursebold`$SEARCHDIR`cursenorm`" # beep
 fi
 
 # dirhistory "$@"
