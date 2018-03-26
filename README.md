@@ -4,18 +4,20 @@ A diverse library of shellscripts.  This is my preferred working environment whe
 
 Many of these scripts will run standalone, but some of them depend on other jsh scripts, so they must be on the PATH.
 
-Run `jsh/jsh` or `source jsh/startj` or `source jsh/startj-simple` to setup your PATH so they will all run fine.  (See detailed instructions below.)
+Run `jsh/jsh` or `source jsh/startj` or `source jsh/startj-simple` to setup your PATH so they will all run fine.
 
-## JSH-specific
+There are more detailed installation instructions below.  But first, here are some examples of the available scripts:
+
+### JSH-specific
 
     jdoc <jsh_command> | <text>   Show or search script documentation (like man+apropos for jsh scripts)
 
     et <jsh_command> | <new_com>  Edit a script ("Edit tool" - so old it used to be a .BAT!)
                                   This will open the given script in your favourite editor (see 'edit')
                                   It can also be used to create a new script
-                                  So it is a very quick way to create new commands / aliases for future use
+                                  So it is a very quick way to create new commands / scripts for future use
 
-## Scripts to make my interactive shell look pretty (colourful and informative)
+### Scripts to make my interactive shell look pretty (colourful and informative)
 
     . lscolsinit                  Loads a comprehensive color scheme for `ls`
     . hwipromptforbash / forzsh   A pretty and informative prompt
@@ -25,9 +27,9 @@ These are sourced automatically if you run `jsh/jsh` or source `startj`
 
 Please note that all my rc files now live separately [here](https://github.com/joeytwiddle/rc_files).  For example you may obtain a nice set of `.dircolors` for `lscolsinit` from there.
 
-## Scripts to make my interactive shell easier to use
+### Scripts to make my interactive shell easier to use
 
-    . dirhistorysetup.bash / .zsh       Provide `b` and `f` and `dirhistory`
+    . dirhistorysetup.bash / .zsh       Provide `b` and `f` and `dirhistory` to go back/forward
     . bashkeys / zshkeys                Ctrl-D/F/R/T/X/V/Z/B/O to jump and delete small/large words
 
     cd <partial_path>   typo helper: autocompletes partial matches, or shows alternatives when multiple matches
@@ -38,15 +40,18 @@ Please note that all my rc files now live separately [here](https://github.com/j
 
 Also handy when working from the cmdline:
 
-    jman             - Popup a man page in a separate terminal window
-    japropos         - Search a bunch of things, not just man pages
+    jman             Popup a man page in a separate terminal window
+    japropos         Search a bunch of things, not just man pages
+    gitls            Like `ls -lartFh --color` but with git status for each file
+    git*             A bunch of git scripts which are often/occasionally handy.
+                     But my most useful scripts (e.g. gcf) are in my rc_files repo under git_aliases.
 
-## Scripts for composing shell commands
+### Scripts for composing shell commands
 
 For use on the command-line or when writing actual scripts.  Most of the following read a list from standard in (assumes inputs are separated by newlines):
 
-    | withalldo <cmd...>
-    | foreachdo <cmd...>
+    | withalldo <cmd...>      A shortcut for xargs
+    | foreachdo <cmd...>      A shortcut for | while read FILE; do ...; done
     | dog <target_file>       Atomic write, does not clobber until the end, safe to use after cat!
     | striptermchars          Remove ANSI color codes
     | trimempty               Remove empty/blank lines
@@ -70,30 +75,37 @@ For use on the command-line or when writing actual scripts.  Most of the followi
     chooserandom <args...>
     | countlines
 
-    echolines <glob>
+    echolines <glob>          Print each of the arguments you provided on a separate line.  (Turns words into lines)
     waitforkeypress
 
     filesize <file>
     mp3duration <file>
     imagesize <file>
 
-## Scripts for shellscripting
+### Scripts for shellscripting
 
 Rarely used on the commandline.
 
     . importshfn <shellscript>       Creates a function from the shellscript, so it will run quicker if you call it many times.  YMMV
     . require_exes <exe_names...>    exits if the gives exes are not on your PATH
 
-## Utilities
+### Utilities
 
     memo [ -t "N weeks" ] <slow_command...>   Remembers the first output and gives it back on subsequent calls
-    diffdirs <dirA> <dirB>
-    diffgraph <related_files...>      Shows which files are most closely related, by numerical distance (does not actually draw a graph yet!)
     jwatch <cmd>                      Show lines added to or removed from the cmd's output
     jwatchchanges [-fine] <cmd>       Show the cmd output, highlighting changes (more like watch(1))
 
+### Forensics
+
+Can be useful when cleaning up old duplicate folders/files
+
+    diffdirs <dirA> <dirB>            Or for more details, use diff -r
+    diffgraph <related_files...>      Shows which files are most closely related, by numerical distance (does not actually draw a graph yet!)
+    git-which-commit-has-this-blob    Search this repo's history for a file matching the given file/hash
+
 ### Monitoring
 
+    findjob <process_name>            An alternative to `ps aux | grep <...>`
     monitorps                         Report new/closed processes (useful if you notice a lot of forks but don't know why)
     listopenports [ <process_name> ]
     listopenfiles [ <process_name> ]
@@ -101,8 +113,7 @@ Rarely used on the commandline.
     whatisonport <port>
     whatsblockingaudio
     whatsplaying
-    traffic_shaping_monitor           Monitor what /sbin/tc classes are doing
-    findjob <process_name>
+    traffic_shaping_monitor           Monitor how much is flowing through /sbin/tc classes
 
 ### Filesystem
 
@@ -119,19 +130,28 @@ Rarely used on the commandline.
     renamefiles <search_pattern> <replace_pattern> [<files...>] |sh
     editfilenames                     opens Vim to let you edit filenames
 
-    worddiff / wordpatch
+    worddiff / wordpatch              don't patch whole lines; be more fine grained!
+
+### X-Windows
 
     xsnapshot
     getxwindimensions
     put_current_xwindow
 
-## Wrappers
+### Wrappers
 
     convert_to_mp3 <any_audio_or_video_file>
     convert_to_ogg <any_audio_or_video_file>
     reencode_video_to_x264 <video_file>
     | txt2speech                      makes festival sound slightly less stupid
-    wp <term>                         fast Wikipedia search (short summary)
+    wp <term>                         fast Wikipedia search (short summary) [CURRENTLY BROKEN]
+
+### Utter madness
+
+    fifovo        Watch a live video stream, storing the stream in a ringbuffer of files.  Listen for instructions to rewind and capture parts of the stream.  (The last time I tried this, it had stopped working.)
+
+    export UNIX_TEXT_ADVENTURE=1
+                  Makes you feel like you are playing a classic adventure game as you cd around your filesystem
 
 - ... and 1000 more scripts that shouldn't be here
 
@@ -141,7 +161,7 @@ First clone the repository:
 
     $ git clone https://github.com/joeytwiddle/jsh
 
-Now create all the symlinks:
+Now create all the symlinks in `$HOME/tools`:
 
     $ jsh/jsh jsh/code/shellscript/init/refreshtoollinks
 
@@ -154,7 +174,7 @@ If you want jsh to always load when you start a shell, add the following lines t
 
 ## Additional step for Mac OS X users
 
-If you want to run jsh on Mac OS X then you should:
+If you want to run jsh on Mac OS X then you probably want to:
 
     $ brew install coreutils gnu-sed findutils
 
@@ -168,9 +188,11 @@ This is because Jsh makes heavy use of GNU utils such as `grep` and `sed`.  Alth
 
 (This `PATH` will be provided to any non-Jsh commands you call from within a Jsh shell.  So far this has caused me no problems.  I have been able to run `brew`, `rvm` and `rails` from inside or outside Jsh.)
 
+_Update: Actually I have started to support BSD sed and grep when I discover bugs, so many of the core scripts will work.  But more scripts will work correctly if you follow the steps above._
+
 ## Running
 
-Start a fresh jsh shell with:
+Start a fresh jsh shell with all the bells and whistles:
 
     jsh/jsh
 
@@ -180,13 +202,16 @@ Alternatively, you can load jsh directly into your current shell:
 
     . jsh/startj
 
-If you just want the scripts on your PATH, and crucial initialisation, but none of the visual shell tweaks:
+But if you only want the scripts on your PATH, and crucial initialisation, but none of the visual shell tweaks:
 
     . jsh/startj-simple
 
-(This actually does not do much more than setting `$JPATH` and adding `$JPATH/tools` to your `$PATH`.)
+All that script really does is this (so you could do it manually if you wanted):
 
-If you want to run just one jsh command and then return to your current shell:
+    export JPATH="$HOME/jsh'
+    export PATH="$PATH:$JPATH/tools"
+
+Or if you only want to run one jsh script and then return to your current shell:
 
     jsh/jsh <jsh_command> [ <args...> ]
 
