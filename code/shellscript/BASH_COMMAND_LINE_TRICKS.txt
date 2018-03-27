@@ -22,6 +22,8 @@ Go to previous folder with:
 
 
 
+TLDR?  `!$` for the last argument on the previous line, `!#$` for the previous argument on this line.
+
 # Arguments on previous lines
 
 To insert the last argument of the previous command, hit `<Esc>-.` or `<Meta>-.`.
@@ -128,13 +130,21 @@ When sending output to a file, place the filename at the beginning of the line. 
 
 Popup a quick webserver on port 8000:
 
-    alias webshare='python -m SimpleHTTPServer'
+    alias simplehttpserver='python -m SimpleHTTPServer'
+
+For Python 3, this is:
+
+    alias simplehttpserver='python -m http.server'
 
 
 Sometimes when closing zsh, it says "Running jobs".
 If you want to exit and keep the job running, try:
 
     setopt NO_HUP
+
+
+Parameter expansion in bash: http://wiki.bash-hackers.org/syntax/pe
+
 
 
 # tmux keys
