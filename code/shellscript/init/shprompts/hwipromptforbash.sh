@@ -181,3 +181,4 @@ else
 
 fi
 
+PS1="$PREPROMPT$PS1"

@@ -80,7 +80,7 @@ RPROMPT="%{[0%?;30m%}[%{[0%?;3%?m%}err %?%{[0%?;30m%}]${RPROMPT}"
 ## This is a good indicator if user got here via ssh:
 if [ -n "$SSH_CONNECTION" ]
 then
-	PROMPT="%{[01;33m%}<$USER@$SHORTHOST> $PROMPT"
+	PROMPT="%{[01;33m%}<$USER@$SHORTHOST>%{[00m%} $PROMPT"
 	export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
 fi
 
@@ -89,7 +89,9 @@ then
 	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseblue`\%}\$git_unknown_mark\$git_unknown_count"
 	# \%{`cursenorm`\%}$
 	# Append these extras after the existing %{color}~/ part of the prompt
-	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%} *%~/*\)+\1$GIT_AWARE_PROMPT+g")
+	#PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%} *%~/*\)+\1$GIT_AWARE_PROMPT+g")
+	# But we don't need to pick out the color if we are appending.  So here is a simpler way:
+	PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(.*%~/*\)+\1$GIT_AWARE_PROMPT+g")
 	# Whenever precmd is called, also run find_git_branch
 	# add-zsh-hook, which we load from zshcontrib, is just used to help us arrange the precmd array
 	autoload add-zsh-hook
@@ -110,6 +112,12 @@ then
 	# test "$SCREEN_NAME" || SCREEN_NAME=screen
 	PROMPT="[$SCREEN_NAME$WINDOW] $PROMPT"
 fi
+
+PROMPT="$PREPROMPT$PROMPT"
+
+## Put the prompt on a second line
+# PROMPT="$PROMPT
+# %{[${bgcol};90m%}%!%{[${bgcol};33m$(cursebold)%}>%{$(cursenorm)%} "
 
 ## for zsh -x debugging (bad for bash though!)
 # See section "SIMPLE PROMPT ESCAPES"
