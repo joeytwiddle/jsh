@@ -11,16 +11,16 @@ if [[ "$USER" = joey ]] && [[ -z "$SSH_CONNECTION" ]] && false #[ "$SHORTHOST" =
 then
 
 		## By far the coolest prompt
-		export PROMPT="%{[01;31m%}%? %{[00;32m%}%~/%{[00m%} "
-		# export RPROMPT="%{ %}%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})%{m%}"
+		PROMPT="%{[01;31m%}%? %{[00;32m%}%~/%{[00m%} "
+		# RPROMPT="%{ %}%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})%{m%}"
 		# The trick in the line above to push RPROMPT one char right, has a problem in gnome-terminal, in which case use the line below
-		export RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})"
+		RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})"
 		# bright white:
-		# export PROMPT="%{[01;31m%}%? %{[00;32m%}%~/%{[01m %} "
-		# export RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[01m%})"
+		# PROMPT="%{[01;31m%}%? %{[00;32m%}%~/%{[01m %} "
+		# RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[01m%})"
 		# space escaped:
-		# export PROMPT="%{[01;31m%}%? %{[00;32m%}%~/ %{[01m%}%{ %}"
-		# export RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})"
+		# PROMPT="%{[01;31m%}%? %{[00;32m%}%~/ %{[01m%}%{ %}"
+		# RPROMPT="%{[00m%}%n@%{[00m%}%m %{[00;36m%}%* %{[00m%}(%{[00;35m%}%h%{[00m%}:%{[00;33m%}%l%{[00m%})"
 
 		## Argh, I need to know if I'm in a chroot system!  Peeking at 'mount' can do this.
 
@@ -34,30 +34,30 @@ then
 		# declare -f swd >/dev/null && HEAD="" || ## Check if we are using xttitleprompt, and if so do not embed xterm title escape block.
 		HEAD="%{[00;33m%}>%{[01;31m%}ROOT%{[00;33m%}<"
 		# HEAD="ROOT"
-		export PROMPT="%{[01;31m%}$HEAD %{[01;33m%}%? %{[00;36m%}%~/%{[01;31m%} "
-		export RPROMPT="$RPROMPT%{[00;37m%}"
+		PROMPT="%{[01;31m%}$HEAD %{[01;33m%}%? %{[00;36m%}%~/%{[01;31m%} "
+		RPROMPT="$RPROMPT%{[00;37m%}"
 
 else
 
-		#export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;32m%}%~/%{[00m%} "
+		#PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;32m%}%~/%{[00m%} "
 		# Experimenting with filled background (to help prompts stand out from process output)
-		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
-		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[47;32m%} %~/%{[00m%} "
-		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[42;30m%} %~/%{[00m%} "
-		#export PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
-		#export PROMPT="%{[42;30m%}%n%{[42;30m%}@%{[42;30m%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
+		#PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
+		#PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[47;32m%} %~/%{[00m%} "
+		#PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[42;30m%} %~/%{[00m%} "
+		#PROMPT="%{[47;34m`cursebold`%}%n%{[47;30m%}@%{[47;34m`cursebold`%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
+		#PROMPT="%{[42;30m%}%n%{[42;30m%}@%{[42;30m%}%m%{[00m%}%{[44;32m[01m%} %~/%{[00m%} "
 		# 40 = black background, 44 = blue background
 		bgcol=40
 		## Background extends beneath the current directory
-		#export PROMPT="%{[${bgcol};36m%}%n%{[${bgcol};37m%}@%{[${bgcol};36m%}%m %{[${bgcol};32m`cursebold`%}%~/%{[00m%} "
+		#PROMPT="%{[${bgcol};36m%}%n%{[${bgcol};37m%}@%{[${bgcol};36m%}%m %{[${bgcol};32m`cursebold`%}%~/%{[00m%} "
 		## Background only lies beneath the user@hostname
-		export PROMPT="%{[${bgcol};36m%}%n%{[${bgcol};37m%}@%{[${bgcol};36m%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
+		PROMPT="%{[${bgcol};36m%}%n%{[${bgcol};37m%}@%{[${bgcol};36m%}%m%{[00m%} %{[00;32m%}%~/%{[00m%} "
 
-		export RPROMPT="%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
+		RPROMPT="%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 		## My prefered colours for Unix:
-		# export PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;33m%}%~/%{[00m %} "
-		# # export RPROMPT="%{[00;31m%}%?%{[00m%}:%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
-		# export RPROMPT="%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
+		# PROMPT="%{[00;36m%}%n%{[00m%}@%{[00;36m%}%m%{[00m%}:%{[00;33m%}%~/%{[00m %} "
+		# # RPROMPT="%{[00;31m%}%?%{[00m%}:%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
+		# RPROMPT="%{[00;35m%}%h%{[00m%}%{[00m%}(%{[00;36m%}%*%{[00m%})%{[00;33m%}%l%{[00m%}"
 fi
 
 if true # has_battery
@@ -154,11 +154,11 @@ PS4="%{`cursemagenta`%}+%{`curseblue`%}%L%{`cursemagenta`%}?%{`curseblue`%}%?%{`
 ##       Hmmm I tried putting this PS4 in .bashrc and .bash_profile but it didn't work =/
 ##       Maybe instead we can put zsh's PS4 above in .zshrc ? ^^
 ## So for now I'm defaulting to a bash-compatible PS4:
-# export PS4="\[\033[01;31m\]=$$=\[\033[00m\]"
-# export PS4='\['"`cursered`"'\]'"=="'\['"`cursenorm`"'\]'"
-# export PS4="+[bash] "
-# export PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ "
-# export PS4="+\[`cursegreen`\]\W\[`cursenorm`\][\[`cursered;cursebold`\]\s\[`cursenorm`\]]\$ "
+# PS4="\[\033[01;31m\]=$$=\[\033[00m\]"
+# PS4='\['"`cursered`"'\]'"=="'\['"`cursenorm`"'\]'"
+# PS4="+[bash] "
+# PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ "
+# PS4="+\[`cursegreen`\]\W\[`cursenorm`\][\[`cursered;cursebold`\]\s\[`cursenorm`\]]\$ "
 # \[`cursemagenta`\]
-export PS4="\[`curseblue`\]+[\[`cursered;cursebold`\]\s\[`cursemagenta`\]]\[`cursegreen`\]\W\[`cursenorm`\]\[`cursenorm`\]# "
+PS4="\[`curseblue`\]+[\[`cursered;cursebold`\]\s\[`cursemagenta`\]]\[`cursegreen`\]\W\[`cursenorm`\]\[`cursenorm`\]# "
 
