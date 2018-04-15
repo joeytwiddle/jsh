@@ -101,6 +101,25 @@ then
 	add-zsh-hook precmd find_git_stash_status
 fi
 
+# This has to come *after* the GIT_AWARE_PROMPT addition because that looks for %~ to insert itself!
+if true
+then
+	# Truncate the displayed path if it gets too long relative to the columns available in the terminal
+	get_folder_for_prompt() {
+		local max_len="$((COLUMNS-52))"
+		local folder="$(pwd | sed "s+$HOME\(/\|$\)+~\1+")"
+		if [ ${#folder} -lt $((max_len+1)) ]
+		then prompt_folder="$folder"
+		#else prompt_folder="..${folder:(-$max_len+2)}"
+		else prompt_folder="<${folder:(-$max_len+1)}"
+		fi
+	}
+	autoload add-zsh-hook
+	add-zsh-hook precmd get_folder_for_prompt
+
+	PROMPT="$(printf "%s" "$PROMPT" | sed 's+%~+$prompt_folder+')"
+fi
+
 # if test "$SHLVL" -gt 3
 # then PROMPT="($SHLVL) $PROMPT"
 # fi
