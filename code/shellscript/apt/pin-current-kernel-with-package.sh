@@ -4,6 +4,16 @@
 # you have extra kernel packages such as linux-image-extra-foo, this won't be
 # pinned, so it could get autoremoved.
 
+# How to install:
+#
+# Save this script somewhere, e.g. in /root/bin/pin-current-kernel-with-package.sh
+#
+# Edit /etc/rc.local and add the following line:
+#
+#     bash /root/bin/pin-current-kernel-with-package.sh
+#
+# That is all.
+
 # I posted this script on https://askubuntu.com/questions/2793/how-do-i-remove-old-kernel-versions-to-clean-up-the-boot-menu/917306#917306
 
 set -e
