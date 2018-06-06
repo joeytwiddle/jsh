@@ -50,6 +50,10 @@ Also handy when working from the cmdline:
 
 For use on the command-line or when writing actual scripts.  Most of the following read a list from standard in (assumes inputs are separated by newlines):
 
+    | highlight <regexp> [<colour>]   Highlights matching text in the given colour (or a random colour)
+
+      Example: tail -f /var/log/messages | highlight 'warn' yellow | highlight '.*ERROR.*' red
+
     | withalldo <cmd...>      A shortcut for xargs
     | foreachdo <cmd...>      A shortcut for | while read FILE; do ...; done
     | dog <target_file>       Atomic write, does not clobber until the end, safe to use after cat!
@@ -93,7 +97,18 @@ Rarely used on the commandline.
 
     memo [ -t "N weeks" ] <slow_command...>   Remembers the first output and gives it back on subsequent calls
     jwatch <cmd>                      Show lines added to or removed from the cmd's output
+
+      Example: jwatch find .          Will show if any files are added or removed below the current folder
+
+      Example: jwatch psforwatch      Will show processes spawning and expiring on your system
+
+      Example: jwatch -delay 60 df -h | dateeachline     Log any change in disk usage every 1 minute
+
     jwatchchanges [-fine] <cmd>       Show the cmd output, highlighting changes (more like watch(1))
+
+      Example: jwatchchanges -fine /sbin/ifconfig
+
+      Example: jwatchchanges -fine eval "netstat -n | head -n $((LINES-4))"
 
 ### Forensics
 
@@ -125,6 +140,9 @@ Can be useful when cleaning up old duplicate folders/files
     lazymount <file_to_mount>
 
     | diffhighlight                   add colours to diffs/patches
+
+      Example: diff file.old file.new | diffhighlight | more
+
     sedreplace <search> <replace> <files...>
 
     renamefiles <search_pattern> <replace_pattern> [<files...>] |sh
