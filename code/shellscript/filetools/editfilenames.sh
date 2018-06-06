@@ -1,8 +1,6 @@
 #!/bin/sh
 # Rename files using your favourite editor.
 
-# BUG I you rename a symlink to itself (i.e. don't rename it) and that symlink is a folder, then the symlink will be moved into that folder, and disappear from the current folder!
-
 original_filenames="$(jgettmp original_filenames)"
 new_filenames="$(jgettmp new_filenames)"
 commands_to_run="$(jgettmp commands_to_run)"
@@ -50,6 +48,10 @@ then
 	echo 'The number of filenames differ.  We cannot safely proceed!'
 	exit 1
 fi
+
+# TODO: Check for this situation
+echo "WARNING: If one of the files is a symlink to a folder, and you don't rename it, then mv will mv the symlink inside the folder!"
+echo
 
 echo -n "Proceed? [Yn] "
 
