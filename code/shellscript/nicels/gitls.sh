@@ -51,7 +51,8 @@ do
 			fi
 		else
 			# A directory with unknown contents
-			extra="::"
+			extra="--"
+			#extra="::"
 			#extra=".."
 			#extra="##"
 			#extra="  "
