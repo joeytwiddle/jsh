@@ -5,8 +5,8 @@
 #git status --ignored
 
 # This applies to `git list-files` and to `git clean`
-echo "Note: Only files/folders under the current folder are listed.  cd to the top folder if you want to see all files."
-echo
+echo "Note: Only files/folders under the current folder are listed.  cd to the top folder if you want to see all files." >&2
+echo >&2
 
 # This is the only one that lists the files below ignored directories
 # But it also lists untracked files (which are not ignored)
