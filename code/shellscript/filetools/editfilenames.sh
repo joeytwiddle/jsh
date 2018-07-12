@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Rename files using your favourite editor.
 
 original_filenames="$(jgettmp original_filenames)"
