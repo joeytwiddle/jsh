@@ -48,7 +48,7 @@ fi
 TMPFILE=`jgettmp keepduplicatelines`
 
 export GAP=
-while test "$1" = "-gap"
+while [ "$1" = "-gap" ]
 do export GAP=true; shift
 done
 
@@ -65,8 +65,8 @@ sort |
 
 while read LINE
 do
-  if test "$LINE" = "$LAST"
-  then echo "$LINE"
+  if [ "x$LINE" = "x$LAST" ]
+  then printf "%s\n" "$LINE"
   fi
   LAST="$LINE"
 done |
@@ -76,15 +76,15 @@ removeduplicatelines |
 
 ## For each duplicate line-type found, show all its instances:
 while read LINE; do
-  if test "$LINE"
+  if [ -n "$LINE" ]
   then
-    if test "$GAP"
+    if [ -n "$GAP" ]
     then echo
     fi
-    if test ! "$1"
-    then echo "$LINE"
+    if [ -z "$1" ]
+    then printf "%s\n" "$LINE"
     # else grep "$LINE" "$TMPFILE"
-		## Dodgy grep which ensures the string is in its own column:
+    ## Dodgy grep which ensures the string is in its own column:
     else grep "\(^\|[ 	]\)$LINE\([ 	]\|$\)" "$TMPFILE" # The dodgy grep
     fi
   fi
