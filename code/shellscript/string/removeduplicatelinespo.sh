@@ -1,9 +1,12 @@
 ## Removes any duplicate lines from the stream, preserving line order on output.
 ## Keeps the first occurrence of a line, and drops any later occurrences.
 
-awk '!already_seen[$0]++' "$@"
-
-exit
+# Efficient awk version
+# Unfortunately, this does not work well with findduplicatefiles, because it strips empty lines.
+# In fact stripping duplicated empty lines would usually be the expected behaviour!
+# But we made some exceptional behaviour for empty lines below, to assist keepduplicatelines -gap, which findduplicatefiles uses.
+#awk '!already_seen[$0]++' "$@"
+#exit
 
 ## From http://unix.stackexchange.com/questions/194780/remove-duplicate-lines-while-keeping-the-order-of-the-lines
 ## Without awk:
