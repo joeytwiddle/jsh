@@ -44,6 +44,15 @@ then
 ## Most lusers want this:
 alias mv='mv -i'
 
+rm_is_disabled() {
+	# In zsh echo shows \rm
+	# In bash echo shows \\rm
+	# But if we use printf, they both show the same
+	printf "%s\n" "rm is disabled, use trash or \\rm instead."
+	return 1
+}
+alias rm='rm_is_disabled'
+
 alias man='jman'
 
 ## Because it's nice for the user, but overriding is bad for scripts:
@@ -111,6 +120,7 @@ then
 			else search="$*"
 			fi
 			history 0 | grep "$search"
+			echo "${search_history_reminder}"
 		fi
 	}
 elif [ "$SHORTSHELL" = bash ]
@@ -119,9 +129,11 @@ then
 		if [ "$1" = 0 ] || [ "$1" = . ]
 		then history
 		else history | grep "^ *[0-9][0-9]*  *.*$*" | tail -n "$((LINES-2))"
+			echo "${search_history_reminder}"
 		fi
 	}
 fi
+search_history_reminder="$(curseyellow)""Hit CTRL-R for reverse history search.  Or in jsh bash CTRL-? or jsh zsh: CTRL-[]""$(cursenorm)"
 
 ## Alternative: histlist displays your history search results through less.
 # histlist() {
@@ -162,17 +174,19 @@ alias locate='memo -nd -t "1 day" locate'
 alias locateonly='memo -nd -t "1 day" locateonly'
 alias locateend='memo -nd -t "1 day" locateend'
 alias locateword='memo -nd -t "1 day" locateword'
+alias ilocate='memo -nd -t "1 day" ilocate'
 
 ## Actually my ls and l aliases are now overriden by myls later.
-if test $JM_COLOUR_LS; then
-	XARGS='h --color'
-	## We should share the following with getmachineinfo's JM_LS_OPTS
-	alias ls="ls -atrFb$XARGS --time-style=long-iso"
-elif test $JM_DOES_COLOUR; then
-	alias ls='fakels'
-else
-	alias ls='ls -atrF'
-fi
+## Anyway I don't really need or want an alias for ls
+# if test $JM_COLOUR_LS; then
+# 	XARGS='h --color'
+# 	## We should share the following with getmachineinfo's JM_LS_OPTS
+# 	alias ls="ls -atrFb$XARGS --time-style=long-iso"
+# elif test $JM_DOES_COLOUR; then
+# 	alias ls='fakels'
+# else
+# 	alias ls='ls -atrF'
+# fi
 
 ## This has some nasty problems - put it in config/auto.sh until it's fixed!
 # alias tail=prettytail
@@ -206,6 +220,7 @@ jshssh () {
 }
 alias ssh='jshssh'
 
+# My preferred ls options with one exception: Don't list dotfiles in the home folder
 myls() {
 	## I always use '-a' except when looking at '~'.  To -a my dotfiles, pass any argument, e.g. '.' or '-a'.
 	if ( [ "$PWD" = "$HOME" ] && [ -z "$1" ] ) || [ "$*" = "$HOME" ]
@@ -236,7 +251,7 @@ jcal() {
 alias cal='jcal'
 
 myxv() {
-	xv -perfect "$@" &
+	'xv' -perfect "$@" &
 }
 alias xv=myxv
 
@@ -269,6 +284,30 @@ alias g='grep'
 alias ig='igrep'
 alias gi='igrep'
 
+# This is the most common find operation I do
+#alias fnd='find . -name'
+# With common excludes
+fnd() {
+	# This will still traverse the unwanted folder, which is often large and slow
+	#find . -name "$@" | grep -v "/node_modules/"
+	# This will prevent traversal, but it will show the actual folder too
+	#find . -name node_modules -prune -o -name "$@"
+	# This will prevent traversal of the unwated folder, and avoid displaying it too
+	#find . -not \( -path '*/node_modules' -prune \) -name "$@"
+	# To exclude more folders, repeat another -not immediately after
+	# Or this way:
+	find . -not \( -path '*/node_modules' -prune -or -path '*/.git' -prune \) -name "$@"
+	# You can also find a POSIX version here: https://stackoverflow.com/questions/4210042#comment75400572_16595367
+}
+
+# mm is like m but with syntax highlighting
+mm () {
+  # Using `less -REX` (aka `m`) cuts off the background color.
+  # Using `more` the background uses the whole width of the terminal, but we get other bugs!
+  # So we will default to `m` but the user can always pipe | to their own preferred pager, or cat.
+  vimcat -o - "$@" | less -REX
+}
+
 alias wad='withalldo'
 alias fed='foreachdo'
 # Ever used?
@@ -300,6 +339,10 @@ alias ......='cd ../../../../..'
 #alias ^.='cd ../..'
 
 alias md=mkdir
+mkcd() {
+	mkdir "$1"
+	cd "$1"
+}
 
 
 # Let Vim use Ctrl-Q and Ctrl-S
@@ -314,11 +357,19 @@ alias md=mkdir
 #	}
 #fi
 
+alias v='vim'
+alias vv='vanillavim'
+alias vvi="vanillavim"
+alias vvim="vanillavim"
 # Open vim with last opened file
 alias lvim="vim -c \"normal '0\""
 
 
 alias fumount='fusermount -u'
+
+
+# Open tmux in 256 color mode
+alias tmux='tmux -2'
 
 
 alias mpl=mplayer
@@ -334,17 +385,46 @@ inbg() {
 
 # Various apps I might start from the commandline, but I never actually want to run in the foreground.
 # TODO: Avoid repetition by factoring out to a function.  Also consider sending the stdout+err of the process to somewhere else (e.g. a logfile, or a separate screen/tmux window, or an xterm) to avoid cluttering the user's shell.
-alias smpl='inbg smplayer'
-alias gqview='inbg gqview'
+alias smpl='inbg smplayer -add-to-playlist'
+alias gqview='inbg geeqie'
+alias gq='inbg geeqie'
 alias gimp='inbg gimp'
 alias inkscape='inbg inkscape'
 alias nautilus='inbg nautilus'
+alias konqueror='inbg konqueror'
 alias okular='inbg okular'
 
+alias gqs='gq ~/screenshots'
+alias gqt='gq /tmp'
+alias gqd='gq ~/Downloads'
+alias gqp='gq ~/Pictures'
+alias gqw='gq ~/Wallpapers'
+alias gqm='gq ~/Dropbox/pix/memes'
+
+# When using a window manager other than Gnome, we don't want a Gnome desktop just because we started Nautilus
+alias nlus='inbg nautilus --no-desktop'
+# You could also do that permanently with:
+#
+#     gsettings set org.gnome.desktop.background show-desktop-icons false
+
+alias knq='inbg konqueror'
+alias konq='inbg konqueror'
 
 
 alias xchat='echo "Running hexchat not xchat!" ; hexchat'
 
+# For python 2 and python 3
+alias httpserver='python -m SimpleHTTPServer 8080 || python -m http.server 8080'
+
+# If this system does not have ionice, just make a dummy
+if ! which ionice >/dev/null
+then
+	ionice() {
+		"$@"
+	}
+fi
+
+alias npm='nice ionice npm'
 alias npmi='npm install'
 alias npi='npm install'
 alias ni='npm install'
@@ -358,25 +438,57 @@ alias nt='npm test'
 alias nx='npx'
 alias nw='npm run watch'
 
+alias yarn='nice ionice yarn'
 alias y='yarn'
 alias yi='yarn install'
 alias ya='yarn add'
 alias yad='yarn add --dev'
+alias yrm='yarn remove'
 alias yga='yarn global add'
-alias ygr='yarn global remove'
+alias ygrm='yarn global remove'
 alias yu='yarn upgrade'
 alias ys='yarn start'
 alias yt='yarn test'
 alias yr='yarn run'
-alias yrm='yarn remove'
 alias yx='yarn exec'
 alias yx-='yarn exec --'
 alias yw='yarn run watch'
 
+alias jprettier='prettier --single-quote --tab-width 4 --trailing-comma all'
 
-# Heavy processes that take a long time should gentle.
+ldir () {
+	if [ -n "$*" ]
+	then l -d "$@"
+	else l -d */
+	fi
+}
+lln () {
+	l "$@" | 'grep' ' \-> '
+}
+alias ltxt='l *.txt *.md *.TXT *.MD'
+alias lsh='l *.sh'
+alias lzip='l *.zip'
+# `lext py` is longer than `l *.py` but it is easier to type
+lext () {
+	l *."$*"
+}
+llnk () {
+	if [ -n "$*" ]
+	then echolines "$@"
+	else echolines *
+	fi | filter_list_with test -L | wad nicels -ld
+}
+
+# Heavy processes that take a long time should be gentle.
 
 alias debuild='nice ionice debuild'
+
+
+
+# Easy way to store current folder, e.g. so we can refer to it later in a move command
+setalt () {
+	alt="$PWD"
+}
 
 fi
 
@@ -389,3 +501,5 @@ fi
 ## again by child scripts (e.g. from .bash_profile) and these aliases are
 ## interpreted in scripts.
 
+# Run a docker command, but remove the container afterwards
+alias dr='docker run --rm -ti'
