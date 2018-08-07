@@ -17,8 +17,17 @@ Go to previous folder with:
 
     <Escape> b       Jump back one word
     <Escape> f       Jump forwards one word
+    <Ctrl-Left>      Jump back one word (on Linux)
+    <Ctrl-Right>     Jump forward one word (on Linux)
+    <Shift-Left>     Jump back one word (in iTerm2)
+    <Shift-Right>    Jump forward one word (in iTerm2)
 
-    <Escape> <Del>   Delete previous word
+    <Escape> <Backspace>   Delete previous word
+    <Ctrl-w>               Delete previous word
+    <Ctrl-Shift-_>         Delete previous word
+
+    <Ctrl-u>         Delete everything before cursor (clear line backwards)
+    <Ctrl-k>         Delete everything after cursor (clear line forwards)
 
 
 
