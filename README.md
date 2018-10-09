@@ -1,16 +1,18 @@
 # jsh - Joey's Shellscript Library
 
-A diverse library of shellscripts.  This is my preferred working environment when using a Unix shell.  But I also use this project to collect useful bits and bobs as I discover them.  (For example, I recently added a script to boost volume above 100 when using pulseaudio.)
+A diverse library of shellscripts.  This is my preferred working environment when using a Unix shell.  But I also use this project to collect useful bits and bobs as I discover them.
 
 Many of these scripts will run standalone, but some of them depend on other jsh scripts, so they must be on the PATH.
 
 Run `jsh/jsh` or `source jsh/startj` or `source jsh/startj-simple` to setup your PATH so they will all run fine.
 
+Note that some of these scripts are excellent, but some of them are old snippets I wrote which might make a mess of your files.  If a script does not have documentation, then please read it before running it!  That is what `jdoc` is for.
+
 There are more detailed installation instructions below.  But first, here are some examples of the available scripts:
 
 ### JSH-specific
 
-    jdoc <jsh_command> | <text>   Show or search script documentation (like man+apropos for jsh scripts)
+    jdoc <jsh_command> | <text>   Show or search script documentation (like man for jsh scripts)
 
     et <jsh_command> | <new_com>  Edit a script ("Edit tool" - so old it used to be a .BAT!)
                                   This will open the given script in your favourite editor (see 'edit')
@@ -86,6 +88,12 @@ For use on the command-line or when writing actual scripts.  Most of the followi
     mp3duration <file>
     imagesize <file>
 
+    | diffhighlight                   add colours to diffs/patches
+
+      Example: diff file.old file.new | diffhighlight | more
+
+    highlightstderr <cmd...>  Run a command as usual, but distinguish error output in red
+
 ### Scripts for shellscripting
 
 Rarely used on the commandline.
@@ -110,13 +118,17 @@ Rarely used on the commandline.
 
       Example: jwatchchanges -fine eval "netstat -n | head -n $((LINES-4))"
 
-### Forensics
+    sedreplace <search> <replace> <files...>   Search replace text in files (using sed)
 
-Can be useful when cleaning up old duplicate folders/files
+    worddiff / wordpatch              fine grained diff and patch, works on words instead of whole lines
 
-    diffdirs <dirA> <dirB>            Or for more details, use diff -r
-    diffgraph <related_files...>      Shows which files are most closely related, by numerical distance (does not actually draw a graph yet!)
-    git-which-commit-has-this-blob    Search this repo's history for a file matching the given file/hash
+    wget_flat_files                   Some common wget recipes
+    wget_get_everything_below
+
+    swap_caps_ctrl                    Make better use of that massive Caps Lock key with one of these scripts
+    make_caps_lock_control_escape
+
+    kill-some-chrome-tabs             Too many Chrome tabs open, eating all your memory?  "Unload" the heaviest tabs without losing them.
 
 ### Monitoring
 
@@ -132,46 +144,85 @@ Can be useful when cleaning up old duplicate folders/files
 
 ### Filesystem
 
-    findbrokenlinks
+    findbrokenlinks [ <folders...> ]
     dusk                              show disk usage by folder (du -sk | sort)
-    duskdiff
+    duskdiff                          shows which folder have grown/shrunk since the last time dusk was run
     del <files/folders...>            moves files to trash, reclaimable in case of accident
-    rmlink <symlinks...>              safer than rm: only removes files which are symlinks
-    lazymount <file_to_mount>
+    rmlink <symlinks...>              only removes files which are symlinks (somewhat like rmdir, safer than using rm)
 
-    | diffhighlight                   add colours to diffs/patches
-
-      Example: diff file.old file.new | diffhighlight | more
-
-    sedreplace <search> <replace> <files...>
+    swap <fileA> <fileB>              Renames each file to switch them around
+                                      Can also be used on just one file, to give it a temporary name while debugging,
+                                      and then run again to bring it back
 
     renamefiles <search_pattern> <replace_pattern> [<files...>] |sh
-    editfilenames                     opens Vim to let you edit filenames
+    editfilenames                     opens Vim to let you edit filenames in a batch
 
-    worddiff / wordpatch              don't patch whole lines; be more fine grained!
+    lazymount <file_to_mount>         Can mount a few different types of files, with minimal user interaction
+                                      (I mainly used this to mount isos and diskdumps)
+
+### Forensics
+
+Can be useful when cleaning up old duplicate folders/files
+
+    diffdirs <dirA> <dirB>            Or for more details, use diff -r
+    findduplicatefiles <folders...>   Detects duplicates, can also be used to remove duplicates
+    diffgraph <related_files...>      Shows which files are most closely related, using a numerical measure of their difference
+                                      Useful when you have 10 copies of a text file, but no dates or version numbers
+    jfcsh <fileA> <fileB>             Prints lines which are in fileA but which do not appear in fileB
+    git-which-commit-has-this-blob    Search this repo's history for a file matching the given file/hash
+    check_sparseness                  Determine if a file is sparse or not
+
+    diffimages <img1> <img2> [<out>]  Produces an image which is the subtraction of img2 from img1.  All black = identical
 
 ### X-Windows
 
     xsnapshot
     getxwindimensions
-    put_current_xwindow
+    put_current_xwindow               Allows you to position the current window on the left/right/bottom edge
 
 ### Wrappers
 
     convert_to_mp3 <any_audio_or_video_file>
     convert_to_ogg <any_audio_or_video_file>
     reencode_video_to_x264 <video_file>
-    | txt2speech                      makes festival sound slightly less stupid
+    extract_clips_from_video <video_file>    Hit pause to mark start and stop points
+
     wp <term>                         fast Wikipedia search (short summary) [CURRENTLY BROKEN]
 
-### Utter madness
+    | txt2speech                      makes festival sound slightly less stupid
+
+    equalize_image                    Optimize contrast and saturation for an image
+    batch_shrink_images               Convert multiple high-res images to a more sensible size and quality
+    autocrop_images                   Works on pngs but not jpgs
+
+### Specific
+
+    friendlygitcommit                 git add -p is great for combining multiple changes into one commit
+                                      But what if you have 20 changed files, and want each file to have its own commit?
+                                      friendlygitcommit will prompt you for a different message for each file
+
+    eximflushall                      Useful for exim admins who want to clear/redirect/flush mail queues
+
+### For Git
+
+    git-update-all-repos              Weekly cronjob to fetch the latest version of all repos on disk
+    git-create-empty-branch           Don't use this repo often?  Switch to an empty branch to save disk space.
+
+### For apt and dpkg (Debian/Ubuntu)
+
+    findpkg <partial_name>            Search for installed package
+    findpkg -all <partial_name>       Search for available package
+    pkgversions <package_name>        See what versions of a specific package are available (old, new, currently installed)
+    apt_find_autoable_packages        (Slow) Search for packages which are pulled in by others, so could be marked 'auto' instead of 'install'
+
+### Silly
+
+    export UNIX_TEXT_ADVENTURE=1
+                  For dirhistory, makes you feel like you are playing a classic adventure game as you cd around your filesystem
 
     fifovo        Watch a live video stream, storing the stream in a ringbuffer of files.  Listen for instructions to rewind and capture parts of the stream.  (The last time I tried this, it had stopped working.)
 
-    export UNIX_TEXT_ADVENTURE=1
-                  Makes you feel like you are playing a classic adventure game as you cd around your filesystem
-
-- ... and 1000 more scripts that shouldn't be here
+There are plenty more script I haven't mentioned.
 
 ## Install and setup
 
