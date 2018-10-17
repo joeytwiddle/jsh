@@ -17,6 +17,12 @@ if [ "$EXTRACT_IN" ]
 then OUTPUTDIR="$EXTRACT_IN"
 fi
 
+#EXTRA_OPTS="$EXTRA_OPTS -vf scale=720:400"
+
+## Be gentle:
+which renice >/dev/null && renice -n 15 -p $$
+which ionice >/dev/null && ionice -c 3 -p $$
+
 CLIPNUM=1
 
 cat "$CLIPMARKERFILE" |
@@ -50,9 +56,53 @@ do
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
 	# COPY="-oac lavc -ovc copy" ## Large
 
-	verbosely mencoder "$@" $COPY $CLIPOPTS $MENCODER_OPTIONS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
+	# verbosely mencoder "$@" $COPY $CLIPOPTS $MENCODER_OPTIONS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
 	# verbosely ffmpeg -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy -avoid_negative_ts make_zero "$OUTPUTDIR/$OUTPUTFILE"
-	# verbosely avconv -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy "$OUTPUTDIR/$OUTPUTFILE"
+	# verbosely avconv -ss "$IN" -i "$VIDEOFILE" -t "$LENGTH" -c copy "$OUTPUTDIR/$OUTPUTFILE"
+
+	## NOTE that the following docker calls only work if the target files are specified in or below the current folder (not absolute)
+
+	## Copy video stream directly.  This is very fast, but sometimes doesn't work.
+	# verbosely time docker run -v "$PWD":/mounted jrottenberg/ffmpeg \
+	#     -y -ss "$IN" -i "/mounted/$VIDEOFILE" -t "$LENGTH" -c copy "/mounted/$OUTPUTFILE"
+
+	## Reencoding is slower, but a good alternative if copying doesn't work
+
+	## As noted in https://superuser.com/a/1259172/52910, and confirmed in my tests, the veryfast preset creates smaller files in a shorter time!
+
+	## For 400p, or for a beautiful output, better use crf 20-24
+	## For 720p, and some loss, we can use crf 26-30
+	## The default crf is 23.  Sane values lie from 19-28.  Entire range is 0-51.
+	## Since we switched to using veryfast, we should subtract about 4 from the CRF we would use for medium.
+	## That should produce the same quality output, but in a shorter time!
+
+	verbosely time docker run -v "$PWD":/mounted jrottenberg/ffmpeg \
+	    -y -ss "$IN" -i "/mounted/$VIDEOFILE" -t "$LENGTH" \
+	    -stats \
+	    -c:v libx264 -c:a copy \
+	    $EXTRA_OPTS \
+	    -tune film \
+	    -preset veryfast \
+	    -crf 22 \
+	    "/mounted/$OUTPUTFILE"
+
+	## It will often produce 20% higher bitrate than the one we specify
+
+	## OK quality: -preset fastest -b 600k \
+	## Great quality: -preset medium -b 800k \
+
+	# verbosely time docker run -v "$PWD":/mounted jrottenberg/ffmpeg \
+	#     -y -ss "$IN" -i "/mounted/$VIDEOFILE" -t "$LENGTH" \
+	#     -stats \
+	#     -c:v libx265 -pix_fmt yuv420p10 \
+	#     $EXTRA_OPTS \
+	#     -preset fastest \
+	#     -b 600k \
+	#     -f mp4 \
+	#     "/mounted/$OUTPUTFILE"
+
+	## The docker mounts output a file owned by root:root, so let's fix that
+	verbosely sudo chown "$(id -un):$(id -gn)" "$OUTPUTFILE"
 
 	## We can also try setting the quality level: -crf 22
 
