@@ -60,9 +60,7 @@ LASTMARKERPOS=not_yet_set
 
 $MPLAYER "$@" "$VIDEOFILE" 2>&1 |
 
-# sed 's++'`echo`'+g' |
-
-tr '' '\n' |
+tr '\r' '\n' |
 
 ## Would make pause recognition more responsive, if it didn't buffer the stream
 # grep -A1 "PAUSE" |
@@ -78,11 +76,11 @@ do
 
 		## Read the next line and extract the juicy info from it
 		read LINE
-		AUDIOPOS=`echo "$LINE" | afterfirst ':' | beforefirst ':' | beforelast ' '`
+		AUDIOPOS=`echo "$LINE" | afterfirst ':' | beforefirst ':' | beforefirst ' [(V]'`
 		VIDEOPOS=`echo "$LINE" | afterfirst ':' | afterfirst ':' | beforefirst ':' | beforelast ' '`
 
-		## I chose here to base markers on video time position; swap AUDIOPOS for VIDEOPOS to use audio time position
-		MARKERPOS=$VIDEOPOS
+		## I chose here to base markers on audio time position; swap VIDEOPOS for AUDIOPOS to use video time position
+		MARKERPOS=$AUDIOPOS
 		# MARKERPOS=$VIDEOPOS
 
 		echo "User has set $MARKERTYPE at $MARKERPOS seconds"
