@@ -8,12 +8,18 @@
 
 for file
 do
+	[ -f "$file" ] || continue
+
 	# BUG: Sometimes produces %age > 100%, because as 'du' says "apparent size is usually smaller".
 	#      Common on text files, but also seen on small image files.
 
-	total_size=$(du --apparent-size -B1 "$file" | sed 's+\s.*++')
+	total_size=$(du --apparent-size -B1 "$file" | cut -f 1)
 	#total_size=$(stat -c "%s" "$file")
-	data_size=$(du -B1 "$file" | sed 's+\s.*++')
+	# I was previously using sed to remove all but the first column
+	# However the .* stopped when it reached a 'é' character (0xe9)
+	#data_size=$(du -B1 "$file" | sed 's+\s.*++')
+	# cut/takecols works much better
+	data_size=$(du -B1 "$file" | cut -f 1)
 
 	# Avoid division by zero errors
 	if [ "$total_size" = 0 ]
