@@ -106,7 +106,7 @@ else
 			continue
 		fi
 
-		# preserveDate="`date -r "$FILE"`"
+		# preserveDate="`LC_TIME=C date -r "$FILE"`"
 		cat "$FILE" | sed "s$FROM$TOg" > "$TMPFILE"
 		## TODO: what about symlinks?  Is it better to cat over?
 		chmod --reference="$FILE" "$TMPFILE"

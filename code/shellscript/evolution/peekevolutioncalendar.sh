@@ -1,7 +1,7 @@
 #!/bin/sh
 for DAYSAHEAD in `seq -7 30`; do
 	DATESTR="today + $DAYSAHEAD days"
-	UNIV=`date -d "$DATESTR" -I | tr -d "-"`
+	UNIV=`LC_TIME=C date -d "$DATESTR" -I | tr -d "-"`
 	NICEDATE=`date -d "$DATESTR" "+%A %e %B" | tr -s " "`
 	if test "$DAYSAHEAD" = 0; then
 		NICEDATE="$NICEDATE "`cursemagenta`"[*** TODAY ***]"`curseyellow`

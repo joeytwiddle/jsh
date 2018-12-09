@@ -158,6 +158,8 @@ do
 	## Do the compression, if needed:
 	if [ -n "$DOZIPCOM" ]
 	then
+		INPUT_FILE_DATE=`LC_TIME=C date -r "$FILE"`
+
 		# echo "[rotate] % $ZIPCOM \"$FILE\""
 		# echo "[rotate] % $ZIPCOM"
 		# echo "[rotate] Rotating $FILE to $FINALFILE with `declare -f zipcom | tr '\n\t' '  '`"
@@ -166,6 +168,10 @@ do
 		zipcom || exit 1
 		newSize=`filesize "$FINALFILE"`
 		# [ "$oldSize" = "$newSize" ] || echo "[rotate] Size changed from $oldSize to $newSize"
+
+		if [ -n "$KEEP_DATE" ]
+		then touch -d "$INPUT_FILE_DATE" "$FINALFILE"
+		fi
 	fi
 
 	## If we wanted to keep the original file, but gzip has removed it:
