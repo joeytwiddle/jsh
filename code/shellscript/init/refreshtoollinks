@@ -23,7 +23,8 @@ then
 fi
 
 echo "Clearing"
-"rm" -f "$JPATH"/tools/*
+mkdir -p "$JPATH"/tools
+rm -f "$JPATH"/tools/*
 
 if test ! "$1" = "-old" ## It does seem to work now (a bit better than the original!) =) && test "ifonly" = "itworked"
 then
