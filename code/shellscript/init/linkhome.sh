@@ -12,7 +12,7 @@ then
 	echo
 	echo "linkhome [ -diff ] [ <grep_pattern> ]"
 	echo
-	echo "  links Joey's rc scripts from $JPATH/code/home to your own homedir $HOME"
+	echo "  symlinks Joey's rc scripts $HOME/rc_files/* into your own homedir $HOME"
 	echo
 	echo "  Providing a pattern means only files matching that pattern will be linked."
 	echo
@@ -38,7 +38,8 @@ then DEPTH=7
 else DEPTH=2
 fi
 
-[ -z "$LINK_FROM" ] && LINK_FROM="$JPATH/code/home"
+#[ -z "$LINK_FROM" ] && LINK_FROM="$JPATH/code/home"
+[ -z "$LINK_FROM" ] && LINK_FROM="$HOME/rc_files"
 [ -z "$LINK_TO" ] && LINK_TO="$HOME"
 
 LINK_FROM="`realpath "$LINK_FROM"`"
