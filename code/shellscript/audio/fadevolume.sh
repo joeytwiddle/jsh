@@ -15,23 +15,17 @@ fi
 
 [ -n "$DOWNSTEP" ] || DOWNSTEP=1
 
-DONE=
-while [ -z "$DONE" ]
-do
-  DONE=true # Cleared if any of the mixers has not yet hit 0
+start_volume=`get_volume`
 
-  VOL=`get_volume`
-  VOL=`expr "$VOL" - $DOWNSTEP`
-  [ "$VOL" -gt 0 ] || VOL=0
-
-  echo "[fadevolume] Reducing volume to: $VOL"
-  [ -n "$VOL" ] && [ "$VOL" -gt -1 ] && set_volume "$VOL"
-  #echo "err=$?"
-
-  [ "$?" = 0 ] && [ "$VOL" -gt 0 ] && DONE=
-
-  sleep $GAP
-done
+if [ -n "$start_volume" ] && [ "$start_volume" -gt 0 ]
+then
+  for volume in `seq "$start_volume" -"$DOWNSTEP" 0` 0
+  do
+    #echo "[fadevolume] Reducing volume to: $volume"
+    set_volume "$volume"
+    sleep $GAP
+  done
+fi
 
 # Stop programs playing music:
 #killall mpg123 mp3blaster

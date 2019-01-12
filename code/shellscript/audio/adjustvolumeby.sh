@@ -12,7 +12,8 @@ killall osd_cat 2>/dev/null
 
 export SHOWVOLUME_HEAD=""
 
-for MIXER in /dev/mixer*
+#for MIXER in /dev/mixer*
+for MIXER in /dev/mixer
 do
 
 	VOL=`get_volume`
@@ -21,7 +22,8 @@ do
 	# jshinfo "Changing $MIXER to $VOL"
 	set_volume "$VOL"
 
-	[ -n "$SHOW_VOLUME" ] && show_volume
+	## This is now done by set_volume
+	# [ -n "$SHOW_VOLUME" ] && show_volume
 
 	SHOWVOLUME_HEAD="$SHOWVOLUME_HEAD
 "
