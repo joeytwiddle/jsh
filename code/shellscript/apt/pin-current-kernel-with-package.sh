@@ -34,12 +34,13 @@ current_kernel_package_name="linux-image-$(uname -r)"
 #current_kernel_package_name="$(dpkg -S "/boot/vmlinuz-4.4.0-72-lowlatency" | head -n 1 | sed 's+: .*++')"
 #if [ -z "$current_kernel_package_name" ]; then echo "Could not determine current kernel package" >&2; exit 3; fi
 
-#is_package_insalled="$(apt -qq list "${current_kernel_package_name}")"
-is_package_insalled="$(dpkg-query -W "${current_kernel_package_name}" 2>/dev/null)"
-if [ -z "$is_package_insalled" ]; then echo "Cannot pin package ${current_kernel_package_name} because it is not installed" >&2; exit 1; fi
+#is_package_installed="$(apt -qq list "${current_kernel_package_name}")"
+is_package_installed="$(dpkg-query -W "${current_kernel_package_name}" 2>/dev/null)"
+if [ -z "$is_package_installed" ]; then echo "Cannot pin package ${current_kernel_package_name} because it is not installed" >&2; exit 1; fi
 
 echo ">> Generating package ${package_name} to pin the current kernel package (${current_kernel_package_name})"
 
+# Generate the package configuration for equivs
 cat > "./${package_name}" << !!!
 ### Commented entries have reasonable defaults.
 ### Uncomment to edit them.
@@ -74,7 +75,7 @@ echo
 
 package_file="./${package_name}_${package_version}_all.deb"
 
-if [ ! -f "${package_file}" ]; then echo "Expected package file was not build: ${package_file}" >&2; exit 2; fi
+if [ ! -f "${package_file}" ]; then echo "Expected package file was not built: ${package_file}" >&2; exit 2; fi
 
 echo ">> Installing generated package ${package_name}"
 
