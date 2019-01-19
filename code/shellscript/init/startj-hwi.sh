@@ -315,10 +315,10 @@ else
 						fi
 						[ -n "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
 						# autocomplete_from_man will throw a parse error (syntax error) on some older shells, even for lines than don't run, so we only run it for known-good shells.
-						if [ -n "$BASH" ] || [ -n "$ZSH_NAME" ]
-						then
-							. autocomplete_from_man
-						fi
+						# if [ -n "$BASH" ] || [ -n "$ZSH_NAME" ]
+						# then
+						# 	. autocomplete_from_man
+						# fi
 					fi
 
 					dateDiff "JSH stage 5"
