@@ -154,23 +154,24 @@ else
 
 		[ "$JSHDEBUG" ] && echo "Added $JPATH/tools to get new PATH=$PATH" >&2
 
-		## Dunno about below checks.  This is new:
-		PATH=`
-			echo "$PATH" |
-			tr : '\n' |
+		## If there is any other jsh on the PATH then remove it
+		## Note that we need the '\n' in the printf, or the last entry won't be read!
+		## Do not put comments _inside_ this block.  zsh 5 (Manjaro) did not like it.
+		PATH="$(
+			printf "%s\n" "$PATH" |
+			tr ':' '\n' |
 			while read EXEDIR
 			do
 				if [ ! "$EXEDIR" = "$JPATH"/tools ] && [ -x "$EXEDIR"/jsh ] && [ -x "$EXEDIR"/startj-hwi ]
 				then
 					jshwarn "$EXEDIR on you PATH looks like jsh, but not $JPATH/tools; so I'm removing it"
-					# . removefrompath "$EXEDIR"
 				else
-					echo "$EXEDIR"
+					printf "%s:" "$EXEDIR"
 				fi
 			done |
-			# removeduplicatelinespo | ## neat but too heavy a dependenceny for jsh startup
-			tr '\n' : | tr -s ":" | sed 's+:$++' ## last esp important to avoid . on PATH :P
-		`
+			tr -s ':' | sed 's/:$//'
+		)"
+		## The last sed is important to prevent an empty entry (equivalent to `.`) from appearing on the PATH
 
 		[ "$JSHDEBUG" ] && echo "PATH is now $PATH" >&2
 
