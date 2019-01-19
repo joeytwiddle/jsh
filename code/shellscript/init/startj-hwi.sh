@@ -241,14 +241,32 @@ else
 					## Nope better to have an alias source a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
 					. zshkeys
 					. hwipromptforzsh
-					## TODO: problem, this can leave nonomatch in $1 of sourced scripts (in the interactive sh)
+
+					### Options for zsh
+					## Act like bash: if a glob is provided with no matches, don't complain, just apply it
 					setopt nonomatch
+					HISTSIZE=10000
+					SAVEHIST=50
+					# setopt HIST_NO_STORE
+					setopt HIST_IGNORE_DUPS HIST_REDUCE_BLANKS
+					# I don't need HIST_VERIFY on zsh, because I perform tab-completion first if I am unsure.
+
 				elif [ "$BASH" ]
 				then
 					SHORTSHELL="bash"
 					. bashkeys
 					. hwipromptforbash
-					shopt -s cdspell checkhash checkwinsize cmdhist dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
+
+					### Options for bash
+					# cdspell: Correct minor mistakes when using cd builtin (but not when using aliased cd=d)
+					# histverify: When expanding !, don't run the command immediately, show the expansion first.
+					#   Without this !<something><Enter> can be quite dangerous, if an unexpected line is run.
+					# checkwinsize: updates LINES and COLUMNS
+					# cmdhist: allows re-editing of multiple-line histories
+					# ...
+					shopt -s cdspell checkhash checkwinsize dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
+					# Disabled (under consideration): cmdhist
+
 				fi
 				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt.
 				##       for the moment, we don't start xttitleprompt
@@ -307,14 +325,14 @@ else
 
 					export FIGNORE=".class"
 
-					## Avoid error if not on a tty
-					## Nice try Joey but doesn't work on kimo.
-					# if test ! "$BAUD" = "0"; then
-						mesg y
-					# fi
+					## Prints a message when another user logs in or out (works in zsh, tcsh, ...?)
+					## This is more useful on a shared server than it is on a desktop.
+					# WATCH=all
 
-					## Message on user login/out (zsh, tcsh, ...?)
-					export WATCH=all
+					## Accept messages sent by other users (only on a tty)
+					if [ -t 1 ]
+					then mesg y
+					fi
 
 					### Better solution in jsh.
 					# ## If user prefers zsh but has not sourced startj in their .zshrc,
