@@ -22,7 +22,7 @@ do
 	cd "$(dirname "$node")"
 	# Fallback (default) status.  Not many things get this.  Untracked broken symlinks do (not sure about tracked), and sockets do.
 	# According to logic below, these are things which are not directories and not files.
-	extra="--"
+	extra="xx"
 	if [ -d "$lnode" ]
 	then
 		# Recursive mode is optional because it's a lot slower on large repositories.
@@ -77,7 +77,10 @@ do
 done |
 if which columnise-clever >/dev/null
 then
-	columnise-clever -ignore '^[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]*[^ ]* *[^ ]*' |
+	# Ubuntu
+	#columnise-clever -ignore '^[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]*' |
+	# Manjaro
+	columnise-clever -ignore '^[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]*' |
 	# columnise-clever left-aligns fields, but we want the 5th field (file size) right-aligned
 	sed 's+^\(\([^ ]* *\)\{4\}\)\([^ ]*\)\( *\) +\1\4\3 +'
 else cat
