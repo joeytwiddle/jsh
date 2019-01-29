@@ -6,6 +6,34 @@
 DESTDIR=/tmp
 DESTDIR="$HOME/screenshots" ; mkdir -p "$DESTDIR" || exit 1
 
+nicedate="$(date +"%-I:%M:%S %p on %A %-d %B %Y")"
+
+if command -v screencapture >/dev/null
+then
+	# MacOS
+
+	if [ "$1" = -window ]
+	then
+		shift
+		DESTINATION="$DESTDIR"/"$USER's app at $nicedate.png"
+		[ -n "$1" ] && DESTINATION="$1"
+
+		# Not easy
+		# https://apple.stackexchange.com/questions/56561/how-do-i-find-the-windowid-to-pass-to-screencapture-l
+		#screencapture -l"$window_id" "$DESTINATION"
+
+		# For now, just capture the entire desktop
+		screencapture "$DESTINATION"
+	else
+		DESTINATION="$DESTDIR"/"$USER's desktop on `hostname` at $nicedate.png"
+		[ -n "$1" ] && DESTINATION="$1"
+
+		screencapture "$DESTINATION"
+	fi
+
+	exit
+fi
+
 windowid="root"
 if [ "$1" = "-window" ]
 then
@@ -29,7 +57,7 @@ fi
 if [ "$1" ]
 then DESTINATION="$1"
 #else DESTINATION="$DESTDIR"/screenshot-$$.png
-else DESTINATION="$DESTDIR"/"$window_description at $(date +"%-I:%M:%S %p on %A %-d %B %Y").png"
+else DESTINATION="$DESTDIR"/"$window_description at $nicedate.png"
 fi
 
 ## ATM we force output as .bmp because other programs may be expecting .bmps.
