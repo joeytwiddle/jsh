@@ -34,7 +34,7 @@ do
       shift; shift
       ;;
     --name)
-      check_if_prop_matches WM_CLASS "$2"
+      check_if_prop_matches WM_NAME "$2"
       shift; shift
       ;;
     --)
