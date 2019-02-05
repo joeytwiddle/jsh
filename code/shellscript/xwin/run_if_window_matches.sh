@@ -1,4 +1,18 @@
 #!/usr/bin/env bash
+#
+# run_if_window_matches [--not] [--class <window_class> | --name <window_title>]* [--] <command>
+#
+# At present --not applies to all of the --name/--class conditions individually.
+# All the conditions have && between them, whether --not is used or not.
+# This isn't great for logic, but it was easier to implement.  WIB
+#
+# The <window_class> and <window_title> values are extended regexps, and match the entire string.
+#
+# Example:
+#
+#     run_if_window_matches       --class "(konsole|gnome-terminal)"      -- echo "Terminal" ; \
+#     run_if_window_matches       --class "gvim"                          -- echo "Vim"      ; \
+#     run_if_window_matches --not --class "(gvim|konsole|gnome-terminal)" -- echo "Other"
 
 #winid="$(xdo id)"
 winid="$(xdotool getwindowfocus)"
