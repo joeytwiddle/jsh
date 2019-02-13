@@ -417,6 +417,7 @@ alias xchat='echo "Running hexchat not xchat!" ; hexchat'
 alias httpserver='python -m SimpleHTTPServer 8080 || python -m http.server 8080'
 
 # If this system does not have ionice, just make a dummy
+# NOTE: You must do `ionice nice ...` and not `nice ionice ...` because the latter will not find the ionice function (bash on macOS)
 if ! which ionice >/dev/null
 then
 	ionice() {
@@ -424,7 +425,7 @@ then
 	}
 fi
 
-alias npm='nice ionice npm'
+alias npm='ionice nice npm'
 alias npmi='npm install'
 alias npi='npm install'
 alias ni='npm install'
@@ -438,7 +439,7 @@ alias nt='npm test'
 alias nx='npx'
 alias nw='npm run watch'
 
-alias yarn='nice ionice yarn'
+alias yarn='ionice nice yarn'
 alias y='yarn'
 alias yi='yarn install'
 alias ya='yarn add'
@@ -481,7 +482,7 @@ llnk () {
 
 # Heavy processes that take a long time should be gentle.
 
-alias debuild='nice ionice debuild'
+alias debuild='ionice nice debuild'
 
 
 
