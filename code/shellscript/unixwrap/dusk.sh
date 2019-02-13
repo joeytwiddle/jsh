@@ -7,7 +7,7 @@
 SHOWSCAN=true
 
 DUCOM="du -skx"
-# du can be heavy on disk access, and even the system CPU, so we relax it a bit.
+## du can be heavy on disk access, and even the system CPU, so we relax it a bit.
 which nice >/dev/null && DUCOM="nice -n 5 $DUCOM"       # weak: -n 5 strong: -n 15
 which ionice >/dev/null && DUCOM="ionice -n 5 $DUCOM"   # weak: -n 5 strong: -c 3
 # jshinfo "DUCOM=$DUCOM"
@@ -20,8 +20,9 @@ then LSCOM=echo
 else
 	if [ -n "$JM_COLOUR_LS" ]
 	then
-		# TODO: This is bad if the output is being streamed through automation!  Check tty?
-		LSCOM="ls -artFd --color"
+		## TODO: This is bad if the output is being streamed through automation!  Check tty?
+		# LSCOM="ls -artFd --color"
+		LSCOM="nicels -d"
 	else
 		# Too slow on Unix ATM (and not enough for it ATM ;):
 		# LSCOM="fakels -d"
@@ -31,12 +32,12 @@ fi
 
 (
 
-	[ "$SHOWSCAN" ] && echo -n "Scanning: " >&2
+	[ -n "$SHOWSCAN" ] && echo -n "Scanning: " >&2
 
 	## TODO: The idiomatic solution to this is to use: shopt -s dotglob
 
 	## Output a list of files/folders to scan:
-	if [ "$*" = "" ]
+	if [ -z "$*" ]
 	then
 		GLOBIGNORE=".:.."
 		shopt -s nullglob
@@ -50,11 +51,11 @@ fi
 	## Actually scan them:
 	while read X
 	do
-		[ "$SHOWSCAN" ] && echo -n "$X " >&2
+		[ -n "$SHOWSCAN" ] && printf "%s " "$X" >&2
 		$DUCOM "$X"
 	done
 
-	[ "$SHOWSCAN" ] && echo "" >&2
+	[ -n "$SHOWSCAN" ] && echo "" >&2
 
 ) | sort -n -k 1 |
 
