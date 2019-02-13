@@ -38,7 +38,9 @@ fi
 	## Output a list of files/folders to scan:
 	if [ "$*" = "" ]
 	then
-		echolines .* * | grep -v '^\(\.\|\.\.\)$'
+		GLOBIGNORE=".:.."
+		shopt -s nullglob
+		echolines .* *
 		# find . -maxdepth 1 -mindepth 1 | sed 's+^\./++'
 	else
 		echolines "$@"
