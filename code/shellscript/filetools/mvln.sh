@@ -1,39 +1,32 @@
-# Break on first error
+#!/usr/bin/env bash
 set -e
-# BUG TODO: Fails to do the ln if first arg has trailing slash, e.g. "a_folder/"
 
-## Ummm see also mvandbacklink
+# BUG TODO: Fails to do the ln if one of the nodes has a trailing slash, e.g. "a_folder/"
+# TODO: Makes an ugly link (with double "//") if the last arg has a trailing slash
 
-TARGET="`lastarg "$@"`"
-
-if [ -d "$TARGET" ]
+if [ -z "$1" ] || [ -z "$2" ] || [ "$1" == --help ]
 then
-
-	for ARG in "$@"
-	do
-
-		if [ ! "$ARG"  = "$TARGET" ]
-		then
-			verbosely mv "$ARG" "$TARGET"/ &&
-			verbosely ln -s "$TARGET"/"`basename "$ARG"`" "$ARG"
-		fi
-
-	done
-
-else
-
-	. errorexit "Last arg should be a directory."
-
+	cat <<- !
+		
+		mvln <nodes_to_move>... <destination_dir>
+		
+		  will move the files/dirs into the destination dir,
+		  then make a symlink to the new location.
+		
+	!
+	exit 0
 fi
 
+dest_dir="$(lastarg "$@")"
 
-# if [ -d "$2" ]
-# then
-	# FILENAME="`filename "$1"`"
-	# mv "$1" "$2" &&
-	# ln -s "$2"/"$FILENAME" "$1"
-# else
-	# mv "$1" "$2" &&
-	# ln -s "$2" "$1"
-# fi
+if [ ! -d "$dest_dir" ]
+then . errorexit "Last arg should be a directory"
+fi
 
+for node in "$@"
+do
+	# Skip the last arg when we reach it
+	[ "$node" = "$target_dir" ] && continue
+	verbosely mv "$node" "$target_dir"/ &&
+	verbosely ln -s "$target_dir/$(filename "$node")" "$(dirname "$node")/$filename"
+done
