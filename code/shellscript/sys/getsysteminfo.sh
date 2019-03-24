@@ -1,0 +1,1 @@
+inxi -Fxzrc0

@@ -1,0 +1,29 @@
+# Escalation of unwanted programs
+
+Ideally sudo would come with two options:
+
+- After `sudo`, further calls to `sudo` from this user shell would be auto-accepted for 15 minutes.
+
+- After `sudo -c`, also calls from child shells would also be auto-accepted.
+
+Currently sudo only supports the first behaviour.  As a result, if we need to do a simple command in sudo, e.g.
+
+    user@local$ sudo ln -s $PWD/atool /usr/local/bin/
+
+Then we might do something which we think is not risky:
+
+    user@local$ atool --help
+
+But if `atool` is malicious, it can gain jump from user privileges to gain root privileges!
+
+
+# The sudoers file
+
+Hard to understand.
+
+Man page looks like it's creating regexps, but actually globs are being used.
+
+Man page offers examples which can be broken to e.g. change root's password!
+
+Very difficult to create safe whitelist / blacklist.
+

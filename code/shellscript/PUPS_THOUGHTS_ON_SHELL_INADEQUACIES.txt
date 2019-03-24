@@ -1,0 +1,71 @@
+=======================
+What does Bash do well?
+=======================
+ 
+* Provides a high-level interface for interacting with the OS and with other programs.
+ 
+* Running binaries/commands in a "natural" way. Supplying arguments, etc.
+ 
+* Globbing (both filenames and "regexps lite").
+ 
+* Terseness
+ 
+* Making pipelines between commands.
+ 
+* Redirecting command inputs/outputs.
+ 
+* The *appearance* of robustness: errors don't make the shell stop.
+ 
+* Environmental isolation via subshells.
+ 
+* Easy to do "easy" things. Low barrier to entry. First iteration of a script might be a single typed command from an interactive shell.
+ 
+* Homoiconic: program and data are the same thing (not really, but scripts can easily process or generate other scripts, and there is "eval").
+ 
+* Simple text processing (splitting into words or lines, ...)
+ 
+* Easy to provide in-line text (here documents).
+ 
+* Interpolation of variables in (quoted) text.
+ 
+* Streams can be binary data.
+ 
+* Process management, up to a point.
+ 
+* Signal handling.
+ 
+* Interfacing with the environment. (Potential confusion between "variables" and the environment.)
+ 
+* It's everywhere.
+ 
+========================
+What does Bash do badly?
+========================
+ 
+* Slow!
+ 
+* Dynamically scoped. Bad for scalability.
+ 
+* Very poor support for data types.
+ 
+* "Low-level" handling of numbers. Why no arbitrary precision/rationals? We're not optimising for speed.
+ 
+* Poor error handling. Awkward to write truly robust software. Horrible edge cases (some tweakable by setting options).
+ 
+===================
+Other random ideas:
+===================
+ 
+* Compatibility with shell via source translation, not emulation.
+ 
+* Compilation *to* shell.
+ 
+* Functions in sh look like command invocations: that means whitespace-separated strings. How can functions be improved (named arguments, passing and returning more complex data) without spoiling that?
+ 
+* Data-flow language. Pipelines already specify data-flow: why not extend the concept?
+ 
+* Dataflow equations could subsume the functionality of "make".
+ 
+* Structured persistent data store as a first-class entity. (Subsuming functionality of a spreadsheet? "Cells" would be able to store arbitrary data.)
+ 
+* In-memory buffers for temporary results? Graphical buffers?

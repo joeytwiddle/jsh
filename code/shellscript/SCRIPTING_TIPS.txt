@@ -1,0 +1,8 @@
+I often do:
+
+  PASS=`cat /path/to/pwdfile`
+
+But someone has pointed out that this is prettier:
+
+  read PASS < /path/to/pwdfile
+

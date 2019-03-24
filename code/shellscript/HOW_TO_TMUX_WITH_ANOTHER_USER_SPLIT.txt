@@ -1,0 +1,63 @@
+<joeytwiddle> Person A creates a "view session" which he splits into two panes. In one pane he creates a "work session" and in the other pane he attaches to the Person B's "work session". Similarly, Person B creates a work session and a view session, and attaches to Person A's work session.
+<joeytwiddle> Each person can work in their own session, and see what the other person is doing. There are 4 tmux sessions in total: 2 work, 2 view.
+<joeytwiddle> Person A does this: tmux new-session | tmux new-session -s adam_working | <Ctrl-B> " | tmux attach -t eve_working | <Ctrl-B> o
+<joeytwiddle> And Person B does something similar. One disadvantage is that you have nested tmuxes, so you need to double up the prefix when you want to send a command to your work session.
+
+Note that this cannot be done with separate user accounts.  All commands must be done using the same user account.
+
+We will create 4 tmux sessions, two working sessions and two view sessions.  Each view session will be split into two panes, so that it can display the work sessions of both people.
+
+Each person can work in their work session, but view the other person's work session at the same time.
+
+# Person Adam
+
+    tmux new-session -s adam_view
+    TMUX= tmux new-session -s adam_working
+    ....
+    <Ctrl-B> "
+    tmux attach -r -t eve_working
+    <Ctrl-B> o
+
+# Person Eve
+
+    tmux new-session -s eve_view
+    TMUX= tmux new-session -s eve_working
+    ....
+    <Ctrl-B> "
+    tmux attach -r -t adam_working
+    <Ctrl-B> o
+
+# Explained
+
+Create a new view session.  (Naming the terminal with `-s` is optional, but we do it for clarity.)
+
+    tmux new-session -s eve_view
+
+Inside that view sessionm, create a new work session.  (We must empty the `TMUX` variable to allow this.)
+
+    TMUX= tmux new-session -s eve_working
+
+Wait for the other person to also create their work session.
+
+    ....
+
+Split your view session.  (If you prefer a horizontal split, use `<Ctrl-B> %`.)
+
+    <Ctrl-B> "
+
+In the new pane, open the other person's work session read-only, so you can see it but you can't interrupt the other person.
+
+    tmux attach -r -t adam_working
+
+Switch back to your work pane.
+
+    <Ctrl-B> o
+
+# Additional
+
+Here are some things you can do to make working smoother.
+
+Change the prefix of the outer (view) tmux to `<Ctrl-P>`, so you can use your normal prefix `<Ctrl-B>` to reach the inner (working) tmux.
+
+    <Ctrl-B>:set-window-option prefix C-p
+

@@ -1,0 +1,64 @@
+
+!#$ - last argument from this line
+
+!$ - last arg from previous line?
+
+!# - all of this line
+
+
+ Event Designators
+     An  event designator is a reference to a command-line entry in the his‐
+     tory list.  In the list below, remember that the initial  `!'  in  each
+     item  may  be  changed  to  another  character by setting the histchars
+     parameter.
+
+     !      Start a history expansion, except when followed by a blank, new‐
+            line,  `=' or `('.  If followed immediately by a word designator
+            (see the section `Word Designators'), this forms a history  ref‐
+            erence with no event designator (see the section `Overview').
+
+     !!     Refer  to  the  previous  command.   By  itself,  this expansion
+            repeats the previous command.
+
+     !n     Refer to command-line n.
+
+     !-n    Refer to the current command-line minus n.
+
+     !str   Refer to the most recent command starting with str.
+
+     !?str[?]
+            Refer to the most recent command containing str.   The  trailing
+            `?'  is necessary if this reference is to be followed by a modi‐
+            fier or followed by any text that is not to be  considered  part
+            of str.
+
+     !#     Refer  to the current command line typed in so far.  The line is
+            treated as if it were complete up  to  and  including  the  word
+            before the one with the `!#' reference.
+
+     !{...} Insulate a history reference from adjacent characters (if neces‐
+            sary).
+
+ Word Designators
+     A word designator indicates which word or words of a given command line
+     are to be included in a history reference.  A `:' usually separates the
+     event specification from the word designator.  It may be  omitted  only
+     if  the  word designator begins with a `^', `$', `*', `-' or `%'.  Word
+     designators include:
+
+     0      The first input word (command).
+     n      The nth argument.
+     ^      The first argument.  That is, 1.
+     $      The last argument.
+     %      The word matched by (the most recent) ?str search.
+     x-y    A range of words; x defaults to 0.
+     *      All the arguments, or a null value if there are none.
+     x*     Abbreviates `x-$'.
+     x-     Like `x*' but omitting word $.
+
+     Note that a `%' word designator works only when used in  one  of  `!%',
+     `!:%'  or `!?str?:%', and only when used after a !? expansion (possibly
+     in an earlier command).  Anything else results in  an  error,  although
+     the error may not be the most obvious one.
+
+

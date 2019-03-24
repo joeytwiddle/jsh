@@ -1,0 +1,18 @@
+# Common patterns which I have used but could be improved
+
+
+
+I have been using:
+
+  grep ... <something> ... >/dev/null
+
+to test for the presence of <something> without creating any output if it is present.  However it might be better to do:
+
+  grep ... -q <something> ...
+
+Or we could even write a script for it:
+
+  contains_regexp <something> ...
+
+
+

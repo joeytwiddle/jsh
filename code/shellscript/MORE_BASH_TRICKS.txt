@@ -1,0 +1,20 @@
+Look, in this example, he uses set -- to set the argument (positional) vars, and then reads them afterwards.  Can other shells (sh/dash/zsh) do this too?
+
+# get the tracking-branch name
+tracking_branch=$(git for-each-ref --format='%(upstream:short)' $(git symbolic-ref -q HEAD))
+# creates global variables $1 and $2 based on left vs. right tracking
+# inspired by @adam_spiers
+set -- $(git rev-list --left-right --count $tracking_branch...HEAD)
+behind=$1
+ahead=$2
+
+
+
+Forking a subshell slows things down.  Instead of `(...)` you can do `{ ...;}`.  Just don't forget the leading space and the trailing semicolon!
+
+    true && (echo success) || (echo failed)
+
+    true && { echo success;} || { echo failed;}
+
+Actually you don't need the trailing `;` in bash, but you do in sh.
+

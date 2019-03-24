@@ -1,0 +1,78 @@
+Run jsh then zsh (on Ubuntu 12.04).
+
+jsh loads bash but refuses to load jsh (already loaded) but then this confuses zsh because it loads bash rc files? O_o
+
+joey@tomato:~/ jsh                      [err 0]65(3:56:21)pts/5
+startj: Blocked ok (if ~/.bashrc sources startj, then jsh needn't start bash with startj as its rc script /and/ BASH_BASH set!)
+zsh<<1>> 619$ (tomato 03:56:41 joey) ~/ zsh
+/home/joey/.bashrc:13: command not found: shopt
+/home/joey/.bashrc:21: command not found: shopt
+/home/joey/.bashrc:105: command not found: shopt
+/etc/bash_completion:59: command not found: shopt
+/etc/bash_completion:65: command not found: complete
+/etc/bash_completion:72: command not found: complete
+/etc/bash_completion:73: command not found: complete
+/etc/bash_completion:74: command not found: complete
+/etc/bash_completion:76: command not found: complete
+/etc/bash_completion:77: command not found: complete
+/etc/bash_completion:79: command not found: complete
+/etc/bash_completion:80: command not found: complete
+/etc/bash_completion:81: command not found: complete
+/etc/bash_completion:82: command not found: complete
+/etc/bash_completion:83: command not found: complete
+/etc/bash_completion:84: command not found: complete
+/etc/bash_completion:85: command not found: complete
+/etc/bash_completion:86: command not found: complete
+/etc/bash_completion:87: command not found: complete
+/etc/bash_completion:88: command not found: complete
+/etc/bash_completion:89: command not found: complete
+/etc/bash_completion:90: command not found: complete
+/etc/bash_completion:91: command not found: complete
+/etc/bash_completion:92: command not found: complete
+/etc/bash_completion:93: command not found: complete
+/etc/bash_completion:94: command not found: complete
+/etc/bash_completion:95: command not found: complete
+/etc/bash_completion:96: command not found: complete
+/etc/bash_completion:97: command not found: complete
+/etc/bash_completion:98: command not found: complete
+/etc/bash_completion:99: command not found: complete
+/etc/bash_completion:100: command not found: complete
+/etc/bash_completion:101: command not found: complete
+/etc/bash_completion:102: command not found: complete
+/etc/bash_completion:103: command not found: complete
+/etc/bash_completion:104: command not found: complete
+/etc/bash_completion:105: command not found: complete
+/etc/bash_completion:106: command not found: complete
+/etc/bash_completion:107: command not found: complete
+/etc/bash_completion:108: command not found: complete
+/etc/bash_completion:110: command not found: complete
+/etc/bash_completion:111: command not found: complete
+/etc/bash_completion:112: command not found: complete
+/etc/bash_completion:113: command not found: complete
+/etc/bash_completion:114: command not found: complete
+/etc/bash_completion:115: command not found: complete
+/etc/bash_completion:116: command not found: complete
+/etc/bash_completion:117: command not found: complete
+/etc/bash_completion:118: command not found: complete
+/etc/bash_completion:119: command not found: complete
+/etc/bash_completion:120: command not found: complete
+/etc/bash_completion:121: command not found: complete
+/etc/bash_completion:122: command not found: complete
+/etc/bash_completion:123: command not found: complete
+/etc/bash_completion:124: command not found: complete
+/etc/bash_completion:125: command not found: complete
+/etc/bash_completion:126: command not found: complete
+/etc/bash_completion:132: command not found: complete
+/etc/bash_completion:135: command not found: complete
+/etc/bash_completion:138: command not found: complete
+/etc/bash_completion:141: command not found: complete
+/etc/bash_completion:144: command not found: complete
+/etc/bash_completion:147: command not found: complete
+/etc/bash_completion:150: command not found: complete
+/etc/bash_completion:153: command not found: complete
+/etc/bash_completion:156: command not found: complete
+/etc/bash_completion:159: command not found: complete
+/etc/bash_completion:162: command not found: complete
+/etc/bash_completion:246: parse error near `]]'
+startj: Blocked ok (if ~/.bashrc sources startj, then jsh needn't start bash with startj as its rc script /and/ BASH_BASH set!)
+joey@tomato:~/j/code/shellscript/ [bash_and_zsh_but_not_sh]*8+1                           [err 1]1(3:56:44)pts/5

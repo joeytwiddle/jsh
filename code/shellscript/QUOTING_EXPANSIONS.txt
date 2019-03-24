@@ -1,0 +1,23 @@
+We should always use quotes when passing arguments:
+
+    echo "$foo" "${foo}" "$(ls)"
+
+But do we need to use quotes when assigning variables?
+
+    myvar=$foo
+    myvar=${foo}
+
+Answer: No, for simple assignments we don't have to, but quotes *should* be used for `export` and `local` assignments, if you want really wide compatibility.
+
+Specifically for `dash`, `yash` and `zsh`: http://unix.stackexchange.com/questions/97560/are-quotes-needed-for-local-variable-assignment#97569
+
+For example, this could potentially be an exploit in `dash`:
+
+    user_input='bar=foo'
+
+    export foo=$user_input
+
+    # Oh no!  We just allowed the user to perform an assignment!
+    echo "$bar"
+
+For this reason, it is a sensible policy to ***always quote strings which use expansions or whitespace***, so that they can be easily and safely made local or exported in future.

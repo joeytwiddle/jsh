@@ -1,0 +1,9 @@
+# Google Chrome
+
+    Ctrl-[ / ]          step left/right a pane in the devtools
+
+# Mozilla Firefox
+
+    Ctrl-Shift-I        toggle webtools
+    Ctrl-Shift-K        open webtools with console
+
