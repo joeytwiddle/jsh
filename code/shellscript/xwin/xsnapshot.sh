@@ -3,6 +3,8 @@
 # ## I think it would be good if:
 # echo /tmp/screenshot-$$.bmp
 
+killall osd_cat 2>/dev/null
+
 DESTDIR=/tmp
 DESTDIR="$HOME/screenshots" ; mkdir -p "$DESTDIR" || exit 1
 
@@ -71,7 +73,7 @@ import -window "$windowid" "$TMPFILE"
 
 if which osd_cat >/dev/null
 then
-	killall osd_cat
+	killall osd_cat 2>/dev/null
 	#font='-*-helvetica-*-r-*-*-*-400-*-*-*-*-*-*'
 	#font='-*-nimbus roman no9 l-*-r-*-*-60-*-*-*-*-*-*-*'
 	font='-*-helvetica-*-r-*-*-24-*-*-*-*-*-*-*'

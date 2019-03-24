@@ -2,6 +2,8 @@
 ## jsh-help: Single use: toregexp <string>
 ## jsh-help: Stream use: cat <data> | toregexp
 
+## For potentially better solutions, see http://stackoverflow.com/questions/29613304/is-it-possible-to-escape-regex-metacharacters-reliably-with-sed
+
 ## TODO: not yet tested; do some huge sets of tests...
 
 if [ "$#" = 0 ]

@@ -86,7 +86,7 @@ then
 					## Special comments:
 					# highlight "[^#]\# [A-Z].*" cyan | ## for lines likely to be a sentence
 					## Normal comments (single #), coloured dark.  Possibly code which was commented out.  Is hash followed by space?
-					highlight "^[ 	]*\# .*" magenta |
+					highlight "^[ 	]*\#.*" magenta |
 					# highlight "	" blue | ## tabs
 					# sed 's+	+|--+g' | ## tabs
 					## Special comments:

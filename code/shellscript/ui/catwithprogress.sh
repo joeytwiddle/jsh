@@ -4,6 +4,8 @@
 ## If the input is from a stream (as opposed to file(s)), and -size is not specified, then this script saves a temporary copy of the stream contents, so don't use it if the stream is very long or unbounded.
 ## If the full contents of the stream is too large, this script is not suitable, since it must temporarily save the stream contents in a file.
 
+## See also: pv
+
 ## TODO: Would better be wrapped in: do_this_command_line_with_output_progressbar
 
 # jsh-depends: cursebold cursenorm filesize awksum countbytes datediff jdeltmp jgettmp striptermchars
@@ -113,6 +115,11 @@ do
 		[ "$SOFARRESERVED" -lt 0 ] && SOFARRESERVED=0
 		[ "$SIZE" = 0 ] && SIZE=1
 		PERCENTAGE=`expr 100 '*' $SOFAR / $SIZE` ## otherwise could do $SOFARRESERVED / ($SIZE - 4096)
+
+		# BUG: If I remove this, it breaks!  Something is a bit broken somewhere.
+		#      Hmm but it seems to work fine with apt-list
+		#      I believe I was experiencing the bug when piping `tar c | catwithprogress | gzip -c > file.tgz`
+		#echo "[log] PERCENTAGE: $PERCENTAGE"
 		## Hmmm it also seems to me that N slow-running |s _after_ the call to catwithprogress means N times this many buffers.
 
 		# if [ "$SOFAR" -gt 0 ]

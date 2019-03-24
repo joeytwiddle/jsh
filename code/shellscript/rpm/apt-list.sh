@@ -181,7 +181,7 @@ then
     ## This memo file is too large, and we cache the output anyway!
     # $DPKGMEMOCOM "env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5" |
     env COLUMNS=480 dpkg -l | takecols 2 3 | drop 5 |
-		catwithprogress |
+    catwithprogress |
     while read PKGNAME PKGVER REST
     do
       [ "$REST" ] && error "Unexpected data: $REST"
@@ -193,13 +193,16 @@ then
     column -t
     echo "[`cursemagenta`apt-list] Cache built.`cursenorm`" >&2
 
-    jdeltmp $LIST
+    #jdeltmp $LIST
 
   else
 
+    my_arch="`dpkg-architecture -qDEB_HOST_ARCH`"
+    [ -n "$my_arch" ] && my_arch=":$my_arch"
+
     echo "`cursemagenta`[apt-list] Building cache from apt-cache$APT_EXTRA_ARGS dump, please be patient...`cursenorm`" >&2
     (
-      echo "PACKAGE	VERSION	DISTRO	SOURCE"
+      echo "PACKAGE:arch	VERSION	DISTRO	SOURCE"
       ## This memo file is too large, and we cache the output anyway!
       apt-cache $APT_EXTRA_ARGS dump |
       catwithprogress |
@@ -217,8 +220,11 @@ then
         if ( $1 == "File:" )
           { PROVIDER=$2 ; STAT=$3; print PACK "\t" VER "\t" STAT "\t" PROVIDER }
       } ' |
+      ## Packages belong to the host architecture are missing their trailing :<arch> so we re-add it
+      sed "s+^\([^ :]*\) +\1$my_arch +" |
       ## Some systems start listing packages multiple times, I don't know why.
       ## We simply trim them here.
+      ## Oh that might have been different architectures...?
       removeduplicatelines | sort
     ) |
     column -t

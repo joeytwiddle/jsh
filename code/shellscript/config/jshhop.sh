@@ -1,4 +1,4 @@
-## jshhop is intended to be a replacement for ssh
+## WIP!  jshhop is intended to be a replacement for ssh
 ## At the beginning of the session, it will do useful things
 ## such as update config between two machines.
 ## NB: currently runs without jsh env deps but that will change!

@@ -6,12 +6,18 @@ gitTopLevelDir=$(git rev-parse --show-toplevel)
 
 exec 3>&0   # Save user stdin(0) into 3
 
+if [ "$1" = -all ]
+then
+	catch_untracked_files="\|??"
+	shift
+fi
+
 # Get list of modified files
 git status --porcelain "$@" |
 # ' M' is a normal modified file
 # 'MM' means it has been staged, but there are modifications since the staged version
 # 'UU' is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
-grep "^\( M\|UU\|MM\) " |
+grep "^\( M\|UU\|MM${catch_untracked_files}\) " |
 sed 's+^.. ++' |
 sed 's+^"\(.*\)"$+\1+' |
 

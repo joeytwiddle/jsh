@@ -1,6 +1,32 @@
 ## Calls my Haskell version
 ## eg. find /var/lib/apt/lists/ | sort | tree
 
+## Notes for generation 2:
+## There is a problem that we don't know where to split until we have read all the lines below the current split.
+## E.g.:
+##
+##     /aaa/aaa/aaa    <-- We should split here on the first '/'
+##     /aaa/aaa/bbb
+##     /aaa/aaa/ccc
+##     /aaa/bbb/aaa    <-- But we don't know that until we reach here!
+##     /aaa/bbb/bbb
+##     /aaa/bbb/ccc
+##     /abc/aaa/aaa    <-- Oh gosh.  If we we splitting by chars, we should have split on '/a' earlier!
+##
+## The original tree.hs solution read in the whole file before processing.  This is not ideal.
+##
+## An alternative approach, that would allow some streaming, is:
+##
+## - Read lines in, and use an internal data structure to split *anywhere* that there *could* be a split.  Depending on the configuration, this might be on every character.
+##   E.g. ['/', 'a', 'a', 'a', '/', 'a', 'a', 'a', '/', 'a', 'a', 'a']
+##   Well except we are building a tree.  But that is just to show that we split on every char!
+##
+## - After a split below a certain level is complete, then we can process the children above, and collapse those splits that didn't need to be splits (e.g. only had one child).
+##   E.g. when we hit "/bbb/..." then we can process all the "/a..."s and then decide whether we needed to split at '/aaa/aaa/' or at '/aaa/' or at '/a'.
+##
+## I suspect we still won't be able to stream the output, unless we pop all the way up to ''.  Because we won't know until the end of the file/stream, whether or not we needed to split the lead character '/' and './' or not.
+## But at least our tree will effectively compress it while we are reading it, so there will be less in memory than if we read it plain!
+
 if [ "$1" = --help ]
 then
 cat << EOF

@@ -17,7 +17,26 @@ if [ "$EXTRACT_IN" ]
 then OUTPUTDIR="$EXTRACT_IN"
 fi
 
-#EXTRA_OPTS="$EXTRA_OPTS -vf scale=720:400"
+## If this aspect ratio is incorrect, the video will encode with this resolution, but mplayer will set the correct aspect ratio when the video plays.
+## Ratio 4:3
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=640:480"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=720:480"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=800:600"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1024:768"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1280:960"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1365:1024"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1440:1080"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1920:1440"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=2560:1920"
+## Ratio 16:9
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=640:360"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=720:405"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=800:450"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1024:576"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1280:720" # HD Ready
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1365:768"
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=1920:1080" # Full HD
+# EXTRA_OPTS="$EXTRA_OPTS -vf scale=2560:1440"
 
 ## Be gentle:
 which renice >/dev/null && renice -n 15 -p $$
@@ -31,8 +50,16 @@ grep -v "^#" |
 while read IN OUT CLIPNAME
 do
 
-	OUTPUTFILE="clip$CLIPNUM.avi"
-	[ "$CLIPNAME" ] && OUTPUTFILE="$CLIPNAME.avi"
+	if [ -n "$CLIPNAME" ]
+	then FILENAME_EXTRA="$CLIPNAME"
+	else FILENAME_EXTRA="clip${CLIPNUM}"
+	fi
+	OUTPUTFILE="$(echo "$VIDEOFILE" | sed "s:\(.*\)\.:\1.${FILENAME_EXTRA}.:")"
+	if [ "$OUTPUTFILE" = "$VIDEOFILE" ]
+	then
+		echo "Output filename is the same as video filename! OUTPUTFILE=$OUTPUTFILE"
+		exit 1
+	fi
 
 	echo
 	echo "# `curseyellow`Saving clip #$CLIPNUM in $OUTPUTDIR/$OUTPUTFILE`cursenorm`"
@@ -57,34 +84,49 @@ do
 	# COPY="-oac lavc -ovc copy" ## Large
 
 	# verbosely mencoder "$@" $COPY $CLIPOPTS $MENCODER_OPTIONS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
-	# verbosely ffmpeg -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy -avoid_negative_ts make_zero "$OUTPUTDIR/$OUTPUTFILE"
+	verbosely ffmpeg -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy -avoid_negative_ts make_zero -y "$OUTPUTDIR/$OUTPUTFILE"
 	# verbosely avconv -ss "$IN" -i "$VIDEOFILE" -t "$LENGTH" -c copy "$OUTPUTDIR/$OUTPUTFILE"
 
 	## NOTE that the following docker calls only work if the target files are specified in or below the current folder (not absolute)
 
 	## Copy video stream directly.  This is very fast, but sometimes doesn't work.
-	# verbosely time docker run -v "$PWD":/mounted jrottenberg/ffmpeg \
+	# verbosely docker run -v "$PWD":/mounted jrottenberg/ffmpeg \
 	#     -y -ss "$IN" -i "/mounted/$VIDEOFILE" -t "$LENGTH" -c copy "/mounted/$OUTPUTFILE"
 
 	## Reencoding is slower, but a good alternative if copying doesn't work
 
 	## As noted in https://superuser.com/a/1259172/52910, and confirmed in my tests, the veryfast preset creates smaller files in a shorter time!
 
-	## For 400p, or for a beautiful output, better use crf 20-24
-	## For 720p, and some loss, we can use crf 26-30
+	## For 400p, or for a beautiful output, better use crf 18-24
+	## For 720p, and some loss, we can use crf 24-30
 	## The default crf is 23.  Sane values lie from 19-28.  Entire range is 0-51.
 	## Since we switched to using veryfast, we should subtract about 4 from the CRF we would use for medium.
-	## That should produce the same quality output, but in a shorter time!
+	## That should produce the same quality output, of the same size, but in a shorter time!
 
-	verbosely time docker run -v "$PWD":/mounted jrottenberg/ffmpeg \
-	    -y -ss "$IN" -i "/mounted/$VIDEOFILE" -t "$LENGTH" \
-	    -stats \
-	    -c:v libx264 -c:a copy \
-	    $EXTRA_OPTS \
-	    -tune film \
-	    -preset veryfast \
-	    -crf 22 \
-	    "/mounted/$OUTPUTFILE"
+	echo "[extract_marked_clips_from_video] OUTPUTFILE: $OUTPUTFILE"
+
+	# verbosely time docker run -v "$PWD":/mounted jrottenberg/ffmpeg \
+	#     -y -ss "$IN" -i "/mounted/$VIDEOFILE" -t "$LENGTH" \
+	#     -stats \
+	#     -c:v libx264 -c:a copy \
+	#     $EXTRA_OPTS \
+	#     -tune film \
+	#     -preset veryfast \
+	#     -crf 20 \
+	#     "/mounted/$OUTPUTFILE"
+
+	## Without docket
+	## For some reason this one never goes on to the second clip O_o
+	## It appears that stdin is broken.  Even when it does go to the second clip, the second clip has no start or end time.
+	# verbosely ffmpeg \
+	#     -y -ss "$IN" -i "$VIDEOFILE" -t "$LENGTH" \
+	#     -stats \
+	#     -c:v libx264 -c:a copy \
+	#     $EXTRA_OPTS \
+	#     -tune film \
+	#     -preset veryfast \
+	#     -crf 26 \
+	#     "$OUTPUTDIR/$OUTPUTFILE"
 
 	## It will often produce 20% higher bitrate than the one we specify
 

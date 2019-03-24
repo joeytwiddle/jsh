@@ -8,6 +8,8 @@ then
     preview_duration="-t 10"
 fi
 
+#extra="$extra -vf scale=720:400"
+
 # Recommended values: 15 to 25 (higher number means more loss)
 [ -z "$CRF" ] && [ -z "$ANIMATION" ] && CRF=15
 [ -z "$CRF" ] && [ -n "$ANIMATION" ] && CRF=23
@@ -65,7 +67,7 @@ do
     # Lower crf is better quality
     # Recommended for animation, but not working for me:
     #avconv \
-    docker run -v $PWD:/mounted jrottenberg/ffmpeg \
+    verbosely docker run -v $PWD:/mounted jrottenberg/ffmpeg \
       -stats \
       $preview_offset \
       -i /mounted/"$input" \

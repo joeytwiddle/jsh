@@ -32,7 +32,7 @@ do
 	# ssh joey@hwi.ath.cx "echo 'dpkg -L $PKGNAME | filesonly -inclinks | withalldo tar cz' | jsh" > $PKGNAME.fromhwi.tgz
 	# ssh joey@hwi.ath.cx \
 	# verbosely ssh joey@hwi.ath.cx -p 222 "/home/joey/j/jsh -c 'dpkg -L $PKGNAME | filesonly -inclinks | verbosely withalldo tar cz'" |
-	verbosely ssh joey@hwi.ath.cx -p 222 "dpkg -L $PKGNAME | j/jsh filesonly -inclinks | j/jsh withalldo tar cjv" |
+	verbosely ssh joey@tomato -p 22 "dpkg -L $PKGNAME | j/jsh filesonly -inclinks | j/jsh withalldo tar cjv" |
 	if [ "$UNPACK" ]
 	then tar xj
 	else cat > $PKGNAME.fromhwi.tar.bz2

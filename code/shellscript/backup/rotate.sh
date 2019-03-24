@@ -112,10 +112,10 @@ do
 		for OLDN in `seq 1 $((N-2))`
 		do
 			NEWN=$((OLDN+1))
-			# if shexec cmp "$FILE.$NEWN$EXT" "$FILE.$OLDNEXT" ## could make this optional on [ "$SKIPNEXT" ] || but then SKIPNEXT would be set ="" anyway :P  this is inefficient but seems tidier
-			if cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" >/dev/null
-			then jshinfo "[rotate] $FILE.$NEWN$EXT and $$FILE.OLDN$EXT are identical" #  verbosely mv -f \"$FILE.$NEWN$EXT\" \"$FILE.$OLDN$EXT\"" ||
-			else verbosely mv -f "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT"
+			## This cmp doesn't work, because after the first iteration, $OLDN isn't there yet!
+			if false # || cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" >/dev/null
+			then : # jshinfo "[rotate] $FILE.$NEWN$EXT and $$FILE.OLDN$EXT are identical"
+			else mv -f "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT"
 			fi
 			# BUG TODO: The above check doesn't do anything.  Noticing two files
 			# are identical should allow us to make a rotation without affecting
@@ -208,7 +208,7 @@ do
 			# while [ "$X" -lt "$N" ]
 			# do
 				# XN=`expr "$X" + 1`
-				# verbosely mv "$FINALFILE.$XN" "$FINALFILE.$X"
+				# mv "$FINALFILE.$XN" "$FINALFILE.$X"
 				# X="$XN"
 			# done
 		# fi

@@ -1,5 +1,6 @@
 #!/bin/sh
 ## See also: joey/project/gentoo/chroot_into_gentoo.sh which has isActiveMountPoint().
+## See also: dchroot docker.io jailer jailtool makejail schroot
 
 ## TODO: Auto-configure network.  For me requires doing ifconfig up on relevant interfaces, and dhclient on the main one.
 
@@ -20,6 +21,7 @@
 # fi
 
 TARGET="$1"
+shift
 
 [ "$TARGET" ] || exit 1
 
@@ -229,7 +231,10 @@ xttitle "chroot-$TARGET $XTTITLE_PRESTRING_BEFORE" ## hardly needed; if xttitle 
 
 jshinfo "Entering chroot $TARGET"
 # chroot "$@"
-chroot "$@" env XTTITLE_PRESTRING="$XTTITLE_PRESTRING" bash
+if [ -z "$*" ]
+then chroot "$TARGET" env XTTITLE_PRESTRING="$XTTITLE_PRESTRING" bash
+else chroot "$TARGET" env XTTITLE_PRESTRING="$XTTITLE_PRESTRING" "$@"
+fi
 ## Causes: "no job control in this shell"
 # verbosely chroot "$@" env XTTITLE_PRESTRING="$XTTITLE_PRESTRING" bash
 jshinfo "Leaving chroot $TARGET"

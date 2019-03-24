@@ -3,6 +3,10 @@
 # jsh-ext-depends-ignore: expand xscreensaver
 # jsh-depends: unj verbosely
 
+# Settings I sometimes use in SMPlayer:
+# Options: -lavdopts lowres=0:fast:skiploopfilter=all
+# Audio filters: volnorm,volume=+0dB
+
 # if [ "$USE_SCREEN_LIKE_MADPLAY" ]
 # then
 	# echo "Called: mplayer $*" >> /tmp/mplayer_script.log
@@ -10,7 +14,8 @@
 # fi
 
 # OPTS="-vo gl,xv,x11" ## under gentoo this selects x11 which is slow.  gl sucks for me under compiz
-OPTS="-vo x11" ## No acceleration, always works.  Lets me adjust contrast.  Works under compiz.
+OPTS="-vo x11" ## No acceleration, always works.  Lets me adjust brightness/contrast.  Works under compiz.
+# OPTS="-vo xv" ## Faster than x11, but does not let me adjust brightness/contrast.
 # OPTS="-vo xv" ## I thought this allowed us to adjust contrast but it doesn't right now.
 # OPTS="-vo sdl" ## good if the machine is slow (but not so pretty)
 ## OK all -vo options turned off.  Recommend setting in /etc/mplayer/mplayer.conf or ~/.mplayer.conf
@@ -20,6 +25,11 @@ OPTS="$OPTS -zoom -idx"  # -vf scale
 OPTS="$OPTS -stop-xscreensaver"
 OPTS="$OPTS -cache 8192"
 
+## When changing speed (with [ and ] or -speed), keep pitch the same
+## TODO: This breaks the volume filter when enabled.  Perhaps we need to specify both in one -af option...?
+OPTS="$OPTS -af scaletempo"
+## Likewise it gets lost if EQ sets another -af later.
+
 while true
 do
 	case "$1" in
@@ -27,13 +37,13 @@ do
 			OPTS="$OPTS -vo sdl"; shift
 		;;
 		-loud)
-			OPTS="$OPTS -af volume=+20dB"; shift
+			OPTS="$OPTS -af volnorm,volume=+5dB"; shift
 		;;
 		-louder)
-			OPTS="$OPTS -af volume=+30dB"; shift
+			OPTS="$OPTS -af volnorm,volume=+25dB"; shift
 		;;
 		-quiet)
-			OPTS="$OPTS -af volume=-20dB"; shift
+			OPTS="$OPTS -af volnorm,volume=-20dB"; shift
 		;;
 		-putsubsbelow)
 			OPTS="$OPTS -vf expand=0:-140:0:+70 -subpos 100"; shift
@@ -81,6 +91,10 @@ done
 ## Others (Sunny highly compress h264):
 # [ "$FAST" ] && OPTS="$OPTS -nobps -ni -forceidx -mc 0"
 
+## Can reduce CPU usage when scaling a video to fullscreen.
+## When not going fullscreen, using x11 might actually be lighter on CPU/temperature.
+[ "$FAST" -gt 0 ] && OPTS="-vo gl"
+
 ## The last video I tried had A/V sync issues with all of the below configurations, but using more threads seemed to help.  I think -autosync 5 worked better than 30 in that case.
 [ "$FAST" -gt 1 ] && OPTS="$OPTS -lavdopts threads=4 -autosync 5"
 #[ "$FAST" -gt 1 ] && OPTS="$OPTS -lavdopts threads=4:lowres=0:fast:skiploopfilter=all -autosync 5 -sws 4"
@@ -98,18 +112,22 @@ done
 ## h264 - it will cause us to frequently lose large chunks!
 
 ## A heavy flv from YouTube (crashes on HTLGI video!):
-[ "$FAST" -gt 3 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=0:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts"
+[ "$FAST" -gt 3 ] && OPTS="$OPTS -autoq 5 -autosync 5 -framedrop -nocorrect-pts"
 
 ## On pod -ao sdl was failing to keep up (clipping and reporting underruns, P&R) whilst -ao alsa was fine.  Leaving -ao sdl until desperate.
-## This may be wrong for hwi - hwi's default alsa is significantly slower than sdl because it duplexes.
+## This may be wrong for hwi - hwi's default alsa is significantly slower than sdl, probably due to the duplexing configuration.
 [ "$FAST" -gt 4 ] && OPTS="$OPTS -ao sdl"
 
 ## -vo sdl is the sort of thing you can do yourself, if you remember to.
 #[ "$FAST" -gt 5 ] && OPTS="$OPTS -vo sdl" &&
 #                     REMEMBER_WINDOW_POSITIONS=true   # If sdl drops X resolution, window positions may be lost!
 
+[ "$FAST" -gt 6 ] && OPTS="$OPTS -lavdopts lowres=0:fast:skiploopfilter=all:threads=4"
+
+[ "$FAST" -gt 7 ] && OPTS="$OPTS -nobps -ni -mc 0 -vo sdl"
+
 ## lowres=1 crashes on many videos, on just a few it makes decoding faster but with lower image quality
-[ "$FAST" -gt 8 ] && OPTS="$OPTS -vfm ffmpeg -lavdopts lowres=1:fast:skiploopfilter=all -autoq 5 -autosync 5 -framedrop -nocorrect-pts -nobps -ni -mc 0 -vo sdl"
+[ "$FAST" -gt 8 ] && OPTS="$OPTS -lavdopts lowres=1:fast:skiploopfilter=all"
 
 
 
@@ -119,27 +137,34 @@ then OPTS="$OPTS -vo x11"
 fi
 ## xv is more efficient though
 
-## When changing speed (with [ and ] or -speed), keep pitch the same
-## TODO: This breaks the volume filter when enabled.  Perhaps we need to specify both in one -af option...?
-#OPTS="$OPTS -af scaletempo"
-
 ## Graphic equalizer
 [ "$EQ" ] || EQ="none"
 
 # Boost the bass if you have cheap headphones or small speakers.
 #[ "$EQ" = morebass ]   && OPTS="$OPTS -af equalizer=4:3:2:1:1:0:0:0:0:0"
 
-# Actually boost the bass by reducing everything else
+# Boost the lowest bass level and reduce everything else
 [ "$EQ" = hardbass ]   && OPTS="$OPTS -af equalizer=2:1:0:-1:-1:-2:-2:-2:-2:-2"
 
 # Boost the middle and the bass a little, for a warmer feel on a nice speaker set.
-#[ "$EQ" = morebass ]   && OPTS="$OPTS -af equalizer=2:2:1:0:-1:-2:-2:-2:-2:-2"
+[ "$EQ" = softbass ]   && OPTS="$OPTS -af equalizer=2:2:1:1:0:0:-1:-1:-2:-2"
 
 # Boost the bass a lot
 [ "$EQ" = morebass ]   && OPTS="$OPTS -af equalizer=3:3:2:1:0:-1:-2:-2:-2:-2"
+# Like the above but gentler
+#[ "$EQ" = morebass ]   && OPTS="$OPTS -af equalizer=2:2:1:0:-1:-2:-2:-2:-2:-2"
 
-# Boost the middle and the bass a little, for a warmer feel on a nice speaker set.
-[ "$EQ" = softbass ]   && OPTS="$OPTS -af equalizer=2:2:1:1:0:0:-1:-1:-2:-2"
+# This can cause noisy distortion, and doesn't sound too healthy for speakers
+[ "$EQ" = megabass ]   && OPTS="$OPTS -af equalizer=5:3:1:1:0:-1:-2:-2:-2:-2"
+
+# Boost the bass and the middle a bit
+[ "$EQ" = nicebass ] && OPTS="$OPTS -af equalizer=2:2:1:1:0:0:0:0:0:0"
+
+# Boost the bass and the middle a lot
+[ "$EQ" = widebass ] && OPTS="$OPTS -af equalizer=3:3:3:2:1:0:0:0:0:0"
+
+# Boost only the bass, nothing else
+[ "$EQ" = justbass ] && OPTS="$OPTS -af equalizer=3:2:0:0:0:0:0:0:0:0"
 
 # Boost the middle and the bass a little, for a warmer feel on a nice speaker set.
 [ "$EQ" = moremiddle ] && OPTS="$OPTS -af equalizer=2:3:3:2:1:0:0:0:0:0"
@@ -169,7 +194,7 @@ killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
 [ "$REMEMBER_WINDOW_POSITIONS" ] && wmctrl_store_positions
 
 [ "$MPLAYER" ] || MPLAYER=mplayer
-verbosely unj $MPLAYER $OPTS "$@"
+verbosely unj $MPLAYER $OPTS $EXTRA_OPTS "$@"
 
 [ "$REMEMBER_WINDOW_POSITIONS" ] && wmctrl_restore_positions
 

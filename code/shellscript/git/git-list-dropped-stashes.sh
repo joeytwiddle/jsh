@@ -4,7 +4,7 @@
 
 list_of_commits="$(memo git fsck --no-reflog | awk '/dangling commit/ {print $3}')"
 
-# Optional: sort the commits into reverse date order
+# Optional but useful: sort the commits into reverse date order
 sorted_list="$(git show --pretty="%at %H" --no-patch ${list_of_commits} | sort -n -k 1 -r | awk '{print $2}')"
 
 git show --stat -p ${sorted_list}

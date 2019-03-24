@@ -4,6 +4,9 @@
 ## Simple version:
 # du -sk * ; exit
 
+## Only the big stuff (including .):
+# du -h | grep "^[0-9]+[MG]" | sort -h
+
 SHOWSCAN=true
 
 DUCOM="du -skx"

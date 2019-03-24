@@ -1,2 +1,2 @@
-## Previously: pico $1.c
+#!/bin/sh
 "$JPATH"/tools/edit "$@"

@@ -118,10 +118,13 @@ else
 	## But if zsh does not have ~"source startj" in its .zshrc, some stuff will not get loaded.
 
 	## Interactive shell: start user's favourite shell with startj as rc file.
-	# if test "`hostname`" = hwi && test $USER = joey; then
-	# ( test -x /bin/zsh || test -x /usr/bin/zsh || test -x /usr/local/bin/zsh )
+	if [ -n "$JSH_START_FISH" ] && which fish >/dev/null
+	then
+		## In earlier versions of fish, you cannot stty does not work from within fish.  Since I want Ctrl-S to be free to bind in Vim, we disable it before starting fish.
+		stty -ixon
+		exec $PRE fish
 	## Second line is a check because: jsh in zsh will only work if startj is sourced in .zshrc
-	if which zsh >/dev/null 2>&1 &&
+	elif which zsh >/dev/null &&
 	   cat $HOME/.zshrc 2>/dev/null | grep -v "^[ 	]*#" | grep '^\(source\|\.\) .*/startj$' > /dev/null &&
 	   [ ! "$USE_SHELL" = bash ] ## should come first, except when I'm testing the others ;)
 	   # ( test $USER = joey || test $USER = pclark || test $USER = edwards )

@@ -120,5 +120,6 @@ fi
 # fi
 
 ## Ummm, so much for caching?
-( sleep 120 ; rm "$cachedPage" ) &
+## I think the original reason for this was in case window width (COLUMNS) changed.  That is no longer relevant.
+#( sleep 120 ; rm "$cachedPage" ) &
 

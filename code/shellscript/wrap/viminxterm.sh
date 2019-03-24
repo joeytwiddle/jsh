@@ -8,6 +8,11 @@
 
 ## BUG: Geometry estimation works badly on .gzipped files.  Either skip sizing or gunzip them!
 
+open_in_existing_vim_on_current_desktop=yes
+if [ -n "$SEPARATE" ] || [ -n "$SEP" ]
+then open_in_existing_vim_on_current_desktop=""
+fi
+
 if ! jwhich vim > /dev/null
 then
 	echo "[viminxterm] Failing: vim not found on PATH."
@@ -40,57 +45,63 @@ then
 	) &
 fi
 
-FILE="$1"
-
 ## TODO: this algorithm should be refactored out.  But how should it return /two/ values?  Source it or use it as a fn?  But it uses so many variables, we should ensure they are kept local.  Fn then, not direct sourcing.
 ## If the file exists, this cunning algorithm is used to determine the optimal dimensions for the editor window
 ## If the file needs more space than the maximum volume allowed, the algorithm prioritises height over width, but within limits.
 ## Alternative algorithm: Ideally we would ensure we get 95% of the lines fitting within the width of the terminal, but allow 5% of really long lines which we don't need to show in full.  But what if the longest 5% are only slightly longer than the rest, rather than grossly?  Ideally, we don't want the text to look "sparse" in the window when it pops up.
-if [ -f "$FILE" ] && [ ! `filesize "$FILE"` = "0" ]
+if [ -f "$1" ] && [ `filesize "$1"` != "0" ]
 then
 
+	MAX_ROWS_FOUND=0
+	MAX_COLS_FOUND=0
+
+	for FILE
+	do
+
+		## This is useful for editors like vim which unzip .gzipped files when they are opened.
+		if endswith "$FILE" "\.gz"
+		then
+			FILETOREAD=`jgettmp viminxterm_"$FILE".unzipped`
+			gunzip -c "$FILE" > "$FILETOREAD"
+		else
+			FILETOREAD="$FILE"
+		fi
+
+		ROWSINFILE=`countlines "$FILETOREAD"`
+		COLSINFILE=`longestline "$FILETOREAD"`
+
+		[ "$ROWSINFILE" -gt "$MAX_ROWS_FOUND" ] && MAX_ROWS_FOUND="$ROWSINFILE"
+		[ "$COLSINFILE" -gt "$MAX_COLS_FOUND" ] && MAX_COLS_FOUND="$COLSINFILE"
+
+		if [ ! "$FILETOREAD" = "$FILE" ]
+		then jdeltmp $FILETOREAD
+		fi
+
+	done
+
+	## Configuration, adjust to match your screen resolution and font size
 	MAXVOL=`expr 140 "*" 50`
 	MAXCOLS=160
-	# MAXROWS=50
-	# MAXROWS=74   # porridge
-	## To fit lucida 11 into a 768px high screen, 61 rows is just over (using OrangeJuice decorations in Fluxbox).
-	MAXROWS=60
+	MAXROWS=56
 	MINCOLS=20
 	MINROWS=10
 
-	## In some ways, this only applies to vim, because most editors won't unzip .gzipped files when reading them.
-	if endswith "$FILE" "\.gz"
-	then
-		FILETOREAD=`jgettmp viminxterm_"$FILE".unzipped`
-		gunzip -c "$FILE" > "$FILETOREAD"
-	else
-		FILETOREAD="$FILE"
-	fi
-
-	ROWSINFILE=`countlines "$FILETOREAD"`
-	COLSINFILE=`longestline "$FILETOREAD"`
-	# echo "ROWSINFILE = $ROWSINFILE"
-	# echo "COLSINFILE = $COLSINFILE"
-
-	if [ ! "$FILETOREAD" = "$FILE" ]
-	then jdeltmp $FILETOREAD
-	fi
-
 	## Expand the perceived dimensions of the file, so that the editor will show a little gap at the sides
-	ROWSINFILE=`expr '(' $ROWSINFILE '+' 7 ')'`   ## More so for ROWS now my Vim has MinBufExplorer at the top
-	COLSINFILE=`expr '(' $COLSINFILE '+' 4 ')'`
+	## Make room for MinBufExplorer, cmdheight, two statuslines and a little extra to make '~'s visible
+	MAX_ROWS_FOUND=`expr '(' $MAX_ROWS_FOUND '+' 7 ')'`
+	MAX_COLS_FOUND=`expr '(' $MAX_COLS_FOUND '+' 4 ')'`
 
 	## Determine desired height, without exceeding needed height, or maximum allowed height
-	if [ $ROWSINFILE -lt $MAXROWS ]
-	then ROWS=$ROWSINFILE
+	if [ $MAX_ROWS_FOUND -lt $MAXROWS ]
+	then ROWS=$MAX_ROWS_FOUND
 	else ROWS=$MAXROWS
 	fi
 
 	## Determine largest possible width without exceeding maximum allowed volume
 	COLS=`expr $MAXVOL / $ROWS`
 	## Also, do not exceed needed width
-	if [ $COLSINFILE -lt $COLS ]
-	then COLS=$COLSINFILE
+	if [ $MAX_COLS_FOUND -lt $COLS ]
+	then COLS=$MAX_COLS_FOUND
 	fi
 	## Also, do not exceed maximum allowed width
 	if [ $COLS -gt $MAXCOLS ]
@@ -125,16 +136,40 @@ TITLE="[Vim] $1"
 # XTFONT='-b&h-lucidatypewriter-medium-r-normal-*-*-80-*-*-m-*-iso8859-1';
 # `jwhich xterm` -fg white -bg black -geometry $INTGEOM -font $XTFONT -title "$TITLE" -e vim "$@"
 
-font_args="-font -*-lucidatypewriter-medium-*-*-*-11-*-*-*-*-*-*-*"
+#font_args="-font -*-lucidatypewriter-medium-*-*-*-11-*-*-*-*-*-*-*"
 
 # [ -f ~/.vim/plugin/session.vim ] && rm ~/.vim/plugin/session.vim
+
+all_args_escaped="$(escapeargs "$@")"
+
+## We don't attempt this if we are root, in case the existing vim session is not owned by root.
+## (It would be preferable to check properly if the existing session is owned by this user.)
+if [ -n "$open_in_existing_vim_on_current_desktop" ] && [ "$UID" != 0 ]
+then
+	if [ -n "$VIM_SERVER_NAME" ]
+	then vim_server_name="$VIM_SERVER_NAME"
+	else
+		current_desktop="$(wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
+		vim_server_name="desktop-$current_desktop"
+	fi
+
+	## I found if I passed --remote but the server was not already open, then vim didn't open the requested file.
+	## So we will only pass --remote if the server exists.
+	if vim --serverlist | grep -iFx "$vim_server_name"
+	then remote="--remote"
+	else remote=""
+	fi
+
+	all_args_escaped="--servername $vim_server_name $remote $all_args_escaped"
+	echo "Opening in server $vim_server_name ..." >&2
+fi
 
 ## My personal preference is a classic x-terminal with a dark-grey/blue background.
 # xterm -bg "#000048" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e vim "$@"
 # xterm -bg "#000040" -geometry $INTGEOM -title "$TITLE" -e recovervimswap -thenvim "$@"
 # Fails on gnome-terminal: -bg "#223330" -geometry $INTGEOM -title "$TITLE" 
-"$JPATH"/tools/xterm -geometry $INTGEOM -title "$TITLE" $font_args -e "$JPATH/tools/recovervimswap -thenvim $*"
+"$JPATH"/tools/xterm -geometry $INTGEOM -title "$TITLE" $font_args -e "$JPATH/tools/recovervimswap -thenvim $all_args_escaped"
 # # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM -title \"$TITLE\" "
 # XTERMOPTS=" -bg '#000040' -geometry $INTGEOM " ## TITLE caused problems in my chroot (XTERMOPTS is not quoted)!
 # if [ "`jwhich xterm`" ]

@@ -1,7 +1,8 @@
 APPS_TO_KILL="konqueror kdeinit dcopserver kicker gam_server kio_file kio_http"
 APPS_TO_KILL="$APPS_TO_KILL amarokapp yauap"
 APPS_TO_KILL="$APPS_TO_KILL dbus-daemon dbus-launch"
-APPS_TO_KILL="$APPS_TO_KILL kdeinit4 kded klauncher"
+APPS_TO_KILL="$APPS_TO_KILL kdeinit4 kded kded4 klauncher"
+APPS_TO_KILL="$APPS_TO_KILL kglobalaccel kio_http_cache_cleaner"
 
 # pgrep kicker >/dev/null && kickerWasRunning=true
 
@@ -29,5 +30,12 @@ then
 	## Restart kicker automatically.
 	echo "Starting up kicker"
 	kicker&
+fi
+
+if [ -n "$DBUS_SESSION_BUS_ADDRESS" ]
+then
+	echo
+	eco "It looks like you have DBUS_SESSION_BUS_ADDRESS set: $DBUS_SESSION_BUS_ADDRESS"
+	echo "You may need to: unset DBUS_SESSION_BUS_ADDRESS"
 fi
 

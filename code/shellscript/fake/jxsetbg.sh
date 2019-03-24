@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# BUG: This reports xsetbg as required, even though this script in fact works fine without it.
-#      But is there something a little better about xsetbg?
+# xsetbg is preferred because it will leave a border around an image; fbsetbg will stretch to git, regardless of aspect ratio.
 require_exes xsetbg || require_exes fbsetbg || exit
 
 IMAGE="$1"
@@ -19,11 +18,10 @@ IMAGE="$1"
 
 	## Why do we convert?  Because xsetbg barfs on some file-formats that convert does not.  :)
 
-	## If the aspect is within a certain band, resize the image to fix the screen exactly.
 	if which convert >/dev/null 2>&1
 	then
 
-		## If image aspect ratio is similar to desktop aspect ratio, then stretch it instead of adding a border.
+		## If image aspect ratio is similar to desktop aspect ratio, then stretch it to fit screen exactly, otherwise add a border.
 		DESKTOP_SIZE=$(getxwindimensions)
 		DESKTOP_XRES=$(echo "$DESKTOP_SIZE" | beforefirst x)
 		DESKTOP_YRES=$(echo "$DESKTOP_SIZE" | afterfirst x)
@@ -41,20 +39,31 @@ IMAGE="$1"
 		fi
 
 
-		## Stretch the image to fit the screen, giving it a border if necessary.
+		## Stretch the image to fit the screen.  Does not give it a border; xsetbg will do that later.
 		# DITHER=just_for_fun ## todo: autodetect whether it is needed via xdpyinfo
 		TARGET_DIMENSIONS=$(getxwindimensions)
-		if [ "$DITHER" ]
-		then convert "$IMAGE" -geometry "$TARGET_DIMENSIONS""$FIX" -depth 8 -dither $CONVERTOPTS /tmp/tmp-dithered.png && IMAGE=/tmp/tmp-dithered.png
-		else convert "$IMAGE" -geometry "$TARGET_DIMENSIONS""$FIX" $CONVERTOPTS /tmp/tmp.png && IMAGE=/tmp/tmp.png
+		## +dither
+		## -dither FloydSteinberg
+		## -dither Riemersma
+		if [ -n "$DITHER" ]
+		then convert "$IMAGE" -geometry "$TARGET_DIMENSIONS""$FIX" -depth 8 +dither $CONVERTOPTS /tmp/tmp-dithered.jpg && IMAGE=/tmp/tmp-dithered.jpg
+		else convert "$IMAGE" -geometry "$TARGET_DIMENSIONS""$FIX" $CONVERTOPTS -quality 100% /tmp/tmp.jpg && IMAGE=/tmp/tmp.jpg
 		fi
+		## I was convering to png above, but something weird was happening with ImageMagick 6.7.7-10:
+		## - The image was appearing darker than expected
+		## - xsetbg was later reporting: "PNG file: /tmp/tmp.png - Application must supply a known background gamma"
+		## This was happening for images with no transparency.
+		## Converting to 100% quality jpg solved these issues.  (And is probably also faster - see discussion in randomwallpaper.)
 
 	fi
 
-	if which xsetbg >/dev/null 2>&1
-	then unj xsetbg -fullscreen -onroot -fit -border black "$IMAGE"
-	elif which fbsetbg >/dev/null 2>&1
-	then fbsetbg -A "$IMAGE"
+	# fbsetbg -A maximized and crops.  Only use it instead of -c if you have not scaled the image to the appropriate size.  (We do this above.)
+
+	if which fbsetbg >/dev/null 2>&1
+	then fbsetbg -c "$IMAGE"
+	elif which xsetbg >/dev/null 2>&1
+	then
+		unj xsetbg -fullscreen -onroot -fit -border black "$IMAGE"
 	else
 		echo "Can't find any command to set the background!" >&2
 		# xsetroot -bitmap might do it but it requires some weird image format, and we'll probably need to do centering ourself (e.g. via imagemagick).
@@ -66,6 +75,6 @@ IMAGE="$1"
 	# true
 ) ||
 
-## xsetroot is just pants
+## On some systems, xsetroot can only handle xbm files (not even png)
+# convert "$IMAGE" "$IMAGE.xbm" && IMAGE="$IMAGE.xbm" &&
 xsetroot -bitmap "$@" 1>&2
-

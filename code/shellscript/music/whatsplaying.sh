@@ -3,6 +3,9 @@
 
 # tail -n 1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
 
+audio_file_extensions_regexp='\.\(mp3\|ogg\|wav\|pcm\|raw\|mpg\|mpeg\|avi\|mov\|m4a\|rm\|wmv\|wma\|mod\|xm\|it\|flv\|asf\)$'
+# \|mp4
+
 find_open_music_files () {
 
 	(
@@ -42,7 +45,7 @@ find_open_music_files () {
 		# grep -v "\(/tmp\|/dev/null\|/usr/bin/xmms\|/dev/dsp.\|/dev/pts.\|/dev/pts..\|pipe\|socket\|/\|/tmp/xmms_[^ ]*\)$" |
 
 		## Positive match:
-		grep -i '\.\(mp3\|ogg\|wav\|pcm\|raw\|mpg\|mpeg\|avi\|mov\|mp4\|m4a\|rm\|wmv\|wma\|mod\|xm\|it\|flv\|asf\)$' |
+		grep -i "${audio_file_extensions_regexp}" |
 
 		# pipeboth |
 
@@ -52,7 +55,9 @@ find_open_music_files () {
 	done
 }
 
-FILES=` find_open_music_files `
+FILES="$(listfilesopenby mplayer | dropcols 1 2 | grep "${audio_file_extensions_regexp}")"
+
+[ -z "$FILES" ] && FILES=` find_open_music_files `
 
 FILES=`
 
@@ -67,6 +72,10 @@ FILES=`
 	removeduplicatelines ## because, at least, mplayer opens the file in two threads/processes
 
 `
+
+# whatsplaying prints out the file that was found.
+# So script can do things like: ln -s "`whatsplaying`" ~/stuff/music/for/steve/
+printf "%s\n" "$FILES"
 
 #echo "[whatsplaying] FILES: $FILES"
 

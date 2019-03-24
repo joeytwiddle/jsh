@@ -46,7 +46,7 @@ LINK_FROM="`realpath "$LINK_FROM"`"
 
 [ -d "$LINK_FROM" ] &&
 cd "$LINK_FROM" &&
-find . -maxdepth $DEPTH |
+find . -maxdepth $DEPTH '(' -name .git -prune ')' -or -name '*' |
 	grep -v "/CVS$" | grep -v "/CVS/" |
 	sed "s+^./++" | grep -v "^\.$" |
 
@@ -71,7 +71,7 @@ find . -maxdepth $DEPTH |
 				ln -sf "$SOURCE" "$DEST"
 			fi
 		else
-			if [ ! "`realpath "$DEST"`" = "`realpath "$SOURCE"`" ]
+			if [ ! "$(realpath "$DEST")" = "$(realpath "$SOURCE")" ]
 			then
 				echo "`cursered;cursebold`problem`cursenorm` $NICEDEST `cursered;cursebold`is in the way of`cursenorm` $SOURCE"
 				if [ -f "$DEST" ] && [ -f "$SOURCE" ] && cmp "$DEST" "$SOURCE"
@@ -80,6 +80,12 @@ find . -maxdepth $DEPTH |
 				if [ -n "$SHOWDIFFS" ] && [ -f "$DEST" ]
 				then
 					gvimdiff "$DEST" "$SOURCE"
+				fi
+				if [ -n "$MOVEPROBLEMS" ]
+				then
+					echo "Moving problem $DEST to $DEST.BEFORE_LINKHOME"
+					mv "$DEST" "$DEST.BEFORE_LINKHOME" &&
+					ln -s "$SOURCE" "$DEST"
 				fi
 			else
 				[ -z "$QUIET" ] && echo "`cursegreen`ok`cursenorm` $NICEDEST"

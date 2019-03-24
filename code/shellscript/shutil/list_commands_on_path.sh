@@ -1,9 +1,11 @@
+#!/bin/sh
+
 echo "$PATH" | tr ':' '\n' |
-while read PATHBIT
+while read dir
 do
-	find "$PATHBIT"/ -maxdepth 1 -type f -or -type l |
-	while read EXE
-	do [ -x "$EXE" ] && echo "$EXE"
+	[ -r "$dir" ] && find "$dir"/ -maxdepth 1 -type f -or -type l |
+	while read executable
+	do [ -x "$executable" ] && echo "$executable"
 	done
 done |
 afterlast /

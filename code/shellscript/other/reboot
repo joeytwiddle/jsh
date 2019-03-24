@@ -1,1 +1,2 @@
-shutdown -r now
+#!/bin/sh
+exec shutdown -r now

@@ -1,4 +1,5 @@
 #!/bin/sh
+
 FILE=/etc/apt/all-sources.list
 
 if [ ! -f "$FILE" ] || [ "$1" = --help ]
@@ -9,6 +10,9 @@ then
 	echo "  It won't do anything unless that file exists!"
 	echo
 	echo "  By using it I can quickly change the selection of source repositories (subset) I want to use (in /etc/apt/sources.list) without having to re-get the listings."
+	echo
+	echo
+	echo "  As an alternative you could consider adding --no-list-cleanup to apt's config."
 	echo
 	exit 1
 fi

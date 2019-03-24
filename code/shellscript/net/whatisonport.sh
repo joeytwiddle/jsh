@@ -5,10 +5,11 @@ PORT="$1"
 
 
 # This one works on macOS and on Linux
+# But it requires root for processes owned by other users
 if [ "$(uname)" = "Darwin" ]
 then
     lsof -P -S 2 -i "tcp:${PORT}" | grep "\(:${PORT}->.*:\|:${PORT} (LISTEN)$\)"
-    exit
+    exit "$?"
 fi
 
 
@@ -22,7 +23,7 @@ fi
 # If run without being root, this can list ports opened by other users, but it won't actually list the PIDs or names of those processes.
 # We could add -t and -u to restrict to TCP/UDP
 netstat -anp --numeric-ports | grep ":${PORT}\>.*:"
-exit
+exit "$?"
 
 
 
@@ -34,3 +35,4 @@ exit
 
 # For multiple ports, you can separate with ','s.
 fuser -v "${PORT}/tcp"
+exit "$?"

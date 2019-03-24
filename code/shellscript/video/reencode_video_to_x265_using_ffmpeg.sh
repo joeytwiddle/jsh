@@ -8,6 +8,8 @@ then
     preview_duration="-t 15"
 fi
 
+#extra="$extra -vf scale=720:400"
+
 [ -z "$VIDEO_BITRATE" ] && [ -z "$ANIMATION" ] && VIDEO_BITRATE=600k
 [ -z "$VIDEO_BITRATE" ] && [ -n "$ANIMATION" ] && VIDEO_BITRATE=400k
 
@@ -46,11 +48,11 @@ do
     #-tune animation \
     # x265 is slow enough, so let's not use this
     #-preset slow \
-    docker run -v $PWD:/mounted jrottenberg/ffmpeg \
+    verbosely docker run -v $PWD:/mounted jrottenberg/ffmpeg \
       -stats \
       $preview_offset \
       -i /mounted/"$input" \
-      -preset fast \
+      -preset veryfast \
       $preview_duration \
       -c:v libx265 -pix_fmt yuv420p10 \
       -b "$VIDEO_BITRATE" \

@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+# It was /bin/sh until we added -filesonly
 
 # jsh-depends: cursebold cursegreen cursered curseyellow cursenorm removeduplicatelines filesize diffsummary list2regexp
 # jsh-ext-depends: diff find
@@ -6,12 +8,19 @@
 # jsh-ext-depends-ignore: sort sed
 # jsh-depends-ignore: findfiles
 
-# We can do this in one line using bash's process substitution:
-#   diff <(find dir1 | sort) <(find dir2 | sort)
-# Or if you are feeling brave, use diff's recursive option:
+# Alternative, use diff's recursive option:
 #   diff -r dir1 dir2
 
 # See also: diff --brief -r
+
+# Compare filenames only
+# TODO: Add file sizes to the find
+if [ "$1" = -filesonly ]
+then
+	shift
+	diff <(cd "$1" && find . | sort) <(cd "$2" && find . | sort)
+	exit "$?"
+fi
 
 ## Consider: Instead of "Only in ..." use "Missing" and "Added" when comparing state of second wrt first.
 ## BUG TODO: Does not do the right thing with broken symlinks - spews errors instead.
@@ -21,6 +30,8 @@
 #[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH="xterm -geometry 140x60 -e vimdiff" ## prebg
 [ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH=""
 #[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH=""
+
+DEFAULT_IGNORE_REGEXP="\(^\|/\)\(\.git/\|CVS/\|\.svn/\|node_modules/\|\..*\.sw.$\)"
 
 ## BUG: -showdiffswith doesn't work for eg. vimdiff, because stdin terminal has already been stolen :(  (xterm -e vimdiff is ok though :)
 if [ "$1" = -showdiffswith ]
@@ -48,6 +59,8 @@ If provided, these options can be used to select files by filenames:
   IGNORE=".class"
     or
   IGNORE_REGEXP="\.class$"
+
+  DEFAULT_IGNORE_REGEXP="$DEFAULT_IGNORE_REGEXP"
 
 If neither are specified, IGNORE_REGEXP will apply some common excludes,
 including .git and node_modules folders.
@@ -81,8 +94,7 @@ fi
 
 # [ "$IGNORE" ] && IGNORE_REGEXP="\(""`echo "$IGNORE" | tr ',' '\n' | while read IGNORETERM; do echo "$(toregexp "$IGNORETERM")"; echo "\|"; done; echo "impossible\)"`""\)"
 [ -n "$IGNORE" ] && IGNORE_REGEXP="` echo "$IGNORE" | tr ',' '\n' | list2regexp `"
-#[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="_sdfjslfj23djlsdf_IMPOSSIBLE_sdjfklf242sdf423jsd_"
-[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="\(^\|/\)\(\.git/\|CVS/\|\.svn/\|node_modules/\|\..*\.sw.$\)"
+[ -n "$IGNORE_REGEXP" ] || IGNORE_REGEXP="$DEFAULT_IGNORE_REGEXP"
 
 findfiles () {
 	cd "$1" || exit 1
@@ -105,7 +117,7 @@ report() {
 identical() {
 	[ -n "$NOMATCHES" ] && return
 	if [ "$IDCNT" = 0 ]
-	then /bin/echo -n "Identical:" "$@"
+	then /bin/echo -n "${CURSEBLUE}Identical:${CURSENORM}" "$@"
 	else /bin/echo -n "" "$@"
 	fi
 	IDCNT=$((IDCNT+1))
@@ -148,7 +160,7 @@ do
 		LINKB="`justlinks "$DIRB/$FILE"`"
 		if [ "$LINKA" = "$LINKB" ]
 		then [ -z "$NOMATCHES" ] && report "Identical symlinks: $FILE" ## I wanted to do CURSENORM at the start, but that is not friendly to a user who tries to do `grep -v ^Identical`
-		else report "${CURSEYELLOW}Differing symlinks: $DIRA/$FILE -> $LINKA but $DIRB/$FILE -> $LINKB"
+		else report "${CURSEYELLOW}Differing symlinks:${CURSENORM} $DIRA/$FILE -> $LINKA but $DIRB/$FILE -> $LINKB"
 		fi
 		continue
 	fi
@@ -178,14 +190,14 @@ do
 
 	if [ ! -e "$DIRA/$FILE" ] && [ -e "$DIRB/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
-		report "${CURSEGREEN}Only in \"$DIRB/\": $FILE${CURSENORM}"
+		[ -z "$HIDE_ADDS" ] && report "${CURSEGREEN}Only in \"$DIRB/\": $FILE${CURSENORM}"
 	elif [ ! -e "$DIRB/$FILE" ] && [ -e "$DIRA/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
-		report "${CURSERED}${CURSEBOLD}Only in \"$DIRA/\": $FILE${CURSENORM}"
+		[ -z "$HIDE_REMOVALS" ] && report "${CURSERED}${CURSEBOLD}Only in \"$DIRA/\": $FILE${CURSENORM}"
 	else
 
 		## Check the file contents
-		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" > /dev/null
+		# if cmp "$DIRA/$FILE" "$DIRB/$FILE" 2> /dev/null
 
 		## These are faster alternatives, but not as thorough:
 		## Actually they are probably slower for small files, but significantly faster for any large files we come across.
@@ -195,9 +207,11 @@ do
 		# if [ "`filesize "$DIRA/$FILE"`" = "`filesize "$DIRB/$FILE"`" ]
 
 		## Check file size and last modified time, but allow it to pass if modified time were different but contents are the same.
-		filestats_a="`get_size_and_date "$DIRA/$FILE"`"
-		filestats_b="`get_size_and_date "$DIRB/$FILE"`"
-		if [ "$filestats_a" = "$filestats_b" ] || cmp "$DIRA/$FILE" "$DIRB/$FILE" >/dev/null
+		filestats_a="`filesize "$DIRA/$FILE"`"
+		filestats_b="`filesize "$DIRB/$FILE"`"
+		#filestats_a="`get_size_and_date "$DIRA/$FILE"`"
+		#filestats_b="`get_size_and_date "$DIRB/$FILE"`"
+		if [ "$filestats_a" = "$filestats_b" ] || (cmp "$DIRA/$FILE" "$DIRB/$FILE" >/dev/null 2>&1)
 
 		# if test "`qkcksum "$DIRA/$FILE" | takecols 1 2`" = "`qkcksum "$DIRB/$FILE" | takecols 1 2`" ## only faster for bigger files!
 		## This was no good, because the filenames are different, and are echoed back!: if [ "`qkcksum \"$DIRA/$FILE\"`" = "`qkcksum \"$DIRB/$FILE\"`" ]

@@ -23,6 +23,12 @@ then
 	echo "  -direct: executes the command inline rather than piping to a new sh"
 	echo "           (bad - breaks args into words)"
 	echo
+	echo "Examples:"
+	echo
+	echo "  Watch for changes to an SQL database (inefficiently):"
+	echo
+	echo '    jwatch sqlite3 ./cookies.sqlite ".dump"'
+	echo
 	exit 1
 fi
 

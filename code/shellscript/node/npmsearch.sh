@@ -3,6 +3,11 @@
 # Apparently npmd can do search also, but I never got that working :P
 
 browse "https://www.npmjs.com/search?q=$*"
+browse "https://npmsearch.com/?q=$*"
+
+# Performs a daily download, but not so bloated as npm's.  (About 1 minute.)
+# It orders things by stars, but it also seems to skip some packages with 0 stars.
+#nipster "$*"
 exit
 
 memo -nd -t "2 months" npm search . |

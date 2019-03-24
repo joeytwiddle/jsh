@@ -14,6 +14,7 @@
 # Space increased to: 50692
 # But I failed to reclaim: ./tmp/jsh-256/memo/[]3328752869_54_-..jdoc_showjshtooldoc_unzipintodir..+home+joey+j+tools_.memo
 ## Was this caused by the []s ?
+## It can be caused by \\s in a filename.
 
 ## TODO: Allow user to specify two thresholds: one to try to clear past, another at which to warn user.
 ## TODO: What about prioritising which files are removed first?  What about allowing user to offer non-default reclaim directories?
@@ -176,6 +177,7 @@ function reclaimfrom() {
 				## This check is done by issymlink.  NOTE issymlink must correctly recognise both working and *broken* symlinks, since we don't want to printf "" into either.
 				## NOTE!  We should never do this if the file is a hardlink!  Hard links are costly to detect.  Empying one file will empty the other.
 				## DISABLED PERMANENTLY due to serious hardlink danger.
+				## Also this does not work on fifos.  It may block the script!
 				# if ! issymlink "$MNTPNT"/RECLAIM/"$FILE"
 				# then
 					# echo "${COLRED}${COLBOLD}Emptying:${COLRESET} printf '' > $MNTPNT"/RECLAIM/"$FILE"

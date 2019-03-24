@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 #
 # run_if_window_matches [--not] [--class <window_class> | --name <window_title>]* [--] <command>
 #

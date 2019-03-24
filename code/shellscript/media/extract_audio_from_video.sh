@@ -5,5 +5,8 @@
 
 ## TODO: We should detect the type before or after, to properly name the output file.
 
-ffmpeg -i "$1" -vn -acodec copy "$1".audio
+## If ffmpeg is not available, try avconv from package libav-tools
+## avconv seems to need the correct file extension for the output file.
+
+avconv -i "$1" -vn -acodec copy "$1".aac
 

@@ -31,7 +31,14 @@
 #      find the location in the store) before calculating the depth, although
 #      we still want module_path relative to `.`, not absolute.
 #
-#      For now, we avoid this issue by using the global store.
+#      Or more simply, we can assume that all modules will end up in the store,
+#      and therefore the store will always be two levels above any inner
+#      node_modules folder.  I.e. all links will be
+#
+#        ../../<module_name>@<version>
+#
+#      But for now, we avoid this issue by using the global store, which uses
+#      absolute symlinks.
 #
 # TODO: It seems `diff -r` compares the targets of symlinks, which is
 #       expensive, and not actually what we want.  Ideally it should compare
@@ -65,6 +72,8 @@ grep -v 'node_modules/\.[^/]*$' |
 # Skip everything immediately inside the .store, but check for modules deeper below it
 # (Although it is quite likely that these cannot be stored, or they would have already been stored on the first pass.)
 grep -v 'node_modules/\.store/[^/]\+$' |
+
+grep xtend |
 
 # Just show the list of modules that will be considered; don't do anything.
 #cat ; exit

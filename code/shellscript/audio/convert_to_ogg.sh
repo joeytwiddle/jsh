@@ -18,6 +18,7 @@ convert_to_ogg <audio_or_video_files>...
   export EXTRA_MPLAYER_OPTS="-srate 32000"
   export EXTRA_OGGENC_OPTS="-q 0.5 --downmix"
 
+  -q 1.0 will produce a  80kbit ogg
   -q 2.0 will produce a  96kbit ogg
   -q 3.0 will produce a 112kbit ogg
 
@@ -26,7 +27,7 @@ exit 0
 fi
 
 extract_info() {
-	cat info.tmp | grep "^ $1: " | afterfirst ": "
+	cat info.tmp.$$ | grep "^ $1: " | afterfirst ": "
 }
 
 ## Be gentle:
@@ -36,9 +37,10 @@ which ionice >/dev/null && ionice -c 3 -p $$
 for INFILE
 do
 
-	set -e   ## We don't want it to look like we succeeded if something went wrong!
+	## We don't want it to look like we succeeded if something went wrong!
+	set -e
 
-	dump_audio_from "$INFILE" | tee info.tmp 2>&1
+	dump_audio_from "$INFILE" | tee info.tmp.$$ 2>&1
 	## Should create $INFILE.wav
 
 	artist="`extract_info artist`"
@@ -49,6 +51,11 @@ do
 	composer="`extract_info composer`"
 	## Ogg doesn't have a composer field, but it does have a comment field :P
 
+	## For players which do not respect replaygain tags, we normalize the raw audio.
+	if which normalize-audio >/dev/null
+	then normalize-audio -v "$INFILE.wav"
+	fi
+
 	oggenc $EXTRA_OGGENC_OPTS -a "$artist" -t "$title" -l "$album" -d "$date" -G "$genre" -c "composer=$composer" "$INFILE".wav
 
 	rm "$INFILE".wav
@@ -58,13 +65,20 @@ do
 	outfile="`echo "$INFILE" | sed 's+\.[^.]*$++'`".ogg
 	mv "$INFILE".ogg "$outfile"
 
+	# vorbisgain adds REPLAYGAIN tags to the file.  Unfortunately mplayer's ffvorbis replay codec ignores them!
+	if which vorbisgain >/dev/null
+	then vorbisgain "$outfile"
+	fi
+
+	verbosely touch -r "$INFILE" "$outfile"
+
 	originalSize=$(filesize "$INFILE")
 	finalSize=$(filesize "$outfile")
 	sizeReduction=$(( originalSize - finalSize ))
 	percentageShrunk=$(( 100 * sizeReduction / originalSize ))
 	jshinfo "Shrunk file by $percentageShrunk%."
 
-done
+	rm info.tmp.$$
 
-rm info.tmp
+done
 

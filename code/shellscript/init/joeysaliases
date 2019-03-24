@@ -358,10 +358,10 @@ mkcd() {
 #fi
 
 alias v='vim'
+alias vd='vimdiff'
 alias vv='vanillavim'
-alias vvi="vanillavim"
-alias vvim="vanillavim"
-# Open vim with last opened file
+
+# Open vim with last opened file (I never remember to use this)
 alias lvim="vim -c \"normal '0\""
 
 
@@ -400,6 +400,7 @@ alias gqd='gq ~/Downloads'
 alias gqp='gq ~/Pictures'
 alias gqw='gq ~/Wallpapers'
 alias gqm='gq ~/Dropbox/pix/memes'
+alias gqpol='gq ~/Dropbox/pix/political'
 
 # When using a window manager other than Gnome, we don't want a Gnome desktop just because we started Nautilus
 alias nlus='inbg nautilus --no-desktop'
@@ -445,6 +446,7 @@ alias yi='yarn install'
 alias ya='yarn add'
 alias yad='yarn add --dev'
 alias yrm='yarn remove'
+alias yrd='yarn remove'
 alias yga='yarn global add'
 alias ygrm='yarn global remove'
 alias yu='yarn upgrade'

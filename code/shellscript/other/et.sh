@@ -30,7 +30,9 @@ else
 		TOOL="$JPATH/code/shellscript/$theirpath/$NAME.sh"
 		mkdir -p `dirname "$TOOL"`
 		echo "Creating new tool $TOOL"
-		touch "$TOOL"
+		#touch "$TOOL"
+		echo '#!/bin/sh' > "$TOOL"
+		echo '#!/usr/bin/env bash' >> "$TOOL"
 		chmod a+x "$TOOL"
 		ln -sf "$TOOL" "$JPATH/tools/$NAME"
 	else

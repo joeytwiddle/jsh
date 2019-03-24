@@ -9,6 +9,8 @@
 ##       This will break the case if I ever want to print a dark colour.  But does that case really exist, given that dark colours are not really dark for other people.  Maybe it does, because they can at least see the difference.
 ##       Basically, in diffhighlight, I don't think removed stuff should be bold, unless I need it to be in order to read it!
 
+## TODO: <greybot> Do NOT hardcode terminal escape sequences. Use tput with the sequence names from man terminfo to get the right code for your terminal. Eg. red=$(tput setaf 1); echo "Hello ${red}world!" # Variables example: http://to.lhunath.com/bashlib#L210 more info at http://www.gnu.org/software/termutils/
+
 ## Should really be a call to cursecol 1
 ## where cursecol checks JM_DOES_COLOUR and checks whether IO is a terminal or not (pipes drop colour)
 # echo -e "\033[00;31m"

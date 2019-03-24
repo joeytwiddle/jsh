@@ -2,6 +2,8 @@
 
 # See also: mkpasswd (in whois package)
 # See also: pwgen (from pwgen package)
+# See also: https://unix.stackexchange.com/questions/470288/one-liner-to-generate-an-easily-memorable-password
+# See also: apg -t (cross platform package)
 
 [ -z "$PASSWORD_LENGTH" ] && PASSWORD_LENGTH=$((10 + RANDOM%11))
 #< /dev/urandom tr -cd '[:alnum:]' | head -c "$PASSWORD_LENGTH" ; echo

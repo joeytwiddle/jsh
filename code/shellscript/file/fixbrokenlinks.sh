@@ -48,7 +48,9 @@ do
 			XTRA=""
 		fi
 		echo "## `curseblue`$CANDIDATESCNT possibilities for \"$SYMLINK\" -> \"$ORIGTARGET\":`cursenorm`"
-		printf "%s" "$CANDIDATES" | sed 's|\(.*\)|'"$XTRA"'ln -sf "\1" "'"$SYMLINK"'"|'
+		#printf "%s" "$CANDIDATES" | sed 's|\(.*\)|'"$XTRA"'ln -sf "\1" "'"$SYMLINK"'"|'
+		# Do not show N possibilities; just show the first
+		printf "%s" "$CANDIDATES" | head -n 1 | sed 's|\(.*\)|ln -sf "\1" "'"$SYMLINK"'"|'
 		echo
 	fi
 done

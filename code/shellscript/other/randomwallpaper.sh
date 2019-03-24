@@ -36,16 +36,31 @@ fi
 ## TODO: skip images below a certain size (pixelswise or bytewise)
 
 while [ -n "$*" ]
-do [ -d "$1" ] && WALLPAPERDIRS="$WALLPAPERDIRS $1" && shift || break
+do
+	## Previously we would use an argument as a search folder, only if that folder could be found
+	## Disabled because this produced inconsistent behaviour (depending what folders are present on the filesystem)
+	## (Also it would pick up relative folders, but then fail to find them because we `cd /` later)
+	# [ -d "$1" ] && WALLPAPERDIRS="$WALLPAPERDIRS $1" && shift || break
+
+	## Be explicit if we want to search a particular folder
+	if [ "$1" = -dir ]
+	then
+		WALLPAPERDIRS="$WALLPAPERDIRS $2"
+		shift
+		shift
+	else
+		break
+	fi
 done
+
 # [ -z "$WALLPAPERDIRS" ] && WALLPAPERDIRS="/stuff/wallpapers/ /stuff/mirrors/www.irtc.org/ $HOME/Wallpapers/" # /stuff/mirrors/" # /www/uploads/"
-[ -z "$WALLPAPERDIRS" ] && WALLPAPERDIRS="$HOME/Wallpapers/"
+[ -z "$WALLPAPERDIRS" ] && WALLPAPERDIRS="$HOME/Wallpapers/ $HOME/Dropbox/pix/wallpapers"
 
 
 
 cd / # just for memoing
 
-LASTWALL=`justlinks /tmp/randomwallpaper-last`
+LASTWALL=`readlink /tmp/randomwallpaper-last`
 if [ -n "$LASTWALL" ]
 then
 	# while true
@@ -57,7 +72,7 @@ then
 		# fi
 	# done
 	# jshinfo "Last wallpaper was: $LASTWALL"
-	jshinfo "If you didn't like the last wallpaper: del '$LASTWALL'"
+	jshinfo "To delete the previous wallpaper: del '$LASTWALL'"
 fi
 
 SPECIALISE="$1"
@@ -66,7 +81,7 @@ SPECIALISE="$1"
 for ATTEMPT in `seq 1 20`
 do
 
-	FILETYPES="jpg jpeg gif bmp pcx lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd"
+	FILETYPES="jpg jpeg gif bmp pcx lbm ppm png pgm pnm tga tif tiff xbm xpm tif gf xcf aa cel fits fli gbr gicon hrz pat pix sgi sunras xwd webp"
 	SEARCHARGS=' -iname "*.'` echo "$FILETYPES" | sed 's+ +" -or -iname "*.+g' `'"'
 	## And if we want to catch them.gz too:
 	SEARCHARGS="$SEARCHARGS"" -or -iname \"*."` echo "$FILETYPES" | sed 's+ +.gz" -or -iname "*.+g' `".gz\""
@@ -84,7 +99,7 @@ do
 	else
 		## For greater efficiency: put this whole block in a fn, then memo a call to the fn
 		UNGREPEXPR="("`
-			memo -t "2 weeks" find $WALLPAPERDIRS -name "noshow" |
+			memo -t "2 weeks" find $WALLPAPERDIRS -type f -name "noshow" |
 			toregexp |
 			while read X
 			do echo '^'\`dirname "$X"\`'/|'
@@ -142,7 +157,7 @@ do
 
 	if [ -f "$FILE" ] && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ] && [ -n "$AREA" ] && [ "$AREA" -gt 102030 ]
 	then
-		echo "del \"$FILE\""
+		jshinfo "To delete the current  wallpaper: del '$FILE'"
 		ln -sf "$FILE" /tmp/randomwallpaper-last
 
 		## There are two situations when we must process the wallpaper
@@ -164,27 +179,41 @@ do
 			xsetbg "$FILE" && break || continue
 		fi
 
-		(
-			# Ideally we would use a PNG instead of JPG, but it takes significantly longer (even with 0% compression), and with quality 100% JPG is indistinguishable to the eye, even on vector images.
-			# Curiously, JPG is still faster on vector images, even though it produces a larger image file.
-			MODDED_FILE="$HOME/j/background1.modulated.jpg"
+		FILE_TO_USE="$FILE"
+
+		if which convert>/dev/null 2>&1
+		then
 			## Darken image: bri,sat,hue
-			# [ -n "$DARKEN" ] && which convert >/dev/null 2>&1 &&
-			# MODULATE="-modulate 80,100,100" ## This mucks up colours nastily (more red?  quantised?)
-			if which convert>/dev/null 2>&1 && verbosely convert "$FILE" -auto-orient $MODULATE -quality 100% "$MODDED_FILE"
+			## DISABLED because it mucks up colours weirdly, and enhances artifacts in vector images.
+			# [ -n "$DARKEN" ] && MODULATE="-modulate 80,100,100"
+			## Not really what we wanted to achieve
+			# [ -n "$DARKEN" ] && MODULATE="-gamma 0.5"
+
+			# Ideally we would use a PNG instead of JPG, but it takes significantly longer (even with 0% compression), and with quality 100% JPG is indistinguishable to the eye, even on vector images.
+			# (Actually if I zoom in I can sometimes detect very faint ringing pixels, but these are really not noticeable when zoomed out.)
+			# Curiously, JPG is still faster on vector images, even though it produces a larger image file.
+			#MODDED_FILE="/tmp/background.modulated.$USER.jpg"
+			# But it really makes a mess on some images (e.g. clipart-like images with transparent background), so we will use png.
+			# If we still get performance issues in future, perhaps the image is very large, so we should scale it down to desktop size for better performance.
+			MODDED_FILE="/tmp/background.modulated.$USER.png"
+
+			# -background black and -flatten improve the look of partially transparent images
+			verbosely convert "$FILE_TO_USE" -background black -flatten -auto-orient $MODULATE -quality 100% "$MODDED_FILE"
+			if [ "$?" = 0 ]
 			then
-				ORIGINAL_SIZE=$(filesize "$FILE")
-				NEW_SIZE=$(filesize "$MODDED_FILE")
-				SIZECHANGE=$((100*(ORIGINAL_SIZE-NEW_SIZE)/ORIGINAL_SIZE))
-				jshinfo "Modulation caused $SIZECHANGE% shrinking."
-				ln -sf "$MODDED_FILE" "$JPATH/background1.jpg"
+				# ORIGINAL_SIZE=$(filesize "$FILE_TO_USE")
+				# NEW_SIZE=$(filesize "$MODDED_FILE")
+				# SIZECHANGE=$((100*(ORIGINAL_SIZE-NEW_SIZE)/ORIGINAL_SIZE))
+				# jshinfo "Modulation caused $SIZECHANGE% shrinking."
+
+				FILE_TO_USE="$MODDED_FILE"
 			else
-				jshwarn "Modulation of image failed.  Just linking original."
-				verbosely ln -sf "$FILE" "$JPATH/background1.jpg"
+				echo "Modulation of image failed." >&2
 			fi
-		) &&
-		jxsetbg "$JPATH/background1.jpg" ||
-		jxsetbg "$FILE"
+		fi
+
+		jxsetbg "$FILE_TO_USE"
+
 		# if fadebg "$JPATH/background1.jpg" "$FILE"
 		# else
 			# jshwarn "fadebg failed on $FILE"

@@ -49,4 +49,5 @@ replace "EXEC" "\\\*" |
 replace "\." "\\\." |
 sed "s/ \(.*\) \(.*\)$/ \1/" | # bring CAPS into line - really should remove!
 sed "s/^\(.*\) \(.*\)$/$SEDSTR/" |
+#pipeboth |
 tr "\n" ";"

@@ -1,2 +1,2 @@
 #!/bin/sh
-locate -r "\<$1\>"
+unj locate -r "\<$1\>"

@@ -4,7 +4,12 @@
 
 ## TODO: jmusic should have lock/active/run-file?
 
+# On my current system, set_volume uses amixer, and targets only one channel.
 fade_all_mixers () {
+	quickfadevolume
+}
+# But on a system with ALSA present, we can use aumix to fade all mixers.
+fade_all_mixers_REAL () {
 	#export AUMIX_OPTS
 	# On my naff machine I don't have /dev/mixer[N] devices, but I think we iterate once with '/dev/mixer*'
 	# If amixer is present, it doesn't matter, because @see set_volume uses that but always points to the first mixer.
@@ -16,9 +21,10 @@ fade_all_mixers () {
 	done
 	wait
 }
+
 ## Do a quick fadevolume before ending song, then restore volume for next song.
 quickfadevolume () {
-	DOWNSTEP=5 nice -n 5 fadevolume 0
+	DOWNSTEP=2 fadevolume 0.2
 }
 
 ## TODO: This needs to remember values for each mixer
@@ -123,9 +129,11 @@ make_media_player_skip() {
 
 
 
+whatsplaying &
+
 remember_volume
 
-( fade_all_mixers ) &
+fade_all_mixers
 
 make_media_player_skip
 

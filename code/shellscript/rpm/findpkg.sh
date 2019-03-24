@@ -65,6 +65,22 @@ done
 SEARCH="$1"
 # for SEARCH; do ?
 
+
+
+if which pacman >/dev/null 2>&1
+then
+	if [ -n "$ALL" ]
+	then pacman -Ss "$SEARCH"
+	else pacman -Qs "$SEARCH"
+	fi |
+	# -s searches not only package names, but also package descriptions
+	# If we only want to match package names, we can do that now:
+	grep -v "^\s" | grep -e "$SEARCH"
+	exit
+fi
+
+
+
 if test $WEBSRCH
 then
 	PAGE="http://packages.debian.org/cgi-bin/search_packages.pl?keywords=$SEARCH&version=all&searchon=all&subword=1&release=all"
@@ -106,15 +122,24 @@ fi
 # more interesting (p/c/i).  Also apt-cache produces extra unwanted results
 # (packages without kde in the name or the description!)
 #
-if [ $SHOWALL ]
+if [ -n "$SHOWALL" ]
 then
-	## Unfortunately dpkg does not seem to show all packages.  (Virtual packages hidden?)
+	## dpkg calls dpkg-query.  I don't think it can list packages which aren't installed, can it?
 	# $HEAD $BIN -l "$SEARCHEXP" | drop 5
-	## Neither of these need the *pkg* SEARCHEXP glob, so we just use SEARCH.
+	## aptitude and apt-cache can use SEARCH instead of SEARCHEXP.
+	## apt-cache is a lot faster, but it doesn't list virtual packages, so we prefer to use aptitude if possible.
+
+	# if which aptitude >/dev/null
+	# then aptitude search "$SEARCH"
+	# else apt-cache search "$SEARCH"
+	# fi
+
+	## With caching:
 	if which aptitude >/dev/null
-	then aptitude search "$SEARCH"
-	else apt-cache search "$SEARCH"
-	fi
+	then memo -nd -f /var/lib/apt/lists aptitude search .
+	else memo -nd -f /var/lib/apt/lists apt-cache search ""
+	fi |
+	grep -E "$SEARCH"
 else
 	$HEAD $BIN -l "$SEARCHEXP" |
 	drop 5 |   ## My dpkg's first five lines are headers

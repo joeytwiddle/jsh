@@ -118,7 +118,15 @@ else
 			## This gets evaluated on-the-fly:
 			EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
 			## (shouldn't all modern bash prompts have this, on the other machines above?)
-			## I wanted to put this further right, just before the path, but for some reason if I put it there, it always reports 1.  (Testing on Mac OS X.)
+			## I wanted to put this further right, just before the path, but if I put it there, it always reports 1.
+			## That happens because the [ \j -gt 0 ] test sets $?, overwriting the $? from the previous command that we wanted.
+
+			#MARKER_BLOCK="\[\033[47;36m\]     \[`cursenorm`\]\[\033[00m\] "
+			#MARKER_BLOCK="\[\033[47;36m\]     \[`cursenorm`\]\[\033[00m\] "
+			#MARKER_BLOCK='$([ "$?" = 0 ] && echo -n "\[\033[42;36m\]" || echo -n "\[\033[41;36m\]" ; echo -n "     \[\033[00m\] ")'
+			#MARKER_BLOCK='$(echo "\[\033[$(("$?" ? 41 : 47));36m\]      \[\033[00m\] ")'
+			MARKER_BLOCK='$(echo "\[\033[$(("$?" ? 41 : 42));30m\]\t\[\033[00m\] ")'
+			EXITERR=""
 
 			if [ "$RUNNING_GENTOO" = 1 ]
 			then
@@ -127,11 +135,13 @@ else
 				## TODO: the problem is that this red field gets confused with jsh's zsh prompt which has the exit code in red and then the path in green
 				## this splash of colours is important!
 				## i need one of these - i like the red!
-				DOLLARDOESNTDOMUCH="\\$" ## '#' for root, '$' for users - better as an end prompt
+				# DOLLARDOESNTDOMUCH="\\$" ## '#' for root, '$' for users - better as an end prompt
 				# DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell - almost always 0, got it confused with exit code :P
+				DOLLARDOESNTDOMUCH=""
 				## TODO: can we find a more useful value for DOLLARDOESNTDOMUCH (especially given the on-the-fly evaluation above)?
-				[ "$PROMPTHOST" ] || PROMPTHOST="\h" ## for jchroot.  CONSIDER: would hard-coding the PROMPTHOST, instead of \h, be more efficient?
-				PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]\[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
+				[ -n "$PROMPTHOST" ] || PROMPTHOST="\h" ## PROMPTHOST for jchroot, or fallback to standard
+				#PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]\[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
+				PS1="$EXITERR$MARKER_BLOCK\[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]\[\033[00m\]$COLOR\u$OTHERCOLOR@$COLOR$PROMPTHOST\[\033[00m\]:$DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
 			fi
 
 			## hwi is a special case where I can be logged in in different ways

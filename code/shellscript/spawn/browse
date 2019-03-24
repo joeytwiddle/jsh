@@ -12,7 +12,7 @@
 ## OLD:
 
 # firefox-minefield was not opening a new tab in existing process when given a URL.
-FAVOURITE_BROWSERS='xdg-open chromium-browser google-chrome konqueror firefox firefox-minefield firebird phoenix seamonkey mozilla encompass skipstone galeon netscape opera amaya links lynx w3m w3c jazilla open'
+FAVOURITE_BROWSERS='/usr/bin/google-chrome chromium-browser xdg-open konqueror firefox firefox-minefield firebird phoenix seamonkey mozilla encompass skipstone galeon netscape opera amaya links lynx w3m w3c jazilla open'
 FAVOURITE_TERM_BROWSERS='links lynx w3m w3c'
 
 ARGS="$@"

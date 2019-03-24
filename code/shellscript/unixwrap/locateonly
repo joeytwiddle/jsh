@@ -1,8 +1,21 @@
+#!/bin/sh
+
+# I have an alias which calls this script through memo.
+# memo stops the highlighting from working.
+
 for X
 do
-	`jwhich locate` "$X" |
+	#"$(jwhich locate)" "$X" |
+	#if isatty
+	#then higrep "/$X\$"
+	#else grep "/$X$"
+	#fi
+
+	# Probably faster.  May depend.  Should certainly be faster if $X occurs frequently not on its own.
+	regexp="/$(toregexp "$X")$"
+	unj locate -r "$regexp" |
 	if isatty
-	then higrep "/$X\$"
-	else grep "/$X$"
+	then highlight "$regexp"
+	else cat
 	fi
 done

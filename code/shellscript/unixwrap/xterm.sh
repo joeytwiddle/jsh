@@ -1,7 +1,7 @@
 #!/bin/bash
 # We cannot use /bin/sh here because it doesn't set HOSTNAME (dash)
 # jsh-ext-depends-ignore: konqueror
-# jsh-depends: jwhich xtermopts
+# jsh-depends: jwhich
 
 # No longer backgrounded - that should be done as shell alias.
 
@@ -118,8 +118,20 @@ then
 	## My monitor is kind-of dodgy, so this is nearly indistinguishable from black.
 	# XTERM_OPTS="$XTERM_OPTS -bg #081410 -fg white"
 	#XTERM_OPTS="$XTERM_OPTS -bg #082222 -fg white"
-	XTERM_OPTS="$XTERM_OPTS -bg #102626 -fg white"
 	#XTERM_OPTS="$XTERM_OPTS -bg #142828 -fg white"
+	# What I used for a long time:
+	#XTERM_OPTS="$XTERM_OPTS -bg #102626 -fg white"
+	# What I use on Mac:
+	#XTERM_OPTS="$XTERM_OPTS -bg #0b1a20 -fg #bbbbbb"
+	# A little bit too blue
+	#XTERM_OPTS="$XTERM_OPTS -bg #0b1a20 -fg #dddddd"
+	# What I have been using in editors and on Mac
+	XTERM_OPTS="$XTERM_OPTS -bg #102626 -fg #dddddd"
+	# Compromise between them, a bit glowy grey
+	#XTERM_OPTS="$XTERM_OPTS -bg #0e2020 -fg #dddddd"
+	#XTERM_OPTS="$XTERM_OPTS -bg #0c1d1d -fg #dddddd"
+	# Just right?
+	#XTERM_OPTS="$XTERM_OPTS -bg #0b1a1c -fg #dddddd"
 
 	## Cursor and pointer colors can be set in ~/.Xresources, and loaded with xrdb -merge.
 	# xterm*cursorColor: #ffdd44
@@ -142,11 +154,13 @@ then
 	# -sk = auto-scroll on key
 	XTERM_OPTS="$XTERM_OPTS -j -s -vb -si -sk"
 	# -rightbar = obvious, +sb = hidden, -sl = history length
-	XTERM_OPTS="$XTERM_OPTS -rightbar +sb -sl 2000"
+	XTERM_OPTS="$XTERM_OPTS -rightbar +sb -sl 8000"
 	## Removed so that we can set the font through .Xresources or .Xresources.local
 	# XTERM_OPTS="$XTERM_OPTS -font $XTERM_FONT"
 fi
 
+
+XTERM_OPTS="$XTERM_OPTS -geometry 90x24"
 
 
 # We used to have unj here

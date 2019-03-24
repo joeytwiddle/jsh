@@ -74,9 +74,14 @@ do
 
 	# TRACK=`cat $JPATH/music/list.m3u | grep -i "$SEARCH" | chooserandomline`
 	# TRACK=`memo -t '2 days' updatemusiclist | grep -i "$SEARCH" | grep -v -i "\<book\>" | chooserandomline`
-	TRACK=`cat "$CURRENT_PLAYLIST" | chooserandomline`
+	TRACK=`chooserandomline "$CURRENT_PLAYLIST"`
 
-	[ ! -f "$TRACK" ] && continue
+	if [ ! -f "$TRACK" ]
+	then
+		echo "Not a file: $TRACK"
+		echo
+		continue
+	fi
 
 	# Preprocess the track, but not on the first loop
 
@@ -123,6 +128,8 @@ do
 	if [ -d "$JPATH/logs" ]
 	then echo "$TRACK" >> $JPATH/logs/xmms.log
 	fi
+
+	echo "[$(date) ${TRACKTOPLAY}" >> "$HOME/Music/jsh_played_tracks.m3u"
 
 
 	SHOW_OLD_OUTPUT_FORMAT=
@@ -173,7 +180,6 @@ do
 	echo
 	echo "    `cursered`del \"$TRACK\"(|.mp3gain)`cursenorm`" # also cleans up any associated mp3gain file :)
 	echo
-
 
 	# [ "$USE_MP3GAIN" ] && [ ! "$FIRSTLOOP" ] && TRACK="$NORMALISEDTRACK"
 

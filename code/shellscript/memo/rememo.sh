@@ -103,17 +103,18 @@ fi
 ## DONE: ok we could solve this eg. by making the last line of stderr contain the exit code...?
 (
 	## NOTE: It falsely thought it had completed one time (before I added jdeltmp)
-	##       Philosophy now is that $TMPFILE.result will be empty if the eval is interrupted and the (..) breaks out.
-	jdeltmp $TMPFILE.result
+	##       Philosophy now is that $TMPFILE.exitcode will be empty if the eval is interrupted and the (..) breaks out.
+	jdeltmp $TMPFILE.exitcode
 	## FIXED BUG: We can get problems with expansion, e.g. the argument "`|Hybrid|`"
 	"$@"   ## Why wasn't this the default?
 	# # eval "${TOEVAL[@]}"
 	# "$CMD" "${TOEVAL[@]}"   ## This was the default (with the CMD="$1" paragraph above also uncommented)
 	# # eval "$@"
-	echo "$?" > $TMPFILE.result
+	echo "$?" > $TMPFILE.exitcode
 ) | tee $TMPFILE
 ## TODO: can we prevent tee's 4k buffering when stdout is not direct to terminal?  (eg. if stdout is |ed to highlight)
-EXITWAS=`cat $TMPFILE.result`
+EXITWAS=`cat $TMPFILE.exitcode`
+#echo "[rememo] EXITWAS: $EXITWAS" >&2
 
 ## At the moment, only successful executions are actually memo-ed.
 if [ "$EXITWAS" = 0 ] || [ ! -z "$MEMO_IGNORE_EXITCODE" ]
@@ -125,7 +126,7 @@ else
 	# cat $TMPFILE ## not needed now teeing
 fi
 
-jdeltmp $TMPFILE $TMPFILE.result
+jdeltmp $TMPFILE $TMPFILE.exitcode
 
 ## We can't use exit "$EXITWAS" or return "$EXITWAS" if we want to use this
 ## script as a function and/or a normal script, so we do:

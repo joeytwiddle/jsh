@@ -7,8 +7,8 @@
 ## TODO: could (optionally) check hardisk usage (/proc/partitions) to and adjust its runtime byterate accordingly.
 
 # Bytes per second
-SPEED="1000"
-SLEEPTIME=1
+SPEED="20"
+SLEEPTIME=0.02
 
 if [ "$1" = -at ]
 then SPEED="$2"; shift; shift

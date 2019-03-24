@@ -23,5 +23,7 @@ dusk | striptermchars | $sort > "$newDusk"
 # diff "$oldDusk" "$newDusk" | diffhighlight
 jdiffsimple "$oldDusk" "$newDusk"
 
-rm -f "$oldDusk" "$newDusk"
+#rm -f "$oldDusk" "$newDusk"
 # del "$oldDusk" "$newDusk"
+
+jshinfo 'Remember to run `rememo dusk` to cache the current sizes.'

@@ -1,5 +1,6 @@
 # vorbiscomment is from vorbis-tools package
 # lltag (not used here) is a single interface for various filetypes
+# See also: guess_track_title
 
 for file in "$@"
 do

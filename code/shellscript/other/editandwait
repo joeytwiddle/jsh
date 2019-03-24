@@ -2,6 +2,8 @@
 # this-script-does-not-depend-on-jsh: viinxterm viminxterm gvim
 # jsh-depends: runoneof xisrunning
 
+## See also: sensible-editor (Debian / Ubuntu)
+
 ## Convenience function for user: if they gave a remote folder instead of the
 ## local one, then we move to that folder, which may make it easier to open
 ## related files from the editor later.  Only implemented at the moment for
@@ -18,7 +20,7 @@ fi
 
 if xisrunning
 then
-	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="viminxterm viinxterm nedit gedit dtpad kwrite gvim" # notepad"
+	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="gvim viminxterm viinxterm nedit gedit dtpad kwrite" # notepad"
 else
 	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="vim vi ae pico jpico gvim" # notepad"
 	[ "$SCREENTITLE" ] || export SCREENTITLE="{"`echo "$*" | afterlast / | cut -c -20`"}"

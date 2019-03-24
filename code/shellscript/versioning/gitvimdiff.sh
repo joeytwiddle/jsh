@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# Alternative: git difftool <filename>
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 	echo

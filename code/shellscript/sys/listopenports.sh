@@ -3,7 +3,9 @@
 # -l = show only listening ports; if you want to see outgoing connections, you might not want this
 # -p = show PID and program name
 # -n = do not resolve hostnames (which would be slow)
-netstat -pn | grep -e "$1"
+#netstat -pn | grep -e "$1"
+sudo netstat -ntlp | grep LISTEN | grep -e "$1"
+
 exit
 
 # Old way; much slower (but shows lots of detail; more than we need!)

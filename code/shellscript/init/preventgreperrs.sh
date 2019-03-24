@@ -14,7 +14,7 @@ then
 
 else
 
-	## Linux grep can aviod off directory errors:
+	## Linux grep can avoid directory errors:
 	alias grep='grep -d skip'
 
 fi

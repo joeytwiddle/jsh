@@ -3,6 +3,9 @@
 # jsh-ext-depends: sed apt-cache
 # jsh-depends: cursecyan cursenorm drop tostring
 
+## Note: To see what repository a package is from: apt-cache policy <package_name>
+##       Or use one of the alternatives here: http://superuser.com/questions/106794/how-to-tell-from-what-ubuntu-or-debian-repository-a-package-comes
+
 if [ "$1" = -all ]
 then
 	shift
@@ -41,7 +44,7 @@ fi
 for PKG in "$@"
 do
 
-	CURRENT_VERSION=`COLUMNS=160 dpkg -l | grep "^..  $PKG " | takecols 3`
+	CURRENT_VERSION=`COLUMNS=800 dpkg -l | grep "^..  $PKG " | takecols 3`
 	CURRENT_VERSION_RE=`toregexp "$CURRENT_VERSION"`
 	# echo "CURRENT_VERSION=$CURRENT_VERSION"
 

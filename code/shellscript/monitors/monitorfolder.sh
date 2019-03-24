@@ -9,6 +9,8 @@
 # Print the time, colon-separated list of events, and the filename: --format "%T %:e %f" --timefmt "%Y/%m/%d %H:%M:%S"
 inotifywait -m -e modify -e move -e moved_to -e moved_from -e create -e delete -r "$@"
 
+# | removeduplicatelines -adj
+
 # All the events:
 # - access
 # - modify

@@ -9,8 +9,8 @@
 
 # We actually write to a lot of other places at the bottom too.
 
-[ "$MUSIC_EXTS_REGEXP" ] || MUSIC_EXTS_REGEXP="\(mp3\|ogg\|xm\|ra\|wma\|flac\|m4a\|m4p\|mod\|it\)"
-[ "$MUSIC_IGNORE_REGEXP" ] || MUSIC_IGNORE_REGEXP="\(/INCOMPLETE/\|/RECLAIM\|/dontplay/\|/horrid/\|/lessons/\|/corrupted/\|/ktorrent_working/\|/sounds/\|\/samples\|/usr/src/\|/boot/grub/\|/usr/lib/grub/\|/games/\)" # pimsleur\|
+[ "$MUSIC_EXTS_REGEXP" ] || MUSIC_EXTS_REGEXP="\(mp3\|ogg\|opus\|xm\|ra\|wma\|flac\|m4a\|m4p\|mod\|it\)"
+[ "$MUSIC_IGNORE_REGEXP" ] || MUSIC_IGNORE_REGEXP="\(/INCOMPLETE/\|/RECLAIM\|/dontplay/\|/horrid/\|/lessons/\|/corrupted/\|/ktorrent_working/\|/sounds/\|\/samples\|/usr/src/\|/boot/grub/\|/usr/lib/grub/\|/games/\|/build/build-generic/.tmp_versions/\|/usr/share/kde4/\|/Audio_Books/\)" # pimsleur\|
 ## /sounds/ catches /stuff/share/sounds, javascript/contrib/lazeroids-node/public/sounds, orona/0.1.91/package/public/sounds, /stuff/media/sounds
 ## /samples/ catches .enlightenment/themes/abtoenalloygreenJoey/sound/samples, /usr/share/lmms/samples
 ## /usr/src/ and /boot/grub/ speed up stripping of non-tracker .mod files
@@ -21,9 +21,9 @@ grep -v -i "$MUSIC_IGNORE_REGEXP" |
 filesonly | ## locate -e deals with non-existent files, but i don't want existing symlinks creating duplicates either
 # sed 's+^.*\(/stuff/.*\)+\1+' |
 # sed 's+^.*/\(share/.*\)+/stuff/\1+' |
-sed 's+/mnt/[^/]*/stuff/+/stuff/+' |
-sed 's+.*/share/+/stuff/share/+' |
-sed 's+.*/mp3sfor/+/stuff/mp3sfor/+' |
+#sed 's+/mnt/[^/]*/stuff/+/stuff/+' |
+#sed 's+.*/share/+/stuff/share/+' |
+#sed 's+.*/mp3sfor/+/stuff/mp3sfor/+' |
 dog "$JSH_ALL_AUDIO_FILES"
 
 ### Filter out .mod files which aren't audio files.
@@ -54,6 +54,7 @@ fi
 cat "$JSH_ALL_AUDIO_FILES" |
 ## Sort them by filename (rather than path)
 # sortpathsbyfilename |
+## Sort them by folder name (which is sometimes the album name)
 sortpathsbylastdirname |
 dog "$JSH_ALL_AUDIO_FILES"
 

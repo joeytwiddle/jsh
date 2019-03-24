@@ -1,7 +1,19 @@
-#!/bin/sh
-## For Gentoo, this now appears to be: equery belongs <filename>
+#!/bin/bash
 ## See also: apt-file search
 
+if which pacman >/dev/null 2>&1
+then
+	pacman -Fo "$*"
+	exit "$?"
+fi
+
+if which equery >/dev/null 2>&1
+then
+	equery belongs "$*"
+	exit "$?"
+fi
+
+## dpkg
 WEBSRCH=
 while test ! "$2" = ""; do
 	case "$1" in

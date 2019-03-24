@@ -7,6 +7,9 @@
 
 ## This script may not look pretty, but it is an awesome feature.
 
+## BUG: I ran `memo aptitude search . | more` and then quit the more.  Apparently the memo only stored the first few pages of output, partial output.
+##      I verified that $TMPFILE.exitcode contained "0" even though the output was truncated... :-(
+
 ## TODO: Needs an overhaul.  Far too slow.
 ##       Should take fast branches more often.
 ##       Don't use md5sum if we're already creating unique human-readable label.
@@ -227,7 +230,8 @@ do
   case "$1" in
     -t)
       ## TODO: The default rule might be time-based.  If so, we want to override it with this user (dev) supplied value.
-      ## AFAIK TIME and OVERRIDE_TIME are never used!
+      ## AFAIK OVERRIDE_TIME are never used!
+      ## Surely it has a disadvantage that OVERRIDE_TIME will only be used if -t is passed.  Is that desirable?
       export TIME="$2"
       [ -n "$OVERRIDE_TIME" ] && TIME="$OVERRIDE_TIME"
       shift; shift
@@ -313,10 +317,9 @@ then
 	# Strangely we do not need to export MEMO_IGNORE_DIR MEMO_IGNORE_EXITCODE if they were set by caller.
 
 	## TODO: WE DO NOT WANT TO CALL rememo!
-	## We prefer memo to be a standonly script, and for rememo to call us!
+	## We would prefer memo to be a standalone script, and for rememo to call us!
 
-	## This may have been set but not exported.  We pass it on, since rememo actually uses it.  Perhaps we should just add it to the above exports.
-	IKNOWIDONTHAVEATTY=$IKNOWIDONTHAVEATTY rememo "$@"
+	rememo "$@"
 	## TODO CONSIDER: If we did . rememo "$@" here, maybe functions would get called :)  Although if we have done importshfn memo, then that might achieve the same.
 else
 	[ -n "$DEBUG" ] && debug "[memo] re-using memofile=\"$MEMOFILE\""

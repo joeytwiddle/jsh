@@ -1,4 +1,6 @@
-#!/bin/sh
+#!/bin/bash
+
+jshlockfile -i adjust_brightness
 
 # Maybe just maybe I should use python when I have to deal with numbers.
 
@@ -14,7 +16,7 @@ then
 	adjustment_magnitude=$(echo "$adjustment_percent" | sed 's/^[+-]//')
 	current_brightness=$(xbacklight -get)
 	#actual_adjustment="${adjustment_direction}$(echo "define max (a,b) { if (a>b) { return a; } else { return b; } } max($current_brightness * 0.3, 1)" | bc)"
-	actual_adjustment="${adjustment_direction}$(echo "define max (a,b) { if (a>b) { return a; } else { return b; } } scale=2; max($current_brightness * $adjustment_magnitude / 5.0, 1)" | bc)"
+	actual_adjustment="${adjustment_direction}$(echo "define max (a,b) { if (a>b) { return a; } else { return b; } } scale=2; max($current_brightness * $adjustment_magnitude / 20.0, 1)" | bc)"
 	#actual_adjustment="$(echo "$current_brightness * $adjustment_magnitude / 5" | bc)"
 	#if [ "$actual_adjustment" -lt 1 ]
 	#then actual_adjustment=1
@@ -26,6 +28,7 @@ then
 	if [ "$current" -lt 1 ]
 	then xbacklight = 1
 	fi
+	jshlockfile -i adjust_brightness -release
 	exit
 fi
 
@@ -82,3 +85,5 @@ bgamma=1.0
 xrandr --output "$first_output" --brightness "$new_brightness" --gamma "$rgamma:$ggamma:$bgamma"
 
 # An alternative method is to read from $bl/actual_brightness, crop to $bl/bl_power and $bl/max_brightness, and set $bl/brightness, where bl=/sys/class/backlight/intel_backlight, however on my current machine this requires Ubuntu.
+
+jshlockfile -i adjust_brightness -release

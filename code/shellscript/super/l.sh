@@ -3,6 +3,8 @@
 ## I know 'l' should really be an alias, but I personally like to use it e.g.
 ## from within vim.
 
+## The silly thing is, since I created this, I forgot it was available, and always use `nicels -l` anyway!
+
 ## useless_unless_sourced
 ls -lartFh --color --block-size="'1" "$@"
 

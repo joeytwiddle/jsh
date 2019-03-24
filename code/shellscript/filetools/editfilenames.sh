@@ -59,15 +59,17 @@ read decision
 echo
 
 # TODO: It would be good if we didn't try to rename files which were not changed.
+# BUG: If there is a destination file, `mv -i` will prompt for confirmation, but the greps will hide the prompt!
+#      I have tried adding `--line-buffered`; perhaps that will help.  No, it didn't.
 
 if [ "$decision" = y ] || [ "$decision" = Y ] || [ "$decision" = "" ]
 then
 	echo "Executing..."
 	echo
 	bash "$commands_to_run" 2>&1 |
-	grep -v " are the same file$" |
-	grep -v "cannot move .* to a subdirectory of itself" |
-	grep . && echo
+	grep --line-buffered -v " are the same file$" |
+	grep --line-buffered -v "cannot move .* to a subdirectory of itself" |
+	grep --line-buffered . && echo
 	echo "Done."
 else
 	echo "Doing nothing."

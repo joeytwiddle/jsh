@@ -3,18 +3,23 @@
 # Finds all the git repos under your home folder, and tries to fetch them,
 # so you will have the latest upstream the next time you visit the folder.
 
+#ALSO_RUN_GIT_GC=1
+
 #find "$HOME/" -type d -name .git |
 locate -r '/\.git$' | grep -F -e "$HOME/" |
 
-grep -v "/PORRIDGE_BACKUP_INCOMPLETE/" |
-grep -v "/porridge_home/" |
-grep -v "/mnt/" |
-grep -v "/strato/" |
-grep -v "/rc_files.from_strato/" |
-
-#cat ; exit
-
 sed 's+/\.git$++' |
+
+grep -vF "/PORRIDGE_BACKUP_INCOMPLETE/" |
+grep -vF "/porridge_home/" |
+grep -vF "/mnt/" |
+grep -vF "/strato/" |
+grep -vF "/rc_files.from_strato/" |
+grep -vF "/.cache/" |
+grep -v "/jspm-cache$" |
+grep -v "/\.nvm$" |
+
+cat ; exit
 
 while read repo_folder
 do
@@ -26,8 +31,23 @@ do
 
 	git fetch --all # --verbose
 
+	[ -n "$ALSO_RUN_GIT_GC" ] && git gc
+
 	echo
 
 	sleep 1
-done
+done 2>&1 |
 
+# This awk script keeps only those blocks which are interesting
+# It hides boring blocks (nothing was pulled, or just a password error)
+# f indicates when we have found a block, and we are recording the lines into rec
+# i indicates that we have detected an interesting block (or at least a not known-boring block)
+# p indicates that there was a password error, so the block isn't interesting after all
+awk '
+	/^###/ {rec=""; f=1; i=0; p=0}
+	!f {print $0}
+	f {rec = rec $0 ORS}
+	f && !/^###/ && !/^Fetch/ && !/^$/ {i=1}
+	f && /could not read Password/ {p=1}
+	/^$/ {if (f && i && !p) printf "%s", rec; f=0}
+'

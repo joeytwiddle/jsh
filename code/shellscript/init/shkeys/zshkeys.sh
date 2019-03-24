@@ -143,7 +143,9 @@ bindkey "^ " vi-cmd-mode
 # bindkey "^x" kill-word
 bindkey "^ " forward-char # Ctrl+SPACE
 bindkey "^@" forward-char # Ctrl+SPACE
-bindkey "^H" backward-char # Ctrl+BACKSPACE
+# This actually changes the behaviour of Ctrl-H as well as Ctrl-Backspace.
+# But I'm learning to touch-type.  To avoid reaching for Backspace, it is preferable if Ctrl-H deletes the previous char.
+#bindkey "^H" backward-char # Ctrl+BACKSPACE
 
 # and other Vi usefuls:
 #bindkey "^p" vi-put-before
@@ -204,3 +206,22 @@ bindkey "^[[6C" forward-word
 bindkey "^[[1;6D" backward-word
 bindkey "^[[1;6C" forward-word
 
+# Cycle back through completion with Shift-Tab
+bindkey '^[[Z' reverse-menu-complete
+
+# Cycle through history based on characters already typed on the line
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
+bindkey "$terminfo[kcud1]" down-line-or-beginning-search
+
+# On my last system the Up and Down keys were "OA" and "OB".
+# However it is more portable to use the dynamic values available in $terminfo
+# More at: https://raw.githubusercontent.com/sorin-ionescu/prezto/28a20b48e652a01216a6c3dd76e6324d76c12def/modules/editor/init.zsh
+
+# TODO: Ask on stackexchange how to bind CTRL-1, CTRL-2, CTRL-3 to jump to the first, second, third word breaks
+# I tried these but with no success:
+#bindkey -s "^1" "^a^f"
+#bindkey -s "" "^a^a^a^a^a^a^a^f"

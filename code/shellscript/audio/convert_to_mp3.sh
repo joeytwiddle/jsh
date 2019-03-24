@@ -1,7 +1,9 @@
 #!/bin/bash
 . require_exes mp3info
-# bladeenc or lame
+# ffmpeg, bladeenc or lame
 # @see-also convert_to_ogg
+#
+# To preserve cover art (using AtomicParsley), see: http://askubuntu.com/questions/253520/how-can-i-convert-mp4-and-m4a-files-to-mp3-files-automatically-keeping-the-c
 
 set -e
 
@@ -28,7 +30,7 @@ exit 0
 fi
 
 extract_info() {
-	cat info.tmp | grep "^ $1: " | afterfirst ": "
+	cat info.tmp.$$ | grep "^ $1: " | afterfirst ": "
 }
 
 ## Be gentle:
@@ -38,9 +40,10 @@ which ionice >/dev/null && ionice -c 3 -p $$
 for INFILE
 do
 
-	set -e   ## We don't want it to look like we succeeded if something went wrong!
+	## We don't want it to look like we succeeded if something went wrong!
+	set -e
 
-	dump_audio_from "$INFILE" | tee info.tmp 2>&1
+	dump_audio_from "$INFILE" | tee info.tmp.$$ 2>&1
 	## dump_audio_from always creates $INFILE.wav
 	wavfile="$INFILE.wav"
 
@@ -51,23 +54,34 @@ do
 	genre="`extract_info genre`"
 	composer="`extract_info composer`"
 
-	if which ffmpeg >/dev/null
+	## For players which do not respect replaygain tags, we normalize the raw audio.
+	if which normalize-audio >/dev/null
+	then normalize-audio -v "$wavfile"
+	fi
+
+	mp3file="$INFILE.$$.mp3"
+
+	if which ffmpeg >/dev/null && false
 	then
 
-		#ffmpeg  -ab -i 20110928-210058_do.wav  20110928-210058_do_test.mp3
+		ffmpeg -ab -i "$wavfile" "$mp3file"
+
+	elif which avconv >/dev/null
+	then
+
+		avconv -i "$wavfile" -b 128k "$mp3file"
 
 	elif which lame >/dev/null
+	then
 
-		mp3file="$INFILE.$$.mp3"
 		lame "$wavfile" "$mp3file"
 
 	elif which bladeenc >/dev/null
+	then
 
-		# We can't send to $mp3file here, bladeenc always outputs .mp3 filename, with .wav removed.
 		bladeenc $EXTRA_BLADEENC_OPTS -QUIT "$wavfile"
-		# bladeenc always creates $wavfile.mp3
-		# bladeenc always creates $INFILE.mp3
-		mp3file="$INFILE.mp3"
+		# bladeenc always creates "$INFILE.mp3"
+		mv "$INFILE.mp3" "$mp3file"
 
 	else
 
@@ -85,11 +99,17 @@ do
 
 	mp3info -a "$artist" -l "$album" -t "$title" -y "$date" -g "$genre" -c "$composer" "$outfile"
 
+	if which mp3gain >/dev/null
+	then mp3gain -r "$outfile"
+	fi
+
+	touch -r "$INFILE" "$outfile"
+
 	echo
 	nicels -l "$INFILE" "$mp3file" "$outfile" 2>/dev/null || true   # Avoid returning 2
 	echo
 
-done
+	rm info.tmp.$$
 
-rm info.tmp
+done
 

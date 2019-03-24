@@ -46,16 +46,16 @@ else
 	do
 		# BUG: This $$ is no use, it is the PID of jshlockfile, which is about to close.
 		#      We need to get the running script to pass his PID to us, or just forget the idea of storing it.
-		if ln -s "$$" "$lockfile"
+		if ln -s "$$" "$lockfile" 2>/dev/null
 		then
-			echo "Lockfile established" >&2
+			# echo "Lockfile established" >&2
 			break
 		fi
 
 		time_now=$(date +%s)
 		if [ "$time_now" -gt "$timeout_at" ]
 		then
-			echo "Could not wait any longer for $lockfile to release."
+			echo "Could not wait any longer for $lockfile to release." >&2
 			# TODO: Optionally, kill other process.
 			kill -9 $(readlink "$lockfile")
 			ln -sf "$$" "$lockfile"

@@ -1,15 +1,11 @@
 #!/bin/sh
-if test "x$SHRINKTO" = "x"; then
-  SHRINKTO="10"
-fi
+set -e
 
-for X in $@; do
-  # echo $X
-  COM="convert $X -geometry $SHRINKTO tmp.jpg"
-  echo "$COM"
-  $COM
-  COM="convert tmp.jpg $X"
-  echo "$COM"
-  $COM
-  # mv -f tmp.$X $X
+[ -z "$SHRINKTO" ] && SHRINKTO="10%"
+
+for filename
+do
+  shrunken_filename="$filename.smaller.jpg"
+  verbosely convert "$filename" -quality 60% -geometry "2073600@>" "$shrunken_filename"
+  #del "$filename"
 done

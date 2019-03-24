@@ -33,6 +33,7 @@ gpg $ENCDIR_GPGOPTS -r "$WHICHKEY" -e > "$NEWFILE"
 if [ "$?" = 0 ]
 then
 	# If the compression succeeded, move the data into the correct place
+	# We do this instead of mv, so if FILE is a symlink, it will remain a symlink.
 	cat "$NEWFILE" > "$FILE" && rm -f "$NEWFILE"
 else
 	#rm -f "$NEWFILE" # Neater; cleans up the file if compression failed (usually means 0 length anyway).

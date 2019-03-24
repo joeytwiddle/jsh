@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 pkill -u "$UID" xcape
 setxkbmap -option 'caps:ctrl_modifier'

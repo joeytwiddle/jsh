@@ -48,6 +48,7 @@ fi
 ## totem doesn't exit after it's played (but we could watch for it) - it probably won't work without X
 ## noatun dunno... :)
 
+# I think this wasn't working:
 #find_exe() {
 #	for X
 #	do
@@ -59,10 +60,13 @@ fi
 #PLAYER=`find_exe mplayer-minixterm mplayer totem noatun`
 #verbosely unj "$PLAYER" $AUDIO_PLAYER_OPTS "$file_to_play"
 
-verbosely mpg123 $AUDIO_PLAYER_OPTS "$file_to_play"
+# Both of these were working for me:
+#verbosely mpg123 $AUDIO_PLAYER_OPTS "$file_to_play"
+echo -n "which mplayer: "
+which mplayer
+verbosely mplayer $AUDIO_PLAYER_OPTS "$file_to_play"
 
-#verbosely mplayer $AUDIO_PLAYER_OPTS "$file_to_play"
-
+## Dodgy attempt to strip out the verbose header lines
 # mplayer "$@" |
 # (
 	# while read LINE

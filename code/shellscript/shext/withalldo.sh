@@ -5,7 +5,12 @@
 #
 # See also: foreachdo
 
+# If you are interested in doing this but you need to put some commands before: http://stackoverflow.com/questions/14639206/how-can-i-pass-all-arguments-with-xargs-in-middle-of-command-in-linux
+
 ## Does not work with BSD xargs.  As far as I can tell that has no way to delimit only on '\n'.  Therefore on BSD/OSX we should drop to the fallback.
+
+## Although it claimed in the man page to use the maximum chars per command-line, GNU xargs under Ubuntu 14.04 did not seem to be doing that.
+## To use the maximum arg length, I passed -s 2088433
 
 ## Pass -r option to ignore empty input (run nothing)
 xargs -d '\n' "$@"
@@ -17,6 +22,8 @@ exit
 ## and employ withalldo f where f is a shell function, xargs will not be able
 ## to see f!
 ## Recommendation: move the below to withalldosh and import *that*.
+
+
 
 ## I wrote this solution before I learned about xargs.
 

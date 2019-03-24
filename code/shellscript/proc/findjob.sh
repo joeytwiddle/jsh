@@ -5,6 +5,8 @@
 # jsh-depends-ignore: highlight arguments tree
 # This is pretty nice (although it gets itself sometimes :-/ )
 
+## CURIOUS: If I do `findjob sdklfjslfkjds` it responds with: cat: write error: Broken pipe
+
 ## TODO: optionally allow user to edit process list.  Those lines which are deleted, means the process is killed.  =)
 
 ## TODO: implement -branch: tag each line as TOPLEVEL or CHILD, then xescape, then sed from \nTOPLEVEL.*target.*\nTOPLEVEL *non* greedily?!

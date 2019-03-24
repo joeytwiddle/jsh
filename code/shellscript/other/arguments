@@ -1,4 +1,5 @@
 # set -b -k $HELLO
+echo "[arguments] \$#: $#"
 echo "$HELLO"
 echo "$ARGUMENTS"
 echo "$1"

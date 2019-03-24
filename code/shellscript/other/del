@@ -4,9 +4,8 @@
 # jsh-depends-ignore: reclaimspace
 # jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted dfh verbosely geekdate
 
-## See also: `trash-put <file>` from the package `trash-cli`
-## https://github.com/andreafrancia/trash-cli
-## See also: `trash` and `gvfs-trash`
+## See also: `trash-put <file>` and `trash` from the package `trash-cli` https://github.com/andreafrancia/trash-cli
+## See also: `gvfs-trash` from the package `gvfs-trash`
 
 ## TODO: might be nice to do a quick check to see if any processes have a handle on (or are opening) each file before we delete it.
 
@@ -66,14 +65,16 @@ ALLOK=0
 
 try_del () {
 
-		## If deleting to $MOUNTPNT/RECLAIM then move MOUNTPNT from parent dir to delete to (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
+		TODELPARENTDIR="$PARENTDIR"
+		## If deleting to $MOUNTPNT/RECLAIM then remove MOUNTPNT from TODELPARENTDIR (otherwise we delete to $MOUNTPNT/RECLAIM/$MOUNTPNT/...!)
 		if [ "$TRASHDIR" = "$MOUNTPNT/RECLAIM" ]
-		then TODELPARENTDIR=/`echo "$PARENTDIR" | sed "s+^$MOUNTPNT++"`
-		else TODELPARENTDIR="$PARENTDIR"
+		then TODELPARENTDIR=/`echo "$TODELPARENTDIR" | sed "s+^$MOUNTPNT++"`
 		fi
-		## TODO: refactor TRASHDIR out of DESTDIR, so that _s can be added to start of $TODELPARENTDIR if no subdirs are writeable.
-		DESTDIR="$TRASHDIR/$TODELPARENTDIR"
-		PRETTYDEST="$TRASHDIR$TODELPARENTDIR"
+
+		## TODO: separate TRASHDIR from DESTDIR, so that '_'s can be added to start of $TODELPARENTDIR if no subdirs are writeable.
+
+		## We make the top level the date.  This makes it easy to reclaimspace to later delete on a FIFO basis.
+		DESTDIR="$TRASHDIR/$(date +"%Y%m%d")$TODELPARENTDIR"
 
 		# Create destination directory
 		while [ -f "$DESTDIR" ] || [ -L "$DESTDIR" ]
@@ -82,7 +83,7 @@ try_del () {
 			DESTDIR="$DESTDIR.dir"
 		done
 
-		## Atm the del system doesn't actually remove any files, it relies on reclaimspace running in a cronjob.
+		## Currently the del system doesn't actually remove any files, it relies on reclaimspace running in a cronjob.
 		## This has sometimes proved to be ineffective in maintaining enough free space to keep the system running.
 		## Therefore we shall perform reclaimspace here, before we delete a file.
 		mkdir -p "$DESTDIR"
@@ -103,7 +104,7 @@ try_del () {
 			break ## continue ## TODO CHECK: does this break work now that we are inside the try_del fn?
 		fi
 
-		FILENAME=`basename "$FILE"`
+		FILENAME="$(basename "$FILE")"
 
 		while [ -f "$DESTDIR/$FILENAME" ] || [ -d "$DESTDIR/$FILENAME" ] || [ -L "$DESTDIR/$FILENAME" ]
 		# do FILENAME="$FILENAME"_
@@ -114,7 +115,7 @@ try_del () {
 		# Has this stopped?
 
 		# Move it and report =)
-		echo "$FILE "`cursegreen`"->"`cursenorm`" $PRETTYDEST/$FILENAME"
+		echo "$FILE "`cursegreen`"->"`cursenorm`" $DESTDIR/$FILENAME"
 		mv -f "$FILE" "$DESTDIR/$FILENAME" # || ALLOK=2
 		RETURN="$?"
 
@@ -200,7 +201,8 @@ try_del () {
 for FILE
 do
 
-	if [ -f "$FILE" ] || [ -d "$FILE" ] || [ -L "$FILE" ]
+	# I added the -e to also detect fifos.  But they might not be tranferrable across systems.
+	if [ -f "$FILE" ] || [ -d "$FILE" ] || [ -L "$FILE" ] || [ -e "$FILE" ]
 	then
 
 		try_del || ALLOK=3
@@ -215,7 +217,7 @@ do
 
 done
 
-[ "$TRASHDIR" ] && dfh "$TRASHDIR" ## Your trashdir $TRASHDIR is size NNN meg.
+#[ "$TRASHDIR" ] && dfh "$TRASHDIR" ## Your trashdir $TRASHDIR is size NNN meg.
 
 exit $ALLOK
 

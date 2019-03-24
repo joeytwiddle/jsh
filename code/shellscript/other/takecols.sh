@@ -26,5 +26,5 @@ else
     fi
     THECOLS="$THECOLS\$$x"
   done
-  awk ' { print '"$THECOLS"' ; } '
+  awk ' { print '"$THECOLS"' ; fflush() } '
 fi

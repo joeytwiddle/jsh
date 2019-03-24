@@ -46,7 +46,7 @@ do
 	[ "$TIME" ] || TIME="$NL  $( filesize "$FILE" | rev | sed 's+...+\0,+g ; s+^,++' | rev ) bytes"
 
 	## Lookup amarok info for the file
-	if which amaroklookup
+	if which amaroklookup >/dev/null
 	then
 		AMAROK_DATA=$( amaroklookup "$FILE" | grep -v ^/ | sed 's+^\(.\)+  \1+' )
 		[ "$AMAROK_DATA" ] && AMAROK_DATA="$NL$AMAROK_DATA"
@@ -54,7 +54,9 @@ do
 		# $NAME
 	fi
 
-	OUTPUT="${PRE}${FILENAME} ${NAME}${TIME}${YEAR}${COMMENT}${AMAROK_DATA}${NL}  Path: ${DIR}/"
+	NICEDIR="$(echo "$DIR" | sed 's+.*\(/[^/]*/[^/]*/[^/]*/[^/]*[^/]*/[^/]*\)$+...\1+')"
+
+	OUTPUT="${PRE}${FILENAME} ${NAME}${TIME}${YEAR}${COMMENT}${AMAROK_DATA}${NL}  Path: ${NICEDIR}/"
 	echo "$OUTPUT"
 
 	## Display this output as a screen overlay, using osd_cat

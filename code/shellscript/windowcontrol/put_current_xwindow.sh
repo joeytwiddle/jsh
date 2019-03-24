@@ -16,13 +16,16 @@
 ## focus will switch to the window now under the pointer.
 
 ## Config:
-[ "$put_xwindow_padding" ] || put_xwindow_padding=5
+## If you want a gap between the edge of the screen, set the padding
+[ -z "$PUT_XWINDOW_PADDING" ] && PUT_XWINDOW_PADDING=0
+## If your window manager draws a border around your windows, you can specify that
+[ -z "$WINDOW_BORDER_WIDTH" ] && WINDOW_BORDER_WIDTH=0
 
 putWhere="$1"
 
 winid=`xdotool getwindowfocus`
 
-[ "$winid" ] || . errorexit "xdotool failed to find current window."
+[ -n "$winid" ] || . errorexit "xdotool failed to find current window."
 
 # geometry=`xwininfo -id "$winid" | grep geometry | sed 's+.* ++'`
 # echo "$geometry" | extractregex "[0-9][0-9]*" |
@@ -64,19 +67,22 @@ scrheight="`echo "$xwindimensions" | cut -d x -f 2`"
 left=`expr "$left" - "$xoffset"`
 top=`expr "$top" - "$yoffset"`
 
+top=`expr "$top" - "$WINDOW_BORDER_WIDTH"`
+left=`expr "$left" - "$WINDOW_BORDER_WIDTH"`
+
 push_left () {
-	left=$put_xwindow_padding
+	left=$PUT_XWINDOW_PADDING
 }
 push_right () {
-	left=`expr "$scrwidth" - "$width" - "$xoffset" - $put_xwindow_padding`
+	left=`expr "$scrwidth" - "$width" - "$xoffset" - $WINDOW_BORDER_WIDTH - $WINDOW_BORDER_WIDTH - $PUT_XWINDOW_PADDING`
 }
 push_top () {
-	top=$put_xwindow_padding
+	top=$PUT_XWINDOW_PADDING
 }
 push_bottom () {
-	top=`expr "$scrheight" - "$height" - "$yoffset" - $put_xwindow_padding - 8`
-	## For some reason we need an extra -8 here
-	## This may mean we need an extra -4 for centrey.
+	top=`expr "$scrheight" - "$height" - "$yoffset" - $WINDOW_BORDER_WIDTH - "(" $WINDOW_BORDER_WIDTH "*" 3 ")" - $PUT_XWINDOW_PADDING - 4`
+	## For some reason we need an extra -7 here
+	## Perhaps it has something to do wth window manager bevels?
 }
 push_centerx () {
 	left=`expr "$scrwidth" / 2 - "$width" / 2 - "$xoffset"`

@@ -5,7 +5,7 @@
 # Uses `s instead of source and export
 # Does not support searching 'cos I can't pass the argument!
 
-# I suspect this does not work, for bash or for zsh.  In reality, we use dirhistorysetup.zsh, which works in both shells!
+# NOTE: I actually use dirhistorysetup.zsh for both bash and zsh now.
 # TODO: DELETEME
 
 alias cd='`$JPATH/tools/d.zsh`'

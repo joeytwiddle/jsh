@@ -60,6 +60,17 @@ then
 	then toDesktop=` expr $toDesktop + $numDesktops `
 	fi
 
+	if [ -n "$notify" ]
+	then
+		killall osd_cat
+		#font='-*-helvetica-*-r-*-*-*-400-*-*-*-*-*-*'
+		#font='-*-nimbus roman no9 l-*-r-*-*-60-*-*-*-*-*-*-*'
+		font='-*-helvetica-*-r-*-*-34-*-*-*-*-*-*-*'
+		echo "Swapping desktops $fromDesktop and $toDesktop" |
+		#echo "Moved desktop $fromDesktop $direction" |
+		osd_cat -o 500 -d 2 -A center -c yellow -O 2 -f "$font"
+	fi
+
 	windowsOnDesktopA=` wmctrl -l -p -G -x | grep "^[^ ]*  *$fromDesktop " | takecols 1 `
 	windowsOnDesktopB=` wmctrl -l -p -G -x | grep "^[^ ]*  *$toDesktop " | takecols 1 `
 
@@ -76,17 +87,6 @@ then
 	done
 
 	# I tried piping the commands to xdotool - which worked fine but wasn't significantly faster.
-
-	if [ -n "$notify" ]
-	then
-		killall osd_cat
-		#font='-*-helvetica-*-r-*-*-*-400-*-*-*-*-*-*'
-		#font='-*-nimbus roman no9 l-*-r-*-*-60-*-*-*-*-*-*-*'
-		font='-*-helvetica-*-r-*-*-34-*-*-*-*-*-*-*'
-		echo "Swapped desktops $fromDesktop and $toDesktop" |
-		#echo "Moved desktop $fromDesktop $direction" |
-		osd_cat -o 500 -d 2 -A center -c yellow -O 2 -f "$font"
-	fi
 
 else
 
