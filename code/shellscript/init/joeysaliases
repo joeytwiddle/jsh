@@ -224,8 +224,8 @@ alias ssh='jshssh'
 myls() {
 	## I always use '-a' except when looking at '~'.  To -a my dotfiles, pass any argument, e.g. '.' or '-a'.
 	if ( [ "$PWD" = "$HOME" ] && [ -z "$1" ] ) || [ "$*" = "$HOME" ]
-	then 'ls' -lrtFh --color "$@"
-	else 'ls' -lartFh --color "$@"
+	then 'ls' -lrtFh --color --block-size="'1" "$@"
+	else 'ls' -lartFh --color --block-size="'1" "$@"
 	fi
 }
 alias l='myls'
@@ -236,7 +236,7 @@ fi
 
 # ll does not show folder contents; also does not humanise sizes, so they are easier to compare.  Although dsr already does that!
 # TODO: If given no arguments, should either drop the -d, or provide ./* as arguments.
-alias ll='ls -lartFd --color'
+alias ll="ls -lartFd --color --block-size=\"'1\""
 
 # jfluxbox () {
 	# . includepath /usr/local/fluxbox

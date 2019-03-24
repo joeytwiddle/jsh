@@ -1,4 +1,4 @@
-alias ls='ls -atrhF --color'
+alias ls='ls -atrhF --color --block-size="'1"'
 
 # del puts deleted files in trash
 alias rm='echo "Deprecated, please use: del <files>" && $JPATH/tools/del'

@@ -1,2 +1,2 @@
 #!/bin/sh
-ls -artFh --color "$@"
+ls -artFh --color --block-size="'1" "$@"

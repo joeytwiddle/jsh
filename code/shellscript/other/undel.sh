@@ -19,7 +19,7 @@ then
 	if [ -d "$TRASHDIR/$DIR" ]
 	then
 		echo "Deleted files in `#cursegreen`$TRASHDIR/$DIR/`#cursenorm`:"
-		ls -l -ArtFh --color "$TRASHDIR/$DIR"
+		ls -l -ArtFh --color --block-size="'1" "$TRASHDIR/$DIR"
 	fi
 
 	## New style deleting to /RECLAIM
@@ -30,7 +30,7 @@ then
 	then
 		FINALPATH=$TRASHDIR/`realpath . | sed "s+$MOUNTPNT++"`
 		echo "Deleted files in `#cursegreen`$FINALPATH`#cursenorm`:"
-		ls -l -ArtFh --color "$FINALPATH"
+		ls -l -ArtFh --color --block-size="'1" "$FINALPATH"
 	fi
 
 else

@@ -4,7 +4,7 @@
 ## from within vim.
 
 ## useless_unless_sourced
-ls -lartFh --color "$@"
+ls -lartFh --color --block-size="'1" "$@"
 
 # if [ "$1" = "$PWD" ]
 # then :

@@ -21,7 +21,7 @@ else
 	if [ -n "$JM_COLOUR_LS" ]
 	then
 		## TODO: This is bad if the output is being streamed through automation!  Check tty?
-		# LSCOM="ls -artFd --color"
+		# LSCOM="ls -artFd --color --block-size="'1""
 		LSCOM="nicels -d"
 	else
 		# Too slow on Unix ATM (and not enough for it ATM ;):
