@@ -9,7 +9,7 @@ then
 fi
 
 # KEYFILE="$HOME/.ssh/id_rsa.pub"
-[ ! -f "$KEYFILE" ] && KEYFILE="$HOME/.ssh/id_dsa.pub"
+[ ! -f "$KEYFILE" ] && KEYFILE="$HOME/.ssh/id_rsa.pub"
 
 if [ ! -f "$KEYFILE" ]
 then
@@ -18,7 +18,7 @@ then
 	if [ "$ANSWER" = y ] || [ "$ANSWER" = yes ]
 	then
 		mkdir -p "$HOME/.ssh"
-		ssh-keygen -t dsa -f "$HOME/.ssh/id_dsa" -N ""
+		ssh-keygen -t rsa -f "$HOME/.ssh/id_rsa" -N ""
 	else
 		echo "I cannot send a key since you don't have one, pleaase export KEYFILE."
 		exit 1
@@ -54,8 +54,8 @@ exit
 # mkdir .ssh
 # ssh-keygen -t rsa -f .ssh/id_rsa -N ""
 
-# cat .ssh/id_rsa.pub |
-cat .ssh/id_dsa.pub |
+cat .ssh/id_rsa.pub |
+# cat .ssh/id_dsa.pub |
 
 ssh-agent verbosely ssh "$@" eval "cat >> ./.ssh/authorized_keys"
 
