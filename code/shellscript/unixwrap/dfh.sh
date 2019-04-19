@@ -7,7 +7,7 @@ then
 
 fi
 
-if [ ! "$*" ]
+if [ -z "$*" ]
 then
 
 	flatdf -h |
@@ -25,14 +25,15 @@ else
 		grep -v "/mnt/.*/mnt/" | ## Skips my bound mounts
 		grep "$MOUNTPNT$" |
 		sed "s|[ 	]$MOUNTPNT| $MOUNTPNT`cursegreen`$REST`cursenorm`|g" |
-		if [ -d "$MOUNTPNT/RECLAIM" ]
-		then
-			RECLAIMABLE=`dush "$MOUNTPNT/RECLAIM" 2>/dev/null | takecols 1`
+		(
+			if [ -d "$MOUNTPNT/RECLAIM" ]
+			then RECLAIMABLE=`dush "$MOUNTPNT/RECLAIM" 2>/dev/null | takecols 1`
+			else RECLAIMABLE="--"
+			fi
 			sed 's|\([	 ]*[[:digit:]]*%\)| + '"$RECLAIMABLE"'\1|'
-		else
-			cat
-		fi
+		)
 	done
 
 fi |
+tr -s ' ' |
 columnise
