@@ -8,7 +8,9 @@ PORT="$1"
 # But it requires root for processes owned by other users
 if [ "$(uname)" = "Darwin" ]
 then
-    lsof -P -S 2 -i "tcp:${PORT}" | grep "\(:${PORT}->.*:\|:${PORT} (LISTEN)$\)"
+    # To search both TCP and UDP:      ":${PORT}"
+    # To search only TCP:           "tcp:${PORT}"
+    lsof -P -S 2 -i ":${PORT}" | grep "\(:${PORT}->.*:\|:${PORT} (LISTEN)$\)"
     exit "$?"
 fi
 
