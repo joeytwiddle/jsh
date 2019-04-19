@@ -10,12 +10,13 @@ jsh_find_favourite() {
 	return 9
 }
 
-EXPLORER=`jsh_find_favourite konqueror nautilus kvfm kfmclient explorer.exe`
+[ -z "$FAVOURITE_EXPLORERS" ] && FAVOURITE_EXPLORERS="konqueror dolphin nautilus kvfm kfmclient explorer.exe xdg-open"
+
+explorer="$(jsh_find_favourite $FAVOURITE_EXPLORERS)"
 
 ## TODO: When running konqueror, I used to want: >/dev/null 2>&1 
 
-if test "$*" = ""
-then $EXPLORER . &
-else $EXPLORER "$@"
+if [ -z "$*" ]
+then "$explorer" . &
+else "$explorer" "$@" &
 fi
-
