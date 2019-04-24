@@ -111,6 +111,19 @@ fi
 # dpkg -l "*$@*" | grep "^[hi]"
 
 
+# Yum Cheatsheet: https://access.redhat.com/sites/default/files/attachments/rh_yum_cheatsheet_1214_jcs_print-1.pdf
+if which yum >/dev/null
+then
+	if [ -n "$WEBSRCH" ]
+	then yum provides "$SEARCHEXP"
+	elif [ -n "$SHOWALL" ]
+	then yum list available "$SEARCHEXP"
+	else yum list installed "$SEARCHEXP"
+	fi
+	exit "$?"
+fi
+
+
 
 ## Old method; presents output much like dpkg, but optionally with highlighting.
 #
