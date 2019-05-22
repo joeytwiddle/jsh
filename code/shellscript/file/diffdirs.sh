@@ -27,13 +27,10 @@ fi
 
 ## Defaults:
 #[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH="diff"
-#[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH="xterm -geometry 140x60 -e vimdiff" ## prebg
-[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH=""
-#[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH=""
+#[ -z "$SHOWDIFFSWITH" ] && SHOWDIFFSWITH="echo xterm -geometry 140x60 -e vimdiff" ## prebg
 
 DEFAULT_IGNORE_REGEXP="\(^\|/\)\(\.git/\|CVS/\|\.svn/\|node_modules/\|\..*\.sw.$\)"
 
-## BUG: -showdiffswith doesn't work for eg. vimdiff, because stdin terminal has already been stolen :(  (xterm -e vimdiff is ok though :)
 if [ "$1" = -showdiffswith ]
 then
 	SHOWDIFFSWITH="$2"
@@ -67,7 +64,7 @@ including .git and node_modules folders.
 
 To skip reporting identical files:
 
-  NOMATCHES=x
+  NOMATCHES=1 or NM=1
 
 Options:
 
@@ -77,8 +74,14 @@ Options:
 
 Or, display or inspect diffs respectively (and sequentially):
 
+  # Show differences inline
   SHOWDIFFSWITH=prettydiff
+  # Pop up a separate xterm for each difference
   SHOWDIFFSWITH="xterm -geometry 140x60 -e vimdiff"
+  # Make a suggestion which the user can copy paste
+  SHOWDIFFSWITH="echo vimdiff"
+
+  NOTE: -showdiffswith MUST NOT BE used with vimdiff directly, because stdin has already been captured
 
 !
 exit 0
@@ -190,10 +193,10 @@ do
 
 	if [ ! -e "$DIRA/$FILE" ] && [ -e "$DIRB/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
-		[ -z "$HIDE_ADDS" ] && report "${CURSEGREEN}Only in \"$DIRB/\": $FILE${CURSENORM}"
+		[ -z "$HIDE_ADDS" ] && report "${CURSEGREEN}+ Only in $DIRB/: $FILE${CURSENORM}"
 	elif [ ! -e "$DIRB/$FILE" ] && [ -e "$DIRA/$FILE" ] ## Second check is in case both are broken symlinks, although TODO: should really check targets are the same
 	then
-		[ -z "$HIDE_REMOVALS" ] && report "${CURSERED}${CURSEBOLD}Only in \"$DIRA/\": $FILE${CURSENORM}"
+		[ -z "$HIDE_REMOVALS" ] && report "${CURSERED}${CURSEBOLD}- Only in $DIRA/: $FILE${CURSENORM}"
 	else
 
 		## Check the file contents
@@ -224,12 +227,9 @@ do
 		else
 			# report "${CURSEYELLOW}Differ: diff \"$DIRA/$FILE\" \"$DIRB/$FILE\"${CURSENORM}"
 			DIFFSUMMARY=`NOEXEC=1 IKNOWIDONTHAVEATTY=1 diffsummary "$DIRA/$FILE" "$DIRB/$FILE"`
-			report "${CURSEYELLOW}Differ: $SHOWDIFFSWITH $DIFFSUMMARY${CURSENORM}"
+			report "${CURSEYELLOW}# Differ: $FILE${CURSENORM}"
 			if [ -n "$SHOWDIFFSWITH" ]
-			then
-				report "Here are the differences:"
-				$SHOWDIFFSWITH "$DIRA/$FILE" "$DIRB/$FILE"
-				report echo
+			then $SHOWDIFFSWITH "$DIRA/$FILE" "$DIRB/$FILE"
 			fi
 		fi
 	fi
