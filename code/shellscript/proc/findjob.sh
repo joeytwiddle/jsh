@@ -3,7 +3,7 @@
 # jsh-ext-depends-ignore: sed
 # jsh-depends: higrep bigwin dropcols takecols myps foreachdo jgettmp pipeboth xisrunning
 # jsh-depends-ignore: highlight arguments tree
-# This is pretty nice (although it gets itself sometimes :-/ )
+# See also: `pstree -ap | vi -R -` as an alternative to `findjob -tree` (from package psmisc)
 
 ## CURIOUS: If I do `findjob sdklfjslfkjds` it responds with: cat: write error: Broken pipe
 
