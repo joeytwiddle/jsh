@@ -17,9 +17,9 @@ then
 	exit 0
 fi
 
-dest_dir="$(lastarg "$@")"
+target_dir="$(lastarg "$@")"
 
-if [ ! -d "$dest_dir" ]
+if [ ! -d "$target_dir" ]
 then . errorexit "Last arg should be a directory"
 fi
 
