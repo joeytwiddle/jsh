@@ -89,7 +89,7 @@ then
 				# if [ "$STY" ]
 				if [ "$TERM" = screen ]
 				then
-					jshinfo "Setting (bash,screen) TITLEBAR=\"$TITLEBAR\[k$SCRHEAD\w/\\\\\]\""
+					#jshinfo "Setting (bash,screen) TITLEBAR=\"$TITLEBAR\[k$SCRHEAD\w/\\\\\]\""
 					export TITLEBAR="$TITLEBAR\[k$SCRHEAD\w/\\\\\]"
 				fi
 				# export TITLEBAR="$TITLEBAR`screentitle \"$SCRHEAD/\w/\"`" ## marche pas
