@@ -1,5 +1,7 @@
 verbosely eval "$@"
-touch $$.lastdone
+
+timerfile="/tmp/onchangedo.$USER.$$"
+touch "$timerfile"
 
 while true
 do
@@ -9,11 +11,12 @@ do
 
 	[ "$FILES" ] || FILES=". -maxdepth 1"
 
-	# if find "$@" -newer $$.lastdone
-	if find $FILES -newer $$.lastdone | higrep . | grep .
+	# if find "$@" -newer "$timerfile"
+	if find $FILES -newer "$timerfile" | higrep . | grep .
 	then
+		# This used to be below, but it's better up here
+		touch "$timerfile"
 		verbosely eval "$@"
-		touch $$.lastdone
 	else
 		# verbosely sleep 10
 		sleep 3
