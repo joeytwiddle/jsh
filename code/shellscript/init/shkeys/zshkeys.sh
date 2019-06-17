@@ -210,6 +210,7 @@ bindkey "^[[1;6C" forward-word
 bindkey '^[[Z' reverse-menu-complete
 
 # Cycle through history based on characters already typed on the line
+# https://unix.stackexchange.com/questions/16101/zsh-search-history-on-up-and-down-keys/285151
 autoload -U up-line-or-beginning-search
 autoload -U down-line-or-beginning-search
 zle -N up-line-or-beginning-search
