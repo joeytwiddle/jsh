@@ -132,14 +132,18 @@ else
 			then
 				echo -n "Perform these changes (Y/n)? "
 				read k
-				if [ "$k" = "n" ] || [ "$k" = "N" ]
-				then
-					echo "Skipping $FILE"
-					continue
-				else
-					echo "Modifying $FILE"
+				if [ "$k" = "q" ]
+				then exit
 				fi
-				echo
+				if [ "$k" = "y" ] || [ "$k" = "Y" ]
+				then
+					echo "Modifying $FILE"
+					echo
+				else
+					echo "Skipping $FILE"
+					echo
+					continue
+				fi
 			fi
 
 			## TODO: sometimes we move it sometimes we don't!
