@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # jsh-depends: jdeltmp jgettmp
 # jsh-depends-ignore: filename
 
