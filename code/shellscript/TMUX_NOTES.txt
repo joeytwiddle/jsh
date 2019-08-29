@@ -43,6 +43,12 @@
     ) switch-client -n
     d detach-client
 
+# Search (in copy mode)
+
+    C-s search down (with Emacs key bindings, the default)
+    n repeat search forwards
+    N repeat search backwards
+
 # More
 
     C-b send-prefix
@@ -89,6 +95,13 @@
     , rename-window
 
 
+# Rename a window
+
+```bash
+set-option -g allow-rename off
+tmux rename-window <new_title>
+```
+
 # Sharing
 
 Different terminals can use different windows in one tmux session.
@@ -104,6 +117,8 @@ Join it like this:
 Although the two terminals can use different windows, they CANNOT use different panes in the same window.
 
 That tip, and some others, was mentioned here: http://mutelight.org/practical-tmux
+
+[This answer](https://unix.stackexchange.com/a/292303/33967) lists the steps required to set up a two-pane tmux with two different views of the same session.
 
 # Take a window from another session and attach it to your current session
 
