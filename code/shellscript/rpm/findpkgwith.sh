@@ -51,6 +51,19 @@ then
 		exit "$?"
 	fi
 
+	if command -v rpm >/dev/null 2>&1
+	then
+		PAGE="http://www.rpmfind.net/linux/rpm2html/search.php?query=$SEARCH"
+		if xisrunning
+		then
+			browse "$PAGE"
+			# newwin lynx "$PAGE"
+		else
+			links "$PAGE"
+		fi
+		exit "$?"
+	fi
+
 	echo "I do not know how to search available packages for your package manager"
 	exit 5
 fi
