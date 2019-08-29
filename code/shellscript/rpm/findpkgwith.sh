@@ -29,16 +29,31 @@ while test ! "$2" = ""; do
 done
 SEARCH="$1"
 
-if test $WEBSRCH; then
-	# PAGE="http://packages.debian.org/cgi-bin/search_contents.pl?word=$SEARCH&case=insensitive&version=testing&directories=yes"
-	# PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=$SEARCH"
-	PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=contents&keywords=$SEARCH"
-	if xisrunning; then
-		browse "$PAGE"
-		# newwin lynx "$PAGE"
-	else
-		links "$PAGE"
+if [ -n "$WEBSRCH" ]
+then
+	if command -v yum >/dev/null 2>&1
+	then
+		yum whatprovides "$SEARCH"
+		exit "$?"
 	fi
+
+	if command -v dpkg >/dev/null 2>&1
+	then
+		# PAGE="http://packages.debian.org/cgi-bin/search_contents.pl?word=$SEARCH&case=insensitive&version=testing&directories=yes"
+		# PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=$SEARCH"
+		PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=contents&keywords=$SEARCH"
+		if xisrunning
+		then
+			browse "$PAGE"
+			# newwin lynx "$PAGE"
+		else
+			links "$PAGE"
+		fi
+		exit "$?"
+	fi
+
+	echo "I do not know how to search available packages for your package manager"
+	exit 5
 fi
 
 # use dlocate if it's available
