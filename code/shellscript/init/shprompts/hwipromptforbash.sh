@@ -145,6 +145,7 @@ else
 				[ -n "$PROMPTHOST" ] || PROMPTHOST="\h" ## PROMPTHOST for jchroot, or fallback to standard
 				#PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]\[\033[00m\]($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u\[\033[00m\]) $DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
 				PS1="$EXITERR$MARKER_BLOCK\[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]\[\033[00m\]$COLOR\u$OTHERCOLOR@$COLOR$PROMPTHOST\[\033[00m\]:$DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
+				PS1="$EXITERR$MARKER_BLOCK\[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]\[\033[00m\]$COLOR$DIRCOLOR\w/$GIT_AWARE_PROMPT\[\033[00m\] "
 			fi
 
 			## hwi is a special case where I can be logged in in different ways
