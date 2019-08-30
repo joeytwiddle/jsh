@@ -2,10 +2,15 @@
 
 if [ "$1" = --help ]
 then cat << !
+
 Processes ~/.dircolors to create or update the ~/.lscols cachefile for lscolsinit.  This makes lscols load faster when you start a shell session.
-Source lscolsinit to load the changes into your current shell.
-Running lscolsrefresh once means you must run it again to load any new updates to the dircolos file!
-Remove the cachefile ~/.lscols for auto-updates (slower).
+
+Example usage:
+
+vim ~/.dircolors
+lscolsrefresh
+. lscolsinit
+
 !
 exit 0
 fi
@@ -25,9 +30,9 @@ then
 		dircolors -p > "$FILE"
 	fi
 fi
-dircolors "$FILE" > $HOME/.lscols
+dircolors "$FILE" > "$HOME/.lscols"
 
 ## My zsh needs this version because I was trying out the no-clobber option.  But this breaks in bash (in fact it writes to a file called ! and then barfs on the redundant .lscols argument).
-# dircolors "$FILE" >! $HOME/.lscols
+# dircolors "$FILE" >! "$HOME/.lscols"
 ## It's moot anyway, in its current form .dircolors does nothing!
 ## If we really need this, we could just rm -f the file first.

@@ -1,16 +1,30 @@
 # @sourceme
 
-## Load pretty colors for ls into the shell.  Source me!
-export SHELL ## dircolors wants this
-## You can make local cache .lscols by running lscolsrefresh but it will
-## prevent updates!
-## TODO: We could be clever and do lscolsrefresh if we detect a .dircolors newer than .lscols!
-if [ -f $HOME/.lscols ]
-then . $HOME/.lscols
-elif [ -f "$HOME/.dircolors" ] ## Your config - edit this
-then eval `dircolors $HOME/.dircolors`
-elif [ -f "$JPATH/code/home/.dircolors" ] ## Work in jsh if not linked
-then eval `dircolors $JPATH/code/home/.dircolors`
-else eval `dircolors -p | dircolors` ## Default - use this to seed your own config
+# Load pretty colors for ls into the shell.  This script should be sourced:
+#
+#     . lscolsinit
+#
+# If you have previously created the file `~/.lscols` (e.g. by running
+# lscolsrefresh) then this script will load that file, which is fast.
+#
+# Otherwise this script will run `dircolors` to generate the variable, which is
+# slower, but always up-to-date.
+#
+# In the case when `~/.lscols` exists, if you update `~/.dircolors` then you
+# should rerun `lscolsrefresh` and `. lscolsinit`
+
+# dircolors wants this
+export SHELL
+
+# TODO: We could be clever and do lscolsrefresh if we detect a .`dircolors` newer
+# than `.lscols`.  But that doesn't seem like the fastest solution.
+
+if [ -f "$HOME/.lscols" ]
+then . "$HOME/.lscols"
+elif [ -f "$HOME/.dircolors" ] # Your config - edit this
+then eval "$(dircolors "$HOME/.dircolors")"
+elif [ -f "$JPATH/code/home/.dircolors" ] # Work in jsh if not linked
+then eval "$(dircolors "$JPATH/code/home/.dircolors")"
+else eval "$(dircolors -p | dircolors)" # Default - use this to seed your own config
 fi
 export LS_COLORS
