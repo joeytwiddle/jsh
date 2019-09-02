@@ -30,6 +30,16 @@ SEARCH="$1"
 
 if [ -n "$WEBSRCH" ]
 then
+	open_url() {
+		if xisrunning
+		then
+			browse "$1"
+			# newwin lynx "$1"
+		else
+			links "$1"
+		fi
+	}
+
 	if command -v yum >/dev/null 2>&1
 	then
 		yum whatprovides "$SEARCH"
@@ -41,26 +51,14 @@ then
 		# PAGE="http://packages.debian.org/cgi-bin/search_contents.pl?word=$SEARCH&case=insensitive&version=testing&directories=yes"
 		# PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=$SEARCH"
 		PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=contents&keywords=$SEARCH"
-		if xisrunning
-		then
-			browse "$PAGE"
-			# newwin lynx "$PAGE"
-		else
-			links "$PAGE"
-		fi
+		open_url "$PAGE"
 		exit "$?"
 	fi
 
 	if command -v rpm >/dev/null 2>&1
 	then
 		PAGE="http://www.rpmfind.net/linux/rpm2html/search.php?query=$SEARCH"
-		if xisrunning
-		then
-			browse "$PAGE"
-			# newwin lynx "$PAGE"
-		else
-			links "$PAGE"
-		fi
+		open_url "$PAGE"
 		exit "$?"
 	fi
 
