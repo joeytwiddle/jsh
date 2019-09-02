@@ -62,6 +62,20 @@ then
 		exit "$?"
 	fi
 
+	if command -v apk >/dev/bull 2>&1
+	then
+		dirname="$(dirname "$SEARCH")"
+		filename="$(basename "$SEARCH")"
+		if ! grep "^/" <<< "$dirname" >/dev/null
+		then
+			echo "Error: You must provide the full path: $dirname"
+			exit 1
+		fi
+		PAGE="https://pkgs.alpinelinux.org/contents?file=${filename}&path=${dirname}&name=&branch=edge"
+		open_url "$PAGE"
+		exit "$?"
+	fi
+
 	echo "I do not know how to search available packages for your package manager"
 	exit 5
 fi
