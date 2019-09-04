@@ -90,7 +90,7 @@ else
 	then
 		## One unique directory found  :)
 		# echo ">"`curseyellow`" $NEWLIST"`cursenorm`
-		echo "$NEWLIST" | sed "s+^\(.*$NEWDIR\)\(.*\)$+> "`curseyellow;cursebold`"\1"`cursegreen;cursebold`"\2"`cursenorm`"+"
+		echo "$NEWLIST" | sed "s+^\(.*$NEWDIR\)\(.*\)$+> "`cursegreen;cursebold`"\1"`curseyellow;cursebold`"\2"`cursenorm`"+"
 		'cd' "$NEWLIST"
 
 	else
