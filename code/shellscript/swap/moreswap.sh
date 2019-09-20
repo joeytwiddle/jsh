@@ -52,6 +52,7 @@ do
 				[ "$SWAPSIZE" -gt 500000 ] && SWAPSIZE=500000
 				echo "Making swapfile size $SWAPSIZE at $SWAPFILE"
 				dd if=/dev/zero of="$SWAPFILE" bs=1024 count=$SWAPSIZE &&
+				chmod 0600 /swapfile1 &&
 				mkswap "$SWAPFILE" &&
 				swapon "$SWAPFILE" &&
 				SUCCESS=true ## since we can't break out of while from here
