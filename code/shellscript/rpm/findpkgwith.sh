@@ -1,17 +1,6 @@
 #!/bin/bash
 ## See also: apt-file search
-
-if command -v pacman >/dev/null 2>&1
-then
-	pacman -Fo "$*"
-	exit "$?"
-fi
-
-if command -v equery >/dev/null 2>&1
-then
-	equery belongs "$*"
-	exit "$?"
-fi
+## See also: find_package_with_file.*.sh
 
 WEBSRCH=
 while test ! "$2" = ""; do
@@ -78,6 +67,25 @@ then
 
 	echo "I do not know how to search available packages for your package manager"
 	exit 5
+fi
+
+if command -v pacman >/dev/null 2>&1
+then
+	pacman -Fo "$*"
+	exit "$?"
+fi
+
+if command -v equery >/dev/null 2>&1
+then
+	equery belongs "$*"
+	exit "$?"
+fi
+
+if command -v rpm >/dev/null 2>&1
+then
+	# find_package_with_file.rpm.sh
+	rpm -qf "$@"
+	exit "$?"
 fi
 
 # use dlocate if it's available
