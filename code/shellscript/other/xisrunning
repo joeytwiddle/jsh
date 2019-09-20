@@ -1,21 +1,17 @@
+#!/bin/sh
+
 # jsh-depends-ignore: xterm
 ## xisrunning - check we have an accessible running X display
 # jsh-ext-depends: xterm xdpyinfo
 
-if [ ! "$DISPLAY" ]
-then
-	## If we are running in Mac OS X, I don't know how to detect whether we are in a virtual terminal or GUI environment, so for now we assume we are in GUI
-	## Faster than $(uname) might be $OSTYPE, but this can vary more widely: 'darwin14' in bash, 'darwin14.0' in zsh
-	## Better for speed would be if jsh just cached the output of uname (or summarised its own platform) at startup
-	## Although it needn't be too slow: case $OSTYPE in darwin*)
-	##                              or: if [[ "$OSTYPE" == darwin* ]]
-	##                              or: osnover=${OSTYPE//[0-9.]/}
-	## Fairly comprehensive summary here: http://stackoverflow.com/questions/394230/detect-the-os-from-a-bash-script#8597411
-	if [ "$(uname)" = 'Darwin' ]
-	then exit 0
-	fi
-	## If there is no DISPLAY variable, and we aren't running in OS X, then there is no way we could be in an X session!
-	exit 1
+# On macOS, if XQuartz is not running, this script will often start it, which is slow!
+# That is rarely what I actually want.  So for now on Mac, let's just always answer no.
+if [ "$(uname)" = 'Darwin' ]
+then exit 1
+fi
+
+if [ -z "$DISPLAY" ]
+then exit 1
 fi
 ## But you can have a DISPLAY variable for a display that cannot be reached.
 
