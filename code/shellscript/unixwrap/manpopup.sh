@@ -32,27 +32,6 @@ then
 	exit 97
 fi
 
-## Gah!  No matter what I do here, MANPOPUP_DESIRED_WIDTH is ignored, and the calling term's COLUMNS is used instead!
-## It is probably doing something like `tput cols` to get the number of columns, and ignore the COLUMNS variable.
-# unset COLUMNS
-COLUMNS="$MANPOPUP_DESIRED_WIDTH"
-export COLUMNS
-## OK so we'll just opt for a dirty fallback solution:  :P
-# [ "$COLUMNS" ] && [ "$COLUMNS" -gt "$MANPOPUP_DESIRED_WIDTH" ] && MANPOPUP_DESIRED_WIDTH="$COLUMNS"
-
-## Unfortunately memo is too damn slow =/
-## So we make our own cache:
-cachedPage="/tmp/manpopup.tmp.$$.joey"
-rememo env COLUMNS="$MANPOPUP_DESIRED_WIDTH" "$REALMAN" -a "$@" > "$cachedPage"
-catpage() {
-	# memo "$REALMAN" -a "$@"   ## where "$@" were the parent script's args, not the functions
-	cat "$cachedPage"
-}
-## BUG: One disadvantage of this, is that if we cannot write to /tmp/, we fail to display the man page!  memo might not do that
-## BUG: I think we don't really need to do the caching if x is not running.
-##      This, and the sleep at the bottom, could be moved inside the xisrunning block below.
-##      NO!  The cache is useful to make 'catpage' efficient.  If we want to use catpage to list the headers, that functionality should be available in non-X situations too.  It should be named and refactored, and made optional (so we can use man and skip the cache if needed).  Use a hook function to perform the caching in advance.
-
 ## If user is using X-Windows, we pop up a new window for the manual page.
 ## If they are running inside screen, we open a new screen for the manual page.
 ## DONE: This caused problems when vnc was initialised from a screen, and had this variable exported to its children!  OK jsh has removed its export STY for the greater good.  Still, we could check X first, but that might feel odd when using screen under X, if DISPLAY is exported to the screen session.
@@ -60,6 +39,27 @@ if [ "$STY" ]
 then screen -X screen -t '"'"$1"'"' $REALMAN -a "$@"
 elif xisrunning
 then
+	## Gah!  No matter what I do here, MANPOPUP_DESIRED_WIDTH is ignored, and the calling term's COLUMNS is used instead!
+	## It is probably doing something like `tput cols` to get the number of columns, and ignore the COLUMNS variable.
+	# unset COLUMNS
+	COLUMNS="$MANPOPUP_DESIRED_WIDTH"
+	export COLUMNS
+	## OK so we'll just opt for a dirty fallback solution:  :P
+	# [ "$COLUMNS" ] && [ "$COLUMNS" -gt "$MANPOPUP_DESIRED_WIDTH" ] && MANPOPUP_DESIRED_WIDTH="$COLUMNS"
+
+	## Unfortunately memo is too damn slow =/
+	## So we make our own cache:
+	cachedPage="/tmp/manpopup.tmp.$$.joey"
+	rememo env COLUMNS="$MANPOPUP_DESIRED_WIDTH" "$REALMAN" -a "$@" > "$cachedPage"
+	catpage() {
+		# memo "$REALMAN" -a "$@"   ## where "$@" were the parent script's args, not the functions
+		cat "$cachedPage"
+	}
+	## BUG: One disadvantage of this, is that if we cannot write to /tmp/, we fail to display the man page!  memo might not do that
+	## BUG: I think we don't really need to do the caching if x is not running.
+	##      This, and the sleep at the bottom, could be moved inside the xisrunning block below.
+	##      NO!  The cache is useful to make 'catpage' efficient.  If we want to use catpage to list the headers, that functionality should be available in non-X situations too.  It should be named and refactored, and made optional (so we can use man and skip the cache if needed).  Use a hook function to perform the caching in advance.
+
 	# [ "$INJ" ] && whitewin -title "jdoc $1" -geometry 80x"$MANPOPUP_DESIRED_HEIGHT" -e jdoc "$1"
 	## man will try to fit page within COLUMNS>=80plz, and then we will fit to whatever man outputs
 	## First, check a manual page actually exists: (man will print error for us if not)
