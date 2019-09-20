@@ -16,7 +16,7 @@ do
 	if [ -L "$FILE" ] && issymlink "$FILE"
 	then rm "$FILE"
 	else
-		jshwarn "$FILE is not a symlink!" ## This check is important
+		printf "%s\n" "$FILE is not a symlink!" >&2
 		# false ## for return value, but only works on the *last* file at the moment
 		## I abandoned the exitcode idea, because I find myself using this script on non-links quite a lot.
 		## E.g. I do rmlink ./* to clear all the links in the current folder, and leave the other files untouched.
