@@ -1,5 +1,5 @@
+#!/usr/bin/env bash
 
-#!/bin/sh
 ## Decrypts a folder, starts a shell, then re-encrypts the folder.
 ## Beware overlap when running two sessions.  We could automatically start the sbash session in a screen.  Later calls could join the screen, so it is the only one left to close.
 
@@ -11,11 +11,14 @@
 
 ## TODO: does not appear to clear bash history!!!
 
-xhost
-xhost - || error "Clearing xhost permissions failed."
-jshinfo "NOTE: xhost permissions cleared, you will have to restore them manually"
-## TODO: restore xhost permissions to previous when sbash is done
-jshinfo
+if [ "$(uname)" != "Darwin" ]
+then
+	xhost
+	xhost - || error "Clearing xhost permissions failed."
+	jshinfo "NOTE: xhost permissions cleared, you will have to restore them manually"
+	## TODO: restore xhost permissions to previous when sbash is done
+	jshinfo
+fi
 
 PRIVFILE="$HOME/.private/private.tgz.encrypted"
 PRIVFILEDIR="`dirname "$PRIVFILE"`"
