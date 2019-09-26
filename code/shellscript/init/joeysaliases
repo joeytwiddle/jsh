@@ -343,6 +343,9 @@ mkcd() {
 	mkdir "$1"
 	cd "$1"
 }
+alias mkmv='mkdirandmv'
+alias mkdirmv='mkdirandmv'
+alias mkexe='chmod a+x'
 
 
 # Let Vim use Ctrl-Q and Ctrl-S
