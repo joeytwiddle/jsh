@@ -50,7 +50,7 @@ then
 		do
 			# X="`toregexp "$X"`"
 			# grep "^$X$" "$2"
-			grep -x -F "$X" "$2"
+			fgrep -x "$X" "$2"
 		done
 
 else

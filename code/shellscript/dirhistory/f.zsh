@@ -9,7 +9,7 @@ NEXT=`grep -e "$SEARCHDIR" $HOME/.dirhistory | head -n 1`
 if [ -n "$NEXT" ]
 then
     # Put top directory at bottom of list
-    grep -vxF "$NEXT" $HOME/.dirhistory > $HOME/.dirhistory2
+    fgrep -vx "$NEXT" $HOME/.dirhistory > $HOME/.dirhistory2
     echo "$PWD" >> $HOME/.dirhistory2
     mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 

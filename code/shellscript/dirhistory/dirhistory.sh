@@ -3,10 +3,10 @@ SEARCHDIR="$1"
 
 (
 #cursegrey
-grep "$SEARCHDIR" ~/.dirhistory | tail -n 5
+fgrep "$SEARCHDIR" ~/.dirhistory | tail -n 5
 curseyellow ; cursebold ; echo "$PWD" ; cursenorm
 #cursegrey
-grep "$SEARCHDIR" ~/.dirhistory | head -n 3
+fgrep "$SEARCHDIR" ~/.dirhistory | head -n 3
 ) | sed 's+$+/+'
 exit
 
@@ -14,7 +14,7 @@ exit
 
 TMPF=`jgettmp`
 
-awkdrop 1 $HOME/.dirhistory | grep -F "$1" > $TMPF
+awkdrop 1 $HOME/.dirhistory | fgrep "$SEARCHDIR" > $TMPF
 
 (
 seq 4 -1 1 | tr " " "\n" | sed "s/\(.*\)/"`cursegreen`"\b\1 /" | splicewith tail -4 $TMPF

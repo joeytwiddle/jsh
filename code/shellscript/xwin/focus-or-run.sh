@@ -28,7 +28,7 @@ pid="$(pgrep -u "$UID" "$search_proc" | head -n 1)"
 if [ -n "$pid" ]
 then
     # This doesn't work because wmctrl does not list the process name, only its wm_class and its title.
-    #winid="$(wmctrl -l -x | takecols 1 3 | grep -F " ${search_proc}" | head -n 1 | takecols 1)"
+    #winid="$(wmctrl -l -x | takecols 1 3 | fgrep " ${search_proc}" | head -n 1 | takecols 1)"
     #if [ -n "$winid" ]
     #then wmctrl -a "$winid"
     #else echo "Found process $pid but could not find $search_proc in wmctrl -l -x" >&2

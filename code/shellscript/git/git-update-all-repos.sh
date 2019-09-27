@@ -6,16 +6,16 @@
 #ALSO_RUN_GIT_GC=1
 
 #find "$HOME/" -type d -name .git |
-locate -r '/\.git$' | grep -F -e "$HOME/" |
+locate -r '/\.git$' | fgrep "$HOME/" |
 
 sed 's+/\.git$++' |
 
-grep -vF "/PORRIDGE_BACKUP_INCOMPLETE/" |
-grep -vF "/porridge_home/" |
-grep -vF "/mnt/" |
-grep -vF "/strato/" |
-grep -vF "/rc_files.from_strato/" |
-grep -vF "/.cache/" |
+fgrep -v "/PORRIDGE_BACKUP_INCOMPLETE/" |
+fgrep -v "/porridge_home/" |
+fgrep -v "/mnt/" |
+fgrep -v "/strato/" |
+fgrep -v "/rc_files.from_strato/" |
+fgrep -v "/.cache/" |
 grep -v "/jspm-cache$" |
 grep -v "/\.nvm$" |
 

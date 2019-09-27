@@ -5,7 +5,7 @@
 
 # See also: http://unix.stackexchange.com/questions/320149/read-past-end-of-file-to-recover-data/320150
 # That is very inefficient but it supports general purpose recovery on a non-encrypted partition, by searching for a text string:
-# strings -n 12 -t d /dev/partition | grep -F 'text snippet'
+# strings -n 12 -t d /dev/partition | fgrep 'text snippet'
 
 if test "x$1" = "x"; then
   echo "undel1 <filesystem-device> [ > <file_to_edit> ]"

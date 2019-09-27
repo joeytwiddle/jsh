@@ -13,7 +13,7 @@ if [ -n "$LAST" ]
 then
     ## Put the directory we're moving from at the top of the history (looping)
     echo "$PWD" > $HOME/.dirhistory2
-    grep -vxF "$LAST" $HOME/.dirhistory >> $HOME/.dirhistory2
+    fgrep -vx "$LAST" $HOME/.dirhistory >> $HOME/.dirhistory2
     mv -f $HOME/.dirhistory2 $HOME/.dirhistory
 
     # export PWD='$LAST'
