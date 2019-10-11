@@ -27,5 +27,12 @@ run_vimcat() {
 
 # Changing our home folder will prevent loading of the usual .vimrc and our usual plugins
 export HOME="$realhome/.vanillavim"
-run_vimcat "$@"
 
+# On macOS, this did not show newlines correctly
+#run_vimcat "$@" > /tmp/out
+
+# But this works on macOS!
+run_vimcat "$@" > /tmp/out
+cat /tmp/out
+
+# But also on macOS, it doesn't seem to load the gentlemary colors
