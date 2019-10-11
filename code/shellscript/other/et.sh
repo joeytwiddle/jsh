@@ -46,6 +46,12 @@ echo "$TOOL"
 
 ## Actually, in jsh, we might want to do: editandwait $FORCE "$TOOL"
 
+current_desktop="$(command -v wmctrl >/dev/null && wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
+if [ -n "$current_desktop" ]
+then export VIM_SERVER_NAME="TOOLS@${current_desktop}"
+else export VIM_SERVER_NAME="TOOLS"
+fi
+
 if xisrunning
 then editandwait $FORCE "$TOOL" &
 else editandwait $FORCE "$TOOL"
