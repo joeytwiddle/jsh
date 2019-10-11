@@ -284,3 +284,8 @@ Or if you only want to run one jsh script and then return to your current shell:
 
     jsh/jsh <jsh_command> [ <args...> ]
 
+# See also
+
+- [The pure bash bible](https://github.com/dylanaraps/pure-bash-bible)
+
+- [The pure sh bible](https://github.com/dylanaraps/pure-sh-bible)

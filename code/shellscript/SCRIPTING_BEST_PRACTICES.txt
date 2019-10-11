@@ -1,5 +1,39 @@
-seq(1) is nonstandard, inefficient and useless. For bash2.04+/zsh/ksh93, use for ((i = 1; i <= 10; i++)); do ..., bash3.0+, use for i in {1..10}, for POSIX and other shells, see !counting
+# Checking if an executable exists
 
+``
 which(1) is an external program used to search PATH for an executable. It behaves differently on different systems and you can't rely on a useful exit code; use (from most to least portable) ''command -v'' or ''type -P'' (to find the path) or ''hash'' (to check) instead. See http://mywiki.wooledge.org/BashFAQ/081
+``
 
+StackOverflow [suggests](https://stackoverflow.com/questions/592620/how-to-check-if-a-program-exists-from-a-bash-script):
+
+```
+$ command -v foo >/dev/null 2>&1 || { echo >&2 "I require foo but it's not installed.  Aborting."; exit 1; }
+$ type foo >/dev/null 2>&1 || { echo >&2 "I require foo but it's not installed.  Aborting."; exit 1; }
+$ hash foo 2>/dev/null || { echo >&2 "I require foo but it's not installed.  Aborting."; exit 1; }
+```
+or
+```
+[ -x "$(command -v foo)" ]
+```
+
+But another thing to note is that `command` checks for things inside your shell _including functions and aliases and shell builtins_, whereas `which` only checks the filesystem.[ref](https://stackoverflow.com/questions/37056192/which-vs-command-v-in-bash)  So `command` is not much help if you are wanting to bypass aliases and functions!
+
+However `which` is considered unreliable for maximum portability.[ref](http://mywiki.wooledge.org/BashFAQ/081)  "If you absolutely must check only PATH, the only POSIX way is to iterate over it"
+
+As far as I can tell, for `which` we should hide stderr (for the case of not found), but for `command` we can get away with only muting stdout:
+```
+command -v foo >/dev/null
+which foo >/dev/null 2>&1
+```
+
+
+
+# Other
+
+``
+seq(1) is nonstandard, inefficient and useless. For bash2.04+/zsh/ksh93, use for ((i = 1; i <= 10; i++)); do ..., bash3.0+, use for i in {1..10}, for POSIX and other shells, see !counting
+``
+
+``
 !counting: Basic loops: Bash/Zsh/ksh93: «for ((i = 0; i < 10; i++)); do ...; done», For small constants: «for i in {0..9}; do ...; done» ksh: «i=0; while ((i++ < 10)); do ...; done», POSIX: «i=0; while [ "$i" -lt 10 ]; do ...; i=$((i + 1)); done» http://mywiki.wooledge.org/BashGuide/TestsAndConditionals#Conditional_Loops
+``
