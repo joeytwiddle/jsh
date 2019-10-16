@@ -28,9 +28,7 @@ TMPFILE="/tmp/jsh.highlight_words.$$"
 cat "$@" > "$TMPFILE"
 # cat "$@" | tee "$TMPFILE"   ## Show to user wile he's waiting
 
-# WORD_SPLITTING_CHARS=" "
-# WORD_SPLITTING_CHARS="- 	_.,:;=|_/"
-WORD_SPLITTING_CHARS=" 	,:;=|/" ## Not so much
+WORD_SPLITTING_CHARS=" 	,:;=|/'\"\`(){}"
 # WORD_SPLITTING_CHARS="^[:alpha:][:digit:]"
 
 # EXCLUDE_SINGLES=cat
@@ -43,6 +41,7 @@ striptermchars |
 # sed 's+ +\n+g' |
 # sed 's+[ =]+\n+g' |
 sed "s+[$WORD_SPLITTING_CHARS]+\n+g" |
+# sed "s+[$WORD_SPLITTING_CHARS]*\<\([^$WORD_SPLITTING_CHARS]{1,}\)\>+\1\n+g" |
 tr '/$,()' '\n\n\n\n\n' |
 grep -v "^ *$" |
 countduplicates |
@@ -65,6 +64,8 @@ COLNORM=`cursenorm`
 COLBOLD=`cursebold`
 
 [ "$DEBUG" ] && echo -n "`cursegreen`""WORDS=[ `curseblue`" >&2
+
+echo "$WORDS" >&2
 
 SEDEXPR=`
 echo "$WORDS" |
@@ -104,6 +105,7 @@ cat "$TMPFILE" | sed "$SEDEXPR" |
 # tee /tmp/xx2 |
 
 ## This is a terminal pretty-printer, so make it friendly too:
-more -f ## (-f prevents line from splitting early due to invisible keycodes)
+less -REX ## (-f prevents line from splitting early due to invisible keycodes)
 ## Alternatively, try less -R
 
+rm -f "$TMPFILE"
