@@ -418,7 +418,7 @@ alias konq='inbg konqueror'
 alias xchat='echo "Running hexchat not xchat!" ; hexchat'
 
 # For python 2 and python 3
-alias httpserver='python -m SimpleHTTPServer 8080 || python -m http.server 8080'
+alias simplehttpserver='python -m SimpleHTTPServer 8080 || python -m http.server 8080'
 
 # If this system does not have ionice, just make a dummy
 # NOTE: You must do `ionice nice ...` and not `nice ionice ...` because the latter will not find the ionice function (bash on macOS)
