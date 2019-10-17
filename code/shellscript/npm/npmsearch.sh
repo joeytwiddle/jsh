@@ -6,11 +6,11 @@
 #browse "https://npmsearch.com/?q=$*"
 
 # We now have this
-npm search "$*"
+#npm search "$*"
 #npm search --long "$*"
 
 # npms shows the scores for each match
-#npx npms search --color -s 250 "$*" | less -REX
+npx npms search --color -s 250 "$*" | less -REX
 
 # Performs a daily download, but not so bloated as npm's.  (About 1 minute.)
 # It orders things by stars, but it also seems to skip some packages with 0 stars.
