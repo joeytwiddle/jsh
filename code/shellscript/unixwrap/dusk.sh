@@ -11,8 +11,8 @@ SHOWSCAN=true
 
 DUCOM="du -skx"
 ## du can be heavy on disk access, and even the system CPU, so we relax it a bit.
-which nice >/dev/null && DUCOM="nice -n 5 $DUCOM"       # weak: -n 5 strong: -n 15
-which ionice >/dev/null && DUCOM="ionice -n 5 $DUCOM"   # weak: -n 5 strong: -c 3
+which nice >/dev/null 2>&1 && DUCOM="nice -n 5 $DUCOM"       # weak: -n 5 strong: -n 15
+which ionice >/dev/null 2>&1 && DUCOM="ionice -n 5 $DUCOM"   # weak: -n 5 strong: -c 3
 # jshinfo "DUCOM=$DUCOM"
 
 ## Enable this if you want to see files colored like with ls.

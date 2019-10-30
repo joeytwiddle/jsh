@@ -35,7 +35,7 @@ syncdiff - a special diff command for remotediff which lets you edit a set of re
 !
 }
 
-if ! which jgettmp 2>&1 > /dev/null
+if ! which jgettmp >/dev/null 2>&1
 then
 	jgettmp () {
 		echo "/tmp/$1.$$"

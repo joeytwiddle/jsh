@@ -34,8 +34,8 @@ extract_info() {
 }
 
 ## Be gentle:
-which renice >/dev/null && renice -n 10 -p $$
-which ionice >/dev/null && ionice -c 3 -p $$
+which renice >/dev/null 2>&1 && renice -n 10 -p $$
+which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 for INFILE
 do
@@ -55,28 +55,30 @@ do
 	composer="`extract_info composer`"
 
 	## For players which do not respect replaygain tags, we normalize the raw audio.
-	if which normalize-audio >/dev/null
-	then normalize-audio -v "$wavfile"
+	if which normalize-audio >/dev/null 2>&1
+	then normalize-audio -v "$INFILE.wav"
+	elif which normalize >/dev/null 2>&1
+	then normalize -v "$INFILE.wav"
 	fi
 
 	mp3file="$INFILE.$$.mp3"
 
-	if which ffmpeg >/dev/null && false
+	if which ffmpeg >/dev/null 2>&1 && false
 	then
 
 		ffmpeg -ab -i "$wavfile" "$mp3file"
 
-	elif which avconv >/dev/null
+	elif which avconv >/dev/null 2>&1
 	then
 
 		avconv -i "$wavfile" -b 128k "$mp3file"
 
-	elif which lame >/dev/null
+	elif which lame >/dev/null 2>&1
 	then
 
 		lame "$wavfile" "$mp3file"
 
-	elif which bladeenc >/dev/null
+	elif which bladeenc >/dev/null 2>&1
 	then
 
 		bladeenc $EXTRA_BLADEENC_OPTS -QUIT "$wavfile"
@@ -99,7 +101,7 @@ do
 
 	mp3info -a "$artist" -l "$album" -t "$title" -y "$date" -g "$genre" -c "$composer" "$outfile"
 
-	if which mp3gain >/dev/null
+	if which mp3gain >/dev/null 2>&1
 	then mp3gain -r "$outfile"
 	fi
 

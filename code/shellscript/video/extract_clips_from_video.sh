@@ -41,7 +41,7 @@ VIDEOFILE="$1"
 shift
 
 ## Backup the marker file in case you realise u wanted an older one!
-[ -f "$CLIPMARKERFILE" ] && which rotate >/dev/null && rotate -nozip "$CLIPMARKERFILE"
+[ -f "$CLIPMARKERFILE" ] && which rotate >/dev/null 2>&1 && rotate -nozip "$CLIPMARKERFILE"
 
 echo "# Start	End	(Optional_clip_name)" > "$CLIPMARKERFILE"
 

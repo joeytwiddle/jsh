@@ -12,8 +12,8 @@
 fixTooManyPtsError="-nocorrect-pts"
 
 ## Dumping a large wav file can be heavy on I/O so:
-which renice >/dev/null && renice -n 10 -p $$
-which ionice >/dev/null && ionice -c 3 -p $$
+which renice >/dev/null 2>&1 && renice -n 10 -p $$
+which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 for infile
 do

@@ -1,7 +1,7 @@
 VOL="$1"
-if which amixer >/dev/null
+if which amixer >/dev/null 2>&1
 then amixer -c 0 sset "Master" "playback" "$VOL" >/dev/null
-elif which aumix >/dev/null
+elif which aumix >/dev/null 2>&1
 # then aumix -d $MIXER -w $VOL
 then aumix $AUMIX_OPTS -w "$VOL"
 fi

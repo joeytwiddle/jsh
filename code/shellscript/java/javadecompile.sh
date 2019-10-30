@@ -1,6 +1,6 @@
 #!/bin/sh
 ## Check the jad exe is available:
-which jad > /dev/null || exit 1
+which jad >/dev/null 2>&1 || exit 1
 
 find . -name "*.class" |
 while read CLASSFILE

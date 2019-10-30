@@ -6,9 +6,9 @@
 
 URL="$1"
 
-if which curl >/dev/null
+if which curl >/dev/null 2>&1
 then curl -s "$URL"
-elif which wget >/dev/null
+elif which wget >/dev/null 2>&1
 then wget -nv "$URL" -O -   ## BUG: sends info to stderr even on success
 fi
 

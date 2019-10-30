@@ -90,7 +90,7 @@ case "$1" in
 		jshinfo "Executable commands on PATH:"
 		$doMemo aproposjsh -builddb executable-commands | grep -i -u ".*/[^/]*$@"
 
-		if which dpkg >/dev/null
+		if which dpkg >/dev/null 2>&1
 		then
 			## Testing: These should use proper memoing like the others
 			echo ; sleep 0.2

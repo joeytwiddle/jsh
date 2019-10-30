@@ -34,7 +34,7 @@ dog "$JSH_ALL_AUDIO_FILES"
 ## We must
 ## check all these files because my XMMS modplug plugin sometimes has an audio
 ## lockup if it tries to play a non-tracker file.
-if which file >/dev/null
+if which file >/dev/null 2>&1
 then
 	(
 		TRACKER_FORMATS="\.\(it\|mod\|xm\)$"

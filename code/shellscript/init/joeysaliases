@@ -422,7 +422,7 @@ alias httpserver='python -m SimpleHTTPServer 8080 || python -m http.server 8080'
 
 # If this system does not have ionice, just make a dummy
 # NOTE: You must do `ionice nice ...` and not `nice ionice ...` because the latter will not find the ionice function (bash on macOS)
-if ! which ionice >/dev/null
+if ! which ionice >/dev/null 2>&1
 then
 	ionice() {
 		"$@"

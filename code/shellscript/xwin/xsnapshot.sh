@@ -71,7 +71,7 @@ import -window "$windowid" "$TMPFILE"
 # For Mac OS X:
 #screencapture screen1.png screen2.png ...
 
-if which osd_cat >/dev/null
+if which osd_cat >/dev/null 2>&1
 then
 	killall osd_cat 2>/dev/null
 	#font='-*-helvetica-*-r-*-*-*-400-*-*-*-*-*-*'

@@ -117,8 +117,8 @@ then
 fi
 
 ## Be gentle:
-which renice >/dev/null && renice -n 10 -p $$
-which ionice >/dev/null && ionice -c 3 -p $$
+which renice >/dev/null 2>&1 && renice -n 10 -p $$
+which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 # In seconds
 INPUT_VIDEO_DURATION=`getvideoduration "$INFILE" | sed 's+\..*++'`

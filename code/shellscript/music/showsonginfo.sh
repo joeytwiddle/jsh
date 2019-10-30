@@ -46,7 +46,7 @@ do
 	[ "$TIME" ] || TIME="$NL  $( filesize "$FILE" | rev | sed 's+...+\0,+g ; s+^,++' | rev ) bytes"
 
 	## Lookup amarok info for the file
-	if which amaroklookup >/dev/null
+	if which amaroklookup >/dev/null 2>&1
 	then
 		AMAROK_DATA=$( amaroklookup "$FILE" | grep -v ^/ | sed 's+^\(.\)+  \1+' )
 		[ "$AMAROK_DATA" ] && AMAROK_DATA="$NL$AMAROK_DATA"

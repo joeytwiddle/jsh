@@ -6,7 +6,7 @@ jshlockfile -i adjust_brightness
 
 adjustment_percent="$1"
 
-if which xbacklight >/dev/null
+if which xbacklight >/dev/null 2>&1
 then
 	# Do not use the provided value; instead adjust exponentially, relative to current brightness
 	if [ "$adjustment_percent" -gt 0 ]

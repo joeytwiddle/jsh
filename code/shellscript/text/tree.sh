@@ -68,7 +68,7 @@ then
 	HASKELL_TREELIST_BINARY="$JPATH/code/haskell/tools/treelist"
 	if [ -x "$HASKELL_TREELIST_BINARY" ]
 	then TREECOM="$HASKELL_TREELIST_BINARY" ## Compiled with ghc =)
-	#elif which hugs >/dev/null && [ -f "$JPATH/code/haskell/tools/treelist.hs" ]
+	#elif which hugs >/dev/null 2>&1 && [ -f "$JPATH/code/haskell/tools/treelist.hs" ]
 	#then TREECOM="runhugs $JPATH/code/haskell/tools/treelist.hs"
 	else TREECOM=treesh ## fallback
 	fi

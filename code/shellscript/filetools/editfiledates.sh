@@ -24,9 +24,9 @@ fi
 # Find a suitable text editor
 editor="$VISUAL"
 [ -z "$editor" ] && editor="$EDITOR"
-[ -z "$editor" ] && which editor >/dev/null && editor=editor
-[ -z "$editor" ] && which nano   >/dev/null && editor=nano
-[ -z "$editor" ] && which vi     >/dev/null && editor=vi
+[ -z "$editor" ] && which editor >/dev/null 2>&1 && editor=editor
+[ -z "$editor" ] && which nano   >/dev/null 2>&1 && editor=nano
+[ -z "$editor" ] && which vi     >/dev/null 2>&1 && editor=vi
 [ -z "$editor" ] && editor=no_editor_found
 
 $editor "$commands_to_run"

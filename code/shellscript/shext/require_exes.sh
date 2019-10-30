@@ -4,7 +4,7 @@ failed=''
 for EXE
 do
 
-	if ! which "$EXE" > /dev/null # && [ ! "$OVERRIDE_REQUIRE_EXES" ]   ## <-- CONSIDERING
+	if ! which "$EXE" >/dev/null 2>&1 # && [ ! "$OVERRIDE_REQUIRE_EXES" ]   ## <-- CONSIDERING
 	then
 
 		echo "`curseyellow;cursebold`WARNING: `cursenorm`Required executable `cursered;cursebold`$EXE`cursenorm` is missing!" >&2

@@ -112,7 +112,7 @@ fi
 
 
 # Yum Cheatsheet: https://access.redhat.com/sites/default/files/attachments/rh_yum_cheatsheet_1214_jcs_print-1.pdf
-if which yum >/dev/null
+if which yum >/dev/null 2>&1
 then
 	if [ -n "$WEBSRCH" ]
 	then yum provides "$SEARCHEXP"
@@ -142,13 +142,13 @@ then
 	## aptitude and apt-cache can use SEARCH instead of SEARCHEXP.
 	## apt-cache is a lot faster, but it doesn't list virtual packages, so we prefer to use aptitude if possible.
 
-	# if which aptitude >/dev/null
+	# if which aptitude >/dev/null 2>&1
 	# then aptitude search "$SEARCH"
 	# else apt-cache search "$SEARCH"
 	# fi
 
 	## With caching:
-	if which aptitude >/dev/null
+	if which aptitude >/dev/null 2>&1
 	then memo -nd -f /var/lib/apt/lists aptitude search .
 	else memo -nd -f /var/lib/apt/lists apt-cache search ""
 	fi |

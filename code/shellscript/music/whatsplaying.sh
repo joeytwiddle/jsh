@@ -79,7 +79,7 @@ printf "%s\n" "$FILES"
 
 #echo "[whatsplaying] FILES: $FILES"
 
-if [ ! "$NOEXTRAS" ] && xisrunning && which osd_cat >/dev/null && [ -z "$SKIP_OSD" ] 2>&1
+if [ ! "$NOEXTRAS" ] && xisrunning && which osd_cat >/dev/null 2>&1 && [ -z "$SKIP_OSD" ] 2>&1
 then
 	(
 		echo "$FILES" |

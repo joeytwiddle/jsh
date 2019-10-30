@@ -15,9 +15,9 @@
 
 AWKOPTS=""
 ## Interactive mode is line-buffered, which can be nice if you want to watch output until line is reached, but only available with mawk.
-if realpath `which awk` | grep "/gawk$" > /dev/null
+if realpath "$(which awk 2>/dev/null)" | grep "/gawk$" > /dev/null
 then AWKADD="{ fflush(); }"
-elif realpath `which awk` | grep "/mawk$" > /dev/null
+elif realpath "$(which awk 2>/dev/null)" | grep "/mawk$" > /dev/null
 then AWKOPTS="-W interactive"
 fi
 

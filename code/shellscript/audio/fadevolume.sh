@@ -2,7 +2,7 @@
 # jsh-ext-depends: aumix
 ## TODO: wrap aumix if it is missing.  e.g. try alsamixer/rexima/...
 
-if ! which amixer >/dev/null   # aumix
+if ! which amixer >/dev/null 2>&1   # aumix
 then . errorexit "fadevolume cannot run: no amixer"
 fi
 

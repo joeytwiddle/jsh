@@ -179,7 +179,7 @@ do
 	then
 		if [ -f "$TO_CLEANUP" ]
 		then
-			# if which del > /dev/null
+			# if which del >/dev/null 2>&1
 			# then del "$TO_CLEANUP"
 			# else rm "$TO_CLEANUP"
 			# fi

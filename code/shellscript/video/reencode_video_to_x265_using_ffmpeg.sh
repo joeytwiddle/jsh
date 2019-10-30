@@ -29,8 +29,8 @@ fi
 # We put $preview_offset before the -i, because although it is not so accurate, it is a lot faster!
 
 ## Be gentle:
-which renice >/dev/null && renice -n 15 -p $$
-which ionice >/dev/null && ionice -c 3 -p $$
+which renice >/dev/null 2>&1 && renice -n 15 -p $$
+which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 for input
 do

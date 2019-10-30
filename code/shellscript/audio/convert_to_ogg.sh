@@ -31,8 +31,8 @@ extract_info() {
 }
 
 ## Be gentle:
-which renice >/dev/null && renice -n 10 -p $$
-which ionice >/dev/null && ionice -c 3 -p $$
+which renice >/dev/null 2>&1 && renice -n 10 -p $$
+which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 for INFILE
 do
@@ -52,8 +52,10 @@ do
 	## Ogg doesn't have a composer field, but it does have a comment field :P
 
 	## For players which do not respect replaygain tags, we normalize the raw audio.
-	if which normalize-audio >/dev/null
+	if which normalize-audio >/dev/null 2>&1
 	then normalize-audio -v "$INFILE.wav"
+	elif which normalize >/dev/null 2>&1
+	then normalize -v "$INFILE.wav"
 	fi
 
 	oggenc $EXTRA_OGGENC_OPTS -a "$artist" -t "$title" -l "$album" -d "$date" -G "$genre" -c "composer=$composer" "$INFILE".wav
@@ -66,7 +68,7 @@ do
 	mv "$INFILE".ogg "$outfile"
 
 	# vorbisgain adds REPLAYGAIN tags to the file.  Unfortunately mplayer's ffvorbis replay codec ignores them!
-	if which vorbisgain >/dev/null
+	if which vorbisgain >/dev/null 2>&1
 	then vorbisgain "$outfile"
 	fi
 

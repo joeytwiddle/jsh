@@ -20,7 +20,7 @@ TOTAL=0
 for MP3
 do
 
-	if which mp3info > /dev/null
+	if which mp3info >/dev/null 2>&1
 	then
 
 		## Eh this looks like rubbish:

@@ -4,7 +4,7 @@
 ## TODO BUG: if target is a local file (esp. html), then konqueror / file reader should be opened; but actually this was getting called (which produced an extra broken empty tab): /usr/kde/3.5/bin/konqueror konqueror /path/to/file.html
 jsh_find_favourite() {
 	for X
-	do which "$X" >/dev/null && echo "$X" && return
+	do which "$X" >/dev/null 2>&1 && printf "%s\n" "$X" && return
 	done
 	echo "[FAIL] jsh_find_favourites: $*" >&2
 	return 9

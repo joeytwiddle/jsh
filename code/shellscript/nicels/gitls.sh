@@ -11,7 +11,7 @@ fi
 find "$@" -maxdepth 1 |
 #find "$@" -type f | grep -v "/\.git/" |
 sed 's+^\./++' |
-if which sortfilesbydate >/dev/null
+if which sortfilesbydate >/dev/null 2>&1
 then sortfilesbydate
 else cat
 fi |
@@ -75,7 +75,7 @@ do
 	cd "$cwd"
 	ls -ld --color "$node" | sed "s+^\([^ ]* *\)\{8\}+\0[$extra] +"
 done |
-if which columnise-clever >/dev/null
+if which columnise-clever >/dev/null 2>&1
 then
 	# Ubuntu
 	#columnise-clever -ignore '^[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]*' |

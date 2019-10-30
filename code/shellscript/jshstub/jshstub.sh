@@ -105,7 +105,7 @@ then
 
 		test "$JSH_STUB_NET_SOURCE" || export JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshtools/"
 
-		if which wget 2>&1 > /dev/null
+		if which wget >/dev/null 2>&1
 		then WGETCOM="wget -O -"
 		else WGETCOM="lynx --source"
 		fi

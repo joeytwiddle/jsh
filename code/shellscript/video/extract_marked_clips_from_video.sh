@@ -39,8 +39,8 @@ fi
 # EXTRA_OPTS="$EXTRA_OPTS -vf scale=2560:1440"
 
 ## Be gentle:
-which renice >/dev/null && renice -n 15 -p $$
-which ionice >/dev/null && ionice -c 3 -p $$
+which renice >/dev/null 2>&1 && renice -n 15 -p $$
+which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 CLIPNUM=1
 

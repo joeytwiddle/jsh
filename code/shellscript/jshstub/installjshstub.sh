@@ -4,7 +4,7 @@
 JPATH=/tmp/jsh-$$
 JSH_STUB_NET_SOURCE="http://hwi.ath.cx/jshtools/"
 
-if which wget 2>&1 > /dev/null
+if which wget >/dev/null 2>&1
 then WGETCOM="wget -nv -O -"
 else WGETCOM="lynx --source"
 fi
@@ -43,7 +43,7 @@ echo
 echo "### Stub jshenv installed in $JPATH"
 echo
 
-if which zsh 2>&1 > /dev/null
+if which zsh >/dev/null 2>&1
 then
 	echo "### To start jshenv in zsh, type the following:"
 	echo "zsh"
