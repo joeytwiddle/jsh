@@ -1,7 +1,5 @@
 #!/bin/sh
-# exec git checkout --orphan "$@"
-
-# This script offers a simple way to save disk space of a git project which you are not currently working on.
+# This script offers a simple way to save disk space of a git project which you are not currently working on, by switching to an empty branch so the working tree is emptied.
 
 set -e
 
@@ -27,6 +25,17 @@ fi
 
 du -sh .
 
+# Assuming we want to clean more space
 git gc
 
 du -sh .
+
+# Assuming we want to clean more space
+# But ignored files will only be visible on a non-empty branch (which has .gitignore)
+#echo
+#echo "Ignored files which could be removed:"
+#git clean -dXn
+echo
+echo "Untracked files which should be handled:"
+git clean -dn
+echo
