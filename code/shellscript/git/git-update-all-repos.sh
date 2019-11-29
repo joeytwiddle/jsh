@@ -2,6 +2,8 @@
 
 # Finds all the git repos under your home folder, and tries to fetch them,
 # so you will have the latest upstream the next time you visit the folder.
+#
+# See also: https://gist.github.com/douglas/1287372
 
 #ALSO_RUN_GIT_GC=1
 

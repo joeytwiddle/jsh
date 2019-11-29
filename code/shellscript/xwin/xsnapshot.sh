@@ -1,7 +1,10 @@
 #!/bin/sh
-# import -window root /tmp/screenshot-$$.bmp
-# ## I think it would be good if:
-# echo /tmp/screenshot-$$.bmp
+
+# See also: maim https://github.com/naelstrof/maim
+#           E.g. https://github.com/iynaix/dotfiles-yadm/blob/master/bin/rofi-screenshot
+
+# Redux:
+#import -window root /tmp/screenshot-$$.bmp && echo /tmp/screenshot-$$.bmp
 
 killall osd_cat 2>/dev/null
 
