@@ -17,4 +17,8 @@ else
 	## this also breaks: find: invalid predicate `)Starship.unr'
 	#find "$@" -maxdepth 0 -follow -printf "%s\n"
 	stat -c '%s' "$@"
+	# Sadly that stat command does not work on macOS
+	# https://unix.stackexchange.com/questions/16640/how-can-i-get-the-size-of-a-file-in-a-bash-script
+	# This should be POSIX compatible:
+	#du -b "$filename" | cut -f1
 fi
