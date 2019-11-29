@@ -10,7 +10,12 @@
 #npm search --long "$*"
 
 # npms shows the scores for each match
-npx npms search --color -s 250 "$*" | less -REX
+# We only install if not already.  This is significantly faster than prefixing with: npx -p npms-cli ...
+if ! which npms >/dev/null 2>&1
+then npm install -g npms-cli
+fi
+# The cat fixes a bug where the terminal became broken if the results included weird chars.  See: https://github.com/npms-io/npms-cli/issues/52
+npms search --color -s 250 "$*" 2>&1 | cat | less -REX
 
 # Performs a daily download, but not so bloated as npm's.  (About 1 minute.)
 # It orders things by stars, but it also seems to skip some packages with 0 stars.
