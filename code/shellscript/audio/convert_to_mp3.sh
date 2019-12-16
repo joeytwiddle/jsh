@@ -66,12 +66,13 @@ do
 	if which ffmpeg >/dev/null 2>&1 && false
 	then
 
-		ffmpeg -ab -i "$wavfile" "$mp3file"
+		#ffmpeg -ab -i "$wavfile" "$mp3file"
+		ffmpeg -i "$wavfile" -b:a 128k "$mp3file"
 
 	elif which avconv >/dev/null 2>&1
 	then
 
-		avconv -i "$wavfile" -b 128k "$mp3file"
+		avconv -i "$wavfile" -b:a 128k "$mp3file"
 
 	elif which lame >/dev/null 2>&1
 	then
