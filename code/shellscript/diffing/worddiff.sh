@@ -1,5 +1,6 @@
 #!/bin/sh
-if test "$1" = "--help"
+
+if [ "$1" = "--help" ]
 then
 	echo "worddiff <file1> <file2> [ <GNU diff options>... ]"
 	echo "  Produces a diff of the xescaped versions of file1 and file2."
@@ -13,12 +14,12 @@ FILEB="$2"
 shift
 shift
 
-FILEAX=`jgettmp "worddiff: $FILEA.xescaped"`
-FILEBX=`jgettmp "worddiff: $FILEB.xescaped"`
+FILEAX="$(jgettmp "worddiff: $FILEA.xescaped")"
+FILEBX="$(jgettmp "worddiff: $FILEB.xescaped")"
 
-escapenewlines -x "$FILEA" > $FILEAX
-escapenewlines -x "$FILEB" > $FILEBX
+escapenewlines -x "$FILEA" > "$FILEAX"
+escapenewlines -x "$FILEB" > "$FILEBX"
 
-diff $FILEAX $FILEBX "$@"
+diff "$FILEAX" "$FILEBX" "$@"
 
-jdeltmp $FILEAX $FILEBX
+jdeltmp "$FILEAX" "$FILEBX"
