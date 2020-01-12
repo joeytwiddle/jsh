@@ -1,2 +1,3 @@
 #!/bin/sh
-rmdir --ignore-fail-on-non-empty --parents `find * -type d`
+find . -type d -size 0 |
+withalldo rmdir --ignore-fail-on-non-empty --parents
