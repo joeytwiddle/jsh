@@ -1,6 +1,6 @@
 ## Default behaviour with no arguments:
 
-. importshfn withalldo
+. importshfn foreachdo
 
 fix_dirs() {
 	chmod ugo+rx "$@"
@@ -18,10 +18,10 @@ listFile=/tmp/list_before.fix_permissions.$$.joey
 'ls' -lR > "$listFile"
 
 find . -type d |
-withalldo fix_dirs
+foreachdo fix_dirs
 
 find . -type f |
-withalldo fix_files
+foreachdo fix_files
 
 'ls' -lR > "$listFile.new"
 
