@@ -162,7 +162,7 @@ do
 		LINKA="`justlinks "$DIRA/$FILE"`"
 		LINKB="`justlinks "$DIRB/$FILE"`"
 		if [ "$LINKA" = "$LINKB" ]
-		then [ -z "$NOMATCHES" ] && report "Identical symlinks: $FILE" ## I wanted to do CURSENORM at the start, but that is not friendly to a user who tries to do `grep -v ^Identical`
+		then [ -z "$NOMATCHES" ] && report "${CURSEBLUE}Identical symlinks:${CURSENORM} $FILE"
 		else report "${CURSEYELLOW}Differing symlinks:${CURSENORM} $DIRA/$FILE -> $LINKA but $DIRB/$FILE -> $LINKB"
 		fi
 		continue
