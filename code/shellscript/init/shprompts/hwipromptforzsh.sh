@@ -80,7 +80,7 @@ RPROMPT="%{[0%?;30m%}[%{[0%?;3%?m%}err %?%{[0%?;30m%}]${RPROMPT}"
 ## This is a good indicator if user got here via ssh:
 if [ -n "$SSH_CONNECTION" ]
 then
-	PROMPT="%{[01;33m%}<$USER@$SHORTHOST>%{[00m%} $PROMPT"
+	PROMPT="%{[01;36m%}<$USER@$SHORTHOST>%{[00m%} $PROMPT"
 	export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
 fi
 

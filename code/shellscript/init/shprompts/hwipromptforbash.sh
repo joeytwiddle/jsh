@@ -178,7 +178,7 @@ else
 	if [ "$DISPLAY" ] || [ "$TERM" = xterm ] # || [ "$TERM" = screen ]
 	then
 		SHOWUSERHOST="\u@\h:"
-		[ "$USER" = joey ] && [ "$HOSTNAME" = hwi ] && SHOWUSERHOST=
+		[ "$USER" = joey ] && [ "$HOSTNAME" = dumpling ] && SHOWUSERHOST=
 		## I find the (17) really distracting in the window list, so am trying putting a % before it!
 		DISPLAY_STR="% $SHOWUSERHOST\w/   (\#) [\A]"
 		# XTTSTR=`xttitle "$DISPLAY_STR"` ## fail
@@ -191,6 +191,13 @@ else
 	# PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ " ## see hwipromptforzsh
 	PS4="+[\[`cursered;cursebold`\]\s\[`cursenorm`\]]\[`cursegreen`\]\W\[`cursenorm`\]\$ "
 
+fi
+
+## This is a good indicator if user got here via ssh:
+if [ -n "$SSH_CONNECTION" ]
+then
+	PS1="\[\033[00;36m\]<$USER@$SHORTHOST>\[\033[00m\] $PS1"
+	export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
 fi
 
 PS1="$PREPROMPT$PS1"
