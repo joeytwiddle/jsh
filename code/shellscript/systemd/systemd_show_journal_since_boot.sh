@@ -1,3 +1,5 @@
 #!/usr/bin/env bash
 
-journalctl -x -b 0
+# If you want to list a previous boot, provide a different `-b` from this list: journalctl --list-boots
+
+echo "Try: journalctl -x -b 0"

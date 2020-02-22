@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-journalctl -x -f -b 0 -n 1000
+echo "Try: journalctl -x -f -b 0 -n 1000"
