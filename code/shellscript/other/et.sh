@@ -1,12 +1,6 @@
 #!/bin/sh
 
-## wtf is -f for?  Who uses -f ?!
-
 NAME="$1"
-if test "$NAME" = "-f"; then
-	FORCE="-f";
-	NAME="$2"
-fi
 LSLINE=`realpath $JPATH/tools/$NAME`
 
 TOOL="$LSLINE";  # `echo "$LSLINE" | after symlnk`
@@ -42,27 +36,22 @@ fi
 
 echo "$TOOL"
 
-# jsh edit $FORCE "$TOOL"
-
-## Actually, in jsh, we might want to do: editandwait $FORCE "$TOOL"
-
 current_desktop="$(command -v wmctrl >/dev/null && wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
 if [ -n "$current_desktop" ]
 then export VIM_SERVER_NAME="TOOLS@${current_desktop}"
 else export VIM_SERVER_NAME="TOOLS"
 fi
 
+# jsh edit "$TOOL"
+
 if xisrunning
-then editandwait $FORCE "$TOOL" &
-else editandwait $FORCE "$TOOL"
+then editandwait "$TOOL" &
+else editandwait "$TOOL"
 fi
 
-# A quick check to inform the user if this command already exists on system.
-# which, where, and whereis are never guaranteed:
-# whereis $1
-# which $1
-# jwhere $1
-if jwhich $1 quietly; then
+# A quick check to inform the user if this command already exists on the system
+if jwhich "$1" quietly
+then
 	printf "  overrides "
-	jwhich $1
+	jwhich "$1"
 fi
