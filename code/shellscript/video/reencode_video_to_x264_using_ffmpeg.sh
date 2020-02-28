@@ -46,6 +46,10 @@ do
 
     rm -f "$output"
 
+    # Counterintuitively, veryfast offers the _best_ compression quality, and great speed too!
+    # See: https://write.corbpie.com/ffmpeg-preset-comparison-x264-2019-encode-speed-and-file-size/
+    # See: https://superuser.com/a/1259172/52910
+
     # -y overwrite output file
 
     #avconv \

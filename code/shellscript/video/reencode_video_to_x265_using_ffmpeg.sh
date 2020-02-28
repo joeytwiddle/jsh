@@ -44,6 +44,9 @@ do
     # Not yet working
     #docker run -v "$PWD":/mounted jrottenberg/ffmpeg $preview_offset -i /mounted/"$input" $preview_duration -c:v libx265 -c:a copy -crf 23 -preset slow -tune animation $extra /mounted/"$output"
 
+    # This article recommends using 'fast' or 'faster' for the best results.
+    # See: https://write.corbpie.com/ffmpeg-preset-comparison-x265-2019-encode-speed-and-file-size/
+
     # This caused an error: Error while opening encoder for output stream #0:0 - maybe incorrect parameters such as bit_rate, rate, width or height
     #-tune animation \
     # x265 is slow enough, so let's not use this
@@ -52,7 +55,7 @@ do
       -stats \
       $preview_offset \
       -i /mounted/"$input" \
-      -preset veryfast \
+      -preset faster \
       $preview_duration \
       -c:v libx265 -pix_fmt yuv420p10 \
       -b "$VIDEO_BITRATE" \
