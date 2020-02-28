@@ -55,7 +55,7 @@ alias rm='rm_is_disabled'
 
 alias man='jman'
 
-## Because it's nice for the user, but overriding is bad for scripts:
+## japropos is nice for the user (at least I think so)
 # alias apropos=japropos
 alias apropos='NOPROGRESS=true catch japropos'
 

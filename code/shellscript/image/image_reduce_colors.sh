@@ -12,7 +12,7 @@ do
 
     echo "$input_file -> $output_file"
 
-    # NOTE: +dither is suitable if the image has no gradients, but
+    # NOTE: +dither aka -dither None is suitable if the image has no gradients, but
     # if the image DOES have gradients, then remove it, or use -dither FloydSteinberg or -dither Riemersma
 
     # -depth 8 is not needed
