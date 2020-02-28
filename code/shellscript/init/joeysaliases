@@ -72,6 +72,7 @@ done
 # alias grep='grep --line-buffered'
 alias grep='grep --line-buffered --colour=auto'
 alias sed='sed -u'
+alias rg='rg -M "$((COLUMNS * 20))"'
 
 
 
@@ -459,6 +460,9 @@ alias yr='yarn run'
 alias yx='yarn exec'
 alias yx-='yarn exec --'
 alias yw='yarn run watch'
+alias yui='yarn upgrade-interactive'
+alias ywhy='yarn why'
+alias yy='yarn why'
 
 alias jprettier='prettier --single-quote --tab-width 4 --trailing-comma all'
 
@@ -471,7 +475,7 @@ ldir () {
 lln () {
 	l "$@" | 'grep' ' \-> '
 }
-alias ltxt='l *.txt *.md *.TXT *.MD'
+alias ltxt='l *.txt *.TXT *.md *.MD *.markdown *.MARKDOWN readme README 2>/dev/null'
 alias lsh='l *.sh'
 alias lzip='l *.zip'
 # `lext py` is longer than `l *.py` but it is easier to type
