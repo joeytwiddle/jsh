@@ -1,3 +1,5 @@
+#!/bin/sh
+
 # jsh-depends: cursebold cursered cursenorm jfcsh
 
 ## Default behaviour is to display dropped lines in red, and new lines in white
@@ -18,14 +20,27 @@ shift
 # then JFCCOM="jfc simple oneway"
 # else JFCCOM="jfcsh -sorted"
 # fi
-JFCCOM="jfcsh -sorted"
+#JFCCOM="jfcsh -sorted"
+JFCCOM="jfcsh"
+
+#reverse_diff() {
+#	diff "$2" "$1"
+#}
+#JFCCOM="reverse_diff"
+#BOTHWAYS=
+
+# This is what jfcsh does
+#trimmed_diff() {
+#	diff "$2" "$1" | grep '^> ' | sed 's+^> ++'
+#}
+#JFCCOM="trimmed_diff"
 
 ## Optionally, check for lines which have been dropped:
 
-if [ "$BOTHWAYS" ]
+if [ -n "$BOTHWAYS" ]
 then
 	OTHER="`$JFCCOM "$FILEB" "$FILEA"`"
-	if [ ! "$OTHER" = "" ]
+	if [ -n "$OTHER" ]
 	then
 		# echo
 		# echo `cursered``cursebold`"<<< DIED:"
