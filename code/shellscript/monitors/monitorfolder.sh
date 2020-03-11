@@ -3,6 +3,25 @@
 
 # @requires-package inotify-tools
 
+# For more cross-platform technologies: https://stackoverflow.com/questions/1515730/is-there-a-command-like-watch-or-inotifywait-on-the-mac
+#
+# watchdog might be worth a look.  Written in Python, cross-platform, appears to use inotify if it can.
+
+# On macOS use fswatch
+if which fswatch >/dev/null 2>&1
+then
+    fswatch "$1"
+    exit
+fi
+
+# or watchman
+if which watchman >/dev/null 2>&1
+then
+    watchman watch "$1"
+    watchman -- trigger "$1" "watch-$$" '*' -- echo
+    exit
+fi
+
 # --exclude <pattern_for_filename>
 # Print just the watched file (usually shows the name of the folder where the change occurred): --format "%w"
 # Print just the filename: --format "%f"
