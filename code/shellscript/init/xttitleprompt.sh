@@ -28,7 +28,7 @@ then
 	## If we are in a screen, but not on the local machine, we must have ssh'ed somewhere from within screen.
 	## We also want to do this for tmux.  We can check for $STY or $TMUX.
 	SCRHEAD=""
-	if ( [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ] ) && [ ! "$STY" ]
+	if { [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ]; } && [ ! "$STY" ]
 	   # ! contains "$SCREENTITLE" "$SHOWHOST"
 	then
 		## In tmux, displaying the hostname for every window wastes a lot of space.  Let's not do that!
@@ -49,8 +49,10 @@ then
 
 	# export XTTITLE_HEAD="<xterm> $XTTITLE_HEAD"
 
+	## We don't use SHOWUSER or SHOWHOST or SHOWUSERHOST any more.
+	## We use the more general purpose XTTITLE_HEAD.
 	if [ -n "$SSH_CLIENT" ]
-	then XTTITLE_HEAD="$XTTITLE_HEAD$USER@$SHORTHOST"
+	then XTTITLE_HEAD="${XTTITLE_HEAD}${USER}@${SHORTHOST}"
 	fi
 
 	# if xisrunning; then
@@ -71,6 +73,7 @@ then
 	case $SHORTSHELL in
 
 		bash)
+			## NOTE: We are currently not using this.  See hwipromptforbash's XTTSTR
 			## TODO: bash now has PROMPT_COMMAND - we could use that to set a more advanced title
 			# if [ "$0" = "bash" ]
 			# then
@@ -79,7 +82,7 @@ then
 				## xterm title:
 				# export TITLEBAR="\[\033]0;$XTTITLE_HEAD\u@\h:\w\007\]"
 				# jshinfo "Setting (bash) TITLEBAR=\"\[\033]0;$XTTITLE_HEAD:\w\007\]\""
-				export TITLEBAR="\[\033]0;$XTTITLE_HEAD\w\007\]"
+				# export TITLEBAR="\[\033]0;$XTTITLE_HEAD\w\007\]"
 				## removed \u and \h since they are in head already :P
 				# export TITLEBAR="\[\033]0;% $XTTITLE_HEAD:\w/\007\]"
 				## do we really need to export it?
@@ -87,11 +90,7 @@ then
 				## screen title: "[" <directory> "]"
 				# export TITLEBAR="$TITLEBAR\[k[\w]\\\\\]"
 				# if [ "$STY" ]
-				if [ "$TERM" = screen ]
-				then
-					#jshinfo "Setting (bash,screen) TITLEBAR=\"$TITLEBAR\[k$SCRHEAD\w/\\\\\]\""
-					export TITLEBAR="$TITLEBAR\[k$SCRHEAD\w/\\\\\]"
-				fi
+
 				# export TITLEBAR="$TITLEBAR`screentitle \"$SCRHEAD/\w/\"`" ## marche pas
 				## but it might be better if it did, at least bash would pass back to remote screens
 				## but also it wouldn't pass to local either!
@@ -101,7 +100,31 @@ then
 				# XTTITLEBAR="\[`xttitle "$TITLEBAR"`\]"
 				# export XTTITLEBAR="\[\033]0;$XTTITLE_PRESTRING$TITLEBAR\007\]"
 				# export PS1="$XTTITLEBAR$PS1"
-				export PS1="$TITLEBAR$PS1"
+				#export PS1="$TITLEBAR$PS1"
+
+				# PS1="\\[`xttitle "\u@\h:\W\$ (\#)"`\\]""$PS1"
+				# PS1="\\[`xttitle "(\#) \u@\h:\w\$ [\A] \j"`\\]""$PS1"
+				# PS1="\\[`xttitle "(\#) \u@\h:\w\$   [\A]"`\\]""$PS1"
+
+				DISPLAY_STR="% ${XTTITLE_HEAD}\w/   (\#) [\A]"
+				## On macOS iTerm2 I prefer a short string (just the folder name) to fit into the small tabs
+				if [ "$(uname)" = Darwin ]
+				then DISPLAY_STR="${XTTITLE_HEAD}\W/"
+				fi
+				if [ "$TERM" = screen ]
+				then
+					# jshinfo "Setting (bash,screen) TITLEBAR=\"$TITLEBAR\[k$SCRHEAD\w/\\\\\]\""
+					DISPLAY_STR="${DISPLAY_STR}\[k${SCRHEAD}\w/\\\\\]"
+				fi
+
+				## This doesn't work
+				# XTTSTR="$(xttitle "$DISPLAY_STR")"
+				XTTSTR="\[\033]0;${DISPLAY_STR}\007\]"
+				## This might work better on Cygwin
+				# XTTSTR="$(printf "]0;%s" "$DISPLAY_STR")"
+
+				#PS1="$PS1\[$XTTSTR\]"
+				PS1="$PS1\\[$XTTSTR\\]"
 			# fi
 		;;
 

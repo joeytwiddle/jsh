@@ -162,29 +162,11 @@ else
 
 
 	# if test "$TERM" = screen || test "$STY"
-	if [ "$STY" ]
+	if [ -n "$STY" ]
 	then
-		SCREEN_NAME=`echo "$STY" | afterfirst '\.'`
+		SCREEN_NAME="$(printf "%s\n" "$STY" | afterfirst '\.')"
 		# test "$SCREEN_NAME" || SCREEN_NAME=screen
-		PS1="[$SCREEN_NAME$WINDOW] $PS1"
-	fi
-
-	#### THIS is the one we are CURRENTLY USING / seeing for bash.
-	## xttitleprompt was not working for bash, so we do the little we can:
-	## TODO: This should be removed if we get bash to automatically update the title before/after each command.
-	# PS1="\\[`xttitle "\u@\h:\W\$ (\#)"`\\]""$PS1"
-	# PS1="\\[`xttitle "(\#) \u@\h:\w\$ [\A] \j"`\\]""$PS1"
-	# PS1="\\[`xttitle "(\#) \u@\h:\w\$   [\A]"`\\]""$PS1"
-	if [ "$DISPLAY" ] || [ "$TERM" = xterm ] # || [ "$TERM" = screen ]
-	then
-		SHOWUSERHOST="\u@\h:"
-		[ "$USER" = joey ] && [ "$HOSTNAME" = dumpling ] && SHOWUSERHOST=
-		## I find the (17) really distracting in the window list, so am trying putting a % before it!
-		DISPLAY_STR="% $SHOWUSERHOST\w/   (\#) [\A]"
-		# XTTSTR=`xttitle "$DISPLAY_STR"` ## fail
-		XTTSTR=`printf "]0;%s" "$DISPLAY_STR"` ## win
-		# PS1="$PS1""$XTTSTR"
-		PS1="$PS1""\[$XTTSTR\]"
+		PS1="[${SCREEN_NAME}${WINDOW}] $PS1"
 	fi
 
 	## for sh -x debugging
