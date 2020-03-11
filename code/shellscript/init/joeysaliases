@@ -423,10 +423,12 @@ alias simplehttpserver='python -m SimpleHTTPServer 8080 || python -m http.server
 
 # If this system does not have ionice, just make a dummy
 # NOTE: You must do `ionice nice ...` and not `nice ionice ...` because the latter will not find the ionice function (bash on macOS)
+# TODO: Turn this into a shellscript, so the order won't matter.
+# NOTE: On macOS, nice sets both CPU and I/O scheduling priority
 if ! which ionice >/dev/null 2>&1
 then
 	ionice() {
-		"$@"
+		nice "$@"
 	}
 fi
 
