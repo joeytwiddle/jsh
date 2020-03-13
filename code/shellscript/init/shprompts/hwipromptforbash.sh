@@ -1,8 +1,14 @@
 # @sourceme
 
 #COLRESET="\[`cursenorm`\]"
-COLRESET="\[\033[00m\]"
+#COLRESET="\[\033[00m\]"
+COLRESET='\['"$(cursenorm)"'\]'
 JOBSCOL="\[$(curseyellow)\]"
+
+USERHOST=""
+if ! [ "$USER" = joey ] || [ -n "$SSH_CONNECTION" ]
+then USERHOST="${COLOR}\u${OTHERCOLOR}@${COLOR}\h${COLRESET}:"
+fi
 
 # Seasonal bat prompt (like an easter egg):
 if date | grep "Oct 31" > /dev/null
@@ -144,8 +150,8 @@ else
 				## TODO: can we find a more useful value for DOLLARDOESNTDOMUCH (especially given the on-the-fly evaluation above)?
 				[ -n "$PROMPTHOST" ] || PROMPTHOST="\h" ## PROMPTHOST for jchroot, or fallback to standard
 				#PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH ${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u${COLRESET}) $DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
-				PS1="$EXITERR$MARKER_BLOCK${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}$COLOR\u$OTHERCOLOR@$COLOR$PROMPTHOST${COLRESET}:$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
-				PS1="$EXITERR$MARKER_BLOCK${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}$COLOR$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
+				#PS1="$EXITERR$MARKER_BLOCK${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}$COLOR\u$OTHERCOLOR@$COLOR$PROMPTHOST${COLRESET}:$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
+				PS1="${EXITERR}${MARKER_BLOCK}${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}${USERHOST}${DIRCOLOR}\w/${GIT_AWARE_PROMPT}${COLRESET} "
 			fi
 
 			## hwi is a special case where I can be logged in in different ways
@@ -175,10 +181,12 @@ else
 
 fi
 
-## This is a good indicator if user got here via ssh:
 if [ -n "$SSH_CONNECTION" ]
 then
-	PS1="\[\033[00;36m\]<$USER@$SHORTHOST>${COLRESET} $PS1"
+	if [[ "$PS1" = *\u* ]]
+	then : # If the prompt we chose above has already included the hostname, then we don't need to do it here
+	else PS1="\[\033[00;36m\]<$USER@$SHORTHOST>${COLRESET} $PS1"
+	fi
 	export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
 fi
 
