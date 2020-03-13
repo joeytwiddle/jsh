@@ -1,6 +1,8 @@
 # @sourceme
 
+#COLRESET="\[`cursenorm`\]"
 COLRESET="\[\033[00m\]"
+JOBSCOL="\[$(curseyellow)\]"
 
 # Seasonal bat prompt (like an easter egg):
 if date | grep "Oct 31" > /dev/null
@@ -119,8 +121,8 @@ else
 			## I wanted to put this further right, just before the path, but if I put it there, it always reports 1.
 			## That happens because the [ \j -gt 0 ] test sets $?, overwriting the $? from the previous command that we wanted.
 
-			#MARKER_BLOCK="\[\033[47;36m\]     \[`cursenorm`\]${COLRESET} "
-			#MARKER_BLOCK="\[\033[47;36m\]     \[`cursenorm`\]${COLRESET} "
+			#MARKER_BLOCK="\[\033[47;36m\]     ${COLRESET} "
+			#MARKER_BLOCK="\[\033[47;36m\]     ${COLRESET} "
 			#MARKER_BLOCK='$([ "$?" = 0 ] && echo -n "\[\033[42;36m\]" || echo -n "\[\033[41;36m\]" ; echo -n "     ${COLRESET} ")'
 			#MARKER_BLOCK='$(echo "\[\033[$(("$?" ? 41 : 47));36m\]      ${COLRESET} ")'
 			# Works in bash 4
@@ -141,9 +143,9 @@ else
 				DOLLARDOESNTDOMUCH=""
 				## TODO: can we find a more useful value for DOLLARDOESNTDOMUCH (especially given the on-the-fly evaluation above)?
 				[ -n "$PROMPTHOST" ] || PROMPTHOST="\h" ## PROMPTHOST for jchroot, or fallback to standard
-				#PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH \[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]${COLRESET}($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u${COLRESET}) $DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
-				PS1="$EXITERR$MARKER_BLOCK\[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]${COLRESET}$COLOR\u$OTHERCOLOR@$COLOR$PROMPTHOST${COLRESET}:$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
-				PS1="$EXITERR$MARKER_BLOCK\[`curseyellow`\]\$([ \j -gt 0 ] && echo '[\j] ')\[`cursenorm`\]${COLRESET}$COLOR$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
+				#PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH ${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}($COLOR$PROMPTHOST $OTHERCOLOR\t $COLOR\u${COLRESET}) $DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
+				PS1="$EXITERR$MARKER_BLOCK${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}$COLOR\u$OTHERCOLOR@$COLOR$PROMPTHOST${COLRESET}:$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
+				PS1="$EXITERR$MARKER_BLOCK${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}$COLOR$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
 			fi
 
 			## hwi is a special case where I can be logged in in different ways
@@ -169,7 +171,7 @@ else
 
 	## for sh -x debugging
 	# PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ " ## see hwipromptforzsh
-	PS4="+[\[`cursered;cursebold`\]\s\[`cursenorm`\]]\[`cursegreen`\]\W\[`cursenorm`\]\$ "
+	PS4="+[\[`cursered;cursebold`\]\s${COLRESET}]\[`cursegreen`\]\W${COLRESET}\$ "
 
 fi
 
