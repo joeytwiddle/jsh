@@ -1,5 +1,5 @@
-# @sourceme
-
+## Initialises your shell to update the window title of your terminal application with information about the shell
+## @sourceme
 ## This script must be sourced!  E.g.: . xttitleprompt
 
 ## TODO: The default xttitle for a terminal window could be a sanitised version of the user's shell prompt (PS1/PROMPT) [remove colors+other escapes].  The current terminal is my own "traditional" shell prompt: the directory followed by a % (but for some reason I have them the other way around :P )
@@ -106,7 +106,8 @@ then
 				# PS1="\\[`xttitle "(\#) \u@\h:\w\$ [\A] \j"`\\]""$PS1"
 				# PS1="\\[`xttitle "(\#) \u@\h:\w\$   [\A]"`\\]""$PS1"
 
-				DISPLAY_STR="% ${XTTITLE_HEAD}\w/   (\#) [\A]"
+				## Time: [\A]
+				DISPLAY_STR="% ${XTTITLE_HEAD}\w/ _ (\#) [\A]"
 				## On macOS iTerm2 I prefer a short string (just the folder name) to fit into the small tabs
 				if [ "$(uname)" = Darwin ]
 				then DISPLAY_STR="${XTTITLE_HEAD}\W/"
