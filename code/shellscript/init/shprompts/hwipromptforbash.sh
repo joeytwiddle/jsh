@@ -2,9 +2,36 @@
 
 #COLRESET="\[`cursenorm`\]"
 COLRESET="\[\033[00m\]"
-JOBSCOL="\[$(curseyellow)\]"
+JOBSCOL="\[\033[01;32m\]"
+
+# We use different colours for root, to help root shells to stand out
+#if [ "$HOME" = "/root" ]
+# Note: cld use UID=0 but not USER=root!
+if [ "$UID" = 0 ]
+then
+	COLOR="\[\033[01;31m\]"
+	OTHERCOLOR="\[\033[00;37m\]"
+	DIRCOLOR="\[\033[00;36m\]"
+	HISTCOL="\[\033[01;31m\]"
+	RESCOL="\[\033[01;33m\]"
+	G2COL="\[\033[01;31m\]"
+	G2U=""
+	G2P=" #"
+	G2DIRCOLOR="\[\033[01;34m\]"
+else
+	COLOR="\[\033[00;36m\]"
+	OTHERCOLOR="${COLRESET}"
+	DIRCOLOR="\[\033[00;32m\]"
+	HISTCOL="\[\033[00;33m\]"
+	RESCOL="\[\033[01;31m\]"
+	G2COL="\[\033[01;32m\]"
+	G2U="\u@"
+	G2P=" $"
+	G2DIRCOLOR="\[\033[01;34m\]"
+fi
 
 USERHOST=""
+# || [ -n "$SCREEN" ] || [ -n "$TMUX" ]
 if ! [ "$USER" = joey ] || [ -n "$SSH_CONNECTION" ]
 then USERHOST="${COLOR}\u${OTHERCOLOR}@${COLOR}\h${COLRESET}:"
 fi
@@ -23,50 +50,21 @@ else
 	# Quite fun:
 	# PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\])\['`cursemagenta`'\]\u\['`cursenorm`'\]-\['`curseblue`'\]\t\['`cursenorm`'\]-\['`cursemagenta`'\]\h\['`cursenorm`'\](\['`cursegreen`'\]\w/\['`cursenorm`'\] '
 
-	# if [ ! "$RUNNING_GENTOO" ]
-	# then
-		# if uname -r | grep "gentoo" >/dev/null 2>&1
-		if [ -f /etc/gentoo-release ]
-		then export RUNNING_GENTOO=1
-		else export RUNNING_GENTOO=0
-		fi
-	# fi
+	if [ -f /etc/gentoo-release ]
+	then export RUNNING_GENTOO=1
+	else export RUNNING_GENTOO=0
+	fi
 
-		# if test "$HOME" = "/root" # Note: cld use UID=0 but not USER=root!
-		if [ "$UID" = 0 ]
-		then
-			COLOR="\[\033[01;31m\]"
-			OTHERCOLOR="\[\033[00;37m\]"
-			DIRCOLOR="\[\033[00;36m\]"
-			HISTCOL="\[\033[01;31m\]"
-			RESCOL="\[\033[01;33m\]"
-			G2COL="\[\033[01;31m\]"
-			G2U=""
-			G2P=" #"
-			G2DIRCOLOR="\[\033[01;34m\]"
-		else
-			COLOR="\[\033[00;36m\]"
-			OTHERCOLOR="${COLRESET}"
-			DIRCOLOR="\[\033[00;32m\]"
-			HISTCOL="\[\033[00;33m\]"
-			RESCOL="\[\033[01;31m\]"
-			# G2COL="\[\033[01;32m\]"
-			G2COL="\[\033[01;32m\]"
-			G2U="\u@"
-			G2P=" $"
-			G2DIRCOLOR="\[\033[01;34m\]"
-		fi
-
-		EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
-		if [ "$RUNNING_GENTOO" = 1 ]
-		then
-			PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$GIT_AWARE_PROMPT $G2P${COLRESET}"
-		else
-			## this splash of colours is important!
-			# DOLLARDOESNTDOMUCH="\\$" ## should be $ or # depending on uid
-			DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell
-			PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH ${COLRESET}($COLOR\h $OTHERCOLOR\t $COLOR\u${COLRESET}) $DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
-		fi
+	EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
+	if [ "$RUNNING_GENTOO" = 1 ]
+	then
+		PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$GIT_AWARE_PROMPT $G2P${COLRESET}"
+	else
+		## this splash of colours is important!
+		# DOLLARDOESNTDOMUCH="\\$" ## should be $ or # depending on uid
+		DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell
+		PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH ${COLRESET}($COLOR\h $OTHERCOLOR\t $COLOR\u${COLRESET}) $DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
+	fi
 
 	# case `hostname -s` in
 	case "$SHORTHOST" in
@@ -95,31 +93,6 @@ else
 		;;
 
 		*)
-			# if test "$HOME" = "/root" # Note: cld use UID=0 but not USER=root!
-			if [ "$UID" = 0 ]
-			then
-				COLOR="\[\033[01;31m\]"
-				OTHERCOLOR="\[\033[00;37m\]"
-				DIRCOLOR="\[\033[00;36m\]"
-				HISTCOL="\[\033[01;31m\]"
-				RESCOL="\[\033[01;33m\]"
-				G2COL="\[\033[01;31m\]"
-				G2U=""
-				G2P=" #"
-				G2DIRCOLOR="\[\033[01;34m\]"
-			else
-				COLOR="\[\033[00;36m\]"
-				OTHERCOLOR="${COLRESET}"
-				DIRCOLOR="\[\033[00;32m\]"
-				HISTCOL="\[\033[00;33m\]"
-				RESCOL="\[\033[01;31m\]"
-				# G2COL="\[\033[01;32m\]"
-				G2COL="\[\033[01;32m\]"
-				G2U="\u@"
-				G2P=" $"
-				G2DIRCOLOR="\[\033[01;34m\]"
-			fi
-
 			## This gets evaluated on-the-fly:
 			EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
 			## (shouldn't all modern bash prompts have this, on the other machines above?)
@@ -165,7 +138,6 @@ else
 	# PS1="[\u@\h \W]\\$ "
 	# PS1="(\h \t \u) \w/ "
 
-
 	# if test "$TERM" = screen || test "$STY"
 	if [ -n "$STY" ]
 	then
@@ -180,7 +152,7 @@ else
 
 fi
 
-if [ -n "$SSH_CONNECTION" ]
+if [ -n "$USERHOST" ]
 then
 	if [[ "$PS1" = *\u* ]]
 	then : # If the prompt we chose above has already included the hostname, then we don't need to do it here
