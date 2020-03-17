@@ -2,7 +2,7 @@
 
 #COLRESET="\[`cursenorm`\]"
 COLRESET="\[\033[00m\]"
-JOBSCOL="\[\033[01;32m\]"
+JOBSCOL="\[\033[01;33m\]"
 
 # We use different colours for root, to help root shells to stand out
 #if [ "$HOME" = "/root" ]
@@ -32,6 +32,7 @@ fi
 
 USERHOST=""
 # || [ -n "$SCREEN" ] || [ -n "$TMUX" ]
+# || [ "$TERM" = screen ]
 if ! [ "$USER" = joey ] || [ -n "$SSH_CONNECTION" ]
 then USERHOST="${COLOR}\u${OTHERCOLOR}@${COLOR}\h${COLRESET}:"
 fi
@@ -58,12 +59,12 @@ else
 	EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
 	if [ "$RUNNING_GENTOO" = 1 ]
 	then
-		PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$GIT_AWARE_PROMPT $G2P${COLRESET}"
+		PS1="${EXITERR}${G2COL}${G2U}\h\[`curseblack`\]:${G2DIRCOLOR}\w${GIT_AWARE_PROMPT} ${G2P}${COLRESET}"
 	else
 		## this splash of colours is important!
 		# DOLLARDOESNTDOMUCH="\\$" ## should be $ or # depending on uid
 		DOLLARDOESNTDOMUCH="\j" ## number of jobs handled by shell
-		PS1="$EXITERR$HISTCOL\!$RESCOL$DOLLARDOESNTDOMUCH ${COLRESET}($COLOR\h $OTHERCOLOR\t $COLOR\u${COLRESET}) $DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
+		PS1="${EXITERR}${HISTCOL}\!${RESCOL}${DOLLARDOESNTDOMUCH} ${COLRESET}($COLOR\h ${OTHERCOLOR}\t ${COLOR}\u${COLRESET}) ${DIRCOLOR}\w/${GIT_AWARE_PROMPT}${COLRESET} "
 	fi
 
 	# case `hostname -s` in
@@ -111,7 +112,7 @@ else
 
 			if [ "$RUNNING_GENTOO" = 1 ]
 			then
-				PS1="$EXITERR$G2COL$G2U\h`curseblack`:$G2DIRCOLOR\w$GIT_AWARE_PROMPT $G2P${COLRESET}"
+				PS1="${EXITERR}${G2COL}${G2U}\h\[`curseblack`\]:${G2DIRCOLOR}\w${GIT_AWARE_PROMPT} ${G2P}${COLRESET}"
 			else
 				## TODO: the problem is that this red field gets confused with jsh's zsh prompt which has the exit code in red and then the path in green
 				## this splash of colours is important!
@@ -129,7 +130,7 @@ else
 			## hwi is a special case where I can be logged in in different ways
 			## If ssh-ed into hwi, present some extra prompt to make it clear:
 			if [ "$SHORTHOST" = hwi ] && [ -n "$SSH_CONNECTION" ]
-			then PS1="$RESCOL<$USER@$SHORTHOST> $PS1"
+			then PS1="${RESCOL}<${USER}@${SHORTHOST}> $PS1"
 			fi
 		;;
 
@@ -156,9 +157,9 @@ if [ -n "$USERHOST" ]
 then
 	if [[ "$PS1" = *\u* ]]
 	then : # If the prompt we chose above has already included the hostname, then we don't need to do it here
-	else PS1="\[\033[00;36m\]<$USER@$SHORTHOST>${COLRESET} $PS1"
+	else PS1="\[\033[00;36m\]<${USER}@${SHORTHOST}>${COLRESET} ${PS1}"
 	fi
-	export XTTITLE_PRESTRING="<$USER@$SHORTHOST> $XTTITLE_PRESTRING"
+	export XTTITLE_PRESTRING="<${USER}@${SHORTHOST}> ${XTTITLE_PRESTRING}"
 fi
 
-PS1="$PREPROMPT$PS1"
+PS1="${PREPROMPT}${PS1}"
