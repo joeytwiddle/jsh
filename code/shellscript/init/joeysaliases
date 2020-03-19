@@ -488,7 +488,7 @@ llnk () {
 	if [ -n "$*" ]
 	then echolines "$@"
 	else echolines *
-	fi | filter_list_with test -L | wad nicels -ld
+	fi | filter_list_with test -L | withalldo nicels -ld
 }
 
 # Heavy processes that take a long time should be gentle.

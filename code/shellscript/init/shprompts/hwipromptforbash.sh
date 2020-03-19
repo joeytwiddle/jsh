@@ -130,7 +130,7 @@ else
 			## hwi is a special case where I can be logged in in different ways
 			## If ssh-ed into hwi, present some extra prompt to make it clear:
 			if [ "$SHORTHOST" = hwi ] && [ -n "$SSH_CONNECTION" ]
-			then PS1="${RESCOL}<${USER}@${SHORTHOST}> $PS1"
+			then PS1="${RESCOL}<${USER}@${SHORTHOST}> ${PS1}"
 			fi
 		;;
 
