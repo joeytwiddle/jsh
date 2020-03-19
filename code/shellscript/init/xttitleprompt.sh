@@ -120,12 +120,11 @@ then
 
 				## This doesn't work
 				# XTTSTR="$(xttitle "$DISPLAY_STR")"
-				XTTSTR="\[\033]0;${DISPLAY_STR}\007\]"
+				XTTSTR="\033]0;${DISPLAY_STR}\007"
 				## This might work better on Cygwin
 				# XTTSTR="$(printf "]0;%s" "$DISPLAY_STR")"
 
-				#PS1="$PS1\[$XTTSTR\]"
-				PS1="$PS1\\[$XTTSTR\\]"
+				PS1="$PS1\[$XTTSTR\]"
 			# fi
 		;;
 
