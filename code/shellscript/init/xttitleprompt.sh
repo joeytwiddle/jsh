@@ -109,13 +109,19 @@ then
 				## Time: [\A]
 				DISPLAY_STR="% ${XTTITLE_HEAD}\w/ _ (\#) [\A]"
 				## On macOS iTerm2 I prefer a short string (just the folder name) to fit into the small tabs
-				if [ "$(uname)" = Darwin ]
+				## Same for screen and tmux
+				if [ "$(uname)" = Darwin ] || [ "$TERM" = screen ] || [ -n "$TMUX" ]
 				then DISPLAY_STR="${XTTITLE_HEAD}\W/"
 				fi
 				if [ "$TERM" = screen ]
 				then
 					# jshinfo "Setting (bash,screen) TITLEBAR=\"$TITLEBAR\[k$SCRHEAD\w/\\\\\]\""
-					DISPLAY_STR="${DISPLAY_STR}\[k${SCRHEAD}\w/\\\\\]"
+					#DISPLAY_STR="${DISPLAY_STR}\[k${SCRHEAD}\w/\\\\\]"
+					# The above might have been causing mis-alignment on my DO server
+					# https://stackoverflow.com/questions/40234553/how-to-rename-a-pane-in-tmux
+					# StackOverflow recommends this:
+					#     \033]2;${SCRHEAD}\033\\
+					:
 				fi
 
 				## This doesn't work
