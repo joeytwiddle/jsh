@@ -5,4 +5,10 @@
 
 pkg_name="$1"
 
-pacman -Fl "$pkg_name"
+# Basic
+#pacman -Fl "$pkg_name"
+
+# Fast (memoed) and cleaned up
+memo pacman -Fl "$pkg_name" |
+dropcols 1 |
+prepend_each_line '/'
