@@ -5,11 +5,19 @@
 ## Done: if a previously created swapfile is there but NOT USED, then swapon it, and if successful, don't create a new swapfile.
 ## TODO: But it will only encounter it if it's on the partition with the most available space!  Ideally we'd do a search for existing unused swapfiles first.
 
-## List partitions
-df | drop 1 |
-## Only consider those which are direct device mounts (avoid bound mounts and shm)
-grep "^/dev/" |
-## Extract device available_kb, and mntpnt
+#if ! [ "$UID" = 0 ]
+#then echo "This script should be run as root"; exit 1
+#fi
+
+if ! [ "$UID" = 0 ]
+then sudo moreswap "$@"
+fi
+
+### List all partitions, but only consider those which are direct device mounts (avoid bound mounts and shm)
+#df | drop 1 | grep '^/dev/' |
+### Only consider root partition
+df / | drop 1 |
+### Extract device available_kb, and mntpnt
 takecols 1 4 6 | sort -r -n -k 2 |
 
 # pipeboth |
@@ -22,15 +30,15 @@ do
 
 		SUCCESS=
 
-		for N in `seq -w 000 999`
+		for N in `seq 1 999`
 		do
 
-			SWAPFILE="$MNTPNT/moreswap.$N.swp"
+			SWAPFILE="$MNTPNT/swapfile${N}"
 
 			if [ -e "$SWAPFILE" ]
 			then
 
-				if cat /proc/swaps | grep "^$SWAPFILE[ 	]" > /dev/null
+				if cat /proc/swaps | takecols 1 | grep -Fx "$SWAPFILE" >/dev/null
 				then : ## Skipping already mounted swapfile
 				else
 					echo "Trying to make use of old unused swapfile $SWAPFILE size `filesize \"$SWAPFILE\"`"
@@ -43,16 +51,12 @@ do
 
 			else
 
-				## DONE: this badly needs to break the for loop
-				## if dd succeeds but others do not!
-				## Oh it does. =)
-				## OK then: TODO: useful error reporting?
-				SWAPSIZE=`expr "$FREE_KB" / 2`
+				SWAPSIZE=`expr "$FREE_KB" / 1024 / 2`
 				## Don't exceed 500Meg
-				[ "$SWAPSIZE" -gt 500000 ] && SWAPSIZE=500000
+				[ "$SWAPSIZE" -gt 500 ] && SWAPSIZE=500
 				echo "Making swapfile size $SWAPSIZE at $SWAPFILE"
-				dd if=/dev/zero of="$SWAPFILE" bs=1024 count=$SWAPSIZE &&
-				chmod 0600 /swapfile1 &&
+				dd if=/dev/zero of="$SWAPFILE" bs=1MiB count=$SWAPSIZE &&
+				chmod 0600 "$SWAPFILE" &&
 				mkswap "$SWAPFILE" &&
 				swapon "$SWAPFILE" &&
 				SUCCESS=true ## since we can't break out of while from here
