@@ -20,7 +20,7 @@ fi
 
 if xisrunning
 then
-	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="gvim viminxterm code viinxterm nedit gedit dtpad kwrite" # notepad"
+	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="smartvim gvim viminxterm code viinxterm nedit gedit dtpad kwrite" # notepad"
 	# Note: We really want to run code --wait
 else
 	[ "$FAVOURITE_EDITORS" ] || FAVOURITE_EDITORS="vim vi ae pico jpico gvim" # notepad"
