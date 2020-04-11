@@ -1,28 +1,36 @@
 #!/usr/bin/env bash
 
-open_in_existing_vim_on_current_desktop=yes
-if [ -n "$SEPARATE" ] || [ -n "$SEP" ]
-then open_in_existing_vim_on_current_desktop=""
-fi
+# Opens gvim or viminxterm, reusing an existing vim session for the repository or the desktop when appropriate
 
 all_args_escaped="$(escapeargs "$@")"
 
-if [ -n "$VIM_SERVER_NAME" ]
-then vim_server_name="$VIM_SERVER_NAME"
+if [ -n "$SEPARATE" ] || [ -n "$SEP" ]
+then vim_server_name=""
+else
+	# Open in a common session for this git repository
+	if [ -z "$vim_server_name" ]
+	then
+		git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+		[ -n "$git_toplevel" ] && vim_server_name="$(basename "$git_toplevel")"
+	fi
+
+	# Open in a common session for this desktop
+	## We don't attempt this if we are root, in case the existing vim session is not owned by root.
+	## (It would be preferable to check properly if the existing session is owned by this user.)
+	if [ -z "$vim_server_name" ] && [ "$UID" != 0 ]
+	then
+		current_desktop="$(wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
+		vim_server_name="desktop-$current_desktop"
+	fi
 fi
 
-## We don't attempt this if we are root, in case the existing vim session is not owned by root.
-## (It would be preferable to check properly if the existing session is owned by this user.)
-if [ -z "$vim_server_name" ] && [ -n "$open_in_existing_vim_on_current_desktop" ] && [ "$UID" != 0 ]
-then
-	current_desktop="$(wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
-	vim_server_name="desktop-$current_desktop"
-fi
+# Open in the session selected by the user
+[ -n "$SESSION" ] && vim_server_name="$SESSION"
 
 if [ -n "$vim_server_name" ]
 then
-	## I found if I passed --remote but the server was not already open, then vim didn't open the requested file.
-	## So we will only pass --remote if the server exists.
+	# I found if I passed --remote but the server was not already open, then vim didn't open the requested file.
+	# So we will only pass --remote if the server exists.
 	if vim --serverlist | grep -iFx "$vim_server_name" >/dev/null
 	then remote="--remote"
 	else remote=""
