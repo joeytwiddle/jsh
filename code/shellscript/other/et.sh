@@ -1,13 +1,13 @@
 #!/bin/sh
 
 NAME="$1"
-LSLINE=`realpath $JPATH/tools/$NAME`
 
-TOOL="$LSLINE";  # `echo "$LSLINE" | after symlnk`
-if test "x$TOOL" = "x"; then TOOL="."; fi
-# Can't put quotes around the -f "$TOOL" !
-if test "x$TOOL" != "x" -a -f $TOOL; then
-	printf ""
+TOOL="$(realpath "$JPATH/tools/$NAME")"
+if [ -z "$TOOL" ]
+then TOOL="."
+fi
+if [ -n "$TOOL" ] && [ -f "$TOOL" ]
+then : # OK, got it
 else
 	TOOL="$PWD/$NAME.sh"
 
@@ -15,18 +15,22 @@ else
 	sleep 1
 	echo "Suggested directories:"
 	sleep 2   ## Pause so messages don't scroll away too fast!
-	( cd $JPATH/code/shellscript/ &&
-	# ls -d `find . -type d | grep -v "/CVS"` )
-	# ls -d */ )
-	'ls' -d */ )
+	(
+		cd "$JPATH/code/shellscript/" &&
+		# ls -d `find . -type d | grep -v "/CVS"` )
+		# ls -d */ )
+		'ls' -d */
+	)
 	read theirpath
-	if [ ! "A$theirpath" = "A" ]; then
+	if [ -n "$theirpath" ]
+	then
 		TOOL="$JPATH/code/shellscript/$theirpath/$NAME.sh"
 		mkdir -p `dirname "$TOOL"`
 		echo "Creating new tool $TOOL"
 		#touch "$TOOL"
 		echo '#!/bin/sh' > "$TOOL"
 		echo '#!/usr/bin/env bash' >> "$TOOL"
+		echo 'set -e' >> "$TOOL"
 		chmod a+x "$TOOL"
 		ln -sf "$TOOL" "$JPATH/tools/$NAME"
 	else
@@ -38,8 +42,8 @@ echo "$TOOL"
 
 current_desktop="$(command -v wmctrl >/dev/null && wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
 if [ -n "$current_desktop" ]
-then export VIM_SERVER_NAME="TOOLS@${current_desktop}"
-else export VIM_SERVER_NAME="TOOLS"
+then export vim_server_name="TOOLS@${current_desktop}"
+else export vim_server_name="TOOLS"
 fi
 
 # jsh edit "$TOOL"
