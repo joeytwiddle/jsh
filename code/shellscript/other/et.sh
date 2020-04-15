@@ -3,10 +3,10 @@
 NAME="$1"
 
 TOOL="$(realpath "$JPATH/tools/$NAME")"
-if [ -z "$TOOL" ]
-then TOOL="."
+if ! [ -f "$TOOL" ]
+then TOOL="$(which "$NAME")"
 fi
-if [ -n "$TOOL" ] && [ -f "$TOOL" ]
+if [ -f "$TOOL" ]
 then : # OK, got it
 else
 	TOOL="$PWD/$NAME.sh"
