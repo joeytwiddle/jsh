@@ -470,21 +470,24 @@ alias yy='yarn why'
 
 alias jprettier='prettier --single-quote --tab-width 4 --trailing-comma all'
 
+# We should not use `l` inside functions, because aliases are expanded when this script is parsed.  If any `l` alias was defined before this script is loaded, that `l` alias will be expanded, and this script can do nothing to stop it, because any commands it runs will happen afterwards.
+# Therefore, inside functions we must use `myls` instead of `l`.
+# And for consistency, we will use `myls` inside the aliases too.
 ldir () {
 	if [ -n "$*" ]
-	then l -d "$@"
-	else l -d */
+	then myls -d "$@"
+	else myls -d */
 	fi
 }
-lln () {
-	l "$@" | 'grep' ' \-> '
-}
-alias ltxt='l *.txt *.TXT *.md *.MD *.markdown *.MARKDOWN readme README 2>/dev/null'
-alias lsh='l *.sh'
-alias lzip='l *.zip *.rar *.tgz *.bz2'
+alias ltxt='myls *.txt *.TXT *.md *.MD *.markdown *.MARKDOWN readme README 2>/dev/null'
+alias lsh='myls *.sh'
+alias lzip='myls *.zip *.rar *.tgz *.bz2'
 # `lext py` is longer than `l *.py` but it is easier to type
 lext () {
-	l *."$*"
+	myls *."$*"
+}
+lln () {
+	myls "$@" | 'grep' ' \-> '
 }
 llnk () {
 	if [ -n "$*" ]
