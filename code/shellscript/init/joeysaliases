@@ -316,17 +316,18 @@ alias rdl='removeduplicatelines'
 
 # Let's go all out with this.
 # But h and f already have uses.
-#alias h='head -n'
-#alias t='tail -n'
-alias h1='head -n 1'
-alias t1='tail -n 1'
-alias hn='head -n'
-alias tn='tail -n'
-alias s='sort'
-alias dc='dropcols'
-alias tc='takecols'
-#alias f='file'
-alias i='file'
+# I have disabled these because I never used them!
+##alias h='head -n'
+##alias t='tail -n'
+#alias h1='head -n 1'
+#alias t1='tail -n 1'
+#alias hn='head -n'
+#alias tn='tail -n'
+#alias s='sort'
+#alias dc='dropcols'
+#alias tc='takecols'
+##alias f='file'
+#alias i='file'
 
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -399,6 +400,7 @@ alias konqueror='inbg konqueror'
 alias okular='inbg okular'
 
 alias gqs='gq ~/screenshots'
+alias gqds='gq ~/Dropbox/screenshots'
 alias gqt='gq /tmp'
 alias gqd='gq ~/Downloads'
 alias gqp='gq ~/Pictures'
@@ -479,7 +481,7 @@ lln () {
 }
 alias ltxt='l *.txt *.TXT *.md *.MD *.markdown *.MARKDOWN readme README 2>/dev/null'
 alias lsh='l *.sh'
-alias lzip='l *.zip'
+alias lzip='l *.zip *.rar *.tgz *.bz2'
 # `lext py` is longer than `l *.py` but it is easier to type
 lext () {
 	l *."$*"
