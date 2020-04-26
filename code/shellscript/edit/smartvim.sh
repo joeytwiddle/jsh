@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Opens gvim or viminxterm, reusing an existing vim session for the repository or the desktop when appropriate
 
