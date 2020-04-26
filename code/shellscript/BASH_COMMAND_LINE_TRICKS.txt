@@ -42,6 +42,14 @@ Alternatively, you can evaluate the expression `!$` or `!:$` or `$_` (latter doe
     cp index.html /path/to/deploy_folder/index.html
     chmod ugo+r !$
 
+Alternatively you can press:
+
+    Alt+_           (in emacs and vi modes)
+      or
+    Alt+.           (only in emacs mode)
+      or
+    !$ then Alt+^
+
 To select an arg by number (not in zsh):
 
     echo !:2
