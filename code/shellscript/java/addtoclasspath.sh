@@ -23,7 +23,7 @@ addonetoclasspath() {
 ## TODO: Consider option to add to beginning of classpath (note we'd really want arguments to remain in same order!)
 ## This would make the script more powerful on its own.
 
-if [ "$*" = "" ] || [ "$1" = -help ]
+if [ "$*" = "" ] || [ "$1" = --help ]
 then
 	echo ". addtoclasspath [-quiet] <dir_or_jar>s"
 	echo "<stream_of_dirs_and_jars> | . addtoclasspath [-quiet] -"

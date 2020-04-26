@@ -40,7 +40,7 @@ fi
 DIRA="$1"
 DIRB="$2"
 
-if [ -z "$DIRA" ] || [ -z "$DIRB" ] || [ "$1" = -help ]
+if [ -z "$DIRA" ] || [ -z "$DIRB" ] || [ "$1" = --help ]
 then
 cat << !
 
