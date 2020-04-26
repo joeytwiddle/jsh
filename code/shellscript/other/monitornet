@@ -2,5 +2,5 @@
 # -l for listening sockets only (usually not listed)
 # although I was getting the same output with or without -l :O
 # probably because -a shows listening and non-listening :P
-# Drop -n for names instead of IP addresses (much slower)
+# Remove -n for names instead of IP addresses (much slower)
 jwatch -oneway netstat -anlp

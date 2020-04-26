@@ -307,16 +307,16 @@ else
 						## Besides, testing jsh's autocomplete_from_man is my priority!
 						# elif [ "$ZSH_NAME" = zsh ] && [ -f $HOME/.zsh_completion_rules ]
 						# then
-							# [ -n "$JSHDEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
-							# . $HOME/.zsh_completion_rules
+						# 	[ -n "$JSHDEBUG" ] && debug "Tab completion for zsh: loading $HOME/.zsh_completion_rules"
+						# 	. $HOME/.zsh_completion_rules
 						# else
-							# [ -n "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
-							# . autocomplete_from_man
+						# 	[ -n "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
+						# 	. autocomplete_from_man
 						fi
-						[ -n "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
 						# autocomplete_from_man will throw a parse error (syntax error) on some older shells, even for lines than don't run, so we only run it for known-good shells.
 						# if [ -n "$BASH" ] || [ -n "$ZSH_NAME" ]
 						# then
+						# 	[ -n "$JSHDEBUG" ] && debug "Tab completion: loading jsh:autocomplete_from_man"
 						# 	. autocomplete_from_man
 						# fi
 					fi

@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# One easy way to get the values for left, top, width and height is to draw a rectangle in GIMP, and then look at `Window > Dockable Dialogues > Tool Options` on the left.
+
 set -e
 
 left="$1" ; shift

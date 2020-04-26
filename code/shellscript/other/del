@@ -4,6 +4,10 @@
 # jsh-depends-ignore: reclaimspace
 # jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted dfh verbosely geekdate
 
+# Some common trash locations:
+# Mac: ~/.Trash
+# Linux: ~/.local/share/Trash
+
 ## See also: `trash-put <file>` and `trash` from the package `trash-cli` https://github.com/andreafrancia/trash-cli
 ## See also: `gvfs-trash` from the package `gvfs-trash`
 

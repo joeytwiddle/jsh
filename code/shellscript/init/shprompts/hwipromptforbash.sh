@@ -108,6 +108,7 @@ else
 			#MARKER_BLOCK='$(echo "\[\033[$(("$?" ? 41 : 42));30m\]\t${COLRESET} ")'
 			# To support bash 3 (macOS) we need to use an if-then-else
 			MARKER_BLOCK='$(echo "\[\033[$(if [ "$?" = '0' ]; then echo "42"; else echo "41"; fi);30m\]\t\[\033[00m\] ")'
+			#MARKER_BLOCK='$(if [ "$?" = '0' ]; then echo "\[\033[42;30m\]"; else echo "\[\033[41;30m\]"; fi)\t\[\033[00m\] '
 			EXITERR=""
 
 			if [ "$RUNNING_GENTOO" = 1 ]

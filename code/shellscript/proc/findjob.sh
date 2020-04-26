@@ -4,6 +4,8 @@
 # jsh-depends: higrep bigwin dropcols takecols myps foreachdo jgettmp pipeboth xisrunning
 # jsh-depends-ignore: highlight arguments tree
 # See also: `pstree -ap | vi -R -` as an alternative to `findjob -tree` (from package psmisc)
+# See also: `ps -C "$1" -o user,ppid,pid,cmd` for GNU ps (note that this truncates the cmdline) (GNU ps, does not work on BSD/macOS)
+# See also: https://www.cyberciti.biz/faq/bash-check-if-process-is-running-or-notonlinuxunix/
 
 ## CURIOUS: If I do `findjob sdklfjslfkjds` it responds with: cat: write error: Broken pipe
 
