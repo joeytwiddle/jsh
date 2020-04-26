@@ -118,8 +118,10 @@ make_media_player_skip() {
 			killall -sINT $PLAYER ## send it something softer?  we assume they are being called in a loop ;)
 		;;
 		mplayer)
-			## No good, doesn't progress to next song.  Want to send it a signal!
-			killall mplayer ## send it something softer
+			if [ -e /tmp/mplayercontrol."$USER" ]
+			then echo "pt_step +1" > /tmp/mplayercontrol."$USER"
+			else killall mplayer # (assume we are using playmp3.sh)
+			fi
 		;;
 		*)
 			error "$0: Don't know how to operate your media player: $PLAYER"
