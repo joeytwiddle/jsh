@@ -1,6 +1,20 @@
 #!/bin/sh
 set -e
 
+if [ -z "$1" ] || [ "$1" = --help ]
+then
+cat << !!!
+
+Example usage: Shift the timestamp of two files forwards by 12 hours.
+
+    date-shift +12h file1.txt file2.txt
+
+Inspired by git-shift
+
+!!!
+exit
+fi
+
 shift_amount="$1"
 shift
 
@@ -21,7 +35,7 @@ do
 
     date="$(LC_TIME=C date -r "$file")"
 
-    new_date="$(LC_TIME=C date -d "$date $shift_amount")"
+    new_date="$(LC_TIME=C date -d "$date $shift_amount")" || exit "$?"
 
     verbosely touch -d "$new_date" "$file"
 done
