@@ -6,8 +6,8 @@ which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 # See also: shrinkimage
 
-#find "$@" -iname "*.PNG" -or -iname "*.JPG" -or -iname "*.JPEG" |
-find "$@" -iname "*.PNG" |
+#find "$@" -iname "*.PNG" |
+find "$@" -iname "*.PNG" -or -iname "*.BMP" -or -iname "*.JPG" -or -iname "*.JPEG" -or -iname "*.WEBP" |
 
 fgrep -v ".smaller." |
 fgrep -v ".reduced." |
@@ -37,6 +37,7 @@ do
 	# This helps to preserve the content of long/thin images, which would otherwise be significantly shrunk.
 	# We still use ">" so that the image will not be enlarged if it was originally smaller.
 	#  307200 = 480x640
+	#  921600 = 1280x720
 	# 1638400 = 1280x1280 = 1600x1024
 	# 1920000 = 1600x1200
 	# 2048000 = 1600x1280
@@ -62,13 +63,13 @@ do
 	#verbosely convert "$filename" -quality 60% -geometry "1920000@>" "$shrunken_filename"
 
 	# Small size but high quality (to save space, but not produce an ugly image)
-	#verbosely convert "$filename" -quality 90% -geometry "307200@>" "$shrunken_filename"
+	#verbosely convert "$filename" -quality 80% -geometry "921600@>" "$shrunken_filename"
 
 	# Reasonable size, reasonable quality, for snapshots of TV dramas
-	verbosely convert "$filename" -quality 70% -geometry "1638400@>" "$shrunken_filename"
+	verbosely convert "$filename" -quality 75% -geometry "1638400@>" "$shrunken_filename"
 
-	# Good size good quality
-	#verbosely convert "$filename" -quality 90% -geometry "1920000@>" "$shrunken_filename"
+	# Good size good quality, for beautiful pictures
+	#verbosely convert "$filename" -quality 85% -geometry "2073600@>" "$shrunken_filename"
 
 	# For autocropping: -fuzz 0% -trim
 	# Add -fuzz 5% -trim for autocropping with fuzziness, but beware this might also crop non-letterboxed images too!

@@ -8,11 +8,13 @@ IP=""
 ## Works behind a router:
 [ "$IP" ] || IP=`
 	#IKNOWIDONTHAVEATTY=1 memo -t "20 minutes" wget --timeout=3 --quiet "http://whatismyip.org" -O - |
-	IKNOWIDONTHAVEATTY=1 memo -t "20 minutes" curl --max-time 3 --silent "http://whatismyip.org" -o - |
 	## Needed when they were returning HTML:
 	#grep "^<TITLE>" | afterfirst " - " | beforefirst "<" 
 	## Needed in 2014:
-	grep -A1 "Your IP Address" | tail -n 1 | afterfirst ">" | beforefirst "<"
+	#grep -A1 "Your IP Address" | tail -n 1 | afterfirst ">" | beforefirst "<"
+	#IKNOWIDONTHAVEATTY=1 memo -t "20 minutes" curl --max-time 3 --silent "http://ipinfo.io/" -o - |
+	#grep '^\s*"ip":' | sed 's+^\s*"ip": "\([^"]*\)",+\1+'
+	IKNOWIDONTHAVEATTY=1 memo -t "20 minutes" curl --max-time 3 --silent "http://ipinfo.io/ip" -o -
 `
 
 ## For PPP:

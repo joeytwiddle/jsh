@@ -1,6 +1,6 @@
 #!/bin/bash
 
-vimcat="$HOME/.vim-addon-manager/github-rkitover-vimpager/vimcat" 
+vimcat="$HOME/.vim-addon-manager/github-rkitover-vimpager/vimcat"
 
 # This function contains all the common options, so we don't have to repeat them below.
 # We use $realhome just in case we have changed $HOME below.

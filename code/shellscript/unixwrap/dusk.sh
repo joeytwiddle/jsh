@@ -15,8 +15,8 @@ which nice >/dev/null 2>&1 && DUCOM="nice -n 5 $DUCOM"       # weak: -n 5 strong
 which ionice >/dev/null 2>&1 && DUCOM="ionice -n 5 $DUCOM"   # weak: -n 5 strong: -c 3
 # jshinfo "DUCOM=$DUCOM"
 
-## Enable this if you want to see files colored like with ls.
-[ "$USER" = joey ] && DUSK_COLORS=1
+## See files colored like with ls.
+isatty && DUSK_COLORS=1
 
 if [ -z "$DUSK_COLORS" ]
 then LSCOM=echo
@@ -44,7 +44,9 @@ fi
 	then
 		GLOBIGNORE=".:.."
 		shopt -s nullglob
-		echolines .* *
+		#echolines .* *
+		shopt -s dotglob
+		echolines *
 		# find . -maxdepth 1 -mindepth 1 | sed 's+^\./++'
 	else
 		echolines "$@"

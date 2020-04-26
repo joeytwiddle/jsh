@@ -83,8 +83,9 @@ do
 	# COPY="-oac lavc -ovc lavc -lavcopts vcodec=ffv1:vstrict=-1" ## Huge!
 	# COPY="-oac lavc -ovc copy" ## Large
 
+	# Late 2019 I found that ffmpeg was swallowing one char from stdin, breaking the next clip marker.  I worked around this by directing input from /dev/null
 	# verbosely mencoder "$@" $COPY $CLIPOPTS $MENCODER_OPTIONS "$VIDEOFILE" -o "$OUTPUTDIR/$OUTPUTFILE"
-	verbosely ffmpeg -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy -avoid_negative_ts make_zero -y "$OUTPUTDIR/$OUTPUTFILE"
+	verbosely ffmpeg -ss "$IN" -t "$LENGTH" -i "$VIDEOFILE" -c copy -avoid_negative_ts make_zero -y "$OUTPUTDIR/$OUTPUTFILE" < /dev/null
 	# verbosely avconv -ss "$IN" -i "$VIDEOFILE" -t "$LENGTH" -c copy "$OUTPUTDIR/$OUTPUTFILE"
 
 	## NOTE that the following docker calls only work if the target files are specified in or below the current folder (not absolute)

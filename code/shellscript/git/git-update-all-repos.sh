@@ -8,11 +8,12 @@
 #ALSO_RUN_GIT_GC=1
 
 #find "$HOME/" -type d -name .git |
-locate -r '/\.git$' | fgrep "$HOME/" |
+locate -r '/\.git$' |
+
+fgrep "$HOME/" |
 
 sed 's+/\.git$++' |
 
-fgrep -v "/PORRIDGE_BACKUP_INCOMPLETE/" |
 fgrep -v "/porridge_home/" |
 fgrep -v "/mnt/" |
 fgrep -v "/strato/" |
@@ -21,7 +22,7 @@ fgrep -v "/.cache/" |
 grep -v "/jspm-cache$" |
 grep -v "/\.nvm$" |
 
-cat ; exit
+#cat ; exit
 
 while read repo_folder
 do

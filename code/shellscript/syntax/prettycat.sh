@@ -28,6 +28,9 @@ do
 				s/,"/, "/g
 			'
 		;;
+		*)
+			cat
+		;;
 	esac
 done
 

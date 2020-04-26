@@ -13,10 +13,9 @@
 	# madplay "$@"; exit
 # fi
 
-# OPTS="-vo gl,xv,x11" ## under gentoo this selects x11 which is slow.  gl sucks for me under compiz
-OPTS="-vo x11" ## No acceleration, always works.  Lets me adjust brightness/contrast.  Works under compiz.
+OPTS="-vo gl,xv,x11" ## under gentoo this selects x11 which is slow.  gl sucks for me under compiz.  But I prefer it on Manjaro.
+# OPTS="-vo x11" ## No acceleration, always works.  Lets me adjust brightness/contrast.  Works under compiz.  But around 2018 the OSD text started breaking up.
 # OPTS="-vo xv" ## Faster than x11, but does not let me adjust brightness/contrast.
-# OPTS="-vo xv" ## I thought this allowed us to adjust contrast but it doesn't right now.
 # OPTS="-vo sdl" ## good if the machine is slow (but not so pretty)
 ## OK all -vo options turned off.  Recommend setting in /etc/mplayer/mplayer.conf or ~/.mplayer.conf
 ## Audio driver defaults to /etc/mplayer.conf or ~/.mplayer/config?
@@ -69,7 +68,7 @@ do
 	esac
 done
 
-[ "$FAST" ] || FAST=0
+[ -z "$FAST" ] && FAST=0
 ## Some highly compressed videos can be too slow to fully decompress!
 # FAST=1
 ## Mplayer recommends:
@@ -171,6 +170,9 @@ fi
 
 # Reduce the bass if you have too much bass, or want to boost the highs
 [ "$EQ" = moretreble ] && OPTS="$OPTS -af equalizer=-4:-4:-3:-3:-2:-2:-1:-1:0:0" ## Quieter bass
+
+# Boost the bass and the middle a lot
+[ "$EQ" = ultrabass ] && OPTS="$OPTS -af equalizer=4:3:2:1:0:-1:-2:-3:-4:-5"
 
 # [ "$EQ" = wireless ]   && OPTS="$OPTS -af equalizer=0:0:1:1:2:2:3:3:4:4" ## Louder middle and treble (can cause crackle)
 

@@ -1,6 +1,13 @@
-#!/bin/sh
+#!/usr/bin/env bash
+### Bash built-in
+echo "${#1}"
+exit
 
-### TESTING NEW
+
+
+### Alternative
+
+#!/bin/sh
 
 printf "%s" "$*" | wc -m
 exit
@@ -19,4 +26,3 @@ tr -d "\n" |
 sed 's/./\
 /g' |
 countlines
-

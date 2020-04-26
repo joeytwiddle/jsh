@@ -4,7 +4,6 @@
 ## It might be considered the opposite withalldo, which converts a stream/list of arguments into arguments in a shell call.
 
 for ARG
-do echo "$ARG"
-# do printf "%s" "$ARG"
+# do echo "$ARG"
+do printf "%s\n" "$ARG"
 done
-

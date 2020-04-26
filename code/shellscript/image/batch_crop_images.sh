@@ -25,4 +25,12 @@ do
     convert "$file" -crop "${width}x${height}+${left}+${top}" $autocrop "$outfile"
 
     touch -r "$file" "$outfile"
+
+    if [ -n "$DEL" ]
+    then del "$file"
+    fi
 done
+
+if [ -z "$DEL" ]
+then jshinfo "If you are happy with the results, and want to delete the originals, rerun with: DEL=1 batch_crop_images ..."
+fi

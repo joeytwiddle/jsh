@@ -71,7 +71,7 @@ fi
 
 if command -v pacman >/dev/null 2>&1
 then
-	pacman -Fo "$*"
+	pacman -Qo "$*"
 	exit "$?"
 fi
 

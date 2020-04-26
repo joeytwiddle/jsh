@@ -26,7 +26,7 @@ takecols 1 4 6 | sort -r -n -k 2 |
 
 # pipeboth |
 
-while IFS= read -r DEVICE FREE_KB MNTPNT
+while IFS=" 	" read -r DEVICE FREE_KB MNTPNT
 do
 
 	#echo "$DEVICE $FREE_KB $MNTPNT"
