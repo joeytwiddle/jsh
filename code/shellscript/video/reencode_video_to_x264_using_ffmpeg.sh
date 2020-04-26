@@ -5,10 +5,14 @@ extra=""
 if [ -n "$PREVIEW" ]
 then
     preview_offset="-ss 300"
-    preview_duration="-t 10"
+    preview_duration="-t 15"
 fi
 
 #extra="$extra -vf scale=720:400"
+
+# From 1920x1080
+#extra="$extra -vf scale=960:540"
+#extra="$extra -vf scale=1352:760"
 
 # Recommended values: 15 to 25 (higher number means more loss)
 [ -z "$CRF" ] && [ -z "$ANIMATION" ] && CRF=15
@@ -33,6 +37,8 @@ tuning="-tune film"
 #[ -n "$ANIMATION" ] && extra="$extra --open-gop --b-adapt 2 --b-pyramid normal -f -2:0 --aq-mode 1 --stats v.stats -t 2 --no-fast-pskip --cqm flat --non-deterministic"
 # Only reduce blurring:
 [ -n "$ANIMATION" ] && extra="$extra --ctu 32 --max-tu-size 16 --no-strong-intra-smoothing"
+
+#reduce_noise="-filter:v hqdn3d=4.0:3.0:6.0:4.5"
 
 # We put $preview_offset before the -i, because although it is not so accurate, it is a lot faster!
 
@@ -69,12 +75,15 @@ do
 
     # I was using this for a while.  It was ok.
     # Lower crf is better quality
-    # Recommended for animation, but not working for me:
-    #avconv \
-    verbosely docker run -v $PWD:/mounted jrottenberg/ffmpeg \
+
+    #input="/mounted/$input"
+    #output="/mounted/$output"
+    #verbosely docker run -v $PWD:/mounted jrottenberg/ffmpeg \
+
+    avconv \
       -stats \
       $preview_offset \
-      -i /mounted/"$input" \
+      -i "$input" \
       $preview_duration \
       -c:v libx264 -c:a copy \
       $video_filters \
@@ -83,6 +92,6 @@ do
       -crf "$CRF" \
       -y \
       $extra \
-      /mounted/"$output"
+      "$output"
 
 done

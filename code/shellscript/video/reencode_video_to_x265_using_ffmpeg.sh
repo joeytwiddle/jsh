@@ -4,11 +4,15 @@ extra=""
 
 if [ -n "$PREVIEW" ]
 then
-    preview_offset="-ss 60"
+    preview_offset="-ss 300"
     preview_duration="-t 15"
 fi
 
 #extra="$extra -vf scale=720:400"
+
+# From 1920x1080
+#extra="$extra -vf scale=960:540"
+#extra="$extra -vf scale=1352:760"
 
 [ -z "$VIDEO_BITRATE" ] && [ -z "$ANIMATION" ] && VIDEO_BITRATE=600k
 [ -z "$VIDEO_BITRATE" ] && [ -n "$ANIMATION" ] && VIDEO_BITRATE=400k
@@ -25,6 +29,8 @@ fi
 #[ -n "$ANIMATION" ] && extra="$extra --y4m -D 10 -p veryslow --open-gop --bframes 16 --b-pyramid --rect --amp --aq-mode 3 --no-sao --qcomp 0.75 --no-strong-intra-smoothing --psy-rd 1.6 --psy-rdoq 5.0 --rdoq-level 1 --tu-inter-depth 4 --tu-intra-depth 4 --ctu 32 --max-tu-size 16 --stats v.stats --sar 1 --range full"
 # Only reduce blurring:
 [ -n "$ANIMATION" ] && extra="$extra --ctu 32 --max-tu-size 16 --no-strong-intra-smoothing"
+
+#reduce_noise="-filter:v hqdn3d=4.0:3.0:6.0:4.5"
 
 # We put $preview_offset before the -i, because although it is not so accurate, it is a lot faster!
 
@@ -51,17 +57,35 @@ do
     #-tune animation \
     # x265 is slow enough, so let's not use this
     #-preset slow \
-    verbosely docker run -v $PWD:/mounted jrottenberg/ffmpeg \
+
+    #verbosely docker run -v $PWD:/mounted jrottenberg/ffmpeg \
+    #  -stats \
+    #  $preview_offset \
+    #  -i /mounted/"$input" \
+    #  -preset veryfast \
+    #  $preview_duration \
+    #  -c:v libx265 -pix_fmt yuv420p10 \
+    #  -b "$VIDEO_BITRATE" \
+    #  -f mp4 \
+    #  -y \
+    #  $extra \
+    #  /mounted/"$output"
+
+    #  -b:a 500k \
+    #  -b:a 384k \
+    ffmpeg \
       -stats \
       $preview_offset \
-      -i /mounted/"$input" \
-      -preset faster \
+      -i "$input" \
+      -preset veryfast \
       $preview_duration \
+      -c:a copy \
+      $reduce_noise \
       -c:v libx265 -pix_fmt yuv420p10 \
-      -b "$VIDEO_BITRATE" \
+      -b:v "$VIDEO_BITRATE" \
       -f mp4 \
       -y \
       $extra \
-      /mounted/"$output"
+      "$output"
 
 done
