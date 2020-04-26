@@ -226,3 +226,8 @@ bindkey "$terminfo[kcud1]" down-line-or-beginning-search
 # I tried these but with no success:
 #bindkey -s "^1" "^a^f"
 #bindkey -s "" "^a^a^a^a^a^a^a^f"
+
+# Something had defined this: bindkey "^A" self-insert
+# Apparently it wasn't done by: ~/.zsh/zsh-autosuggestions/autosuggestions.zsh
+# Anyway we want the default, so let's restore it:
+bindkey "^A" beginning-of-line

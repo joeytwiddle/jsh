@@ -112,6 +112,10 @@ bind "\C-?":reverse-search-history
 #bind "\e[2D":backward-word
 #bind "\e[2C":forward-word
 
+## Up and Down arrows filter by text before cursor
+bind '"\e[A":history-search-backward'
+bind '"\e[B":history-search-forward'
+
 # The following feature only half works with bash 3.  It confuses me when it is half working (it makes me think it is fully working, and only one completion is possible, when in fact many are), therefore I would rather not use it at all in bash 3.
 if ((BASH_VERSINFO[0] >= 4))
 then
