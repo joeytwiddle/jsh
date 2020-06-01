@@ -24,7 +24,7 @@ fade_all_mixers_REAL () {
 
 ## Do a quick fadevolume before ending song, then restore volume for next song.
 quickfadevolume () {
-	DOWNSTEP=2 fadevolume 0.2
+	DOWNSTEP=6 fadevolume 0.2
 }
 
 ## TODO: This needs to remember values for each mixer
@@ -49,10 +49,11 @@ restorevolume () {
 whichmediaplayer () {
 
 	# Quick cheat - look for xmms where I expect it
+	# Disabled for now because it is very slow on my current system
 	#verbosely 
-	listopenfiles -allthreads xmms | grep "\(/dev/dsp\|/dev/snd/.\)" |
-		grep -v "/dev/snd/control" | takecols 1 | head -n 1 |
-	grep . ||
+	#listopenfiles -allthreads xmms | grep "\(/dev/dsp\|/dev/snd/.\)" |
+	#	grep -v "/dev/snd/control" | takecols 1 | head -n 1 |
+	#grep . ||
 
 	## This method stopped working when mplayer was binding to /dev/snd/pcmC0D0p (later /dev/snd/pcmC2D0p) (redirecting to 3rd sndcard via config) instead of /dev/dsp:
 	## However /dev/snd/controlC0 (,1,2) might work ok
