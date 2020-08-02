@@ -45,7 +45,7 @@ if [ ! -f results.json ]
 then curl -s -A "$user_agent" "$url" -o results.json
 fi
 
-image_url="$(
+result="$(
   node -e "
     const results = JSON.parse(require('fs').readFileSync('./results.json', 'utf-8'))
 
@@ -55,11 +55,21 @@ image_url="$(
 
     const chosenPost = sortedPosts[Math.floor(Math.random() * 50)]
 
-    console.log(chosenPost.data.url)
+    //console.error(chosenPost)
+
+    console.log(chosenPost.data.url, chosenPost.data.permalink)
   "
 )"
 
+IFS=" " read -r image_url permalink <<< "$result"
+
+permalink="https://reddit.com${permalink}"
+
 curl -s "$image_url" -o beautiful_image.jpg
+
+
+
+# TODO: Lots of the code below has hard-coded values.  You may want to change this, or make things more dynamic.
 
 # TODO: Should be a separate script
 wallpaper_dir="$HOME"/Pictures/Wallpapers
@@ -85,7 +95,7 @@ fi
 filename="${wallpaper_dir}/manjaro-lockscreen.jpg"
 mv -f "${wallpaper_dir}/manjaro-new.jpg" "$filename"
 
-printf "%s %s (%s) %s\n" "$(date)" "$image_url" "$(stat -c '%s' "$filename")" "$subreddit" >> "$HOME/Pictures/Wallpapers/get_wallpaper_from_reddit.log"
+printf "%s (%s) %s\n" "$(date)" "$(stat -c '%s' "$filename")" "$permalink" >> "$HOME/Pictures/Wallpapers/get_wallpaper_from_reddit.log"
 
 cd /
 rm -rf "$tmpdir"
