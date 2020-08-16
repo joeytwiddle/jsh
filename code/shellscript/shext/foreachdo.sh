@@ -32,7 +32,7 @@ fi
 if [ "$XMODE" ]
 then
 
-	while read LINE
+	while read -r LINE
 	do
 		export X="$LINE"
 		echo "$*" | sh
@@ -40,7 +40,7 @@ then
 
 else
 
-	while read LINE
+	while read -r LINE
 	do "$@" "$LINE"
 	done
 
