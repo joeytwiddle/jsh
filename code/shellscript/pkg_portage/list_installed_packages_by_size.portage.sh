@@ -1,0 +1,1 @@
+list_installed_packages.portage | withalldo get_package_size.portage
