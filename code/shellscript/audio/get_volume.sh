@@ -1,4 +1,6 @@
-if which amixer >/dev/null 2>&1
+if which pulseaudio-ctl >/dev/null 2>&1
+then pulseaudio-ctl | striptermchars | grep "^ Volume level" | afterfirst ':' | grep -o '[0-9]*'
+elif which amixer >/dev/null 2>&1
 then
 	## No we don't want the % from alsa - this has quantum size ~4!
 	# amixer -c 1 sget "Master" | grep "Front .* Playback" | head -n 1 | sed 's+^[^[]*\[++ ; s+%\].*$++'
