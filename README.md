@@ -104,7 +104,14 @@ Rarely used on the commandline.
 ### Utilities
 
     memo [ -t "N weeks" ] <slow_command...>   Remembers the first output and gives it back on subsequent calls
-    jwatch <cmd>                      Show lines added to or removed from the cmd's output
+
+    prettydiff <file1> <file2>        Normal GNU diff with > < markers, plus colour highlighting
+    jdiff                             Side-by-side diff with markers and colours
+    jdiffsimple                       Plain text with no > < + - markers just colors
+    jfcsh [-bothways]                 Pure shell comparison showing unique lines
+    diffcoms <command1> <command2>    Compare the output of two commands
+
+    jwatch <cmd>                      Repeatedly run <cmd>, and show lines added or removed from the output
 
       Example: jwatch find .          Will show if any files are added or removed below the current folder
 
@@ -112,7 +119,7 @@ Rarely used on the commandline.
 
       Example: jwatch -delay 60 df -h | dateeachline     Log any change in disk usage every 1 minute
 
-    jwatchchanges [-fine] <cmd>       Show the cmd output, highlighting changes (more like watch(1))
+    jwatchchanges [-fine] <cmd>       Show the cmd output, highlighting any changes (more like watch(1))
 
       Example: jwatchchanges -fine /sbin/ifconfig
 
@@ -123,9 +130,12 @@ Rarely used on the commandline.
     worddiff / wordpatch              fine grained diff and patch, works on words instead of whole lines
 
     wget_flat_files                   Some common wget recipes
+    wget_archive_page
     wget_get_everything_below
+    wget_all_files_on_page_with_extension
+    wget_all_links_with_extension
 
-    swap_caps_ctrl                    Make better use of that massive Caps Lock key with one of these scripts
+    swap_caps_ctrl                    Make better use of that massive Caps Lock key
     make_caps_lock_control_escape
 
     kill-some-chrome-tabs             Too many Chrome tabs open, eating all your memory?  "Unload" the heaviest tabs without losing them.
