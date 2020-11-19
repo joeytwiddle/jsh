@@ -1,6 +1,8 @@
 #!/bin/sh
 
-# See also: git-commit-all-with-name
+# This adds all the files below the current folder to git, but it adds them in separate commits, according to the date of each file.
+#
+# If you want to add a series of versioned files all under the same base filename, then see: git-commit-all-with-name
 
 set -e
 

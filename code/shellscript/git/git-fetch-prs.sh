@@ -33,6 +33,8 @@ git remote -v | grep fetch | grep github | \
         fi
     done
 
+echo "Now run: git fetch --all"
+
 # If you want to remove the PR branches, remove the entry/entries that were added to `.git/config` and then:
 #
 #     git fetch --all --prune

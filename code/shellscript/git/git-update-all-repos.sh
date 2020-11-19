@@ -34,6 +34,12 @@ do
 
 	git fetch --all # --verbose
 
+	if [ -f ".git/git-bug" ] && which git-bug >/dev/null 2>&1
+	then
+		git-bug pull
+		git-bug bridge pull
+	fi
+
 	[ -n "$ALSO_RUN_GIT_GC" ] && git gc
 
 	echo

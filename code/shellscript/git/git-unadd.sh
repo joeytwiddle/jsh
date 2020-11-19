@@ -5,6 +5,12 @@
 #
 # Both of these methods leave the current file on disk unchanged.
 
+# But there is one other way: git reset -- "$file"
+#
+# I wonder if this can solve both situations.
+#
+# I have that as an alias in my ~/.gitconfig as `unstage = reset --`
+
 for file
 do
 
