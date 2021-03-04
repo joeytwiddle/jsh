@@ -20,5 +20,9 @@ fi
 # export PATH="$JPATH/tools:$PATH"
 export PATH="$PATH:$JPATH/tools"
 
+## Although we don't need things like aliases, we do need things like nvm setup.
+[ -f "$JPATH/global.conf" ] && . "$JPATH/global.conf"
+[ -f "$JPATH/local.conf" ] && . "$JPATH/local.conf"
+
 # . javainit
 # . hugsinit
