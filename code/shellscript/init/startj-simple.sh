@@ -22,9 +22,11 @@ fi
 #export PATH="$JPATH/tools:$PATH"
 export PATH="$PATH:$JPATH/tools"
 
-# Although we don't need things like aliases, we do need things like nvm setup.
-[ -f "$JPATH/global.conf" ] && . "$JPATH/global.conf"
-[ -f "$JPATH/local.conf" ] && . "$JPATH/local.conf"
+# Although we don't need things like aliases, we might need things like nvm setup.
+# But nvm setup is usually done in ~/.bashrc, so we don't need it here.
+# In future we may want to split the shell setup into interactive and non-interactive setups.
+#[ -f "$JPATH/global.conf" ] && . "$JPATH/global.conf"
+#[ -f "$JPATH/local.conf" ] && . "$JPATH/local.conf"
 
 #. javainit
 #. hugsinit
