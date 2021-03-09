@@ -1,5 +1,6 @@
 #!/bin/sh
 
+# For greyscale images, you may want to use 64
 [ -z "$NUM_COLORS" ] && NUM_COLORS=256
 
 for input_file
