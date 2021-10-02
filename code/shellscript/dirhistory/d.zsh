@@ -83,8 +83,12 @@ else
 	then
 		## No directory found.
 		## NEW! Try anyway, quietly.  E.g. bash might find something with CDPATH.
-		'cd' "$NEWDIR" 2>/dev/null || echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" # beep
-		# false
+		if 'cd' "$NEWDIR" 2>/dev/null
+		then : # ok
+		else
+			echo "X`cursered;cursebold` $LOOKIN/$LOOKFOR*`cursenorm`" >&2
+			false
+		fi
 
 	elif [ `echo "$NEWLIST" | countlines` = 1 ]
 	then
@@ -96,13 +100,15 @@ else
 	else
 		## Multiple possibilities, suggest them to the user.
 		echo "$NEWLIST" | sed "s+^\(.*$NEWDIR\)\(.*\)$+? "`curseyellow;cursebold`"\1"`cursered;cursebold`"\2"`cursenorm`"+"
+		false
 
 	fi
 
 fi >&2
 
-# xttitle "$SHOWUSER$SHOWHOST$PWD %% "
+retval="$?"
 
+# xttitle "$SHOWUSER$SHOWHOST$PWD %% "
 
 ## TODO: unreadable files / locked dirs
 ## TODO: accurate labeling of single/multiple
@@ -151,3 +157,5 @@ then
 fi
 
 # xttitle ". d.zsh $*"
+
+[ "$retval" = 0 ]
