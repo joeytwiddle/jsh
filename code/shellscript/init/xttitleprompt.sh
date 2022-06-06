@@ -107,7 +107,10 @@ then
 				# PS1="\\[`xttitle "(\#) \u@\h:\w\$   [\A]"`\\]""$PS1"
 
 				## Time: [\A]
-				DISPLAY_STR="% ${XTTITLE_HEAD}\w/ _ (\#) [\A]"
+				#DISPLAY_STR="% ${XTTITLE_HEAD}\w/ _ (\#) [\A]"
+				## Simplify: Remove _, history length, and time
+				#DISPLAY_STR="% ${XTTITLE_HEAD}\w/"
+				DISPLAY_STR="${XTTITLE_HEAD}\w/ _"
 				## On macOS iTerm2 I prefer a short string (just the folder name) to fit into the small tabs
 				## Same for screen and tmux
 				if [ "$(uname)" = Darwin ] || [ "$TERM" = screen ] || [ -n "$TMUX" ]
@@ -171,7 +174,9 @@ then
 					then HISTNUM=$((HISTNUM-SAVEHIST))
 					fi
 
-					xttitle "$XTTITLE_HEAD# `swd`/ $LASTCMD   ($HISTNUM)"
+					#xttitle "$XTTITLE_HEAD# `swd`/ $LASTCMD   ($HISTNUM)"
+					## Simplify
+					xttitle "$XTTITLE_HEAD`swd`/ $LASTCMD"
 
 					# echo ">$STY<" >> /tmp/123
 					# screentitle "$XTTITLE_HEAD$SHOWUSER$SHOWHOST`swd` # $LASTCMD"
@@ -228,7 +233,9 @@ then
 						fi
 					fi
 
-					xttitle "$XTTITLE_HEAD$JOBS_PRE% `swd`/ _   $HISTSHOW"
+					#xttitle "$XTTITLE_HEAD$JOBS_PRE% `swd`/ _   $HISTSHOW"
+					## Simplify
+					xttitle "$XTTITLE_HEAD$JOBS_PRE`swd`/ _"
 
 					# echo ">$STY<" >> /tmp/123
 					# screentitle "[$XTTITLE_HEAD$SHOWUSER$SHOWHOST%`swd | cut -c -10`]"
