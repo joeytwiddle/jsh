@@ -35,7 +35,7 @@ then
 		exit "$?"
 	fi
 
-	if command -v dpkg >/dev/null 2>&1
+	if command -v apt-get >/dev/null 2>&1
 	then
 		# PAGE="http://packages.debian.org/cgi-bin/search_contents.pl?word=$SEARCH&case=insensitive&version=testing&directories=yes"
 		# PAGE="http://packages.debian.org/search?suite=default&section=all&arch=any&searchon=names&keywords=$SEARCH"
@@ -51,7 +51,7 @@ then
 		exit "$?"
 	fi
 
-	if command -v apk >/dev/bull 2>&1
+	if command -v apk >/dev/null 2>&1
 	then
 		dirname="$(dirname "$SEARCH")"
 		filename="$(basename "$SEARCH")"
@@ -69,9 +69,15 @@ then
 	exit 5
 fi
 
+if command -v pacaur >/dev/null 2>&1
+then
+	verbosely pacaur -Qo "$*"
+	exit "$?"
+fi
+
 if command -v pacman >/dev/null 2>&1
 then
-	pacman -Qo "$*"
+	verbosely pacman -Qo "$*"
 	exit "$?"
 fi
 
