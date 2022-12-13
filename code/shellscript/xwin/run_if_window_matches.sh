@@ -30,7 +30,7 @@ getprop() {
 negate_match=''
 
 check_if_prop_matches() {
-  if getprop "$1" | egrep "^$2$" >/dev/null
+  if getprop "$1" | grep -E "^$2$" >/dev/null
   then [ -n "$negate_match" ] && exit 1   # Matched
   else [ -z "$negate_match" ] && exit 1   # Did not match
   fi

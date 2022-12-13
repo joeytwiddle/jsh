@@ -1,5 +1,5 @@
 #!/bin/sh
-# ./dotex | tr "<" "\n" | tr ">" "\n" | egrep "\.[eps|ps]" | grep -v "(" | sed "s+^images/++"
+# ./dotex | tr "<" "\n" | tr ">" "\n" | grep -E "\.[eps|ps]" | grep -v "(" | sed "s+^images/++"
 
 while true; do echo; done |
 

@@ -31,6 +31,6 @@ for DICT in g b; do
 done | tee "lookup" |
 	grep "] /" |
 	sed "s/Enter word (-h for help): //" |
-	# egrep ".*: .. \[[^]]*\] .*" |
+	# grep -E ".*: .. \[[^]]*\] .*" |
 	sed "s+.*: \(..\) \[\([^]]*\)\] \(.*\)+ s|\1|\1 (\2 : \3)| +" |
 	sed "s+/+<br>+g"

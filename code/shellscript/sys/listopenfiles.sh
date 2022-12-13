@@ -158,7 +158,7 @@ else cat
 fi |
 
 ## The following hide some non-files, and also unwanted stuff opened during: jwatch listopenfiles
-egrep -v "(^(lsof|pool) |/new-listopenfiles\.| pipe$)" |
+grep -E -v "(^(lsof|pool) |/new-listopenfiles\.| pipe$)" |
 
 if [ "$ENABLE_COLOUR" ]
 then

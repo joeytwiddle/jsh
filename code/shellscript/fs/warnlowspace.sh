@@ -32,7 +32,7 @@ if [ ! "$HOST" ]
 then HOST=`hostname`  ## TODO: not on Solaris!
 fi
 
-## Parse device patterns, and build (...|...) regexp for egrep
+## Parse device patterns, and build (...|...) regexp for grep -E
 DEVICES="("
 while [ "$1" ]
 do
@@ -48,7 +48,7 @@ df | drop 1 | takecols 1 4 6 |
 # df 2>/dev/null | drop 1 | takecols 1 4 6 |
 
 ## Select only those matching pattern
-egrep "$DEVICES" |
+grep -E "$DEVICES" |
 
 if [ "$VERBOSE" ]
 then pipeboth

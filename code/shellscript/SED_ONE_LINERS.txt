@@ -203,7 +203,7 @@ SELECTIVE PRINTING OF CERTAIN LINES:
  # grep for AAA and BBB and CCC (in that order)
  sed '/AAA.*BBB.*CCC/!d'
 
- # grep for AAA or BBB or CCC (emulates "egrep")
+ # grep for AAA or BBB or CCC (emulates "grep -E")
  sed -e '/AAA/b' -e '/BBB/b' -e '/CCC/b' -e d    # most seds
  gsed '/AAA\|BBB\|CCC/!d'                        # GNU sed only
 

@@ -107,7 +107,7 @@ fi
 
 
 ## Simple method:
-# dpkg -l "*$@*" | egrep -v "^?n"
+# dpkg -l "*$@*" | grep -E -v "^?n"
 # dpkg -l "*$@*" | grep "^[hi]"
 
 

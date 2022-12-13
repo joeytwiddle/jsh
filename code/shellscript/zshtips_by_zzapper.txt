@@ -351,7 +351,7 @@ ls **/fred*~*junk*/* # list all files fred* unless in a junk directory
 # single quotes stop the shell, " quotes allow shell interaction
 grep 'host' **/(*.cfm~(ctpigeonbot|env).cfm)
 grep -i 'host' **/(*.cfm~(ctpigeonbot|env).cfm)~*((#s)|/)junk*/*(.)
-egrep -i "^ *mail(" **/*.php
+grep -E -i "^ *mail(" **/*.php
 grep "^ *mail(" **/*.php~*junk*/*  #find all calls to mail, ignoring junk direc
 tories
 # grep '.' dot matches one character
@@ -718,7 +718,7 @@ esac
 
 # the powerful select
 PROMPT3="Choose File : "
-select f in $(ls **/*.tex |egrep -i "${param}[^/]*.tex")
+select f in $(ls **/*.tex |grep -E -i "${param}[^/]*.tex")
 do
 if [[ "$REPLY" = q ]]
 then

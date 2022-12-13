@@ -9,7 +9,7 @@
 ##
 ## BUG: It recurses down into CVS folders anyway!  We could start with:
 ##
-##   | egrep -v '/(CVS|.git|.....)/' |
+##   | grep -E -v '/(CVS|.git|.....)/' |
 ##
 ## But NOTE that open_recent_files has a beginning of a list "ignore_non_source_files"!
 ## Recommend combining efforts there rather that advancing independently.

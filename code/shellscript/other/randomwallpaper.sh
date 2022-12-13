@@ -114,10 +114,10 @@ do
 	fi
 
 	## Ditto optimisation recommended above
-	[ -n "$DEBUG" ] && debug "Running: find $WALLPAPERDIRS $SEARCHARGS | egrep -v \"$UNGREPEXPR\""
+	[ -n "$DEBUG" ] && debug "Running: find $WALLPAPERDIRS $SEARCHARGS | grep -E -v \"$UNGREPEXPR\""
 	# FILE=`
 		# echo "memo -t '1 hour' find $WALLPAPERDIRS $SEARCHARGS" | sh |
-		# egrep -v "$UNGREPEXPR" |
+		# grep -E -v "$UNGREPEXPR" |
 		# notindir $AVOID |
 		# if [ -n "$SPECIALISE" ]
 		# then grep -i "$SPECIALISE"
@@ -127,7 +127,7 @@ do
 	# `
 		# memo -t '1 hour' verbosely find $WALLPAPERDIRS $SEARCHARGS | ## Had problems when I introduced ""s into SEARCHARGS
 		memo -t '1 hour' eval "find $WALLPAPERDIRS $SEARCHARGS" |
-		egrep -v "$UNGREPEXPR" |
+		grep -E -v "$UNGREPEXPR" |
 		notindir $AVOID |
 		if [ -n "$SPECIALISE" ]
 		then grep -i "$SPECIALISE"
@@ -155,7 +155,7 @@ do
 		AREA=`echo "$IMAGESIZE" | bc`
 	fi
 
-	if [ -f "$FILE" ] && file "$FILE" | egrep "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ] && [ -n "$AREA" ] && [ "$AREA" -gt 102030 ]
+	if [ -f "$FILE" ] && file "$FILE" | grep -E "image|bitmap" > /dev/null && [ `filesize "$FILE"` -gt 10000 ] && [ -n "$AREA" ] && [ "$AREA" -gt 102030 ]
 	then
 		jshinfo "To delete the current  wallpaper: del '$FILE'"
 		ln -sf "$FILE" /tmp/randomwallpaper-last

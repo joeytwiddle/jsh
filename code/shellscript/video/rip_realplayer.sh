@@ -46,7 +46,7 @@ else
 fi
 
 # if ! startswith "$RPURL" "rtsp://" && ! startswith "$RPURL" "pnm://" && ! startswith "$RPURL" "file://"
-if ! echo "$RPURL" | egrep "^(rtsp|pnm|mms|file)://" >/dev/null
+if ! echo "$RPURL" | grep -E "^(rtsp|pnm|mms|file)://" >/dev/null
 then
 	error "Got $RPURL which is not (yet) one of the recognised protocols."
 	exit 1

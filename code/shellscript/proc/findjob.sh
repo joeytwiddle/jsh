@@ -135,5 +135,5 @@ else
 fi |
 
 # Highlighting and grep to hide it
-highlight "$SEARCH_REGEXP" | egrep -v "sed s#.*$*" | grep -v "highlight .*$1" ## .* handles the highlight control-chars that were added!
+highlight "$SEARCH_REGEXP" | grep -E -v "sed s#.*$*" | grep -v "highlight .*$1" ## .* handles the highlight control-chars that were added!
 

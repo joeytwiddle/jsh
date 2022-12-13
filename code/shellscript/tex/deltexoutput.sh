@@ -12,4 +12,4 @@ for X in $OUTPUTEXTS; do
 done
 GREPFOR="$GREPFOR)\$"
 
-find . -type f | egrep "$GREPFOR" | sed "s/^/rm /"
+find . -type f | grep -E "$GREPFOR" | sed "s/^/rm /"

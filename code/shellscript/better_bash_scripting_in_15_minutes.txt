@@ -5,7 +5,7 @@ The tips and tricks below originally appeared as one of Functions
 Google’s “Testing on the Toilet” (TOTT) episodes. This is a 
       revised and augmented version. 
 Safer Scripting ExtractBashComments() {
-               egrep "^#"
+               grep -E "^#"
               }
              cat myscript.sh | ExtractBashComments | wc
             comments=$(ExtractBashComments < myscript.sh)

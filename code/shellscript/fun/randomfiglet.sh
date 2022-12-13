@@ -17,7 +17,7 @@ GOODONES="banner big mini script shadow slant small smshadow smslant standard 3x
 GOODONESRE='/('`echo "$GOODONES" | tr ' ' '|'`').flf$'
 FIGFONT=`
 	find $FIGLET_FONT_DIRS -name "*.flf" |
-	egrep "$GOODONESRE" |
+	grep -E "$GOODONESRE" |
 	chooserandomline
 `
 ## We get an error from this last line: "sed: Couldn't close {standard output}: Broken pipe", no matter whether we use ls or find

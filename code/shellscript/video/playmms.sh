@@ -19,7 +19,7 @@ PROTOCOLS="(mms|rtsp|http)"
 cat "$FILE" |
 # extractregex '"(mms:\/\/[^"]*)"' |
 # extractregex -atom "[\"']($PROTOCOLS:\/\/[^\"']*)[\"']" |
-extracturls | egrep "^$PROTOCOLS:" |
+extracturls | grep -E "^$PROTOCOLS:" |
 removeduplicatelines |
 
 # pipeboth |
