@@ -9,10 +9,10 @@ which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 #find "$@" -iname "*.PNG" |
 find "$@" -iname "*.PNG" -or -iname "*.BMP" -or -iname "*.JPG" -or -iname "*.JPEG" -or -iname "*.WEBP" |
 
-fgrep -v ".smaller." |
-fgrep -v ".reduced." |
-fgrep -v ".shrunken." |
-fgrep -v ".keep_high_res." |
+grep -F -v ".smaller." |
+grep -F -v ".reduced." |
+grep -F -v ".shrunken." |
+grep -F -v ".keep_high_res." |
 
 sort |
 
