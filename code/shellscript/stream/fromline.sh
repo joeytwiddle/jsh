@@ -1,8 +1,13 @@
 #!/bin/sh
 ## Hides all lines until first occurrence of grep regexp is found (exclusive with -x).
 
-## See also:  sed -n "/${pattern}/,\$p"
-## Exclusive: sed -n "/${pattern}/,$p"
+if [ "$1" = -x ]
+then shift ; sed -n "/$1/,\$p"
+else sed -n "/${1}/,\$p"
+fi
+exit
+
+
 
 ## TODO: it appears that awk has a limited line length (webscraping FlyBMI)
 ##       solution sedreplace the search string with a unique string the awk can handle
