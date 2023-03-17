@@ -1,6 +1,9 @@
 #!/bin/sh
 ## Streams standard in to standard out, until given awk regexp is reached (exclusive with -x).
 
+## See also:  sed -n "1,/${pattern}/p"
+## Exclusive: sed -n "/${pattern}/q;p"
+
 ## Consider: Renaming it grepto, or maybe awkto now!
 ## TODO: awk doesn't handle /s well, need to \/ escape them
 ## Hides all lines after first occurrence of grep pattern (regexp) is met.
