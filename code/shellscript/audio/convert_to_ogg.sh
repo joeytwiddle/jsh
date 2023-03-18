@@ -2,6 +2,8 @@
 . require_exes oggenc
 # @see-also convert_to_mp3
 
+# Alternative: ffmpeg -i input.mp4 -codec:a libvorbis -qscale:a 3 -f ogg output.ogg
+
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
 cat << !
