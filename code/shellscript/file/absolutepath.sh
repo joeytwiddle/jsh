@@ -1,6 +1,9 @@
 #!/bin/sh
 # jsh-ext-depends-ignore: file
 # jsh-depends: isabsolutepath
+
+# Alternative: ( cd "$1" && pwd )
+
 if test "$1" = ""; then
   echo "absolutepath <file>"
   echo "  or"
