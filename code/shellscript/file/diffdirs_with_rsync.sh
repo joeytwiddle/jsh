@@ -5,7 +5,8 @@ show_colors=1
 dira="$1"
 dirb="$2"
 
-rsync -ai --delete -n "$dirb/" "$dira/" |
+# -a is -rlptgoD but we don't want -t so we leave that out and use --size-only to ignore times
+rsync -rlpgoD --size-only --delete -i -n "$dirb/" "$dira" |
 if [ -n "$show_colors" ]
 then
   highlight '^c.*' yellow |
