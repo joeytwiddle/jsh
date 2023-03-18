@@ -60,7 +60,18 @@ IMAGE="$1"
 	# fbsetbg -A maximized and crops.  Only use it instead of -c if you have not scaled the image to the appropriate size.  (We do this above.)
 
 	if which fbsetbg >/dev/null 2>&1
-	then fbsetbg -c "$IMAGE"
+	then
+		#fbsetbg -c "$IMAGE"
+		# Sometimes when running this I get an error (through xmessage) telling me to run this to see what went wrong:
+		#     display -backdrop -window root /tmp/tmp.jpg
+		# If I run that, it actually works fine, but there is a non-zero exit code.  We could probably just ignore it.
+
+		# To avoid the xmessage error, let's use display instead of fbsetbg
+		# Note that this works for jpg files but not for png files!
+		if ! endswith "$IMAGE" ".jpg" && ! endswith "$IMAGE" ".jpeg"
+		then convert "$IMAGE" "$IMAGE.jpg" && IMAGE="$IMAGE.jpg"
+		fi
+		display -backdrop -window root "$IMAGE" || true
 	elif which xsetbg >/dev/null 2>&1
 	then
 		unj xsetbg -fullscreen -onroot -fit -border black "$IMAGE"
@@ -76,5 +87,6 @@ IMAGE="$1"
 ) ||
 
 ## On some systems, xsetroot can only handle xbm files (not even png)
-# convert "$IMAGE" "$IMAGE.xbm" && IMAGE="$IMAGE.xbm" &&
-xsetroot -bitmap "$@" 1>&2
+## BUG TODO : Unfortunately when we convert xbm this way, it produces a 2-color image!
+#convert "$IMAGE" "$IMAGE.xbm" && IMAGE="$IMAGE.xbm" &&
+xsetroot -bitmap "$IMAGE" 1>&2
