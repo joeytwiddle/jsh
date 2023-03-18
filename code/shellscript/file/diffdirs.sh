@@ -13,6 +13,8 @@
 
 # See also: diff --brief -r
 
+# See also: diffdirs_with_rsync comparedirs comparedirscksum comparedirsfilesize
+
 # Compare filenames only
 # TODO: Add file sizes to the find
 if [ "$1" = -filesonly ]
