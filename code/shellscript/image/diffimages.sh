@@ -31,8 +31,12 @@ then
 	#bgcol=black
 	#bgcol=white
 	#bgcol=gray
+	# TODO BUG: If one of the source images was a png cropped by autocrop, this conversion will restore it to the original size, which is not helpful!
+	#           Howerver, converting to jpeg can prevent that issue.
 	filled_image1="$image1.filled_by_diffimages.png"
 	filled_image2="$image2.filled_by_diffimages.png"
+	#filled_image1="$image1.filled_by_diffimages.jpg"
+	#filled_image2="$image2.filled_by_diffimages.jpg"
 	convert "$image1" -background $bgcol -flatten "$filled_image1"
 	convert "$image2" -background $bgcol -flatten "$filled_image2"
 	image1="$filled_image1"
@@ -52,7 +56,9 @@ fi
 #if convert "$outFile" txt: | grep -v '^#' | grep -v '#000000  black$' >/dev/null
 info=$(convert "$outFile" -fill magenta +opaque "rgb(0,0,0)" -format %c histogram:info:)
 black_pixels=$(grep ' black$' <<< "$info" | sed 's+^ *++ ; s+:.*++')
+[[ -z "$black_pixels" ]] && black_pixels=0
 non_black_pixels=$(grep ' magenta$' <<< "$info" | sed 's+^ *++ ; s+:.*++')
+[[ -z "$non_black_pixels" ]] && non_black_pixels=0
 total_pixels=$((black_pixels + non_black_pixels))
 if [[ -n "$black_pixels" ]] && [[ "$black_pixels" = "$total_pixels" ]]
 then
