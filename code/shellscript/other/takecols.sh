@@ -1,6 +1,7 @@
 #!/bin/sh
 
 ## See also: cut
+## See also: https://github.com/theryangeary/choose
 #
 # Instead of 'takecols 1 2 3' we could do 'cut -f 1,2,3'.
 #
