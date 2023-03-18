@@ -48,10 +48,15 @@ fi
 
 # jsh edit "$TOOL"
 
-if xisrunning
-then editandwait "$TOOL" &
-else editandwait "$TOOL"
-fi
+# Problem: When backgrounding with editandwait "$TOOL" &
+#          Although editandwait was choosing gvim (via smartvim), gvim does not like to be started in the background.
+#          So we cannot run editandwait "$TOOL" &
+#          A better solution might be editandwait -bg "$TOOL" and then let editandwait ensure the process is backgrounded, either via gvim or viminxterm or ...
+#if xisrunning
+#then editandwait "$TOOL" &
+#else editandwait "$TOOL"
+#fi
+editandwait "$TOOL"
 
 # A quick check to inform the user if this command already exists on the system
 if jwhich "$1" quietly
