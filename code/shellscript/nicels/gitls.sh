@@ -63,7 +63,8 @@ do
 		# We look for ignored files, they sometimes produce "!!" but occasionally ""
 		# Up-to-date files always produce ""
 		# Unfortunately, if we are not in a git folder, then we also get ""!
-		status_line="$(git status --porcelain --ignored "$lnode" 2>/dev/null)"
+		# We use `head -n 1` because otherwise "sub" files "$lnode.ignored1" and "$lnode.ignored2" might be listed as well.
+		status_line="$(git status --porcelain --ignored "$lnode" 2>/dev/null | head -n 1)"
 		if [ "$?" != 0 ]
 		then extra='XX'
 		else
