@@ -5,6 +5,7 @@ then
 	done
 else
 	tr -d '\r'
+	#perl -pe 's/\r\n/\n/g'
 fi
 
 ## Doesn't seem to work
