@@ -37,7 +37,11 @@ do
 	do
 
 		echo
-		jshquestion "Enter a message to add and commit, or (A) to stage, (S)kip/<Enter>, (E)dit the file, (R)eset it, or (Q)uit? "
+		add_command="A"
+		if command -v aicommits >/dev/null 2>&1
+		then add_command="A/AI"
+		fi
+		jshquestion "Enter a message to add and commit, or (${add_command}) to stage, (S)kip/<Enter>, (E)dit the file, (R)eset it, or (Q)uit? "
 
 		read cmd
 
@@ -47,8 +51,17 @@ do
 				exit 0
 			;;
 			a|A|y|Y)
+				echo
 				verbosely git add "$FILE"
 				break # stop asking what to do; proceed to the next file
+			;;
+			ai|AI|aI|Ai)
+				verbosely git add "$FILE"
+				if command -v aicommits >/dev/null 2>&1
+				then aicommits -g 3
+				else echo "Command 'aicommits' is not installed\!" >&2
+				fi
+				# BUG: If the user accepted aicommits request to commit, then we should break to move on to the next file.  But note that the user might not always do that.
 			;;
 			e|E)
 				verbosely editandwait "$FILE"
