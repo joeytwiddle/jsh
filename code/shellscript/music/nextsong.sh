@@ -24,7 +24,7 @@ fade_all_mixers_REAL () {
 
 ## Do a quick fadevolume before ending song, then restore volume for next song.
 quickfadevolume () {
-	DOWNSTEP=6 fadevolume 0.2
+	DOWNSTEP=3 fadevolume 0.2
 }
 
 ## TODO: This needs to remember values for each mixer
