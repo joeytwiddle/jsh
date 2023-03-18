@@ -5,6 +5,13 @@
 #
 # See also: https://gist.github.com/douglas/1287372
 
+COLLECT_DIRTY_REPOS=1
+if [ -n "$COLLECT_DIRTY_REPOS" ]
+then printf '' > ~/src/repos_with_changes.list
+fi
+
+echo "# Starting at $(date)"
+
 #ALSO_RUN_GIT_GC=1
 
 #find "$HOME/" -type d -name .git |
@@ -41,6 +48,14 @@ do
 	fi
 
 	[ -n "$ALSO_RUN_GIT_GC" ] && git gc
+
+	if [ -n "$COLLECT_DIRTY_REPOS" ]
+	then
+		if git status --porcelain | grep . >/dev/null
+		then
+			echo "$repo_folder" >> ~/src/repos_with_changes.list
+		fi
+	fi
 
 	echo
 
