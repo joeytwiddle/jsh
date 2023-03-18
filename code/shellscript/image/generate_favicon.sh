@@ -12,6 +12,6 @@ fi
 
 input_file="$1" ; shift
 
-convert "$input_file" -define icon:auto-resize=64,48,32,16 favicon.ico
+convert "$input_file" -define icon:auto-resize=128,64,48,32,16 favicon.ico
 
 # For other approaches, see https://gist.github.com/pfig/1808188
