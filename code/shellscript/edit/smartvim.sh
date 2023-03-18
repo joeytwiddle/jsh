@@ -11,7 +11,7 @@ else
 	# Open in a common session for this git repository
 	if [ -z "$vim_server_name" ]
 	then
-		git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)"
+		git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)" || true
 		[ -n "$git_toplevel" ] && vim_server_name="$(basename "$git_toplevel")"
 	fi
 
@@ -41,5 +41,5 @@ then
 	echo "Opening in server $vim_server_name ..." >&2
 fi
 
-#eval "viminxterm ${all_args_escaped}"
-eval "gvim ${all_args_escaped}"
+#eval "exec viminxterm ${all_args_escaped}"
+eval "exec gvim ${all_args_escaped}"
