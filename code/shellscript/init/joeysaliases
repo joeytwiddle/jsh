@@ -1,5 +1,7 @@
 # @sourceme
 
+# vim: ft=sh
+
 ## TODO: split this into jshaliases and a personal config
 ## aliases are worth keeping in one place because they are so fundamental to the user's shell that
 ## they should be easy to find if they prove troublesome
@@ -37,21 +39,18 @@ then
 ## I don't remember why I enabled it.
 # test "$COLUMNS" && export COLUMNS
 
+show_function_source() {
+	show_function_or_alias "$@"
+}
+show_function_or_alias() {
+	echo "For bash: type $*"
+	echo "For zsh: which $*"
+	return 1
+}
+
 
 
 ## == JSH Aliases: Overrides ==
-
-## Most lusers want this:
-alias mv='mv -i'
-
-rm_is_disabled() {
-	# In zsh echo shows \rm
-	# In bash echo shows \\rm
-	# But if we use printf, they both show the same
-	printf "%s\n" "rm is disabled, use trash or \\rm instead."
-	return 1
-}
-alias rm='rm_is_disabled'
 
 alias man='jman'
 
@@ -66,13 +65,21 @@ for PROG in $HIGHESTPRIORITYPROGS
 do [ "$UID" = 0 ] && alias "$PROG"="nice -n -20 $PROG"
 done
 
-## BUG: By redefining the grep alias here, the aliases defined in preventgreperrs are lost!
+## BUG: By redefining the grep alias below, the aliases defined in preventgreperrs are lost.
 ## So I disabled preventgreperrs; no point loading it if we won't use it.
 #. preventgreperrs
 # alias grep='grep --line-buffered'
+## Make grep process each line one-by-one.  Useful when we are processing a sporadic stream.
 alias grep='grep --line-buffered --colour=auto'
-alias sed='sed -u'
+## We could do the same for sed, but I use this less often, and it may confuse the developer if their scripts work differently from their interactive shell.  (Since grep is used more often, the benefit seems worth the inconsistency.)
+#alias sed='sed -u'
+
 alias rg='rg -M "$((COLUMNS * 20))"'
+alias rgi='rg -M "$((COLUMNS * 20))" -i'
+alias rga='rg -M "$((COLUMNS * 20))" -g "*"'
+rgm() {
+	rg --color=always "$@" | m
+}
 
 
 
@@ -136,6 +143,23 @@ then
 fi
 search_history_reminder="$(curseyellow)""Hit CTRL-R for reverse history search.  Or in jsh bash CTRL-? or jsh zsh: CTRL-[]""$(cursenorm)"
 
+
+# Function to clear recent history (not all history)
+if [ "$SHORTSHELL" = zsh ]
+then
+	clearhistory() {
+		echo 'Not sure how to do this.  Try `fc -R` or https://unix.stackexchange.com/questions/544373/how-to-clear-history-in-zsh'
+	}
+elif [ "$SHORTSHELL" = bash ]
+then
+	clearhistory() {
+		unset HISTFILE
+		echo "This shell's history will not be saved when the shell closes"
+		echo "If you want to stop recording history during this session, use: set +o history"
+		echo "Altneratively, any line started with a space will not be recorded in the history"
+	}
+fi
+
 ## Alternative: histlist displays your history search results through less.
 # histlist() {
 	# history 0 | grep "$*" | less +G
@@ -167,9 +191,6 @@ alias memo='memo -info'
 
 
 ## == Joey's Aliases: Overrides ==
-
-## -a is nice, it will copy directories recursively; -i because i don't want to overwrite stuff by accident
-alias cp='cp -a -i'
 
 alias locate='memo -nd -t "1 day" locate'
 alias locateonly='memo -nd -t "1 day" locateonly'
@@ -237,7 +258,7 @@ fi
 
 # ll does not show folder contents; also does not humanise sizes, so they are easier to compare.  Although dsr already does that!
 # TODO: If given no arguments, should either drop the -d, or provide ./* as arguments.
-alias ll="ls -lartFd --color --block-size=\"'1\""
+#alias ll='ls -lartFd --color --block-size=\"'1\"'
 
 # jfluxbox () {
 	# . includepath /usr/local/fluxbox
@@ -279,26 +300,45 @@ alias mykilljob=". 'mykilljob' -jc"
 # Wow I only added 'm' and 'g' in 2012.  How many keystrokes have I wasted?
 
 #alias m='more'
-#alias le='less -R'
-alias m='less -REX'
+#alias m='less -REX'
+if which show_file_contents >/dev/null 2>&1
+then alias m='show_file_contents'
+elif which bat >/dev/null 2>&1
+then alias m='bat --decorations=never'
+else alias m='less -REX'
+fi
+
 alias g='grep'
 alias ig='igrep'
 alias gi='igrep'
+
+mwhich() {
+	#more "$(which "$1")"
+	#less -REX "$(which "$1")"
+	verbosely show_file_contents "$(which "$1")"
+}
+alias mw='mwhich'
+lwhich() {
+	l "$(which "$1")"
+}
 
 # This is the most common find operation I do
 #alias fnd='find . -name'
 # With common excludes
 fnd() {
 	# This will still traverse the unwanted folder, which is often large and slow
-	#find . -name "$@" | grep -v "/node_modules/"
+	#find . -name "*${*}*" | grep -v "/node_modules/"
 	# This will prevent traversal, but it will show the actual folder too
-	#find . -name node_modules -prune -o -name "$@"
+	#find . -name node_modules -prune -o -name "*${*}*"
 	# This will prevent traversal of the unwated folder, and avoid displaying it too
-	#find . -not \( -path '*/node_modules' -prune \) -name "$@"
+	#find . -not \( -path '*/node_modules' -prune \) -name "*${*}*"
 	# To exclude more folders, repeat another -not immediately after
 	# Or this way:
-	find . -not \( -path '*/node_modules' -prune -or -path '*/.git' -prune \) -name "$@"
+	find . -not \( -path '*/node_modules' -prune -or -path '*/.git' -prune \) -iname "*${*}*"
 	# You can also find a POSIX version here: https://stackoverflow.com/questions/4210042#comment75400572_16595367
+}
+fnddir() {
+	find . -not \( -path '*/node_modules' -prune -or -path '*/.git' -prune \) -iname "*${*}*" -type d
 }
 
 # mm is like m but with syntax highlighting
@@ -342,7 +382,7 @@ alias ......='cd ../../../../..'
 
 alias md=mkdir
 mkcd() {
-	mkdir "$1"
+	mkdir -p "$1"
 	cd "$1"
 }
 alias mkmv='mkdirandmv'
@@ -404,6 +444,7 @@ alias gqds='gq ~/Dropbox/screenshots'
 alias gqt='gq /tmp'
 alias gqd='gq ~/Downloads'
 alias gqp='gq ~/Pictures'
+alias gqdp='gq ~/Dropbox/pix'
 alias gqw='gq ~/Wallpapers'
 alias gqm='gq ~/Dropbox/pix/memes'
 alias gqpol='gq ~/Dropbox/pix/political'
@@ -444,9 +485,15 @@ alias nig='npm install --global'
 alias nug='npm uninstall --global'
 alias nr='npm run'
 alias ns='npm start'
-alias nt='npm test'
-alias nx='npx'
+alias nsw='npm run start:watch'
 alias nw='npm run watch'
+alias nwweb='npm run web'
+alias nt='npm test'
+alias ntw='npm run test:watch'
+alias nb='npm run build'
+alias nbw='npm run build:watch'
+alias nl='npm run lint'
+alias nx='npx'
 
 alias yarn='ionice nice yarn'
 alias y='yarn'
@@ -458,20 +505,24 @@ alias yrd='yarn remove'
 alias yga='yarn global add'
 alias ygrm='yarn global remove'
 alias yu='yarn upgrade'
-alias ys='yarn start'
-alias yt='yarn test'
 alias yr='yarn run'
+alias ys='yarn start'
+alias ysw='yarn run start:watch'
+alias yw='yarn run watch'
+alias yweb='yarn run web'
+alias yt='yarn test'
+alias ytw='yarn run test:watch'
+alias yb='yarn run build'
+alias ybw='yarn run build:watch'
+alias yl='yarn lint'
 alias yx='yarn exec'
 alias yx-='yarn exec --'
-alias yw='yarn run watch'
 alias yui='yarn upgrade-interactive'
 alias ywhy='yarn why'
 alias yy='yarn why'
 
-alias jprettier='prettier --single-quote --tab-width 4 --trailing-comma all'
-
 # We should not use `l` inside functions, because aliases are expanded when this script is parsed.  If any `l` alias was defined before this script is loaded, that `l` alias will be expanded, and this script can do nothing to stop it, because any commands it runs will happen afterwards.
-# Therefore, inside functions we must use `myls` instead of `l`.
+# Therefore, inside functions we must use `myls` instead of `l` because `myls` is a function.
 # And for consistency, we will use `myls` inside the aliases too.
 ldir () {
 	if [ -n "$*" ]
@@ -479,26 +530,42 @@ ldir () {
 	else myls -d */
 	fi
 }
-alias ltxt='myls *.txt *.TXT *.md *.MD *.markdown *.MARKDOWN readme README 2>/dev/null'
+lnodir() {
+	myls -l "$@" | grep -v ^d
+}
+alias lfiles='lnodir'
+#alias lfs='lnodir'
+alias ltxt='myls {README,readme,*.{txt,TXT,md,MD,markdown,MARKDOWN,url,urls,log,out}} 2>/dev/null'
+alias lpdf='myls *.{pdf,PDF} 2>/dev/null'
+alias ldoc='myls *.{doc,docx,xls,xlsl,ppt,pptx,pps,sdw,sxi,sxw,sdd,odt,ods,odp,odg,odb,odp} 2>/dev/null'
 alias lsh='myls *.sh'
-alias lzip='myls *.zip *.rar *.tgz *.bz2'
+alias lzip='myls *.{gz,tar,tgz,bz2,arj,taz,lzh,zip,z,Z,rar,jar,lha,7z,xz,zst} 2>/dev/null'
+alias llog='myls *.log'
 # `lext py` is longer than `l *.py` but it is easier to type
 lext () {
 	myls *."$*"
 }
 lln () {
-	myls "$@" | 'grep' ' \-> '
+	myls "$@" | 'grep' -e ' \\-> '
 }
 llnk () {
+	# BUG: This displays the . folder, if no links were found
 	if [ -n "$*" ]
 	then echolines "$@"
 	else echolines *
 	fi | filter_list_with test -L | withalldo nicels -ld
 }
+lexe () {
+	find -L . -maxdepth 1 -type f -executable | withalldo nicels -ld
+}
+
+#alias top="top c n 50 -o '%MEM'"
+alias freewm='free -w -m'
 
 # Heavy processes that take a long time should be gentle.
 
-alias debuild='ionice nice debuild'
+alias debuild='ionice -c 3 nice -n 15 debuild'
+alias vagrant='ionice -c 3 nice -n 15 vagrant'
 
 
 
@@ -520,3 +587,6 @@ fi
 
 # Run a docker command, but remove the container afterwards
 alias dr='docker run --rm -ti'
+
+# From: https://twitter.com/jonlambertt/status/1428284152881815558
+alias please='sudo $(fc -ln -1)'
