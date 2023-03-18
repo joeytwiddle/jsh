@@ -121,8 +121,8 @@ fi
 
 if [ -z "$SORT_METHOD" ]
 then
-	# SORT_METHOD="sortbydirdepth" ## The one with the shorter dir depths (num of /s) gets kept.
-	SORT_METHOD="sort -r" ## Alphanumeric
+	SORT_METHOD="sortbydirdepth -r" ## The one with the shorter dir depths (num of /s) gets kept.
+	# SORT_METHOD="sort -r" ## Alphanumeric
 fi
 
 # WHERE="$*"
