@@ -10,7 +10,7 @@
 # We actually write to a lot of other places at the bottom too.
 
 [ "$MUSIC_EXTS_REGEXP" ] || MUSIC_EXTS_REGEXP="\(mp3\|ogg\|opus\|xm\|ra\|wma\|flac\|m4a\|m4p\|mod\|it\)"
-[ "$MUSIC_IGNORE_REGEXP" ] || MUSIC_IGNORE_REGEXP="\(/INCOMPLETE/\|/RECLAIM\|/dontplay/\|/horrid/\|/lessons/\|/corrupted/\|/ktorrent_working/\|/sounds/\|\/samples\|/usr/src/\|/boot/grub/\|/usr/lib/grub/\|/games/\|/build/build-generic/.tmp_versions/\|/usr/share/kde4/\|/Audio_Books/\|^/home/HWI_BACKUPS/\)" # pimsleur\|
+[ "$MUSIC_IGNORE_REGEXP" ] || MUSIC_IGNORE_REGEXP="\(/INCOMPLETE/\|/RECLAIM\|/dontplay/\|/horrid/\|/lessons/\|/corrupted/\|/ktorrent_working/\|/sounds/\|\/samples\|/usr/src/\|/boot/grub/\|/usr/lib/grub/\|/games/\|/build/build-generic/.tmp_versions/\|/usr/share/kde4/\|/Audio_Books/\|^/home/joey/HWI_BACKUPS/\|/Ringtones/\|/src/\)" # pimsleur\|
 ## /sounds/ catches /stuff/share/sounds, javascript/contrib/lazeroids-node/public/sounds, orona/0.1.91/package/public/sounds, /stuff/media/sounds
 ## /samples/ catches .enlightenment/themes/abtoenalloygreenJoey/sound/samples, /usr/share/lmms/samples
 ## /usr/src/ and /boot/grub/ speed up stripping of non-tracker .mod files
