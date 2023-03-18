@@ -69,6 +69,24 @@ then
 				echo "Code: `cursecyan`"`realpath "$LINKTOCOM"``cursenorm`
 				barline
 
+				# If we have bat installed, then use that
+				if command -v bat >/dev/null 2>&1
+				then
+					ext="$(sed 's+.*\.++' <<< "$LINKTOCOM")"
+					if [ -z "$extension" ]
+					then bat -f --style=plain -l bash "$LINKTOCOM"
+					else bat -f --style=plain "$LINKTOCOM"
+					fi
+					exit
+				fi
+
+				# If we have Joey's show_file_contents script, then use that (but this way, we cannot force the language)
+				if command -v show_file_contents >/dev/null 2>&1
+				then
+					show_file_contents "$LINKTOCOM"
+					exit
+				fi
+
 				cat "$LINKTOCOM" |
 				### Pretty print shellscript documentation (add colours)
 				(
