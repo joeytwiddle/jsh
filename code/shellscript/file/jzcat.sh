@@ -1,5 +1,8 @@
-#!/bin/sh
+##!/bin/sh
 # Like zcat, outputs the uncompressed contents of compressed files, but unlike zcat also works on uncompressed files.
+
+zcat -f -- "$@"
+exit "$?"
 
 if [ "$1" = -mark-lines ]
 then
