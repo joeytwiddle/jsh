@@ -6,7 +6,7 @@
 
 for input_file
 do
-  output_file="$input_file.beautified.jpg"
+  output_file="${input_file}.beautified.jpg"
 
   # Add more contrast.  Can be too strong.
   #convert "$input_file" -contrast "$output_file"
@@ -32,5 +32,7 @@ do
   # The exact value to use depends ont the input image
 
   touch -r "$input_file" "$output_file"
+
+  [ -n "$DEL" ] && del "$image_file" || true
 done
 exit
