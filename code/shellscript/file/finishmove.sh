@@ -42,7 +42,7 @@ do
 			jshinfo "Matches target.  Deleting: $FILE"
 			jshsuggest rm "$FILE"
 			#jshsuggest del "$FILE"
-		elif [[ "$CMP" =~ "^cmp: EOF on $DESTFILE$" ]]
+		elif [[ "$CMP" =~ "^cmp: EOF on $DESTFILE$" ]] || [ "$(filesize "$DESTFILE")" = 0 ]
 		then
 			jshinfo "Target is partial source!  Overwriting: $FILE"
 			jshsuggest mv "$FILE" "$DESTFILE"
