@@ -3,8 +3,8 @@
 
 # tail -n 1 $JPATH/logs/xmms.log | afterlast ">" | beforelast "<"
 
-audio_file_extensions_regexp='\.\(mp3\|ogg\|wav\|pcm\|raw\|mpg\|mpeg\|avi\|mov\|m4a\|rm\|wmv\|wma\|mod\|xm\|it\|flv\|asf\)$'
-# \|mp4
+audio_file_extensions_regexp='\.\(wav\|pcm\|raw\|au\|mid\|midi\|mp3\|ogg\|opus\|asf\|mod\|xm\|it\|aac\|wma\|ra\|m4a\|m4p\)$'
+# Some video formats: \|mp4\|mpeg\|mpg\|avi\|mov\|rm\|wmv\|flv
 
 find_open_music_files () {
 
