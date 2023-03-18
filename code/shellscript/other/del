@@ -4,6 +4,9 @@
 # jsh-depends-ignore: reclaimspace
 # jsh-depends: cursebold cursegreen cursered cursenorm realpath error wheremounted dfh verbosely geekdate
 
+# TODO: We could conform to FreeDesktop specifications: https://specifications.freedesktop.org/trash-spec/trashspec-latest.html
+#       There is a nice summary here: https://askubuntu.com/questions/934932/split-trash-directories-on-kde5
+
 # Some common trash locations:
 # Mac: ~/.Trash
 # Linux: ~/.local/share/Trash
