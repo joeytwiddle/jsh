@@ -91,3 +91,5 @@ done
 ## Method 3:
 #sed "s+\(.*\)$SEARCH_REGEXP\(.*\)+mv \"\0\" \"\1$REPLACE\2\"+"
 
+echo
+echo "# Press <Up>|sh<Enter> to actually run these commands in a shell."
