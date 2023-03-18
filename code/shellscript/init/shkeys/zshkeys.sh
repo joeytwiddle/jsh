@@ -210,13 +210,19 @@ bindkey "^[[1;6C" forward-word
 bindkey '^[[Z' reverse-menu-complete
 
 # Cycle through history based on characters already typed on the line
-# https://unix.stackexchange.com/questions/16101/zsh-search-history-on-up-and-down-keys/285151
-autoload -U up-line-or-beginning-search
-autoload -U down-line-or-beginning-search
-zle -N up-line-or-beginning-search
-zle -N down-line-or-beginning-search
-bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
-bindkey "$terminfo[kcud1]" down-line-or-beginning-search
+# https://unix.stackexchange.com/questions/16101/zsh-search-history-on-up-and-down-keys/
+#
+# Approach 1
+bindkey "$terminfo[kcuu1]" history-beginning-search-backward
+bindkey "$terminfo[kcud1]" history-beginning-search-forward
+#
+# Approach 2
+#autoload -U up-line-or-beginning-search
+#autoload -U down-line-or-beginning-search
+#zle -N up-line-or-beginning-search
+#zle -N down-line-or-beginning-search
+#bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
+#bindkey "$terminfo[kcud1]" down-line-or-beginning-search
 
 # On my last system the Up and Down keys were "OA" and "OB".
 # However it is more portable to use the dynamic values available in $terminfo
