@@ -1,6 +1,7 @@
 #!/bin/sh
 # jsh-depends-ignore: check new
 # jsh-depends: cursecyan cursemagenta cursenorm jwatchcomp breakonctrlc jdeltmp jgettmp
+# See also: https://github.com/watchexec/watchexec
 
 ## BUG TODO: How can we ensure cleanup of the files?  I.e. we need to act on
 ## Ctrl-C or we need some sort of daemon/background process running, waiting
