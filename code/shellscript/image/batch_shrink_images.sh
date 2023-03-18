@@ -6,6 +6,9 @@ which ionice >/dev/null 2>&1 && ionice -c 3 -p $$
 
 # See also: shrinkimage
 
+# TODO: Call out to shrinkimage, or merge the two scripts, instead of implementing the same behaviour here
+# TODO: Make resolution an option
+
 if [ -z "$QUALITY" ]
 then QUALITY="90"
 fi
@@ -35,8 +38,12 @@ do
 	#fi
 
 	# If you choose webp instead of jpg, then you can also change quality from 80% to 90% and still get a slightly smaller result.
-	#shrunken_filename="$filename.smaller.jpg"
-	shrunken_filename="$filename.smaller.webp"
+	# As a rule of thumb:
+	# - webp is better when shrinking a PNG, especially vector art or computer screenshots, but not for PNGs of nature
+	# - jpg makes more sense when the image is from a compressed video, because the artefacts are already there!
+	# - jpg may also offer a better visual impression, as long as you are not intending to zoom in
+	shrunken_filename="$filename.smaller.jpg"
+	#shrunken_filename="$filename.smaller.webp"
 
 	# == Resizing ==
 	# -geometry "1600x1600>"

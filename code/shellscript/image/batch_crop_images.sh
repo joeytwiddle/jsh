@@ -22,9 +22,13 @@ do
     then continue
     fi
 
-    outfile="$file.cropped.png"
+    #outfile="$file.cropped.png"
 
-    convert "$file" -crop "${width}x${height}+${left}+${top}" $autocrop "$outfile"
+    # If you also want to reduce the size at the same time (faster than compressing large pngs)
+    outfile="$file.cropped.smaller.jpg"
+    # -quality 80%
+
+    verbosely convert "$file" -crop "${width}x${height}+${left}+${top}" $autocrop -quality 80% "$outfile"
 
     touch -r "$file" "$outfile"
 
