@@ -13,6 +13,11 @@
 ## TODO: this script is sourced by user's shell so NEWDIR etc. are overwritten then left around.
 ##       it might be handy to leave the user with a $LASTDIR env var (maybe bash always has one anyway, but zsh doesn't appear to, at least not with that name)
 
+## TODO: We should perhaps not record the current folder when shell history is disabled.
+##       For bash, record if: [ -o history ] && [ -n "$HISTFILE" ]
+##       For zsh, record if: ???
+##       Note that this logic should also affect b.zsh and f.zsh
+
 ## Since I am sourced, make me part of the term_state experiment
 # # mkdir -p /tmp/term_states
 # . term_state # > /tmp/term_states/$$.term_state
@@ -24,15 +29,18 @@
 # NEWDIR="`expandthreedots "$*"`" ||
 NEWDIR="$*"
 
-# Record where we are for b and f sh tools
-echo "$PWD" >> $HOME/.dirhistory
-## Record it at the other end also (for f):
-# ( echo "$PWD" ; cat $HOME/.dirhistory ) |
-# ## These are slow but keeps the dirhistory size down :)
-# # # dirsonly |
-# # # sort |
-# # removeduplicatelines -adj |
-# dog $HOME/.dirhistory
+if [ -n "$HISTFILE" ]
+then
+	# Record where we are for b and f sh tools
+	echo "$PWD" >> $HOME/.dirhistory
+	## Record it at the other end also (for f):
+	# ( echo "$PWD" ; cat $HOME/.dirhistory ) |
+	# ## These are slow but keeps the dirhistory size down :)
+	# # # dirsonly |
+	# # # sort |
+	# # removeduplicatelines -adj |
+	# dog $HOME/.dirhistory
+fi
 
 if [ -d "$NEWDIR" ]
 then
