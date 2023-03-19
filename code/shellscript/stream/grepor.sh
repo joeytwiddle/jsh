@@ -1,16 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-args=()
-for arg in "$@"
-do
-	if [[ "$arg" == -* ]]
-	then
-		args+=("$arg")
-	else
-		args+=("-e")
-		args+=("$arg")
-	fi
+args=("$@")
+for (( i = 0; i < ${#args[@]}; i++ ))
+do args[$i]="-e${args[$i]}"
 done
 
 exec grep "${args[@]}"
