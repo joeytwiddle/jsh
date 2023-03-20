@@ -3,10 +3,15 @@ set -e
 
 # Looks through all remote branches, and shows you which branches have commits which are not yet on your current branch
 
-# I like my commits listed with extra details, but the colours might not suit all users
 if [ "$USER" = joey ]
-then alias glc='git log --pretty=format:"%C(yellow bold)%h%C(magenta bold)%d%C(reset) %C(black bold)%s %C(reset)%C(cyan)- %an (%ad)%Creset" --date=relative'
-else alias glc='git log --pretty=oneline --decorate --abbrev-commit'
+then
+	# My favourite, but the colours might not suit all users
+	alias glc='git log --pretty=format:"%C(magenta bold)(%D)%C(reset) %C(black bold)%s %C(reset)%C(cyan)- %an (%ad)%Creset" --date=relative'
+else
+	# Standard one-liner, with fewer details
+	#alias glc='git log --pretty=oneline --decorate --abbrev-commit'
+	# More details, using default colours (mostly white)
+	alias glc="git log --pretty=format:'%C(auto)(%D) %s - %an (%ad)' --date=relative"
 fi
 shopt -s expand_aliases
 
