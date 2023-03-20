@@ -7,8 +7,18 @@ set -e
 #
 #     git-compare-branches HEAD productivepriscilla/main
 
-branch1="$1"
-branch2="$2"
+if [ "$#" = 1 ]
+then
+	branch1="HEAD"
+	branch2="$1"
+elif [ "$@" = 2 ]
+then
+	branch1="$1"
+	branch2="$2"
+else
+	echo "You must provide 1 or 2 arguments" >&2
+	exit 1
+fi
 
 alias glc='git log --pretty=format:"%C(yellow bold)%h%C(magenta bold)%d%C(reset) %C(black bold)%s %C(reset)%C(cyan)- %an (%ad)%Creset" --date=relative'
 shopt -s expand_aliases
