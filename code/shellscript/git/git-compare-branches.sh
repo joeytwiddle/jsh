@@ -23,6 +23,13 @@ fi
 alias glc='git log --pretty=format:"%C(yellow bold)%h%C(magenta bold)%d%C(reset) %C(black bold)%s %C(reset)%C(cyan)- %an (%ad)%Creset" --date=relative'
 shopt -s expand_aliases
 
+# I like my commits listed with extra details, but the colours might not suit all users
+if [ "$USER" = joey ]
+then alias glc='git log --pretty=format:"%C(yellow bold)%h%C(magenta bold)%d%C(reset) %C(black bold)%s %C(reset)%C(cyan)- %an (%ad)%Creset" --date=relative'
+else alias glc='git log --pretty=oneline --decorate --abbrev-commit'
+fi
+shopt -s expand_aliases
+
 base_commit="$(git merge-base "$branch1" "$branch2")"
 
 #echo "### Base commit"
