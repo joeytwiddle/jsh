@@ -1,6 +1,8 @@
 #!/bin/bash
 # Rename files using your favourite editor.
 
+# See also: vidir
+
 original_filenames="$(jgettmp original_filenames)"
 new_filenames="$(jgettmp new_filenames)"
 commands_to_run="$(jgettmp commands_to_run)"
@@ -10,7 +12,7 @@ then
 	echolines "$@" > "$original_filenames"
 else
 	find . -maxdepth 1 |
-	grep -v '^\.$' |
+	grep --binary-files=text -v '^\.$' |
 	sort |
 	sed 's+^\.\/++' > "$original_filenames"
 fi
@@ -34,7 +36,14 @@ cat "$original_filenames" | sed "s+'+'\"'\"'+g" | sed "s+.*+'\0'+g" | dog "$orig
 cat "$new_filenames"      | sed "s+'+'\"'\"'+g" | sed "s+.*+'\0'+g" | dog "$new_filenames"
 
 paste -d " " "$original_filenames" "$new_filenames" |
-sed 's+^+mv -iv +' > "$commands_to_run"
+sed "
+	# SED_REMOVE
+	# The first sed command removes any lines where the original and new files are an exact match
+	# This is important to avoid the symlinks issue mentioned below
+	# It's not 100% perfect, because it's still possible to create the same filename from two non-identical strings
+	/^'\([^']*\)' '\1'$/d
+	s/^/mv -iv /
+" > "$commands_to_run"
 
 echo "Will do the following:"
 echo
@@ -50,6 +59,7 @@ then
 fi
 
 # TODO: Check for this situation
+#       This has partially mitigated by the SED_REMOVE above
 echo "WARNING: If one of the files is a symlink to a folder, and you don't rename it, then mv will mv the symlink inside the folder!"
 echo
 
@@ -58,7 +68,7 @@ echo -n "Proceed? [Yn] "
 read decision
 echo
 
-# TODO: It would be good if we didn't try to rename files which were not changed.
+# DONE (mostly): It would be good if we didn't try to rename files which were not changed.  Addressed by the SED_REMOVE above.
 # BUG: If there is a destination file, `mv -i` will prompt for confirmation, but the greps will hide the prompt!
 #      I have tried adding `--line-buffered`; perhaps that will help.  No, it didn't.
 
