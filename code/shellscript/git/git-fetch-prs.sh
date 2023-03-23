@@ -33,8 +33,10 @@ git remote -v | grep fetch | grep github | \
         fi
     done
 
-echo "Now run: git fetch --all"
+#echo "Now run: git fetch --all"
+# Actually, it's usually only origin that needs to be fetched
+git fetch --all
 
-# If you want to remove the PR branches, remove the entry/entries that were added to `.git/config` and then:
+# If you want to remove the PR branches, remove the "pull" entry/entries that were added to `.git/config` and then:
 #
 #     git fetch --all --prune
