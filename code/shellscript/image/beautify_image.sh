@@ -31,6 +31,28 @@ do
   #convert "$input_file" -linear-stretch 2%x2% "$output_file"
   # The exact value to use depends ont the input image
 
+  # OK
+  # From: https://imagemagick.org/discourse-server/viewtopic.php?t=16558
+  # This did lighten some areas a bit.  It also did a lot of sharpening.
+  #convert "$input_file" \
+  #  \( -clone 0 -blur 0x60 \) \
+  #  \( -clone 0 -clone 1 +swap -compose mathematics \
+  #  -set option:compose:args "0,1,-1,0.5" -composite \
+  #  -matte -channel A -evaluate set 40% +channel \) \
+  #  \( -clone 0 -blur 0x3 \) \
+  #  \( -clone 0 -clone 3 +swap -compose mathematics \
+  #  -set option:compose:args "0,1,-1,0.5" -composite \
+  #  -matte -channel A -evaluate set 50% +channel \) \
+  #  \( -clone 0 -clone 2 -compose hardlight -composite \
+  #  -clone 4 -compose overlay -composite \) \
+  #  -delete 0-4 "${input_file}.beautified1.jpg"
+
+  # GOOD
+  # From: https://imagemagick.org/script/clahe.php
+  #magick "$input_file" -clahe 25x25%+128+3 "${input_file}.beautified2.jpg"
+  #magick "$input_file" -virtual-pixel mirror -clahe '300x300+128+3!' "${input_file}.beautified3.jpg"
+  #magick "$input_file" -virtual-pixel mirror -clahe '900x900+128+3!' "${input_file}.beautified4.jpg"
+
   touch -r "$input_file" "$output_file"
 
   [ -n "$DEL" ] && del "$image_file" || true
