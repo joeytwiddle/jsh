@@ -30,9 +30,7 @@ then
 		dircolors -p > "$FILE"
 	fi
 fi
-dircolors "$FILE" > "$HOME/.lscols"
 
-## My zsh needs this version because I was trying out the no-clobber option.  But this breaks in bash (in fact it writes to a file called ! and then barfs on the redundant .lscols argument).
-# dircolors "$FILE" >! "$HOME/.lscols"
-## It's moot anyway, in its current form .dircolors does nothing!
-## If we really need this, we could just rm -f the file first.
+# Use dircolors to generate ~/.lscols from ~/.dircolors
+# Some values of TERM (e.g. "tmux-256color") result in an output with no data!
+TERM=vt100 dircolors "$FILE" > "$HOME/.lscols"
