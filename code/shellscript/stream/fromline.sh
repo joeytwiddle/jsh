@@ -2,7 +2,7 @@
 ## Hides all lines until first occurrence of grep regexp is found (exclusive with -x).
 
 if [ "$1" = -x ]
-then shift ; sed -n "/$1/,\$p"
+then shift ; sed -n "/${1}/,\$p" | tail +2
 else sed -n "/${1}/,\$p"
 fi
 exit
