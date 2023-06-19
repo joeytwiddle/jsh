@@ -11,7 +11,7 @@
 
 ## TODO: does not appear to clear bash history!!!
 
-if [ "$(uname)" != "Darwin" ]
+if which xhost >/dev/null 2>&1
 then
 	xhost
 	xhost - || error "Clearing xhost permissions failed."
@@ -73,6 +73,12 @@ if [ ! "$?" = 0 ]
 then
 	error "[sbash] bash exited with error; NOT encrypting the folder!"
 	exit 4
+fi
+
+if [ -d .git ] && which git >/dev/null 2>&1
+then
+	verbosely git add . &&
+		verbosely git commit -m "Changes at $(date +"%Y%m%d-%H%M")" || true
 fi
 
 jshinfo "[sbash] Calling: cd \"$PRIVFILEDIR\""
