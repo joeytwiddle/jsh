@@ -17,8 +17,8 @@
 ## OK I need to remove all the exits and use flow-control instead.
 ## I can either a) use a load of nested if's, or b) use a variable, eg. CONTINUE.
 
-## Shit my collection of shellscripts (and the method of using them) really
-## needs a proper name.  What about JSE (joey's shell environment)?  Nah that's naff!
+## Hmmm my collection of shellscripts (and the method of using them) really
+## needs a proper name.  What about JSE (joey's shell environment)?
 ## Or nash: not actually a shell
 ## exsh?  shext?  jshl?  nsh (neuralyte)?
 
