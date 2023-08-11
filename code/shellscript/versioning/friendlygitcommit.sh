@@ -1,12 +1,14 @@
 #!/bin/bash
 
 # Adding and committing only works from the root of the repository.  It fails if run in a subfolder.
-gitTopLevelDir=$(git rev-parse --show-toplevel)
+git_toplevel_dir=$(git rev-parse --show-toplevel)
 # But we don't move into the root folder until later, so that e.g. '.' can be passed as an argument and given to `git status`.
 
 exec 3>&0   # Save user stdin(0) into 3
 
-if [ "$1" = -all ]
+# Matches git add options
+catch_untracked_files=""
+if [ "$1" = --all ] || [ "$1" = -A ]
 then
 	catch_untracked_files="\|??"
 	shift
@@ -24,9 +26,20 @@ sed 's+^"\(.*\)"$+\1+' |
 while read FILE
 do
 
-	cd "$gitTopLevelDir"
+	cd "$git_toplevel_dir"
 
-	git diff "$FILE" | diffhighlight
+	#git diff "$FILE" | diffhighlight
+	#git diff --color "$FILE"
+	git diff -w --word-diff=color "$FILE"
+
+	if git status --porcelain "$FILE" | grep '^??' >/dev/null
+	then
+		# This is an untracked file, so the diff would have displayed nothing
+		(
+			echo "New file: $FILE"
+			cat "$FILE" | highlight -bold '.*' green
+		)
+	fi
 
 	# Save stdin (the stream of filenames) into 4
 	exec 4>&0
@@ -37,11 +50,11 @@ do
 	do
 
 		echo
-		add_command="A"
+		or_aicommits=""
 		if command -v aicommits >/dev/null 2>&1
-		then add_command="A/AI"
+		then or_aicommits=" (or AI)"
 		fi
-		jshquestion "Enter a message to add and commit, or (${add_command}) to stage, (S)kip/<Enter>, (E)dit the file, (R)eset it, or (Q)uit? "
+		jshquestion "Enter a message${or_aicommits} to add and commit, or (A/Y) to stage, (Enter/N/D/S)kip, (E)dit the file, hard (R)eset it, or (Q)uit? "
 
 		read cmd
 
@@ -58,7 +71,10 @@ do
 			ai|AI|aI|Ai)
 				verbosely git add "$FILE"
 				if command -v aicommits >/dev/null 2>&1
-				then aicommits -g 3
+				then
+					aicommits --type=conventional -g 3
+					# In case aicommits failed (e.g. the user decided to abort with CTRL-C) we will unstage the current file, and move on to the next
+					git reset --quiet -- "$FILE"
 				else echo "Command 'aicommits' is not installed\!" >&2
 				fi
 				# BUG: If the user accepted aicommits request to commit, then we should break to move on to the next file.  But note that the user might not always do that.
@@ -77,7 +93,8 @@ do
 				verbosely git commit -m "$msg"
 				break
 			;;
-			""|s|S|n|N)
+			# We also recognise N and D, to match the keys used by `git add --patch`
+			""|s|S|n|N|d|D)
 				jshinfo "Doing nothing with $FILE"
 				break
 			;;
