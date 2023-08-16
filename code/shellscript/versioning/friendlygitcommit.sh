@@ -64,9 +64,9 @@ do
 		echo
 		or_aicommits=""
 		if command -v aicommits >/dev/null 2>&1
-		then or_aicommits=" (or AI)"
+		then or_aicommits=" or (AI)"
 		fi
-		jshquestion "Enter a message${or_aicommits} to add and commit, or (A/Y) to stage, (Enter/N/D/S)kip, (E)dit the file, hard (R)eset it, or (Q)uit? "
+		jshquestion "Enter a message${or_aicommits} to add and commit, or (A/Y) to stage, (Am)end, (Enter/N/D/S)kip, (E)dit the file, hard (R)eset it, or (Q)uit? "
 
 		read cmd
 
@@ -90,6 +90,11 @@ do
 				else echo "Command 'aicommits' is not installed\!" >&2
 				fi
 				# BUG: If the user accepted aicommits request to commit, then we should break to move on to the next file.  But note that the user might not always do that.
+			;;
+			AM|Am|am)
+				verbosely git add "$FILE"
+				verbosely git commit --amend --no-edit --no-verify
+				break
 			;;
 			e|E)
 				verbosely editandwait "$FILE"
