@@ -31,18 +31,27 @@ do
 
 	cd "$git_toplevel_dir"
 
-	#git diff "$FILE" | diffhighlight
-	#git diff --color "$FILE"
-	git diff -w --word-diff=color "$FILE"
+	(
+		#git diff "$FILE" | diffhighlight
+		#git diff --color "$FILE"
+		git diff -w --word-diff=color "$FILE"
 
-	if git status --porcelain "$FILE" | grep '^??' >/dev/null
-	then
-		# This is an untracked file, so the diff would have displayed nothing
-		(
-			echo "New file: $FILE"
-			cat "$FILE" | highlight -bold '.*' green
-		)
-	fi
+		if git status --porcelain "$FILE" | grep '^??' >/dev/null
+		then
+			# This is an untracked file, so the diff would have displayed nothing
+			(
+				reset_color="$(tput sgr0 | sed 's/$//')"
+				meta_color="$(git config --get-color color.diff.meta brightcyan)"
+				echo "${meta_color}###${reset_color}"
+				echo "${meta_color}### New file: ${FILE}${reset_color}"
+				echo "${meta_color}###${reset_color}"
+				echo
+				cat "$FILE" | highlight -bold '.*' green
+			)
+		fi
+	) |
+	# For patches or files longer than the screen, don't scroll past, let us page through
+	less -REX
 
 	# Save stdin (the stream of filenames) into 4
 	exec 4>&0
