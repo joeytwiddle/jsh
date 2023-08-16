@@ -14,14 +14,17 @@ then
 	shift
 fi
 
-# Get list of modified files
-git status --porcelain "$@" |
+# Get list of modified files, and untracked files
+git status --porcelain -u "$@" |
 # ' M' is a normal modified file
 # 'MM' means it has been staged, but there are modifications since the staged version
 # 'UU' is unmerged paths (after a merge conflict, files that should be or were fixed).  However BUG these *cannot* be committed individually, they must be committed along with any other files in the merge which did not conflict.
 grep "^\( M\|UU\|MM${catch_untracked_files}\) " |
 sed 's+^.. ++' |
 sed 's+^"\(.*\)"$+\1+' |
+# Sometimes, despite -u, we can still get folders listed as untracked, if they are folders with a git project inside them
+# We will just trim them out
+grep -v '/$' |
 
 while read FILE
 do
