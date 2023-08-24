@@ -1,0 +1,254 @@
+#!/usr/bin/env bash
+# git-fixup (https://github.com/keis/git-fixup)
+
+OPTIONS_SPEC="\
+git fixup [options] [<ref>]
+--
+h,help        Show this help text
+s,squash      Create a squash! commit
+f,fixup       Create a fixup! commit
+a,amend       Create an amend! commit
+c,commit      Show a menu from which to pick a commit
+no-commit     Don't show a menu to pick a commit
+rebase        Do a rebase right after commit
+no-rebase     Don't do a rebase after commit
+n,no-verify   Bypass the pre-commit and commit-msg hooks
+b,base=rev    Use <rev> as base of the revision range for the search
+"
+SUBDIRECTORY_OK=yes
+. "$(git --exec-path)/git-sh-setup"
+
+# Define a sed program that turns `git diff` output into a stream of filenames
+# and sections within those files.
+grok_diff='/^--- .*/p ;
+           s/^@@ -\([0-9]*\),\([0-9]*\).*/\1 \2/p'
+
+# Produce suggestion of commits by finding the sections of files with changes
+# staged (U1 to diff is used to give some context for when adding items to
+# lists etc) and looking up the previous commits touching those sections.
+function fixup_candidates_lines () {
+    git diff --cached -U1 --no-prefix | sed -n "$grok_diff" | (
+        file=''
+        while read offs len; do
+            if test "$offs" == '---'; then
+                file="$len"
+            else
+                if test "$len" != '0'; then
+                    if test "$file" != '/dev/null'; then
+                        git blame -sl -L "$offs,+$len" $rev_range -- "$file"
+                    fi
+                fi
+            fi
+        done
+    ) | grep -v "^^" | cut -d' ' -f 1 | sed 's/^/L /g'
+}
+
+# Produce suggestion of commits by taking the latest commit to each file with
+# staged changes
+function fixup_candidates_files () {
+    git diff --cached --name-only | (
+        while read file; do
+            git rev-list $rev_range -- $file \
+                | grep -v -f <(git rev-list -E --grep='^(fixup|squash)' $rev_range -- $file) \
+                | head -n1
+        done
+    ) | sed 's/^/F /g'
+}
+
+# Pretty print details of a commit
+function print_sha () {
+    local sha=$1
+    local type=$2
+
+    git --no-pager log --format="%H [$type] %s <%ae>" -n 1 "$sha"
+}
+
+# Call git commit
+function call_commit() {
+    local flag=$op
+    local target=$1
+
+    if test "$op" == "amend"; then
+        flag=fixup
+        target="amend:$target"
+    fi
+
+    git commit ${git_commit_args[@]} --$flag=$target
+}
+
+# Call git rebase
+function call_rebase() {
+    local target=$1
+
+    # If our target-commit has a parent, we call a rebase with that
+    if git rev-parse --quiet --verify $target~1^{commit}; then
+        git rebase --interactive --autosquash "$target~1"
+    # If our target-commit exists but has no parents, it must be the very first commit
+    # the repo. We simply call a rebase with --root
+    elif git rev-parse --quiet --verify $target^{commit}; then
+        git rebase --interactive --autosquash --root
+    fi
+}
+
+# Print list of fixup/squash candidates
+function print_candidates() {
+    (
+        fixup_candidates_lines
+        fixup_candidates_files
+    ) | sort -uk2 |  while read type sha; do
+        if test "$sha" != ""; then
+            print_sha "$sha" "$type"
+        fi
+    done
+}
+
+function fallback_menu() {
+    (
+        IFS=$'\n'
+        read -d '' -ra options
+        PS3="Which commit should I $op? "
+        select line in "${options[@]}"; do
+            if test -z "$line"; then
+                declare -a 'args=('"$REPLY"')'
+                case ${args[0]} in
+                    quit|q)
+                        echo "Alright, no action taken." >&2
+                        break
+                        ;;
+                    show|s)
+                        idx=$((${args[1]} - 1))
+                        if test $idx -ge 0; then
+                            git show ${options[$idx]%% *} >&2
+                        fi
+                        ;;
+                    help|h)
+                        local fmt="%s\n    %s\n"
+                        printf $fmt "<n>" "$op the <n>-th commit from the list" >&2
+                        printf $fmt "s[how] <n>" "show the <n>-th commit from the list" >&2
+                        printf $fmt "q[uit]" "abort operation" >&2
+                        printf $fmt "h[elp]" "show this help message" >&2
+                        ;;
+                esac
+            else
+                echo $line
+                break
+            fi
+        done < /dev/tty
+    )
+}
+
+show_menu () {
+    if test -n "$fixup_menu"; then
+        eval command $fixup_menu
+    else
+        fallback_menu
+    fi
+}
+
+git_commit_args=()
+target=
+op=${GITFIXUPACTION:-$(git config --default=fixup fixup.action)}
+rebase=${GITFIXUPREBASE:-$(git config --default=false fixup.rebase)}
+fixup_menu=${GITFIXUPMENU:-$(git config --default="" fixup.menu)}
+create_commit=${GITFIXUPCOMMIT:-$(git config --default=false --type bool fixup.commit)}
+base=${GITFIXUPBASE:-$(git config --default="" fixup.base)}
+
+while test $# -gt 0; do
+    case "$1" in
+        -s|--squash)
+            op="squash"
+            ;;
+        -f|--fixup)
+            op="fixup"
+            ;;
+        -a|--amend)
+            op="amend"
+            ;;
+        -c|--commit)
+            create_commit=true
+            ;;
+        --no-commit)
+            create_commit=false
+            ;;
+        --rebase)
+            rebase=true
+            ;;
+        --no-rebase)
+            rebase=false
+            ;;
+        -n|--no-verify)
+            git_commit_args+=($1)
+            ;;
+        -b|--base)
+            shift
+            if test $# -eq 0; then
+                die "--base requires an argument"
+            fi
+            base="$1"
+            ;;
+        --)
+            shift
+            break
+            ;;
+    esac
+    shift
+done
+
+target="$1"
+if test $# -gt 1; then
+    die "Pass only one ref, please"
+fi
+
+if ! test -z "$target"; then
+    call_commit $target
+    if test "$rebase" == "true"; then
+        call_rebase $target
+    fi
+    exit
+fi
+
+if git diff --cached --quiet; then
+    die 'No staged changes. Use git add -p to add them.'
+fi
+
+cd_to_toplevel
+
+if test "$base" == "closest"; then
+    base=$(git for-each-ref \
+        --merged HEAD~1 \
+        --sort=-committerdate \
+        refs/heads/ \
+        --count 1 \
+        --format='%(objectname)' \
+    )
+    if test -z "$base"; then
+        die "Could not find the ancestor branch"
+    fi
+fi
+
+if test -z "$base"; then
+    upstream=`git rev-parse @{upstream} 2>/dev/null`
+    head=`git rev-parse HEAD 2>/dev/null`
+    if test -n "$upstream" -a "$upstream" != "$head"; then
+        base="$upstream"
+    fi
+fi
+
+if test -n "$base"; then
+    rev_range="$base..HEAD"
+else
+    rev_range="HEAD"
+fi
+
+if test "$create_commit" == "true"; then
+    target=$(print_candidates | show_menu)
+    if test -z "$target"; then
+        exit
+    fi
+    call_commit ${target%% *}
+    if test "$rebase" == "true"; then
+        call_rebase ${target%% *}
+    fi
+else
+    print_candidates
+fi
