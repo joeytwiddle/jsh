@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ "$(uname)" = "Darwin" ]
+then
+        echo "[columnise-clever] Skipping columnisation because it does not work well on macOS"
+        #sleep 0.1
+        cat
+        exit
+fi
+
 if [ "$1" = --help ]
 then
 cat << !

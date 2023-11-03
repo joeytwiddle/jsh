@@ -102,12 +102,15 @@ then
 fi
 
 # This has to come *after* the GIT_AWARE_PROMPT addition because that looks for %~ to insert itself!
-if true
+if false
 then
 	# Truncate the displayed path if it gets too long relative to the columns available in the terminal
 	get_folder_for_prompt() {
 		local max_len="$((COLUMNS-52))"
-		local folder="$(pwd | sed "s+$HOME\(/\|$\)+~\1+")"
+		# Does not work on macOS, it seems BSD sed cannot match $ inside brackets
+		#local folder="$(pwd | sed "s+^$HOME\(/\|$\)+~\1+")"
+		# So we do two searches instead
+		local folder="$(pwd | sed "s+^$HOME$+~+ s+^$HOME/+~/+")"
 		if [ ${#folder} -lt $((max_len+1)) ]
 		then prompt_folder="$folder"
 		#else prompt_folder="..${folder:(-$max_len+2)}"

@@ -21,6 +21,8 @@ export SHELL
 
 if [ -f "$HOME/.lscols" ]
 then . "$HOME/.lscols"
+elif ! which dircolors >/dev/null 2>&1 # Catch when dircolors is not present, instead of throwing an error
+then echo "[lscolsinit] dircolors is not installed" >&2
 elif [ -f "$HOME/.dircolors" ] # Your config - edit this
 then eval "$(dircolors "$HOME/.dircolors")"
 elif [ -f "$JPATH/code/home/.dircolors" ] # Work in jsh if not linked
