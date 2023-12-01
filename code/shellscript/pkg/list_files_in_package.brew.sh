@@ -2,4 +2,4 @@
 
 pkg_name="$1"
 
-brew list "$pkg_name"
+brew list --verbose "$pkg_name"
