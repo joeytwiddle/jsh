@@ -15,9 +15,19 @@ else
 fi
 shopt -s expand_aliases
 
+# To check remote branches which have not been merged into your current branch
+branches_to_check="refs/remotes"
+branch_to_compare_against="HEAD"
+show_zero_only=.
+
+# To check local branches which have (not) been merged into origin/master
+#branches_to_check="refs/heads"
+#branch_to_compare_against="origin/master"
+#show_zero_only=
+
 #git branch -r |
 # Prefer to sort branches by most-recent-commit
-git for-each-ref --sort=committerdate refs/remotes --format="%(refname:short)" |
+git for-each-ref --sort=committerdate "$branches_to_check" --format="%(refname:short)" |
 
 # Trim some repeats
 grep -v ' -> ' |
@@ -25,9 +35,9 @@ grep -v '/HEAD$' |
 
 while read -r branch
 do
-	base_commit="$(git merge-base HEAD "$branch")"
+	base_commit="$(git merge-base "$branch_to_compare_against" "$branch")"
 	count="$(git log --oneline "${base_commit}...${branch}" | wc -l)"
-	if [ "$count" -gt 0 ]
+	if [ "$count" -gt 0 ] || [ -z "$show_zero_only" ]
 	then
 		branch_name_and_last_commit_info="$(glc -n 1 --color=always "$branch")"
 		echo "${count} unmerged commits on ${branch_name_and_last_commit_info}"
