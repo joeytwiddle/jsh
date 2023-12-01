@@ -11,7 +11,7 @@ if [ "$#" = 1 ]
 then
 	branch1="HEAD"
 	branch2="$1"
-elif [ "$@" = 2 ]
+elif [ "$#" = 2 ]
 then
 	branch1="$1"
 	branch2="$2"
