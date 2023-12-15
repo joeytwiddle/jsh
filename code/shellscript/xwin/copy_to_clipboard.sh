@@ -1,3 +1,8 @@
 #!/usr/bin/env bash
 
-cat "$@" | xclip -selection c
+if [ "$(uname)" = Darwin ]
+then
+	cat "$@" | pbcopy
+else
+	cat "$@" | xclip -selection c
+fi
