@@ -257,11 +257,21 @@ If you want to run jsh on Mac OS X then you probably want to:
 
     $ brew install coreutils gnu-sed findutils
 
-Then add the following lines to your `.bashrc` or `.zshrc`, *before* the `JPATH` lines we inserted earlier:
+Then add the following lines to your `.zshrc` or `.bashrc`, *before* the `JPATH` lines we inserted earlier:
 
+    # Old
     export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
     export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
     export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
+
+    # New
+    # For ls and dircolors (these are actually symlinks to /opt/homebrew/Cellar/coreutils/9.4/bin which contains the executables prefixed with 'g', e.g. 'gls' and 'gdircolors')
+    export PATH="/opt/homebrew/Cellar/coreutils/9.4/libexec/gnubin:$PATH"
+    export PATH="/opt/homebrew/Cellar/gnu-sed/4.9/libexec/gnubin:$PATH"
+    export PATH="/opt/homebrew/Cellar/findutils/4.9.0/libexec/gnubin:$PATH"
+
+    # This includes a lot of "apps" but not the commands we want above
+    #export PATH="/opt/homebrew/bin:$PATH"
 
 This is because Jsh makes heavy use of GNU utils such as `grep` and `sed`.  Although many of these programs are distributed with Mac OS X, they are BSD versions and do not accept exactly the same arguments.
 
