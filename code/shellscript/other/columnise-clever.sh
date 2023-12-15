@@ -1,6 +1,7 @@
 #!/bin/sh
 
-if [ "$(uname)" = "Darwin" ]
+# TODO: But actually it works fine with GNU coreutils installed
+if [ "$(uname)" = "Darwin" ] && false
 then
         echo "[columnise-clever] Skipping columnisation because it does not work well on macOS"
         #sleep 0.1
