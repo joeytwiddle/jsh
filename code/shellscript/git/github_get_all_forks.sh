@@ -23,7 +23,12 @@ node -e "
 " |
 
 if [ "$1" = -do ]
-then bash
+then
+  bash
+  echo
+  echo "You may now try this to see what the forks have changed:"
+  echo
+  echo "git log --remotes --stat --oneline --graph"
 else
     cat
     echo
