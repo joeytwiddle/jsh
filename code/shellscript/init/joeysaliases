@@ -45,6 +45,7 @@ show_function_source() {
 show_function_or_alias() {
 	echo "For bash: type $*"
 	echo "For zsh: which $*"
+	# In zsh, type -f also shows function source code
 	return 1
 }
 
