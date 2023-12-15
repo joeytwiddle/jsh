@@ -4,10 +4,10 @@
 ## xisrunning - check we have an accessible running X display
 # jsh-ext-depends: xterm xdpyinfo
 
-# On macOS, if XQuartz is not running, this script will often start it, which is slow!
-# That is rarely what I actually want.  So for now on Mac, let's just always answer no.
+# On macOS, I don't know how to check whether we are connected to the UI or not, so let's just assume we are.
+# If XQuartz is installed but not currently running, then continuing to run this script will start it, which is slow and undesirable.
 if [ "$(uname)" = 'Darwin' ]
-then exit 1
+then exit 0
 fi
 
 if [ -z "$DISPLAY" ]
