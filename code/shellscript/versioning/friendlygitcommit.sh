@@ -26,6 +26,14 @@ sed 's+^"\(.*\)"$+\1+' |
 # We will just trim them out
 grep -v '/$' |
 
+# Sometimes useful to sort alphabetically
+#sort |
+# But probably more often useful for me, to sort most recent first
+# Note that this adds "$git_toplevel_dir" to the front of each filename, which we didn't do before
+while read FILE
+do stat -c "%Y %n" "${git_toplevel_dir}/${FILE}"
+done | sort -r -n | cut -d' ' -f2- |
+
 while read FILE
 do
 
