@@ -1,4 +1,8 @@
 #!/bin/sh
+
+## Alternative: (May need xargs batching enabled)
+# xargs stat -c "%Y %n" | sort -n | cut -d' ' -f2-
+
 ## This implementation cannot deal with more files than shell args can take:
 # if [ ! "$*" ]
 # ## We weren't given any args; so presumably we were streamed the files via our input stream...
