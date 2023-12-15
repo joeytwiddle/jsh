@@ -213,16 +213,22 @@ bindkey '^[[Z' reverse-menu-complete
 # https://unix.stackexchange.com/questions/16101/zsh-search-history-on-up-and-down-keys/
 #
 # Approach 1
-bindkey "$terminfo[kcuu1]" history-beginning-search-backward
-bindkey "$terminfo[kcud1]" history-beginning-search-forward
+# ISSUE: If you press <Up> on an empty line (macOS 2023) the cursor will remain at the start of the line.  We would prefer the cursor jump to the end of the line, which is what up-line-or-beginning-search below does.
+#bindkey "$terminfo[kcuu1]" history-beginning-search-backward
+#bindkey "$terminfo[kcud1]" history-beginning-search-forward
+# On macOS, the terminfo method did not work for me, so I switched to this instead
+#bindkey "^[[A" history-beginning-search-backward
+#bindkey "^[[B" history-beginning-search-forward
 #
 # Approach 2
-#autoload -U up-line-or-beginning-search
-#autoload -U down-line-or-beginning-search
-#zle -N up-line-or-beginning-search
-#zle -N down-line-or-beginning-search
+autoload -U up-line-or-beginning-search
+autoload -U down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
 #bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
 #bindkey "$terminfo[kcud1]" down-line-or-beginning-search
+bindkey "^[[A" up-line-or-beginning-search
+bindkey "^[[B" down-line-or-beginning-search
 
 # On my last system the Up and Down keys were "OA" and "OB".
 # However it is more portable to use the dynamic values available in $terminfo
