@@ -74,7 +74,12 @@ then
 
 		## Could be moved up into dir creation code, if people want to open up their tmpdirs!
 		## This is safer for tmpdir data protection, but dangerous if user wanted TOPTMP to remain open (eg. /tmp if U R root!)
-		chmod go-rwx $TOPTMP
+		##
+		## On macOS,/var/folders/1t/nyrXXXX55bb_83tmbXXXXXXc0000gn/T/ already has these permissions, and trying to set them prints an error "changing permissions of 'XXXXX': Operation not permitted"
+		if [ "$(uname)" = Darwin ]
+		then chmod go-rwx "$TOPTMP" 2>/dev/null
+		else chmod go-rwx "$TOPTMP"
+		fi
 		## Also, what's to say that we are neccessarily owner?!
 
 	fi
