@@ -4,6 +4,19 @@ set -e
 # If the file is a text file, this script will show you the contents
 # But if it's not a text file, then it will try to work out what type of file it is, and show details about it, or what is inside it
 
+if [ -n "$2" ]
+then
+    for filename in "$@"
+    do
+        printf "%s\n" "=============================================================================="
+        printf "%s\n" "$filename"
+        printf "%s\n" "=============================================================================="
+        show_file_contents "$filename"
+        echo
+    done | less -REX
+    exit
+fi
+
 filename="$1"
 
 # Adapted from https://unix.stackexchange.com/a/275691/33967
