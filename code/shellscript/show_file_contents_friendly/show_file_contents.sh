@@ -24,7 +24,13 @@ is_binary() {
     LC_MESSAGES=C grep -Hm1 '^' < "$1" 2>&1 | grep -q '\(^Binary\|: binary file matches$\)'
 }
 
+is_image() {
+    file --mime-type "$1" | grep 'image/[^ ]*$' >/dev/null
+}
+
 pager() {
+    #export COLUMNS=20
+    #export COLUMNS="$(tput cols)"
     if which bat >/dev/null 2>&1
     then
         bat -f --style=plain "$1"
@@ -37,18 +43,37 @@ if [ -z "$filename" ]
 then
     # Presumably we are being piped input
     pager -
+elif [ ! -e "$filename" ] && [ ! -L "$filename" ]
+then
+    echo "No such file or directory: ${filename}" >&2
+    exit 1
 elif is_archive "$filename"
 then
     #nicels -l "$filename"
     #echo
     #echo "Content:"
     list_files_in_archive "$filename"
+# Experiment disabled because sometimes when running in fzf, kitty's output will mess up the terminal
+#elif is_image "$filename" && which kitty >/dev/null 2>&1
+#then
+#    # Unfortunately, this does not work inside fzf preview window
+#    kitty +kitten icat "$filename"
+#    # This tries (to render as boxes of colour) but fails
+#    #img2txt "$filename"
 elif is_binary "$filename"
 then
-    file "$filename"
+    if which bingrep >/dev/null 2>&1
+    then bingrep "$filename" | less -REX
+    elif which hexdump >/dev/null 2>&1
+    then hexdump -C "$filename" | less -REX
+    else file "$filename"
+    fi
 elif [ -d "$filename" ]
 then
-    nicels -l "$filename/"
+    (
+        echo "Contents of $(cursegreen)$(realpath "$filename")$(cursenorm)"
+        nicels -l "$filename/"
+    ) | less -REX
 elif [ -f "$filename" ]
 then
     # Show contents
