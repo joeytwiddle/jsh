@@ -54,6 +54,7 @@ then
 	fi
 	commitID=`git log -n "$revisionIndex" "$filename" | grep --line-buffered "^commit " | tail -n 1 | cut -d ' ' -f 2`
 	# CONSIDER: Perhaps we could just use HEAD^$revisionIndex or HEAD~~$revisionIndex ?
+	# No, because surely that would count commits that didn't change this file.
 fi
 
 olderFile="$filename"."$commitID"
