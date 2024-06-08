@@ -44,7 +44,7 @@ then
 			## We allow unrecognised "data" files, or recognised things if they are tracker files :)
 			if file "$trackerFile" | grep -i "\(: data$\|tracker\)" >/dev/null
 			then echo "$trackerFile"
-			else echo "Dropping non-tracker file: $trackerFile" >&2
+			else echo "Dropping non-tracker MOD file: $trackerFile" >&2
 			fi
 		done
 		cat "$JSH_ALL_AUDIO_FILES" | grep -v "$TRACKER_FORMATS" ## everything else we didn't check
