@@ -60,7 +60,8 @@ else
 	cd "$PRIVFILEDIR"
 	jshinfo "[sbash] In $PRIVFILEDIR"
 	jshinfo "[sbash] Decrypting into $PRIVFILEBASE"
-	decryptdir "$PRIVFILEBASE" || exit 1
+	# 2024/06/06 - the expect package created /usr/bin/decryptdir so we need to point to the JSH executable instead
+	"$JPATH/tools"/decryptdir "$PRIVFILEBASE" || exit 1
 
 fi
 
@@ -77,7 +78,7 @@ fi
 
 if [ -d .git ] && which git >/dev/null 2>&1
 then
-	verbosely git add . &&
+	verbosely git add -A &&
 		verbosely git commit -m "Changes at $(date +"%Y%m%d-%H%M")" || true
 fi
 
