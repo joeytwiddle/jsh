@@ -287,6 +287,8 @@ alias xv=myxv
 
 ## == Joey's Aliases: Additions ==
 
+alias open='xdg-open'
+
 # alias l='ls -l'
 ## superceded by the l shellscript:
 # alias l='. l'
@@ -325,7 +327,7 @@ mwhich() {
 }
 alias mw='mwhich'
 lwhich() {
-	l "$(which "$1")"
+	nicels -ld "$(which "$1")"
 }
 
 # This is the most common find operation I do
@@ -445,6 +447,7 @@ alias nautilus='inbg nautilus'
 alias konqueror='inbg konqueror'
 alias okular='inbg okular'
 
+alias gq.='gq .'
 alias gqs='gq ~/screenshots'
 alias gqds='gq ~/Dropbox/screenshots'
 alias gqt='gq /tmp'
@@ -454,6 +457,7 @@ alias gqdp='gq ~/Dropbox/pix'
 alias gqw='gq ~/Wallpapers'
 alias gqm='gq ~/Dropbox/pix/memes'
 alias gqpol='gq ~/Dropbox/pix/political'
+alias gqpp='gq ~/Pictures/protest'
 
 # When using a window manager other than Gnome, we don't want a Gnome desktop just because we started Nautilus
 alias nlus='inbg nautilus --no-desktop'
@@ -570,8 +574,10 @@ alias freewm='free -w -m'
 
 # Heavy processes that take a long time should be gentle.
 
+alias apt-get='ionice -c 3 nice -n 15 apt-get'
 alias debuild='ionice -c 3 nice -n 15 debuild'
 alias vagrant='ionice -c 3 nice -n 15 vagrant'
+alias pamac='ionice -c 3 nice -n 15 pamac'
 
 
 
@@ -596,3 +602,8 @@ alias dr='docker run --rm -ti'
 
 # From: https://twitter.com/jonlambertt/status/1428284152881815558
 alias please='sudo $(fc -ln -1)'
+
+# Disabled.  I prefer to use a jsh script, because it can be edited without needing to reload
+#alias ai='sgpt'
+
+alias pound-sterling='echo "Ctrl-Shift-U A 3 <Space> (doesn_t work in Vim or Konsole)"'
