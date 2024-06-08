@@ -271,7 +271,8 @@ CKSUM="`
 	echo "[$MEMOEXTRA]$REALPWD/$*" |
 	# md5sum is not installed on Mac OSX by default, but cksum is.
 	#md5sum -
-	cksum -
+	#cksum -
+	sha256sum -
 `"
 # If either md5sum or cksum fail, this can lead to hash collisions.  So if a good hash can not be generated, we should abort!
 if [ ! "$?" = 0 ]
