@@ -7,6 +7,16 @@
 #
 # watchdog might be worth a look.  Written in Python, cross-platform, appears to use inotify if it can.
 
+# Also, sgpt said: There are several ways to monitor which files a process is writing and reading:
+#
+# 1. Using tools like `strace` or `ltrace` which can trace system calls made by a process, including file operations like `read`, `write`, `open`, `close`, etc. You can run these tools with the `-p` flag followed by the process ID of the target process.
+#
+# 2. Using tools like `lsof` (List Open Files) or `fuser` to list all files opened by a specific process. You can run these tools with the `-p` flag followed by the process ID to see which files are opened by the process.
+#
+# 3. Using file system monitoring tools like `inotify` or `auditd` to track file system events such as file access, file modification, file creation, etc. You can set up monitoring rules to track file operations by specific processes.
+#
+# 4. Using a file system hierarchy snapshot tool like `sysdig` or `incron` to monitor changes in files and directories, including which processes are accessing or modifying them.
+
 # On macOS use fswatch
 if which fswatch >/dev/null 2>&1
 then
