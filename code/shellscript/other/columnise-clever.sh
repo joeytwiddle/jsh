@@ -1,5 +1,7 @@
 #!/bin/sh
 
+# See also: column -t -l 5
+
 # TODO: But actually it works fine with GNU coreutils installed
 if [ "$(uname)" = "Darwin" ] && false
 then

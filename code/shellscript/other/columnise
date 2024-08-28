@@ -1,5 +1,8 @@
+#!/usr/bin/env bash
 # jsh-depends-ignore: after
 # jsh-ext-depends: sed column
+
+# See also: column -t -l 5
 
 if [ "$1" = --help ]
 then
