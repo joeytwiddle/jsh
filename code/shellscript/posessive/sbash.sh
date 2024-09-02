@@ -68,7 +68,7 @@ cd "$PRIVFILEDIR"
 jshinfo "[sbash] Invoking shell in $PRIVFILEDIR/$PRIVFILEBASE"
 export PS1='[SBASH!]'" $PS1" ## TODO: does not work
 cd "$PRIVFILEBASE" &&
-bash
+bash -i
 if [ ! "$?" = 0 ]
 then
 	error "[sbash] bash exited with error; NOT encrypting the folder!"
