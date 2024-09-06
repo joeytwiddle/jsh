@@ -150,7 +150,9 @@ else
 
 	## for sh -x debugging
 	# PS4="+\[`cursegreen`\]\W\[`cursenorm`\]\$ " ## see hwipromptforzsh
-	PS4="+[\[`cursered;cursebold`\]\s${COLRESET}]\[`cursegreen`\]\W${COLRESET}\$ "
+	#PS4="#[\[`cursered;cursebold`\]\s${COLRESET}]\[`cursegreen`\]\W/${COLRESET}\$ "
+	PS4="\[`cursecyan;cursebold`\]###\[${COLRESET}\] "
+	export PS4
 
 fi
 
