@@ -267,6 +267,9 @@ else
 					shopt -s cdspell checkhash checkwinsize dotglob histappend histreedit histverify hostcomplete mailwarn no_empty_cmd_completion shift_verbose
 					# Disabled (under consideration): cmdhist
 
+					# bind "set bell-style none"
+					## On iTerm2 this displays an error, so we suppress errors
+					bind "set bell-style visual" 2>/dev/null
 				fi
 				## TODO: if neither zsh or bash, we should establish SHORTSHELL with whatshell (heavy), cos it's needed for xttitleprompt.
 				##       for the moment, we don't start xttitleprompt

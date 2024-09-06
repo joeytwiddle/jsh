@@ -33,7 +33,7 @@ pager() {
     #export COLUMNS="$(tput cols)"
     if which bat >/dev/null 2>&1
     then
-        bat -f --style=plain "$1"
+        bat --theme="Monokai Extended Bright" --pager="less -REX" -f --style=plain "$1"
     else
         less -REX "$1"
     fi

@@ -253,6 +253,11 @@ myls() {
 }
 alias l='myls'
 
+# We use this to avoid "command not found: compdef" on macOS
+if [ -n "$ZSH_NAME" ]
+then autoload -Uz compinit && compinit 
+fi
+
 if [ -n "$ZSH_NAME" ]
 then compdef myls=ls
 fi
