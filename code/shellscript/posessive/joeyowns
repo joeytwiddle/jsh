@@ -1,5 +1,6 @@
-WHAT="$@"
-if test "$WHAT" = ""; then
-	WHAT="*"
-fi
-chown joey:joey $WHAT -R
+#!/usr/bin/env bash
+set -e
+
+sudo chown joey:joey "$@" -R
+
+sudo chmod u+rw "$@" -R
