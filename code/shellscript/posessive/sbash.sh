@@ -76,10 +76,15 @@ then
 	exit 4
 fi
 
+# macOS was creating these annoying files which we don't need
+#find . -type f -name '._*' -exec 'rm' '-f' '{}' ';'
+find . -type f -name '._*' -delete
+
 if [ -d .git ] && which git >/dev/null 2>&1
 then
 	verbosely git add -A &&
 		verbosely git commit -m "Changes at $(date +"%Y%m%d-%H%M")" || true
+	git gc
 fi
 
 jshinfo "[sbash] Calling: cd \"$PRIVFILEDIR\""
