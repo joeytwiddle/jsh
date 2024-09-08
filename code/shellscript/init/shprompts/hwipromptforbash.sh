@@ -33,7 +33,8 @@ fi
 USERHOST=""
 # || [ -n "$SCREEN" ] || [ -n "$TMUX" ]
 # || [ "$TERM" = screen ]
-if ! [ "$USER" = joey ] || [ -n "$SSH_CONNECTION" ]
+#if ! [ "$USER" = joey ] || [ -n "$SSH_CONNECTION" ]
+if [ -n "$SSH_CONNECTION" ] || ( [ "$USER" != joey ] && [ "$USER" != joey.clark ] )
 then USERHOST="${COLOR}\u${OTHERCOLOR}@${COLOR}\h${COLRESET}:"
 fi
 
