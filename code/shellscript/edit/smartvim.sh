@@ -18,7 +18,7 @@ else
 	# Open in a common session for this desktop
 	## We don't attempt this if we are root, in case the existing vim session is not owned by root.
 	## (It would be preferable to check properly if the existing session is owned by this user.)
-	if [ -z "$vim_server_name" ] && [ "$UID" != 0 ]
+	if [ -z "$vim_server_name" ] && [ "$UID" != 0 ] && which wmctrl >/dev/null 2>&1
 	then
 		current_desktop="$(wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
 		vim_server_name="desktop-$current_desktop"
