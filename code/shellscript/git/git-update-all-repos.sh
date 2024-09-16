@@ -14,22 +14,26 @@ echo "# Starting at $(date)"
 
 #ALSO_RUN_GIT_GC=1
 
-#find "$HOME/" -type d -name .git |
-locate -r '/\.git$' |
+# For some reason, locate on macOS was not scanning /Users folders
+if [ "$(uname)" = Darwin ]
+then find "$HOME/" -type d -name .git
+else locate -r '/\.git$'
+fi |
 
 fgrep "$HOME/" |
-
-sed 's+/\.git$++' |
 
 fgrep -v "/porridge_home/" |
 fgrep -v "/mnt/" |
 fgrep -v "/strato/" |
 fgrep -v "/rc_files.from_strato/" |
 fgrep -v "/.cache/" |
-grep -v "/jspm-cache$" |
-grep -v "/\.nvm$" |
+grep -v "/jspm-cache/" |
+grep -v "/\.nvm/" |
+grep -v "/homebrew/" |
 
 #cat ; exit
+
+sed 's+/\.git$++' |
 
 while read repo_folder
 do
