@@ -259,16 +259,10 @@ If you want to run jsh on Mac OS X then you probably want to:
 
 Then add the following lines to your `.zshrc` or `.bashrc`, *before* the `JPATH` lines we inserted earlier:
 
-    # Old
-    export PATH="/usr/local/opt/coreutils/libexec/gnubin:$PATH"
-    export PATH="/usr/local/opt/gnu-sed/libexec/gnubin:$PATH"
-    export PATH="/usr/local/opt/findutils/libexec/gnubin:$PATH"
-
-    # New
-    # For ls and dircolors (these are actually symlinks to /opt/homebrew/Cellar/coreutils/9.4/bin which contains the executables prefixed with 'g', e.g. 'gls' and 'gdircolors')
-    export PATH="/opt/homebrew/Cellar/coreutils/9.4/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/Cellar/gnu-sed/4.9/libexec/gnubin:$PATH"
-    export PATH="/opt/homebrew/Cellar/findutils/4.9.0/libexec/gnubin:$PATH"
+    # (This used to be /usr/local/opt)
+    export PATH="/opt/homebrew/opt/coreutils/libexec/gnubin:$PATH"
+    export PATH="/opt/homebrew/opt/gnu-sed/libexec/gnubin/:$PATH"
+    export PATH="/opt/homebrew/opt/findutils/libexec/gnubin:$PATH"
 
     # This includes a lot of "apps" but not the commands we want above
     #export PATH="/opt/homebrew/bin:$PATH"
