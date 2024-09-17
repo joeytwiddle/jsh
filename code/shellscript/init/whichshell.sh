@@ -1,4 +1,15 @@
-# @sourceme
+# Usage: shell="$(. whichshell)"
+# Alternative: . whatshell ; echo "$SHORTSHELL"
+echo "Recommend: Source whatshell instead, then check the variable SHORTSHELL" >&2
+. whatshell
+echo "$SHORTSHELL"
+# We seem to get away with this in bash and zsh at least
+return
+
+# The script below is problematic:
+# If we source it, the exit commands break the caller.
+# But if we don't source it, it tends to report bash rather than the shell it was called from!
+# I also had trouble running on zsh 5.9 on macOS: "read-only variable: LINENO"
 
 # whichshell 2>&- || SHTYPE=SH_OLD : do NOT eliminate this first comment line!  Eh?  Why not.  :P
 # No shebang!
