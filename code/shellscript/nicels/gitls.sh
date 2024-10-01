@@ -4,6 +4,10 @@
 # BUG: When directories are passed as arguments, they are not listed the same as with ls.  Instead of just filenames, each files full path is displayed.
 # Note that git is (currently) run from the caller's working directory, so cannot inspect files from a different repository.
 
+if [ "$1" = -l ]
+then GITLS_LONG_FORMAT=1; shift
+fi
+
 if [ "$1" = -R ]
 then GITLS_CHECK_FOLDERS=1; shift
 fi
@@ -74,9 +78,12 @@ do
 	fi
 	#echo -n "$extra "
 	cd "$cwd"
-	ls -ld --color "$node" | sed "s+^\([^ ]* *\)\{8\}+\0[$extra] +"
+	if [ -n "$GITLS_LONG_FORMAT" ]
+	then ls -ld --color "$node" | sed "s+^\([^ ]* *\)\{8\}+\0[$extra] +"
+	else ls -d --color "$node" | sed "s+^+[$extra] +"
+	fi
 done |
-if which columnise-clever >/dev/null 2>&1
+if [ -n "$GITLS_LONG_FORMAT" ] && which columnise-clever >/dev/null 2>&1
 then
 	# Ubuntu
 	#columnise-clever -ignore '^[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]* *[^ ]*' |
