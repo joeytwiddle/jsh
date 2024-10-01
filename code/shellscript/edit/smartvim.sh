@@ -11,7 +11,11 @@ else
 	# Open in a common session for this git repository
 	if [ -z "$vim_server_name" ]
 	then
-		git_toplevel="$(git rev-parse --show-toplevel 2>/dev/null)" || true
+		first_filename="$1"
+		git_toplevel="$(
+			cd "$(dirname "$(realpath "$first_filename")")"
+			git rev-parse --show-toplevel 2>/dev/null
+		)" || true
 		[ -n "$git_toplevel" ] && vim_server_name="$(basename "$git_toplevel")"
 	fi
 
