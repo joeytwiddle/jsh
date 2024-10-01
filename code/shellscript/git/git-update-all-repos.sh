@@ -16,7 +16,7 @@ echo "# Starting at $(date)"
 
 # For some reason, locate on macOS was not scanning /Users folders
 if [ "$(uname)" = Darwin ]
-then find "$HOME/" -type d -name .git
+then find "$HOME/" -type d -not '(' '(' -name Library -o -name .Trash -o -name homebrew ')' -prune ')' -name .git
 else locate -r '/\.git$'
 fi |
 
@@ -29,7 +29,6 @@ fgrep -v "/rc_files.from_strato/" |
 fgrep -v "/.cache/" |
 grep -v "/jspm-cache/" |
 grep -v "/\.nvm/" |
-grep -v "/homebrew/" |
 
 #cat ; exit
 
