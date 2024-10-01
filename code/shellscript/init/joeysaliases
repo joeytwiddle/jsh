@@ -615,6 +615,8 @@ then
 	#alias gqd='open ~/Downloads'
 	unalias gqt
 	alias gqt='open /tmp'
-else
-	alias open='xdg-open'
+fi
+
+if !command -v open >/dev/null 2>&1 && command -v xdg-open >/dev/null 2>&1
+then alias open='xdg-open'
 fi
