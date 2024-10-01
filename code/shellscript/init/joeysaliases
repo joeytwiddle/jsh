@@ -611,10 +611,10 @@ alias pound-sterling='echo "Ctrl-Shift-U A 3 <Space> (doesn_t work in Vim or Kon
 if [ "$(uname)" = Darwin ]
 then
 	# Geeqie doesn't work great on macOS (starts below other windows, keybinds are not as smooth as on Linux) to let's just use Finder for now
-	unalias gqs
-	alias gqs='open ~/Screenshots'
-	unalias gqd
-	alias gqd='open ~/Downloads'
+	#unalias gqs
+	#alias gqs='open ~/Screenshots'
+	#unalias gqd
+	#alias gqd='open ~/Downloads'
 	unalias gqt
 	alias gqt='open /tmp'
 fi
