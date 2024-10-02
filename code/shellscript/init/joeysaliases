@@ -287,8 +287,6 @@ alias xv=myxv
 
 ## == Joey's Aliases: Additions ==
 
-alias open='xdg-open'
-
 # alias l='ls -l'
 ## superceded by the l shellscript:
 # alias l='. l'
@@ -617,4 +615,6 @@ then
 	#alias gqd='open ~/Downloads'
 	unalias gqt
 	alias gqt='open /tmp'
+else
+	alias open='xdg-open'
 fi
