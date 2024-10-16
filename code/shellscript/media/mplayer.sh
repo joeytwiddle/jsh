@@ -115,7 +115,7 @@ done
 
 ## On pod -ao sdl was failing to keep up (clipping and reporting underruns, P&R) whilst -ao alsa was fine.  Leaving -ao sdl until desperate.
 ## This may be wrong for hwi - hwi's default alsa is significantly slower than sdl, probably due to the duplexing configuration.
-[ "$FAST" -gt 4 ] && OPTS="$OPTS -ao sdl"
+#[ "$FAST" -gt 4 ] && OPTS="$OPTS -ao sdl"
 
 ## -vo sdl is the sort of thing you can do yourself, if you remember to.
 #[ "$FAST" -gt 5 ] && OPTS="$OPTS -vo sdl" &&
@@ -123,7 +123,8 @@ done
 
 [ "$FAST" -gt 6 ] && OPTS="$OPTS -lavdopts lowres=0:fast:skiploopfilter=all:threads=4"
 
-[ "$FAST" -gt 7 ] && OPTS="$OPTS -nobps -ni -mc 0 -vo sdl"
+#[ "$FAST" -gt 7 ] && OPTS="$OPTS -nobps -ni -mc 0 -vo sdl"
+[ "$FAST" -gt 7 ] && OPTS="$OPTS -nobps -ni -mc 0"
 
 ## lowres=1 crashes on many videos, on just a few it makes decoding faster but with lower image quality
 [ "$FAST" -gt 8 ] && OPTS="$OPTS -lavdopts lowres=1:fast:skiploopfilter=all"
