@@ -22,7 +22,10 @@ OPTS="-vo gl,xv,x11" ## under gentoo this selects x11 which is slow.  gl sucks f
 # OPTS="$OPTS -ao sdl -zoom -idx"
 OPTS="$OPTS -zoom -idx"  # -vf scale
 OPTS="$OPTS -stop-xscreensaver"
-OPTS="$OPTS -cache 8192"
+#OPTS="$OPTS -cache 8192"
+# Larger cache for sd-card, which can be slow when I am also writing to it
+OPTS="$OPTS -cache 32768"
+OPTS="$OPTS -slang eng"
 
 ## When changing speed (with [ and ] or -speed), keep pitch the same
 ## TODO: This breaks the volume filter when enabled.  Perhaps we need to specify both in one -af option...?
