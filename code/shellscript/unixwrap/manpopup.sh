@@ -37,7 +37,7 @@ fi
 ## DONE: This caused problems when vnc was initialised from a screen, and had this variable exported to its children!  OK jsh has removed its export STY for the greater good.  Still, we could check X first, but that might feel odd when using screen under X, if DISPLAY is exported to the screen session.
 if [ "$STY" ]
 then screen -X screen -t '"'"$1"'"' $REALMAN -a "$@"
-elif xisrunning
+elif xisrunning && jwhich xterm >/dev/null 2>&1
 then
 	## Gah!  No matter what I do here, MANPOPUP_DESIRED_WIDTH is ignored, and the calling term's COLUMNS is used instead!
 	## It is probably doing something like `tput cols` to get the number of columns, and ignore the COLUMNS variable.
