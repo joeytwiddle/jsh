@@ -38,16 +38,16 @@ if [ -n "$SSH_CONNECTION" ] || ( [ "$USER" != joey ] && [ "$USER" != joey.clark 
 then USERHOST="${COLOR}\u${OTHERCOLOR}@${COLOR}\h${COLRESET}:"
 fi
 
+if declare -f find_git_branch >/dev/null
+then GIT_AWARE_PROMPT="\[`cursemagenta;cursebold`\]\$git_branch\[`cursegreen``cursebold`\]\$git_ahead_mark\$git_ahead_count\[`cursered``cursebold`\]\$git_behind_mark\$git_behind_count\[`cursecyan`\]\$git_staged_mark\$git_staged_count\[`curseyellow`\]\$git_dirty\$git_dirty_count\[`curseyellow``cursebold`\]\$git_stash_mark\[`curseblue`\]\$git_unknown_mark\$git_unknown_count\[`cursenorm`\]"
+fi
+
 # Seasonal bat prompt (like an easter egg):
 if date | grep "Oct 31" > /dev/null
 then
-	PS1="${COLRESET}/\[\033[00;35m\]\u${COLRESET})\[\033[00;34m\]at${COLRESET}(\[\033[00;35m\]\h${COLRESET}\\\\ \[\033[00;32m\]\w/${COLRESET} "
-	# PS1="${COLRESET}/\[\033[00;35m\]\\/${COLRESET})\[\033[00;34m\]oo${COLRESET}(\[\033[00;35m\]\\/${COLRESET}\\\\ \[\033[00;32m\]\w/${COLRESET} "
+	PS1="${COLRESET}/\[\033[00;35m\]\u${COLRESET})\[\033[00;34m\]at${COLRESET}(\[\033[00;35m\]\h${COLRESET}\\\\ \[\033[00;32m\]\w/${COLRESET}${GIT_AWARE_PROMPT} "
+	# PS1="${COLRESET}/\[\033[00;35m\]\\/${COLRESET})\[\033[00;34m\]oo${COLRESET}(\[\033[00;35m\]\\/${COLRESET}\\\\ \[\033[00;32m\]\w/${COLRESET}${GIT_AWARE_PROMPT} "
 else
-
-	if declare -f find_git_branch >/dev/null
-	then GIT_AWARE_PROMPT="\[`cursemagenta;cursebold`\]\$git_branch\[`cursegreen``cursebold`\]\$git_ahead_mark\$git_ahead_count\[`cursered``cursebold`\]\$git_behind_mark\$git_behind_count\[`cursecyan`\]\$git_staged_mark\$git_staged_count\[`curseyellow`\]\$git_dirty\$git_dirty_count\[`curseyellow``cursebold`\]\$git_stash_mark\[`curseblue`\]\$git_unknown_mark\$git_unknown_count"
-	fi
 
 	# Quite fun:
 	# PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\])\['`cursemagenta`'\]\u\['`cursenorm`'\]-\['`curseblue`'\]\t\['`cursenorm`'\]-\['`cursemagenta`'\]\h\['`cursenorm`'\](\['`cursegreen`'\]\w/\['`cursenorm`'\] '
