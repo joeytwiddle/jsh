@@ -1,13 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
-echo "Try git show on the following commits or blobs:"
-echo
-verbosely git fsck --lost-found
-
-# If you are looking for a lost stash, you may try this:
-#     gitk --all $( git fsck --no-reflog | awk '/dangling commit/ {print $3}' )
-# From here: https://stackoverflow.com/questions/89332/how-do-i-recover-a-dropped-stash-in-git
+#echo "Try git show on the following commits or blobs:"
+#echo
+#verbosely git fsck --lost-found
 
 # I tried formatting the output, but it didn't list everything.
 # I'm not sure for-each-ref is the right thing to use.  I think that only works on branches?
@@ -15,3 +11,25 @@ verbosely git fsck --lost-found
 
 # Another script attempt.  Better, but I would like to add the sorting.
 #     git fsck --lost-found | grep -o '\<[0-9a-z]*$' | TODO_sort_blobs_by_date | while read blob; do git show --color=always "$blob"; done | less -RX
+
+(
+  echo "I will first show you dangling commits, then dangling blobs"
+  echo
+  echo "You may search for '# blob' to jump to the latter"
+  echo
+
+  # You can view dangling commits with
+  git-list-dropped-stashes
+
+  # For dangling blobs:
+  list_of_blobs="$(memo git fsck --lost-found | awk '/dangling blob/ {print $3}')"
+
+  for blob in $list_of_blobs
+  do
+    echo "# $(curseyellow;cursebold)blob ${blob}$(cursenorm)"
+    echo
+    git show "$blob"
+    echo
+  done
+) |
+less -RX
