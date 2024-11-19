@@ -3,12 +3,14 @@
 (
 
 	if command -v cht.sh >/dev/null 2>&1
-	then verbosely cht.sh "$@" ; echo
+	then
+		verbosely cht.sh "$@" ; echo
+	elif
+		# Try the cht.sh website
+		curl -s cht.sh/"$*"
+	then :
 	else
-		# Use the cht.sh website
-		#curl cht.sh/"$*"
-
-		# # If you use cht.sh, then you don't need to run cheat or tldr, because cht.sh will query them for us
+		# If you use cht.sh, then you don't need to run cheat or tldr, because cht.sh will query them for us
 		# However, they are good alternatives if you have no internet connection
 		# And cheat (go) is the fastest I have used
 
@@ -25,7 +27,10 @@
 	then verbosely bro "$@" ; echo
 	fi
 
-	own_cheatsheet="$HOME/Dropbox/cheatsheets/$1.md"
+	if [ -d "$HOME/Dropbox/cheatsheets" ]
+	then own_cheatsheet="$HOME/Dropbox/cheatsheets/$1.md"
+	else own_cheatsheet="$HOME/cheatsheets/$1.md"
+	fi
 	if [ -f "$own_cheatsheet" ]
 	then verbosely cat "$own_cheatsheet" ; echo
 	fi
