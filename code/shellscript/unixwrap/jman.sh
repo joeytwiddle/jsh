@@ -3,6 +3,10 @@
 ## Displays man page AND/OR jsh documentation for given command.
 
 JMAN_SPECIAL_COLORS=1
+## But don't try to do that if xrdb is not present
+if ! command -v xrdb >/dev/null 2>&1
+then JMAN_SPECIAL_COLORS=''
+fi
 
 ## Popup the man window first if running in X:
 if xisrunning
