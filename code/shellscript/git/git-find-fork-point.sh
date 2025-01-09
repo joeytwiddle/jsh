@@ -8,7 +8,12 @@ set -e
 # Once you have found the matching commit, you can reset to the commit in trunk instead, and replay (cherry-pick) any commits in this branch which came after the matching commit.
 
 # Check if the required branches are provided
-if [ "$#" = 1 ]
+if [ "$#" = 0 ]
+then
+	# We will use HEAD, but use the branch name if possible
+	current_branch="$(git rev-parse --abbrev-ref HEAD)"
+	other_branch="origin/main"
+elif [ "$#" = 1 ]
 then
 	# We will use HEAD, but use the branch name if possible
 	current_branch="$(git rev-parse --abbrev-ref HEAD)"
@@ -21,7 +26,9 @@ then
 	shift
 	shift
 else
-	echo "Usage: git-find-fork-point [<current-branch>] <other-branch>"
+	echo "Usage: git-find-fork-point [[<current-branch>] <other-branch>]"
+	echo
+	echo "Will try to find a commit in target-branch which has a tree matching a commit in other-branch"
 	exit 1
 fi
 
