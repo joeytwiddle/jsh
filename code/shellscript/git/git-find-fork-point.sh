@@ -10,7 +10,8 @@ set -e
 # Check if the required branches are provided
 if [ "$#" = 1 ]
 then
-	current_branch=HEAD
+	# We will use HEAD, but use the branch name if possible
+	current_branch="$(git rev-parse --abbrev-ref HEAD)"
 	other_branch="$1"
 	shift
 elif [ "$#" = 2 ]
@@ -20,14 +21,13 @@ then
 	shift
 	shift
 else
-	echo "Usage: $0 [<current-branch>] <other-branch>"
+	echo "Usage: git-find-fork-point [<current-branch>] <other-branch>"
 	exit 1
 fi
 
 # Get the tree hashes for the 'other' branch
 # I think --no-walk will not look inside the merges of the other branch, but that's something we probably need to do
-# We could perhaps use -all instead of -n 500
-other_tree_hashes="$(git rev-list -n 500 --objects $(git rev-parse "$other_branch") | awk '{print $1}')"
+other_tree_hashes="$(git rev-list -n 50 "$other_branch" | while read commit; do git rev-parse "${commit}^{tree}"; done)"
 
 # Iterate through the commits in the 'current' branch
 git rev-list -n 500 "$current_branch" |
@@ -39,9 +39,10 @@ do
 	# Check if the current tree hash is in the other branch's tree hashes
 	if printf "%s\n" "$other_tree_hashes" | grep -q "$current_tree_hash"
 	then
-		echo "First matching commit in '$current_branch': $commit"
+		echo "First commit in $current_branch which matches a commit in $other_branch is: $commit"
+		echo
+		echo "You may now like to: 'git rebase -i $other_branch' and delete all commits up to and including $commit"
 		exit 0
 	fi
-done
-
+done | grep ^ ||
 echo "No matching tree hash found in '$current_branch'."
