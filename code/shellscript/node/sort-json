@@ -1,0 +1,57 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+
+function deepSortKeys(obj) {
+    if (typeof obj !== 'object' || obj === null) return obj;
+
+    if (Array.isArray(obj)) {
+        return obj.map(deepSortKeys);
+    }
+
+    return Object.keys(obj)
+        .sort()
+        .reduce((acc, key) => {
+            acc[key] = deepSortKeys(obj[key]);
+            return acc;
+        }, {});
+}
+
+function sortJSON(input) {
+    try {
+        const json = JSON.parse(input);
+        const sortedJson = deepSortKeys(json);
+        const prettyJson = JSON.stringify(sortedJson, null, 2);
+
+        return prettyJson;
+    } catch (error) {
+        console.error('Error parsing JSON:', error.message);
+        process.exit(1);
+    }
+}
+
+const filename = process.argv[2];
+
+if (filename && filename !== '-') {
+    // Read from file
+    fs.readFile(filename, 'utf8', (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err.message);
+            process.exit(1);
+        }
+        const prettyJson = sortJSON(data);
+        fs.writeFileSync(filename, prettyJson, 'utf8'); 
+    });
+} else {
+    // Read from stdin
+    let input = '';
+
+    process.stdin.on('data', chunk => {
+        input += chunk;
+    });
+
+    process.stdin.on('end', () => {
+        const prettyJson = sortJSON(input);
+        console.log(prettyJson);
+    });
+}
