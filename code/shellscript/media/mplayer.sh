@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -e
 # jsh-ext-depends: killall
 # jsh-ext-depends-ignore: expand xscreensaver
 # jsh-depends: unj verbosely
@@ -192,6 +193,47 @@ then
 	# OPTS="$OPTS -vo gl"  ## keeps x fixes, but a little blue just like eq2
 fi
 
+# Read args into two arrays
+# It cannot really know if the first non `-` arg after the last `-` is an option value or a file.
+# Therefore you are recommended to pass `--` between your options and your file args.
+last_option_index=0
+for ((i = 1; i <= $#; i++)); do
+	if [[ "${!i}" == -* ]]
+	then last_option_index=$i
+	fi
+done
+options_array=()
+files_array=()
+for ((i = 1; i <= $#; i++)); do
+	if [[ $i -gt $last_option_index ]]
+	then files_array+=("${!i}")
+	else options_array+=("${!i}")
+	fi
+done
+
+# Check for -shuf option
+# Note: If you use -shuf then it's especially important to pass `--` to separate option arguments from the file/folder arguments
+if [[ " ${options_array[@]} " =~ " -shuf " ]]
+then
+	shuf=true
+	# Empty the -shuf entry
+	options_array=("${options_array[@]/-shuf/}")
+fi
+options_array=("${options_array[@]}")
+
+# If there are any folders listed, find the files below them
+# The problem with this approach is that sometimes non-options could leak into the list
+#mapfile -t files_array < <(find "${files_array[@]}" -type f)
+# So if the arg isn't a folder, then we just pass it back as it was
+mapfile -t files_array < <(for arg in "${files_array[@]}"; do if [ -d "$arg" ]; then find "$arg" -type f; else printf "%s\n" "$arg"; fi done)
+
+if [ -n "$shuf" ]
+# This approach doesn't work for filenames containing spaces
+#then files_array=($(printf "%q\n" "${files_array[@]}" | shuf))
+# But this does
+then mapfile -t files_array < <(printf "%s\n" "${files_array[@]}" | shuf)
+fi
+
 ## See also: new versions of mplayer have a -stop-xscreensaver option
 ## consider: could killall -STOP it, then unhalt it at end.
 killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
@@ -200,7 +242,8 @@ killall xscreensaver && XSCREENSAVER_WAS_RUNNING=true
 [ "$REMEMBER_WINDOW_POSITIONS" ] && wmctrl_store_positions
 
 [ "$MPLAYER" ] || MPLAYER=mplayer
-verbosely unj $MPLAYER $OPTS $EXTRA_OPTS "$@"
+#verbosely unj $MPLAYER $OPTS $EXTRA_OPTS "$@"
+verbosely unj $MPLAYER $OPTS $EXTRA_OPTS "${options_array[@]}" "${files_array[@]}"
 
 [ "$REMEMBER_WINDOW_POSITIONS" ] && wmctrl_restore_positions
 
