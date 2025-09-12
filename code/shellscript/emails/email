@@ -1,3 +1,0 @@
-cd $JPATH/code/java/net/email
-java SMTPprotocol &
-# netscape -messenger &

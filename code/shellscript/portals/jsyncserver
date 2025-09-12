@@ -1,6 +1,0 @@
-if [ "x$@" = "xlist" ]; then
-  more $JPATH/data/jsync-server.conf
-  exit 0
-fi
-
-java -cp $CLASSPATH:$JPATH/code/java/net/sync/ Server "$@"

@@ -1,6 +1,0 @@
-CLASSPATH=$CLASSPATH:$JPATH/code/java/tools/slave/
-while [ true ]; do
-  java -cp "$CLASSPATH" Slave
-  echo
-  echo "Slave exited!  Restarting..."
-done

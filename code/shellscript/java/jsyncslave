@@ -1,9 +1,0 @@
-DIR="$JPATH/code/java/net/sync"
-
-export SLAVEARGS="$@";
-jslave $DIR Client
-
-#CLASSPATH=$CLASSPATH:$DIR
-#java -cp "$CLASSPATH" Client $@
-
-# tar cfz jsync.tgz `cat $JPATH/tmp/sync-keeping.txt`

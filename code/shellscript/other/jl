@@ -1,6 +1,0 @@
-cd / # For memo
-FILEPATH=`memo find $JPATH/code/java -name "$@.java" | grep -v "/CVS/"`
-# FILEPATH="$JPATH/code/java/jlib/"`echo "$1" | tr "." "/"`".java"
-echo "$FILEPATH"
-edit $FILEPATH
-# editall "$FILEPATH" # this works?!

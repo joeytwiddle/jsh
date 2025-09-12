@@ -1,2 +1,0 @@
-export ARGS="$@"
-runcomlineprog /web/trawler/ Trawler

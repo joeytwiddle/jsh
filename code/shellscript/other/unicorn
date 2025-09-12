@@ -1,2 +1,0 @@
-# echo $CLASSPATH
-java -cp $CLASSPATH:$JPATH/code/java/tools/unicorn/ Unicorn $@

@@ -1,3 +1,0 @@
-#echo -e "unicorn $1 $2 $3 $4 $5 $6 $7 $8 $9 | more" > /tmp/tmp.txt
-echo -e "unicorn $1 $2 $3 $4 $5 $6 $7 $8 $9 | more\nsh" > /tmp/tmp.txt
-konsole -nowelcome -caption "Unicorn: $1 $2 $3 $4 $5 $6 $7 $8 $9" -e sh /tmp/tmp.txt&
