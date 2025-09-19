@@ -27,6 +27,3 @@ export PATH="$PATH:$JPATH/tools"
 # In future we may want to split the shell setup into interactive and non-interactive setups.
 #[ -f "$JPATH/global.conf" ] && . "$JPATH/global.conf"
 #[ -f "$JPATH/local.conf" ] && . "$JPATH/local.conf"
-
-#. javainit
-#. hugsinit

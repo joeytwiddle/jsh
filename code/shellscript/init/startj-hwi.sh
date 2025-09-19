@@ -204,9 +204,6 @@ else
 			# zsh on Solaris gives errors on . so I use source
 			# forget why I switched back to using .
 
-			. javainit
-			. hugsinit
-
 			### NB: On Hwi with /bin/sh ". startj simple" does not provide "simple" in $1 !
 
 			if [ ! "$1" = "simple" ] && ! [ "$STARTJ_SIMPLE" ]
