@@ -1,5 +1,0 @@
-# @sourceme
-
-export HUGSFLAGS='-E"vi +%d %s" +s';
-# export HUGSFLAGS=-'P/usr/local/share/hugs/lib/:'$JPATH'/install/hugs98/lib:'$JPATH'/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:'$JPATH'/code/hugs -E"vi +%d %s" +s';
-# export HUGSPATH='/usr/local/share/hugs/lib/:'$JPATH'/install/hugs98/lib:'$JPATH'/install/hugs98/lib/hugs:/usr/local/share/hugs/lib/exts:'$JPATH'/code/hugs';
