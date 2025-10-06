@@ -627,3 +627,7 @@ fi
 if !command -v open >/dev/null 2>&1 && command -v xdg-open >/dev/null 2>&1
 then alias open='xdg-open'
 fi
+
+if [ -f ~/.config/jsh/aliases.local ]
+then source ~/.config/jsh/aliases.local
+fi
