@@ -65,29 +65,26 @@ fi
 temp_file=$(mktemp)
 trap 'rm -f "$temp_file"' EXIT
 
-curl -s -H "Content-Type: application/json" -d "${payload}" "${API_URL}" |
+curl -sS -H "Content-Type: application/json" -d "${payload}" "${API_URL}" |
 #tee /dev/stderr |
 #tee >(
 #    dateeachline "[response] " >/dev/stderr
 #) |
-while read -r line
+grep --line-buffered '^data:' |
+while read -r data json_data
 do
-    if [[ $line == "data:"* ]]
-    then
-        json_data=$(echo "$line" | sed 's/^data: //')
-        if echo "$json_data" | jq -e '.error' > /dev/null
-    then
+        if jq -e '.error' > /dev/null <<< "$json_data"
+        then
             echo "Error from API:"
-            echo "$json_data" | jq '.'
+            jq '.' <<< "$json_data"
             exit 1
         fi
-        chunk=$(echo "$json_data" | jq -r '.candidates[0].content.parts[0].text' 2>/dev/null)
+        chunk=$(jq -r '.candidates[0].content.parts[0].text' 2>/dev/null <<< "$json_data")
         if [ -n "$chunk" ]
         then
             echo -n "$chunk"
             echo -n "$chunk" >> "$temp_file"
         fi
-    fi
 done |
 bat --pager="less -REX" -f --style=plain --force-colorization --language=markdown
 
