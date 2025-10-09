@@ -12,7 +12,9 @@ set -e
 MODEL="${MODEL:=gemini-2.0-flash}"
 #MODEL="${MODEL:=gemini-2.5-flash}"
 CONVERSATION_NAME="${CONVERSATION:=unnamed}"
-CONVERSATION_FILE="/tmp/gemini_conversation.${CONVERSATION_NAME}.json"
+#CONVERSATION_FILE="/tmp/gemini_conversation.${CONVERSATION_NAME}.json"
+CONVERSATION_FILE="${HOME}/.cache/ai/gemini_conversation.${CONVERSATION_NAME}.json"
+mkdir -p "$(dirname "$CONVERSATION_FILE")"
 
 API_URL="https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}"
 
@@ -96,6 +98,9 @@ response_content_object=$(jq -n --arg text "$response_text" '{role: "model", par
 # Save or update the conversation history file
 if [ "$1" != "-r" ]
 then
+    if [ -f "$CONVERSATION_FILE" ] && command -v rotate >/dev/null 2>&1
+    then rotate -nozip -max 20 "$CONVERSATION_FILE" 2>&1 | grep -v '^\[rotate\] ' || true
+    fi
     # The initial user part was already constructed
     user_part=$(jq -n --arg text "$PROMPT" '{role: "user", parts: [{text: $text}]}')
     # Create a new history array
