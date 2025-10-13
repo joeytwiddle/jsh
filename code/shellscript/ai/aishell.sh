@@ -13,6 +13,9 @@ fi
 
 # But now I'm using ask-ollama or ask-gemini
 
+shell=bash
+os="$(uname -a | cut -d ' ' -f 1,3)"
+
 # My original prompt
 #SHELL_PREAMBLE="
 #The user wants a command which will run on the Linux shell.
@@ -23,15 +26,20 @@ fi
 #$*
 #"
 
-# Prompt lifted from shell_gpt
+# Current prompt copied from shell_gpt
+#
+# https://github.com/wunderwuzzi23/yolo-ai-cmdbot/blob/main/prompt.txt
+# https://github.com/TheR1D/shell_gpt/blob/caa4fbf/sgpt/make_prompt.py#L15 <-- Current
+# https://github.com/TheR1D/shell_gpt/blob/9615dfbec856c1e1822adc4d9e4a3a3035a002b0/sgpt/role.py#L18
+#
 SHELL_PREAMBLE="
-Act as a natural language to {shell} command translation engine on {os}.
-You are an expert in {shell} on {os} and translate the question at the end to valid syntax.
+Act as a natural language to ${shell} command translation engine on ${os}.
+You are an expert in ${shell} on ${os} and translate the question at the end to valid syntax.
 
 Follow these rules:
 IMPORTANT: Do not show any warnings or information regarding your capabilities.
 Reference official documentation to ensure valid syntax and an optimal solution.
-Construct valid {shell} command that solve the question.
+Construct valid ${shell} command that solve the question.
 Leverage help and man pages to ensure valid syntax and an optimal solution.
 Be concise.
 Just show the commands, return only plaintext.
