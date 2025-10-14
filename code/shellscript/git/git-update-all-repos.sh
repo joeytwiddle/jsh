@@ -16,19 +16,21 @@ echo "# Starting at $(date)"
 
 # For some reason, locate on macOS was not scanning /Users folders
 if [ "$(uname)" = Darwin ]
-then find "$HOME/" -type d -not '(' '(' -name Library -o -name .Trash -o -name homebrew ')' -prune ')' -name .git
+then find "$HOME/" -type d -not '(' '(' -name Library -o -name .Trash -o -name homebrew -o -name node_modules ')' -prune ')' -name .git
 else locate -r '/\.git$'
 fi |
 
 fgrep "$HOME/" |
 
+fgrep -v "/.Trash/" |
+fgrep -v "/node_modules/" |
+fgrep -v "/.nvm/" |
+fgrep -v "/.cache/" |
+fgrep -v "/jspm-cache/" |
 fgrep -v "/porridge_home/" |
 fgrep -v "/mnt/" |
 fgrep -v "/strato/" |
 fgrep -v "/rc_files.from_strato/" |
-fgrep -v "/.cache/" |
-grep -v "/jspm-cache/" |
-grep -v "/\.nvm/" |
 
 #cat ; exit
 
@@ -78,3 +80,5 @@ awk '
 	f && /could not read Password/ {p=1}
 	/^$/ {if (f && i && !p) printf "%s", rec; f=0}
 '
+
+echo "# Finished at $(date)"
