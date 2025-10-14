@@ -242,8 +242,9 @@ else
 					### Options for zsh
 					## Act like bash: if a glob is provided with no matches, don't complain, just apply it
 					setopt nonomatch
-					HISTSIZE=10000
-					SAVEHIST=50
+
+					HISTSIZE=2000
+					SAVEHIST=2000
 					# setopt HIST_NO_STORE
 					setopt HIST_IGNORE_DUPS HIST_REDUCE_BLANKS
 					# I don't need HIST_VERIFY on zsh, because I perform tab-completion first if I am unsure.
@@ -255,6 +256,8 @@ else
 					. hwipromptforbash
 
 					### Options for bash
+					HISTSIZE=2000
+					HISTFILESIZE=2000
 					# cdspell: Correct minor mistakes when using cd builtin (but not when using aliased cd=d)
 					# histverify: When expanding !, don't run the command immediately, show the expansion first.
 					#   Without this !<something><Enter> can be quite dangerous, if an unexpected line is run.
