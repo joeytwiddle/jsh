@@ -77,6 +77,8 @@ alias grep='grep --line-buffered --colour=auto'
 
 alias rg='rg -M "$((COLUMNS * 20))"'
 alias rgi='rg -M "$((COLUMNS * 20))" -i'
+alias rginh='rg -M "$((COLUMNS * 20))" -i --no-heading'
+alias rgin='rg -M "$((COLUMNS * 20))" -i --no-heading --no-line-number'
 alias rga='rg -M "$((COLUMNS * 20))" -g "*"'
 rgm() {
 	rg --color=always "$@" | m
@@ -509,6 +511,7 @@ alias nrbw='npm run build:watch'
 alias nl='npm run lint'
 alias nrl='npm run lint'
 alias nrc='npm run check'
+alias nrdist='npm run dist'
 
 alias yarn='ionice nice yarn'
 alias y='yarn'
@@ -535,6 +538,10 @@ alias yx-='yarn exec --'
 alias yui='yarn upgrade-interactive'
 alias ywhy='yarn why'
 alias yy='yarn why'
+alias ydist='yarn dist'
+
+alias nsc='npmscripts'
+alias nscr='npmscripts'
 
 # We should not use `l` inside functions, because aliases are expanded when this script is parsed.  If any `l` alias was defined before this script is loaded, that `l` alias will be expanded, and this script can do nothing to stop it, because any commands it runs will happen afterwards.
 # Therefore, inside functions we must use `myls` instead of `l` because `myls` is a function.
