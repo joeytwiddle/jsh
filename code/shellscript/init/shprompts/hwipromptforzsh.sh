@@ -7,7 +7,8 @@ setopt PROMPT_SUBST
 # Set the color for the command line editor.
 #zle_highlight=( default:bg=black,fg=white )
 
-if [[ "$USER" = joey ]] && [[ -z "$SSH_CONNECTION" ]] && false #[ "$SHORTHOST" = hwi ] || [[ "$SHORTHOST" = tomato ]]
+#if [[ "$USER" = joey ]] && [[ -z "$SSH_CONNECTION" ]] && false #[ "$SHORTHOST" = hwi ] || [[ "$SHORTHOST" = tomato ]]
+if [[ -z "$SSH_CONNECTION" ]]
 then
 
 		## By far the coolest prompt
