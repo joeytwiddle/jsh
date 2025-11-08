@@ -1,6 +1,14 @@
 #!/bin/sh
 # jsh-depends-ignore: arguments
 
+# We can achieve something similar with ripgrep. Unfortunately grep uses BRE
+# (Basic Regular Expressions) but ripgrep does not support BRE.
+#if command -v rg >/dev/null 2>&1
+#then
+#      rg --no-heading --no-line-number "$@"
+#      exit
+#fi
+
 ## See also: Modern grep has --colour=auto, which only invokes when the output
 ## is to terminal(tty/pts) (not piped).
 ##
