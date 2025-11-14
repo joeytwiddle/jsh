@@ -204,6 +204,51 @@ for ((i = 1; i <= $#; i++)); do
 done
 options_array=()
 files_array=()
+
+USE_CONTROL_FILE=1
+SHOW_CONTROL_FILE_INFO=
+if [ -n "$USE_CONTROL_FILE" ]
+then
+	control_file=/tmp/mplayercontrol."$USER"
+	#control_file="/tmp/mpv_control.${USER}.$(geekdate -fine)"
+	mkfifo "$control_file"
+
+	options_array+=("-input" "file=${control_file}")
+
+	trap 'rm -f "$control_file"' SIGINT SIGTERM EXIT
+
+	if [ -n "$SHOW_CONTROL_FILE_INFO" ]
+	then
+		echo
+		echo "You can control me via the $control_file fifo, for example:"
+		echo
+		echo "  echo pause > $control_file"
+		echo
+		echo "  echo 'pt_step -1' > $control_file    # Jump to previous song"
+		echo "  echo 'pt_step +1' > $control_file    # Jump to next song"
+		echo
+		echo "  echo seek 50 1 > $control_file       # Seek to 50%"
+		echo
+		echo "  echo seek -20 0 > $control_file      # Rewind 20 seconds"
+		echo
+		echo "  echo seek 120 2 > $control_file      # Seek to position 2m00s"
+		echo
+		echo "Full docs: http://www.mplayerhq.hu/DOCS/tech/slave.txt"
+		echo
+
+		#echo
+		#echo "You can control me via the $control_file fifo, for example:"
+		#echo
+		#echo "  echo playlist-next | socat - $control_file"
+		#echo
+		#echo "  echo '{ \"command\": [\"get_property\", \"playback-time\"] }' | socat - $control_file"
+		#echo
+		#echo "Docs: https://unix.stackexchange.com/questions/664728/how-can-i-control-mpv-in-command-line"
+		#echo "Docs: https://github.com/mpv-player/mpv/blob/master/DOCS/man/ipc.rst"
+		#echo
+	fi
+fi
+
 for ((i = 1; i <= $#; i++)); do
 	if [[ $i -gt $last_option_index ]]
 	then files_array+=("${!i}")
