@@ -208,6 +208,10 @@ then
 					if [ "$SAVEHIST" ] && [ ! "$HISTNUM" -lt "$SAVEHIST" ]
 					then HISTNUM=$((HISTNUM-SAVEHIST))
 					fi
+					# Small fix: zsh's head will complain about `head -n 0`
+					if [ "$HISTNUM" -lt 1 ]
+					then HISTNUM=1
+					fi
 					# [ "$HISTNUM" -gt 1 ] && HISTSHOW=" ( ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
 					# [ "$HISTNUM" -gt 9 ] && HISTNUM="$HISTNUM:" || HISTNUM=
 					# HISTSHOW=" ( $HISTNUM ... `history | takecols 2 | tail -n 3 | tr '\n' ' '`)" || HISTSHOW=
