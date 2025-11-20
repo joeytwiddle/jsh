@@ -87,7 +87,7 @@ fi
 
 if declare -f find_git_branch >/dev/null
 then
-	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursered``cursebold`\%}\$git_behind_main_mark\$git_behind_main_count\%{`cursegreen``cursebold`\%}\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseblue`\%}\$git_unknown_mark\$git_unknown_count"
+	local GIT_AWARE_PROMPT="\%{`cursemagenta;cursebold`\%}\$git_branch\%{`cursered``cursebold`\%}\$git_behind_main_mark\$git_behind_main_count\%{`cursegreen``cursebold`\%}\$git_ahead_from_main_count\$git_rebased_count\$git_ahead_mark\$git_ahead_count\%{`cursered``cursebold`\%}\$git_behind_mark\$git_behind_count\%{`cursecyan`\%}\$git_staged_mark\$git_staged_count\%{`curseyellow`\%}\$git_dirty\$git_dirty_count\%{`curseyellow``cursebold`\%}\$git_stash_mark\%{`curseblue`\%}\$git_unknown_mark\$git_unknown_count"
 	# \%{`cursenorm`\%}$
 	# Append these extras after the existing %{color}~/ part of the prompt
 	#PROMPT=$(printf "%s" "$PROMPT" | sed "s+\(%{\([^%]*%[^}]\)*[^%]*%} *%~/*\)+\1$GIT_AWARE_PROMPT+g")
@@ -99,7 +99,6 @@ then
 	add-zsh-hook precmd find_git_branch
 	add-zsh-hook precmd find_git_dirty
 	add-zsh-hook precmd find_git_ahead_behind
-	add-zsh-hook precmd find_git_behind_main
 	add-zsh-hook precmd find_git_stash_status
 fi
 

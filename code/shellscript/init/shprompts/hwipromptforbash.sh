@@ -39,7 +39,7 @@ then USERHOST="${COLOR}\u${OTHERCOLOR}@${COLOR}\h${COLRESET}:"
 fi
 
 if declare -f find_git_branch >/dev/null
-then GIT_AWARE_PROMPT="\[`cursemagenta;cursebold`\]\$git_branch\[`cursered``cursebold`\]\$git_behind_main_mark\$git_behind_main_count\[`cursegreen``cursebold`\]\$git_ahead_mark\$git_ahead_count\[`cursered``cursebold`\]\$git_behind_mark\$git_behind_count\[`cursecyan`\]\$git_staged_mark\$git_staged_count\[`curseyellow`\]\$git_dirty\$git_dirty_count\[`curseyellow``cursebold`\]\$git_stash_mark\[`curseblue`\]\$git_unknown_mark\$git_unknown_count\[`cursenorm`\]"
+then GIT_AWARE_PROMPT="\[`cursemagenta;cursebold`\]\$git_branch\[`cursered``cursebold`\]\$git_behind_main_mark\$git_behind_main_count\[`cursegreen``cursebold`\]\$git_ahead_from_main_count\$git_rebased_count\$git_ahead_mark\$git_ahead_count\[`cursered``cursebold`\]\$git_behind_mark\$git_behind_count\[`cursecyan`\]\$git_staged_mark\$git_staged_count\[`curseyellow`\]\$git_dirty\$git_dirty_count\[`curseyellow``cursebold`\]\$git_stash_mark\[`curseblue`\]\$git_unknown_mark\$git_unknown_count\[`cursenorm`\]"
 fi
 
 # Seasonal bat prompt (like an easter egg):
