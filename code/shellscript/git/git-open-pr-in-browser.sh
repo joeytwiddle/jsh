@@ -58,7 +58,10 @@ github_base_url="$(echo "$remote_url" | sed -E 's/^(git@|https:\/\/)([^/:]+)[:/]
 # It is difficult to know whether a PR exists, but if we open the compare page, GitHub will provide a link to the PR
 
 # Format: https://github.com/OWNER/REPO/compare/default_branch...current_branch
-url="${github_base_url}/compare/${trunk_branch}...${current_branch}"
+#url="${github_base_url}/compare/${trunk_branch}...${current_branch}"
+# Format: https://github.com/OWNER/REPO/pull/new/current_branch
+# This opens a create new branch page if the PR does not already exist, but if it does exist, you get basically the same compare page as above
+url="${github_base_url}/pull/new/${current_branch}"
 
 echo "Opening ${url}..."
 open_in_browser "$url"
