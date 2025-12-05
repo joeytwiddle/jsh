@@ -57,7 +57,7 @@ function usage() {
   exit 1
 }
 
-[ ! -d .git ] && usage "error: must be ran from within the root of the repository"
+[ ! -e .git ] && usage "error: must be ran from within the root of the repository"
 
 dryrun=0
 filter=""
