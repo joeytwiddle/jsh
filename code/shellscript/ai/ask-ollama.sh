@@ -1,13 +1,19 @@
 #!/usr/bin/env bash
 set -e
 
+# On macOS, you can find the config/startup file at: /opt/homebrew/Cellar/ollama/0.12.3/homebrew.mxcl.ollama.plist
+# I edited that file and added: <key>OLLAMA_KEEP_ALIVE</key> <string>48h</string>
+
 if [ -z "$MODEL" ]; then
     #MODEL="qwen2.5-coder:3b"
-    #MODEL="qwen2.5-coder:7b"
     #MODEL="qwen3:1.7b"
     #MODEL="qwen3:4b"
     #MODEL="qwen3:8b"
     MODEL="ollama.com/huihui_ai/qwen3-abliterated:1.7b"
+    #MODEL="gemma3:4b"
+    #
+    #MODEL="qwen2.5-coder:7b" # 4.7GB
+    #MODEL="hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL" # 17GB
     #MODEL="jaahas/qwen3-abliterated:1.7b"
     #MODEL="jaahas/qwen3-abliterated:4b"
 fi

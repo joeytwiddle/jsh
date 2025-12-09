@@ -84,4 +84,5 @@ else PROMPT="$SHELL_PREAMBLE"
 fi
 
 #MODEL="qwen2.5-coder:3b" ask-ollama $opts "$PROMPT"
+#MODEL="hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL" ask-ollama $opts "$PROMPT"
 ask-gemini $opts "$PROMPT"
