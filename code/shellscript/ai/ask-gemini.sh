@@ -7,9 +7,9 @@ set -e
 # Requires: jq
 
 #GEMINI_API_KEY="YOUR_API_KEY"
-# With no subscription (free version) I found 2.0 much faster to respond than 2.5 (noticeable when streaming)
-# Although both are quite chunky, compared to other AIs
-MODEL="${MODEL:=gemini-2.0-flash}"
+# gemini-2.0-flash is no longer available
+# gemini-2.5-flash-lite may be faster to respond than gemini-2.5-flash
+MODEL="${MODEL:=gemini-2.5-flash-lite}"
 #MODEL="${MODEL:=gemini-2.5-flash}"
 CONVERSATION_NAME="${CONVERSATION:=unnamed}"
 #CONVERSATION_FILE="/tmp/gemini_conversation.${CONVERSATION_NAME}.json"
