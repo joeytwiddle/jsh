@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
+# See also:
+#
+# git rev-list --oneline <branch1>...<branch2>
+# or
+# git log --pretty --oneline -n 1 $(git rev-list <branch1>...<branch2>)
+
 # Compares two branches, listing any commits which are on one branch, but not on the other
 #
 # Example:
