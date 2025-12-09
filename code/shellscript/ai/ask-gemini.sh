@@ -69,12 +69,15 @@ trap 'rm -f "$temp_file"' EXIT
 
 curl -sS -H "Content-Type: application/json" -d "${payload}" "${API_URL}" |
 #tee /dev/stderr |
-#tee >(
-#    dateeachline "[response] " >/dev/stderr
-#) |
+tee >(
+    # This handles the error case, when the API responds with a big JSON, rather than streaming multiple 'data:' lines
+    grep --line-buffered -v '\(^data:\|^\s*$\)' |
+    dateeachline "[response] " >/dev/stderr
+) |
 grep --line-buffered '^data:' |
 while read -r data json_data
 do
+        # Can this ever happen? `data:` with a `.error`?
         if jq -e '.error' > /dev/null <<< "$json_data"
         then
             echo "Error from API:"
