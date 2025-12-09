@@ -90,8 +90,7 @@ do
             echo -n "$chunk"
             echo -n "$chunk" >> "$temp_file"
         fi
-done |
-bat --pager="less -REX" -f --style=plain --force-colorization --language=markdown
+done
 
 response_text=$(cat "$temp_file")
 
