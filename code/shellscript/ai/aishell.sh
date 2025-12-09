@@ -66,13 +66,17 @@ This is important you MUST follow the above rules.
 There are no exceptions to these rules.
 You must always follow them. No exceptions.
 
-User: Show the files in the current folder, with details
+User query: $*"
 
-You: ls -l
+# Old: Removed because some models, if they didn't understand the user query, would just respond with "ls -l" as an answer
+#User: As an example, show the files in the current folder, with details
+#
+#You: ls -l
+#
+#User: $*
+#
+#You: "
 
-User: $*
-
-You: "
 
 if [[ "$opts" == *"-r"* ]]
 then PROMPT="$*"
