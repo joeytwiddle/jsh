@@ -70,7 +70,7 @@ trap 'rm -f "$temp_file"' EXIT
 curl -sS -H "Content-Type: application/json" -d "${payload}" "${API_URL}" |
 #tee /dev/stderr |
 tee >(
-    # This handles the error case, when the API responds with a big JSON, rather than streaming multiple 'data:' lines
+    # This handles the error case, when the API responds with something other than 'data:' lines (usually a big JSON)
     grep --line-buffered -v '\(^data:\|^\s*$\)' |
     dateeachline "[response] " >/dev/stderr
 ) |
@@ -90,8 +90,7 @@ do
             echo -n "$chunk"
             echo -n "$chunk" >> "$temp_file"
         fi
-done |
-bat --pager="less -REX" -f --style=plain --force-colorization --language=markdown
+done
 
 response_text=$(cat "$temp_file")
 

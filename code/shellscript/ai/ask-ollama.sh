@@ -75,8 +75,8 @@ ollama run "$MODEL" <<< "$FULL_PROMPT" |
 
         " > "$CONVERSATION_FILE"
     ) |
-    highlight_think |
+    highlight_think
     #--pager="less -REX" 
     #--theme="$BAT_THEME" 
-    bat --pager="less -REX" -f --style=plain --force-colorization --language=markdown
+    #| bat --pager="less -REX" -f --style=plain --force-colorization --language=markdown
 
