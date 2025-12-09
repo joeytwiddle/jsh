@@ -14,7 +14,7 @@ then
 	shift
 fi
 
-while read LINE
+while IFS='' read LINE
 do
 	TIME=$(date +"$FORMAT")
 	echo "$TIME $LINE"
