@@ -91,6 +91,7 @@ do
             echo -n "$chunk" >> "$temp_file"
         fi
 done
+echo
 
 response_text=$(cat "$temp_file")
 
