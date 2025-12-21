@@ -69,7 +69,7 @@ do
 	# eval "$COM" | $STRIP | $RESONREAD > $OUTPUTNOW
 	## Doing it this way means if $COM is a function, then vars set inside it will remain set for the next iteration.
 	## Actually it's more fiddly than that.  They were being set before, but only the first time, not updated after!
-	eval "$COM" > $OUTPUTNOW
+	eval "$COM" > $OUTPUTNOW 2>&1
 	cat $OUTPUTNOW | $STRIP | eval "$RESONREAD" | dog $OUTPUTNOW
 
 	## Find changes using diff and add colour to any new lines in the diff:
