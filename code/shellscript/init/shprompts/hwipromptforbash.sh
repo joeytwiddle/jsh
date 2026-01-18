@@ -45,13 +45,11 @@ fi
 # Seasonal bat prompt (like an easter egg):
 if date | grep "Oct 31" > /dev/null
 then
+	## Bat
 	PS1="${COLRESET}/\[\033[00;35m\]\u${COLRESET})\[\033[00;34m\]at${COLRESET}(\[\033[00;35m\]\h${COLRESET}\\\\ \[\033[00;32m\]\w/${COLRESET}${GIT_AWARE_PROMPT} "
+	## Spider
 	# PS1="${COLRESET}/\[\033[00;35m\]\\/${COLRESET})\[\033[00;34m\]oo${COLRESET}(\[\033[00;35m\]\\/${COLRESET}\\\\ \[\033[00;32m\]\w/${COLRESET}${GIT_AWARE_PROMPT} "
 else
-
-	# Quite fun:
-	# PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\])\['`cursemagenta`'\]\u\['`cursenorm`'\]-\['`curseblue`'\]\t\['`cursenorm`'\]-\['`cursemagenta`'\]\h\['`cursenorm`'\](\['`cursegreen`'\]\w/\['`cursenorm`'\] '
-
 	if [ -f /etc/gentoo-release ]
 	then export RUNNING_GENTOO=1
 	else export RUNNING_GENTOO=0
@@ -70,30 +68,6 @@ else
 
 	# case `hostname -s` in
 	case "$SHORTHOST" in
-
-		panic)
-			PS1='\['`curseyellow`'\]\!\['`cursered``cursebold`'\]\$\['`cursenorm`'\]/\['`cursemagenta`'\]\u\['`cursenorm`'\] \['`curseblue`'\]\t\['`cursenorm`'\] \['`cursemagenta`'\]\h\['`cursenorm`'\]\\\\\['`cursegreen`'\]\w\\\\\['`cursenorm`'\] '
-			# magenta style, panic colors PS1="\[\033[00;33m\]\!\[\033[01;31m\]\$ \[\033[00;35m\]\u${COLRESET}\\\\\[\033[00;34m\]\t${COLRESET}/\[\033[01;35m\]\h \[\033[00;32m\]\w/${COLRESET} "
-		;;
-
-		magenta|colossus)
-			# panic style, magenta colors PS1='\['`cursegreen`'\]\$\['`cursecyan`'\]\!\['`cursenorm`'\]/\['`curseblue`'\]\u\['`cursenorm`'\]\\\['`cursemagenta`'\]\t\['`cursenorm`'\]/\['`curseblue`'\]\h\['`cursenorm`'\]\\\\\['`cursecyan`'\]\w/\['`cursenorm`'\] '
-			PS1="\[\033[00;32m\]\$\[\033[00;36m\]\! \[\033[01;34m\]\u${COLRESET}\\\\\[\033[00;35m\]\t${COLRESET}/\[\033[01;34m\]\h \[\033[01;36m\]\w\\\\${COLRESET} "
-			# Gnome?
-			# PS1="\[\033[00;33m\]\!\[\033[01;31m\]\$${COLRESET}(\[\033[00;35m\]\u${COLRESET}|\[\033[00;36m\]\t${COLRESET}|\[\033[00;35m\]\h${COLRESET})\[\033[00;32m\]\w/${COLRESET} "
-		;;
-
-		buggy|bristoldev|tronic|rob)
-			# PS1='\['`curseblue``cursebold`'\]\!\['`cursegreen``cursebold`'\] (\['`cursegreen`'\](> \['`cursered`'\]\u\['`cursegrey`'\]@\['`cursered`'\]\h\['`cursegreen`'\] <)\['`cursebold`'\]) \['`curseblue``cursebold`'\]\w/\['`cursegrey`'\] '
-			# HOME seems more reliable than USER!
-			if test "$HOME" = "/root"; then
-			PS1='\['`cursecyan`'\]\u\['`curseyellow``cursebold`'\] (\['`curseyellow`'\](> \['`cursered``cursebold`'\]\h\['`curseyellow`'\] <)\['`cursebold`'\]) \['`cursecyan`'\]\w/\['`cursenorm`'\] '
-			else
-			PS1='\['`cursered``cursebold`'\]\u\['`cursegreen``cursebold`'\] (\['`cursegreen`'\](> \['`curseblue``cursebold`'\]\h\['`cursegreen`'\] <)\['`cursebold`'\]) \['`cursered``cursebold`'\]\w/\['`cursenorm`'\] '
-			fi
-			# PS1='\['`cursered`'\]\!\['`cursegreen``cursebold`'\] (\['`cursegreen`'\](< \['`curseblue``cursebold`'\]\h\['`cursegreen`'\] >)\['`cursebold`'\]) \['`cursered``cursebold`'\]\w/\['`cursenorm`'\] '
-		;;
-
 		*)
 			## This gets evaluated on-the-fly:
 			EXITERR='`[ "$?" = 0 ] || echo "\[\033[01;31m\]<\[\033[01;31m\]<\[\033[01;33m\]$?\[\033[01;31m\]>\[\033[01;31m\]> "`'
@@ -132,14 +106,7 @@ else
 				#PS1="$EXITERR$MARKER_BLOCK${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}$COLOR\u$OTHERCOLOR@$COLOR$PROMPTHOST${COLRESET}:$DIRCOLOR\w/$GIT_AWARE_PROMPT${COLRESET} "
 				PS1="${EXITERR}${MARKER_BLOCK}${JOBSCOL}\$([ \j -gt 0 ] && echo '[\j] ')${COLRESET}${USERHOST}${DIRCOLOR}\w/${GIT_AWARE_PROMPT}${COLRESET} "
 			fi
-
-			## hwi is a special case where I can be logged in in different ways
-			## If ssh-ed into hwi, present some extra prompt to make it clear:
-			if [ "$SHORTHOST" = hwi ] && [ -n "$SSH_CONNECTION" ]
-			then PS1="${RESCOL}<${USER}@${SHORTHOST}> ${PS1}"
-			fi
 		;;
-
 	esac
 
 	# PS1="[\u@\h \W]\\$ "
@@ -158,7 +125,6 @@ else
 	#PS4="#[\[`cursered;cursebold`\]\s${COLRESET}]\[`cursegreen`\]\W/${COLRESET}\$ "
 	PS4="\[`cursecyan;cursebold`\]###\[${COLRESET}\] "
 	export PS4
-
 fi
 
 if [ -n "$USERHOST" ]
