@@ -85,6 +85,10 @@ else
 			#MARKER_BLOCK='$(echo "\[\033[$(if [ "$?" = '0' ]; then echo "42"; else echo "41"; fi);30m\]\t\[\033[00m\] ")'
 			#MARKER_BLOCK='$(if [ "$?" = '0' ]; then echo "\[\033[42;30m\]"; else echo "\[\033[41;30m\]"; fi)\t\[\033[00m\] '
 			MARKER_BLOCK='\[\033[$(if [ "$?" = '0' ]; then echo "42"; else echo "41"; fi);30m\]\t\[\033[00m\] '
+			# For root, use cyan and magenta instead of green and red (because the cyan folder ~/ is not clear enough of an indicator)
+			if [ "$UID" = 0 ]
+			then MARKER_BLOCK='\[\033[$(if [ "$?" = '0' ]; then echo "46"; else echo "45"; fi);30m\]\t\[\033[00m\] '
+			fi
 			# Full line red or green (with timestamp) then prompt on the next line
 			# It's pretty good for separation. But one thing I dislike about a two-line prompt is that when quitting 'less' the top line of the less display gets pushed off the screen.
 			#MARKER_BLOCK='$(if [ "$?" = '0' ]; then printf "\[\033[48;5;22m\]\t%*s" "$((COLUMNS-8))" " "; else printf "\[\033[48;5;88m\]\t%*s" "$((COLUMNS-8))" " "; fi)\[\033[00m\]\n'
