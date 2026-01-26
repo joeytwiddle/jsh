@@ -512,6 +512,7 @@ alias nl='npm run lint'
 alias nrl='npm run lint'
 alias nrc='npm run check'
 alias nrdist='npm run dist'
+alias nlnk='npm link'
 
 alias yarn='ionice nice yarn'
 alias y='yarn'
