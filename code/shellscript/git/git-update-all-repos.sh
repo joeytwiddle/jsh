@@ -40,6 +40,8 @@ while read repo_folder
 do
 	echo "### $repo_folder"
 
+	[ -w "$repo_folder" ] || continue
+
 	cd "$repo_folder" || continue
 
 	# Consider: Skip this repo if .git/config does not contain a nice URL.  E.g. accept only https://username@...
