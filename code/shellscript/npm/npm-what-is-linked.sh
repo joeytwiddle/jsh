@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
+# Find the node_modules folder
 npm_root="$(npm root)"
 
 if ! [ -d "$npm_root" ]
-then exit 1
+then
+	echo "npm root '${npm_root}' is not a folder" >&2
+	exit 1
 fi
 
 cd "$npm_root"
