@@ -52,19 +52,18 @@ then
 	if [ "$revisionIndex" -lt 1 ]
 	then echo 'revisionIndex should be >= 1!' ; exit 1
 	fi
-	commitID=`git log -n "$revisionIndex" "$filename" | grep --line-buffered "^commit " | tail -n 1 | cut -d ' ' -f 2`
+	commitID="$(git log -n "$revisionIndex" "$filename" | grep --line-buffered "^commit " | tail -n 1 | cut -d ' ' -f 2)"
 	# CONSIDER: Perhaps we could just use HEAD^$revisionIndex or HEAD~~$revisionIndex ?
 	# No, because surely that would count commits that didn't change this file.
 fi
 
-olderFile="$filename"."$commitID"
+olderFile="${filename}.$(printf "%s" "$commitID" | tr / _)"
 
 verbosely git diff "$commitID" "$filename" |
 # cat | diffhighlight
 patch -R -o "$olderFile" "$filename"
 # CONSIDER: Instead of patching, perhaps we could use `git cat-file`.
 
-[ "$DIFFCOM" ] || DIFFCOM="vimdiff"
+[ -n "$DIFFCOM" ] || DIFFCOM="vimdiff"
 
 "$DIFFCOM" "$olderFile" "$filename"
-
