@@ -323,7 +323,9 @@ alias gi='igrep'
 mwhich() {
 	#more "$(which "$1")"
 	#less -REX "$(which "$1")"
-	verbosely show_file_contents "$(which "$1")"
+	#verbosely show_file_contents "$(which "$1")"
+	# In zsh, `which alias` will return the full function declaration. So let's try command -v instead.
+	verbosely show_file_contents "$(command -v "$1")"
 }
 alias mw='mwhich'
 lwhich() {
