@@ -29,9 +29,9 @@ run_vimcat() {
 export HOME="$realhome/.vanillavim"
 
 # On macOS, this did not show newlines correctly
-#run_vimcat "$@" > /tmp/out
+#run_vimcat "$@" | cat
 
-# But this works on macOS!
+# But this does work on macOS!
 run_vimcat "$@" > /tmp/out
 cat /tmp/out
 
