@@ -665,6 +665,10 @@ if !command -v open >/dev/null 2>&1 && command -v xdg-open >/dev/null 2>&1
 then alias open='xdg-open'
 fi
 
+alias c2c='copy_to_clipboard'
+alias cpy='copy_to_clipboard'
+
+# Some machines require specific aliases
 if [ -f ~/.config/jsh/aliases.local ]
 then source ~/.config/jsh/aliases.local
 fi
