@@ -12,6 +12,9 @@
 # Create custom keymap with viins
 # bindkey -N mymap viins
 
+# List these with: bindkey | grep '\^X' >&2
+# Remove them all with: for key in $(bindkey | grep '\^X' | cut -d '"' -f 2); do bindkey "$key" undefined-key; done
+
 # Clear all CTRL+Xs from viins keymap to leave CTRL+X free for me!
 bindkey "^X^B" undefined-key # vi-match-bracket
 bindkey "^X^F" undefined-key # vi-find-next-char

@@ -255,11 +255,7 @@ myls() {
 }
 alias l='myls'
 
-# We use this to avoid "command not found: compdef" on macOS
-if [ -n "$ZSH_NAME" ]
-then autoload -Uz compinit && compinit 
-fi
-
+# Requires compinit on macOS (which we load in startj)
 if [ -n "$ZSH_NAME" ]
 then compdef myls=ls
 fi

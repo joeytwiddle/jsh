@@ -236,6 +236,13 @@ else
 					SHORTSHELL="zsh"
 					# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
 					## Nope better to have an alias source a script to turn it off, since bash's are env-vars (not functions) so cannot test themselves, so should be cleared.
+
+					# We use this to avoid "command not found: compdef" on macOS
+					# We must do this before zshkeys because zshkeys removes some of these keysbindings which we don't want
+					if [ -n "$ZSH_NAME" ]
+					then autoload -Uz compinit && compinit
+					fi
+
 					. zshkeys
 					. hwipromptforzsh
 
