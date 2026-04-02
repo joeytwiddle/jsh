@@ -5,12 +5,16 @@ set -e
 # I edited that file and added: <key>OLLAMA_KEEP_ALIVE</key> <string>48h</string>
 
 if [ -z "$MODEL" ]; then
-    #MODEL="qwen2.5-coder:3b"
-    #MODEL="qwen3:1.7b"
-    #MODEL="qwen3:4b"
-    #MODEL="qwen3:8b"
-    MODEL="ollama.com/huihui_ai/qwen3-abliterated:1.7b"
+    #MODEL="qwen2.5-coder:7b" # Runs but a bit too big and slow (4.7GB)
+    #MODEL="qwen2.5-coder:3b" # OK speed but stupid
+    #MODEL="qwen3:8b" # Too big and slow (5GB)
+    #MODEL="qwen3:4b" # OK, medium speed, but stupid
+    #MODEL="qwen3:1.7b" # Incredibly stupid, but fast
+    #MODEL="ollama.com/huihui_ai/qwen3-abliterated:1.7b" # OK not bad
+    #MODEL="ollama.com/huihui_ai/qwen3-abliterated:4b" # Trying this one for speed (it's not fast but it's not too bad)
+    # While Qwen3 is considered better at logic and math, Gemma3 is considered better at communication, and is multimodal.
     #MODEL="gemma3:4b"
+    MODEL="gemma3:1b"
     #
     #MODEL="qwen2.5-coder:7b" # 4.7GB
     #MODEL="hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL" # 17GB
@@ -20,7 +24,12 @@ fi
 
 # Function to highlight <think>...</think> responses in dark blue
 highlight_think() {
-	sed -u -E "s+<think>+$(curseblue)<think>+ ; s+</think>+</think>$(cursenorm)+"
+    sed -u -E "
+        # Works for qwen2.5-coder
+        s+<think>+$(curseblue)\0+ ; s+</think>+\0$(cursenorm)+
+        # Works for qwen3-abliterated
+        s+Thinking\.\.\.+$(curseblue)\0+ ; s+\.\.\.done thinking\.+\0$(cursenorm)+
+    "
 }
 
 strip_think() {
