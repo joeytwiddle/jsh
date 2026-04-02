@@ -56,6 +56,8 @@ else
         exit 1
     fi
 
+    PROMPT="(Give brief answers to the following queries. Ideally just one or two paragraphs, or just one sentence if appropriate.) Here is the first query: ${PROMPT}"
+
     # Create the initial contents array with the user's prompt
     initial_contents=$(jq -n --arg text "$PROMPT" '[{role: "user", parts: [{text: $text}]}]')
 
@@ -102,7 +104,7 @@ response_content_object=$(jq -n --arg text "$response_text" '{role: "model", par
 if [ "$1" != "-r" ]
 then
     if [ -f "$CONVERSATION_FILE" ] && command -v rotate >/dev/null 2>&1
-    then rotate -nozip -max 20 "$CONVERSATION_FILE" 2>&1 | grep -v '^\[rotate\] ' || true
+    then rotate -nozip -max 20 "$CONVERSATION_FILE" 2>&1 | grep -v '^\[rotate\] ' >&2 || true
     fi
     # The initial user part was already constructed
     user_part=$(jq -n --arg text "$PROMPT" '{role: "user", parts: [{text: $text}]}')
