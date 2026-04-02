@@ -83,6 +83,28 @@ then PROMPT="$*"
 else PROMPT="$SHELL_PREAMBLE"
 fi
 
-#MODEL="qwen2.5-coder:3b" ask-ollama $opts "$PROMPT"
-#MODEL="hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL" ask-ollama $opts "$PROMPT"
-ask-gemini $opts "$PROMPT"
+strip_think() {
+	awk ' /^<think>$/ { in_think=1; next } /^<\/think>$/ { in_think=0; skip_empty=1; next } in_think { next } skip_empty && NF { skip_empty=0 } !skip_empty '
+}
+
+result="$(
+	# We tee to stderr, so the user can see the text as it appears
+	#
+	# Local ollama models
+	#export MODEL="qwen2.5-coder:3b"
+	#export MODEL="hf.co/unsloth/Qwen3-Coder-30B-A3B-Instruct-GGUF:UD-Q4_K_XL" # Big (but compressed)
+	#export MODEL="deepcoder:1.5b"
+	#ask-ollama $opts "$PROMPT" | tee /dev/stderr | striptermchars | strip_think
+	#
+	# Cloud
+	ask-gemini $opts "$PROMPT" | tee /dev/stderr
+)"
+
+# No need to print it, because we already displayed it above, via stderr
+#printf "%s\n" "$result"
+
+echo -n "Execute (y/N)? "
+read decision
+if [ "$decision" = y ]
+then eval "$result"
+fi
