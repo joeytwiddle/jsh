@@ -25,7 +25,7 @@
 
 if [ "$1" = "" ] || [ "$1" = --help ]
 then
-	echo "rotate [ -keep ] [ -nozip ] [ -max <num> ] [ -nodups ] <file/dir>*"
+	echo "rotate [ -quiet ] [ -keep ] [ -nozip ] [ -max <num> ] [ -nodups ] <file/dir>*"
 	### TODO!
 	echo "  TODO: the default should be to have all these options ON!"
 	echo "  will compress each <file> to <file>.gz.N, and make <file> empty."
@@ -43,6 +43,11 @@ then
 	echo
 	echo "In the future I may make -nozip a default, and require or -z / --compress / -zip to enable it."
 	exit 1
+fi
+
+QUIET=
+if [ "$1" = -quiet ]
+then QUIET=true; shift
 fi
 
 KEEP=
@@ -108,13 +113,13 @@ do
 
 	while [ -n "$MAX" ] && [ "$N" -gt "$MAX" ]
 	do
-		jshinfo "[rotate] $N exceeds max $MAX, so rotating earlier copies..."
+		[ -z "$QUIET" ] && echo "[rotate] $N exceeds max $MAX, so rotating earlier copies..."
 		for OLDN in `seq 1 $((N-2))`
 		do
 			NEWN=$((OLDN+1))
 			## This cmp doesn't work, because after the first iteration, $OLDN isn't there yet!
 			if false # || cmp "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT" >/dev/null
-			then : # jshinfo "[rotate] $FILE.$NEWN$EXT and $$FILE.OLDN$EXT are identical"
+			then : # [ -z "$QUIET" ] && echo "[rotate] $FILE.$NEWN$EXT and $$FILE.OLDN$EXT are identical"
 			else mv -f "$FILE.$NEWN$EXT" "$FILE.$OLDN$EXT"
 			fi
 			# BUG TODO: The above check doesn't do anything.  Noticing two files
@@ -163,7 +168,7 @@ do
 		# echo "[rotate] % $ZIPCOM \"$FILE\""
 		# echo "[rotate] % $ZIPCOM"
 		# echo "[rotate] Rotating $FILE to $FINALFILE with `declare -f zipcom | tr '\n\t' '  '`"
-		echo "[rotate] Rotating $FILE to $FINALFILE with $DOZIPCOM"
+		[ -z "$QUIET" ] && echo "[rotate] Rotating $FILE to $FINALFILE with $DOZIPCOM"
 		oldSize=`filesize "$FILE"`
 		zipcom || exit 1
 		newSize=`filesize "$FINALFILE"`
