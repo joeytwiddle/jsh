@@ -89,15 +89,24 @@ do
 				break # stop asking what to do; proceed to the next file
 			;;
 			ai|AI|aI|Ai)
+				success=false
 				verbosely git add "$FILE"
-				if command -v aicommits >/dev/null 2>&1
+				if command -v git-idk >/dev/null 2>&1
 				then
-					aicommits --type=conventional -g 3
-					# In case aicommits failed (e.g. the user decided to abort with CTRL-C) we will unstage the current file, and move on to the next
+					git-idk && success=true
+				elif command -v aicommits >/dev/null 2>&1
+				then
+					aicommits --type=conventional -g 3 && success=true
 					git reset --quiet -- "$FILE"
 				else echo "Command 'aicommits' is not installed\!" >&2
 				fi
-				# BUG: If the user accepted aicommits request to commit, then we should break to move on to the next file.  But note that the user might not always do that.
+				if [ "$success" = true ]
+				then
+					break
+				else
+					# If the commit failed (e.g. the user decided to abort with CTRL-C) we will unstage and reprompt (or should we move to the next file)
+					git reset --quiet -- "$FILE"
+				fi
 			;;
 			AM|Am|am)
 				verbosely git add "$FILE"
