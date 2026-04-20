@@ -104,7 +104,7 @@ response_content_object=$(jq -n --arg text "$response_text" '{role: "model", par
 if [ "$1" != "-r" ]
 then
     if [ -f "$CONVERSATION_FILE" ] && command -v rotate >/dev/null 2>&1
-    then rotate -nozip -max 20 "$CONVERSATION_FILE" 2>&1 | grep -v '^\[rotate\] ' >&2 || true
+    then rotate -quiet -nozip -max 20 "$CONVERSATION_FILE"
     fi
     # The initial user part was already constructed
     user_part=$(jq -n --arg text "$PROMPT" '{role: "user", parts: [{text: $text}]}')
