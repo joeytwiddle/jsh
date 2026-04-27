@@ -438,6 +438,11 @@ delete_sessions() {
   local total_bytes=0
   local sid file size cwd
 
+  # Reserve room for the SID, indent, separator, and a small margin.
+  # Width hardcoded at 80 — tput/$COLUMNS/</dev/tty all proved unreliable
+  # under our launch paths.
+  local title_width=$(( 80 - 42 ))
+
   printf '\nDelete the following session(s)?\n' >&2
   for sid in "$@"; do
     file="$({ find "$CLAUDE_PROJECTS_DIR" -maxdepth 2 -name "$sid.jsonl" -print -quit 2>/dev/null; } || true)"
@@ -447,7 +452,9 @@ delete_sessions() {
     fi
     size="$(file_size_bytes "$file")"
     cwd="$({ grep -m1 -o '"cwd":"[^"]*"' "$file" || true; } | sed 's/"cwd":"//; s/"$//')"
-    printf '  • %s  %8s bytes  %s\n' "$sid" "$size" "${cwd:-unknown}" >&2
+    local title
+    title="$(session_title "$file" "$title_width")"
+    printf '  • %s  %s\n' "$sid" "$title" >&2
     files+=("$file")
     total_bytes=$(( total_bytes + size ))
   done
@@ -475,6 +482,53 @@ delete_sessions() {
       echo "Cancelled." >&2
       ;;
   esac
+}
+
+# Extract a plain-text "title" for a session: custom title (if any) followed
+# by the first user prompt. Truncated to $2 visible chars, no ANSI codes.
+session_title() {
+  local file="$1" max="$2"
+  awk -v max="$max" '
+    !title && /"type":"custom-title"/ && match($0, /"customTitle":"[^"]*"/) {
+      title = substr($0, RSTART + 15, RLENGTH - 16)
+    }
+    !prompt && /"type":"user"/ {
+      i = index($0, "\"content\":\"")
+      if (i > 0) {
+        s = substr($0, i + 11)
+        out = ""
+        len_s = length(s)
+        for (j = 1; j <= len_s && length(out) < max + 20; j++) {
+          c = substr(s, j, 1)
+          if (c == "\\") {
+            nc = substr(s, j + 1, 1)
+            if      (nc == "n") out = out " "
+            else if (nc == "t") out = out " "
+            else if (nc == "\"") out = out "\""
+            else if (nc == "\\") out = out "\\"
+            else                 out = out nc
+            j++
+            continue
+          }
+          if (c == "\"") break
+          out = out c
+        }
+        if (out != "" && out !~ /^<command-/ && out !~ /^<local-command-/) {
+          prompt = out
+        }
+      }
+    }
+    title && prompt { exit }
+    END {
+      label = title
+      if (prompt != "") {
+        if (label != "") label = label "  " prompt
+        else             label = prompt
+      }
+      if (length(label) > max) label = substr(label, 1, max - 1) "…"
+      print label
+    }
+  ' "$file" 2>/dev/null
 }
 
 # Cross-platform stat helpers. Try GNU stat (-c) first; fall back to BSD (-f).
