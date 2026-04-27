@@ -292,14 +292,36 @@ preview() {
     return 0
   fi
 
-  local cwd title mtime size msg_count
+  local cwd title mtime size
   # Each `|| true` defangs `set -o pipefail`: grep exits non-zero when there
   # are no matches, which would otherwise abort the whole preview.
   cwd="$({ grep -m1 -o '"cwd":"[^"]*"' "$file" || true; } | sed 's/"cwd":"//; s/"$//')"
   title="$({ grep '"type":"custom-title"' "$file" 2>/dev/null || true; } | tail -1 | { grep -o '"customTitle":"[^"]*"' || true; } | sed 's/"customTitle":"//; s/"$//')"
   mtime="$(file_mtime_human "$file")"
   size="$(file_size_bytes "$file")"
-  msg_count="$(grep -cE '"type":"(user|assistant)"' "$file" 2>/dev/null || echo 0)"
+
+  # Build the *filtered* stream of meaningful messages first, so the "shown
+  # of total" header reflects what the user actually sees — not a count that
+  # includes tool_use / tool_result blocks we just stripped.
+  local filtered total_meaningful
+  filtered="$(jq -c '
+    select(.type == "user" or .type == "assistant")
+    | . as $row
+    # Keep only the .text parts — tool_use / tool_result / thinking blocks are
+    # noise in a session preview. If a message contains nothing else, drop it.
+    | (.message.content) as $c
+    | (
+        if   ($c | type) == "string" then $c
+        elif ($c | type) == "array"  then
+          ($c | map(select(.type == "text") | .text) | join("\n"))
+        else ""
+        end
+      ) as $text
+    | ($text | gsub("\\s+"; "")) as $stripped
+    | select(($stripped | length) > 0)
+    | {role: $row.type, text: $text}
+  ' "$file" 2>/dev/null)"
+  total_meaningful="$(printf '%s\n' "$filtered" | grep -c . || true)"
 
   if [ -n "$title" ]; then
     printf '\033[1;33mTitle:\033[0m   %s\n' "$title"
@@ -307,36 +329,16 @@ preview() {
   printf '\033[1mSession:\033[0m %s\n' "$sid"
   printf '\033[1mFolder:\033[0m  %s\n' "${cwd:-unknown}"
   printf '\033[1mLast:\033[0m    %s\n' "$mtime"
-  printf '\033[1mSize:\033[0m    %s bytes  (%s msgs)\n\n' "$size" "$msg_count"
+  printf '\033[1mSize:\033[0m    %s bytes  (%s msgs)\n\n' "$size" "$total_meaningful"
   local shown="$PREVIEW_TAIL_MESSAGES"
-  [ "$msg_count" -lt "$shown" ] 2>/dev/null && shown="$msg_count"
-  if [ "$shown" -lt "$msg_count" ] 2>/dev/null; then
-    printf '\033[1m── Last %d of %d messages ──\033[0m\n\n' "$shown" "$msg_count"
+  [ "$total_meaningful" -lt "$shown" ] 2>/dev/null && shown="$total_meaningful"
+  if [ "$shown" -lt "$total_meaningful" ] 2>/dev/null; then
+    printf '\033[1m── Last %d of %d messages ──\033[0m\n\n' "$shown" "$total_meaningful"
   else
     printf '\033[1m── All %d messages ──\033[0m\n\n' "$shown"
   fi
 
-  jq -r --argjson n "$PREVIEW_TAIL_MESSAGES" '
-    select(.type == "user" or .type == "assistant")
-    | . as $row
-    | (.message.content) as $c
-    | (
-        if   ($c | type) == "string" then $c
-        elif ($c | type) == "array"  then
-          ($c | map(
-            if .type == "text" then .text
-            elif .type == "tool_use" then "[tool_use: " + (.name // "?") + "]"
-            elif .type == "tool_result" then
-              "[tool_result" + (if .is_error then " (error)" else "" end) + "]"
-            else "[" + (.type // "?") + "]"
-            end
-          ) | join("\n"))
-        else ""
-        end
-      ) as $text
-    | select(($text | length) > 0)
-    | {role: $row.type, text: $text}
-  ' "$file" 2>/dev/null \
+  printf '%s\n' "$filtered" \
     | jq -s --argjson n "$PREVIEW_TAIL_MESSAGES" '.[-$n:][]' 2>/dev/null \
     | jq -r '
         # Strip <tag> and </tag> markers but KEEP the content inside.
