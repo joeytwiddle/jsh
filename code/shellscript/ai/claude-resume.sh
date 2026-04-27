@@ -43,9 +43,9 @@ main() {
           --query="$last_query" \
           --header=$'TAB: mark   Enter: resume   CTRL-R: rename   CTRL-D: delete   CTRL-/: toggle preview   ESC: cancel' \
           --bind 'ctrl-/:toggle-preview' \
-          --bind 'focus:transform:[ -z {1} ] && echo "change-preview-window:hidden" || echo "change-preview-window:right,40%,wrap,border-left,follow"' \
+          --bind 'focus:transform:[ -z {1} ] && echo "change-preview-window:hidden" || echo "change-preview-window:right,50%,wrap,border-left,follow"' \
           --preview 'claude-resume --preview {1}' \
-          --preview-window 'right,40%,wrap,border-left,follow' \
+          --preview-window 'hidden,right,50%,wrap,border-left,follow' \
           --expect=ctrl-d,ctrl-r
     )"; then
       return 0
