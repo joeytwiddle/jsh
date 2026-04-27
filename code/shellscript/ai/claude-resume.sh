@@ -43,6 +43,7 @@ main() {
           --query="$last_query" \
           --header=$'TAB: mark   Enter: resume   CTRL-R: rename   CTRL-D: delete   CTRL-/: toggle preview   ESC: cancel' \
           --bind 'ctrl-/:toggle-preview' \
+          --bind 'focus:transform:[ -z {1} ] && echo "change-preview-window:hidden" || echo "change-preview-window:right,40%,wrap,border-left,follow"' \
           --preview 'claude-resume --preview {1}' \
           --preview-window 'right,40%,wrap,border-left,follow' \
           --expect=ctrl-d,ctrl-r
@@ -282,6 +283,8 @@ bulk_stat() {
 # Render the preview pane for a given session id.
 preview() {
   local sid="$1"
+  # Header rows have no SID — render nothing rather than a "not found" error.
+  [ -z "$sid" ] && return 0
   local file
   file="$(find "$CLAUDE_PROJECTS_DIR" -maxdepth 2 -name "$sid.jsonl" -print -quit 2>/dev/null)"
   if [ -z "$file" ] || [ ! -f "$file" ]; then
