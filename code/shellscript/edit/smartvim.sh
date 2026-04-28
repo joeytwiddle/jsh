@@ -16,7 +16,9 @@ else
 			cd "$(dirname "$(realpath "$first_filename")")"
 			git rev-parse --show-toplevel 2>/dev/null
 		)" || true
-		[ -n "$git_toplevel" ] && vim_server_name="$(basename "$git_toplevel")"
+		if [ -n "$git_toplevel" ]
+		then vim_server_name="$(basename "$git_toplevel")"
+		fi
 	fi
 
 	# Open in a common session for this desktop
@@ -27,9 +29,14 @@ else
 		current_desktop="$(wmctrl -d | grep "[^ ]* *\*" | takecols 1)"
 		vim_server_name="desktop-$current_desktop"
 	fi
+
+	# Failing that (e.g. macOS), just use the name of the folder where that file lives
+	if [ -z "$vim_server_name" ]
+	then vim_server_name="$(basename $(dirname "$first_filename"))"
+	fi
 fi
 
-# Open in the session selected by the user
+# If the user specified a SESSION variable, then use that
 [ -n "$SESSION" ] && vim_server_name="$SESSION"
 
 if [ -n "$vim_server_name" ]
