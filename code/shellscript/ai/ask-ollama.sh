@@ -1,8 +1,23 @@
-#!/usr/bin/env bash
+#!/bin/bash
 set -e
 
-# On macOS, you can find the config/startup file at: /opt/homebrew/Cellar/ollama/0.12.3/homebrew.mxcl.ollama.plist
-# I edited that file and added: <key>OLLAMA_KEEP_ALIVE</key> <string>48h</string>
+# A shell script to interact with a local Ollama server, managing
+# conversation history.
+#
+# Requires: jq, curl, and ollama (only needed if a model has to be auto-pulled)
+#
+# Env:
+#   MODEL          Ollama model tag (default: gemma3:1b)
+#   CONVERSATION   Conversation name (default: unnamed)
+#   OLLAMA_API_URL Server URL (default: http://localhost:11434/api/chat)
+#
+# Usage:
+#   ask-ollama.sh "prompt"        Start a new conversation
+#   ask-ollama.sh -r "prompt"     Reply within the existing conversation
+#
+# On macOS, the ollama config/startup file is at:
+#   /opt/homebrew/Cellar/ollama/<version>/homebrew.mxcl.ollama.plist
+# Edit that file to add: <key>OLLAMA_KEEP_ALIVE</key> <string>48h</string>
 
 if [ -z "$MODEL" ]; then
     #MODEL="qwen2.5-coder:7b" # Runs but a bit too big and slow (4.7GB)
@@ -22,7 +37,12 @@ if [ -z "$MODEL" ]; then
     #MODEL="jaahas/qwen3-abliterated:4b"
 fi
 
-# Function to highlight <think>...</think> responses in dark blue
+OLLAMA_API_URL="${OLLAMA_API_URL:-http://localhost:11434/api/chat}"
+CONVERSATION_NAME="${CONVERSATION:=unnamed}"
+CONVERSATION_FILE="${HOME}/.cache/ai/ollama_conversation.${CONVERSATION_NAME}.json"
+mkdir -p "$(dirname "$CONVERSATION_FILE")"
+
+# Highlight <think>...</think> blocks in dark blue as the stream comes through
 highlight_think() {
     sed -u -E "
         # Works for qwen2.5-coder
@@ -32,6 +52,7 @@ highlight_think() {
     "
 }
 
+# Drop <think>...</think> blocks (used before saving to history)
 strip_think() {
     awk '
         /^<think>$/ { in_think=1; next }
@@ -42,56 +63,96 @@ strip_think() {
     '
 }
 
-# Check if a prompt is provided as an argument
-if [ $# -eq 0 ]; then
-    echo "Usage: $0 \"prompt\""
-    exit 1
-fi
+# Make sure the model is on the server; if not, try to pull it via the
+# `ollama` CLI (which only helps if the server is local).
+ensure_model() {
+    local model="$1"
+    local base_url="${OLLAMA_API_URL%/api/chat}"
+    local models
+    models=$(curl -sS "$base_url/api/tags" 2>/dev/null | jq -r '.models[].name' 2>/dev/null || true)
+    if echo "$models" | grep -qE "^${model}(:latest)?$"; then
+        return 0
+    fi
+    if ! command -v ollama &> /dev/null; then
+        echo "Error: model '$model' is not on the server, and the 'ollama' CLI is not installed locally to pull it." >&2
+        exit 1
+    fi
+    echo "Pulling Ollama model: $model" >&2
+    if ! ollama pull "$model"; then
+        echo "Failed to pull model: $model" >&2
+        exit 1
+    fi
+}
 
-if [ "$1" = "-r" ]
-then RESUME_CONVERSATION=true ; shift
-fi
+# Build messages array (fresh or extended from history)
+if [ "$1" = "-r" ]; then
+    PROMPT="$2"
+    if [ -z "$PROMPT" ]; then
+        echo "Error: Missing prompt after -r option." >&2
+        exit 1
+    fi
+    if [ ! -f "$CONVERSATION_FILE" ]; then
+        echo "Error: No conversation history found. Start a new conversation first." >&2
+        exit 1
+    fi
 
-# Get the prompt from the first command-line argument
-PROMPT="$*"
-
-# Initialize or load the conversation file
-if [ -z "$CONVERSATION_FILE" ]
-then CONVERSATION_FILE="/tmp/${USER}-aishell-current-${MODEL//[:\/]/#}.json"
-fi
-
-CURRENT_CONVERSATION=""
-
-if [ -n "$RESUME_CONVERSATION" ] && [ -f "$CONVERSATION_FILE" ]; then
-    CURRENT_CONVERSATION="$(cat "$CONVERSATION_FILE")"
-
-    FULL_PROMPT="Before answering my question, please see our previous conversation:
-
-$(cat "$CONVERSATION_FILE" | prepend_each_line '> ')
-
-OK that's the end of our conversation up to now. Here is the new query:
-
-$PROMPT"
+    history_contents=$(cat "$CONVERSATION_FILE")
+    new_user_msg=$(jq -n --arg text "$PROMPT" '{role: "user", content: $text}')
+    messages=$(echo "$history_contents" | jq ". + [${new_user_msg}]")
 else
-    # Add "think" at the start of your prompt, if you DO want thinking.
-    # That only sometimes works.
-    FULL_PROMPT="$PROMPT"
+    PROMPT="$1"
+    if [ -z "$PROMPT" ]; then
+        echo "Error: Missing prompt." >&2
+        exit 1
+    fi
+
+    PROMPT="(Give brief answers to the following queries. Ideally just one or two paragraphs, or just one sentence if appropriate.) Here is the first query: ${PROMPT}"
+    messages=$(jq -n --arg text "$PROMPT" '[{role: "user", content: $text}]')
 fi
 
-# Send the prompt to ollama
-ollama run "$MODEL" <<< "$FULL_PROMPT" |
-    tee >(
-        REPLY="$(cat | strip_think)"
-        echo "${CURRENT_CONVERSATION}
+ensure_model "$MODEL"
 
-        User: ${PROMPT}
+payload=$(jq -n \
+    --arg model "$MODEL" \
+    --argjson messages "$messages" \
+    '{model: $model, stream: true, messages: $messages}')
 
-        You: ${REPLY}
+# Stream the response. Ollama emits newline-delimited JSON; we extract
+# .message.content from each line, write the assembled text to a temp
+# file (for history), and pipe stdout through highlight_think.
+temp_file=$(mktemp)
+trap 'rm -f "$temp_file"' EXIT
 
-        " > "$CONVERSATION_FILE"
-    ) |
-    highlight_think
-    #--pager="less -REX" 
-    #--theme="$BAT_THEME" 
-    #| bat --pager="less -REX" -f --style=plain --force-colorization --language=markdown
+curl -sS -H "Content-Type: application/json" -d "$payload" "$OLLAMA_API_URL" |
+while read -r line; do
+    [ -z "$line" ] && continue
+    err=$(jq -r '.error // empty' <<<"$line" 2>/dev/null || true)
+    if [ -n "$err" ]; then
+        echo "Ollama error: $err" >&2
+        exit 1
+    fi
+    chunk=$(jq -r '.message.content // empty' <<<"$line" 2>/dev/null || true)
+    if [ -n "$chunk" ]; then
+        echo -n "$chunk"
+        echo -n "$chunk" >> "$temp_file"
+    fi
+done | highlight_think
+echo
 
+# Persist conversation history (strip <think> blocks before saving so the
+# model doesn't re-read its own scratch reasoning on the next turn)
+response_text=$(strip_think < "$temp_file")
+response_msg=$(jq -n --arg text "$response_text" '{role: "assistant", content: $text}')
+
+if [ "$1" != "-r" ]; then
+    if [ -f "$CONVERSATION_FILE" ] && command -v rotate >/dev/null 2>&1; then
+        rotate -quiet -nozip -max 20 "$CONVERSATION_FILE"
+    fi
+    user_msg=$(jq -n --arg text "$PROMPT" '{role: "user", content: $text}')
+    jq -n --argjson user_msg "$user_msg" --argjson assistant_msg "$response_msg" \
+        '[$user_msg, $assistant_msg]' > "$CONVERSATION_FILE"
+else
+    # `messages` already includes the new user prompt; just append the response.
+    new_history=$(echo "$messages" | jq --argjson assistant_msg "$response_msg" '. + [$assistant_msg]')
+    echo "$new_history" > "$CONVERSATION_FILE"
+fi
