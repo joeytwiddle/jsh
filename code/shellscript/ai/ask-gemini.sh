@@ -111,8 +111,7 @@ then
     # Create a new history array
     jq -n --argjson user_part "$user_part" --argjson model_part "$response_content_object" '[$user_part, $model_part]' > "$CONVERSATION_FILE"
 else
-    # Append the model's response to the existing history
-    current_history=$(cat "$CONVERSATION_FILE")
-    new_history=$(echo "$current_history" | jq --argjson model_part "$response_content_object" '. + [$model_part]')
+    # `updated_contents` already includes the new user prompt; just append the response.
+    new_history=$(echo "$updated_contents" | jq --argjson model_part "$response_content_object" '. + [$model_part]')
     echo "$new_history" > "$CONVERSATION_FILE"
 fi
