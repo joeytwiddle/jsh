@@ -10,6 +10,10 @@ set -e
 #   MODEL          Ollama model tag (default: gemma3:1b)
 #   CONVERSATION   Conversation name (default: unnamed)
 #   OLLAMA_API_URL Server URL (default: http://localhost:11434/api/chat)
+#   THINK          If "true", enable structured thinking (only works on models
+#                  that support it — e.g. qwen3:1.7b). Thinking content is
+#                  wrapped in <think>...</think> on stdout for highlighting,
+#                  and stripped before saving to history.
 #
 # Usage:
 #   ask-ollama.sh "prompt"        Start a new conversation
@@ -112,31 +116,62 @@ fi
 
 ensure_model "$MODEL"
 
-payload=$(jq -n \
-    --arg model "$MODEL" \
-    --argjson messages "$messages" \
-    '{model: $model, stream: true, messages: $messages}')
+if [ "${THINK:-false}" = "true" ]; then
+    payload=$(jq -n \
+        --arg model "$MODEL" \
+        --argjson messages "$messages" \
+        '{model: $model, stream: true, think: true, messages: $messages}')
+else
+    payload=$(jq -n \
+        --arg model "$MODEL" \
+        --argjson messages "$messages" \
+        '{model: $model, stream: true, messages: $messages}')
+fi
 
-# Stream the response. Ollama emits newline-delimited JSON; we extract
-# .message.content from each line, write the assembled text to a temp
-# file (for history), and pipe stdout through highlight_think.
+# Stream the response. Ollama emits newline-delimited JSON; each line may
+# carry a thinking chunk and/or a content chunk. Thinking is wrapped in
+# <think>...</think> on stdout (so highlight_think colorizes it) but kept
+# out of the temp file, so saved history contains only the model's content.
 temp_file=$(mktemp)
 trap 'rm -f "$temp_file"' EXIT
 
 curl -sS -H "Content-Type: application/json" -d "$payload" "$OLLAMA_API_URL" |
-while read -r line; do
-    [ -z "$line" ] && continue
-    err=$(jq -r '.error // empty' <<<"$line" 2>/dev/null || true)
-    if [ -n "$err" ]; then
-        echo "Ollama error: $err" >&2
-        exit 1
+{
+    in_thinking=false
+    while read -r line; do
+        [ -z "$line" ] && continue
+        err=$(jq -r '.error // empty' <<<"$line" 2>/dev/null || true)
+        if [ -n "$err" ]; then
+            echo "Ollama error: $err" >&2
+            exit 1
+        fi
+
+        thinking_chunk=$(jq -r '.message.thinking // empty' <<<"$line" 2>/dev/null || true)
+        if [ -n "$thinking_chunk" ]; then
+            if ! $in_thinking; then
+                echo "<think>"
+                in_thinking=true
+            fi
+            echo -n "$thinking_chunk"
+        fi
+
+        content_chunk=$(jq -r '.message.content // empty' <<<"$line" 2>/dev/null || true)
+        if [ -n "$content_chunk" ]; then
+            if $in_thinking; then
+                echo
+                echo "</think>"
+                in_thinking=false
+            fi
+            echo -n "$content_chunk"
+            echo -n "$content_chunk" >> "$temp_file"
+        fi
+    done
+    # Close the thinking block if the response ended without normal content
+    if $in_thinking; then
+        echo
+        echo "</think>"
     fi
-    chunk=$(jq -r '.message.content // empty' <<<"$line" 2>/dev/null || true)
-    if [ -n "$chunk" ]; then
-        echo -n "$chunk"
-        echo -n "$chunk" >> "$temp_file"
-    fi
-done | highlight_think
+} | highlight_think
 echo
 
 # Persist conversation history (strip <think> blocks before saving so the
