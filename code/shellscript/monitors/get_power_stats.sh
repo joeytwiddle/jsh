@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/bin/bash
+set -e
 
 # Show battery state. With "-mini", a compact form suitable for a tmux
 # status bar, e.g. "87%\2h34m" (discharging), "87%/0h12m" (charging),
@@ -30,7 +31,7 @@ case "$(uname)" in
 		then
 			mini_state='?'
 			if [ "$state" = discharging ]
-			then mini_state='\\'
+			then mini_state='\'
 			elif [ "$state" = charging ]
 			then mini_state='/'
 			elif [ "$state" = fully-charged ]
@@ -73,7 +74,7 @@ case "$(uname)" in
 		then
 			mini_state='?'
 			if [ "$state" = "discharging" ]
-			then mini_state='\\'
+			then mini_state='\'
 			elif [ "$state" = "charging" ]
 			then mini_state='/'
 			elif [ "$state" = "fully-charged" ]
