@@ -9,7 +9,7 @@ then
 fi
 
 # KEYFILE="$HOME/.ssh/id_rsa2.pub"
-[ ! -f "$KEYFILE" ] && KEYFILE="$HOME/.ssh/id_rsa2.pub"
+[ ! -f "$KEYFILE" ] && KEYFILE="$HOME/.ssh/id_ed25519.pub"
 
 if [ ! -f "$KEYFILE" ]
 then
@@ -19,17 +19,22 @@ then
 	then
 		mkdir -p "$HOME/.ssh"
 		#ssh-keygen -t rsa -f "$HOME/.ssh/id_rsa" -N ""
-		ssh-keygen -t rsa-sha2-256 -f ~/.ssh/id_rsa2 -N ''
+		#ssh-keygen -t rsa-sha2-256 -f ~/.ssh/id_rsa2 -N ''
+		ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519 -N ''
 	else
 		echo "I cannot send a key since you don't have one, pleaase export KEYFILE."
+		verbosely ls -lrt "$HOME"/.ssh/*.pub
 		exit 1
 	fi
 fi
 
 cat "$KEYFILE" |
 
-ssh-agent verbosely ssh "$@" eval "mkdir -p .ssh && cat >> .ssh/authorized_keys"
+#ssh-agent verbosely ssh "$@" eval "mkdir -p .ssh && cat >> .ssh/authorized_keys"
 ## The ssh-agent is a weak attempted fallback if the key sending fails; i'm not sure i have ever got ssh-agent to do anything useful
+
+## Alternatively
+ssh-copy-id -i "$KEYFILE" "$@"
 
 ## Occasionally remote servers are not configured to permit key authentication.  In that case, the root user on the remote server could try adding these to /etc/ssh/sshd_config, and then restart sshd:
 ## RSAAuthentication yes
