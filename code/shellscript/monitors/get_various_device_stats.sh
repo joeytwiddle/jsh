@@ -9,9 +9,9 @@
 out=""
 add() {
     [ -n "$1" ] || return 0
-    if [ -z "$out" ]
-    then out="$1"
-    else out="$out $1"
+    if [ -n "$out" ] || [ -n "$ADD_LEADING_SPACE" ]
+    then out="${out} $1"
+    else out="${out}$1"
     fi
 }
 
