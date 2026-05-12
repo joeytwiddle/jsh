@@ -8,10 +8,11 @@
 
 ## Run `set -o emacs` to reset to defaults, or `set -o vi` to reset to alternative defaults.
 
-# Unset keybindings which get in the way of my keybindings
-# I think these should have worked, but they don't!
-#while read -r keysym; do bind -r "$keysym"; done < <( bind -p | grep '^"\\C-x' | cut -d ':' -f 1 )
-#while read -r keysym; do bind -u "$keysym"; done < <( bind -p | grep '^"\\C-x' | cut -d ':' -f 2 )
+# Unset keybindings which get in the way of my keybindings (remove the echo if you are happy)
+#bind -P | grep -o '"\\C-x[^"]*"'
+#while read -r keysym; do echo bind -r "$keysym"; done <<< $(bind -P | grep -o '"\\C-x[^"]*"' | sed 's+\\+\\\\+')
+#while read -r keysym; do echo bind -r "$keysym"; done < <( bind -p | grep '^"\\C-x' | cut -d ':' -f 1 | sed 's+\\+\\\\+g')
+#while read -r keysym; do echo bind -u "$keysym"; done < <( bind -p | grep '^"\\C-x' | cut -d ':' -f 2 | sed 's+\\+\\\\+g')
 bind -r "\C-x\C-g"
 bind -r "\C-x\C-?"
 bind -r "\C-x\C-v"
@@ -55,7 +56,7 @@ bind -r "\C-xX"
 bind -r "\C-xY"
 bind -r "\C-xZ"
 bind -r "\C-xg"
-# But even with all of them removed, Ctrl-X still pauses before executing the command I asked it to!
+bind -r "\C-xs"
 
 # Originally in ~/.inputrc with ' 's instead of ':'s
 # Instead of using these shortcuts to jump words, you can see if Ctrl-Left/Right works on your system
