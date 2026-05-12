@@ -63,5 +63,5 @@ github_base_url="$(echo "$remote_url" | sed -E 's/^(git@|https:\/\/)([^/:]+)[:/]
 # This opens a create new branch page if the PR does not already exist, but if it does exist, you get basically the same compare page as above
 url="${github_base_url}/pull/new/${current_branch}"
 
-echo "Opening ${url}..."
+echo "Opening ${url} ..."
 open_in_browser "$url"
