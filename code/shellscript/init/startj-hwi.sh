@@ -229,9 +229,17 @@ else
 
 				dateDiff "JSH stage 2"
 
+				[[ $- == *i* ]]
+				INTERACTIVE_SHELL=
+				case "$-" in
+					*i*)
+						INTERACTIVE_SHELL=1
+					;;
+				esac
+
 				### Keybindings and pretty prompts:
 				## Which flavour shell are we running?
-				if [ $ZSH_NAME ]
+				if [ -n "$INTERACTIVE_SHELL" ] && [ -n "$ZSH_NAME" ]
 				then
 					SHORTSHELL="zsh"
 					# export JSH_TITLING=true ## TODO: put this in default options - allows user to turn it off
@@ -255,8 +263,7 @@ else
 					# setopt HIST_NO_STORE
 					setopt HIST_IGNORE_DUPS HIST_REDUCE_BLANKS
 					# I don't need HIST_VERIFY on zsh, because I perform tab-completion first if I am unsure.
-
-				elif [ "$BASH" ]
+				elif [ -n "$INTERACTIVE_SHELL" ] && [ -n "$BASH" ]
 				then
 					SHORTSHELL="bash"
 					. bashkeys
@@ -284,10 +291,14 @@ else
 
 				. lscolsinit
 
-				. joeysaliases
+				if [ -n "$INTERACTIVE_SHELL" ]
+				then
+					. joeysaliases
 
-				# . dirhistorysetup.bash
-				. dirhistorysetup.zsh
+					# . dirhistorysetup.bash
+					# This script actually works for both bash and zsh
+					. dirhistorysetup.zsh
+				fi
 
 				dateDiff "JSH stage 3"
 
@@ -296,8 +307,6 @@ else
 
 					## Was not working when it was sourced before bashkeys.
 					. xttitleprompt
-
-					. cvsinit
 
 					dateDiff "JSH stage 4"
 
