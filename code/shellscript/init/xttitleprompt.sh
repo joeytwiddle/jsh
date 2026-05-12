@@ -17,7 +17,7 @@ XTTITLEPROMPT_SHOW_JOBS=1
 ## terms, so we whitelist modern stuff with known xttitle support, and drop
 ## people's ssh streams or legacy connections.  If they have vt100 we assume no
 ## xttitle support?
-if [ "$TERM" = xterm ] || [ "$TERM" = "xterm-256color" ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ]
+if [ "$TERM" = xterm ] || [ "$TERM" = "xterm-256color" ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ] || [ "$TERM" = "tmux" ] || [ "$TERM" = "tmux-256color" ]
 then
 
 	# XTTITLE_HEAD=""
@@ -260,7 +260,7 @@ then
 		;;
 
 		*)
-			echo "xttitleprompt: do not recognise sh=$SHORTSHELL" >&2
+			echo "[xttitleprompt] do not recognise sh=$SHORTSHELL" >&2
 		;;
 
 	esac
