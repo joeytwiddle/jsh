@@ -15,8 +15,10 @@ echo "# Starting at $(date)"
 #ALSO_RUN_GIT_GC=1
 
 # For some reason, locate on macOS was not scanning /Users folders
+# We skip all dotfiles for speed
+# But unfortunately that means we skip `~/.vim-addon-manager/*`
 if [ "$(uname)" = Darwin ]
-then find "$HOME/" -type d -not '(' '(' -name Library -o -name .Trash -o -name homebrew -o -name node_modules ')' -prune ')' -name .git
+then find "$HOME/" -type d -name .git -prune -print -o -type d '(' -name Library -o -name '.*' -o -name homebrew -o -name 'node_modules*' ')' -prune
 else locate -r '/\.git$'
 fi |
 
