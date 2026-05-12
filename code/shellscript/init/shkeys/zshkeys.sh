@@ -242,7 +242,8 @@ bindkey "^[[B" down-line-or-beginning-search
 #bindkey -s "^1" "^a^f"
 #bindkey -s "" "^a^a^a^a^a^a^a^f"
 
-# Something had defined this: bindkey "^A" self-insert
-# Apparently it wasn't done by: ~/.zsh/zsh-autosuggestions/autosuggestions.zsh
-# Anyway we want the default, so let's restore it:
+# If you set your EDITOR or VISUAL to something containing 'vi' then zsh might reset CTRL-A and CTRL-E to 'self-insert'
+# https://unix.stackexchange.com/a/251787/33967
+# But I always want the defaults, so let's set them here
 bindkey "^A" beginning-of-line
+bindkey "^E" end-of-line
