@@ -39,7 +39,7 @@ import sys
 
 
 GAP = None  ## visual gap between sections of the swatch layout
-CELL_W = 5  ## "[NNN]" cell width in swatch mode
+CELL_W = 5  ## " NNN " cell width in swatch mode
 CUBE_VALUES = (0, 95, 135, 175, 215, 255)
 
 HSV_HUE_STEPS = 30   ## number of cells in the hue ramp
@@ -255,7 +255,7 @@ def draw_swatch(pad, layout, sel_idx, hex_mode, hex_buf):
 			continue
 		x = 1
 		for idx in row:
-			text = f"[{idx:3d}]"
+			text = f" {idx:3d} "
 			attr = curses.color_pair(idx + 1)
 			highlighted = (not hex_mode and idx == sel_idx) or (idx == hex_idx)
 			if highlighted:
