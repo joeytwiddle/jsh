@@ -1,43 +1,34 @@
 #!/bin/sh
+set -e
 
-## Alternative: (May need xargs batching enabled)
-# xargs stat -c "%Y %n" | sort -n | cut -d' ' -f2-
+[ -z "$SORTBY" ] || SORTBY=modify
 
-## This implementation cannot deal with more files than shell args can take:
-# if [ ! "$*" ]
-# ## We weren't given any args; so presumably we were streamed the files via our input stream...
-# ## WARNING: this infinitely recursive implementation will frag your system if input stream generates no args!:
-# # then withalldo sortfilesbydate
-# ## This one is safe:
-# then withalldo ls -rtd
-# else ls -rtd "$@"
-# fi
-
-[ "$SORTBY" ] || SORTBY=modify
-[ "$SORTBY" = access ] && SORTFORM="%A@"
-[ "$SORTBY" = modify ] && SORTFORM="%T@"
-[ "$SORTBY" = status ] && SORTFORM="%C@"
+# stat takes different flags on GNU coreutils vs BSD/macOS
+if stat -c '%Y' . >/dev/null 2>&1
+then
+	STAT_FLAG=-c
+	case "$SORTBY" in
+		access) STAT_FMT='%X %n' ;;
+		status) STAT_FMT='%Z %n' ;;
+		*)      STAT_FMT='%Y %n' ;;
+	esac
+else
+	STAT_FLAG=-f
+	case "$SORTBY" in
+		access) STAT_FMT='%a %N' ;;
+		status) STAT_FMT='%c %N' ;;
+		*)      STAT_FMT='%m %N' ;;
+	esac
+fi
 
 if [ -n "$1" ]
 then
 	echolines "$@" | sortfilesbydate
 else
-
-	while read FILE
-	do find "$FILE" -maxdepth 0 -printf "$SORTFORM %p\n"
-	done |
-
-	## Horrid, faster:
-	# (
-		# cat
-		# echolines "\-maxdepth" 0 "\-printf" "$SORTFORM" "%p\n"
-	# ) |
-	# withalldo find |
-
-	## FAIL: I wanted xargs to replace {} but it doesn't - that's a find trick!
-	# xargs -d '\n' find {} -maxdepth 0 -printf "$SORTFORM %p\n" |
+	# xargs -d '\n' only works on GNU systems, but this approach works on BSD/macOS systems too
+	tr '\n' '\0' |
+	xargs -0 -r -n 100 -P 8 stat "$STAT_FLAG" "$STAT_FMT" |
 
 	sort -n -k 1 |
 	dropcols 1
-
 fi
