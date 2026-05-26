@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
 """select-term256-color: interactive xterm-256 / hex colour picker.
 
-Two modes (Tab to toggle):
+Three modes (Tab cycles hsv -> truecolor -> swatch):
 
-  swatch  - the full 256 xterm colours laid out as in xterm-color-list.sh.
-            Output: "colourNNN".
-  hsv     - a 2D Saturation x Value plane at the current hue, plus a hue
-            ramp at the top. Lets you pick any 24-bit hex colour visually
-            (terminal still paints with the nearest xterm-256 cell, so
-            expect mild banding). Output: "#rrggbb".
-
-The swatch grid is the only place you can reach the 16 system colours
-(0-15); the HSV plane covers the 216-cube and 24 greys plus any hex.
+  hsv        DEFAULT. SV plane + hue ramp, painted with the nearest xterm-256
+             cells (visible banding). Output is the quantised "colourNNN".
+  truecolor  Same SV plane geometry but each cell is overpainted with a 24-bit
+             ANSI escape, so the gradient is smooth on truecolor terminals.
+             Output is the exact "#rrggbb". Falls back to hsv-style banding on
+             non-truecolor terminals.
+  swatch     The full 256 xterm colours laid out as in xterm-color-list.sh.
+             Output is "colourNNN". The only place to reach system colours
+             0-15.
 
 Keys:
   arrows / hjkl / wasd   move
@@ -23,8 +23,9 @@ Keys:
   q / Esc                cancel  (q quits in swatch mode; in hsv mode q is hue)
 
 Output (on accept):
-  swatch mode -> "colourNNN"
-  hsv / hex   -> "#rrggbb"
+  swatch, hsv  -> "colourNNN"
+  truecolor    -> "#rrggbb"
+  # hex entry  -> "#rrggbb"
 Exit code: 0 on accept, 1 on cancel, 2 on setup error.
 """
 
@@ -280,6 +281,21 @@ def hsv_cell_color(hue_deg, s, v):
 	return rgb_to_xterm256(r, g, b)
 
 
+def truecolor_cell_seq(y, x, text, r, g, b, mark=False):
+	"""Build a raw ANSI escape that paints (y,x) with a 24-bit background and
+	`text`. If mark, also set a contrasting foreground (black/white per luma)
+	so the cursor glyph stays visible on any bg. Coords are 0-based curses
+	coords; ANSI's 1-based offset is added here."""
+	seq = f"\033[{y+1};{x+1}H\033[48;2;{r};{g};{b}m"
+	if mark:
+		luma = 0.299 * r + 0.587 * g + 0.114 * b
+		fr, fg, fb = (0, 0, 0) if luma > 130 else (255, 255, 255)
+		seq += f"\033[38;2;{fr};{fg};{fb}m"
+	seq += text
+	seq += "\033[0m"
+	return seq
+
+
 _HSV_PLANE_CACHE = {}  ## hue_idx -> 2D list of nearest xterm-256 indices
 
 def hsv_plane_indices(hue_idx):
@@ -309,22 +325,30 @@ def hsv_at(hue_idx, sv_x, sv_y):
 	return h, s, v, r, g, b
 
 
-def draw_hsv(stdscr, top, hue_idx, sv_x, sv_y, hex_mode, hex_buf):
-	"""Render the HSV picker starting at screen row `top`. Returns rows used."""
+def draw_hsv(stdscr, top, hue_idx, sv_x, sv_y, hex_mode, hex_buf, truecolor=False):
+	"""Render the HSV picker. The curses pass always paints with the nearest
+	xterm-256 cell, so non-truecolor terminals see the banded fallback. If
+	`truecolor`, also build a list of 24-bit ANSI escapes to overlay on top
+	after stdscr.refresh; returns that overlay (empty list otherwise)."""
 	h, w = stdscr.getmaxyx()
+	overlay = []
 	## Hue strip
 	hue_label = " Hue: "
 	safe_addstr(stdscr, top, 0, hue_label, curses.A_BOLD)
 	x = len(hue_label)
 	for i in range(HSV_HUE_STEPS):
 		hue_deg = i * (360.0 / HSV_HUE_STEPS)
-		idx = hsv_cell_color(hue_deg, 1.0, 1.0)
+		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
+		idx = rgb_to_xterm256(r, g, b)
+		is_cursor = (i == hue_idx)
 		attr = curses.color_pair(idx + 1)
-		if i == hue_idx:
+		cell_text = " " * HSV_CELL_W
+		if is_cursor:
 			attr |= curses.A_REVERSE | curses.A_BOLD
-			safe_addstr(stdscr, top, x, "><", attr)
-		else:
-			safe_addstr(stdscr, top, x, " " * HSV_CELL_W, attr)
+			cell_text = "><"
+		safe_addstr(stdscr, top, x, cell_text, attr)
+		if truecolor:
+			overlay.append(truecolor_cell_seq(top, x, cell_text, r, g, b, mark=is_cursor))
 		x += HSV_CELL_W
 		if x + HSV_CELL_W >= w:
 			break
@@ -341,17 +365,24 @@ def draw_hsv(stdscr, top, hue_idx, sv_x, sv_y, hex_mode, hex_buf):
 		safe_addstr(stdscr, plane_top + yy, 0, f"  {s_label} ", curses.A_DIM)
 		for xx in range(HSV_SV_W):
 			idx = plane[yy][xx]
-			attr = curses.color_pair(idx + 1)
 			cell_x = 5 + xx * HSV_CELL_W
 			if cell_x + HSV_CELL_W >= w:
 				break
-			if xx == sv_x and yy == sv_y and not hex_mode:
+			is_cursor = (xx == sv_x and yy == sv_y and not hex_mode)
+			attr = curses.color_pair(idx + 1)
+			cell_text = " " * HSV_CELL_W
+			if is_cursor:
 				attr |= curses.A_REVERSE | curses.A_BOLD
-				safe_addstr(stdscr, plane_top + yy, cell_x, "><", attr)
-			else:
-				safe_addstr(stdscr, plane_top + yy, cell_x, " " * HSV_CELL_W, attr)
+				cell_text = "><"
+			safe_addstr(stdscr, plane_top + yy, cell_x, cell_text, attr)
+			if truecolor:
+				s = xx / (HSV_SV_W - 1) if HSV_SV_W > 1 else 0
+				v = 1 - yy / (HSV_SV_H - 1) if HSV_SV_H > 1 else 1
+				r, g, b = hsv_to_rgb(cur_hue, s, v)
+				overlay.append(truecolor_cell_seq(plane_top + yy, cell_x, cell_text,
+				                                  r, g, b, mark=is_cursor))
 
-	return 2 + HSV_SV_H  ## rows consumed
+	return overlay
 
 
 ## ---------- Main picker loop ----------
@@ -369,7 +400,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 	## HSV state: start at the HSV equivalent of sel_idx
 	hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
 
-	mode = "swatch"
+	mode = "hsv"  ## default — banded full-spectrum picker
 	hex_mode = False
 	hex_buf = ""
 	status_msg = ""
@@ -390,7 +421,10 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 		if mode == "swatch":
 			return f"colour{sel_idx}"
 		_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
-		return f"#{r:02x}{g:02x}{b:02x}"
+		if mode == "truecolor":
+			return f"#{r:02x}{g:02x}{b:02x}"
+		## hsv: quantised to the nearest xterm-256
+		return f"colour{rgb_to_xterm256(r, g, b)}"
 
 	def preview():
 		run_preview(preview_cmd, current_color_str())
@@ -419,11 +453,14 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 		sel_str = current_color_str()
 		_, _, _, hr, hg, hb = hsv_at(hue_idx, sv_x, sv_y)
 		near_idx = rgb_to_xterm256(hr, hg, hb)
-		if mode == "hsv":
+		if mode == "truecolor":
 			extras = f"  (nearest: colour{near_idx})"
+		elif mode == "hsv":
+			extras = f"  (cursor hex: #{hr:02x}{hg:02x}{hb:02x})"
 		else:
 			rr, rg, rb = xterm_to_rgb(sel_idx)
 			extras = f"  (#{rr:02x}{rg:02x}{rb:02x})"
+		next_mode = {"hsv": "truecolor", "truecolor": "swatch", "swatch": "hsv"}[mode]
 		line1 = f" [{mode}]  Selection: {sel_str or '(typing...)'}{extras}"
 		if num_buf:
 			line1 += f"   typing: {num_buf}_"
@@ -434,11 +471,11 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 		if mode == "swatch":
 			help_line = " arrows/hjkl/wasd move  0-9 number" + \
 			            ("  # hex" if allow_hex else "") + \
-			            "  Tab hsv  Enter accept  Esc cancel"
+			            f"  Tab→{next_mode}  Enter accept  Esc cancel"
 		else:
 			help_line = " arrows/hjkl/wasd SV  ,. q/e u/o hue" + \
 			            ("  # hex" if allow_hex else "") + \
-			            "  Tab swatch  Enter accept  Esc cancel"
+			            f"  Tab→{next_mode}  Enter accept  Esc cancel"
 		safe_addstr(stdscr, h - 3, 0, line1[:max(0, w - 1)])
 		safe_addstr(stdscr, h - 2, 0, help_line[:max(0, w - 1)], curses.A_DIM)
 
@@ -457,8 +494,14 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 				pass
 			curses.doupdate()
 		else:
-			draw_hsv(stdscr, 2, hue_idx, sv_x, sv_y, hex_mode, hex_buf)
+			overlay = draw_hsv(stdscr, 2, hue_idx, sv_x, sv_y, hex_mode, hex_buf,
+			                   truecolor=(mode == "truecolor"))
 			stdscr.refresh()
+			if overlay:
+				## Direct 24-bit ANSI, written after curses has painted its
+				## banded backing so any redraw flicker is sub-frame.
+				sys.stdout.write("".join(overlay))
+				sys.stdout.flush()
 
 		try:
 			ch = stdscr.getch()
@@ -503,16 +546,18 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 		## Common keys
 		if ch == 27:  ## Esc -- the only cancel key (q is reserved for hue in hsv mode)
 			return ("cancel", None)
-		if ch == 9:  ## Tab
-			if mode == "swatch":
-				hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
-				mode = "hsv"
-			else:
+		if ch == 9:  ## Tab — cycle hsv -> truecolor -> swatch -> hsv
+			if mode == "hsv":
+				mode = "truecolor"
+			elif mode == "truecolor":
 				_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
 				sel_idx = rgb_to_xterm256(r, g, b)
 				if sel_idx in pos_map:
 					intended_col = pos_map[sel_idx][1]
 				mode = "swatch"
+			else:  ## swatch
+				hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
+				mode = "hsv"
 			preview()
 			continue
 		if ch == ord('#') and allow_hex:
@@ -527,7 +572,10 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 			if mode == "swatch":
 				return ("num", sel_idx)
 			_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
-			return ("hex", f"#{r:02x}{g:02x}{b:02x}")
+			if mode == "truecolor":
+				return ("hex", f"#{r:02x}{g:02x}{b:02x}")
+			## hsv mode: emit the quantised xterm-256 the cell is painted with
+			return ("num", rgb_to_xterm256(r, g, b))
 
 		## Mode-specific keys
 		LEFT  = (curses.KEY_LEFT,  ord('h'), ord('a'))
