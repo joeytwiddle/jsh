@@ -1,0 +1,667 @@
+#!/usr/bin/env python3
+"""select-term256-color: interactive xterm-256 / hex colour picker.
+
+Two modes (Tab to toggle):
+
+  swatch  - the full 256 xterm colours laid out as in xterm-color-list.sh.
+            Output: "colourNNN".
+  hsv     - a 2D Saturation x Value plane at the current hue, plus a hue
+            ramp at the top. Lets you pick any 24-bit hex colour visually
+            (terminal still paints with the nearest xterm-256 cell, so
+            expect mild banding). Output: "#rrggbb".
+
+The swatch grid is the only place you can reach the 16 system colours
+(0-15); the HSV plane covers the 216-cube and 24 greys plus any hex.
+
+Keys:
+  arrows / hjkl / wasd   move
+  0-9                    (swatch mode) type a colour index
+  , . / q e              (hsv mode) shift hue
+  Tab                    toggle swatch / hsv mode
+  #                      enter hex mode; type 3 or 6 hex digits then Enter
+  Enter / Space          accept
+  q / Esc                cancel  (q quits in swatch mode; in hsv mode q is hue)
+
+Output (on accept):
+  swatch mode -> "colourNNN"
+  hsv / hex   -> "#rrggbb"
+Exit code: 0 on accept, 1 on cancel, 2 on setup error.
+"""
+
+import argparse
+import curses
+import os
+import re
+import shlex
+import subprocess
+import sys
+
+
+GAP = None  ## visual gap between sections of the swatch layout
+CELL_W = 5  ## "[NNN]" cell width in swatch mode
+CUBE_VALUES = (0, 95, 135, 175, 215, 255)
+
+HSV_HUE_STEPS = 30   ## number of cells in the hue ramp
+HSV_SV_W = 30        ## saturation steps across the SV plane
+HSV_SV_H = 12        ## value steps down the SV plane
+HSV_CELL_W = 2       ## chars per cell (paints a 2-char block)
+
+
+## ---------- Swatch layout: mirrors term/xterm-color-list.sh ----------
+
+def build_layout():
+	rows = [list(range(0, 8)), list(range(8, 16)), GAP]
+	for r in range(16, 232, 6):
+		rows.append(list(range(r, r + 6)))
+	rows.append(GAP)
+	for r in range(232, 256, 6):
+		rows.append(list(range(r, r + 6)))
+	return rows
+
+
+def build_position_map(layout):
+	pos = {}
+	for ri, row in enumerate(layout):
+		if row is GAP:
+			continue
+		for ci, idx in enumerate(row):
+			pos[idx] = (ri, ci)
+	return pos
+
+
+## ---------- Colour math ----------
+
+def _srgb_channel_to_linear(c):
+	"""sRGB 0..1 -> linear-light 0..1 (inverse sRGB transfer function)."""
+	return c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4
+
+
+def srgb_to_oklab(r, g, b):
+	"""8-bit sRGB -> OKLab (Björn Ottosson, 2020). Perceptually uniform: plain
+	Euclidean distance in this space approximates human-perceived difference."""
+	r = _srgb_channel_to_linear(r / 255)
+	g = _srgb_channel_to_linear(g / 255)
+	b = _srgb_channel_to_linear(b / 255)
+	l_ = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b
+	m_ = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b
+	s_ = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b
+	l = l_ ** (1.0 / 3); m = m_ ** (1.0 / 3); s = s_ ** (1.0 / 3)
+	return (
+		0.2104542553 * l + 0.7936177850 * m - 0.0040720468 * s,
+		1.9779984951 * l - 2.4285922050 * m + 0.4505937099 * s,
+		0.0259040371 * l + 0.7827717662 * m - 0.8086757660 * s,
+	)
+
+
+_OKLAB_LUT = None  ## precomputed OKLab for every xterm-256 index
+
+def _ensure_oklab_lut():
+	global _OKLAB_LUT
+	if _OKLAB_LUT is not None:
+		return
+	_OKLAB_LUT = [srgb_to_oklab(*xterm_to_rgb(i)) for i in range(256)]
+
+
+def rgb_to_xterm256(r, g, b):
+	"""Nearest xterm-256 index for an 8-bit RGB triple, measured in OKLab so
+	the match follows perception, not raw RGB distance. Only considers the
+	cube (16-231) and grey ramp (232-255); system colours 0-15 are reachable
+	via the swatch grid, not by nearest-match."""
+	_ensure_oklab_lut()
+	tL, tA, tB = srgb_to_oklab(r, g, b)
+	best_i, best_d = 16, float("inf")
+	for i in range(16, 256):
+		L, A, B = _OKLAB_LUT[i]
+		d = (tL - L) ** 2 + (tA - A) ** 2 + (tB - B) ** 2
+		if d < best_d:
+			best_d = d
+			best_i = i
+	return best_i
+
+
+def hex_to_xterm256(hexstr):
+	r, g, b = hex_to_rgb(hexstr)
+	if r is None: return None
+	return rgb_to_xterm256(r, g, b)
+
+
+def hex_to_rgb(hexstr):
+	s = hexstr.lstrip("#")
+	if len(s) == 3:
+		try: return tuple(int(c, 16) * 17 for c in s)
+		except ValueError: return (None, None, None)
+	if len(s) == 6:
+		try: return int(s[0:2], 16), int(s[2:4], 16), int(s[4:6], 16)
+		except ValueError: return (None, None, None)
+	return (None, None, None)
+
+
+def xterm_to_rgb(idx):
+	"""Return approximate (r,g,b) for an xterm-256 index. Uses xterm's classic
+	values for the 16 system colours; exact values for cube and grey."""
+	if idx < 16:
+		## xterm's default 16-colour palette
+		return ((  0,   0,   0), (205,   0,   0), (  0, 205,   0), (205, 205,   0),
+		        (  0,   0, 238), (205,   0, 205), (  0, 205, 205), (229, 229, 229),
+		        (127, 127, 127), (255,   0,   0), (  0, 255,   0), (255, 255,   0),
+		        ( 92,  92, 255), (255,   0, 255), (  0, 255, 255), (255, 255, 255))[idx]
+	if idx < 232:
+		i = idx - 16
+		return CUBE_VALUES[i // 36], CUBE_VALUES[(i // 6) % 6], CUBE_VALUES[i % 6]
+	v = 8 + 10 * (idx - 232)
+	return v, v, v
+
+
+def hsv_to_rgb(h, s, v):
+	"""h in degrees, s and v in [0,1]; returns 8-bit RGB tuple."""
+	h = h % 360
+	c = v * s
+	x = c * (1 - abs((h / 60) % 2 - 1))
+	m = v - c
+	if   h <  60: r, g, b = c, x, 0
+	elif h < 120: r, g, b = x, c, 0
+	elif h < 180: r, g, b = 0, c, x
+	elif h < 240: r, g, b = 0, x, c
+	elif h < 300: r, g, b = x, 0, c
+	else:         r, g, b = c, 0, x
+	return int(round((r + m) * 255)), int(round((g + m) * 255)), int(round((b + m) * 255))
+
+
+def rgb_to_hsv(r, g, b):
+	rn, gn, bn = r / 255, g / 255, b / 255
+	mx, mn = max(rn, gn, bn), min(rn, gn, bn)
+	d = mx - mn
+	v = mx
+	s = 0 if mx == 0 else d / mx
+	if d == 0:    h = 0
+	elif mx == rn: h = 60 * (((gn - bn) / d) % 6)
+	elif mx == gn: h = 60 * ((bn - rn) / d + 2)
+	else:          h = 60 * ((rn - gn) / d + 4)
+	return h % 360, s, v
+
+
+def parse_initial(s):
+	if not s:
+		return None, None
+	s = s.strip()
+	m = re.fullmatch(r"#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})", s)
+	if m:
+		h = m.group(1).lower()
+		if len(h) == 3:
+			h = "".join(c * 2 for c in h)
+		return "hex", "#" + h
+	m = re.fullmatch(r"(?:colou?r)?(\d{1,3})", s, re.IGNORECASE)
+	if m:
+		n = int(m.group(1))
+		if 0 <= n <= 255:
+			return "num", n
+	return None, s
+
+
+def _luma(idx):
+	r, g, b = xterm_to_rgb(idx)
+	return int(0.299 * r + 0.587 * g + 0.114 * b)
+
+
+## ---------- Preview ----------
+
+def run_preview(cmd, color):
+	if not cmd or not color:
+		return
+	full = cmd + " " + shlex.quote(color)
+	try:
+		subprocess.run(["sh", "-c", full], check=False,
+		               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+	except Exception:
+		pass
+
+
+## ---------- Curses helpers ----------
+
+def init_color_pairs():
+	if not curses.has_colors():
+		return
+	curses.start_color()
+	try:
+		curses.use_default_colors()
+	except curses.error:
+		pass
+	for i in range(min(curses.COLORS, 256)):
+		try:
+			fg = curses.COLOR_BLACK if _luma(i) > 130 else curses.COLOR_WHITE
+			curses.init_pair(i + 1, fg, i)
+		except curses.error:
+			pass
+
+
+def safe_addstr(win, y, x, text, attr=0):
+	try:
+		win.addstr(y, x, text, attr)
+	except curses.error:
+		pass
+
+
+## ---------- Swatch mode rendering ----------
+
+def draw_swatch(pad, layout, sel_idx, hex_mode, hex_buf):
+	pad.erase()
+	hex_idx = None
+	if hex_mode and len(hex_buf) in (3, 6):
+		h = hex_buf if len(hex_buf) == 6 else "".join(c * 2 for c in hex_buf)
+		hex_idx = hex_to_xterm256("#" + h)
+	for ri, row in enumerate(layout):
+		if row is GAP:
+			continue
+		x = 1
+		for idx in row:
+			text = f"[{idx:3d}]"
+			attr = curses.color_pair(idx + 1)
+			highlighted = (not hex_mode and idx == sel_idx) or (idx == hex_idx)
+			if highlighted:
+				attr |= curses.A_REVERSE | curses.A_BOLD
+			safe_addstr(pad, ri, x, text, attr)
+			x += CELL_W + 1
+
+
+def _next_non_gap(layout, from_row, target_col, direction):
+	r = from_row + direction
+	while 0 <= r < len(layout):
+		if layout[r] is not GAP:
+			row = layout[r]
+			return row[min(target_col, len(row) - 1)]
+		r += direction
+	return None
+
+
+## ---------- HSV mode rendering ----------
+
+def hsv_cell_color(hue_deg, s, v):
+	r, g, b = hsv_to_rgb(hue_deg, s, v)
+	return rgb_to_xterm256(r, g, b)
+
+
+_HSV_PLANE_CACHE = {}  ## hue_idx -> 2D list of nearest xterm-256 indices
+
+def hsv_plane_indices(hue_idx):
+	"""Cached: precomputed nearest-xterm-256 for every (sv_x, sv_y) cell at this
+	hue. ~360 OKLab lookups per hue; once cached, redraw is just paint."""
+	plane = _HSV_PLANE_CACHE.get(hue_idx)
+	if plane is not None:
+		return plane
+	hue_deg = hue_idx * (360.0 / HSV_HUE_STEPS)
+	plane = [[0] * HSV_SV_W for _ in range(HSV_SV_H)]
+	for yy in range(HSV_SV_H):
+		v = 1 - yy / (HSV_SV_H - 1) if HSV_SV_H > 1 else 1
+		for xx in range(HSV_SV_W):
+			s = xx / (HSV_SV_W - 1) if HSV_SV_W > 1 else 0
+			r, g, b = hsv_to_rgb(hue_deg, s, v)
+			plane[yy][xx] = rgb_to_xterm256(r, g, b)
+	_HSV_PLANE_CACHE[hue_idx] = plane
+	return plane
+
+
+def hsv_at(hue_idx, sv_x, sv_y):
+	"""Convert HSV grid coordinates to (h_deg, s, v, r, g, b)."""
+	h = hue_idx * (360.0 / HSV_HUE_STEPS)
+	s = sv_x / (HSV_SV_W - 1) if HSV_SV_W > 1 else 0
+	v = 1 - sv_y / (HSV_SV_H - 1) if HSV_SV_H > 1 else 1
+	r, g, b = hsv_to_rgb(h, s, v)
+	return h, s, v, r, g, b
+
+
+def draw_hsv(stdscr, top, hue_idx, sv_x, sv_y, hex_mode, hex_buf):
+	"""Render the HSV picker starting at screen row `top`. Returns rows used."""
+	h, w = stdscr.getmaxyx()
+	## Hue strip
+	hue_label = " Hue: "
+	safe_addstr(stdscr, top, 0, hue_label, curses.A_BOLD)
+	x = len(hue_label)
+	for i in range(HSV_HUE_STEPS):
+		hue_deg = i * (360.0 / HSV_HUE_STEPS)
+		idx = hsv_cell_color(hue_deg, 1.0, 1.0)
+		attr = curses.color_pair(idx + 1)
+		if i == hue_idx:
+			attr |= curses.A_REVERSE | curses.A_BOLD
+			safe_addstr(stdscr, top, x, "><", attr)
+		else:
+			safe_addstr(stdscr, top, x, " " * HSV_CELL_W, attr)
+		x += HSV_CELL_W
+		if x + HSV_CELL_W >= w:
+			break
+
+	## SV plane: rows = value (top=bright), cols = saturation (left=grey, right=saturated)
+	plane_top = top + 2
+	cur_hue = hue_idx * (360.0 / HSV_HUE_STEPS)
+	safe_addstr(stdscr, plane_top - 1, 0, " Sat -->", curses.A_DIM)
+	safe_addstr(stdscr, plane_top - 1, len(" Sat -->") + 2,
+	            f"H={cur_hue:5.1f}°", curses.A_DIM)
+	plane = hsv_plane_indices(hue_idx)
+	for yy in range(HSV_SV_H):
+		s_label = "V" if yy == 0 else (" " if yy < HSV_SV_H - 1 else "v")
+		safe_addstr(stdscr, plane_top + yy, 0, f"  {s_label} ", curses.A_DIM)
+		for xx in range(HSV_SV_W):
+			idx = plane[yy][xx]
+			attr = curses.color_pair(idx + 1)
+			cell_x = 5 + xx * HSV_CELL_W
+			if cell_x + HSV_CELL_W >= w:
+				break
+			if xx == sv_x and yy == sv_y and not hex_mode:
+				attr |= curses.A_REVERSE | curses.A_BOLD
+				safe_addstr(stdscr, plane_top + yy, cell_x, "><", attr)
+			else:
+				safe_addstr(stdscr, plane_top + yy, cell_x, " " * HSV_CELL_W, attr)
+
+	return 2 + HSV_SV_H  ## rows consumed
+
+
+## ---------- Main picker loop ----------
+
+def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
+	curses.curs_set(0)
+	init_color_pairs()
+	stdscr.keypad(True)
+
+	## Swatch state
+	sel_idx = initial_idx if initial_idx in pos_map else 0
+	intended_col = pos_map[sel_idx][1]
+	num_buf = ""
+
+	## HSV state: start at the HSV equivalent of sel_idx
+	hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
+
+	mode = "swatch"
+	hex_mode = False
+	hex_buf = ""
+	status_msg = ""
+
+	rows_total = len(layout)
+	cols_total = max(len(r) for r in layout if r is not GAP)
+	pad_h = rows_total + 1
+	pad_w = cols_total * (CELL_W + 1) + 4
+	pad = curses.newpad(pad_h, pad_w)
+
+	def current_color_str():
+		if hex_mode:
+			if len(hex_buf) == 3:
+				return "#" + "".join(c * 2 for c in hex_buf)
+			if len(hex_buf) == 6:
+				return "#" + hex_buf
+			return None
+		if mode == "swatch":
+			return f"colour{sel_idx}"
+		_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
+		return f"#{r:02x}{g:02x}{b:02x}"
+
+	def preview():
+		run_preview(preview_cmd, current_color_str())
+
+	def commit_num_buf():
+		nonlocal sel_idx, num_buf, intended_col, hue_idx, sv_x, sv_y
+		if not num_buf:
+			return
+		n = int(num_buf)
+		num_buf = ""
+		if 0 <= n <= 255:
+			sel_idx = n
+			intended_col = pos_map[sel_idx][1]
+			hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
+			preview()
+
+	while True:
+		h, w = stdscr.getmaxyx()
+		stdscr.erase()
+		title = "Select an xterm-256 / hex colour"
+		safe_addstr(stdscr, 0, max(0, (w - len(title)) // 2), title, curses.A_BOLD)
+
+		## Compute status + help first so we can lay everything onto stdscr
+		## before drawing the swatch pad on top (otherwise stdscr.refresh
+		## paints empty rows over the pad).
+		sel_str = current_color_str()
+		_, _, _, hr, hg, hb = hsv_at(hue_idx, sv_x, sv_y)
+		near_idx = rgb_to_xterm256(hr, hg, hb)
+		if mode == "hsv":
+			extras = f"  (nearest: colour{near_idx})"
+		else:
+			rr, rg, rb = xterm_to_rgb(sel_idx)
+			extras = f"  (#{rr:02x}{rg:02x}{rb:02x})"
+		line1 = f" [{mode}]  Selection: {sel_str or '(typing...)'}{extras}"
+		if num_buf:
+			line1 += f"   typing: {num_buf}_"
+		if hex_mode:
+			line1 += f"   hex: #{hex_buf}{'_' * (6 - len(hex_buf))}"
+		if status_msg:
+			line1 += f"   ({status_msg})"
+		if mode == "swatch":
+			help_line = " arrows/hjkl/wasd move  0-9 number" + \
+			            ("  # hex" if allow_hex else "") + \
+			            "  Tab hsv  Enter accept  Esc cancel"
+		else:
+			help_line = " arrows/hjkl/wasd SV  ,. q/e u/o hue" + \
+			            ("  # hex" if allow_hex else "") + \
+			            "  Tab swatch  Enter accept  Esc cancel"
+		safe_addstr(stdscr, h - 3, 0, line1[:max(0, w - 1)])
+		safe_addstr(stdscr, h - 2, 0, help_line[:max(0, w - 1)], curses.A_DIM)
+
+		if mode == "swatch":
+			draw_swatch(pad, layout, sel_idx, hex_mode, hex_buf)
+			pad_top = 2
+			visible_h = max(1, h - pad_top - 3)
+			sel_row = pos_map[sel_idx][0]
+			scroll = max(0, min(max(0, pad_h - visible_h),
+			                    sel_row - visible_h + 2))
+			stdscr.noutrefresh()
+			try:
+				pad.noutrefresh(scroll, 0, pad_top, 0,
+				                pad_top + visible_h - 1, max(0, w - 1))
+			except curses.error:
+				pass
+			curses.doupdate()
+		else:
+			draw_hsv(stdscr, 2, hue_idx, sv_x, sv_y, hex_mode, hex_buf)
+			stdscr.refresh()
+
+		try:
+			ch = stdscr.getch()
+		except KeyboardInterrupt:
+			return ("cancel", None)
+		status_msg = ""
+
+		if ch == curses.KEY_RESIZE:
+			continue
+
+		## Hex sub-mode (active in both swatch and hsv modes)
+		if hex_mode:
+			if ch == 27:
+				hex_mode = False
+				hex_buf = ""
+				preview()
+				continue
+			if ch in (curses.KEY_ENTER, 10, 13):
+				if len(hex_buf) in (3, 6):
+					if len(hex_buf) == 3:
+						hex_buf = "".join(c * 2 for c in hex_buf)
+					return ("hex", "#" + hex_buf)
+				status_msg = "need 3 or 6 hex digits"
+				continue
+			if ch in (curses.KEY_BACKSPACE, 127, 8):
+				hex_buf = hex_buf[:-1]
+				preview()
+				continue
+			if 32 <= ch < 127:
+				c = chr(ch).lower()
+				if c in "0123456789abcdef" and len(hex_buf) < 6:
+					hex_buf += c
+					if len(hex_buf) in (3, 6):
+						preview()
+						## Sync the HSV cursor too, so visual feedback follows
+						h_str = hex_buf if len(hex_buf) == 6 else "".join(c2 * 2 for c2 in hex_buf)
+						rr, gg, bb = hex_to_rgb("#" + h_str)
+						if rr is not None:
+							hue_idx, sv_x, sv_y = sync_hsv_from_rgb(rr, gg, bb)
+			continue
+
+		## Common keys
+		if ch == 27:  ## Esc -- the only cancel key (q is reserved for hue in hsv mode)
+			return ("cancel", None)
+		if ch == 9:  ## Tab
+			if mode == "swatch":
+				hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
+				mode = "hsv"
+			else:
+				_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
+				sel_idx = rgb_to_xterm256(r, g, b)
+				if sel_idx in pos_map:
+					intended_col = pos_map[sel_idx][1]
+				mode = "swatch"
+			preview()
+			continue
+		if ch == ord('#') and allow_hex:
+			commit_num_buf()
+			hex_mode = True
+			hex_buf = ""
+			continue
+		if ch in (curses.KEY_ENTER, 10, 13, ord(' ')):
+			if mode == "swatch" and num_buf:
+				commit_num_buf()
+				continue
+			if mode == "swatch":
+				return ("num", sel_idx)
+			_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
+			return ("hex", f"#{r:02x}{g:02x}{b:02x}")
+
+		## Mode-specific keys
+		LEFT  = (curses.KEY_LEFT,  ord('h'), ord('a'))
+		RIGHT = (curses.KEY_RIGHT, ord('l'), ord('d'))
+		UP    = (curses.KEY_UP,    ord('k'), ord('w'))
+		DOWN  = (curses.KEY_DOWN,  ord('j'), ord('s'))
+		HUE_BACK    = (ord(','), ord('<'), ord('q'), ord('u'))
+		HUE_FORWARD = (ord('.'), ord('>'), ord('e'), ord('o'))
+
+		if mode == "swatch":
+			if ch in LEFT:
+				commit_num_buf()
+				if sel_idx > 0:
+					sel_idx -= 1
+					intended_col = pos_map[sel_idx][1]
+					preview()
+			elif ch in RIGHT:
+				commit_num_buf()
+				if sel_idx < 255:
+					sel_idx += 1
+					intended_col = pos_map[sel_idx][1]
+					preview()
+			elif ch in UP:
+				commit_num_buf()
+				r, _ = pos_map[sel_idx]
+				new_idx = _next_non_gap(layout, r, intended_col, -1)
+				if new_idx is not None:
+					sel_idx = new_idx
+					preview()
+			elif ch in DOWN:
+				commit_num_buf()
+				r, _ = pos_map[sel_idx]
+				new_idx = _next_non_gap(layout, r, intended_col, +1)
+				if new_idx is not None:
+					sel_idx = new_idx
+					preview()
+			elif ch in (curses.KEY_BACKSPACE, 127, 8):
+				num_buf = num_buf[:-1]
+			elif 48 <= ch <= 57:
+				digit = chr(ch)
+				candidate = num_buf + digit
+				if int(candidate) > 255:
+					commit_num_buf()
+					num_buf = digit
+				else:
+					num_buf = candidate
+					if len(num_buf) == 3 or int(num_buf) * 10 > 255:
+						commit_num_buf()
+		else:
+			## HSV mode
+			if ch in LEFT:
+				sv_x = max(0, sv_x - 1); preview()
+			elif ch in RIGHT:
+				sv_x = min(HSV_SV_W - 1, sv_x + 1); preview()
+			elif ch in UP:
+				sv_y = max(0, sv_y - 1); preview()
+			elif ch in DOWN:
+				sv_y = min(HSV_SV_H - 1, sv_y + 1); preview()
+			elif ch in HUE_BACK:
+				hue_idx = (hue_idx - 1) % HSV_HUE_STEPS; preview()
+			elif ch in HUE_FORWARD:
+				hue_idx = (hue_idx + 1) % HSV_HUE_STEPS; preview()
+
+
+## ---------- Sync helpers ----------
+
+def sync_hsv_from_idx(idx):
+	r, g, b = xterm_to_rgb(idx)
+	return sync_hsv_from_rgb(r, g, b)
+
+
+def sync_hsv_from_rgb(r, g, b):
+	h, s, v = rgb_to_hsv(r, g, b)
+	hue_idx = round(h / 360 * HSV_HUE_STEPS) % HSV_HUE_STEPS
+	sv_x = max(0, min(HSV_SV_W - 1, round(s * (HSV_SV_W - 1))))
+	sv_y = max(0, min(HSV_SV_H - 1, round((1 - v) * (HSV_SV_H - 1))))
+	return hue_idx, sv_x, sv_y
+
+
+## ---------- Main ----------
+
+def main():
+	p = argparse.ArgumentParser(
+		description="Interactive xterm-256 / hex colour picker.",
+		formatter_class=argparse.RawDescriptionHelpFormatter,
+		epilog=__doc__.split("\n", 2)[2])
+	p.add_argument("--initial", default=None,
+	               help='Starting colour (NN, colourNN, or #rrggbb).')
+	p.add_argument("--preview-cmd", default=None,
+	               help='Shell command; selected colour is appended on each move.')
+	p.add_argument("--no-hex", action="store_true", help="Disable hex entry.")
+	args = p.parse_args()
+
+	if not sys.stdin.isatty():
+		try:
+			sys.stdin = open("/dev/tty", "r")
+		except OSError:
+			print("select-term256-color: no TTY for input", file=sys.stderr)
+			sys.exit(2)
+
+	saved_stdout_fd = None
+	if not sys.stdout.isatty():
+		try:
+			tty_fd = os.open("/dev/tty", os.O_WRONLY)
+			saved_stdout_fd = os.dup(1)
+			os.dup2(tty_fd, 1)
+			os.close(tty_fd)
+		except OSError:
+			print("select-term256-color: cannot open /dev/tty", file=sys.stderr)
+			sys.exit(2)
+
+	layout = build_layout()
+	pos_map = build_position_map(layout)
+	kind, val = parse_initial(args.initial)
+	initial_idx = val if kind == "num" else (hex_to_xterm256(val) if kind == "hex" else None)
+
+	try:
+		result = curses.wrapper(picker, layout, pos_map, initial_idx,
+		                        args.preview_cmd, not args.no_hex)
+	finally:
+		if saved_stdout_fd is not None:
+			os.dup2(saved_stdout_fd, 1)
+			os.close(saved_stdout_fd)
+
+	rkind, rval = result
+	if rkind == "cancel":
+		if args.preview_cmd and args.initial:
+			run_preview(args.preview_cmd, args.initial)
+		sys.exit(1)
+	if rkind == "num":
+		print(f"colour{rval}")
+	elif rkind == "hex":
+		print(rval)
+
+
+if __name__ == "__main__":
+	main()
