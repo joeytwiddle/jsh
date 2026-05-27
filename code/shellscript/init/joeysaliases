@@ -311,6 +311,8 @@ elif which bat >/dev/null 2>&1
 then alias m='bat --decorations=never'
 else alias m='less -REX'
 fi
+# More Markdown
+alias mmd='bat --pager="less -RX" --style=plain --force-colorization --language=markdown'
 
 alias g='grep'
 alias ig='igrep'
