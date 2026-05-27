@@ -42,10 +42,33 @@ GAP = None  ## visual gap between sections of the swatch layout
 CELL_W = 5  ## " NNN " cell width in swatch mode
 CUBE_VALUES = (0, 95, 135, 175, 215, 255)
 
-HSV_HUE_STEPS = 30   ## number of cells in the hue ramp
-HSV_SV_W = 30        ## saturation steps across the SV plane
-HSV_SV_H = 12        ## value steps down the SV plane
-HSV_CELL_W = 2       ## chars per cell (paints a 2-char block)
+HSV_CELL_W = 2       ## chars per cell in HSV / truecolor planes
+HSV_PLANE_INDENT = 1 ## screen-column indent for the SV plane and its label row
+HUE_LABEL = " Hue:"  ## odd-length matches the 2-char cell stride so cells line up vertically
+HSV_PLANE_STRETCH_CELLS = 2  ## extra plane cells beyond hue_steps so plane right edge aligns
+                             ## with hue right edge: indent + 2*w = len(HUE_LABEL) + 2*hue_steps
+
+## Layout overhead used by auto_plane_size and the HSV pad sizer.
+HSV_OVERHEAD_ROWS = 7  ## title + blank + hue + label + status + help + cursor row
+HSV_OVERHEAD_COLS = 7  ## 5-char left label + 2-char right margin
+
+## Plane size bounds; pad scrolls if these exceed the terminal.
+HSV_MIN_W, HSV_MAX_W = 6, 200
+HSV_MIN_H, HSV_MAX_H = 6, 100
+
+
+def auto_plane_size(cols=None, rows=None):
+	"""Pick a default (w, h) for the HSV / truecolor plane. If cols/rows are
+	given, sizes for that terminal; otherwise queries the live terminal size.
+	Falls back to 30x12 if get_terminal_size fails."""
+	if cols is None or rows is None:
+		try:
+			cols, rows = os.get_terminal_size()
+		except OSError:
+			return 30, 12
+	w = max(HSV_MIN_W, min(HSV_MAX_W, (cols - HSV_OVERHEAD_COLS) // HSV_CELL_W))
+	h = max(HSV_MIN_H, min(HSV_MAX_H, rows - HSV_OVERHEAD_ROWS))
+	return w, h
 
 
 ## ---------- Swatch layout: mirrors term/xterm-color-list.sh ----------
@@ -296,48 +319,59 @@ def truecolor_cell_seq(y, x, text, r, g, b, mark=False):
 	return seq
 
 
-_HSV_PLANE_CACHE = {}  ## hue_idx -> 2D list of nearest xterm-256 indices
+_HSV_PLANE_CACHE = {}  ## (hue_idx, hue_steps, w, h) -> 2D nearest-xterm-256 index list
+_HSV_PLANE_CACHE_CAP = 64  ## FIFO eviction so heavy zooming doesn't grow unbounded
 
-def hsv_plane_indices(hue_idx):
+def hsv_plane_indices(hue_idx, hue_steps, w, h):
 	"""Cached: precomputed nearest-xterm-256 for every (sv_x, sv_y) cell at this
-	hue. ~360 OKLab lookups per hue; once cached, redraw is just paint."""
-	plane = _HSV_PLANE_CACHE.get(hue_idx)
+	hue/dim combo. ~w*h OKLab lookups per build; once cached, redraw is paint."""
+	key = (hue_idx, hue_steps, w, h)
+	plane = _HSV_PLANE_CACHE.get(key)
 	if plane is not None:
 		return plane
-	hue_deg = hue_idx * (360.0 / HSV_HUE_STEPS)
-	plane = [[0] * HSV_SV_W for _ in range(HSV_SV_H)]
-	for yy in range(HSV_SV_H):
-		v = 1 - yy / (HSV_SV_H - 1) if HSV_SV_H > 1 else 1
-		for xx in range(HSV_SV_W):
-			s = xx / (HSV_SV_W - 1) if HSV_SV_W > 1 else 0
+	hue_deg = hue_idx * (360.0 / hue_steps)
+	plane = [[0] * w for _ in range(h)]
+	for yy in range(h):
+		v = 1 - yy / (h - 1) if h > 1 else 1
+		for xx in range(w):
+			s = xx / (w - 1) if w > 1 else 0
 			r, g, b = hsv_to_rgb(hue_deg, s, v)
 			plane[yy][xx] = rgb_to_xterm256(r, g, b)
-	_HSV_PLANE_CACHE[hue_idx] = plane
+	if len(_HSV_PLANE_CACHE) >= _HSV_PLANE_CACHE_CAP:
+		_HSV_PLANE_CACHE.pop(next(iter(_HSV_PLANE_CACHE)))
+	_HSV_PLANE_CACHE[key] = plane
 	return plane
 
 
-def hsv_at(hue_idx, sv_x, sv_y):
+def hsv_at(hue_idx, sv_x, sv_y, hue_steps, w, h):
 	"""Convert HSV grid coordinates to (h_deg, s, v, r, g, b)."""
-	h = hue_idx * (360.0 / HSV_HUE_STEPS)
-	s = sv_x / (HSV_SV_W - 1) if HSV_SV_W > 1 else 0
-	v = 1 - sv_y / (HSV_SV_H - 1) if HSV_SV_H > 1 else 1
-	r, g, b = hsv_to_rgb(h, s, v)
-	return h, s, v, r, g, b
+	hue_deg = hue_idx * (360.0 / hue_steps)
+	s = sv_x / (w - 1) if w > 1 else 0
+	v = 1 - sv_y / (h - 1) if h > 1 else 1
+	r, g, b = hsv_to_rgb(hue_deg, s, v)
+	return hue_deg, s, v, r, g, b
 
 
-def draw_hsv(stdscr, top, hue_idx, sv_x, sv_y, hex_mode, hex_buf, truecolor=False):
-	"""Render the HSV picker. The curses pass always paints with the nearest
-	xterm-256 cell, so non-truecolor terminals see the banded fallback. If
-	`truecolor`, also build a list of 24-bit ANSI escapes to overlay on top
-	after stdscr.refresh; returns that overlay (empty list otherwise)."""
-	h, w = stdscr.getmaxyx()
+def hue_pad_dims(hue_steps):
+	"""1-row pad sized to hold the whole hue ramp."""
+	return (1, len(HUE_LABEL) + hue_steps * HSV_CELL_W + 2)
+
+
+def plane_pad_dims(w, h):
+	"""Pad sized to hold the SV plane."""
+	return (max(1, h), max(1, w * HSV_CELL_W) + 2)
+
+
+def draw_hsv_hue(pad, hue_idx, hue_steps, truecolor, scroll_x, view_cols,
+                 screen_y, screen_left):
+	"""Render the hue strip into a 1-row pad. Return the truecolor overlay
+	for cells that fall inside the visible window (after scroll)."""
+	pad.erase()
 	overlay = []
-	## Hue strip
-	hue_label = " Hue: "
-	safe_addstr(stdscr, top, 0, hue_label, curses.A_BOLD)
-	x = len(hue_label)
-	for i in range(HSV_HUE_STEPS):
-		hue_deg = i * (360.0 / HSV_HUE_STEPS)
+	safe_addstr(pad, 0, 0, HUE_LABEL, curses.A_BOLD)
+	x = len(HUE_LABEL)
+	for i in range(hue_steps):
+		hue_deg = i * (360.0 / hue_steps)
 		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
 		idx = rgb_to_xterm256(r, g, b)
 		is_cursor = (i == hue_idx)
@@ -346,48 +380,54 @@ def draw_hsv(stdscr, top, hue_idx, sv_x, sv_y, hex_mode, hex_buf, truecolor=Fals
 		if is_cursor:
 			attr |= curses.A_REVERSE | curses.A_BOLD
 			cell_text = "><"
-		safe_addstr(stdscr, top, x, cell_text, attr)
-		if truecolor:
-			overlay.append(truecolor_cell_seq(top, x, cell_text, r, g, b, mark=is_cursor))
+		safe_addstr(pad, 0, x, cell_text, attr)
+		if truecolor and x >= scroll_x and x + HSV_CELL_W <= scroll_x + view_cols:
+			screen_x = screen_left + (x - scroll_x)
+			overlay.append(truecolor_cell_seq(screen_y, screen_x, cell_text,
+			                                  r, g, b, mark=is_cursor))
 		x += HSV_CELL_W
-		if x + HSV_CELL_W >= w:
-			break
+	return overlay
 
-	## SV plane: rows = value (top=bright), cols = saturation (left=grey, right=saturated)
-	plane_top = top + 2
-	cur_hue = hue_idx * (360.0 / HSV_HUE_STEPS)
-	safe_addstr(stdscr, plane_top - 1, 0, " Sat -->", curses.A_DIM)
-	safe_addstr(stdscr, plane_top - 1, len(" Sat -->") + 2,
-	            f"H={cur_hue:5.1f}°", curses.A_DIM)
-	plane = hsv_plane_indices(hue_idx)
-	for yy in range(HSV_SV_H):
-		s_label = "V" if yy == 0 else (" " if yy < HSV_SV_H - 1 else "v")
-		safe_addstr(stdscr, plane_top + yy, 0, f"  {s_label} ", curses.A_DIM)
-		for xx in range(HSV_SV_W):
+
+def draw_hsv_plane(pad, sv_x, sv_y, hex_mode, hue_idx, hue_steps, w, h, truecolor,
+                   scroll_y, scroll_x, view_rows, view_cols, screen_top, screen_left):
+	"""Render the SV plane into a pad. Returns the truecolor overlay restricted
+	to the visible window (after both scroll axes)."""
+	pad.erase()
+	overlay = []
+	cur_hue_deg = hue_idx * (360.0 / hue_steps)
+	plane = hsv_plane_indices(hue_idx, hue_steps, w, h)
+	for yy in range(h):
+		for xx in range(w):
 			idx = plane[yy][xx]
-			cell_x = 5 + xx * HSV_CELL_W
-			if cell_x + HSV_CELL_W >= w:
-				break
+			cell_x = xx * HSV_CELL_W
 			is_cursor = (xx == sv_x and yy == sv_y and not hex_mode)
 			attr = curses.color_pair(idx + 1)
 			cell_text = " " * HSV_CELL_W
 			if is_cursor:
 				attr |= curses.A_REVERSE | curses.A_BOLD
 				cell_text = "><"
-			safe_addstr(stdscr, plane_top + yy, cell_x, cell_text, attr)
-			if truecolor:
-				s = xx / (HSV_SV_W - 1) if HSV_SV_W > 1 else 0
-				v = 1 - yy / (HSV_SV_H - 1) if HSV_SV_H > 1 else 1
-				r, g, b = hsv_to_rgb(cur_hue, s, v)
-				overlay.append(truecolor_cell_seq(plane_top + yy, cell_x, cell_text,
-				                                  r, g, b, mark=is_cursor))
-
+			safe_addstr(pad, yy, cell_x, cell_text, attr)
+			if not truecolor:
+				continue
+			if yy < scroll_y or yy >= scroll_y + view_rows:
+				continue
+			if cell_x < scroll_x or cell_x + HSV_CELL_W > scroll_x + view_cols:
+				continue
+			s = xx / (w - 1) if w > 1 else 0
+			v = 1 - yy / (h - 1) if h > 1 else 1
+			r, g, b = hsv_to_rgb(cur_hue_deg, s, v)
+			screen_y = screen_top + (yy - scroll_y)
+			screen_xp = screen_left + (cell_x - scroll_x)
+			overlay.append(truecolor_cell_seq(screen_y, screen_xp, cell_text,
+			                                  r, g, b, mark=is_cursor))
 	return overlay
 
 
 ## ---------- Main picker loop ----------
 
-def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
+def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
+           init_w, init_h, init_hue_steps, hue_steps_explicit, size_explicit):
 	curses.curs_set(0)
 	init_color_pairs()
 	stdscr.keypad(True)
@@ -397,19 +437,48 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 	intended_col = pos_map[sel_idx][1]
 	num_buf = ""
 
-	## HSV state: start at the HSV equivalent of sel_idx
-	hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
+	## HSV plane dims — mutable via zoom keys. w is bumped by
+	## HSV_PLANE_STRETCH_CELLS so the plane's right edge aligns with the hue
+	## strip's right edge (label takes that much extra width on the left).
+	w, h_plane = init_w + HSV_PLANE_STRETCH_CELLS, init_h
+	hue_steps = init_hue_steps
+
+	## current_rgb is the underlying value. Tab does NOT touch it; movement does.
+	current_rgb = xterm_to_rgb(sel_idx)
+	hue_idx, sv_x, sv_y = sync_hsv_from_rgb(*current_rgb, hue_steps, w, h_plane)
 
 	mode = "hsv"  ## default — banded full-spectrum picker
 	hex_mode = False
 	hex_buf = ""
 	status_msg = ""
 
+	## Swatch pad (size fixed)
 	rows_total = len(layout)
 	cols_total = max(len(r) for r in layout if r is not GAP)
-	pad_h = rows_total + 1
-	pad_w = cols_total * (CELL_W + 1) + 4
-	pad = curses.newpad(pad_h, pad_w)
+	swatch_pad_h = rows_total + 1
+	swatch_pad_w = cols_total * (CELL_W + 1) + 4
+	swatch_pad = curses.newpad(swatch_pad_h, swatch_pad_w)
+
+	## HSV uses two pads so the hue strip stays put while the plane scrolls.
+	hue_pad_h, hue_pad_w = hue_pad_dims(hue_steps)
+	hue_pad = curses.newpad(hue_pad_h, hue_pad_w)
+	plane_pad_h, plane_pad_w = plane_pad_dims(w, h_plane)
+	plane_pad = curses.newpad(plane_pad_h, plane_pad_w)
+
+	## Movement key tuples — hoisted out of the loop
+	LEFT_1  = (curses.KEY_LEFT,  ord('h'), ord('a'))
+	LEFT_5  = (curses.KEY_SLEFT, ord('H'), ord('A'))
+	RIGHT_1 = (curses.KEY_RIGHT, ord('l'), ord('d'))
+	RIGHT_5 = (curses.KEY_SRIGHT, ord('L'), ord('D'))
+	UP_1    = (curses.KEY_UP,    ord('k'), ord('w'))
+	UP_5    = (curses.KEY_SR,    ord('K'), ord('W'))
+	DOWN_1  = (curses.KEY_DOWN,  ord('j'), ord('s'))
+	DOWN_5  = (curses.KEY_SF,    ord('J'), ord('S'))
+	HUE_BACK_1    = (ord(','), ord('q'), ord('u'))
+	HUE_BACK_5    = (ord('<'), ord('Q'), ord('U'))
+	HUE_FORWARD_1 = (ord('.'), ord('e'), ord('o'))
+	HUE_FORWARD_5 = (ord('>'), ord('E'), ord('O'))
+	FIVE_X = set(LEFT_5 + RIGHT_5 + UP_5 + DOWN_5 + HUE_BACK_5 + HUE_FORWARD_5)
 
 	def current_color_str():
 		if hex_mode:
@@ -418,19 +487,34 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 			if len(hex_buf) == 6:
 				return "#" + hex_buf
 			return None
-		if mode == "swatch":
-			return f"colour{sel_idx}"
-		_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
+		r, g, b = current_rgb
 		if mode == "truecolor":
 			return f"#{r:02x}{g:02x}{b:02x}"
-		## hsv: quantised to the nearest xterm-256
+		if mode == "swatch":
+			return f"colour{sel_idx}"
+		## hsv: quantised projection of current_rgb
 		return f"colour{rgb_to_xterm256(r, g, b)}"
 
 	def preview():
 		run_preview(preview_cmd, current_color_str())
 
+	def set_value_from_hsv():
+		"""Reads cursor (hue_idx, sv_x, sv_y) and writes current_rgb + sel_idx."""
+		nonlocal current_rgb, sel_idx, intended_col
+		_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y, hue_steps, w, h_plane)
+		current_rgb = (r, g, b)
+		sel_idx = rgb_to_xterm256(r, g, b)
+		if sel_idx in pos_map:
+			intended_col = pos_map[sel_idx][1]
+
+	def set_value_from_swatch():
+		"""Reads sel_idx and writes current_rgb + hue cursor."""
+		nonlocal current_rgb, hue_idx, sv_x, sv_y
+		current_rgb = xterm_to_rgb(sel_idx)
+		hue_idx, sv_x, sv_y = sync_hsv_from_rgb(*current_rgb, hue_steps, w, h_plane)
+
 	def commit_num_buf():
-		nonlocal sel_idx, num_buf, intended_col, hue_idx, sv_x, sv_y
+		nonlocal sel_idx, num_buf, intended_col
 		if not num_buf:
 			return
 		n = int(num_buf)
@@ -438,30 +522,62 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 		if 0 <= n <= 255:
 			sel_idx = n
 			intended_col = pos_map[sel_idx][1]
-			hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
+			set_value_from_swatch()
 			preview()
 
+	def apply_dims(new_w, new_h):
+		"""Set plane to (new_w, new_h), recouple hue if not pinned, resize pads,
+		and resync the cursor from current_rgb. current_rgb is preserved."""
+		nonlocal w, h_plane, hue_steps, hue_idx, sv_x, sv_y, plane_pad, plane_pad_h, plane_pad_w
+		nonlocal hue_pad, hue_pad_h, hue_pad_w
+		new_w = max(HSV_MIN_W, min(HSV_MAX_W, new_w))
+		new_h = max(HSV_MIN_H, min(HSV_MAX_H, new_h))
+		new_hue = hue_steps if hue_steps_explicit else max(HSV_MIN_W,
+		                                                   min(HSV_MAX_W,
+		                                                       new_w - HSV_PLANE_STRETCH_CELLS))
+		if new_w == w and new_h == h_plane and new_hue == hue_steps:
+			return
+		w, h_plane, hue_steps = new_w, new_h, new_hue
+		hue_idx, sv_x, sv_y = sync_hsv_from_rgb(*current_rgb, hue_steps, w, h_plane)
+		hue_pad_h, hue_pad_w = hue_pad_dims(hue_steps)
+		hue_pad = curses.newpad(hue_pad_h, hue_pad_w)
+		plane_pad_h, plane_pad_w = plane_pad_dims(w, h_plane)
+		plane_pad = curses.newpad(plane_pad_h, plane_pad_w)
+		preview()
+
+	def apply_zoom(dw, dh):
+		"""Value stays exact across zoom — cursor resyncs from current_rgb."""
+		apply_dims(w + dw, h_plane + dh)
+
+	def apply_auto_resize():
+		"""Recompute plane dims from the live terminal size. Skipped when the
+		user pinned a size via --size."""
+		if size_explicit:
+			return
+		try:
+			cols, rows = os.get_terminal_size()
+		except OSError:
+			rows, cols = stdscr.getmaxyx()
+		auto_w, auto_h = auto_plane_size(cols, rows)
+		apply_dims(auto_w + HSV_PLANE_STRETCH_CELLS, auto_h)
+
 	while True:
-		h, w = stdscr.getmaxyx()
+		term_h, term_w = stdscr.getmaxyx()
 		stdscr.erase()
 		title = "Select an xterm-256 / hex colour"
-		safe_addstr(stdscr, 0, max(0, (w - len(title)) // 2), title, curses.A_BOLD)
+		safe_addstr(stdscr, 0, max(0, (term_w - len(title)) // 2), title, curses.A_BOLD)
 
-		## Compute status + help first so we can lay everything onto stdscr
-		## before drawing the swatch pad on top (otherwise stdscr.refresh
-		## paints empty rows over the pad).
 		sel_str = current_color_str()
-		_, _, _, hr, hg, hb = hsv_at(hue_idx, sv_x, sv_y)
-		near_idx = rgb_to_xterm256(hr, hg, hb)
+		cur_r, cur_g, cur_b = current_rgb
 		if mode == "truecolor":
-			extras = f"  (nearest: colour{near_idx})"
+			extras = f"  (nearest: colour{rgb_to_xterm256(cur_r, cur_g, cur_b)})"
 		elif mode == "hsv":
-			extras = f"  (cursor hex: #{hr:02x}{hg:02x}{hb:02x})"
+			extras = f"  (full: #{cur_r:02x}{cur_g:02x}{cur_b:02x})"
 		else:
-			rr, rg, rb = xterm_to_rgb(sel_idx)
-			extras = f"  (#{rr:02x}{rg:02x}{rb:02x})"
+			extras = f"  (#{cur_r:02x}{cur_g:02x}{cur_b:02x})"
 		next_mode = {"hsv": "truecolor", "truecolor": "swatch", "swatch": "hsv"}[mode]
-		line1 = f" [{mode}]  Selection: {sel_str or '(typing...)'}{extras}"
+		dims = f" {w}x{h_plane}" if mode != "swatch" else ""
+		line1 = f" [{mode}{dims}]  Selection: {sel_str or '(typing...)'}{extras}"
 		if num_buf:
 			line1 += f"   typing: {num_buf}_"
 		if hex_mode:
@@ -469,38 +585,93 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 		if status_msg:
 			line1 += f"   ({status_msg})"
 		if mode == "swatch":
-			help_line = " arrows/hjkl/wasd move  0-9 number" + \
+			help_line = " arrows/hjkl/wasd move (Shift=5)  0-9 num" + \
 			            ("  # hex" if allow_hex else "") + \
 			            f"  Tab→{next_mode}  Enter accept  Esc cancel"
 		else:
-			help_line = " arrows/hjkl/wasd SV  ,. q/e u/o hue" + \
+			help_line = " arrows/hjkl/wasd SV (Shift=5)  ,./qe/uo hue (Shift=5)  +/- zoom" + \
 			            ("  # hex" if allow_hex else "") + \
-			            f"  Tab→{next_mode}  Enter accept  Esc cancel"
-		safe_addstr(stdscr, h - 3, 0, line1[:max(0, w - 1)])
-		safe_addstr(stdscr, h - 2, 0, help_line[:max(0, w - 1)], curses.A_DIM)
+			            f"  Tab→{next_mode}  Enter  Esc"
+
+		## Fixed top: title row 0, hue strip row 2, label row 3.
+		## Plane sits at row 4..term_h-4 (status + help take the last two).
+		HUE_SCREEN_Y   = 2
+		LABEL_SCREEN_Y = 3
+		PLANE_SCREEN_TOP = 4
+		swatch_top = 2
+
+		if mode != "swatch":
+			cur_hue_deg = hue_idx * (360.0 / hue_steps)
+			label_text = f"Sat→   V↕   H={cur_hue_deg:5.1f}°"
+			safe_addstr(stdscr, LABEL_SCREEN_Y, HSV_PLANE_INDENT,
+			            label_text[:max(0, term_w - HSV_PLANE_INDENT - 1)],
+			            curses.A_DIM)
+
+		safe_addstr(stdscr, term_h - 3, 0, line1[:max(0, term_w - 1)])
+		safe_addstr(stdscr, term_h - 2, 0, help_line[:max(0, term_w - 1)], curses.A_DIM)
 
 		if mode == "swatch":
-			draw_swatch(pad, layout, sel_idx, hex_mode, hex_buf)
-			pad_top = 2
-			visible_h = max(1, h - pad_top - 3)
+			swatch_view_rows = max(1, term_h - swatch_top - 3)
+			draw_swatch(swatch_pad, layout, sel_idx, hex_mode, hex_buf)
 			sel_row = pos_map[sel_idx][0]
-			scroll = max(0, min(max(0, pad_h - visible_h),
-			                    sel_row - visible_h + 2))
+			scroll_y = max(0, min(max(0, swatch_pad_h - swatch_view_rows),
+			                       sel_row - swatch_view_rows + 2))
 			stdscr.noutrefresh()
 			try:
-				pad.noutrefresh(scroll, 0, pad_top, 0,
-				                pad_top + visible_h - 1, max(0, w - 1))
+				swatch_pad.noutrefresh(scroll_y, 0, swatch_top, 0,
+				                       swatch_top + swatch_view_rows - 1, max(0, term_w - 1))
 			except curses.error:
 				pass
 			curses.doupdate()
 		else:
-			overlay = draw_hsv(stdscr, 2, hue_idx, sv_x, sv_y, hex_mode, hex_buf,
-			                   truecolor=(mode == "truecolor"))
-			stdscr.refresh()
-			if overlay:
-				## Direct 24-bit ANSI, written after curses has painted its
-				## banded backing so any redraw flicker is sub-frame.
-				sys.stdout.write("".join(overlay))
+			## Hue strip: horizontal-only scroll to keep hue cursor in view.
+			view_cols = max(1, term_w)
+			hue_cursor_pad_x = len(HUE_LABEL) + hue_idx * HSV_CELL_W
+			hue_scroll_x = 0
+			if hue_pad_w > view_cols:
+				hue_scroll_x = max(0, min(hue_pad_w - view_cols,
+				                          hue_cursor_pad_x - view_cols // 2))
+			## Plane: indented by HSV_PLANE_INDENT so its right edge aligns
+			## with the hue ramp's right edge (label takes that much on the left).
+			## One extra blank row reserved below the plane (-4 instead of -3).
+			plane_view_rows = max(1, term_h - PLANE_SCREEN_TOP - 4)
+			plane_view_cols = max(1, term_w - HSV_PLANE_INDENT)
+			cursor_pad_y = sv_y
+			cursor_pad_x = sv_x * HSV_CELL_W
+			plane_scroll_y = 0
+			if plane_pad_h > plane_view_rows:
+				plane_scroll_y = max(0, min(plane_pad_h - plane_view_rows,
+				                            cursor_pad_y - plane_view_rows // 2))
+			plane_scroll_x = 0
+			if plane_pad_w > plane_view_cols:
+				plane_scroll_x = max(0, min(plane_pad_w - plane_view_cols,
+				                            cursor_pad_x - plane_view_cols // 2))
+			is_tc = (mode == "truecolor")
+			hue_overlay = draw_hsv_hue(hue_pad, hue_idx, hue_steps,
+			                           truecolor=is_tc, scroll_x=hue_scroll_x,
+			                           view_cols=view_cols,
+			                           screen_y=HUE_SCREEN_Y, screen_left=0)
+			plane_overlay = draw_hsv_plane(plane_pad, sv_x, sv_y, hex_mode,
+			                               hue_idx, hue_steps, w, h_plane,
+			                               truecolor=is_tc,
+			                               scroll_y=plane_scroll_y, scroll_x=plane_scroll_x,
+			                               view_rows=plane_view_rows, view_cols=plane_view_cols,
+			                               screen_top=PLANE_SCREEN_TOP,
+			                               screen_left=HSV_PLANE_INDENT)
+			stdscr.noutrefresh()
+			try:
+				hue_pad.noutrefresh(0, hue_scroll_x,
+				                    HUE_SCREEN_Y, 0,
+				                    HUE_SCREEN_Y, max(0, term_w - 1))
+				plane_pad.noutrefresh(plane_scroll_y, plane_scroll_x,
+				                      PLANE_SCREEN_TOP, HSV_PLANE_INDENT,
+				                      PLANE_SCREEN_TOP + plane_view_rows - 1,
+				                      max(0, term_w - 1))
+			except curses.error:
+				pass
+			curses.doupdate()
+			if hue_overlay or plane_overlay:
+				sys.stdout.write("".join(hue_overlay) + "".join(plane_overlay))
 				sys.stdout.flush()
 
 		try:
@@ -510,6 +681,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 		status_msg = ""
 
 		if ch == curses.KEY_RESIZE:
+			apply_auto_resize()
 			continue
 
 		## Hex sub-mode (active in both swatch and hsv modes)
@@ -535,28 +707,30 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 				if c in "0123456789abcdef" and len(hex_buf) < 6:
 					hex_buf += c
 					if len(hex_buf) in (3, 6):
-						preview()
-						## Sync the HSV cursor too, so visual feedback follows
 						h_str = hex_buf if len(hex_buf) == 6 else "".join(c2 * 2 for c2 in hex_buf)
 						rr, gg, bb = hex_to_rgb("#" + h_str)
 						if rr is not None:
-							hue_idx, sv_x, sv_y = sync_hsv_from_rgb(rr, gg, bb)
+							current_rgb = (rr, gg, bb)
+							sel_idx = rgb_to_xterm256(rr, gg, bb)
+							if sel_idx in pos_map:
+								intended_col = pos_map[sel_idx][1]
+							hue_idx, sv_x, sv_y = sync_hsv_from_rgb(rr, gg, bb,
+							                                       hue_steps, w, h_plane)
+						preview()
 			continue
 
 		## Common keys
-		if ch == 27:  ## Esc -- the only cancel key (q is reserved for hue in hsv mode)
+		if ch == 27:  ## Esc — the only cancel key (q is hue in hsv mode)
 			return ("cancel", None)
-		if ch == 9:  ## Tab — cycle hsv -> truecolor -> swatch -> hsv
+		if ch == 9:  ## Tab — cycle hsv -> truecolor -> swatch -> hsv.
+			## NOTE: Tab is value-preserving: it does NOT touch current_rgb,
+			## hue_idx, sv_x, sv_y, or sel_idx. Only `mode` changes; the
+			## display projection of current_rgb adapts per mode.
 			if mode == "hsv":
 				mode = "truecolor"
 			elif mode == "truecolor":
-				_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
-				sel_idx = rgb_to_xterm256(r, g, b)
-				if sel_idx in pos_map:
-					intended_col = pos_map[sel_idx][1]
 				mode = "swatch"
-			else:  ## swatch
-				hue_idx, sv_x, sv_y = sync_hsv_from_idx(sel_idx)
+			else:
 				mode = "hsv"
 			preview()
 			continue
@@ -571,46 +745,55 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 				continue
 			if mode == "swatch":
 				return ("num", sel_idx)
-			_, _, _, r, g, b = hsv_at(hue_idx, sv_x, sv_y)
+			r, g, b = current_rgb
 			if mode == "truecolor":
 				return ("hex", f"#{r:02x}{g:02x}{b:02x}")
-			## hsv mode: emit the quantised xterm-256 the cell is painted with
+			## hsv: quantise the underlying value when accepting
 			return ("num", rgb_to_xterm256(r, g, b))
 
-		## Mode-specific keys
-		LEFT  = (curses.KEY_LEFT,  ord('h'), ord('a'))
-		RIGHT = (curses.KEY_RIGHT, ord('l'), ord('d'))
-		UP    = (curses.KEY_UP,    ord('k'), ord('w'))
-		DOWN  = (curses.KEY_DOWN,  ord('j'), ord('s'))
-		HUE_BACK    = (ord(','), ord('<'), ord('q'), ord('u'))
-		HUE_FORWARD = (ord('.'), ord('>'), ord('e'), ord('o'))
+		## Movement + zoom
+		step = 5 if ch in FIVE_X else 1
 
 		if mode == "swatch":
-			if ch in LEFT:
+			if ch in LEFT_1 + LEFT_5:
 				commit_num_buf()
-				if sel_idx > 0:
-					sel_idx -= 1
-					intended_col = pos_map[sel_idx][1]
-					preview()
-			elif ch in RIGHT:
-				commit_num_buf()
-				if sel_idx < 255:
-					sel_idx += 1
-					intended_col = pos_map[sel_idx][1]
-					preview()
-			elif ch in UP:
-				commit_num_buf()
-				r, _ = pos_map[sel_idx]
-				new_idx = _next_non_gap(layout, r, intended_col, -1)
-				if new_idx is not None:
+				new_idx = max(0, sel_idx - step)
+				if new_idx != sel_idx:
 					sel_idx = new_idx
+					intended_col = pos_map[sel_idx][1]
+					set_value_from_swatch()
 					preview()
-			elif ch in DOWN:
+			elif ch in RIGHT_1 + RIGHT_5:
 				commit_num_buf()
-				r, _ = pos_map[sel_idx]
-				new_idx = _next_non_gap(layout, r, intended_col, +1)
-				if new_idx is not None:
+				new_idx = min(255, sel_idx + step)
+				if new_idx != sel_idx:
 					sel_idx = new_idx
+					intended_col = pos_map[sel_idx][1]
+					set_value_from_swatch()
+					preview()
+			elif ch in UP_1 + UP_5:
+				commit_num_buf()
+				new_idx = sel_idx
+				for _ in range(step):
+					tmp = _next_non_gap(layout, pos_map[new_idx][0], intended_col, -1)
+					if tmp is None:
+						break
+					new_idx = tmp
+				if new_idx != sel_idx:
+					sel_idx = new_idx
+					set_value_from_swatch()
+					preview()
+			elif ch in DOWN_1 + DOWN_5:
+				commit_num_buf()
+				new_idx = sel_idx
+				for _ in range(step):
+					tmp = _next_non_gap(layout, pos_map[new_idx][0], intended_col, +1)
+					if tmp is None:
+						break
+					new_idx = tmp
+				if new_idx != sel_idx:
+					sel_idx = new_idx
+					set_value_from_swatch()
 					preview()
 			elif ch in (curses.KEY_BACKSPACE, 127, 8):
 				num_buf = num_buf[:-1]
@@ -625,37 +808,57 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex):
 					if len(num_buf) == 3 or int(num_buf) * 10 > 255:
 						commit_num_buf()
 		else:
-			## HSV mode
-			if ch in LEFT:
-				sv_x = max(0, sv_x - 1); preview()
-			elif ch in RIGHT:
-				sv_x = min(HSV_SV_W - 1, sv_x + 1); preview()
-			elif ch in UP:
-				sv_y = max(0, sv_y - 1); preview()
-			elif ch in DOWN:
-				sv_y = min(HSV_SV_H - 1, sv_y + 1); preview()
-			elif ch in HUE_BACK:
-				hue_idx = (hue_idx - 1) % HSV_HUE_STEPS; preview()
-			elif ch in HUE_FORWARD:
-				hue_idx = (hue_idx + 1) % HSV_HUE_STEPS; preview()
+			## HSV / truecolor: movement updates the cursor then derives
+			## current_rgb from the new cell — the user has committed to that
+			## position, so quantisation (in hsv) or the new exact RGB (in
+			## truecolor) is the right "current value" going forward.
+			if ch in LEFT_1 + LEFT_5:
+				sv_x = max(0, sv_x - step); set_value_from_hsv(); preview()
+			elif ch in RIGHT_1 + RIGHT_5:
+				sv_x = min(w - 1, sv_x + step); set_value_from_hsv(); preview()
+			elif ch in UP_1 + UP_5:
+				sv_y = max(0, sv_y - step); set_value_from_hsv(); preview()
+			elif ch in DOWN_1 + DOWN_5:
+				sv_y = min(h_plane - 1, sv_y + step); set_value_from_hsv(); preview()
+			elif ch in HUE_BACK_1 + HUE_BACK_5:
+				hue_idx = (hue_idx - step) % hue_steps; set_value_from_hsv(); preview()
+			elif ch in HUE_FORWARD_1 + HUE_FORWARD_5:
+				hue_idx = (hue_idx + step) % hue_steps; set_value_from_hsv(); preview()
+			elif ch in (ord('+'), ord('=')):
+				apply_zoom(+4, +2)
+			elif ch in (ord('-'), ord('_')):
+				apply_zoom(-4, -2)
 
 
 ## ---------- Sync helpers ----------
 
-def sync_hsv_from_idx(idx):
+def sync_hsv_from_idx(idx, hue_steps, w, h):
 	r, g, b = xterm_to_rgb(idx)
-	return sync_hsv_from_rgb(r, g, b)
+	return sync_hsv_from_rgb(r, g, b, hue_steps, w, h)
 
 
-def sync_hsv_from_rgb(r, g, b):
-	h, s, v = rgb_to_hsv(r, g, b)
-	hue_idx = round(h / 360 * HSV_HUE_STEPS) % HSV_HUE_STEPS
-	sv_x = max(0, min(HSV_SV_W - 1, round(s * (HSV_SV_W - 1))))
-	sv_y = max(0, min(HSV_SV_H - 1, round((1 - v) * (HSV_SV_H - 1))))
+def sync_hsv_from_rgb(r, g, b, hue_steps, w, h):
+	hh, s, v = rgb_to_hsv(r, g, b)
+	hue_idx = round(hh / 360 * hue_steps) % hue_steps
+	sv_x = max(0, min(w - 1, round(s * (w - 1))))
+	sv_y = max(0, min(h - 1, round((1 - v) * (h - 1))))
 	return hue_idx, sv_x, sv_y
 
 
 ## ---------- Main ----------
+
+def _parse_size(spec):
+	m = re.fullmatch(r"\s*(\d+)\s*x\s*(\d+)\s*", spec)
+	if not m:
+		raise argparse.ArgumentTypeError(
+			f"--size must look like WxH (e.g. 80x50), got: {spec!r}")
+	w, h = int(m.group(1)), int(m.group(2))
+	if not (HSV_MIN_W <= w <= HSV_MAX_W and HSV_MIN_H <= h <= HSV_MAX_H):
+		raise argparse.ArgumentTypeError(
+			f"--size out of range: width [{HSV_MIN_W},{HSV_MAX_W}],"
+			f" height [{HSV_MIN_H},{HSV_MAX_H}]")
+	return (w, h)
+
 
 def main():
 	p = argparse.ArgumentParser(
@@ -667,6 +870,10 @@ def main():
 	p.add_argument("--preview-cmd", default=None,
 	               help='Shell command; selected colour is appended on each move.')
 	p.add_argument("--no-hex", action="store_true", help="Disable hex entry.")
+	p.add_argument("--size", type=_parse_size, default=None, metavar="WxH",
+	               help="HSV plane size. Defaults to auto-fit terminal.")
+	p.add_argument("--hue-steps", type=int, default=None, metavar="N",
+	               help="Cells in the hue ramp. Defaults to plane width.")
 	args = p.parse_args()
 
 	if not sys.stdin.isatty():
@@ -692,9 +899,23 @@ def main():
 	kind, val = parse_initial(args.initial)
 	initial_idx = val if kind == "num" else (hex_to_xterm256(val) if kind == "hex" else None)
 
+	## Resolve plane dimensions
+	size_explicit = args.size is not None
+	if size_explicit:
+		init_w, init_h = args.size
+	else:
+		init_w, init_h = auto_plane_size()
+	hue_steps_explicit = args.hue_steps is not None
+	if hue_steps_explicit:
+		init_hue_steps = max(HSV_MIN_W, min(HSV_MAX_W, args.hue_steps))
+	else:
+		init_hue_steps = init_w
+
 	try:
 		result = curses.wrapper(picker, layout, pos_map, initial_idx,
-		                        args.preview_cmd, not args.no_hex)
+		                        args.preview_cmd, not args.no_hex,
+		                        init_w, init_h, init_hue_steps,
+		                        hue_steps_explicit, size_explicit)
 	finally:
 		if saved_stdout_fd is not None:
 			os.dup2(saved_stdout_fd, 1)
