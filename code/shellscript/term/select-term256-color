@@ -243,6 +243,12 @@ def run_preview(cmd, color):
 ## ---------- Curses helpers ----------
 
 def init_color_pairs():
+	"""Init one curses pair per xterm-256 colour. We use pair index = colour
+	index for colours 1..255 (256 pairs is the legacy COLOR_PAIRS cap, with
+	pair 0 reserved for default). Colour 0 (black) doesn't get its own pair —
+	pair 0's default fg/bg (under use_default_colors) is the terminal default,
+	which on dark terminals reads as black anyway, so it serves as a fine
+	stand-in."""
 	if not curses.has_colors():
 		return
 	curses.start_color()
@@ -250,10 +256,10 @@ def init_color_pairs():
 		curses.use_default_colors()
 	except curses.error:
 		pass
-	for i in range(min(curses.COLORS, 256)):
+	for i in range(1, min(curses.COLORS, 256)):
 		try:
 			fg = curses.COLOR_BLACK if _luma(i) > 130 else curses.COLOR_WHITE
-			curses.init_pair(i + 1, fg, i)
+			curses.init_pair(i, fg, i)
 		except curses.error:
 			pass
 
@@ -279,7 +285,7 @@ def draw_swatch(pad, layout, sel_idx, hex_mode, hex_buf):
 		x = 1
 		for idx in row:
 			text = f" {idx:3d} "
-			attr = curses.color_pair(idx + 1)
+			attr = curses.color_pair(idx)
 			highlighted = (not hex_mode and idx == sel_idx) or (idx == hex_idx)
 			if highlighted:
 				attr |= curses.A_REVERSE | curses.A_BOLD
@@ -375,7 +381,7 @@ def draw_hsv_hue(pad, hue_idx, hue_steps, truecolor, scroll_x, view_cols,
 		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
 		idx = rgb_to_xterm256(r, g, b)
 		is_cursor = (i == hue_idx)
-		attr = curses.color_pair(idx + 1)
+		attr = curses.color_pair(idx)
 		cell_text = " " * HSV_CELL_W
 		if is_cursor:
 			attr |= curses.A_REVERSE | curses.A_BOLD
@@ -402,7 +408,7 @@ def draw_hsv_plane(pad, sv_x, sv_y, hex_mode, hue_idx, hue_steps, w, h, truecolo
 			idx = plane[yy][xx]
 			cell_x = xx * HSV_CELL_W
 			is_cursor = (xx == sv_x and yy == sv_y and not hex_mode)
-			attr = curses.color_pair(idx + 1)
+			attr = curses.color_pair(idx)
 			cell_text = " " * HSV_CELL_W
 			if is_cursor:
 				attr |= curses.A_REVERSE | curses.A_BOLD
