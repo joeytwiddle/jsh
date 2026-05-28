@@ -21,6 +21,12 @@ set -e
 
 die() { echo "tmux-select-color: $*" >&2; exit 1; }
 
+## --help is forwarded straight to the picker so users can discover all
+## picker options. Our own -h still shows the wrapper's help.
+case "${1:-}" in
+	--help) exec select-term256-color --help ;;
+esac
+
 scope=window
 while getopts "gswh" opt
 do
@@ -36,6 +42,7 @@ shift $((OPTIND - 1))
 
 [ $# -ge 1 ] || die "missing OPTION (try -h)"
 option=$1
+shift  ## remaining positionals are forwarded to select-term256-color
 
 command -v tmux >/dev/null 2>&1 || die "tmux not found in PATH"
 tmux info >/dev/null 2>&1 || die "no running tmux server"
@@ -62,4 +69,4 @@ case $scope in
 	        ;;
 esac
 
-exec select-term256-color --initial "$initial" --preview-cmd "$set_cmd"
+exec select-term256-color --initial "$initial" --preview-cmd "$set_cmd" "$@"
