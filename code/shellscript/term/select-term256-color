@@ -49,8 +49,18 @@ HSV_PLANE_STRETCH_CELLS = 2  ## extra plane cells beyond hue_steps so plane righ
                              ## with hue right edge: indent + 2*w = len(HUE_LABEL) + 2*hue_steps
 
 ## Layout overhead used by auto_plane_size and the HSV pad sizer.
-HSV_OVERHEAD_ROWS = 7  ## title + blank + hue + label + status + help + cursor row
+## Rows: title + blank + hue + label + blank-below-plane + status + help + cursor row = 8.
+## If this is < 8, auto_h ends up 1 row taller than what's actually visible,
+## and vertical cursor moves shift plane_scroll_y → the truecolor diff finds
+## hundreds of changed cells → the whole plane visibly repaints. Keep it at 8.
+HSV_OVERHEAD_ROWS = 8
 HSV_OVERHEAD_COLS = 7  ## 5-char left label + 2-char right margin
+
+## Screen-row positions for the HSV / truecolor layout — referenced by
+## compute_truecolor_cells (module-level) so they must live up here too.
+HUE_SCREEN_Y = 2
+LABEL_SCREEN_Y = 3
+PLANE_SCREEN_TOP = 4
 
 ## Plane size bounds; pad scrolls if these exceed the terminal.
 HSV_MIN_W, HSV_MAX_W = 6, 200
@@ -368,12 +378,11 @@ def plane_pad_dims(w, h):
 	return (max(1, h), max(1, w * HSV_CELL_W) + 2)
 
 
-def draw_hsv_hue(pad, hue_idx, hue_steps, truecolor, scroll_x, view_cols,
-                 screen_y, screen_left):
-	"""Render the hue strip into a 1-row pad. Return the truecolor overlay
-	for cells that fall inside the visible window (after scroll)."""
+def draw_hsv_hue(pad, hue_idx, hue_steps):
+	"""Paint the hue strip into a 1-row pad with xterm-256 banded colours.
+	Used only in HSV mode — in truecolor mode the hue strip is painted via
+	`compute_truecolor_cells` overlay and curses is left untouched there."""
 	pad.erase()
-	overlay = []
 	safe_addstr(pad, 0, 0, HUE_LABEL, curses.A_BOLD)
 	x = len(HUE_LABEL)
 	for i in range(hue_steps):
@@ -387,21 +396,13 @@ def draw_hsv_hue(pad, hue_idx, hue_steps, truecolor, scroll_x, view_cols,
 			attr |= curses.A_REVERSE | curses.A_BOLD
 			cell_text = "><"
 		safe_addstr(pad, 0, x, cell_text, attr)
-		if truecolor and x >= scroll_x and x + HSV_CELL_W <= scroll_x + view_cols:
-			screen_x = screen_left + (x - scroll_x)
-			overlay.append(truecolor_cell_seq(screen_y, screen_x, cell_text,
-			                                  r, g, b, mark=is_cursor))
 		x += HSV_CELL_W
-	return overlay
 
 
-def draw_hsv_plane(pad, sv_x, sv_y, hex_mode, hue_idx, hue_steps, w, h, truecolor,
-                   scroll_y, scroll_x, view_rows, view_cols, screen_top, screen_left):
-	"""Render the SV plane into a pad. Returns the truecolor overlay restricted
-	to the visible window (after both scroll axes)."""
+def draw_hsv_plane(pad, sv_x, sv_y, hex_mode, hue_idx, hue_steps, w, h):
+	"""Paint the SV plane into a pad with xterm-256 banded colours. Used only
+	in HSV mode — see draw_hsv_hue."""
 	pad.erase()
-	overlay = []
-	cur_hue_deg = hue_idx * (360.0 / hue_steps)
 	plane = hsv_plane_indices(hue_idx, hue_steps, w, h)
 	for yy in range(h):
 		for xx in range(w):
@@ -414,20 +415,65 @@ def draw_hsv_plane(pad, sv_x, sv_y, hex_mode, hue_idx, hue_steps, w, h, truecolo
 				attr |= curses.A_REVERSE | curses.A_BOLD
 				cell_text = "><"
 			safe_addstr(pad, yy, cell_x, cell_text, attr)
-			if not truecolor:
-				continue
-			if yy < scroll_y or yy >= scroll_y + view_rows:
-				continue
-			if cell_x < scroll_x or cell_x + HSV_CELL_W > scroll_x + view_cols:
+
+
+def compute_truecolor_cells(hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
+                            plane_scroll_y, plane_scroll_x,
+                            plane_view_rows, plane_view_cols,
+                            hue_scroll_x, hue_view_cols):
+	"""Build the dict of visible truecolor cells: (screen_y, screen_x) ->
+	(r, g, b, mark). Combines the hue strip and the SV plane.
+
+	The caller diffs this against a previous-frame dict and emits ANSI escapes
+	only for cells whose value changed — so cursor-only moves emit ~2 cells.
+	Curses is told to leave these screen positions alone (via untouchline),
+	so no banded backing is sent that could flash through."""
+	cells = {}
+	## Hue strip
+	label_w = len(HUE_LABEL)
+	for i in range(hue_steps):
+		pad_x = label_w + i * HSV_CELL_W
+		if pad_x < hue_scroll_x or pad_x + HSV_CELL_W > hue_scroll_x + hue_view_cols:
+			continue
+		hue_deg = i * (360.0 / hue_steps)
+		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
+		is_cursor = (i == hue_idx)
+		screen_y = HUE_SCREEN_Y
+		screen_x = pad_x - hue_scroll_x
+		cells[(screen_y, screen_x)] = (r, g, b, is_cursor)
+	## SV plane
+	cur_hue_deg = hue_idx * (360.0 / hue_steps)
+	for yy in range(h_plane):
+		if yy < plane_scroll_y or yy >= plane_scroll_y + plane_view_rows:
+			continue
+		for xx in range(w):
+			cell_x_pad = xx * HSV_CELL_W
+			if cell_x_pad < plane_scroll_x \
+			        or cell_x_pad + HSV_CELL_W > plane_scroll_x + plane_view_cols:
 				continue
 			s = xx / (w - 1) if w > 1 else 0
-			v = 1 - yy / (h - 1) if h > 1 else 1
+			v = 1 - yy / (h_plane - 1) if h_plane > 1 else 1
 			r, g, b = hsv_to_rgb(cur_hue_deg, s, v)
-			screen_y = screen_top + (yy - scroll_y)
-			screen_xp = screen_left + (cell_x - scroll_x)
-			overlay.append(truecolor_cell_seq(screen_y, screen_xp, cell_text,
-			                                  r, g, b, mark=is_cursor))
-	return overlay
+			is_cursor = (xx == sv_x and yy == sv_y and not hex_mode)
+			screen_y = PLANE_SCREEN_TOP + (yy - plane_scroll_y)
+			screen_x = HSV_PLANE_INDENT + (cell_x_pad - plane_scroll_x)
+			cells[(screen_y, screen_x)] = (r, g, b, is_cursor)
+	return cells
+
+
+def emit_truecolor_diff(prev_cells, new_cells):
+	"""Return concatenated ANSI escapes for cells whose value differs from
+	the previous frame. Mutates prev_cells in place to become new_cells."""
+	out = []
+	for key, val in new_cells.items():
+		if prev_cells.get(key) != val:
+			y, x = key
+			r, g, b, mark = val
+			out.append(truecolor_cell_seq(y, x, "><" if mark else "  ",
+			                              r, g, b, mark=mark))
+	prev_cells.clear()
+	prev_cells.update(new_cells)
+	return "".join(out)
 
 
 ## ---------- Main picker loop ----------
@@ -531,6 +577,12 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			set_value_from_swatch()
 			preview()
 
+	## Truecolor overlay state: maps (screen_y, screen_x) -> (r, g, b, mark) for
+	## what we last painted via raw ANSI. Used to diff each frame and emit only
+	## the cells that changed. Reset whenever the screen layout changes (mode
+	## switch, zoom, resize) so the next frame does a full repaint.
+	truecolor_state = {}
+
 	def apply_dims(new_w, new_h):
 		"""Set plane to (new_w, new_h), recouple hue if not pinned, resize pads,
 		and resync the cursor from current_rgb. current_rgb is preserved."""
@@ -549,6 +601,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		hue_pad = curses.newpad(hue_pad_h, hue_pad_w)
 		plane_pad_h, plane_pad_w = plane_pad_dims(w, h_plane)
 		plane_pad = curses.newpad(plane_pad_h, plane_pad_w)
+		truecolor_state.clear()  ## force full overlay repaint at new dims
 		preview()
 
 	def apply_zoom(dw, dh):
@@ -601,9 +654,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 
 		## Fixed top: title row 0, hue strip row 2, label row 3.
 		## Plane sits at row 4..term_h-4 (status + help take the last two).
-		HUE_SCREEN_Y   = 2
-		LABEL_SCREEN_Y = 3
-		PLANE_SCREEN_TOP = 4
+		## HUE_SCREEN_Y / LABEL_SCREEN_Y / PLANE_SCREEN_TOP are module-level.
 		swatch_top = 2
 
 		if mode != "swatch":
@@ -630,16 +681,14 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 				pass
 			curses.doupdate()
 		else:
-			## Hue strip: horizontal-only scroll to keep hue cursor in view.
+			## Compute scroll positions and visible window dimensions (shared
+			## between hsv and truecolor branches).
 			view_cols = max(1, term_w)
 			hue_cursor_pad_x = len(HUE_LABEL) + hue_idx * HSV_CELL_W
 			hue_scroll_x = 0
 			if hue_pad_w > view_cols:
 				hue_scroll_x = max(0, min(hue_pad_w - view_cols,
 				                          hue_cursor_pad_x - view_cols // 2))
-			## Plane: indented by HSV_PLANE_INDENT so its right edge aligns
-			## with the hue ramp's right edge (label takes that much on the left).
-			## One extra blank row reserved below the plane (-4 instead of -3).
 			plane_view_rows = max(1, term_h - PLANE_SCREEN_TOP - 4)
 			plane_view_cols = max(1, term_w - HSV_PLANE_INDENT)
 			cursor_pad_y = sv_y
@@ -652,33 +701,46 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			if plane_pad_w > plane_view_cols:
 				plane_scroll_x = max(0, min(plane_pad_w - plane_view_cols,
 				                            cursor_pad_x - plane_view_cols // 2))
-			is_tc = (mode == "truecolor")
-			hue_overlay = draw_hsv_hue(hue_pad, hue_idx, hue_steps,
-			                           truecolor=is_tc, scroll_x=hue_scroll_x,
-			                           view_cols=view_cols,
-			                           screen_y=HUE_SCREEN_Y, screen_left=0)
-			plane_overlay = draw_hsv_plane(plane_pad, sv_x, sv_y, hex_mode,
-			                               hue_idx, hue_steps, w, h_plane,
-			                               truecolor=is_tc,
-			                               scroll_y=plane_scroll_y, scroll_x=plane_scroll_x,
-			                               view_rows=plane_view_rows, view_cols=plane_view_cols,
-			                               screen_top=PLANE_SCREEN_TOP,
-			                               screen_left=HSV_PLANE_INDENT)
-			stdscr.noutrefresh()
-			try:
-				hue_pad.noutrefresh(0, hue_scroll_x,
-				                    HUE_SCREEN_Y, 0,
-				                    HUE_SCREEN_Y, max(0, term_w - 1))
-				plane_pad.noutrefresh(plane_scroll_y, plane_scroll_x,
-				                      PLANE_SCREEN_TOP, HSV_PLANE_INDENT,
-				                      PLANE_SCREEN_TOP + plane_view_rows - 1,
-				                      max(0, term_w - 1))
-			except curses.error:
-				pass
-			curses.doupdate()
-			if hue_overlay or plane_overlay:
-				sys.stdout.write("".join(hue_overlay) + "".join(plane_overlay))
-				sys.stdout.flush()
+
+			if mode == "truecolor":
+				## Truecolor mode: NO curses pad painting for plane/hue. We paint
+				## those cells purely via raw ANSI overlay, tracking per-cell state
+				## so cursor-only moves emit ~2 cells (not ~19 KB of escapes).
+				## Untouch the screen rows that the overlay owns, so curses won't
+				## "fix" them on refresh — its diff for those rows is skipped.
+				try:
+					stdscr.touchline(HUE_SCREEN_Y, 1, False)
+					stdscr.touchline(PLANE_SCREEN_TOP, plane_view_rows, False)
+				except curses.error:
+					pass
+				new_cells = compute_truecolor_cells(
+					hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
+					plane_scroll_y, plane_scroll_x,
+					plane_view_rows, plane_view_cols,
+					hue_scroll_x, view_cols)
+				diffs = emit_truecolor_diff(truecolor_state, new_cells)
+				stdscr.noutrefresh()
+				curses.doupdate()
+				if diffs:
+					sys.stdout.write(diffs)
+					sys.stdout.flush()
+			else:
+				## HSV mode: curses pads carry the banded backing.
+				draw_hsv_hue(hue_pad, hue_idx, hue_steps)
+				draw_hsv_plane(plane_pad, sv_x, sv_y, hex_mode,
+				               hue_idx, hue_steps, w, h_plane)
+				stdscr.noutrefresh()
+				try:
+					hue_pad.noutrefresh(0, hue_scroll_x,
+					                    HUE_SCREEN_Y, 0,
+					                    HUE_SCREEN_Y, max(0, term_w - 1))
+					plane_pad.noutrefresh(plane_scroll_y, plane_scroll_x,
+					                      PLANE_SCREEN_TOP, HSV_PLANE_INDENT,
+					                      PLANE_SCREEN_TOP + plane_view_rows - 1,
+					                      max(0, term_w - 1))
+				except curses.error:
+					pass
+				curses.doupdate()
 
 		try:
 			ch = stdscr.getch()
@@ -732,12 +794,27 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			## NOTE: Tab is value-preserving: it does NOT touch current_rgb,
 			## hue_idx, sv_x, sv_y, or sel_idx. Only `mode` changes; the
 			## display projection of current_rgb adapts per mode.
+			old_mode = mode
 			if mode == "hsv":
 				mode = "truecolor"
 			elif mode == "truecolor":
 				mode = "swatch"
 			else:
 				mode = "hsv"
+			## Reset truecolor state — any entry to truecolor mode starts with
+			## a fresh full overlay paint over the prior mode's cells.
+			truecolor_state.clear()
+			## If we're leaving truecolor, curses' physical-screen model still
+			## thinks the plane/hue area has whatever-was-there before we entered
+			## truecolor (since our overlay writes bypassed it). Force curses to
+			## resend the whole area so it can paint the new mode's content over
+			## our truecolor cells. touchwin is one-shot, unlike clearok which
+			## would re-clear on every subsequent refresh.
+			if old_mode == "truecolor":
+				stdscr.touchwin()
+				hue_pad.touchwin()
+				plane_pad.touchwin()
+				swatch_pad.touchwin()
 			preview()
 			continue
 		if ch == ord('#') and allow_hex:
