@@ -30,12 +30,15 @@ Exit code: 0 on accept, 1 on cancel, 2 on setup error.
 """
 
 import argparse
-import curses
 import os
 import re
+import select
 import shlex
+import signal
 import subprocess
 import sys
+import termios
+import tty
 
 
 GAP = None  ## visual gap between sections of the swatch layout
@@ -62,9 +65,21 @@ HUE_SCREEN_Y = 2
 LABEL_SCREEN_Y = 3
 PLANE_SCREEN_TOP = 4
 
-## Plane size bounds; pad scrolls if these exceed the terminal.
+## Plane size bounds; the visible area is windowed if these exceed the terminal.
 HSV_MIN_W, HSV_MAX_W = 6, 200
 HSV_MIN_H, HSV_MAX_H = 6, 100
+
+## Custom key codes (>= 1000 so they don't collide with byte values).
+## We parse arrow / shift-arrow escape sequences manually from stdin in raw mode.
+KEY_UP     = 1000
+KEY_DOWN   = 1001
+KEY_LEFT   = 1002
+KEY_RIGHT  = 1003
+KEY_SUP    = 1010
+KEY_SDOWN  = 1011
+KEY_SLEFT  = 1012
+KEY_SRIGHT = 1013
+KEY_RESIZE = 1100
 
 
 def auto_plane_size(cols=None, rows=None):
@@ -250,41 +265,216 @@ def run_preview(cmd, color):
 		pass
 
 
-## ---------- Curses helpers ----------
+## ---------- Terminal / input helpers (no curses) ----------
 
-def init_color_pairs():
-	"""Init one curses pair per xterm-256 colour. We use pair index = colour
-	index for colours 1..255 (256 pairs is the legacy COLOR_PAIRS cap, with
-	pair 0 reserved for default). Colour 0 (black) doesn't get its own pair —
-	pair 0's default fg/bg (under use_default_colors) is the terminal default,
-	which on dark terminals reads as black anyway, so it serves as a fine
-	stand-in."""
-	if not curses.has_colors():
-		return
-	curses.start_color()
-	try:
-		curses.use_default_colors()
-	except curses.error:
-		pass
-	for i in range(1, min(curses.COLORS, 256)):
+_orig_termios = None
+_alt_screen_active = False
+_resize_pending = False
+_wakeup_r = -1
+_wakeup_w = -1
+
+
+def _on_sigwinch(_signum, _frame):
+	global _resize_pending
+	_resize_pending = True
+
+
+def enter_raw_screen():
+	"""Put the terminal into raw mode + alt screen + hidden cursor. Idempotent-
+	ish: leave_raw_screen restores everything we touched."""
+	global _orig_termios, _alt_screen_active, _wakeup_r, _wakeup_w
+	fd = sys.stdin.fileno()
+	_orig_termios = termios.tcgetattr(fd)
+	tty.setraw(fd)
+	## Self-pipe so SIGWINCH wakes a blocking select. PEP 475 makes Python
+	## retry interrupted syscalls automatically, so we can't rely on EINTR;
+	## set_wakeup_fd writes the signal byte to a pipe, which we select on.
+	_wakeup_r, _wakeup_w = os.pipe()
+	os.set_blocking(_wakeup_r, False)
+	os.set_blocking(_wakeup_w, False)
+	signal.set_wakeup_fd(_wakeup_w)
+	signal.signal(signal.SIGWINCH, _on_sigwinch)
+	sys.stdout.write("\033[?1049h\033[?25l\033[2J\033[H")
+	sys.stdout.flush()
+	_alt_screen_active = True
+
+
+def leave_raw_screen():
+	"""Restore terminal state. Safe to call even if enter failed partway."""
+	global _orig_termios, _alt_screen_active, _wakeup_r, _wakeup_w
+	if _alt_screen_active:
+		sys.stdout.write("\033[0m\033[?25h\033[?1049l")
 		try:
-			fg = curses.COLOR_BLACK if _luma(i) > 130 else curses.COLOR_WHITE
-			curses.init_pair(i, fg, i)
-		except curses.error:
+			sys.stdout.flush()
+		except OSError:
 			pass
-
-
-def safe_addstr(win, y, x, text, attr=0):
+		_alt_screen_active = False
 	try:
-		win.addstr(y, x, text, attr)
-	except curses.error:
+		signal.set_wakeup_fd(-1)
+	except (OSError, ValueError):
 		pass
+	try:
+		signal.signal(signal.SIGWINCH, signal.SIG_DFL)
+	except (OSError, ValueError):
+		pass
+	if _wakeup_r >= 0:
+		try: os.close(_wakeup_r)
+		except OSError: pass
+		_wakeup_r = -1
+	if _wakeup_w >= 0:
+		try: os.close(_wakeup_w)
+		except OSError: pass
+		_wakeup_w = -1
+	if _orig_termios is not None:
+		try:
+			termios.tcsetattr(sys.stdin.fileno(), termios.TCSADRAIN, _orig_termios)
+		except (OSError, termios.error):
+			pass
+		_orig_termios = None
+
+
+def _drain_wakeup():
+	while True:
+		try:
+			data = os.read(_wakeup_r, 4096)
+		except (OSError, BlockingIOError):
+			break
+		if not data:
+			break
+
+
+def _peek_byte(timeout):
+	"""Read one byte from stdin with a finite timeout. Returns int or None."""
+	try:
+		r, _, _ = select.select([sys.stdin], [], [], timeout)
+	except (OSError, InterruptedError):
+		return None
+	if not r:
+		return None
+	try:
+		b = os.read(sys.stdin.fileno(), 1)
+	except (OSError, InterruptedError):
+		return None
+	if not b:
+		return None
+	return b[0]
+
+
+def _parse_csi(seq):
+	"""Map a CSI body (bytes; the leading ESC[ is already consumed) to a KEY_*
+	constant. Final byte is 0x40-0x7E. Returns -1 for sequences we don't care
+	about — caller treats those as 'no key'."""
+	if seq == b"A": return KEY_UP
+	if seq == b"B": return KEY_DOWN
+	if seq == b"C": return KEY_RIGHT
+	if seq == b"D": return KEY_LEFT
+	## xterm reports Shift+Arrow as "1;2A".."1;2D".
+	if seq == b"1;2A": return KEY_SUP
+	if seq == b"1;2B": return KEY_SDOWN
+	if seq == b"1;2C": return KEY_SRIGHT
+	if seq == b"1;2D": return KEY_SLEFT
+	return -1
+
+
+def read_key(blocking=True):
+	"""Read one keypress. Returns an int — either the raw byte (0..255) for
+	plain keys or one of the KEY_* constants for special keys. Returns None
+	when non-blocking and no input is ready. Returns KEY_RESIZE on SIGWINCH."""
+	global _resize_pending
+	fds = [sys.stdin.fileno()]
+	if _wakeup_r >= 0:
+		fds.append(_wakeup_r)
+	timeout = None if blocking else 0
+	while True:
+		if _resize_pending:
+			_resize_pending = False
+			return KEY_RESIZE
+		try:
+			r, _, _ = select.select(fds, [], [], timeout)
+		except (OSError, InterruptedError):
+			if _resize_pending:
+				_resize_pending = False
+				return KEY_RESIZE
+			if not blocking:
+				return None
+			continue
+		if not r:
+			return None
+		if _wakeup_r in r:
+			_drain_wakeup()
+			if _resize_pending:
+				_resize_pending = False
+				return KEY_RESIZE
+			if sys.stdin.fileno() not in r:
+				if not blocking:
+					return None
+				continue
+		break
+	try:
+		b = os.read(sys.stdin.fileno(), 1)
+	except (OSError, InterruptedError):
+		return None
+	if not b:
+		return None
+	ch = b[0]
+	if ch != 27:
+		return ch
+	## ESC: bare Esc, or the start of a CSI sequence. Short timeout to
+	## distinguish: terminals send all bytes of an escape sequence in one
+	## burst, so anything more than ~50ms later is a separate key.
+	nxt = _peek_byte(0.05)
+	if nxt is None:
+		return 27
+	if nxt != ord('['):
+		## Alt+<x> or similar; treat as bare Esc — we don't use these.
+		return 27
+	seq = b""
+	while True:
+		b2 = _peek_byte(0.1)
+		if b2 is None:
+			break
+		seq += bytes([b2])
+		if 0x40 <= b2 <= 0x7E:
+			break
+	parsed = _parse_csi(seq)
+	## Unknown CSI: report as bare Esc so the user can still cancel; better
+	## than returning a value that aliases a real key.
+	return 27 if parsed == -1 else parsed
+
+
+def clear_screen():
+	sys.stdout.write("\033[2J\033[H")
+
+
+def write_at(y, x, text, bold=False, dim=False):
+	"""Write text at 0-based (y, x). ANSI uses 1-based so we add 1."""
+	pre = ""
+	if bold: pre += "\033[1m"
+	if dim:  pre += "\033[2m"
+	if pre:
+		sys.stdout.write(f"\033[{y+1};{x+1}H{pre}{text}\033[0m")
+	else:
+		sys.stdout.write(f"\033[{y+1};{x+1}H{text}")
+
+
+def get_terminal_size():
+	"""Return (rows, cols) — matches curses.getmaxyx() order."""
+	try:
+		sz = os.get_terminal_size()
+		return sz.lines, sz.columns
+	except OSError:
+		return 24, 80
 
 
 ## ---------- Swatch mode rendering ----------
 
-def draw_swatch(pad, layout, sel_idx, hex_mode, hex_buf):
-	pad.erase()
+def compute_swatch_cells(layout, sel_idx, hex_mode, hex_buf,
+                          scroll_y, view_rows, view_cols, screen_top):
+	"""Visible swatch cells as {(screen_y, screen_x) -> (idx, mark)}.
+	Each cell paints a 5-char " NNN " label. Mirrors the layout from
+	xterm-color-list.sh — rows = layout rows (with GAP rows skipped but
+	still consuming a row index)."""
+	cells = {}
 	hex_idx = None
 	if hex_mode and len(hex_buf) in (3, 6):
 		h = hex_buf if len(hex_buf) == 6 else "".join(c * 2 for c in hex_buf)
@@ -292,15 +482,44 @@ def draw_swatch(pad, layout, sel_idx, hex_mode, hex_buf):
 	for ri, row in enumerate(layout):
 		if row is GAP:
 			continue
+		screen_y = screen_top + (ri - scroll_y)
+		if screen_y < screen_top or screen_y >= screen_top + view_rows:
+			continue
 		x = 1
 		for idx in row:
-			text = f" {idx:3d} "
-			attr = curses.color_pair(idx)
+			if x + CELL_W > view_cols:
+				break
 			highlighted = (not hex_mode and idx == sel_idx) or (idx == hex_idx)
-			if highlighted:
-				attr |= curses.A_REVERSE | curses.A_BOLD
-			safe_addstr(pad, ri, x, text, attr)
+			cells[(screen_y, x)] = (idx, highlighted)
 			x += CELL_W + 1
+	return cells
+
+
+def swatch_cell_seq(y, x, idx, mark):
+	"""Raw ANSI for a 5-char ' NNN ' swatch cell. Contrast fg chosen by luma."""
+	fg = 16 if _luma(idx) > 130 else 231
+	attrs = "\033[1;7m" if mark else ""  ## bold + reverse
+	return (f"\033[{y+1};{x+1}H{attrs}\033[48;5;{idx}m\033[38;5;{fg}m"
+	        f" {idx:3d} \033[0m")
+
+
+def emit_swatch_diff(prev_cells, new_cells):
+	"""Emit only the cells whose (idx, mark) tuple changed. Cells that
+	disappeared (scrolled off, layout shrunk) are blanked with 5 spaces so
+	we don't leave ghosts behind."""
+	out = []
+	for key, val in new_cells.items():
+		if prev_cells.get(key) != val:
+			y, x = key
+			idx, mark = val
+			out.append(swatch_cell_seq(y, x, idx, mark))
+	for key in prev_cells:
+		if key not in new_cells:
+			y, x = key
+			out.append(f"\033[{y+1};{x+1}H\033[0m     ")
+	prev_cells.clear()
+	prev_cells.update(new_cells)
+	return "".join(out)
 
 
 def _next_non_gap(layout, from_row, target_col, direction):
@@ -314,11 +533,6 @@ def _next_non_gap(layout, from_row, target_col, direction):
 
 
 ## ---------- HSV mode rendering ----------
-
-def hsv_cell_color(hue_deg, s, v):
-	r, g, b = hsv_to_rgb(hue_deg, s, v)
-	return rgb_to_xterm256(r, g, b)
-
 
 def truecolor_cell_seq(y, x, text, r, g, b, mark=False):
 	"""Build a raw ANSI escape that paints (y,x) with a 24-bit background and
@@ -366,57 +580,6 @@ def hsv_at(hue_idx, sv_x, sv_y, hue_steps, w, h):
 	v = 1 - sv_y / (h - 1) if h > 1 else 1
 	r, g, b = hsv_to_rgb(hue_deg, s, v)
 	return hue_deg, s, v, r, g, b
-
-
-def hue_pad_dims(hue_steps):
-	"""1-row pad sized to hold the whole hue ramp."""
-	return (1, len(HUE_LABEL) + hue_steps * HSV_CELL_W + 2)
-
-
-def plane_pad_dims(w, h):
-	"""Pad sized to hold the SV plane."""
-	return (max(1, h), max(1, w * HSV_CELL_W) + 2)
-
-
-def draw_hsv_hue(pad, hue_idx, hue_steps):
-	"""Paint the hue strip into a 1-row pad with xterm-256 banded colours.
-	Used only in HSV mode — in truecolor mode the hue strip is painted via
-	`compute_truecolor_cells` overlay and curses is left untouched there.
-
-	No pad.erase() here: every visible cell is overwritten via addstr each
-	frame, so erase is redundant — and it sets ncurses' _clear hint which
-	can trigger a full-region clear+redraw instead of the per-cell diff."""
-	safe_addstr(pad, 0, 0, HUE_LABEL, curses.A_BOLD)
-	x = len(HUE_LABEL)
-	for i in range(hue_steps):
-		hue_deg = i * (360.0 / hue_steps)
-		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
-		idx = rgb_to_xterm256(r, g, b)
-		is_cursor = (i == hue_idx)
-		attr = curses.color_pair(idx)
-		cell_text = " " * HSV_CELL_W
-		if is_cursor:
-			attr |= curses.A_REVERSE | curses.A_BOLD
-			cell_text = "><"
-		safe_addstr(pad, 0, x, cell_text, attr)
-		x += HSV_CELL_W
-
-
-def draw_hsv_plane(pad, sv_x, sv_y, hex_mode, hue_idx, hue_steps, w, h):
-	"""Paint the SV plane into a pad with xterm-256 banded colours. Used only
-	in HSV mode — see draw_hsv_hue. No pad.erase() (every cell is rewritten)."""
-	plane = hsv_plane_indices(hue_idx, hue_steps, w, h)
-	for yy in range(h):
-		for xx in range(w):
-			idx = plane[yy][xx]
-			cell_x = xx * HSV_CELL_W
-			is_cursor = (xx == sv_x and yy == sv_y and not hex_mode)
-			attr = curses.color_pair(idx)
-			cell_text = " " * HSV_CELL_W
-			if is_cursor:
-				attr |= curses.A_REVERSE | curses.A_BOLD
-				cell_text = "><"
-			safe_addstr(pad, yy, cell_x, cell_text, attr)
 
 
 def compute_truecolor_cells(hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
@@ -546,12 +709,8 @@ def emit_hsv_diff(prev_cells, new_cells):
 
 ## ---------- Main picker loop ----------
 
-def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
+def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
            init_w, init_h, init_hue_steps, hue_steps_explicit, size_explicit):
-	curses.curs_set(0)
-	init_color_pairs()
-	stdscr.keypad(True)
-
 	## Swatch state
 	sel_idx = initial_idx if initial_idx in pos_map else 0
 	intended_col = pos_map[sel_idx][1]
@@ -572,28 +731,29 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 	hex_buf = ""
 	status_msg = ""
 
-	## Swatch pad (size fixed)
+	## Logical dimensions of the hue ramp and the plane (in raw cell-cols).
+	## Used to decide whether to scroll the visible window.
+	hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W + 2
+	plane_total_w = max(1, w * HSV_CELL_W) + 2
+	plane_total_h = max(1, h_plane)
+
+	## Swatch total layout size — used to compute scroll bounds.
 	rows_total = len(layout)
 	cols_total = max(len(r) for r in layout if r is not GAP)
-	swatch_pad_h = rows_total + 1
-	swatch_pad_w = cols_total * (CELL_W + 1) + 4
-	swatch_pad = curses.newpad(swatch_pad_h, swatch_pad_w)
+	swatch_total_h = rows_total + 1
+	swatch_total_w = cols_total * (CELL_W + 1) + 4  # noqa: F841 (kept for future hscroll)
 
-	## HSV uses two pads so the hue strip stays put while the plane scrolls.
-	hue_pad_h, hue_pad_w = hue_pad_dims(hue_steps)
-	hue_pad = curses.newpad(hue_pad_h, hue_pad_w)
-	plane_pad_h, plane_pad_w = plane_pad_dims(w, h_plane)
-	plane_pad = curses.newpad(plane_pad_h, plane_pad_w)
-
-	## Movement key tuples — hoisted out of the loop
-	LEFT_1  = (curses.KEY_LEFT,  ord('h'), ord('a'))
-	LEFT_5  = (curses.KEY_SLEFT, ord('H'), ord('A'))
-	RIGHT_1 = (curses.KEY_RIGHT, ord('l'), ord('d'))
-	RIGHT_5 = (curses.KEY_SRIGHT, ord('L'), ord('D'))
-	UP_1    = (curses.KEY_UP,    ord('k'), ord('w'))
-	UP_5    = (curses.KEY_SR,    ord('K'), ord('W'))
-	DOWN_1  = (curses.KEY_DOWN,  ord('j'), ord('s'))
-	DOWN_5  = (curses.KEY_SF,    ord('J'), ord('S'))
+	## Movement key tuples — hoisted out of the loop. KEY_S* are our parsed
+	## Shift-arrow constants; the capital-letter aliases are the portable
+	## fallback for terminals that don't emit them.
+	LEFT_1  = (KEY_LEFT,  ord('h'), ord('a'))
+	LEFT_5  = (KEY_SLEFT, ord('H'), ord('A'))
+	RIGHT_1 = (KEY_RIGHT, ord('l'), ord('d'))
+	RIGHT_5 = (KEY_SRIGHT, ord('L'), ord('D'))
+	UP_1    = (KEY_UP,    ord('k'), ord('w'))
+	UP_5    = (KEY_SUP,   ord('K'), ord('W'))
+	DOWN_1  = (KEY_DOWN,  ord('j'), ord('s'))
+	DOWN_5  = (KEY_SDOWN, ord('J'), ord('S'))
 	HUE_BACK_1    = (ord(','), ord('q'), ord('u'))
 	HUE_BACK_5    = (ord('<'), ord('Q'), ord('U'))
 	HUE_FORWARD_1 = (ord('.'), ord('e'), ord('o'))
@@ -667,10 +827,10 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 	cell_state = {}
 
 	def apply_dims(new_w, new_h):
-		"""Set plane to (new_w, new_h), recouple hue if not pinned, resize pads,
-		and resync the cursor from current_rgb. current_rgb is preserved."""
-		nonlocal w, h_plane, hue_steps, hue_idx, sv_x, sv_y, plane_pad, plane_pad_h, plane_pad_w
-		nonlocal hue_pad, hue_pad_h, hue_pad_w
+		"""Set plane to (new_w, new_h), recouple hue if not pinned, and resync
+		the cursor from current_rgb. current_rgb is preserved."""
+		nonlocal w, h_plane, hue_steps, hue_idx, sv_x, sv_y
+		nonlocal hue_total_w, plane_total_w, plane_total_h
 		new_w = max(HSV_MIN_W, min(HSV_MAX_W, new_w))
 		new_h = max(HSV_MIN_H, min(HSV_MAX_H, new_h))
 		new_hue = hue_steps if hue_steps_explicit else max(HSV_MIN_W,
@@ -680,12 +840,11 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			return
 		w, h_plane, hue_steps = new_w, new_h, new_hue
 		hue_idx, sv_x, sv_y = sync_hsv_from_rgb(*current_rgb, hue_steps, w, h_plane)
-		hue_pad_h, hue_pad_w = hue_pad_dims(hue_steps)
-		hue_pad = curses.newpad(hue_pad_h, hue_pad_w)
-		plane_pad_h, plane_pad_w = plane_pad_dims(w, h_plane)
-		plane_pad = curses.newpad(plane_pad_h, plane_pad_w)
+		hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W + 2
+		plane_total_w = max(1, w * HSV_CELL_W) + 2
+		plane_total_h = max(1, h_plane)
 		cell_state.clear()  ## force full overlay repaint at new dims
-		stdscr.clear()      ## wipe stale overlay paint at the previous dims
+		clear_screen()      ## wipe stale overlay paint at the previous dims
 		preview()
 
 	def apply_zoom(dw, dh):
@@ -697,12 +856,18 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		user pinned a size via --size."""
 		if size_explicit:
 			return
+		cols, rows = 80, 24
 		try:
-			cols, rows = os.get_terminal_size()
+			sz = os.get_terminal_size()
+			cols, rows = sz.columns, sz.lines
 		except OSError:
-			rows, cols = stdscr.getmaxyx()
+			pass
 		auto_w, auto_h = auto_plane_size(cols, rows)
 		apply_dims(auto_w + HSV_PLANE_STRETCH_CELLS, auto_h)
+		## Force a clean repaint on resize even if dims didn't change — the
+		## terminal probably scrolled our content while we were inactive.
+		cell_state.clear()
+		clear_screen()
 
 	def process_key(ch):
 		"""Process a single key press. Returns None to keep going, or a
@@ -715,7 +880,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 
 		status_msg = ""
 
-		if ch == curses.KEY_RESIZE:
+		if ch == KEY_RESIZE:
 			apply_auto_resize()
 			return None
 
@@ -726,14 +891,14 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 				hex_buf = ""
 				preview()
 				return None
-			if ch in (curses.KEY_ENTER, 10, 13):
+			if ch in (10, 13):
 				if len(hex_buf) in (3, 6):
 					if len(hex_buf) == 3:
 						hex_buf = "".join(c * 2 for c in hex_buf)
 					return ("hex", "#" + hex_buf)
 				status_msg = "need 3 or 6 hex digits"
 				return None
-			if ch in (curses.KEY_BACKSPACE, 127, 8):
+			if ch in (127, 8):
 				hex_buf = hex_buf[:-1]
 				preview()
 				return None
@@ -755,10 +920,11 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			return None
 
 		## Common keys
-		if ch == 27:  ## Esc — the only cancel key (q is hue in hsv mode)
+		if ch == 27 or ch == 3:  ## Esc / Ctrl-C — both cancel. (Raw mode
+			## suppresses the kernel's SIGINT translation, so Ctrl-C arrives
+			## as byte 3 on stdin rather than as a signal.)
 			return ("cancel", None)
 		if ch == 9:  ## Tab — cycle hsv -> truecolor -> swatch -> hsv.
-			old_mode = mode
 			if mode == "hsv":
 				mode = "truecolor"
 			elif mode == "truecolor":
@@ -766,12 +932,8 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			else:
 				mode = "hsv"
 			cell_state.clear()
-			## stdscr.clear() erases the buffer AND sets the one-shot _clear
-			## flag — so the next doupdate emits a screen-clear escape, wiping
-			## the previous mode's overlay paint (which lives outside curses'
-			## model). The buffer is repopulated by addstr at the top of the
-			## next loop iteration; the overlay paints in fresh after.
-			stdscr.clear()
+			## Wipe the previous mode's paint before we repaint the next mode.
+			clear_screen()
 			preview()
 			return None
 		if ch == ord('#') and allow_hex:
@@ -779,7 +941,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			hex_mode = True
 			hex_buf = ""
 			return None
-		if ch in (curses.KEY_ENTER, 10, 13, ord(' ')):
+		if ch in (10, 13, ord(' ')):
 			if mode == "swatch" and num_buf:
 				commit_num_buf()
 				return None
@@ -834,7 +996,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 					sel_idx = new_idx
 					set_value_from_swatch()
 					preview()
-			elif ch in (curses.KEY_BACKSPACE, 127, 8):
+			elif ch in (127, 8):
 				num_buf = num_buf[:-1]
 			elif 48 <= ch <= 57:
 				digit = chr(ch)
@@ -867,15 +1029,13 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		return None
 
 	while True:
-		term_h, term_w = stdscr.getmaxyx()
-		## Don't stdscr.erase() — that touches every line and sets ncurses'
-		## _clear hint, which can produce clear-region escapes that visually
-		## shift the screen. Cells we never addstr to retain their initial
-		## blanks; the lines we DO write to (title/label/status/help) are
-		## right-padded so old content past the new text is overwritten with
-		## spaces.
+		term_h, term_w = get_terminal_size()
+		## We never wipe the whole screen each frame — only when the layout
+		## structurally changes (mode switch, zoom, resize). Lines we DO write
+		## to (title/label/status/help) are right-padded so old content past
+		## the new text is overwritten with spaces.
 		title = "Select an xterm-256 / hex colour"
-		safe_addstr(stdscr, 0, max(0, (term_w - len(title)) // 2), title, curses.A_BOLD)
+		write_at(0, max(0, (term_w - len(title)) // 2), title, bold=True)
 
 		sel_str = current_color_str()
 		cur_r, cur_g, cur_b = current_rgb
@@ -903,129 +1063,100 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			            ("  # hex" if allow_hex else "") + \
 			            f"  Tab→{next_mode}  Enter  Esc"
 
-		## Fixed top: title row 0, hue strip row 2, label row 3.
-		## Plane sits at row 4..term_h-4 (status + help take the last two).
-		## HUE_SCREEN_Y / LABEL_SCREEN_Y / PLANE_SCREEN_TOP are module-level.
-		swatch_top = 2
+		swatch_top = 2  ## first row of the swatch grid
 
+		row_room = max(0, term_w - 1)
 		if mode != "swatch":
+			## Hue strip label (cells are painted by compute_*_cells; this is
+			## just the " Hue:" prefix at x=0 of HUE_SCREEN_Y).
+			write_at(HUE_SCREEN_Y, 0, HUE_LABEL, bold=True)
 			cur_hue_deg = hue_idx * (360.0 / hue_steps)
 			label_text = f"Sat→   V↕   H={cur_hue_deg:5.1f}°"
 			label_room = max(0, term_w - HSV_PLANE_INDENT - 1)
-			safe_addstr(stdscr, LABEL_SCREEN_Y, HSV_PLANE_INDENT,
-			            label_text[:label_room].ljust(label_room),
-			            curses.A_DIM)
+			write_at(LABEL_SCREEN_Y, HSV_PLANE_INDENT,
+			         label_text[:label_room].ljust(label_room), dim=True)
 		else:
-			## Wipe the label row when we're in swatch mode (where there is no
-			## label and the area belongs to the swatch grid above).
-			row_room = max(0, term_w - 1)
-			safe_addstr(stdscr, LABEL_SCREEN_Y, 0, " " * row_room)
+			## Wipe the hue + label rows when we're in swatch mode.
+			write_at(HUE_SCREEN_Y, 0, " " * row_room)
+			write_at(LABEL_SCREEN_Y, 0, " " * row_room)
 
-		row_room = max(0, term_w - 1)
-		safe_addstr(stdscr, term_h - 3, 0, line1[:row_room].ljust(row_room))
-		safe_addstr(stdscr, term_h - 2, 0, help_line[:row_room].ljust(row_room), curses.A_DIM)
+		write_at(term_h - 3, 0, line1[:row_room].ljust(row_room))
+		write_at(term_h - 2, 0, help_line[:row_room].ljust(row_room), dim=True)
 
 		if mode == "swatch":
 			swatch_view_rows = max(1, term_h - swatch_top - 3)
-			draw_swatch(swatch_pad, layout, sel_idx, hex_mode, hex_buf)
 			sel_row = pos_map[sel_idx][0]
-			scroll_y = max(0, min(max(0, swatch_pad_h - swatch_view_rows),
+			scroll_y = max(0, min(max(0, swatch_total_h - swatch_view_rows),
 			                       sel_row - swatch_view_rows + 2))
-			stdscr.noutrefresh()
-			try:
-				swatch_pad.noutrefresh(scroll_y, 0, swatch_top, 0,
-				                       swatch_top + swatch_view_rows - 1, max(0, term_w - 1))
-			except curses.error:
-				pass
-			curses.doupdate()
+			new_cells = compute_swatch_cells(
+				layout, sel_idx, hex_mode, hex_buf,
+				scroll_y, swatch_view_rows, term_w, swatch_top)
+			diffs = emit_swatch_diff(cell_state, new_cells)
+			if diffs:
+				sys.stdout.write(diffs)
 		else:
 			## Compute scroll positions and visible window dimensions (shared
 			## between hsv and truecolor branches).
 			view_cols = max(1, term_w)
 			hue_cursor_pad_x = len(HUE_LABEL) + hue_idx * HSV_CELL_W
 			hue_scroll_x = 0
-			if hue_pad_w > view_cols:
-				hue_scroll_x = max(0, min(hue_pad_w - view_cols,
+			if hue_total_w > view_cols:
+				hue_scroll_x = max(0, min(hue_total_w - view_cols,
 				                          hue_cursor_pad_x - view_cols // 2))
 			plane_view_rows = max(1, term_h - PLANE_SCREEN_TOP - 4)
 			plane_view_cols = max(1, term_w - HSV_PLANE_INDENT)
 			cursor_pad_y = sv_y
 			cursor_pad_x = sv_x * HSV_CELL_W
 			plane_scroll_y = 0
-			if plane_pad_h > plane_view_rows:
-				plane_scroll_y = max(0, min(plane_pad_h - plane_view_rows,
+			if plane_total_h > plane_view_rows:
+				plane_scroll_y = max(0, min(plane_total_h - plane_view_rows,
 				                            cursor_pad_y - plane_view_rows // 2))
 			plane_scroll_x = 0
-			if plane_pad_w > plane_view_cols:
-				plane_scroll_x = max(0, min(plane_pad_w - plane_view_cols,
+			if plane_total_w > plane_view_cols:
+				plane_scroll_x = max(0, min(plane_total_w - plane_view_cols,
 				                            cursor_pad_x - plane_view_cols // 2))
 
 			if mode == "truecolor":
-				## Truecolor mode: NO curses pad painting for plane/hue. We paint
-				## those cells purely via raw ANSI overlay, tracking per-cell state
-				## so cursor-only moves emit ~2 cells (not ~19 KB of escapes).
-				## Untouch the screen rows that the overlay owns, so curses won't
-				## "fix" them on refresh — its diff for those rows is skipped.
-				try:
-					stdscr.touchline(HUE_SCREEN_Y, 1, False)
-					stdscr.touchline(PLANE_SCREEN_TOP, plane_view_rows, False)
-				except curses.error:
-					pass
 				new_cells = compute_truecolor_cells(
 					hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
 					plane_scroll_y, plane_scroll_x,
 					plane_view_rows, plane_view_cols,
 					hue_scroll_x, view_cols)
 				diffs = emit_truecolor_diff(cell_state, new_cells)
-				stdscr.noutrefresh()
-				curses.doupdate()
-				if diffs:
-					sys.stdout.write(diffs)
-					sys.stdout.flush()
 			else:
-				## HSV mode: same approach as truecolor — skip the curses pad
-				## entirely and paint cells via raw ANSI overlay with per-cell
-				## diff. Just uses \e[48;5;Nm (indexed) instead of \e[48;2;R;G;Bm
-				## (24-bit). This avoids ncurses' diff/refresh on the plane area
-				## that was causing the one-line shift on W/S in HSV mode.
-				try:
-					stdscr.touchline(HUE_SCREEN_Y, 1, False)
-					stdscr.touchline(PLANE_SCREEN_TOP, plane_view_rows, False)
-				except curses.error:
-					pass
 				new_cells = compute_hsv_cells(
 					hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
 					plane_scroll_y, plane_scroll_x,
 					plane_view_rows, plane_view_cols,
 					hue_scroll_x, view_cols)
 				diffs = emit_hsv_diff(cell_state, new_cells)
-				stdscr.noutrefresh()
-				curses.doupdate()
-				if diffs:
-					sys.stdout.write(diffs)
-					sys.stdout.flush()
+			if diffs:
+				sys.stdout.write(diffs)
+
+		sys.stdout.flush()
 
 		## Wait for the first key (blocks), then drain any further keys from
 		## the buffer non-blocking. We render once per drain cycle, so holding
 		## a key down processes the whole buffered run before we paint again.
 		try:
-			ch = stdscr.getch()
+			ch = read_key(blocking=True)
 		except KeyboardInterrupt:
 			return ("cancel", None)
+		if ch is None:
+			continue
 		result = process_key(ch)
 		if result is not None:
 			return result
-		stdscr.nodelay(True)
-		try:
-			while True:
-				ch = stdscr.getch()
-				if ch == -1:
-					break
-				result = process_key(ch)
-				if result is not None:
-					return result
-		finally:
-			stdscr.nodelay(False)
+		while True:
+			try:
+				ch = read_key(blocking=False)
+			except KeyboardInterrupt:
+				return ("cancel", None)
+			if ch is None:
+				break
+			result = process_key(ch)
+			if result is not None:
+				return result
 
 		## Coalesced preview: fire the preview-cmd once at the end of the
 		## drain, with the final state, rather than once per buffered key.
@@ -1033,11 +1164,6 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 
 
 ## ---------- Sync helpers ----------
-
-def sync_hsv_from_idx(idx, hue_steps, w, h):
-	r, g, b = xterm_to_rgb(idx)
-	return sync_hsv_from_rgb(r, g, b, hue_steps, w, h)
-
 
 def sync_hsv_from_rgb(r, g, b, hue_steps, w, h):
 	hh, s, v = rgb_to_hsv(r, g, b)
@@ -1114,10 +1240,14 @@ def main():
 		init_hue_steps = init_w
 
 	try:
-		result = curses.wrapper(picker, layout, pos_map, initial_idx,
-		                        args.preview_cmd, not args.no_hex,
-		                        init_w, init_h, init_hue_steps,
-		                        hue_steps_explicit, size_explicit)
+		enter_raw_screen()
+		try:
+			result = picker(layout, pos_map, initial_idx,
+			                args.preview_cmd, not args.no_hex,
+			                init_w, init_h, init_hue_steps,
+			                hue_steps_explicit, size_explicit)
+		finally:
+			leave_raw_screen()
 	finally:
 		if saved_stdout_fd is not None:
 			os.dup2(saved_stdout_fd, 1)
