@@ -478,6 +478,72 @@ def emit_truecolor_diff(prev_cells, new_cells):
 	return "".join(out)
 
 
+def indexed_cell_seq(y, x, text, idx, mark=False):
+	"""Raw ANSI escape using the xterm-256 8-bit indexed colour. With mark,
+	sets a contrast fg (xterm 16 black or 231 white per luma) so the cursor
+	glyph stays visible on the banded backdrop."""
+	seq = f"\033[{y+1};{x+1}H\033[48;5;{idx}m"
+	if mark:
+		r, g, b = xterm_to_rgb(idx)
+		luma = 0.299 * r + 0.587 * g + 0.114 * b
+		fg = 16 if luma > 130 else 231
+		seq += f"\033[38;5;{fg}m"
+	seq += text
+	seq += "\033[0m"
+	return seq
+
+
+def compute_hsv_cells(hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
+                      plane_scroll_y, plane_scroll_x,
+                      plane_view_rows, plane_view_cols,
+                      hue_scroll_x, hue_view_cols):
+	"""Mirror of compute_truecolor_cells but the cell value is (xterm-256 idx,
+	mark) — used for HSV mode where the visible colour is the banded match,
+	not the underlying 24-bit RGB."""
+	cells = {}
+	label_w = len(HUE_LABEL)
+	for i in range(hue_steps):
+		pad_x = label_w + i * HSV_CELL_W
+		if pad_x < hue_scroll_x or pad_x + HSV_CELL_W > hue_scroll_x + hue_view_cols:
+			continue
+		hue_deg = i * (360.0 / hue_steps)
+		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
+		idx = rgb_to_xterm256(r, g, b)
+		is_cursor = (i == hue_idx)
+		screen_y = HUE_SCREEN_Y
+		screen_x = pad_x - hue_scroll_x
+		cells[(screen_y, screen_x)] = (idx, is_cursor)
+	plane = hsv_plane_indices(hue_idx, hue_steps, w, h_plane)
+	for yy in range(h_plane):
+		if yy < plane_scroll_y or yy >= plane_scroll_y + plane_view_rows:
+			continue
+		for xx in range(w):
+			cell_x_pad = xx * HSV_CELL_W
+			if cell_x_pad < plane_scroll_x \
+			        or cell_x_pad + HSV_CELL_W > plane_scroll_x + plane_view_cols:
+				continue
+			idx = plane[yy][xx]
+			is_cursor = (xx == sv_x and yy == sv_y and not hex_mode)
+			screen_y = PLANE_SCREEN_TOP + (yy - plane_scroll_y)
+			screen_x = HSV_PLANE_INDENT + (cell_x_pad - plane_scroll_x)
+			cells[(screen_y, screen_x)] = (idx, is_cursor)
+	return cells
+
+
+def emit_hsv_diff(prev_cells, new_cells):
+	"""Indexed-color counterpart of emit_truecolor_diff."""
+	out = []
+	for key, val in new_cells.items():
+		if prev_cells.get(key) != val:
+			y, x = key
+			idx, mark = val
+			out.append(indexed_cell_seq(y, x, "><" if mark else "  ",
+			                            idx, mark=mark))
+	prev_cells.clear()
+	prev_cells.update(new_cells)
+	return "".join(out)
+
+
 ## ---------- Main picker loop ----------
 
 def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
@@ -598,7 +664,7 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 	## what we last painted via raw ANSI. Used to diff each frame and emit only
 	## the cells that changed. Reset whenever the screen layout changes (mode
 	## switch, zoom, resize) so the next frame does a full repaint.
-	truecolor_state = {}
+	cell_state = {}
 
 	def apply_dims(new_w, new_h):
 		"""Set plane to (new_w, new_h), recouple hue if not pinned, resize pads,
@@ -618,7 +684,8 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		hue_pad = curses.newpad(hue_pad_h, hue_pad_w)
 		plane_pad_h, plane_pad_w = plane_pad_dims(w, h_plane)
 		plane_pad = curses.newpad(plane_pad_h, plane_pad_w)
-		truecolor_state.clear()  ## force full overlay repaint at new dims
+		cell_state.clear()  ## force full overlay repaint at new dims
+		stdscr.clear()      ## wipe stale overlay paint at the previous dims
 		preview()
 
 	def apply_zoom(dw, dh):
@@ -698,12 +765,13 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 				mode = "swatch"
 			else:
 				mode = "hsv"
-			truecolor_state.clear()
-			if old_mode == "truecolor":
-				stdscr.touchwin()
-				hue_pad.touchwin()
-				plane_pad.touchwin()
-				swatch_pad.touchwin()
+			cell_state.clear()
+			## stdscr.clear() erases the buffer AND sets the one-shot _clear
+			## flag — so the next doupdate emits a screen-clear escape, wiping
+			## the previous mode's overlay paint (which lives outside curses'
+			## model). The buffer is repopulated by addstr at the top of the
+			## next loop iteration; the overlay paints in fresh after.
+			stdscr.clear()
 			preview()
 			return None
 		if ch == ord('#') and allow_hex:
@@ -800,7 +868,12 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 
 	while True:
 		term_h, term_w = stdscr.getmaxyx()
-		stdscr.erase()
+		## Don't stdscr.erase() — that touches every line and sets ncurses'
+		## _clear hint, which can produce clear-region escapes that visually
+		## shift the screen. Cells we never addstr to retain their initial
+		## blanks; the lines we DO write to (title/label/status/help) are
+		## right-padded so old content past the new text is overwritten with
+		## spaces.
 		title = "Select an xterm-256 / hex colour"
 		safe_addstr(stdscr, 0, max(0, (term_w - len(title)) // 2), title, curses.A_BOLD)
 
@@ -838,12 +911,19 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		if mode != "swatch":
 			cur_hue_deg = hue_idx * (360.0 / hue_steps)
 			label_text = f"Sat→   V↕   H={cur_hue_deg:5.1f}°"
+			label_room = max(0, term_w - HSV_PLANE_INDENT - 1)
 			safe_addstr(stdscr, LABEL_SCREEN_Y, HSV_PLANE_INDENT,
-			            label_text[:max(0, term_w - HSV_PLANE_INDENT - 1)],
+			            label_text[:label_room].ljust(label_room),
 			            curses.A_DIM)
+		else:
+			## Wipe the label row when we're in swatch mode (where there is no
+			## label and the area belongs to the swatch grid above).
+			row_room = max(0, term_w - 1)
+			safe_addstr(stdscr, LABEL_SCREEN_Y, 0, " " * row_room)
 
-		safe_addstr(stdscr, term_h - 3, 0, line1[:max(0, term_w - 1)])
-		safe_addstr(stdscr, term_h - 2, 0, help_line[:max(0, term_w - 1)], curses.A_DIM)
+		row_room = max(0, term_w - 1)
+		safe_addstr(stdscr, term_h - 3, 0, line1[:row_room].ljust(row_room))
+		safe_addstr(stdscr, term_h - 2, 0, help_line[:row_room].ljust(row_room), curses.A_DIM)
 
 		if mode == "swatch":
 			swatch_view_rows = max(1, term_h - swatch_top - 3)
@@ -896,29 +976,34 @@ def picker(stdscr, layout, pos_map, initial_idx, preview_cmd, allow_hex,
 					plane_scroll_y, plane_scroll_x,
 					plane_view_rows, plane_view_cols,
 					hue_scroll_x, view_cols)
-				diffs = emit_truecolor_diff(truecolor_state, new_cells)
+				diffs = emit_truecolor_diff(cell_state, new_cells)
 				stdscr.noutrefresh()
 				curses.doupdate()
 				if diffs:
 					sys.stdout.write(diffs)
 					sys.stdout.flush()
 			else:
-				## HSV mode: curses pads carry the banded backing.
-				draw_hsv_hue(hue_pad, hue_idx, hue_steps)
-				draw_hsv_plane(plane_pad, sv_x, sv_y, hex_mode,
-				               hue_idx, hue_steps, w, h_plane)
-				stdscr.noutrefresh()
+				## HSV mode: same approach as truecolor — skip the curses pad
+				## entirely and paint cells via raw ANSI overlay with per-cell
+				## diff. Just uses \e[48;5;Nm (indexed) instead of \e[48;2;R;G;Bm
+				## (24-bit). This avoids ncurses' diff/refresh on the plane area
+				## that was causing the one-line shift on W/S in HSV mode.
 				try:
-					hue_pad.noutrefresh(0, hue_scroll_x,
-					                    HUE_SCREEN_Y, 0,
-					                    HUE_SCREEN_Y, max(0, term_w - 1))
-					plane_pad.noutrefresh(plane_scroll_y, plane_scroll_x,
-					                      PLANE_SCREEN_TOP, HSV_PLANE_INDENT,
-					                      PLANE_SCREEN_TOP + plane_view_rows - 1,
-					                      max(0, term_w - 1))
+					stdscr.touchline(HUE_SCREEN_Y, 1, False)
+					stdscr.touchline(PLANE_SCREEN_TOP, plane_view_rows, False)
 				except curses.error:
 					pass
+				new_cells = compute_hsv_cells(
+					hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
+					plane_scroll_y, plane_scroll_x,
+					plane_view_rows, plane_view_cols,
+					hue_scroll_x, view_cols)
+				diffs = emit_hsv_diff(cell_state, new_cells)
+				stdscr.noutrefresh()
 				curses.doupdate()
+				if diffs:
+					sys.stdout.write(diffs)
+					sys.stdout.flush()
 
 		## Wait for the first key (blocks), then drain any further keys from
 		## the buffer non-blocking. We render once per drain cycle, so holding
