@@ -589,26 +589,27 @@ def hsv_at(hue_idx, sv_x, sv_y, hue_steps, w, h):
 def compute_truecolor_cells(hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
                             plane_scroll_y, plane_scroll_x,
                             plane_view_rows, plane_view_cols,
-                            hue_scroll_x, hue_view_cols):
+                            hue_scroll_x, hue_view_cells):
 	"""Build the dict of visible truecolor cells: (screen_y, screen_x) ->
 	(r, g, b, mark). Combines the hue strip and the SV plane.
 
 	The caller diffs this against a previous-frame dict and emits ANSI escapes
 	only for cells whose value changed — so cursor-only moves emit ~2 cells.
-	Curses is told to leave these screen positions alone (via untouchline),
-	so no banded backing is sent that could flash through."""
+
+	hue_scroll_x and hue_view_cells are in cells-only space (the screen cols
+	to the right of the HUE_LABEL); cells never spill into the label area."""
 	cells = {}
 	## Hue strip
 	label_w = len(HUE_LABEL)
 	for i in range(hue_steps):
-		pad_x = label_w + i * HSV_CELL_W
-		if pad_x < hue_scroll_x or pad_x + HSV_CELL_W > hue_scroll_x + hue_view_cols:
+		cells_x = i * HSV_CELL_W
+		if cells_x < hue_scroll_x or cells_x + HSV_CELL_W > hue_scroll_x + hue_view_cells:
 			continue
 		hue_deg = i * (360.0 / hue_steps)
 		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
 		is_cursor = (i == hue_idx)
 		screen_y = HUE_SCREEN_Y
-		screen_x = pad_x - hue_scroll_x
+		screen_x = label_w + cells_x - hue_scroll_x
 		cells[(screen_y, screen_x)] = (r, g, b, is_cursor)
 	## SV plane
 	cur_hue_deg = hue_idx * (360.0 / hue_steps)
@@ -663,22 +664,22 @@ def indexed_cell_seq(y, x, text, idx, mark=False):
 def compute_hsv_cells(hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
                       plane_scroll_y, plane_scroll_x,
                       plane_view_rows, plane_view_cols,
-                      hue_scroll_x, hue_view_cols):
+                      hue_scroll_x, hue_view_cells):
 	"""Mirror of compute_truecolor_cells but the cell value is (xterm-256 idx,
 	mark) — used for HSV mode where the visible colour is the banded match,
 	not the underlying 24-bit RGB."""
 	cells = {}
 	label_w = len(HUE_LABEL)
 	for i in range(hue_steps):
-		pad_x = label_w + i * HSV_CELL_W
-		if pad_x < hue_scroll_x or pad_x + HSV_CELL_W > hue_scroll_x + hue_view_cols:
+		cells_x = i * HSV_CELL_W
+		if cells_x < hue_scroll_x or cells_x + HSV_CELL_W > hue_scroll_x + hue_view_cells:
 			continue
 		hue_deg = i * (360.0 / hue_steps)
 		r, g, b = hsv_to_rgb(hue_deg, 1.0, 1.0)
 		idx = rgb_to_xterm256(r, g, b)
 		is_cursor = (i == hue_idx)
 		screen_y = HUE_SCREEN_Y
-		screen_x = pad_x - hue_scroll_x
+		screen_x = label_w + cells_x - hue_scroll_x
 		cells[(screen_y, screen_x)] = (idx, is_cursor)
 	plane = hsv_plane_indices(hue_idx, hue_steps, w, h_plane)
 	for yy in range(h_plane):
@@ -743,12 +744,16 @@ def emit_plane_scroll_hints(plane_top, plane_indent, plane_rows, plane_cols,
 	return "".join(out)
 
 
-def emit_hue_scroll_hints(hue_y, view_cols, scroll_x, total_w):
+def emit_hue_scroll_hints(hue_y, hue_view_cells, scroll_x, total_cells,
+                           label_w, right_screen_col):
+	"""scroll_x and total_cells are in cells-only space (label excluded).
+	< goes at the leftmost cell position (just past the label) so it
+	anchors to the strip, not the label. > goes at right_screen_col."""
 	out = []
 	if scroll_x > 0:
-		out.append(emit_scroll_hint(hue_y, 0, "<"))
-	if scroll_x + view_cols < total_w:
-		out.append(emit_scroll_hint(hue_y, view_cols - 1, ">"))
+		out.append(emit_scroll_hint(hue_y, label_w, "<"))
+	if scroll_x + hue_view_cells < total_cells:
+		out.append(emit_scroll_hint(hue_y, right_screen_col, ">"))
 	return "".join(out)
 
 
@@ -810,7 +815,10 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 
 	## Logical dimensions of the hue ramp and the plane (in raw cell-cols).
 	## Used to decide whether to scroll the visible window.
-	hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W
+	## hue_total_cells = total width of the hue ramp in cells-only space (i.e.
+	## not counting the "  Hue:" label). The label is fixed and never scrolls,
+	## so all hue scrolling math is in cells-only coordinates.
+	hue_total_cells = hue_steps * HSV_CELL_W
 	plane_total_w = max(1, w * HSV_CELL_W)
 	plane_total_h = max(1, h_plane)
 
@@ -912,7 +920,7 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		"""Set plane to (new_w, new_h), recouple hue if not pinned, and resync
 		the cursor from current_rgb. current_rgb is preserved."""
 		nonlocal w, h_plane, hue_steps, hue_idx, sv_x, sv_y
-		nonlocal hue_total_w, plane_total_w, plane_total_h
+		nonlocal hue_total_cells, plane_total_w, plane_total_h
 		new_w = max(HSV_MIN_W, min(HSV_MAX_W, new_w))
 		new_h = max(HSV_MIN_H, min(HSV_MAX_H, new_h))
 		new_hue = hue_steps if hue_steps_explicit else max(HSV_MIN_W,
@@ -922,7 +930,7 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			return
 		w, h_plane, hue_steps = new_w, new_h, new_hue
 		hue_idx, sv_x, sv_y = sync_hsv_from_rgb(*current_rgb, hue_steps, w, h_plane)
-		hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W
+		hue_total_cells = hue_steps * HSV_CELL_W
 		plane_total_w = max(1, w * HSV_CELL_W)
 		plane_total_h = max(1, h_plane)
 		cell_state.clear()  ## force full overlay repaint at new dims
@@ -1186,14 +1194,17 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			## cursor inside a 25% margin so a move within that margin doesn't
 			## drag the viewport with it. Reserve HSV_RIGHT_MARGIN cols on the
 			## right so the plane never reaches the screen edge when zoomed.
+			label_w = len(HUE_LABEL)
 			view_cols = max(1, term_w - HSV_RIGHT_MARGIN)
-			hue_cursor_pad_x = len(HUE_LABEL) + hue_idx * HSV_CELL_W
+			## The hue ramp scrolls in cells-only space (excluding the fixed
+			## label area). Cells must never appear at screen_x < label_w.
+			hue_view_cells = max(1, view_cols - label_w)
 			plane_view_rows = max(1, term_h - PLANE_SCREEN_TOP - 4)
 			plane_view_cols = max(1, term_w - HSV_PLANE_INDENT - HSV_RIGHT_MARGIN)
 			cursor_pad_y = sv_y
 			cursor_pad_x = sv_x * HSV_CELL_W
-			hue_scroll_x = compute_scroll(prev_scroll["hue_x"], hue_cursor_pad_x,
-			                              HSV_CELL_W, view_cols, hue_total_w)
+			hue_scroll_x = compute_scroll(prev_scroll["hue_x"], hue_idx * HSV_CELL_W,
+			                              HSV_CELL_W, hue_view_cells, hue_total_cells)
 			plane_scroll_y = compute_scroll(prev_scroll["plane_y"], cursor_pad_y,
 			                                1, plane_view_rows, plane_total_h)
 			plane_scroll_x = compute_scroll(prev_scroll["plane_x"], cursor_pad_x,
@@ -1240,14 +1251,14 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 					hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
 					plane_scroll_y, plane_scroll_x,
 					plane_view_rows, plane_view_cols,
-					hue_scroll_x, view_cols)
+					hue_scroll_x, hue_view_cells)
 				diffs = emit_truecolor_diff(cell_state, new_cells)
 			else:
 				new_cells = compute_hsv_cells(
 					hue_idx, hue_steps, sv_x, sv_y, w, h_plane, hex_mode,
 					plane_scroll_y, plane_scroll_x,
 					plane_view_rows, plane_view_cols,
-					hue_scroll_x, view_cols)
+					hue_scroll_x, hue_view_cells)
 				diffs = emit_hsv_diff(cell_state, new_cells)
 			if diffs:
 				sys.stdout.write(diffs)
@@ -1257,7 +1268,8 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 				plane_scroll_y, plane_scroll_x,
 				plane_total_h, plane_total_w))
 			sys.stdout.write(emit_hue_scroll_hints(
-				HUE_SCREEN_Y, view_cols, hue_scroll_x, hue_total_w))
+				HUE_SCREEN_Y, hue_view_cells, hue_scroll_x, hue_total_cells,
+				label_w, view_cols - 1))
 
 		sys.stdout.flush()
 
@@ -1325,11 +1337,11 @@ def main():
 	               help='Shell command; selected colour is appended on each move.')
 	p.add_argument("--no-hex", action="store_true", help="Disable hex entry.")
 	p.add_argument("--size", type=_parse_size, default=None, metavar="WxH",
-	               help="HSV plane size. Default: 39x16.")
+	               help="HSV plane size. Default: 39x16. (24x8 minimum to reach all 240 colors in the cube.)")
 	p.add_argument("--fullscreen", action="store_true",
 	               help="Auto-fit HSV plane to the terminal size (overrides --size default).")
 	p.add_argument("--hue-steps", type=int, default=None, metavar="N",
-	               help="Cells in the hue ramp. Defaults to plane width.")
+	               help="Cells in the hue ramp. Defaults to plane width. (Minimum 1530 needed for truecolor.)")
 	args = p.parse_args()
 
 	if not sys.stdin.isatty():
