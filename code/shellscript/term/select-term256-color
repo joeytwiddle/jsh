@@ -71,7 +71,7 @@ PLANE_SCREEN_TOP = 4
 
 ## Plane size bounds; the visible area is windowed if these exceed the terminal.
 HSV_MIN_W, HSV_MAX_W = 6, 200
-HSV_MIN_H, HSV_MAX_H = 6, 100
+HSV_MIN_H, HSV_MAX_H = 6, 200
 
 ## Custom key codes (>= 1000 so they don't collide with byte values).
 ## We parse arrow / shift-arrow escape sequences manually from stdin in raw mode.
@@ -1105,9 +1105,9 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			elif ch in HUE_FORWARD_1 + HUE_FORWARD_5:
 				hue_idx = (hue_idx + step) % hue_steps; set_value_from_hsv(); preview()
 			elif ch in (ord('+'), ord('=')):
-				apply_zoom(+4, +2)
+				apply_zoom(+20, +10)
 			elif ch in (ord('-'), ord('_')):
-				apply_zoom(-4, -2)
+				apply_zoom(-20, -10)
 		return None
 
 	while True:
