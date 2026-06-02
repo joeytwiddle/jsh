@@ -1325,7 +1325,9 @@ def main():
 	               help='Shell command; selected colour is appended on each move.')
 	p.add_argument("--no-hex", action="store_true", help="Disable hex entry.")
 	p.add_argument("--size", type=_parse_size, default=None, metavar="WxH",
-	               help="HSV plane size. Defaults to auto-fit terminal.")
+	               help="HSV plane size. Default: 39x16.")
+	p.add_argument("--fullscreen", action="store_true",
+	               help="Auto-fit HSV plane to the terminal size (overrides --size default).")
 	p.add_argument("--hue-steps", type=int, default=None, metavar="N",
 	               help="Cells in the hue ramp. Defaults to plane width.")
 	args = p.parse_args()
@@ -1353,12 +1355,19 @@ def main():
 	kind, val = parse_initial(args.initial)
 	initial_idx = val if kind == "num" else (hex_to_xterm256(val) if kind == "hex" else None)
 
-	## Resolve plane dimensions
-	size_explicit = args.size is not None
-	if size_explicit:
+	## Resolve plane dimensions. --size pins an exact size, --fullscreen
+	## auto-fits and follows terminal resizes; otherwise default to 39x16
+	## (sized for a standard 80x24 terminal) shrunk to whatever fits.
+	if args.size is not None:
 		init_w, init_h = args.size
-	else:
+		size_explicit = True
+	elif args.fullscreen:
 		init_w, init_h = auto_plane_size()
+		size_explicit = False
+	else:
+		auto_w, auto_h = auto_plane_size()
+		init_w, init_h = min(39, auto_w), min(16, auto_h)
+		size_explicit = True
 	hue_steps_explicit = args.hue_steps is not None
 	if hue_steps_explicit:
 		init_hue_steps = max(HSV_MIN_W, min(HSV_MAX_W, args.hue_steps))
