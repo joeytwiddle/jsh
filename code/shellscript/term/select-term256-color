@@ -1170,9 +1170,6 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			sel_row = pos_map[sel_idx][0]
 			scroll_y = compute_scroll(prev_scroll["swatch_y"], sel_row, 1,
 			                          swatch_view_rows, swatch_total_h)
-			if prev_scroll["swatch_y"] not in (None, scroll_y):
-				clear_screen()
-				cell_state.clear()
 			prev_scroll["swatch_y"] = scroll_y
 			new_cells = compute_swatch_cells(
 				layout, sel_idx, hex_mode, hex_buf,
@@ -1209,17 +1206,31 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			plane_scroll_x -= plane_scroll_x % HSV_CELL_W
 			hue_scroll_x   -= hue_scroll_x   % HSV_CELL_W
 
-			## Any scroll change (horizontal or vertical, plane or hue) ->
-			## wipe + full repaint. The per-cell diff is great for cursor-only
-			## moves but leaves orphan cells on the trailing edge when the
-			## visible window slides.
+			## Scroll changes shift every cell's pad_x mapping, so the diff
+			## naturally re-emits every cell on the trailing edge — no need to
+			## clear the screen. We do still pop the cells under each scroll
+			## hint when scroll changes, so an indicator that just deactivated
+			## doesn't ghost on top of a same-colour cell that the diff would
+			## otherwise skip.
 			scroll_changed = (
 				prev_scroll["plane_x"] not in (None, plane_scroll_x) or
 				prev_scroll["plane_y"] not in (None, plane_scroll_y) or
 				prev_scroll["hue_x"]   not in (None, hue_scroll_x))
 			if scroll_changed:
-				clear_screen()
-				cell_state.clear()
+				mid_y = PLANE_SCREEN_TOP + plane_view_rows // 2
+				mid_x = HSV_PLANE_INDENT + plane_view_cols // 2
+				right_x = HSV_PLANE_INDENT + plane_view_cols - 1
+				## Cells live at even screen_x; floor odd positions to find
+				## the cell key that the indicator was overlaying.
+				for (y, x) in [
+					(mid_y, HSV_PLANE_INDENT),
+					(mid_y, right_x - right_x % HSV_CELL_W),
+					(PLANE_SCREEN_TOP, mid_x - mid_x % HSV_CELL_W),
+					(PLANE_SCREEN_TOP + plane_view_rows - 1, mid_x - mid_x % HSV_CELL_W),
+					(HUE_SCREEN_Y, 0),
+					(HUE_SCREEN_Y, (view_cols - 1) - (view_cols - 1) % HSV_CELL_W),
+				]:
+					cell_state.pop((y, x), None)
 			prev_scroll["plane_x"] = plane_scroll_x
 			prev_scroll["plane_y"] = plane_scroll_y
 			prev_scroll["hue_x"]   = hue_scroll_x
