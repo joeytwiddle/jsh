@@ -709,6 +709,53 @@ def emit_hsv_diff(prev_cells, new_cells):
 
 ## ---------- Scroll / viewport ----------
 
+SCROLL_HINT_STYLE = "\033[1;30;43m"  ## bold black on yellow — high contrast on any plane colour
+
+
+def emit_scroll_hint(y, x, ch):
+	return f"\033[{y+1};{x+1}H{SCROLL_HINT_STYLE}{ch}\033[0m"
+
+
+def emit_plane_scroll_hints(plane_top, plane_indent, plane_rows, plane_cols,
+                             scroll_y, scroll_x, total_h, total_w):
+	"""Return ANSI escapes for <, >, ^, v hints overlaying the visible plane
+	edges whenever there's content outside the viewport in that direction."""
+	out = []
+	if scroll_x > 0:
+		y = plane_top + plane_rows // 2
+		out.append(emit_scroll_hint(y, plane_indent, "<"))
+	if scroll_x + plane_cols < total_w:
+		y = plane_top + plane_rows // 2
+		out.append(emit_scroll_hint(y, plane_indent + plane_cols - 1, ">"))
+	if scroll_y > 0:
+		x = plane_indent + plane_cols // 2
+		out.append(emit_scroll_hint(plane_top, x, "^"))
+	if scroll_y + plane_rows < total_h:
+		x = plane_indent + plane_cols // 2
+		y = plane_top + plane_rows - 1
+		out.append(emit_scroll_hint(y, x, "v"))
+	return "".join(out)
+
+
+def emit_hue_scroll_hints(hue_y, view_cols, scroll_x, total_w):
+	out = []
+	if scroll_x > 0:
+		out.append(emit_scroll_hint(hue_y, 0, "<"))
+	if scroll_x + view_cols < total_w:
+		out.append(emit_scroll_hint(hue_y, view_cols - 1, ">"))
+	return "".join(out)
+
+
+def emit_swatch_scroll_hints(swatch_top, swatch_view_rows, scroll_y, total_h, mid_x):
+	out = []
+	if scroll_y > 0:
+		out.append(emit_scroll_hint(swatch_top, mid_x, "^"))
+	if scroll_y + swatch_view_rows < total_h:
+		y = swatch_top + swatch_view_rows - 1
+		out.append(emit_scroll_hint(y, mid_x, "v"))
+	return "".join(out)
+
+
 def compute_scroll(old, cursor, cell_size, view, total):
 	"""Compute the scroll offset that keeps `cursor` inside a 25% margin of
 	each viewport edge. `cursor` is the left/top edge of the cursor cell in
@@ -1127,6 +1174,9 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			diffs = emit_swatch_diff(cell_state, new_cells)
 			if diffs:
 				sys.stdout.write(diffs)
+			sys.stdout.write(emit_swatch_scroll_hints(
+				swatch_top, swatch_view_rows, scroll_y, swatch_total_h,
+				max(0, term_w // 2)))
 		else:
 			## Compute scroll positions and visible window dimensions (shared
 			## between hsv and truecolor branches). compute_scroll keeps the
@@ -1176,6 +1226,13 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 				diffs = emit_hsv_diff(cell_state, new_cells)
 			if diffs:
 				sys.stdout.write(diffs)
+			sys.stdout.write(emit_plane_scroll_hints(
+				PLANE_SCREEN_TOP, HSV_PLANE_INDENT,
+				plane_view_rows, plane_view_cols,
+				plane_scroll_y, plane_scroll_x,
+				plane_total_h, plane_total_w))
+			sys.stdout.write(emit_hue_scroll_hints(
+				HUE_SCREEN_Y, view_cols, hue_scroll_x, hue_total_w))
 
 		sys.stdout.flush()
 
