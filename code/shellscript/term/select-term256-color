@@ -46,8 +46,9 @@ CELL_W = 5  ## " NNN " cell width in swatch mode
 CUBE_VALUES = (0, 95, 135, 175, 215, 255)
 
 HSV_CELL_W = 2       ## chars per cell in HSV / truecolor planes
-HSV_PLANE_INDENT = 1 ## screen-column indent for the SV plane and its label row
-HUE_LABEL = " Hue:"  ## odd-length matches the 2-char cell stride so cells line up vertically
+HSV_PLANE_INDENT = 2 ## screen-column indent for the SV plane and its label row.
+                     ## 2 gives a visible left margin between the screen edge and the first plane cell.
+HUE_LABEL = "  Hue:" ## same-parity length as HSV_PLANE_INDENT so plane and hue cells line up vertically
 HSV_PLANE_STRETCH_CELLS = 2  ## extra plane cells beyond hue_steps so plane right edge aligns
                              ## with hue right edge: indent + 2*w = len(HUE_LABEL) + 2*hue_steps
 
@@ -57,7 +58,10 @@ HSV_PLANE_STRETCH_CELLS = 2  ## extra plane cells beyond hue_steps so plane righ
 ## and vertical cursor moves shift plane_scroll_y → the truecolor diff finds
 ## hundreds of changed cells → the whole plane visibly repaints. Keep it at 8.
 HSV_OVERHEAD_ROWS = 8
-HSV_OVERHEAD_COLS = 7  ## 5-char left label + 2-char right margin
+HSV_OVERHEAD_COLS = 8  ## 6-char left label + 2-char right margin
+HSV_RIGHT_MARGIN  = 2  ## kept symmetric with HSV_PLANE_INDENT; also absorbs the
+                       ## 2-col-per-cell parity so the rightmost cell doesn't
+                       ## land on the screen edge when zoomed and scrolled
 
 ## Screen-row positions for the HSV / truecolor layout — referenced by
 ## compute_truecolor_cells (module-level) so they must live up here too.
@@ -719,7 +723,9 @@ def emit_scroll_hint(y, x, ch):
 def emit_plane_scroll_hints(plane_top, plane_indent, plane_rows, plane_cols,
                              scroll_y, scroll_x, total_h, total_w):
 	"""Return ANSI escapes for <, >, ^, v hints overlaying the visible plane
-	edges whenever there's content outside the viewport in that direction."""
+	edges whenever there's content outside the viewport in that direction.
+	Horizontal hints sit at the outer edge of the edge cell — the right margin
+	keeps them clear of the screen border."""
 	out = []
 	if scroll_x > 0:
 		y = plane_top + plane_rows // 2
@@ -804,8 +810,8 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 
 	## Logical dimensions of the hue ramp and the plane (in raw cell-cols).
 	## Used to decide whether to scroll the visible window.
-	hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W + 2
-	plane_total_w = max(1, w * HSV_CELL_W) + 2
+	hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W
+	plane_total_w = max(1, w * HSV_CELL_W)
 	plane_total_h = max(1, h_plane)
 
 	## Swatch total layout size — used to compute scroll bounds.
@@ -916,8 +922,8 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			return
 		w, h_plane, hue_steps = new_w, new_h, new_hue
 		hue_idx, sv_x, sv_y = sync_hsv_from_rgb(*current_rgb, hue_steps, w, h_plane)
-		hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W + 2
-		plane_total_w = max(1, w * HSV_CELL_W) + 2
+		hue_total_w = len(HUE_LABEL) + hue_steps * HSV_CELL_W
+		plane_total_w = max(1, w * HSV_CELL_W)
 		plane_total_h = max(1, h_plane)
 		cell_state.clear()  ## force full overlay repaint at new dims
 		clear_screen()      ## wipe stale overlay paint at the previous dims
@@ -1181,11 +1187,12 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			## Compute scroll positions and visible window dimensions (shared
 			## between hsv and truecolor branches). compute_scroll keeps the
 			## cursor inside a 25% margin so a move within that margin doesn't
-			## drag the viewport with it.
-			view_cols = max(1, term_w)
+			## drag the viewport with it. Reserve HSV_RIGHT_MARGIN cols on the
+			## right so the plane never reaches the screen edge when zoomed.
+			view_cols = max(1, term_w - HSV_RIGHT_MARGIN)
 			hue_cursor_pad_x = len(HUE_LABEL) + hue_idx * HSV_CELL_W
 			plane_view_rows = max(1, term_h - PLANE_SCREEN_TOP - 4)
-			plane_view_cols = max(1, term_w - HSV_PLANE_INDENT)
+			plane_view_cols = max(1, term_w - HSV_PLANE_INDENT - HSV_RIGHT_MARGIN)
 			cursor_pad_y = sv_y
 			cursor_pad_x = sv_x * HSV_CELL_W
 			hue_scroll_x = compute_scroll(prev_scroll["hue_x"], hue_cursor_pad_x,
@@ -1194,6 +1201,13 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			                                1, plane_view_rows, plane_total_h)
 			plane_scroll_x = compute_scroll(prev_scroll["plane_x"], cursor_pad_x,
 			                                HSV_CELL_W, plane_view_cols, plane_total_w)
+			## Snap horizontal scrolls to cell boundaries. Cells are 2 chars wide;
+			## when scroll_x is mid-cell, the first visible cell shifts right by
+			## 1 col, leaving the screen column where we drew < / > blank and
+			## making the plane appear to "eat into" or "shed" a margin column
+			## as the user scrolls. Snapping pins cell alignment.
+			plane_scroll_x -= plane_scroll_x % HSV_CELL_W
+			hue_scroll_x   -= hue_scroll_x   % HSV_CELL_W
 
 			## Any scroll change (horizontal or vertical, plane or hue) ->
 			## wipe + full repaint. The per-cell diff is great for cursor-only
