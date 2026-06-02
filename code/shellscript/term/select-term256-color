@@ -707,6 +707,30 @@ def emit_hsv_diff(prev_cells, new_cells):
 	return "".join(out)
 
 
+## ---------- Scroll / viewport ----------
+
+def compute_scroll(old, cursor, cell_size, view, total):
+	"""Compute the scroll offset that keeps `cursor` inside a 25% margin of
+	each viewport edge. `cursor` is the left/top edge of the cursor cell in
+	plane coordinates, `cell_size` is the cell's width/height in those same
+	units. Only re-scrolls when the cursor crosses into the margin — gives
+	the user some visible context on the trailing side of a move and avoids
+	a screen wipe on every keystroke. Centres the cursor on first frame
+	(old is None)."""
+	if total <= view:
+		return 0
+	max_scroll = max(0, total - view)
+	if old is None:
+		return max(0, min(max_scroll, cursor - view // 2))
+	margin = max(1, view // 4)
+	new = old
+	if cursor - new < margin:
+		new = cursor - margin
+	elif cursor + cell_size - new > view - margin:
+		new = cursor + cell_size - (view - margin)
+	return max(0, min(max_scroll, new))
+
+
 ## ---------- Main picker loop ----------
 
 def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
@@ -1091,8 +1115,8 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		if mode == "swatch":
 			swatch_view_rows = max(1, term_h - swatch_top - 3)
 			sel_row = pos_map[sel_idx][0]
-			scroll_y = max(0, min(max(0, swatch_total_h - swatch_view_rows),
-			                       sel_row - swatch_view_rows + 2))
+			scroll_y = compute_scroll(prev_scroll["swatch_y"], sel_row, 1,
+			                          swatch_view_rows, swatch_total_h)
 			if prev_scroll["swatch_y"] not in (None, scroll_y):
 				clear_screen()
 				cell_state.clear()
@@ -1105,25 +1129,21 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 				sys.stdout.write(diffs)
 		else:
 			## Compute scroll positions and visible window dimensions (shared
-			## between hsv and truecolor branches).
+			## between hsv and truecolor branches). compute_scroll keeps the
+			## cursor inside a 25% margin so a move within that margin doesn't
+			## drag the viewport with it.
 			view_cols = max(1, term_w)
 			hue_cursor_pad_x = len(HUE_LABEL) + hue_idx * HSV_CELL_W
-			hue_scroll_x = 0
-			if hue_total_w > view_cols:
-				hue_scroll_x = max(0, min(hue_total_w - view_cols,
-				                          hue_cursor_pad_x - view_cols // 2))
 			plane_view_rows = max(1, term_h - PLANE_SCREEN_TOP - 4)
 			plane_view_cols = max(1, term_w - HSV_PLANE_INDENT)
 			cursor_pad_y = sv_y
 			cursor_pad_x = sv_x * HSV_CELL_W
-			plane_scroll_y = 0
-			if plane_total_h > plane_view_rows:
-				plane_scroll_y = max(0, min(plane_total_h - plane_view_rows,
-				                            cursor_pad_y - plane_view_rows // 2))
-			plane_scroll_x = 0
-			if plane_total_w > plane_view_cols:
-				plane_scroll_x = max(0, min(plane_total_w - plane_view_cols,
-				                            cursor_pad_x - plane_view_cols // 2))
+			hue_scroll_x = compute_scroll(prev_scroll["hue_x"], hue_cursor_pad_x,
+			                              HSV_CELL_W, view_cols, hue_total_w)
+			plane_scroll_y = compute_scroll(prev_scroll["plane_y"], cursor_pad_y,
+			                                1, plane_view_rows, plane_total_h)
+			plane_scroll_x = compute_scroll(prev_scroll["plane_x"], cursor_pad_x,
+			                                HSV_CELL_W, plane_view_cols, plane_total_w)
 
 			## Any scroll change (horizontal or vertical, plane or hue) ->
 			## wipe + full repaint. The per-cell diff is great for cursor-only
