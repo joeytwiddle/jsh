@@ -826,6 +826,11 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 	## switch, zoom, resize) so the next frame does a full repaint.
 	cell_state = {}
 
+	## Track scroll offsets across frames. When any of these change we wipe
+	## the screen and force a full repaint — the diff-only update can leave
+	## stale cells at the trailing edge of a scroll otherwise.
+	prev_scroll = {"hue_x": None, "plane_x": None, "plane_y": None, "swatch_y": None}
+
 	def apply_dims(new_w, new_h):
 		"""Set plane to (new_w, new_h), recouple hue if not pinned, and resync
 		the cursor from current_rgb. current_rgb is preserved."""
@@ -1088,6 +1093,10 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			sel_row = pos_map[sel_idx][0]
 			scroll_y = max(0, min(max(0, swatch_total_h - swatch_view_rows),
 			                       sel_row - swatch_view_rows + 2))
+			if prev_scroll["swatch_y"] not in (None, scroll_y):
+				clear_screen()
+				cell_state.clear()
+			prev_scroll["swatch_y"] = scroll_y
 			new_cells = compute_swatch_cells(
 				layout, sel_idx, hex_mode, hex_buf,
 				scroll_y, swatch_view_rows, term_w, swatch_top)
@@ -1115,6 +1124,21 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			if plane_total_w > plane_view_cols:
 				plane_scroll_x = max(0, min(plane_total_w - plane_view_cols,
 				                            cursor_pad_x - plane_view_cols // 2))
+
+			## Any scroll change (horizontal or vertical, plane or hue) ->
+			## wipe + full repaint. The per-cell diff is great for cursor-only
+			## moves but leaves orphan cells on the trailing edge when the
+			## visible window slides.
+			scroll_changed = (
+				prev_scroll["plane_x"] not in (None, plane_scroll_x) or
+				prev_scroll["plane_y"] not in (None, plane_scroll_y) or
+				prev_scroll["hue_x"]   not in (None, hue_scroll_x))
+			if scroll_changed:
+				clear_screen()
+				cell_state.clear()
+			prev_scroll["plane_x"] = plane_scroll_x
+			prev_scroll["plane_y"] = plane_scroll_y
+			prev_scroll["hue_x"]   = hue_scroll_x
 
 			if mode == "truecolor":
 				new_cells = compute_truecolor_cells(
