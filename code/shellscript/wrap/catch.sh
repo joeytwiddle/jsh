@@ -1,4 +1,11 @@
 #!/bin/sh
+set -e
+
+# Usage: catch <command> <args...>
+#
+# Runs the command you provide, and opens a pager with both of the "caught"
+# output streams, stdout and stderr, but with stderr highlighted in red
+
 export TMPFILE=`jgettmp caught-err`
 
 (
