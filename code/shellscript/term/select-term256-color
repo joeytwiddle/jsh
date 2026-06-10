@@ -48,7 +48,7 @@ CUBE_VALUES = (0, 95, 135, 175, 215, 255)
 HSV_CELL_W = 2       ## chars per cell in HSV / truecolor planes
 HSV_PLANE_INDENT = 2 ## screen-column indent for the SV plane and its label row.
                      ## 2 gives a visible left margin between the screen edge and the first plane cell.
-HUE_LABEL = "  Hue:" ## same-parity length as HSV_PLANE_INDENT so plane and hue cells line up vertically
+HUE_LABEL = "  Hue " ## same-parity length as HSV_PLANE_INDENT so plane and hue cells line up vertically
 HSV_PLANE_STRETCH_CELLS = 2  ## extra plane cells beyond hue_steps so plane right edge aligns
                              ## with hue right edge: indent + 2*w = len(HUE_LABEL) + 2*hue_steps
 
@@ -1145,11 +1145,11 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		if status_msg:
 			line1 += f"   ({status_msg})"
 		if mode == "swatch":
-			help_line = " arrows/hjkl/wasd move (Shift=5)  0-9 num" + \
+			help_line = " arrows/hjkl/wasd move (Shift=jump)  0-9 num" + \
 			            ("  # hex" if allow_hex else "") + \
 			            f"  Tab→{next_mode}  Enter accept  Esc cancel"
 		else:
-			help_line = " arrows/hjkl/wasd SV (Shift=5)  ,./qe/uo hue (Shift=5)  +/- zoom" + \
+			help_line = " arrows/hjkl/wasd SV  ,./qe/uo hue (Shift=jump)  +/- zoom" + \
 			            ("  # hex" if allow_hex else "") + \
 			            f"  Tab→{next_mode}  Enter  Esc"
 
@@ -1337,7 +1337,7 @@ def main():
 	               help='Shell command; selected colour is appended on each move.')
 	p.add_argument("--no-hex", action="store_true", help="Disable hex entry.")
 	p.add_argument("--size", type=_parse_size, default=None, metavar="WxH",
-	               help="HSV plane size. Default: 39x16. (24x8 minimum to reach all 240 colors in the cube.)")
+	               help="HSV plane size. Default: 39x16. (Minimum 24x8 to reach all 240 colors in the cube.)")
 	p.add_argument("--fullscreen", action="store_true",
 	               help="Auto-fit HSV plane to the terminal size (overrides --size default).")
 	p.add_argument("--hue-steps", type=int, default=None, metavar="N",
