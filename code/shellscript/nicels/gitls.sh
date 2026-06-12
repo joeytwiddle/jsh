@@ -1,8 +1,7 @@
 #!/bin/sh
 # Present output like `ls -l`, but annotate each file with its git status.
 
-# BUG: When directories are passed as arguments, they are not listed the same as with ls.  Instead of just filenames, each files full path is displayed.
-# Note that git is (currently) run from the caller's working directory, so cannot inspect files from a different repository.
+# BUG: When directories are passed as arguments, they are not listed the same as with ls.  Instead of just filenames, each file's full path is displayed.
 
 if [ "$1" = -l ]
 then GITLS_LONG_FORMAT=1; shift
@@ -11,6 +10,29 @@ fi
 if [ "$1" = -R ]
 then GITLS_CHECK_FOLDERS=1; shift
 fi
+
+# Run `git status` a single time and cache the result, instead of forking git
+# once per listed file.  Clean files will not be listed in the cache.
+git_root="$(git rev-parse --show-toplevel 2>/dev/null)"
+if [ -n "$git_root" ]
+then git_status_cache="$(git status --porcelain --ignored 2>/dev/null)"
+else git_status_cache=""
+fi
+
+# Porcelain paths are root-relative, but the listed paths are relative to $PWD,
+# so we need the path from the repo root down to $PWD (empty when at the root).
+case "$PWD" in
+	"$git_root") cwd_prefix="" ;;
+	*) cwd_prefix="${PWD#"$git_root"/}/" ;;
+esac
+
+# Echo a listed path the way git reports it (relative to the repo root).
+rootrel() {
+	case "$1" in
+		/*) printf '%s' "${1#"$git_root"/}" ;;
+		*) printf '%s' "$cwd_prefix$1" ;;
+	esac
+}
 
 find "$@" -maxdepth 1 |
 #find "$@" -type f | grep -v "/\.git/" |
@@ -21,18 +43,16 @@ else cat
 fi |
 while read node
 do
-	cwd="$PWD"
-	lnode="$(basename "$node")"
-	cd "$(dirname "$node")"
 	# Fallback (default) status.  Not many things get this.  Untracked broken symlinks do (not sure about tracked), and sockets do.
 	# According to logic below, these are things which are not directories and not files.
 	extra="xx"
-	if [ -d "$lnode" ]
+	if [ -d "$node" ]
 	then
 		# Recursive mode is optional because it's a lot slower on large repositories.
 		if [ -n "$GITLS_CHECK_FOLDERS" ]
 		then
-			status_line="$(git status --porcelain "$lnode" 2>/dev/null)"
+			# All cached lines for files below this directory.
+			status_line="$(printf '%s\n' "$git_status_cache" | awk -v d="$(rootrel "$node")/" 'substr($0, 4, length(d)) == d')"
 			# If any file below is modified, display that
 			modified=$(printf "%s" "$status_line" | grep -m 1 -o "^.M")
 			if [ -n "$modified" ]
@@ -45,8 +65,6 @@ do
 				else
 					# Just display the first thing that git reports
 					whatever=$(printf "%s" "$status_line" | grep -m 1 -o "^..")
-					# Added `head -n 1` because on Mac OS X grep 2.5.1-FreeBSD was outputting every '..', not only the first one found (and not only those at line start)
-					#whatever=$(printf "%s" "$status_line" | grep -m 1 -o "^.." | head -n 1)
 					if [ -n "$whatever" ]
 					then extra="$whatever"
 					else extra="  "
@@ -61,23 +79,17 @@ do
 			#extra="##"
 			#extra="  "
 		fi
-	elif [ -f "$lnode" ]
+	elif [ -f "$node" ]
 	then
-		# Get the two-character status that git reports for this file
-		# We look for ignored files, they sometimes produce "!!" but occasionally ""
-		# Up-to-date files always produce ""
-		# Unfortunately, if we are not in a git folder, then we also get ""!
-		# We use `head -n 1` because otherwise "sub" files "$lnode.ignored1" and "$lnode.ignored2" might be listed as well.
-		status_line="$(git status --porcelain --ignored "$lnode" 2>/dev/null | head -n 1)"
-		if [ "$?" != 0 ]
-		then extra='XX'
-		else
-			extra="$(printf "%s" "$status_line" | cut -c 1-2)"
-			[ "$extra" = "" ] && extra="  "
+		# Look this file up in the cached status.  An absent entry means the
+		# file is clean (or we are not in a git repo), giving a blank status.
+		status_line="$(printf '%s\n' "$git_status_cache" | awk -v p="$(rootrel "$node")" 'substr($0, 4) == p { print; exit }')"
+		if [ -n "$status_line" ]
+		then extra="$(printf "%s" "$status_line" | cut -c 1-2)"
+		else extra="  "
 		fi
 	fi
 	#echo -n "$extra "
-	cd "$cwd"
 	if [ -n "$GITLS_LONG_FORMAT" ]
 	then ls -ld --color "$node" | sed "s+^\([^ ]* *\)\{8\}+\0[$extra] +"
 	else ls -d --color "$node" | sed "s+^+[$extra] +"
