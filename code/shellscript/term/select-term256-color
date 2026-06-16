@@ -1197,6 +1197,18 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			write_at(LABEL_SCREEN_Y, 0, " " * row_room)
 
 		write_at(term_h - 3, 0, line1[:row_room].ljust(row_room))
+		## Overpaint the selection token as a live swatch: selected colour as
+		## background, contrasting black/white fg (same as the >< cursor).
+		sel_disp = sel_str or "(typing...)"
+		sel_col = len(f" [{mode}{dims}]  ")
+		sel_vis = sel_disp[:max(0, row_room - sel_col)]
+		if sel_vis:
+			if mode == "truecolor":
+				sys.stdout.write(truecolor_cell_seq(term_h - 3, sel_col, sel_vis,
+				                                    cur_r, cur_g, cur_b, mark=True))
+			else:
+				sys.stdout.write(indexed_cell_seq(term_h - 3, sel_col, sel_vis,
+				                                  sel_idx, mark=True))
 		write_at(term_h - 2, 0, help_line[:row_room].ljust(row_room), dim=True)
 
 		if mode == "swatch":
