@@ -1130,14 +1130,22 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		sel_str = current_color_str()
 		cur_r, cur_g, cur_b = current_rgb
 		if mode == "truecolor":
-			extras = f"  (nearest: colour{rgb_to_xterm256(cur_r, cur_g, cur_b)})"
+			extras = f"  (~colour{rgb_to_xterm256(cur_r, cur_g, cur_b)})"
 		elif mode == "hsv":
-			extras = f"  (full: #{cur_r:02x}{cur_g:02x}{cur_b:02x})"
+			extras = f"  (#{cur_r:02x}{cur_g:02x}{cur_b:02x})"
 		else:
 			extras = f"  (#{cur_r:02x}{cur_g:02x}{cur_b:02x})"
 		next_mode = {"hsv": "truecolor", "truecolor": "swatch", "swatch": "hsv"}[mode]
 		dims = f" {w}x{h_plane}" if mode != "swatch" else ""
-		line1 = f" [{mode}{dims}]  Selection: {sel_str or '(typing...)'}{extras}"
+		line1 = f" [{mode}{dims}]  {sel_str or '(typing...)'}{extras}"
+		## Escape codes to set the colour as FG / BG. 24-bit in truecolor mode;
+		## the simpler 8-bit indexed form in hsv/swatch (their output is an
+		## index anyway). Literal backslash-e so the terminal shows the code
+		## rather than acting on it; copy into printf / echo -e.
+		if mode == "truecolor":
+			line1 += f"  FG \\e[38;2;{cur_r};{cur_g};{cur_b}m  BG \\e[48;2;{cur_r};{cur_g};{cur_b}m"
+		else:
+			line1 += f"  FG \\e[38;5;{sel_idx}m  BG \\e[48;5;{sel_idx}m"
 		if num_buf:
 			line1 += f"   typing: {num_buf}_"
 		if hex_mode:
