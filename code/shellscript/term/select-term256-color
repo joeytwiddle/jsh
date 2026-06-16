@@ -538,12 +538,13 @@ def _next_non_gap(layout, from_row, target_col, direction):
 
 ## ---------- HSV mode rendering ----------
 
-def truecolor_cell_seq(y, x, text, r, g, b, mark=False):
+def truecolor_cell_seq(y, x, text, r, g, b, mark=False, attrs=""):
 	"""Build a raw ANSI escape that paints (y,x) with a 24-bit background and
 	`text`. If mark, also set a contrasting foreground (black/white per luma)
-	so the cursor glyph stays visible on any bg. Coords are 0-based curses
-	coords; ANSI's 1-based offset is added here."""
-	seq = f"\033[{y+1};{x+1}H\033[48;2;{r};{g};{b}m"
+	so the cursor glyph stays visible on any bg. attrs is an optional SGR
+	prefix (e.g. "1;7;") to apply bold/italic/reverse. Coords are 0-based;
+	ANSI's 1-based offset is added here."""
+	seq = f"\033[{y+1};{x+1}H\033[{attrs}48;2;{r};{g};{b}m"
 	if mark:
 		luma = 0.299 * r + 0.587 * g + 0.114 * b
 		fr, fg, fb = (0, 0, 0) if luma > 130 else (255, 255, 255)
@@ -646,11 +647,12 @@ def emit_truecolor_diff(prev_cells, new_cells):
 	return "".join(out)
 
 
-def indexed_cell_seq(y, x, text, idx, mark=False):
+def indexed_cell_seq(y, x, text, idx, mark=False, attrs=""):
 	"""Raw ANSI escape using the xterm-256 8-bit indexed colour. With mark,
 	sets a contrast fg (xterm 16 black or 231 white per luma) so the cursor
-	glyph stays visible on the banded backdrop."""
-	seq = f"\033[{y+1};{x+1}H\033[48;5;{idx}m"
+	glyph stays visible on the banded backdrop. attrs is an optional SGR
+	prefix (e.g. "1;7;") to apply bold/italic/reverse."""
+	seq = f"\033[{y+1};{x+1}H\033[{attrs}48;5;{idx}m"
 	if mark:
 		r, g, b = xterm_to_rgb(idx)
 		luma = 0.299 * r + 0.587 * g + 0.114 * b
@@ -1198,17 +1200,18 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 
 		write_at(term_h - 3, 0, line1[:row_room].ljust(row_room))
 		## Overpaint the selection token as a live swatch: selected colour as
-		## background, contrasting black/white fg (same as the >< cursor).
+		## background, contrasting black/white fg (same as the >< cursor), plus
+		## the b/i/r style attrs so it previews the codes we display.
 		sel_disp = sel_str or "(typing...)"
 		sel_col = len(f" [{mode}{dims}]  ")
 		sel_vis = sel_disp[:max(0, row_room - sel_col)]
 		if sel_vis:
 			if mode == "truecolor":
 				sys.stdout.write(truecolor_cell_seq(term_h - 3, sel_col, sel_vis,
-				                                    cur_r, cur_g, cur_b, mark=True))
+				                                    cur_r, cur_g, cur_b, mark=True, attrs=sgr))
 			else:
 				sys.stdout.write(indexed_cell_seq(term_h - 3, sel_col, sel_vis,
-				                                  sel_idx, mark=True))
+				                                  sel_idx, mark=True, attrs=sgr))
 		write_at(term_h - 2, 0, help_line[:row_room].ljust(row_room), dim=True)
 
 		if mode == "swatch":
