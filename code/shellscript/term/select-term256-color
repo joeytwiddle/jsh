@@ -813,6 +813,9 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 	hex_buf = ""
 	status_msg = ""
 
+	## SGR style toggles (b/i/r) folded into the displayed FG/BG escape codes.
+	attr_bold = attr_italic = attr_reverse = False
+
 	## Logical dimensions of the hue ramp and the plane (in raw cell-cols).
 	## Used to decide whether to scroll the visible window.
 	## hue_total_cells = total width of the hue ramp in cells-only space (i.e.
@@ -967,6 +970,7 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		faster than we can paint."""
 		nonlocal status_msg, hex_mode, hex_buf, mode, current_rgb
 		nonlocal sel_idx, intended_col, hue_idx, sv_x, sv_y, num_buf
+		nonlocal attr_bold, attr_italic, attr_reverse
 
 		status_msg = ""
 
@@ -1030,6 +1034,15 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 			commit_num_buf()
 			hex_mode = True
 			hex_buf = ""
+			return None
+		if ch == ord('b'):
+			attr_bold = not attr_bold
+			return None
+		if ch == ord('i'):
+			attr_italic = not attr_italic
+			return None
+		if ch == ord('r'):
+			attr_reverse = not attr_reverse
 			return None
 		if ch in (10, 13, ord(' ')):
 			if mode == "swatch" and num_buf:
@@ -1140,12 +1153,17 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		line1 = f" [{mode}{dims}]  {sel_str or '(typing...)'}{extras}"
 		## Escape codes to set the colour as FG / BG. 24-bit in truecolor mode;
 		## the simpler 8-bit indexed form in hsv/swatch (their output is an
-		## index anyway). Literal backslash-e so the terminal shows the code
-		## rather than acting on it; copy into printf / echo -e.
+		## index anyway). b/i/r fold the bold/italic/reverse SGR params (1/3/7)
+		## in front. Literal backslash-e so the terminal shows the code rather
+		## than acting on it; copy into printf / echo -e.
+		sgr = ";".join(p for p, on in (("1", attr_bold), ("3", attr_italic),
+		                                ("7", attr_reverse)) if on)
+		sgr = sgr + ";" if sgr else ""
 		if mode == "truecolor":
-			line1 += f"  FG \\e[38;2;{cur_r};{cur_g};{cur_b}m  BG \\e[48;2;{cur_r};{cur_g};{cur_b}m"
+			fg, bg = f"38;2;{cur_r};{cur_g};{cur_b}", f"48;2;{cur_r};{cur_g};{cur_b}"
 		else:
-			line1 += f"  FG \\e[38;5;{sel_idx}m  BG \\e[48;5;{sel_idx}m"
+			fg, bg = f"38;5;{sel_idx}", f"48;5;{sel_idx}"
+		line1 += f"  FG \\e[{sgr}{fg}m  BG \\e[{sgr}{bg}m"
 		if num_buf:
 			line1 += f"   typing: {num_buf}_"
 		if hex_mode:
@@ -1153,11 +1171,11 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 		if status_msg:
 			line1 += f"   ({status_msg})"
 		if mode == "swatch":
-			help_line = " arrows/hjkl/wasd move (Shift=jump)  0-9 num" + \
+			help_line = " arrows/hjkl/wasd move (Shift=jump)  0-9 num  b/i/r style" + \
 			            ("  # hex" if allow_hex else "") + \
 			            f"  Tab→{next_mode}  Enter accept  Esc cancel"
 		else:
-			help_line = " arrows/hjkl/wasd SV  ,./qe/uo hue (Shift=jump)  +/- zoom" + \
+			help_line = " arrows/hjkl/wasd SV  ,./qe/uo hue (Shift=jump)  +/- zoom  b/i/r style" + \
 			            ("  # hex" if allow_hex else "") + \
 			            f"  Tab→{next_mode}  Enter  Esc"
 
