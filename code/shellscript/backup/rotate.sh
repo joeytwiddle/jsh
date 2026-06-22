@@ -80,6 +80,14 @@ function logfriendly_gzip () {
 		wait
 }
 
+## Portable mtime read/write (work with both GNU coreutils and BSD/macOS tools).
+function get_mtime () { # <file> -> epoch seconds
+	stat -c %Y "$1" 2>/dev/null || stat -f %m "$1"   # GNU || BSD
+}
+function set_mtime () { # <file> <epoch seconds>
+	touch -d "@$2" "$1" 2>/dev/null || touch -t "$(date -r "$2" +%Y%m%d%H%M.%S)" "$1"   # GNU || BSD
+}
+
 for FILE
 do
 
@@ -163,7 +171,7 @@ do
 	## Do the compression, if needed:
 	if [ -n "$DOZIPCOM" ]
 	then
-		INPUT_FILE_DATE=`LC_TIME=C date -r "$FILE"`
+		[ -n "$KEEP_DATE" ] && INPUT_FILE_MTIME="$(get_mtime "$FILE")"
 
 		# echo "[rotate] % $ZIPCOM \"$FILE\""
 		# echo "[rotate] % $ZIPCOM"
@@ -174,9 +182,7 @@ do
 		newSize=`filesize "$FINALFILE"`
 		# [ "$oldSize" = "$newSize" ] || echo "[rotate] Size changed from $oldSize to $newSize"
 
-		if [ -n "$KEEP_DATE" ]
-		then touch -d "$INPUT_FILE_DATE" "$FINALFILE"
-		fi
+		[ -n "$KEEP_DATE" ] && set_mtime "$FINALFILE" "$INPUT_FILE_MTIME"
 	fi
 
 	## If we wanted to keep the original file, but gzip has removed it:
