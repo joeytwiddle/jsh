@@ -1,2 +1,2 @@
 #!/bin/sh
-ls -artFh --color --block-size="'1" "$@"
+ls -artFh --color $jsh_ls_extra_opts "$@"

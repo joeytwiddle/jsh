@@ -245,12 +245,19 @@ jshssh () {
 }
 alias ssh='jshssh'
 
-# My preferred ls options with one exception: Don't list dotfiles in the home folder
+# I like to display file size in bytes, because it makes large files easily distinguishable from smaller
+# This is possible on Linux with --block-size, but not on macOS
+# Note that jsh_ls_extra_opts is also used by nicels
+jsh_ls_extra_opts=''
+#if ls --help | grep block-size >/dev/null 2>&1
+if [ "$(uname)" = Linux ]
+then jsh_ls_extra_opts="--block-size='1"
+fi
 myls() {
-	## I always use '-a' except when looking at '~'.  To -a my dotfiles, pass any argument, e.g. '.' or '-a'.
+	# Don't list dotfiles in the home folder, unless any argument (e.g. -a) is passed
 	if ( [ "$PWD" = "$HOME" ] && [ -z "$1" ] ) || [ "$*" = "$HOME" ]
-	then 'ls' -lrtFh --color --block-size="'1" "$@"
-	else 'ls' -lartFh --color --block-size="'1" "$@"
+	then 'ls' -lrtFh --color $jsh_ls_extra_opts "$@"
+	else 'ls' -lartFh --color $jsh_ls_extra_opts "$@"
 	fi
 }
 alias l='myls'
