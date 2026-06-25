@@ -428,6 +428,11 @@ alias lvim="vim -c \"normal '0\""
 alias fumount='fusermount -u'
 
 
+# Open session picker when re-attaching to tmux
+alias tmuxa="tmux a"
+alias tmuxaa="tmux attach ';' choose-session -F '#{session_windows} windows#{?session_attached, (attached),} #{window_name} #{pane_current_path}'"
+alias tmuxaaa="tmux attach ';' choose-tree"
+
 # Open tmux in 256 color mode
 alias tmux='tmux -2'
 
