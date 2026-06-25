@@ -17,7 +17,11 @@ XTTITLEPROMPT_SHOW_JOBS=1
 ## terms, so we whitelist modern stuff with known xttitle support, and drop
 ## people's ssh streams or legacy connections.  If they have vt100 we assume no
 ## xttitle support?
-if [ "$TERM" = xterm ] || [ "$TERM" = "xterm-256color" ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ] || [ "$TERM" = "tmux" ] || [ "$TERM" = "tmux-256color" ]
+##
+## Right now I don't recommend running xttitleprompt in tmux.  In my current setup on macOS, the prompt will be passed to iTerm's tab, which isn't so useful. It might be more useful if the terminal tab showed us the tmux session name, and the tmux window (tab) displayed the latest prompt.
+# || [ "$TERM" = "tmux" ] || [ "$TERM" = "tmux-256color" ]
+##
+if [ "$TERM" = xterm ] || [ "$TERM" = "xterm-256color" ] || [ "$TERM" = Eterm ] || [ "$TERM" = screen ] || [ "$TERM" = "screen-256color" ]
 then
 
 	# XTTITLE_HEAD=""
