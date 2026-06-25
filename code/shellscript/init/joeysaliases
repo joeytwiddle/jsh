@@ -424,6 +424,55 @@ alias vv='vanillavim'
 # Open vim with last opened file (I never remember to use this)
 alias lvim="vim -c \"normal '0\""
 
+# editvar PATTERN... — edit matching environment variables in vim, then apply the edits to the current shell.
+# Each PATTERN is matched case-insensitively as a substring of the variable NAME.  :wq applies, :cq cancels.
+# Delete a line to leave that variable unchanged.  Values are applied with a literal assignment (not raw eval), so spaces/quotes/$ survive.
+editvar() {
+	if [ -z "$1" ]
+	then echo "Usage: editvar PATTERN...  (edit env vars whose NAME contains any PATTERN, case-insensitive)" >&2
+		return 1
+	fi
+
+	local app_tmp_dir="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp/user-${UID:-$(id -u)}}}/editvar"
+	mkdir -p "$app_tmp_dir" && chmod 700 "$app_tmp_dir"
+	local tmpfile="$app_tmp_dir/vars.$$.sh"
+
+	local lpats
+	lpats="$(printf '%s\n' "$@" | tr '[:upper:]' '[:lower:]')"
+
+	{
+		echo "# editvar: change values below, then :wq to apply to your shell (:cq to cancel)."
+		echo "# Delete a line to leave that variable unchanged."
+		# env emits NAME=value; we match PATTERN against NAME only.  (Multiline values are not handled, but env vars rarely contain newlines.)
+		env | sort | EDITVAR_PATS="$lpats" awk -F= '
+			BEGIN { n = split(ENVIRON["EDITVAR_PATS"], P, "\n") }
+			{ name = tolower($1); for (i = 1; i <= n; i++) if (P[i] != "" && index(name, P[i])) { print; next } }
+		'
+	} > "$tmpfile"
+
+	if [ "$(grep -vc '^#' "$tmpfile")" = 0 ]
+	then echo "editvar: no environment variables match: $*" >&2
+		rm -f "$tmpfile"
+		return 1
+	fi
+
+	if ! vim "$tmpfile"
+	then echo "editvar: cancelled; no changes applied." >&2
+		rm -f "$tmpfile"
+		return 1
+	fi
+
+	# Apply with a literal assignment (no eval) so spaces/quotes/$ in values are preserved verbatim.
+	local name value
+	while IFS='=' read -r name value
+	do
+		case "$name" in ''|\#*) continue;; esac
+		export "$name=$value"
+	done < "$tmpfile"
+
+	rm -f "$tmpfile"
+}
+
 
 alias fumount='fusermount -u'
 
