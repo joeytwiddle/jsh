@@ -33,10 +33,11 @@ pager() {
     #export COLUMNS="$(tput cols)"
     if which bat >/dev/null 2>&1
     then
-        [ -z "$BAT_THEME" ] && BAT_THEME="Monokai Extended Bright"
-        # Although the env var is supposed to be enough, I found (bat 0.24.0 on macOS) we had to pass the option anyway
+        # We used to set default theme here, but better to add --theme to ~/.config/bat/config
         # If you want to make a custom theme, consider this approach: https://github.com/catppuccin/bat
-        bat --theme="$BAT_THEME" --pager="less -REX" -f --style=plain "$1"
+        #[ -z "$BAT_THEME" ] && BAT_THEME="Monokai Extended Bright"
+        #--theme="$BAT_THEME"
+        bat --pager="less -REX" -f --style=plain "$1"
     else
         less -REX "$1"
     fi
