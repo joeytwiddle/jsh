@@ -28,6 +28,10 @@ is_image() {
     file --mime-type "$1" | grep 'image/[^ ]*$' >/dev/null
 }
 
+is_markdown() {
+    grep -q -i '\.\(md\|markdown\)$' <<< "$1"
+}
+
 pager() {
     #export COLUMNS=20
     #export COLUMNS="$(tput cols)"
@@ -72,6 +76,11 @@ then
     then hexdump -C "$filename" | less -REX
     else file "$filename"
     fi
+elif [ -z "$SHOW_FILE_CONTENTS_NO_GLOW" ] && which glow >/dev/null 2>&1 && is_markdown "$filename" && /usr/bin/grep -q '^|-\+|-\+|' "$filename"
+then
+    # glow renders Markdown tables better than bat does
+    # (mdcat also formats tables, but it does not wrap text in cells)
+    CLICOLOR_FORCE=1 glow -w $COLUMNS -s dark "$filename" | less -REX
 elif [ -d "$filename" ]
 then
     (
