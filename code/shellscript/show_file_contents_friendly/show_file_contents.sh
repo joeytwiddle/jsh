@@ -47,14 +47,22 @@ pager() {
     fi
 }
 
+nicels() {
+    ls -artFh --color "$@"
+}
+
 if [ -z "$filename" ]
 then
     # Presumably we are being piped input
-    pager -
+    # For some reason, putting `less -REX` inside the pager() function, or just leaving it to bat, doesn't always have great tty integration, so it's better to do it explicitly here
+    pager - | less -REX
 elif [ ! -e "$filename" ] && [ ! -L "$filename" ]
 then
     echo "No such file or directory: ${filename}" >&2
     exit 1
+elif [ ! -e "$filename" ] && [ -L "$filename" ]
+then
+    nicels -ld "$filename"
 elif is_archive "$filename"
 then
     #nicels -l "$filename"
