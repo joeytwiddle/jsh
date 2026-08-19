@@ -84,11 +84,16 @@ then
     then hexdump -C "$filename" | less -REX
     else file "$filename"
     fi
-elif [ -z "$SHOW_FILE_CONTENTS_NO_GLOW" ] && which glow >/dev/null 2>&1 && is_markdown "$filename" && /usr/bin/grep -q '^[[:space:]]*|[[:space:]]*-\+[[:space:]]*|[[:space:]]*-\+[[:space:]]*|' "$filename"
+elif [ -z "$SHOW_FILE_CONTENTS_SKIP_MARKDOWN_TABLE_FORMATTING" ] && is_markdown "$filename" && /usr/bin/grep -q '^[[:space:]]*|[[:space:]]*-\+[[:space:]]*|[[:space:]]*-\+[[:space:]]*|' "$filename"
 then
     # glow renders Markdown tables better than bat does
     # (mdcat also formats tables, but it does not wrap text in cells)
-    CLICOLOR_FORCE=1 glow -w $COLUMNS -s dark "$filename" | less -REX
+    if command -v polish-markdown-tables >/dev/null 2>&1
+    then polish-markdown-tables "$filename" | bat --plain --language=markdown
+    elif which glow >/dev/null 2>&1
+    then CLICOLOR_FORCE=1 glow -w $COLUMNS -s dark "$filename" | less -REX
+    else SHOW_FILE_CONTENTS_SKIP_MARKDOWN_TABLE_FORMATTING=1 "$0" "$@"
+    fi
 elif [ -d "$filename" ]
 then
     (
