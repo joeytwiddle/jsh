@@ -1,0 +1,681 @@
+#!/usr/bin/env python3
+"""polish-markdown-tables - reflow markdown tables to fit a target width.
+
+Passes the input through verbatim except for pipe-table blocks, which are
+re-emitted with padded, aligned columns and cells word-wrapped (with long
+words hard-broken using a trailing '-') so every emitted line fits the
+target width.
+
+By default tables are rendered as a presentation-style box with `--border
+line` using box-drawing characters and full top/bottom/side borders. Use
+`--border none` for parseable GFM pipe tables (each wrapped cell line then
+simply becomes an extra markdown row), or `--border ascii` for a plain
+ASCII box.
+
+Usage:
+    polish-markdown-tables [-C N | --columns N] [-s STRATEGY] [--beam-width N]
+            [--min-col-width N] [--border none|ascii|line]
+            [--color auto|always|never] [--debug] [FILE]
+
+    FILE        Markdown file to reformat (default: read stdin)
+    -C, --columns N    Target line width. Resolution order:
+                       -C/--columns > $COLUMNS > `tput cols` > 80
+    -s, --strategy     Width-balancing strategy:
+                       naive      all columns share the width equally
+                       weighted   weight each column by log(1 + chars) of
+                                  its text, so text-heavy columns get more
+                       nuanced    weighted, then snap a column up to its next
+                                  wrap-breakpoint if the bump is worthwhile,
+                                  funded by trimming slack columns
+                       smart      beam search that picks the widths producing
+                                  the shortest wrapped table (default)
+    --beam-width N     Beam width for the smart search (default 64)
+    --min-col-width N  Minimum column width (default 2)
+    -b, --border       Table border style:
+                       none       parseable GFM pipe table (with ':' alignment)
+                       ascii      full box using +, -, |
+                       line       box-drawing box using ┌┐└┘├┤┬┴┼─│ (default)
+    --color            Color mode (bold header, dim borders/delimiter):
+                       auto       color iff stdout is a TTY, honoring
+                                  NO_COLOR / CLICOLOR / CLICOLOR_FORCE (default)
+                       always     always emit ANSI color
+                       never      never emit ANSI color
+    --debug            Print each strategy's widths + resulting height to stderr
+"""
+
+from __future__ import annotations
+
+import argparse
+import math
+import os
+import re
+import subprocess
+import sys
+from functools import lru_cache
+
+
+# ---------------------------------------------------------------------------
+# Word wrapping (with hard-break for overlong words)
+# ---------------------------------------------------------------------------
+
+@lru_cache(maxsize=None)
+def wrap(text: str, width: int) -> list[str]:
+    """Greedy word-wrap `text` into lines of at most `width` characters.
+
+    A word longer than `width` is hard-broken into chunks of `width - 1`
+    characters plus a trailing '-'; the final chunk carries no hyphen.  This
+    guarantees every returned line is <= width.
+    """
+    if width < 1:
+        return [text]
+    if not text:
+        return [""]
+    chunk = max(1, width - 1)
+    hyphen = "-" if width >= 2 else ""
+    words = text.split(" ")
+    lines: list[str] = []
+    cur = ""
+    for word in words:
+        if len(word) <= width:
+            if cur:
+                if len(cur) + 1 + len(word) <= width:
+                    cur += " " + word
+                    continue
+                lines.append(cur)
+            cur = word
+            continue
+        # hard-break the overlong word
+        if cur:
+            lines.append(cur)
+            cur = ""
+        while len(word) > width:
+            lines.append(word[:chunk] + hyphen)
+            word = word[chunk:]
+        cur = word
+    if cur:
+        lines.append(cur)
+    return lines
+
+
+def lines(text: str, width: int) -> int:
+    return len(wrap(text, width))
+
+
+# ---------------------------------------------------------------------------
+# GFM pipe-table parsing
+# ---------------------------------------------------------------------------
+
+def split_pipes(s: str) -> list[str]:
+    """Split on unescaped '|' (a '|' preceded by an odd number of '\\')."""
+    cells: list[str] = []
+    cur: list[str] = []
+    i = 0
+    n = len(s)
+    while i < n:
+        ch = s[i]
+        if ch == "|":
+            j = i - 1
+            back = 0
+            while j >= 0 and s[j] == "\\":
+                back += 1
+                j -= 1
+            if back % 2 == 0:
+                cells.append("".join(cur))
+                cur = []
+                i += 1
+                continue
+            cur.append(ch)
+            i += 1
+            continue
+        cur.append(ch)
+        i += 1
+    cells.append("".join(cur))
+    return cells
+
+
+def parse_row(line: str) -> list[str]:
+    """Parse one pipe-table row into trimmed cell strings."""
+    s = line.strip()
+    if s.startswith("|"):
+        s = s[1:]
+    if s.endswith("|") and not s.endswith("\\|"):
+        s = s[:-1]
+    return [c.strip() for c in split_pipes(s)]
+
+
+def parse_delim(line: str) -> list[str] | None:
+    """Parse a delimiter row into alignment markers, or None if invalid."""
+    cells = parse_row(line)
+    aligns: list[str] = []
+    for c in cells:
+        if not c or not re.fullmatch(r":?-+:?", c):
+            return None
+        left = c.startswith(":")
+        right = c.endswith(":")
+        if left and right:
+            aligns.append("center")
+        elif left:
+            aligns.append("left")
+        elif right:
+            aligns.append("right")
+        else:
+            aligns.append("left")
+    return aligns
+
+
+def looks_like_row(line: str) -> bool:
+    s = line
+    if len(s) - len(s.lstrip(" ")) >= 4:  # indented code block
+        return False
+    if s.lstrip(" ").startswith(">"):  # blockquote (tables in quotes: unsupported)
+        return False
+    return "|" in s
+
+
+# ---------------------------------------------------------------------------
+# Height / cost
+# ---------------------------------------------------------------------------
+
+def table_height(cells: list[list[str]], widths: list[int]) -> int:
+    """Total wrapped height = sum over rows of the tallest cell in that row."""
+    n = len(cells)
+    total = 0
+    for r in range(len(cells[0])):
+        rowmax = 0
+        for j in range(n):
+            rowmax = max(rowmax, lines(cells[j][r], widths[j]))
+        total += rowmax
+    return total
+
+
+def height_with(cells: list[list[str]], widths: list[int], j: int, wj: int) -> int:
+    """Height if column j were set to width wj, others unchanged."""
+    n = len(cells)
+    total = 0
+    for r in range(len(cells[0])):
+        rme = 0
+        for k in range(n):
+            if k == j:
+                continue
+            rme = max(rme, lines(cells[k][r], widths[k]))
+        total += max(rme, lines(cells[j][r], wj))
+    return total
+
+
+# ---------------------------------------------------------------------------
+# Width allocators
+# ---------------------------------------------------------------------------
+
+def clamp_and_fill(w: list[int], mins: list[int], sats: list[int], budget: int) -> list[int]:
+    """Clamp widths into [min, sat] and adjust to use <= budget."""
+    n = len(w)
+    w = [max(mins[j], min(w[j], sats[j])) for j in range(n)]
+    over = sum(w) - budget
+    while over > 0:
+        cands = [j for j in range(n) if w[j] > mins[j]]
+        if not cands:
+            break
+        j = max(cands, key=lambda j: (w[j] - mins[j], w[j]))
+        w[j] -= 1
+        over -= 1
+    rem = budget - sum(w)
+    while rem > 0:
+        cands = [j for j in range(n) if w[j] < sats[j]]
+        if not cands:
+            break
+        j = min(cands, key=lambda j: w[j])
+        w[j] += 1
+        rem -= 1
+    return w
+
+
+def strategy_naive(cells, mins, sats, budget):
+    n = len(mins)
+    base, rem = divmod(budget, n)
+    w = [base + (1 if j < rem else 0) for j in range(n)]
+    return clamp_and_fill(w, mins, sats, budget)
+
+
+def strategy_weighted(cells, mins, sats, budget):
+    weights = [math.log(1 + sum(len(c) for c in col)) for col in cells]
+    denom = sum(weights) or 1.0
+    avail = budget - sum(mins)
+    if avail <= 0:
+        return list(mins)
+    w = [mins[j] + int(avail * weights[j] / denom) for j in range(len(cells))]
+    return clamp_and_fill(w, mins, sats, budget)
+
+
+def strategy_nuanced(cells, mins, sats, budget, max_iters=60):
+    w = strategy_weighted(cells, mins, sats, budget)
+    n = len(cells)
+    bps = column_breakpoints_list(cells, mins, sats, budget)
+    for _ in range(max_iters):
+        best = None
+        for j in range(n):
+            if w[j] >= sats[j]:
+                continue
+            cur_h = height_with(cells, w, j, w[j])
+            for wj in bps[j]:
+                if wj <= w[j]:
+                    continue
+                nh = height_with(cells, w, j, wj)
+                if nh < cur_h:
+                    benefit = cur_h - nh
+                    cost = wj - w[j]
+                    score = benefit / cost
+                    if best is None or score > best[0]:
+                        best = (score, benefit, cost, j, wj)
+                    break  # smallest beneficial bump for this column
+        if best is None:
+            break
+        _, benefit, cost, j, wj = best
+        old = list(w)
+        remaining = cost
+        slack = budget - sum(w)
+        while remaining > 0:
+            if slack > 0:
+                slack -= 1
+                remaining -= 1
+                continue
+            cands = [k for k in range(n) if k != j and w[k] > mins[k]]
+            if not cands:
+                break
+            # take from the column whose shrink costs the least height
+            k = min(
+                cands,
+                key=lambda k: (
+                    height_with(cells, w, k, w[k] - 1) - height_with(cells, w, k, w[k]),
+                    k,
+                ),
+            )
+            w[k] -= 1
+            remaining -= 1
+        if remaining > 0:
+            w = old  # could not afford the bump
+            break
+        w[j] = wj
+        if table_height(cells, w) >= table_height(cells, old):
+            w = old  # not a real improvement once funding loss counted
+            break
+    return w
+
+
+def column_breakpoints_list(cells, mins, sats, budget):
+    """Sorted candidate widths per column (wrap-breakpoints + min + saturated)."""
+    bps = []
+    for j in range(len(cells)):
+        wsat = min(sats[j], budget)
+        lo = mins[j]
+        if lo > wsat:
+            bps.append([lo])
+            continue
+        seen = set()
+        prev = None
+        for w in range(lo, wsat + 1):
+            tot = sum(lines(cell, w) for cell in cells[j])
+            if prev is not None and tot != prev:
+                seen.add(w)
+            prev = tot
+        cands = sorted({lo, wsat} | seen)
+        bps.append(cands)
+    return bps
+
+
+def strategy_smart(cells, mins, sats, budget, beam_width=64):
+    n = len(cells)
+    row_count = len(cells[0])
+    cands = column_breakpoints_list(cells, mins, sats, budget)
+
+    # state: (used, widths_tuple, rowmaxes, height)
+    buckets = {0: [(0, (), [0] * row_count, 0)]}
+    evaluated = 0
+    for j in range(n):
+        next_buckets: dict[int, list] = {}
+        for used, states in buckets.items():
+            for state in states:
+                u0, w0, rmx0, h0 = state
+                for w in cands[j]:
+                    nu = u0 + w
+                    if nu > budget:
+                        break
+                    rmx = [max(rmx0[r], lines(cells[j][r], w)) for r in range(row_count)]
+                    h = sum(rmx)
+                    evaluated += 1
+                    _insert(next_buckets, nu, (nu, w0 + (w,), rmx, h), beam_width)
+        buckets = next_buckets
+        if not buckets:
+            return list(mins)
+
+    best = min(
+        (st for states in buckets.values() for st in states),
+        key=lambda st: (st[3], -st[0]),
+    )
+    widths = list(best[1])
+    # distribute leftover width up to each column's saturated width
+    rem = budget - sum(widths)
+    while rem > 0:
+        cands_under = [j for j in range(n) if widths[j] < sats[j]]
+        if not cands_under:
+            break
+        j = min(cands_under, key=lambda j: widths[j])
+        widths[j] += 1
+        rem -= 1
+    return widths
+
+
+def _insert(buckets: dict, key: int, state, beam_width: int):
+    lst = buckets.setdefault(key, [])
+    for s in lst:
+        if _dominates(s, state):
+            return
+    lst = [s for s in lst if not _dominates(state, s)]
+    lst.append(state)
+    lst.sort(key=lambda s: (s[3], -s[0]))
+    if len(lst) > beam_width:
+        del lst[beam_width:]
+    buckets[key] = lst
+
+
+def _dominates(a, b):
+    any_less = False
+    for x, y in zip(a[2], b[2]):
+        if x > y:
+            return False
+        if x < y:
+            any_less = True
+    return any_less or a[3] <= b[3]
+
+
+STRATEGIES = {
+    "naive": strategy_naive,
+    "weighted": strategy_weighted,
+    "nuanced": strategy_nuanced,
+    "smart": strategy_smart,
+}
+
+
+# ---------------------------------------------------------------------------
+# Rendering
+# ---------------------------------------------------------------------------
+
+def _ansi(text: str, code: str) -> str:
+    return f"\x1b[{code}m{text}\x1b[0m"
+
+
+def resolve_color(mode: str) -> bool:
+    if mode == "always":
+        return True
+    if mode == "never":
+        return False
+    if os.environ.get("CLICOLOR_FORCE"):
+        return True
+    if os.environ.get("NO_COLOR") or os.environ.get("NO_COLOUR"):
+        return False
+    if not sys.stdout.isatty():
+        return False
+    if os.environ.get("CLICOLOR", "1") == "0":
+        return False
+    return True
+
+
+BOX_CHARS = {
+    "line": {
+        "tl": "\u250c", "tm": "\u252c", "tr": "\u2510",
+        "ml": "\u251c", "mm": "\u253c", "mr": "\u2524",
+        "bl": "\u2514", "bm": "\u2534", "br": "\u2518",
+        "h": "\u2500", "v": "\u2502",
+    },
+    "ascii": {
+        "tl": "+", "tm": "+", "tr": "+",
+        "ml": "+", "mm": "+", "mr": "+",
+        "bl": "+", "bm": "+", "br": "+",
+        "h": "-", "v": "|",
+    },
+}
+
+def render_gfm(cells, widths, aligns, padding, color):
+    n = len(cells)
+    rows = len(cells[0])
+    out: list[str] = []
+    pad = " " if padding else ""
+    bold = (lambda s: _ansi(s, "1")) if color else (lambda s: s)
+    dim = (lambda s: _ansi(s, "2")) if color else (lambda s: s)
+
+    def emit_row(wrapped: list[list[str]], style=lambda s: s):
+        h = max((len(w) for w in wrapped), default=1)
+        for k in range(h):
+            row = "|"
+            for j in range(n):
+                seg = wrapped[j][k] if k < len(wrapped[j]) else ""
+                row += style(pad + _align(seg, widths[j], aligns[j]) + pad) + "|"
+            out.append(row)
+
+    header_wrapped = [wrap(cells[j][0], widths[j]) for j in range(n)]
+    body_wrapped = [[wrap(cells[j][r], widths[j]) for j in range(n)] for r in range(1, rows)]
+    emit_row(header_wrapped, bold)
+    out.append(dim("|" + "|".join(pad + _dashes(widths[j], aligns[j]) + pad for j in range(n)) + "|"))
+    for wrapped in body_wrapped:
+        emit_row(wrapped)
+    return out
+
+
+def render_box(cells, widths, aligns, padding, chars, color):
+    n = len(cells)
+    rows = len(cells[0])
+    out: list[str] = []
+    pad = " " if padding else ""
+    seg = [widths[j] + 2 * len(pad) for j in range(n)]
+    bold = (lambda s: _ansi(s, "1")) if color else (lambda s: s)
+    dim = (lambda s: _ansi(s, "2")) if color else (lambda s: s)
+
+    def content_row(wrapped: list[list[str]], style=lambda s: s):
+        h = max((len(w) for w in wrapped), default=1)
+        for k in range(h):
+            row = dim(chars["v"])
+            for j in range(n):
+                seg_ = wrapped[j][k] if k < len(wrapped[j]) else ""
+                row += style(pad + _align(seg_, widths[j], aligns[j]) + pad) + dim(chars["v"])
+            out.append(row)
+
+    def border_line(left, mid, right):
+        out.append(dim(left + (chars["h"] * seg[0]) +
+                       "".join(mid + chars["h"] * s for s in seg[1:]) + right))
+
+    header_wrapped = [wrap(cells[j][0], widths[j]) for j in range(n)]
+    body_wrapped = [[wrap(cells[j][r], widths[j]) for j in range(n)] for r in range(1, rows)]
+
+    border_line(chars["tl"], chars["tm"], chars["tr"])
+    content_row(header_wrapped, bold)
+    for r in range(1, rows):
+        border_line(chars["ml"], chars["mm"], chars["mr"])
+        content_row(body_wrapped[r - 1])
+    border_line(chars["bl"], chars["bm"], chars["br"])
+    return out
+
+
+def _align(s: str, width: int, align: str) -> str:
+    if align == "right":
+        return s.rjust(width)
+    if align == "center":
+        return s.center(width)
+    return s.ljust(width)
+
+
+def _dashes(width: int, align: str) -> str:
+    if align == "right":
+        return "-" * max(1, width - 1) + ":"
+    if align == "center":
+        return ":" + "-" * max(1, width - 2) + ":"
+    return ":" + "-" * max(1, width - 1)
+
+
+# ---------------------------------------------------------------------------
+# Table block detection / rewrite
+# ---------------------------------------------------------------------------
+
+def reformat_block(block: list[str], target: int, strategy: str, beam_width: int,
+                   min_col_width: int, debug: bool, border: str, color: bool) -> list[str]:
+    header = parse_row(block[0])
+    aligns = parse_delim(block[1])
+    if aligns is None or len(aligns) != len(header):
+        return block
+    n = len(header)
+    rows = [parse_row(line) for line in block[2:]]
+    # normalise every row to n cells (GFM: pad missing, drop extras)
+    norm = [header[:n]]
+    for r in rows:
+        nr = r[:n] + [""] * max(0, n - len(r))
+        norm.append(nr)
+    row_count = len(norm)
+    cells = [[norm[r][j] for r in range(row_count)] for j in range(n)]
+
+    sats = [max(1, max(len(c) for c in col)) for col in cells]
+    mins = [max(1, min(min_col_width, sats[j])) for j in range(n)]
+
+    padding = 1
+    overhead = (n + 1) + 2 * n
+    if target - overhead < 2 * n:
+        padding = 0
+        overhead = (n + 1)
+    budget = target - overhead
+    if budget < sum(mins):
+        mins = [1] * n
+    if budget < sum(mins):  # width too small even for 1-char columns: overflow
+        widths = list(mins)
+    else:
+        widths = STRATEGIES[strategy](cells, mins, sats, budget, beam_width) \
+            if strategy == "smart" else STRATEGIES[strategy](cells, mins, sats, budget)
+
+    if debug:
+        report = []
+        for name, fn in STRATEGIES.items():
+            if name == "smart":
+                w = fn(cells, mins, sats, budget, beam_width)
+            else:
+                w = fn(cells, mins, sats, budget)
+            report.append(f"    {name:8s} widths={w} height={table_height(cells, w)}")
+        print("\n".join(report), file=sys.stderr)
+        print(f"    budget={budget} mins={mins} sats={sats}", file=sys.stderr)
+
+    if border == "none":
+        return render_gfm(cells, widths, aligns, padding, color)
+    return render_box(cells, widths, aligns, padding, BOX_CHARS[border], color)
+
+
+def process(text: str, target: int, strategy: str, beam_width: int,
+            min_col_width: int, debug: bool, border: str, color: bool) -> str:
+    lines = text.split("\n")
+    out: list[str] = []
+    fence = None  # (char, min_count)
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if fence is not None:
+            out.append(line)
+            if _is_closing_fence(line, fence):
+                fence = None
+            i += 1
+            continue
+        opening = _is_fence_open(line)
+        if opening:
+            fence = opening
+            out.append(line)
+            i += 1
+            continue
+        if looks_like_row(line) and i + 1 < len(lines) and looks_like_row(lines[i + 1]):
+            block = [line, lines[i + 1]]
+            j = i + 2
+            while j < len(lines) and looks_like_row(lines[j]):
+                block.append(lines[j])
+                j += 1
+            out.extend(reformat_block(block, target, strategy, beam_width, min_col_width,
+                                      debug, border, color))
+            i = j
+            continue
+        out.append(line)
+        i += 1
+    return "\n".join(out)
+
+
+_FENCE_RE = re.compile(r"^\s{0,3}(`{3,}|~{3,})")
+
+
+def _is_fence_open(line: str):
+    m = _FENCE_RE.match(line)
+    if not m:
+        return None
+    return (m.group(1)[0], len(m.group(1)))
+
+
+def _is_closing_fence(line: str, fence) -> bool:
+    char, count = fence
+    m = re.match(r"^\s{0,3}(?P<f>" + re.escape(char) + r"+)\s*$", line)
+    if not m:
+        return False
+    return len(m.group("f")) >= count
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+def resolve_columns(flag) -> int:
+    if flag:
+        return flag
+    env = os.environ.get("COLUMNS")
+    if env and env.isdigit() and int(env) > 0:
+        return int(env)
+    try:
+        c = int(subprocess.check_output(["tput", "cols"]).decode().strip())
+        if c > 0:
+            return c
+    except Exception:
+        pass
+    return 80
+
+
+def main(argv=None) -> int:
+    parser = argparse.ArgumentParser(
+        prog="polish-markdown-tables",
+        description="Reflow markdown pipe tables to a target width; everything "
+                    "else passes through verbatim.",
+    )
+    parser.add_argument("-C", "--columns", type=int, metavar="N",
+                        help="target line width (default: $COLUMNS, tput cols, or 80)")
+    parser.add_argument("-s", "--strategy", choices=sorted(STRATEGIES), default="smart",
+                        help="column-balancing strategy (default: smart)")
+    parser.add_argument("--beam-width", type=int, default=64,
+                        help="beam width for the smart search (default: 64)")
+    parser.add_argument("--min-col-width", type=int, default=2,
+                        help="minimum column width (default: 2)")
+    parser.add_argument("-b", "--border", choices=["none", "ascii", "line"], default="line",
+                        help="table border style: none (GFM), ascii (+,-,|), line "
+                             "(box-drawing, default)")
+    parser.add_argument("--color", choices=["auto", "always", "never"], default="auto",
+                        help="ANSI color mode (default: auto)")
+    parser.add_argument("--debug", action="store_true",
+                        help="print per-table widths/heights for all strategies to stderr")
+    parser.add_argument("file", nargs="?", help="markdown file (default: stdin)")
+    args = parser.parse_args(argv)
+
+    if args.beam_width < 1:
+        parser.error("--beam-width must be >= 1")
+    if args.min_col_width < 1:
+        parser.error("--min-col-width must be >= 1")
+
+    target = resolve_columns(args.columns)
+    if args.file:
+        with open(args.file, "r") as f:
+            text = f.read()
+    else:
+        text = sys.stdin.read()
+
+    result = process(text, target, args.strategy, args.beam_width,
+                     args.min_col_width, args.debug, args.border, resolve_color(args.color))
+    sys.stdout.write(result)
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
