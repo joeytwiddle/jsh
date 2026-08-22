@@ -24,11 +24,18 @@ if [ -n "$git_root" ]
 then git status --porcelain --ignored 2>/dev/null > "$GITLS_CACHE_FILE"
 fi
 
+# Resolve symlinks so the prefix matches git's porcelain output, which uses
+# the real repo-root path.  Without this, if $PWD is reached via a different
+# path than $git_root (e.g. a symlink like /home/joey/j -> /home/joey/SYNC/j),
+# the prefix is empty and file lookups in the status cache miss.
+real_pwd="$(realpath "$PWD" 2>/dev/null || readlink -f "$PWD" 2>/dev/null || echo "$PWD")"
+real_git_root="$(realpath "$git_root" 2>/dev/null || echo "$git_root")"
+
 # Porcelain paths are root-relative, but the listed paths are relative to $PWD,
 # so we need the path from the repo root down to $PWD (empty when at the root).
-case "$PWD" in
-	"$git_root") cwd_prefix="" ;;
-	*) cwd_prefix="${PWD#"$git_root"/}/" ;;
+case "$real_pwd" in
+	"$real_git_root") cwd_prefix="" ;;
+	*) cwd_prefix="${real_pwd#"$real_git_root"/}/" ;;
 esac
 
 GITLS_JOBS="${GITLS_JOBS:-$(nproc 2>/dev/null || getconf _NPROCESSORS_ONLN 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo 4)}"
