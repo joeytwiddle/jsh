@@ -1,12 +1,12 @@
 #!/bin/bash
 
-jshlockfile -i adjust_brightness
+#jshlockfile -i adjust_brightness
 
 # Maybe just maybe I should use python when I have to deal with numbers.
 
 adjustment_percent="$1"
 
-if which xbacklight >/dev/null 2>&1
+if false && which xbacklight >/dev/null 2>&1
 then
 	# Do not use the provided value; instead adjust exponentially, relative to current brightness
 	if [ "$adjustment_percent" -gt 0 ]
@@ -34,8 +34,22 @@ fi
 
 min_brightness_percent=10
 
+if which brightnessctl >/dev/null 2>&1
+then
+	if [ "$adjustment_percent" -gt 0 ]
+	then adjustment_direction="+"
+	else adjustment_direction="-"
+	fi
+	adjustment_magnitude=$(echo "$adjustment_percent" | sed 's/^[+-]//')
+	verbosely brightnessctl --min-value="${min_brightness_percent}%" --exponent=4 set "${adjustment_magnitude}%${adjustment_direction}"
+	exit
+fi
+
+# This uses xrandr software brightness. It sometimes gets reset, e.g. by sunset features.
+
 current_brightness=$(xrandr --current --verbose | grep Brightness: | head -n 1 | takecols 2)
 current_brightness_percent=$(calc "$current_brightness" '*' 100 | sed 's+\..*++')
+echo "[adjust_brightness_by] current_brightness_percent: $current_brightness_percent"
 
 [ -z "$current_brightness_percent" ] && current_brightness_percent=0
 

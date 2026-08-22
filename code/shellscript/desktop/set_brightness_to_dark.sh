@@ -1,0 +1,1 @@
+xrandr --output $(xrandr --query | grep " connected" | head -n 1 | cut -d ' ' -f1) --brightness 0.2:0.1:0.05
