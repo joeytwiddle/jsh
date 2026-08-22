@@ -1,46 +1,59 @@
 #!/usr/bin/env python3
-"""polish-markdown-tables - reflow markdown tables to fit a target width.
+"""polish-markdown-tables - reflow markdown tables and text paragraphs.
 
-Passes the input through verbatim except for pipe-table blocks, which are
-re-emitted with padded, aligned columns and cells word-wrapped (with long
-words hard-broken using a trailing '-') so every emitted line fits the
-target width.
+Reflows pipe-table blocks and (optionally) text paragraphs to fit a target
+width.  Tables can be padded, word-wrapped, and rendered with box-drawing or
+ASCII borders.  Text paragraphs can be reflowed or unwrapped.  An undo mode
+converts box-drawing tables back to plain markdown.
 
-By default tables are rendered as a presentation-style box with `--border
-line` using box-drawing characters and full top/bottom/side borders. Use
-`--border none` for parseable GFM pipe tables (each wrapped cell line then
-simply becomes an extra markdown row), or `--border ascii` for a plain
-ASCII box.
+Presets:
+    --polish   padding on, wrapping on, border=line  (default; pretty,
+               breaks markdown)
+    --pad      padding on, wrapping off, border=none (legal markdown)
+
+Table toggles (override the preset defaults):
+    --pad-table-columns / --no-pad-table-columns
+    --wrap-table-cells  / --no-wrap-table-cells
+
+Border style (overrides the preset's border choice):
+    -b, --border {none,normal,ascii,line}
+
+Text (works in both normal and --undo mode):
+    --wrap-text     reflow text paragraphs to target width
+    --unwrap-text   join paragraph lines into single lines
 
 Usage:
-    polish-markdown-tables [-C N | --columns N] [-s STRATEGY] [--beam-width N]
-            [--min-col-width N] [--border none|ascii|line]
-            [--color auto|always|never] [--debug] [FILE]
+    polish-markdown-tables [options] [FILE]
 
-    FILE        Markdown file to reformat (default: read stdin)
-    -C, --columns N    Target line width. Resolution order:
+    FILE              Markdown file to reformat (default: read stdin)
+
+    -C, --columns N   Target line width. Resolution order:
                        -C/--columns > $COLUMNS > `tput cols` > 80
-    -s, --strategy     Width-balancing strategy:
-                       naive      all columns share the width equally
-                       weighted   weight each column by log(1 + chars) of
-                                  its text, so text-heavy columns get more
-                       nuanced    weighted, then snap a column up to its next
-                                  wrap-breakpoint if the bump is worthwhile,
-                                  funded by trimming slack columns
-                       smart      beam search that picks the widths producing
-                                  the shortest wrapped table (default)
-    --beam-width N     Beam width for the smart search (default 64)
-    --min-col-width N  Minimum column width (default 2)
-    -b, --border       Table border style:
-                       none       parseable GFM pipe table (with ':' alignment)
-                       ascii      full box using +, -, |
-                       line       box-drawing box using ┌┐└┘├┤┬┴┼─│ (default)
-    --color            Color mode (bold header, dim borders/delimiter):
-                       auto       color iff stdout is a TTY, honoring
-                                  NO_COLOR / CLICOLOR / CLICOLOR_FORCE (default)
-                       always     always emit ANSI color
-                       never      never emit ANSI color
-    --debug            Print each strategy's widths + resulting height to stderr
+    -s, --strategy    Width-balancing strategy (naive|weighted|nuanced|smart)
+    --beam-width N    Beam width for the smart search (default 64)
+    --min-col-width N Minimum column width (default 2)
+
+    -u, --undo        Convert box-drawing tables back to plain markdown
+
+    Presets:
+      --polish   Enable padding + wrapping + borders (line). Default.
+      --pad      Enable padding only (GFM, no borders, no wrapping).
+
+    Table toggles (override preset defaults):
+      --pad-table-columns / --no-pad-table-columns
+      --wrap-table-cells  / --no-wrap-table-cells
+
+    -b, --border {none,normal,ascii,line}
+                       Border style: none/normal (GFM), ascii (+,-,|),
+                       line (box-drawing).  Default from preset.
+
+    --color {auto,always|never}
+                       ANSI color mode (bold header, dim borders/delimiter).
+                       auto: color iff stdout is a TTY, honoring NO_COLOR,
+                       CLICOLOR, CLICOLOR_FORCE.
+    --wrap-text         Wrap text paragraphs to target width (GFM rules)
+    --unwrap-text       Unwrap text paragraphs to single lines
+    --debug             Print per-table widths/heights to stderr
 """
 
 from __future__ import annotations
@@ -515,7 +528,8 @@ def _dashes(width: int, align: str) -> str:
 # ---------------------------------------------------------------------------
 
 def reformat_block(block: list[str], target: int, strategy: str, beam_width: int,
-                   min_col_width: int, debug: bool, border: str, color: bool) -> list[str]:
+                   min_col_width: int, debug: bool, border: str, color: bool,
+                   pad: bool, wrap_cells: bool) -> list[str]:
     header = parse_row(block[0])
     aligns = parse_delim(block[1])
     if aligns is None or len(aligns) != len(header):
@@ -533,38 +547,41 @@ def reformat_block(block: list[str], target: int, strategy: str, beam_width: int
     sats = [max(1, max(len(c) for c in col)) for col in cells]
     mins = [max(1, min(min_col_width, sats[j])) for j in range(n)]
 
-    padding = 1
-    overhead = (n + 1) + 2 * n
-    if target - overhead < 2 * n:
-        padding = 0
-        overhead = (n + 1)
-    budget = target - overhead
-    if budget < sum(mins):
-        mins = [1] * n
-    if budget < sum(mins):  # width too small even for 1-char columns: overflow
-        widths = list(mins)
+    padding = 1 if pad else 0
+
+    if not wrap_cells:
+        widths = list(sats)
     else:
-        widths = STRATEGIES[strategy](cells, mins, sats, budget, beam_width) \
-            if strategy == "smart" else STRATEGIES[strategy](cells, mins, sats, budget)
+        overhead = (n + 1) + 2 * n * padding
+        budget = target - overhead
+        if budget < sum(mins):
+            mins = [1] * n
+        if budget < sum(mins):
+            widths = list(mins)
+        else:
+            widths = STRATEGIES[strategy](cells, mins, sats, budget, beam_width) \
+                if strategy == "smart" else STRATEGIES[strategy](cells, mins, sats, budget)
 
-    if debug:
-        report = []
-        for name, fn in STRATEGIES.items():
-            if name == "smart":
-                w = fn(cells, mins, sats, budget, beam_width)
-            else:
-                w = fn(cells, mins, sats, budget)
-            report.append(f"    {name:8s} widths={w} height={table_height(cells, w)}")
-        print("\n".join(report), file=sys.stderr)
-        print(f"    budget={budget} mins={mins} sats={sats}", file=sys.stderr)
+        if debug:
+            report = []
+            for name, fn in STRATEGIES.items():
+                if name == "smart":
+                    w = fn(cells, mins, sats, budget, beam_width)
+                else:
+                    w = fn(cells, mins, sats, budget)
+                report.append(f"    {name:8s} widths={w} height={table_height(cells, w)}")
+            print("\n".join(report), file=sys.stderr)
+            print(f"    budget={budget} mins={mins} sats={sats}", file=sys.stderr)
 
-    if border == "none":
+    if border in ("none", "normal"):
         return render_gfm(cells, widths, aligns, padding, color)
     return render_box(cells, widths, aligns, padding, BOX_CHARS[border], color)
 
 
 def process(text: str, target: int, strategy: str, beam_width: int,
-            min_col_width: int, debug: bool, border: str, color: bool) -> str:
+            min_col_width: int, debug: bool, border: str, color: bool,
+            pad: bool, wrap_cells: bool, wrap_text: bool,
+            unwrap_text: bool) -> str:
     lines = text.split("\n")
     out: list[str] = []
     fence = None  # (char, min_count)
@@ -590,9 +607,15 @@ def process(text: str, target: int, strategy: str, beam_width: int,
                 block.append(lines[j])
                 j += 1
             out.extend(reformat_block(block, target, strategy, beam_width, min_col_width,
-                                      debug, border, color))
+                                      debug, border, color, pad, wrap_cells))
             i = j
             continue
+        if wrap_text or unwrap_text:
+            para, j = _collect_paragraph(lines, i)
+            if para:
+                out.extend(_reflow_paragraph(para, target, wrap_text, unwrap_text))
+                i = j
+                continue
         out.append(line)
         i += 1
     return "\n".join(out)
@@ -617,6 +640,212 @@ def _is_closing_fence(line: str, fence) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Paragraph helpers (--wrap-text / --unwrap-text)
+# ---------------------------------------------------------------------------
+
+def _is_list_item(line: str) -> bool:
+    s = line.lstrip()
+    if len(s) >= 2 and s[0] in "-*+" and s[1] in " \t":
+        return True
+    return bool(re.match(r"\d+[.)]\s", s))
+
+
+def _is_thematic_break(line: str) -> bool:
+    s = line.lstrip()
+    return bool(re.fullmatch(r"[-*_](\s*[-*_]){2,}\s*", s))
+
+
+def _is_box_line(line: str) -> bool:
+    """True if line looks like a box-drawing table line (line or ascii mode).
+
+    Covers line-mode content (│) and border (┌├└) lines, and ascii-mode
+    border (+) lines. Ascii-mode content (|) is already caught by
+    looks_like_row.
+    """
+    s = line.strip()
+    if not s:
+        return False
+    return s[0] in "\u2502\u250c\u251c\u2514+"
+
+
+def _is_paragraph_boundary(line: str, lines: list[str], j: int) -> bool:
+    if not line.strip():
+        return True
+    if _is_fence_open(line):
+        return True
+    if line.lstrip().startswith("#"):
+        return True
+    if line.lstrip().startswith(">"):
+        return True
+    if _is_list_item(line):
+        return True
+    if _is_thematic_break(line):
+        return True
+    if _is_box_line(line):
+        return True
+    if looks_like_row(line) and j + 1 < len(lines) and looks_like_row(lines[j + 1]):
+        return True
+    return False
+
+
+def _collect_paragraph(lines: list[str], start: int) -> tuple[list[str], int]:
+    para = []
+    j = start
+    while j < len(lines) and not _is_paragraph_boundary(lines[j], lines, j):
+        para.append(lines[j])
+        j += 1
+    return para, j
+
+
+def _reflow_paragraph(para: list[str], target: int, wrap_text: bool,
+                      unwrap_text: bool) -> list[str]:
+    text = " ".join(line.strip() for line in para)
+    if unwrap_text:
+        return [text]
+    return wrap(text, target)
+
+
+# ---------------------------------------------------------------------------
+# Undo mode
+# ---------------------------------------------------------------------------
+
+def _is_top_border(line):
+    s = line.strip()
+    if s.startswith("\u250c") and s.endswith("\u2510") and all(c in "\u2500\u252c\u250c\u2510" for c in s):
+        return "\u2502"
+    if s.startswith("+") and s.endswith("+") and all(c in "+-" for c in s) and "-" in s:
+        return "|"
+    return None
+
+
+def _is_border_line(line, vchar):
+    s = line.strip()
+    if not s:
+        return False
+    if vchar == "\u2502":
+        return (s[0] in "\u250c\u251c\u2514" and s[-1] in "\u2510\u2524\u2518"
+                and all(c in "\u2500\u252c\u253c\u2534\u250c\u251c\u2514\u2510\u2524\u2518" for c in s))
+    return all(c in "+-" for c in s) and "+" in s and "-" in s
+
+
+def _is_content_line(line, vchar):
+    return line.strip().startswith(vchar)
+
+
+_MD_DELIM_RE = re.compile(r"^\s{0,3}\|?\s*:?-+:?(\s*\|\s*:?-+:?)*\s*\|?\s*$")
+
+
+def _split_box_row(line, vchar):
+    s = line.strip()
+    if s.startswith(vchar):
+        s = s[1:]
+    if s.endswith(vchar):
+        s = s[:-1]
+    if vchar == "|":
+        return [c.strip() for c in split_pipes(s)]
+    return [c.strip() for c in s.split(vchar)]
+
+
+def _unwrap_sub_lines(sub_lines):
+    result = sub_lines[0]
+    for nxt in sub_lines[1:]:
+        if result.endswith("-"):
+            result = result[:-1] + nxt
+        else:
+            result = result + " " + nxt
+    return result
+
+
+def _parse_box_block(block):
+    vchar = _is_top_border(block[0])
+    if vchar is None:
+        return None
+    groups = []
+    current = []
+    for line in block:
+        if _is_border_line(line, vchar):
+            if current:
+                groups.append(current)
+                current = []
+        elif _is_content_line(line, vchar):
+            current.append(line)
+        else:
+            return None
+    if current:
+        groups.append(current)
+    if not groups:
+        return None
+    ncols = len(_split_box_row(groups[0][0], vchar))
+    norm = []
+    for grp in groups:
+        rows = []
+        for line in grp:
+            parts = _split_box_row(line, vchar)
+            rows.append(parts[:ncols] + [""] * max(0, ncols - len(parts)))
+        rowvals = []
+        for j in range(ncols):
+            sub = [r[j] for r in rows]
+            rowvals.append(_unwrap_sub_lines(sub))
+        norm.append(rowvals)
+    row_count = len(norm)
+    return [[norm[r][j] for r in range(row_count)] for j in range(ncols)]
+
+
+def _render_standard(cells):
+    n = len(cells)
+    widths = [max(1, max(len(c) for c in col)) for col in cells]
+    return render_gfm(cells, widths, ["left"] * n, 1, False)
+
+
+def process_undo(text, target=80, wrap_text=False, unwrap_text=False):
+    lines = text.split("\n")
+    out = []
+    fence = None
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        if fence is not None:
+            out.append(line)
+            if _is_closing_fence(line, fence):
+                fence = None
+            i += 1
+            continue
+        opening = _is_fence_open(line)
+        if opening:
+            fence = opening
+            out.append(line)
+            i += 1
+            continue
+        if _is_top_border(line):
+            vchar = _is_top_border(line)
+            block = [line]
+            j = i + 1
+            while j < len(lines):
+                lj = lines[j]
+                if vchar == "|" and _MD_DELIM_RE.match(lj.strip()):
+                    break
+                if _is_border_line(lj, vchar) or _is_content_line(lj, vchar):
+                    block.append(lj)
+                    j += 1
+                else:
+                    break
+            cells = _parse_box_block(block)
+            if cells is not None:
+                out.extend(_render_standard(cells))
+                i = j
+                continue
+        if wrap_text or unwrap_text:
+            para, j = _collect_paragraph(lines, i)
+            if para:
+                out.extend(_reflow_paragraph(para, target, wrap_text, unwrap_text))
+                i = j
+                continue
+        out.append(line)
+        i += 1
+    return "\n".join(out)
+
+
+# ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
 
@@ -638,8 +867,12 @@ def resolve_columns(flag) -> int:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(
         prog="polish-markdown-tables",
-        description="Reflow markdown pipe tables to a target width; everything "
-                    "else passes through verbatim.",
+        description=(
+            "Reflow markdown pipe tables and text paragraphs to a target width. "
+            "Tables can be padded, word-wrapped, and rendered with box-drawing "
+            "or ASCII borders. Text paragraphs can be reflowed or unwrapped. "
+            "An undo mode converts box-drawing tables back to plain markdown."
+        ),
     )
     parser.add_argument("-C", "--columns", type=int, metavar="N",
                         help="target line width (default: $COLUMNS, tput cols, or 80)")
@@ -649,11 +882,45 @@ def main(argv=None) -> int:
                         help="beam width for the smart search (default: 64)")
     parser.add_argument("--min-col-width", type=int, default=2,
                         help="minimum column width (default: 2)")
-    parser.add_argument("-b", "--border", choices=["none", "ascii", "line"], default="line",
-                        help="table border style: none (GFM), ascii (+,-,|), line "
-                             "(box-drawing, default)")
+    parser.add_argument("-u", "--undo", action="store_true",
+                        help="convert box-drawing tables back to plain markdown "
+                             "(combine with --wrap-text or --unwrap-text for prose)")
+
+    presets = parser.add_argument_group("presets")
+    presets.add_argument("--polish", action="store_true",
+                         help="padding on, wrapping on, borders on (line); "
+                              "breaks markdown but pretty (default)")
+    presets.add_argument("--pad", action="store_true",
+                         help="padding on, wrapping off, borders off; "
+                              "produces legal markdown")
+
+    toggles = parser.add_argument_group("table toggles (override preset defaults)")
+    toggles.add_argument("--pad-table-columns", action=argparse.BooleanOptionalAction,
+                         default=None,
+                         help="force column padding on or off")
+    toggles.add_argument("--wrap-table-cells", action=argparse.BooleanOptionalAction,
+                         default=None,
+                         help="force cell word-wrapping on or off (off = saturated widths)")
+
+    parser.add_argument("-b", "--border",
+                        choices=["none", "normal", "ascii", "line"],
+                        default=None,
+                        help="border style when borders are on: none/normal "
+                             "(GFM pipe table), ascii (+,-,|), line (box-drawing). "
+                             "Default from preset (line for --polish, none for --pad)")
     parser.add_argument("--color", choices=["auto", "always", "never"], default="auto",
-                        help="ANSI color mode (default: auto)")
+                        help="ANSI color mode (bold header, dim borders/delimiter). "
+                             "auto: color iff stdout is a TTY, honoring NO_COLOR / "
+                             "CLICOLOR / CLICOLOR_FORCE")
+
+    text_group = parser.add_mutually_exclusive_group()
+    text_group.add_argument("--wrap-text", action="store_true",
+                            help="reflow text paragraphs to target width "
+                                 "(GFM paragraph rules; box tables are left intact)")
+    text_group.add_argument("--unwrap-text", action="store_true",
+                            help="join text paragraph lines into single lines "
+                                 "(box tables are left intact)")
+
     parser.add_argument("--debug", action="store_true",
                         help="print per-table widths/heights for all strategies to stderr")
     parser.add_argument("file", nargs="?", help="markdown file (default: stdin)")
@@ -664,6 +931,25 @@ def main(argv=None) -> int:
     if args.min_col_width < 1:
         parser.error("--min-col-width must be >= 1")
 
+    if args.polish and args.pad:
+        # polish is a superset; treat as --polish
+        pass
+
+    if args.polish:
+        pad, wrap, border_default = True, True, "line"
+    elif args.pad:
+        pad, wrap, border_default = True, False, "none"
+    else:
+        pad, wrap, border_default = True, True, "line"
+
+    if args.pad_table_columns is not None:
+        pad = args.pad_table_columns
+    if args.wrap_table_cells is not None:
+        wrap = args.wrap_table_cells
+    border = args.border if args.border is not None else border_default
+    if border == "normal":
+        border = "none"
+
     target = resolve_columns(args.columns)
     if args.file:
         with open(args.file, "r") as f:
@@ -671,8 +957,13 @@ def main(argv=None) -> int:
     else:
         text = sys.stdin.read()
 
-    result = process(text, target, args.strategy, args.beam_width,
-                     args.min_col_width, args.debug, args.border, resolve_color(args.color))
+    color = resolve_color(args.color)
+    if args.undo:
+        result = process_undo(text, target, args.wrap_text, args.unwrap_text)
+    else:
+        result = process(text, target, args.strategy, args.beam_width,
+                         args.min_col_width, args.debug, border, color,
+                         pad, wrap, args.wrap_text, args.unwrap_text)
     sys.stdout.write(result)
     return 0
 
