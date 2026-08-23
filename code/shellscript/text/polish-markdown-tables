@@ -115,7 +115,122 @@ def wrap(text: str, width: int) -> list[str]:
 
 
 def lines(text: str, width: int) -> int:
-    return len(wrap(text, width))
+    return len(_wrap_cell(text, width))
+
+
+# ---------------------------------------------------------------------------
+# Inline span tracking (for wrapping cell content without breaking spans)
+# ---------------------------------------------------------------------------
+
+_SPAN_MARKERS_LONG = ("```", "**", "__", "~~")
+_SPAN_MARKERS_SINGLE = ("`", "*", "_")
+
+
+def _match_marker(text: str, i: int, stack: list) -> str | None:
+    """If text[i:] starts with a span marker valid at this position, return
+    the marker string. Inside a code span only matching backtick runs are
+    recognised."""
+    inside_code = bool(stack) and stack[-1].startswith("`")
+    if inside_code:
+        if text[i] != "`":
+            return None
+        j = i
+        while j < len(text) and text[j] == "`":
+            j += 1
+        return text[i:j]
+    for m in _SPAN_MARKERS_LONG:
+        if text[i:i + len(m)] == m:
+            return m
+    if text[i] in _SPAN_MARKERS_SINGLE:
+        return text[i]
+    return None
+
+
+def _parse_spans(text: str) -> list:
+    """Return the stack of open inline-formatting markers at the end of text.
+
+    Uses a simplified toggle parser: the same marker opens and closes,
+    backtick spans override everything inside them, and the longest match
+    wins (`` ` ``, `` ` ``, `` ` ``, etc., then **, etc.). Good enough for
+    wrapping table cell content.
+    """
+    stack: list = []
+    i = 0
+    while i < len(text):
+        marker = _match_marker(text, i, stack)
+        if marker is None:
+            i += 1
+            continue
+        if stack and stack[-1] == marker:
+            stack.pop()
+        else:
+            stack.append(marker)
+        i += len(marker)
+    return stack
+
+
+def _close_reopen_spans(wrapped_lines: list) -> list:
+    """Close any open inline-formatting span at the end of each line and
+    reopen it at the start of the next line, so table rows stay
+    syntactically independent."""
+    result: list = []
+    pending: list = []
+    for line in wrapped_lines:
+        if pending:
+            line = "".join(pending) + line
+        stack = _parse_spans(line)
+        if stack:
+            line = line + "".join(reversed(stack))
+        result.append(line)
+        pending = stack
+    return result
+
+
+def _max_span_overhead(text: str) -> int:
+    """Maximum per-line overhead (closing + reopening markers) for this text.
+
+    Each continuation line may need both a closing marker (at end of
+    previous line) and a reopening marker (at start of next line), so the
+    worst-case overhead per line is 2 * max-stack-depth-in-chars.
+    """
+    stack: list = []
+    max_depth = 0
+    cur_depth = 0
+    i = 0
+    while i < len(text):
+        marker = _match_marker(text, i, stack)
+        if marker is None:
+            i += 1
+            continue
+        if stack and stack[-1] == marker:
+            stack.pop()
+            cur_depth -= len(marker)
+        else:
+            stack.append(marker)
+            cur_depth += len(marker)
+        if cur_depth > max_depth:
+            max_depth = cur_depth
+        i += len(marker)
+    return 2 * max_depth
+
+
+@lru_cache(maxsize=None)
+def _wrap_cell(text: str, width: int) -> tuple:
+    """wrap() plus inline-span close/reopen across line breaks.
+
+    Cells get a reduced effective width to leave room for the closing and
+    reopening markers that the post-processing adds.  This keeps every line
+    within the requested width (so borders stay aligned) and lets the
+    strategies allocate a bit more width to columns whose cells contain
+    spans.
+    """
+    if width < 1:
+        eff = max(1, width)
+    else:
+        overhead = _max_span_overhead(text)
+        eff = max(1, width - overhead)
+    lines_out = wrap(text, eff)
+    return tuple(_close_reopen_spans(lines_out))
 
 
 # ---------------------------------------------------------------------------
@@ -451,13 +566,16 @@ BOX_CHARS = {
     },
 }
 
-def render_gfm(cells, widths, aligns, padding, color):
+def render_gfm(cells, widths, aligns, padding, color, wrap_cells=True):
     n = len(cells)
     rows = len(cells[0])
     out: list[str] = []
     pad = " " if padding else ""
     bold = (lambda s: _ansi(s, "1")) if color else (lambda s: s)
     dim = (lambda s: _ansi(s, "2")) if color else (lambda s: s)
+
+    def _w(cell, w):
+        return _wrap_cell(cell, w) if wrap_cells else ([cell] if cell else [""])
 
     def emit_row(wrapped: list[list[str]], style=lambda s: s):
         h = max((len(w) for w in wrapped), default=1)
@@ -468,8 +586,8 @@ def render_gfm(cells, widths, aligns, padding, color):
                 row += style(pad + _align(seg, widths[j], aligns[j]) + pad) + "|"
             out.append(row)
 
-    header_wrapped = [wrap(cells[j][0], widths[j]) for j in range(n)]
-    body_wrapped = [[wrap(cells[j][r], widths[j]) for j in range(n)] for r in range(1, rows)]
+    header_wrapped = [_w(cells[j][0], widths[j]) for j in range(n)]
+    body_wrapped = [[_w(cells[j][r], widths[j]) for j in range(n)] for r in range(1, rows)]
     emit_row(header_wrapped, bold)
     # Width-1 special case: use '-' delimeter instead of the usual ':-'
     out.append(dim("|" + "|".join(
@@ -502,8 +620,8 @@ def render_box(cells, widths, aligns, padding, chars, color):
         out.append(dim(left + (chars["h"] * seg[0]) +
                        "".join(mid + chars["h"] * s for s in seg[1:]) + right))
 
-    header_wrapped = [wrap(cells[j][0], widths[j]) for j in range(n)]
-    body_wrapped = [[wrap(cells[j][r], widths[j]) for j in range(n)] for r in range(1, rows)]
+    header_wrapped = [_wrap_cell(cells[j][0], widths[j]) for j in range(n)]
+    body_wrapped = [[_wrap_cell(cells[j][r], widths[j]) for j in range(n)] for r in range(1, rows)]
 
     border_line(chars["tl"], chars["tm"], chars["tr"])
     content_row(header_wrapped, bold)
@@ -753,9 +871,33 @@ def _split_box_row(line, vchar):
     return [c.strip() for c in s.split(vchar)]
 
 
+def _strip_close_reopen(result: str, nxt: str) -> tuple:
+    """Strip matching close/reopen marker pairs from end of result and start
+    of nxt, so unwrapping can re-join without re-introducing span markers.
+
+    The forward wrapping appends closing markers in reverse stack order at
+    the end of each line and prepends opening markers in stack order at the
+    start of the next line. Peeling the same marker from both ends works
+    because those orders are mirrored.
+    """
+    markers = ("```", "``", "`", "**", "__", "~~", "*", "_")
+    while True:
+        matched = False
+        for m in markers:
+            if result.endswith(m) and nxt.startswith(m):
+                result = result[: -len(m)]
+                nxt = nxt[len(m):]
+                matched = True
+                break
+        if not matched:
+            break
+    return result, nxt
+
+
 def _unwrap_sub_lines(sub_lines):
     result = sub_lines[0]
     for nxt in sub_lines[1:]:
+        result, nxt = _strip_close_reopen(result, nxt)
         if result.endswith("-"):
             result = result[:-1] + nxt
         else:
@@ -801,7 +943,7 @@ def _parse_box_block(block):
 def _render_standard(cells):
     n = len(cells)
     widths = [max(1, max(len(c) for c in col)) for col in cells]
-    return render_gfm(cells, widths, ["left"] * n, 1, False)
+    return render_gfm(cells, widths, ["left"] * n, 1, False, wrap_cells=False)
 
 
 def process_undo(text, target=80, wrap_text=False, unwrap_text=False):
