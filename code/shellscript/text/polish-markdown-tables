@@ -4,7 +4,9 @@
 Reflows pipe-table blocks and (optionally) text paragraphs to fit a target
 width.  Tables can be padded, word-wrapped, and rendered with box-drawing or
 ASCII borders.  Text paragraphs can be reflowed or unwrapped.  An undo mode
-converts box-drawing tables back to plain markdown.
+converts box-drawing tables back to plain markdown.  Auto-undo (on by
+default) runs before any polish so previously-formatted box tables can be
+re-polished; --no-auto-undo disables this.
 
 Presets:
     --polish   padding on, wrapping on, border=line  (default; pretty,
@@ -34,6 +36,8 @@ Usage:
     --min-col-width N Minimum column width (default 2)
 
     -u, --undo        Convert box-drawing tables back to plain markdown
+    --no-auto-undo    Skip auto-undo before polishing; leave any box tables
+                       in the input untouched.
 
     Presets:
       --polish   Enable padding + wrapping + borders (line). Default.
@@ -885,6 +889,12 @@ def main(argv=None) -> int:
     parser.add_argument("-u", "--undo", action="store_true",
                         help="convert box-drawing tables back to plain markdown "
                              "(combine with --wrap-text or --unwrap-text for prose)")
+    parser.add_argument("--auto-undo", action=argparse.BooleanOptionalAction,
+                        default=True,
+                        help="before polishing, auto-convert any box-drawing "
+                             "tables in the input back to plain markdown so they "
+                             "can be re-formatted (default: on). Use "
+                             "--no-auto-undo to leave box tables untouched.")
 
     presets = parser.add_argument_group("presets")
     presets.add_argument("--polish", action="store_true",
@@ -961,6 +971,10 @@ def main(argv=None) -> int:
     if args.undo:
         result = process_undo(text, target, args.wrap_text, args.unwrap_text)
     else:
+        if args.auto_undo:
+            # Pre-process: convert any box tables back to plain markdown so the
+            # normal table detection can re-polish them.
+            text = process_undo(text, target, False, False)
         result = process(text, target, args.strategy, args.beam_width,
                          args.min_col_width, args.debug, border, color,
                          pad, wrap, args.wrap_text, args.unwrap_text)
