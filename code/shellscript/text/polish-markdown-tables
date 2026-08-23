@@ -471,7 +471,10 @@ def render_gfm(cells, widths, aligns, padding, color):
     header_wrapped = [wrap(cells[j][0], widths[j]) for j in range(n)]
     body_wrapped = [[wrap(cells[j][r], widths[j]) for j in range(n)] for r in range(1, rows)]
     emit_row(header_wrapped, bold)
-    out.append(dim("|" + "|".join(pad + _dashes(widths[j], aligns[j]) + pad for j in range(n)) + "|"))
+    # Width-1 special case: use '-' delimeter instead of the usual ':-'
+    out.append(dim("|" + "|".join(
+        pad + (("-" if widths[j] == 1 else _dashes(widths[j], aligns[j]))) + pad
+        for j in range(n)) + "|"))
     for wrapped in body_wrapped:
         emit_row(wrapped)
     return out
