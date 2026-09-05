@@ -5,6 +5,10 @@
 #
 # See also: https://gist.github.com/douglas/1287372
 
+# Note: When run from a terminal, it may block when it finds a repo which
+# requires a password to sync.  But when run from crontab, I think it just
+# skips over that repo without blocking (which is desirable).
+
 COLLECT_DIRTY_REPOS=1
 if [ -n "$COLLECT_DIRTY_REPOS" ]
 then printf '' > ~/src/repos_with_changes.list

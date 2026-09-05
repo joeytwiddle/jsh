@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -e
 
+# NOTE: Actually I don't think this does recover what was lost after a pure `git reset --hard`, but it might help if you had been doing other things around that commit, e.g. checkouts or stashes
+
 #echo "Try git show on the following commits or blobs:"
 #echo
 #verbosely git fsck --lost-found

@@ -27,6 +27,11 @@
 #
 # But I think the bug has been fixed now, so we no longer need to worry.
 
+# Alternative:
+#
+# Instead of fetching all PRs, you can use `git ls-remote` to list the PRs, and
+# fetch just the refs you are interested in.
+
 # NOTE: This operates on all remotes, although usually we only need it for 'origin'.
 git remote -v | grep fetch | grep github | \
     while read remote url _; do
