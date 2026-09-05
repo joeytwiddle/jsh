@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 set -e
 
+if command -v gh >/dev/null 2>&1
+then
+	gh pr view --web
+	exit
+fi
+
 if ! command -v open_in_browser >/dev/null 2>&1
 then
 	open_in_browser() {
