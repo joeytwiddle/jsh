@@ -39,14 +39,15 @@ primary_remote="$(git remote | head -n 1)"
 remote_url="$(git config --get "remote.${primary_remote}.url")"
 
 # Determine trunk_branch
-if git rev-parse --verify --quiet "${primary_remote}/main" > /dev/null
-then trunk_branch="main"
-elif git rev-parse --verify --quiet "${primary_remote}/master" > /dev/null
-then trunk_branch="master"
-else
-	echo "Error: Could not find the trunk branch" >&2
-	exit 1
-fi
+# Commented out because we don't use trunk branch at the moment
+#if git rev-parse --verify --quiet "${primary_remote}/main" > /dev/null
+#then trunk_branch="main"
+#elif git rev-parse --verify --quiet "${primary_remote}/master" > /dev/null
+#then trunk_branch="master"
+#else
+#	echo "Error: Could not find the trunk branch" >&2
+#	exit 1
+#fi
 
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 if [ "$current_branch" = HEAD ]
