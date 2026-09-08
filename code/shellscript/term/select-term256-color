@@ -3,8 +3,9 @@
 
 Three modes (Tab cycles hsv -> truecolor -> swatch):
 
-  hsv        DEFAULT. SV plane + hue ramp, painted with the nearest xterm-256
-             cells (visible banding). Output is the quantised "colourNNN".
+  hsv        DEFAULT (override with --mode/--truecolor). SV plane + hue ramp,
+             painted with the nearest xterm-256 cells (visible banding).
+             Output is the quantised "colourNNN".
   truecolor  Same SV plane geometry but each cell is overpainted with a 24-bit
              ANSI escape, so the gradient is smooth on truecolor terminals.
              Output is the exact "#rrggbb". Falls back to hsv-style banding on
@@ -793,7 +794,7 @@ def compute_scroll(old, cursor, cell_size, view, total):
 
 ## ---------- Main picker loop ----------
 
-def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
+def picker(layout, pos_map, initial_idx, initial_rgb, init_mode, preview_cmd, allow_hex,
            init_w, init_h, init_hue_steps, hue_steps_explicit, size_explicit):
 	## Swatch state
 	sel_idx = initial_idx if initial_idx in pos_map else 0
@@ -807,10 +808,10 @@ def picker(layout, pos_map, initial_idx, preview_cmd, allow_hex,
 	hue_steps = init_hue_steps
 
 	## current_rgb is the underlying value. Tab does NOT touch it; movement does.
-	current_rgb = xterm_to_rgb(sel_idx)
+	current_rgb = initial_rgb if initial_rgb is not None else xterm_to_rgb(sel_idx)
 	hue_idx, sv_x, sv_y = sync_hsv_from_rgb(*current_rgb, hue_steps, w, h_plane)
 
-	mode = "hsv"  ## default — banded full-spectrum picker
+	mode = init_mode
 	hex_mode = False
 	hex_buf = ""
 	status_msg = ""
@@ -1377,6 +1378,10 @@ def main():
 	p.add_argument("--preview-cmd", default=None,
 	               help='Shell command; selected colour is appended on each move.')
 	p.add_argument("--no-hex", action="store_true", help="Disable hex entry.")
+	p.add_argument("--mode", choices=("hsv", "truecolor", "swatch"), default=None,
+	               help="Starting mode. Default: hsv. --mode wins over --truecolor if both given.")
+	p.add_argument("--truecolor", action="store_true",
+	               help="Shorthand for --mode truecolor.")
 	p.add_argument("--size", type=_parse_size, default=None, metavar="WxH",
 	               help="HSV plane size. Default: 39x16. (Minimum 24x8 to reach all 240 colors in the cube.)")
 	p.add_argument("--fullscreen", action="store_true",
@@ -1407,6 +1412,9 @@ def main():
 	pos_map = build_position_map(layout)
 	kind, val = parse_initial(args.initial)
 	initial_idx = val if kind == "num" else (hex_to_xterm256(val) if kind == "hex" else None)
+	initial_rgb = hex_to_rgb(val) if kind == "hex" else None  ## exact value; initial_idx is only the quantised match
+
+	init_mode = args.mode if args.mode is not None else ("truecolor" if args.truecolor else "hsv")
 
 	## Resolve plane dimensions. --size pins an exact size, --fullscreen
 	## auto-fits and follows terminal resizes; otherwise default to 39x16
@@ -1430,7 +1438,7 @@ def main():
 	try:
 		enter_raw_screen()
 		try:
-			result = picker(layout, pos_map, initial_idx,
+			result = picker(layout, pos_map, initial_idx, initial_rgb, init_mode,
 			                args.preview_cmd, not args.no_hex,
 			                init_w, init_h, init_hue_steps,
 			                hue_steps_explicit, size_explicit)
