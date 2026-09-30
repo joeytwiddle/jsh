@@ -122,115 +122,121 @@ def lines(text: str, width: int) -> int:
 # Inline span tracking (for wrapping cell content without breaking spans)
 # ---------------------------------------------------------------------------
 
-_SPAN_MARKERS_LONG = ("```", "**", "__", "~~")
-_SPAN_MARKERS_SINGLE = ("`", "*", "_")
+_SPAN_MARKERS = ("**", "__", "~~", "*", "_")
 
 
-def _match_marker(text: str, i: int, stack: list) -> str | None:
-    """If text[i:] starts with a span marker valid at this position, return
-    the marker string. Inside a code span only matching backtick runs are
-    recognised."""
-    inside_code = bool(stack) and stack[-1].startswith("`")
-    if inside_code:
-        if text[i] != "`":
-            return None
-        j = i
-        while j < len(text) and text[j] == "`":
-            j += 1
-        return text[i:j]
-    for m in _SPAN_MARKERS_LONG:
-        if text[i:i + len(m)] == m:
-            return m
-    if text[i] in _SPAN_MARKERS_SINGLE:
-        return text[i]
-    return None
+@lru_cache(maxsize=None)
+def _find_spans(text: str) -> tuple:
+    """Return matched inline spans as (open_start, open_end, close_start, close_end).
 
-
-def _parse_spans(text: str) -> list:
-    """Return the stack of open inline-formatting markers at the end of text.
-
-    Uses a simplified toggle parser: the same marker opens and closes,
-    backtick spans override everything inside them, and the longest match
-    wins (`` ` ``, `` ` ``, `` ` ``, etc., then **, etc.). Good enough for
-    wrapping table cell content.
+    Simplified GFM: the same marker opens and closes, openers must be followed (and closers preceded) by
+    non-whitespace, intraword '_' is literal, backtick runs close only on an equal-length run, and markers left
+    unmatched are literal text.
     """
-    stack: list = []
+    spans: list = []
+    stack: list = []  # (marker, open_start)
+    n = len(text)
     i = 0
-    while i < len(text):
-        marker = _match_marker(text, i, stack)
+    while i < n:
+        inside_code = bool(stack) and stack[-1][0].startswith("`")
+        if text[i] == "`":
+            j = i
+            while j < n and text[j] == "`":
+                j += 1
+            run = text[i:j]
+            if inside_code:
+                if stack[-1][0] == run:
+                    spans.append((stack[-1][1], stack[-1][1] + len(run), i, j))
+                    stack.pop()
+            else:
+                stack.append((run, i))
+            i = j
+            continue
+        marker = None if inside_code else next((m for m in _SPAN_MARKERS if text.startswith(m, i)), None)
         if marker is None:
             i += 1
             continue
-        if stack and stack[-1] == marker:
+        j = i + len(marker)
+        before = text[i - 1] if i > 0 else " "
+        after = text[j] if j < n else " "
+        can_open = not after.isspace()
+        can_close = not before.isspace()
+        if marker[0] == "_" and before.isalnum() and after.isalnum():
+            can_open = can_close = False
+        if stack and stack[-1][0] == marker and can_close:
+            spans.append((stack[-1][1], stack[-1][1] + len(marker), i, j))
             stack.pop()
-        else:
-            stack.append(marker)
-        i += len(marker)
-    return stack
+        elif can_open:
+            stack.append((marker, i))
+        i = j
+    return tuple(sorted(spans))
 
 
-def _close_reopen_spans(wrapped_lines: list) -> list:
-    """Close any open inline-formatting span at the end of each line and
-    reopen it at the start of the next line, so table rows stay
-    syntactically independent."""
-    result: list = []
-    pending: list = []
-    for line in wrapped_lines:
-        if pending:
-            line = "".join(pending) + line
-        stack = _parse_spans(line)
-        if stack:
-            line = line + "".join(reversed(stack))
-        result.append(line)
-        pending = stack
-    return result
+def _wrap_offsets(text: str, width: int, spans: list) -> list:
+    """Greedy word-wrap returning (start, end, hyphen) slices of `text`.
 
-
-def _max_span_overhead(text: str) -> int:
-    """Maximum per-line overhead (closing + reopening markers) for this text.
-
-    Each continuation line may need both a closing marker (at end of
-    previous line) and a reopening marker (at start of next line), so the
-    worst-case overhead per line is 2 * max-stack-depth-in-chars.
+    Like wrap(), but overlong words are never hard-broken inside or next to a marker of one of `spans`, so the markers can be closed and reopened cleanly around each break.
     """
-    stack: list = []
-    max_depth = 0
-    cur_depth = 0
-    i = 0
-    while i < len(text):
-        marker = _match_marker(text, i, stack)
-        if marker is None:
-            i += 1
+    chunk = max(1, width - 1)
+    hyphen = "-" if width >= 2 else ""
+    out: list = []
+    cur = None  # (start, end)
+    for m in re.finditer(r"[^ ]+", text):
+        ws, we = m.start(), m.end()
+        if we - ws <= width:
+            if cur is not None:
+                if we - cur[0] <= width:
+                    cur = (cur[0], we)
+                    continue
+                out.append((cur[0], cur[1], ""))
+            cur = (ws, we)
             continue
-        if stack and stack[-1] == marker:
-            stack.pop()
-            cur_depth -= len(marker)
-        else:
-            stack.append(marker)
-            cur_depth += len(marker)
-        if cur_depth > max_depth:
-            max_depth = cur_depth
-        i += len(marker)
-    return 2 * max_depth
+        if cur is not None:
+            out.append((cur[0], cur[1], ""))
+        while we - ws > width:
+            cut = _safe_cut(ws, ws + chunk, we, spans)
+            out.append((ws, cut, hyphen))
+            ws = cut
+        cur = (ws, we)
+    if cur is not None:
+        out.append((cur[0], cur[1], ""))
+    return out or [(0, 0, "")]
+
+
+def _safe_cut(lo: int, cut: int, hi: int, spans: list) -> int:
+    """Move a hard-break position so it never leaves a line holding only an opening or closing marker."""
+    for a, b, c, d in spans:
+        if a < cut <= b:  # inside or just after an opener
+            return a if a > lo else min(hi, b + 1)
+        if c <= cut < d:  # just before or inside a closer
+            return c - 1 if c - 1 > lo else d
+    return cut
 
 
 @lru_cache(maxsize=None)
 def _wrap_cell(text: str, width: int) -> tuple:
-    """wrap() plus inline-span close/reopen across line breaks.
+    """wrap() plus inline-span close/reopen across line breaks, so table rows stay syntactically independent.
 
-    Cells get a reduced effective width to leave room for the closing and
-    reopening markers that the post-processing adds.  This keeps every line
-    within the requested width (so borders stay aligned) and lets the
-    strategies allocate a bit more width to columns whose cells contain
-    spans.
+    The wrap width shrinks only as far as needed to leave room for the added markers, so every line stays within
+    `width` (keeping borders aligned) and a cell that fits is never touched. A column too narrow for the markers
+    falls back to plain wrap().
     """
-    if width < 1:
-        eff = max(1, width)
-    else:
-        overhead = _max_span_overhead(text)
-        eff = max(1, width - overhead)
-    lines_out = wrap(text, eff)
-    return tuple(_close_reopen_spans(lines_out))
+    if len(text) <= width or width < 1:
+        return (text,)
+    spans = _find_spans(text)
+    eff = width
+    while True:
+        rendered = []
+        for start, end, hyphen in _wrap_offsets(text, eff, spans):
+            reopen = "".join(text[a:b] for a, b, c, _ in spans if b <= start and c >= start and a < start)
+            close = "".join(text[c:d] for a, b, c, d in reversed(spans) if b <= end and c >= end)
+            rendered.append(reopen + text[start:end] + hyphen + close)
+        over = max(len(line) for line in rendered) - width
+        if over <= 0:
+            return tuple(rendered)
+        if eff == 1:
+            return tuple(wrap(text, width))
+        eff = max(1, eff - over)
 
 
 # ---------------------------------------------------------------------------
@@ -897,6 +903,8 @@ def _strip_close_reopen(result: str, nxt: str) -> tuple:
 def _unwrap_sub_lines(sub_lines):
     result = sub_lines[0]
     for nxt in sub_lines[1:]:
+        if not nxt:
+            continue
         result, nxt = _strip_close_reopen(result, nxt)
         if result.endswith("-"):
             result = result[:-1] + nxt
