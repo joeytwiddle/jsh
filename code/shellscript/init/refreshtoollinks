@@ -41,7 +41,7 @@ then
 			then "$HOME"/bin/catwithprogress
 			else cat
 			fi |
-		grep ".*/\([^\.]*\|.*\.\(sh\|hs\|zsh\|bash\|shlib\|init\)\)$"
+		grep ".*/\([^\.]*\|.*\.\(sh\|hs\|zsh\|bash\|shlib\|init\|py\)\)$"
 		# test -d "$JPATH/code/java" && find $JPATH/code/java -name "*.sh"
 	) |
 	grep -v "/.ignore/" |
@@ -52,10 +52,7 @@ then
 	#sed 's+\(.*\)/\([^\.]*\)\(\(\.sh\|\.hs\)\|\(.*\)\)$+ln -s "\1/\2\4\5" "$JPATH/tools/\2\5"+' |
 	# Split it into two:
 	sed 's+\(.*\)/\(.*\)$+ln -s "\1/\2" "$JPATH/tools/\2"+' |
-	# BSD sed can't do OR?!
-	#sed 's+\.\(sh\|hs\)"$+"+' |
-	sed 's+\.\(sh\)"$+"+' |
-	sed 's+\.\(hs\)"$+"+' |
+	sed 's+\.\(sh\|hs\|py\)"$+"+' |
 	# Avoid calling each script in turn, if for any reason the sed failed!
 	grep "^ln -s " |
 	# cat
