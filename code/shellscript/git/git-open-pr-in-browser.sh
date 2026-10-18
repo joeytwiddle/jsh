@@ -3,7 +3,7 @@ set -e
 
 if command -v gh >/dev/null 2>&1
 then
-	gh pr view --web
+	gh pr view --web || gh pr create --web
 	exit
 fi
 
